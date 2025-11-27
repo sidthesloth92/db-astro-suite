@@ -109,10 +109,11 @@ export class App implements AfterViewInit {
   }
 
   private setupCanvasDimensions = () => {
-    if (!this.simulationWrapper || !this.canvas) return;
+    if (!this.canvas) return;
 
-    this.width = this.simulationWrapper.clientWidth;
-    this.height = this.simulationWrapper.clientHeight;
+    // Fixed resolution for high-quality export
+    this.width = 1080;
+    this.height = 1920;
 
     this.canvas.width = this.width;
     this.canvas.height = this.height;
@@ -193,7 +194,7 @@ export class App implements AfterViewInit {
     this.setupControls();
     this.setupRecorder();
 
-    window.addEventListener('resize', this.setupCanvasDimensions);
+    // window.addEventListener('resize', this.setupCanvasDimensions);
 
     if (this.loadingOverlay) {
       this.loadingOverlay.classList.add('opacity-0');

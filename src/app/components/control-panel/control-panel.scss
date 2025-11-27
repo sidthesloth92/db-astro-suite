@@ -1,0 +1,11 @@
+/* Style the input range sliders */
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #4c7cff;
+  cursor: pointer;
+  border-radius: 50%;
+  box-shadow: 0 0 5px rgba(76, 124, 255, 0.7);
+}
