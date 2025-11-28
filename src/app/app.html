@@ -1,14 +1,6 @@
-<div class="bg-black">
-  <!-- The main application container. It is now set to allow 1080px width. -->
-  <div
-    id="app-container"
-    class="w-full mx-auto flex flex-col shadow-2xl rounded-xl bg-gray-900 border border-gray-700"
-    style="max-width: 1080px"
-  >
-    <app-simulator></app-simulator>
-
-    <!-- CONTROLS PANEL - Flows naturally below the simulation area -->
-    <app-control-panel></app-control-panel>
-  </div>
-
+<div
+  class="app-container w-full mx-auto flex flex-row shadow-2xl rounded-xl bg-gray-900 border border-gray-700 justify-center"
+>
+  <app-simulator></app-simulator>
+  <app-control-panel></app-control-panel>
 </div>

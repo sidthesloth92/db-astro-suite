@@ -80,9 +80,9 @@ export class App implements AfterViewInit {
   }
 
   private init() {
-    this.simulationWrapper = document.getElementById('simulation-wrapper');
+    this.simulationWrapper = document.querySelector('.simulation-wrapper');
     this.canvas = document.getElementById('star-canvas') as HTMLCanvasElement;
-    this.loadingOverlay = document.getElementById('loading-overlay');
+    this.loadingOverlay = document.querySelector('.loading-overlay');
     this.recordButton = document.getElementById('recordButton') as HTMLButtonElement;
 
     if (!this.canvas || !this.simulationWrapper) {

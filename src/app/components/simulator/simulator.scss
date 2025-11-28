@@ -1,7 +1,6 @@
-:host {
-  display: flex;
-  justify-content: center;
-  width: 100%;
+.simulation-wrapper {
+  height: 640px;
+  aspect-ratio: 9/16;
 }
 
 /* The canvas now takes the full space within the 9:16 wrapper */
