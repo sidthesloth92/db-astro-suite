@@ -18,18 +18,17 @@ declare global {
 // --- ADJUSTABLE SCENE CONSTANTS ---
 // ====================================================================
 const M33_GALAXY_URL =
-  '/cresent.jpg';
-const STAR_SPRITE_URL =
-  'https://raw.githubusercontent.com/james2doyle/threejs-stars/master/images/particle2.png';
+  '/m33_ha_rgb_macbook.jpg';
+const STAR_SPRITE_URL = '/star.png';
 
 const TARGET_SCALE = 8.0;
 
 // Initialize global variables
-window.ZOOM_RATE = 0.0009;
-window.ROTATION_RATE = 0.0003;
+window.ZOOM_RATE = 0.0004;
+window.ROTATION_RATE = 0.0001;
 window.STREAKING_STAR_SPEED = 1;
-window.NON_STREAKING_STAR_SPEED = 5;
-window.BASE_STAR_SIZE = 35;
+window.NON_STREAKING_STAR_SPEED = 1;
+window.BASE_STAR_SIZE = 10;
 
 const NUM_STREAKING_STARS = 500;
 const NUM_NON_STREAKING_STARS = 1000;
@@ -190,11 +189,36 @@ export class App implements AfterViewInit {
     this.starSpriteImage.src = STAR_SPRITE_URL;
   }
 
+  private starTexture: HTMLCanvasElement | null = null;
+
+  private generateStarTexture() {
+    const size = 64; // Texture size
+    const half = size / 2;
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Create a radial gradient to mimic the "glowing orb" look
+    const gradient = ctx.createRadialGradient(half, half, 0, half, half, half);
+    gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');       // Hot white center
+    gradient.addColorStop(0.15, 'rgba(255, 255, 255, 1)');  // Solid core
+    gradient.addColorStop(0.4, 'rgba(255, 255, 255,1)');   // Soft glow falloff
+    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');       // Transparent edge
+
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, size, size);
+
+    this.starTexture = canvas;
+  }
+
   private finalizeSetup() {
+    this.generateStarTexture(); // Generate the texture before starting
     this.setupControls();
     this.setupRecorder();
 
-    // window.addEventListener('resize', this.setupCanvasDimensions);
+    window.addEventListener('resize', this.setupCanvasDimensions);
 
     if (this.loadingOverlay) {
       this.loadingOverlay.classList.add('opacity-0');
@@ -435,7 +459,8 @@ export class App implements AfterViewInit {
       if (this.stars[i]) {
         this.stars[i].update();
         if (!this.stars[i].isStreaking) {
-          this.stars[i].draw(this.ctx, this.width, this.currentScale);
+          // Pass the sprite image instead of the generated texture
+          this.stars[i].draw(this.ctx, this.width, this.currentScale, this.starSpriteImage);
         }
       }
     }
@@ -483,7 +508,12 @@ class Star {
     }
   }
 
-  draw(ctx: CanvasRenderingContext2D, width: number, currentScale: number) {
+  draw(
+    ctx: CanvasRenderingContext2D,
+    width: number,
+    currentScale: number,
+    sprite: HTMLImageElement | null
+  ) {
     const k = width / this.z;
     const px = this.x * k;
     const py = this.y * k;
@@ -491,9 +521,6 @@ class Star {
     const baseSizeParallax = 1 - this.z / this.initialZ;
     const opacity = baseSizeParallax;
     const scaleCompensation = 1 / currentScale;
-
-    ctx.strokeStyle = 'white';
-    ctx.lineCap = 'round';
 
     if (!this.isStreaking) {
       const calculatedRadius =
@@ -504,17 +531,22 @@ class Star {
       const effectiveAlpha = Math.max(0.3, opacity) * this.flickerOffset;
 
       if (radius > 0.1) {
-        ctx.fillStyle = `rgba(255, 255, 255, ${effectiveAlpha})`;
-        ctx.shadowColor = 'white';
-        ctx.shadowBlur = AMBIENT_STAR_GLOW_MULTIPLIER * scaleCompensation;
+        ctx.globalAlpha = effectiveAlpha;
 
-        ctx.beginPath();
-        ctx.arc(px, py, radius, 0, Math.PI * 2);
-        ctx.fill();
+        if (sprite && sprite.complete) {
+          // Draw using the sprite
+          const size = radius * 6; 
+          ctx.drawImage(sprite, px - size / 2, py - size / 2, size, size);
+        } else {
+          // Fallback
+          ctx.fillStyle = `rgba(255, 255, 255, ${effectiveAlpha})`;
+          ctx.beginPath();
+          ctx.arc(px, py, radius, 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
     }
 
-    ctx.shadowBlur = 0;
     ctx.globalAlpha = 1.0;
   }
 }
