@@ -1,4 +1,4 @@
-.app-container {
+.sfg-container {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -11,7 +11,7 @@
   overflow: hidden;
 }
 
-app-simulator {
+sfg-simulator {
   display: block;
   flex: 0 1 500px;
   max-width: 500px;
@@ -19,7 +19,7 @@ app-simulator {
   height: 80vh; /* Simulator takes 80% of window height */
 }
 
-app-control-panel {
+sfg-control-panel {
   display: block;
   flex: 0 0 350px;
   width: 350px;

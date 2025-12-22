@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-simulator',
+  selector: 'sfg-simulator',
   imports: [],
   templateUrl: './simulator.html',
   styleUrl: './simulator.scss',

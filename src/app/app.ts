@@ -42,7 +42,7 @@ const MAX_RECORDING_SECONDS = 15;
 const FRAME_RATE = 60;
 
 @Component({
-  selector: 'app-root',
+  selector: 'sfg-root',
   imports: [ControlPanel, Simulator],
   templateUrl: './app.html',
   styleUrl: './app.scss',
