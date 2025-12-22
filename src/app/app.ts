@@ -18,10 +18,11 @@ declare global {
 // --- ADJUSTABLE SCENE CONSTANTS ---
 // ====================================================================
 const M33_GALAXY_URL =
-  '/m33_ha_rgb_macbook.jpg';
-const STAR_SPRITE_URL = '/star.png';
+  '/Chrismas_Tree_HOO_16_9_full.jpg';
+const STAR_SPRITE_URL = ''; // Removed sprite URL
 
-const TARGET_SCALE = 8.0;
+
+const TARGET_SCALE = 2.5; // Final scale (zoomed in further)
 
 // Initialize global variables
 window.ZOOM_RATE = 0.0004;
@@ -50,8 +51,8 @@ export class App implements AfterViewInit {
   protected readonly title = signal('starfield-generator');
 
   private galaxyImage: HTMLImageElement | null = null;
-  private starSpriteImage: HTMLImageElement | null = null;
   private simulationWrapper: HTMLElement | null = null;
+
   private canvas: HTMLCanvasElement | null = null;
   private loadingOverlay: HTMLElement | null = null;
   private ctx: CanvasRenderingContext2D | null = null;
@@ -156,8 +157,9 @@ export class App implements AfterViewInit {
       progressText.textContent = `Loading Assets...`;
     }
 
-    let assetsToLoad = 2;
+    let assetsToLoad = 1; // Only Galaxy image now
     let assetsLoaded = 0;
+
 
     const assetLoaded = (assetName: string) => {
       assetsLoaded++;
@@ -178,21 +180,14 @@ export class App implements AfterViewInit {
     };
     this.galaxyImage.src = M33_GALAXY_URL;
 
-    this.starSpriteImage = new Image();
-    this.starSpriteImage.crossOrigin = 'anonymous';
-    this.starSpriteImage.onload = () => assetLoaded('Star Sprite');
-    this.starSpriteImage.onerror = () => {
-      console.error('Failed to load star sprite image.');
-      this.starSpriteImage = null;
-      assetLoaded('Star Sprite (Failed)');
-    };
-    this.starSpriteImage.src = STAR_SPRITE_URL;
+    // Removed star sprite loading logic
+
   }
 
   private starTexture: HTMLCanvasElement | null = null;
 
   private generateStarTexture() {
-    const size = 64; // Texture size
+    const size = 128; // Larger texture for better quality
     const half = size / 2;
     const canvas = document.createElement('canvas');
     canvas.width = size;
@@ -203,15 +198,18 @@ export class App implements AfterViewInit {
     // Create a radial gradient to mimic the "glowing orb" look
     const gradient = ctx.createRadialGradient(half, half, 0, half, half, half);
     gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');       // Hot white center
-    gradient.addColorStop(0.15, 'rgba(255, 255, 255, 1)');  // Solid core
-    gradient.addColorStop(0.4, 'rgba(255, 255, 255,1)');   // Soft glow falloff
+    gradient.addColorStop(0.2, 'rgba(255, 255, 255, 1)');     // Larger solid core
+    gradient.addColorStop(0.4, 'rgba(255, 255, 255, 0.6)');   // Brighter inner glow
+    gradient.addColorStop(0.7, 'rgba(255, 255, 255, 0.2)');   // More visible outer glow
     gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');       // Transparent edge
+
 
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, size, size);
 
     this.starTexture = canvas;
   }
+
 
   private finalizeSetup() {
     this.generateStarTexture(); // Generate the texture before starting
@@ -274,7 +272,7 @@ export class App implements AfterViewInit {
     });
 
     this.currentRotation = window.ROTATION_RATE;
-    this.currentScale = 1.0;
+    this.currentScale = 1.0; // Start filling the screen
   }
 
   private setupRecorder() {
@@ -458,10 +456,9 @@ export class App implements AfterViewInit {
     for (let i = 0; i < TOTAL_STAR_COUNT; i++) {
       if (this.stars[i]) {
         this.stars[i].update();
-        if (!this.stars[i].isStreaking) {
-          // Pass the sprite image instead of the generated texture
-          this.stars[i].draw(this.ctx, this.width, this.currentScale, this.starSpriteImage);
-        }
+          // Pass the generated texture instead of the sprite image
+          this.stars[i].draw(this.ctx, this.width, this.currentScale, this.starTexture);
+
       }
     }
 
@@ -512,7 +509,8 @@ class Star {
     ctx: CanvasRenderingContext2D,
     width: number,
     currentScale: number,
-    sprite: HTMLImageElement | null
+    sprite: HTMLCanvasElement | null
+
   ) {
     const k = width / this.z;
     const px = this.x * k;
@@ -522,29 +520,31 @@ class Star {
     const opacity = baseSizeParallax;
     const scaleCompensation = 1 / currentScale;
 
-    if (!this.isStreaking) {
-      const calculatedRadius =
-        baseSizeParallax * window.BASE_STAR_SIZE * scaleCompensation * this.flickerOffset * 0.5;
+    const calculatedRadius =
+      baseSizeParallax * window.BASE_STAR_SIZE * scaleCompensation * this.flickerOffset * 0.5;
 
-      const minRadius = 1.5;
-      const radius = Math.max(minRadius, calculatedRadius);
-      const effectiveAlpha = Math.max(0.3, opacity) * this.flickerOffset;
+    const radius = calculatedRadius;
+    // Smoothly fade in alpha from 0 based on opacity (parallax) to prevent popping
+    const effectiveAlpha = Math.min(1.0, opacity * this.flickerOffset * 2.5);
 
-      if (radius > 0.1) {
-        ctx.globalAlpha = effectiveAlpha;
+    if (radius > 0.1) {
+      ctx.save(); // Save state to apply composite operation
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.globalAlpha = effectiveAlpha;
 
-        if (sprite && sprite.complete) {
-          // Draw using the sprite
-          const size = radius * 6; 
-          ctx.drawImage(sprite, px - size / 2, py - size / 2, size, size);
-        } else {
-          // Fallback
-          ctx.fillStyle = `rgba(255, 255, 255, ${effectiveAlpha})`;
-          ctx.beginPath();
-          ctx.arc(px, py, radius, 0, Math.PI * 2);
-          ctx.fill();
-        }
+      if (sprite) {
+        // Draw using the generated texture
+        // We use a larger multiplier for the glow effect
+        const size = radius * 8;
+        ctx.drawImage(sprite, px - size / 2, py - size / 2, size, size);
+      } else {
+        // Fallback
+        ctx.fillStyle = `rgba(255, 255, 255, ${effectiveAlpha})`;
+        ctx.beginPath();
+        ctx.arc(px, py, radius, 0, Math.PI * 2);
+        ctx.fill();
       }
+      ctx.restore(); // Restore state (resets globalAlpha and compositeOperation)
     }
 
     ctx.globalAlpha = 1.0;
