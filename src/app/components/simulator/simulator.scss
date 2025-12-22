@@ -1,3 +1,11 @@
+:host {
+  display: block;
+  flex: 0 1 500px;
+  max-width: 500px;
+  width: 100%;
+  height: 80vh; /* Simulator takes 80% of window height */
+}
+
 .simulation-wrapper {
   background: #000;
   aspect-ratio: 9 / 16;

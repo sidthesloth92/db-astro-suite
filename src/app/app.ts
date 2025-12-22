@@ -2,6 +2,7 @@ import { Component, signal, AfterViewInit, Inject, PLATFORM_ID } from '@angular/
 import { isPlatformBrowser } from '@angular/common';
 import { ControlPanel } from './components/control-panel/control-panel';
 import { Simulator } from './components/simulator/simulator';
+import { HeaderComponent } from './components/header/header';
 
 // Extend Window interface to include our custom properties
 declare global {
@@ -43,7 +44,7 @@ const FRAME_RATE = 60;
 
 @Component({
   selector: 'sfg-root',
-  imports: [ControlPanel, Simulator],
+  imports: [ControlPanel, Simulator, HeaderComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
