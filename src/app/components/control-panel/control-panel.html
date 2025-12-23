@@ -7,19 +7,19 @@
   <!-- Zoom Rate Control -->
   <div class="space-y-2 group">
     <label
-      for="zoomRateInput"
       class="block text-xs font-bold uppercase tracking-tighter flex justify-between group-hover:text-neon-pink transition-colors"
     >
       <span>Galaxy Zoom Rate</span>
-      <span id="zoomRateValue" class="font-mono text-neon-pink"></span>
+      <span class="font-mono text-neon-pink">{{ simService.zoomRate().toFixed(4) }}</span>
     </label>
     <div class="relative h-6 flex items-center">
       <input
         type="range"
-        id="zoomRateInput"
         min="0.0001"
         max="0.01"
         step="0.0001"
+        [value]="simService.zoomRate()"
+        (input)="updateZoom($event)"
         class="futuristic-slider w-full"
       />
     </div>
@@ -28,19 +28,19 @@
   <!-- Rotation Rate Control -->
   <div class="space-y-2 group">
     <label
-      for="rotationRateInput"
       class="block text-xs font-bold uppercase tracking-tighter flex justify-between group-hover:text-neon-pink transition-colors"
     >
       <span>Scene Rotation Rate</span>
-      <span id="rotationRateValue" class="font-mono text-neon-pink"></span>
+      <span class="font-mono text-neon-pink">{{ simService.rotationRate().toFixed(4) }}</span>
     </label>
     <div class="relative h-6 flex items-center">
       <input
         type="range"
-        id="rotationRateInput"
         min="0.0001"
         max="0.005"
         step="0.0001"
+        [value]="simService.rotationRate()"
+        (input)="updateRotation($event)"
         class="futuristic-slider w-full"
       />
     </div>
@@ -49,19 +49,19 @@
   <!-- Streaking Star Speed Control -->
   <div class="space-y-2 group">
     <label
-      for="streakingSpeedInput"
       class="block text-xs font-bold uppercase tracking-tighter flex justify-between group-hover:text-neon-pink transition-colors"
     >
       <span>Streaking Star Speed (Z)</span>
-      <span id="streakingSpeedValue" class="font-mono text-neon-pink"></span>
+      <span class="font-mono text-neon-pink">{{ simService.streakingStarSpeed().toFixed(1) }}</span>
     </label>
     <div class="relative h-6 flex items-center">
       <input
         type="range"
-        id="streakingSpeedInput"
         min="1"
         max="10"
         step="1"
+        [value]="simService.streakingStarSpeed()"
+        (input)="updateStreakingSpeed($event)"
         class="futuristic-slider w-full"
       />
     </div>
@@ -70,19 +70,21 @@
   <!-- Non-Streaking Star Speed Control -->
   <div class="space-y-2 group">
     <label
-      for="nonStreakingSpeedInput"
       class="block text-xs font-bold uppercase tracking-tighter flex justify-between group-hover:text-neon-pink transition-colors"
     >
       <span>Ambient Star Speed (Z)</span>
-      <span id="nonStreakingSpeedValue" class="font-mono text-neon-pink"></span>
+      <span class="font-mono text-neon-pink">{{
+        simService.nonStreakingStarSpeed().toFixed(1)
+      }}</span>
     </label>
     <div class="relative h-6 flex items-center">
       <input
         type="range"
-        id="nonStreakingSpeedInput"
         min="0.1"
         max="5"
         step="0.1"
+        [value]="simService.nonStreakingStarSpeed()"
+        (input)="updateAmbientSpeed($event)"
         class="futuristic-slider w-full"
       />
     </div>
@@ -91,19 +93,19 @@
   <!-- Star Base Size Control -->
   <div class="space-y-2 group">
     <label
-      for="baseStarSizeInput"
       class="block text-xs font-bold uppercase tracking-tighter flex justify-between group-hover:text-neon-pink transition-colors"
     >
       <span>Base Star Size Multiplier</span>
-      <span id="baseStarSizeValue" class="font-mono text-neon-pink"></span>
+      <span class="font-mono text-neon-pink">{{ simService.baseStarSize().toFixed(1) }}</span>
     </label>
     <div class="relative h-6 flex items-center">
       <input
         type="range"
-        id="baseStarSizeInput"
         min="1"
         max="100"
         step="0.5"
+        [value]="simService.baseStarSize()"
+        (input)="updateStarSize($event)"
         class="futuristic-slider w-full"
       />
     </div>
@@ -112,10 +114,12 @@
   <!-- Video Recording Button -->
   <div class="pt-4">
     <button
-      id="recordButton"
-      class="w-full py-4 text-sm font-bold uppercase tracking-widest rounded-none border border-neon-pink/50 bg-neon-pink/10 hover:bg-neon-pink/20 hover:border-neon-pink transition-all duration-300 shadow-[0_0_15px_rgba(255,45,149,0.1)] hover:shadow-[0_0_25px_rgba(255,45,149,0.3)]"
+      (click)="toggleRecording()"
+      [disabled]="simService.recordingState() === 'processing'"
+      [class]="buttonClass"
+      class="w-full py-4 text-sm font-bold uppercase tracking-widest rounded-none border border-neon-pink/50 transition-all duration-300 shadow-[0_0_15px_rgba(255,45,149,0.1)] hover:shadow-[0_0_25px_rgba(255,45,149,0.3)]"
     >
-      Initialize Recording
+      {{ buttonText }}
     </button>
   </div>
 

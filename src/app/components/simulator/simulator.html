@@ -33,16 +33,14 @@
 
   <!-- Loading Overlay (Visible during setup) -->
   <div
+    *ngIf="simService.loadingProgress() !== 'Ready'"
     class="loading-overlay absolute inset-0 z-30 bg-space-black/90 flex flex-col items-center justify-center text-white space-y-4 transition-opacity duration-500"
   >
     <div class="spinner-futuristic"></div>
-    <p id="loading-progress" class="text-xs font-futuristic text-neon-pink animate-pulse">
-      Initializing Systems...
+    <p class="text-xs font-futuristic text-neon-pink animate-pulse">
+      {{ simService.loadingProgress() }}
     </p>
   </div>
 
-  <!-- Only the canvas remains here --><canvas
-    id="star-canvas"
-    class="block w-full h-full"
-  ></canvas>
+  <!-- Only the canvas remains here --><canvas #starCanvas class="block w-full h-full"></canvas>
 </div>
