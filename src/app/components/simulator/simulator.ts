@@ -274,7 +274,7 @@ class AmbientStar {
   }
 
   update() {
-    const speed = this.simService.controls.nonStreakingStarSpeed();
+    const speed = this.simService.controls.ambientStarSpeed();
     this.z -= speed;
     if (this.z <= 0) this.reset();
     this.flickerOffset = 0.5 + 0.5 * Math.sin(Date.now() * this.flickerRate * 0.001);

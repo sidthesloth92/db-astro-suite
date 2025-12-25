@@ -11,7 +11,7 @@ export class SimulationService {
     zoomRate: signal(CONTROLS['zoomRate'].initial),
     rotationRate: signal(CONTROLS['rotationRate'].initial),
     shootingStarSpeed: signal(CONTROLS['shootingStarSpeed'].initial),
-    nonStreakingStarSpeed: signal(CONTROLS['nonStreakingStarSpeed'].initial),
+    ambientStarSpeed: signal(CONTROLS['ambientStarSpeed'].initial),
     baseStarSize: signal(CONTROLS['baseStarSize'].initial),
   };
 
