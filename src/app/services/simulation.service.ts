@@ -22,11 +22,7 @@ export class SimulationService {
   getControlValue(control: ControlKey): number {
     return this.controls[control]();
   }
-
-  getControlSignal(control: ControlKey): Signal<number> {
-    return this.controls[control];
-  }
-
+  
   updateControl(control: ControlKey, value: number) {
     this.controls[control].set(value);
   }
