@@ -2,7 +2,7 @@ import { Component, AfterViewInit, Inject, PLATFORM_ID, ElementRef, ViewChild, s
 import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { SimulationService } from '../../services/simulation.service';
 
-const M33_GALAXY_URL = '/Chrismas_Tree_HOO_16_9_full.jpg';
+const M33_GALAXY_URL = '/Christmas_Tree_HOO_Original_full.jpg';
 const TARGET_SCALE = 2.5;
 const NUM_SHOOTING_STARS = 10; // Reduced for dramatic effect
 const NUM_AMBIENT_STARS = 1000;
