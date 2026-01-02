@@ -106,6 +106,7 @@ export class Simulator implements AfterViewInit {
     this.ctx = this.canvasRef.nativeElement.getContext('2d');
     
     this.setupCanvasDimensions();
+    this.generateStarTexture();
     this.simService.loadingProgress.set('Initializing...');
 
     // Small delay to allow initial UI to render before heavy star generation
@@ -192,7 +193,6 @@ export class Simulator implements AfterViewInit {
    * Completes the initialization process and begins the animation loop.
    */
   private finalizeSetup() {
-    this.generateStarTexture();
     this.simService.loadingProgress.set('Ready');
     this.lastShootingStarSpawn = Date.now();
     this.animate();
