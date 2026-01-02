@@ -48,6 +48,7 @@ input[type='range']::-webkit-slider-thumb {
 
 .futuristic-slider {
   -webkit-appearance: none;
+  appearance: none;
   width: 100%;
   height: 4px;
   background: rgba(255, 45, 149, 0.1);

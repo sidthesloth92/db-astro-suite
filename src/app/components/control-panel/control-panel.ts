@@ -37,7 +37,8 @@ export class ControlPanel {
 
   get buttonText(): string {
     const state = this.simService.recordingState();
-    if (state === 'recording') return 'Recording... (30s max)';
+    const duration = this.simService.recordingDuration();
+    if (state === 'recording') return `Recording... (${duration}s)`;
     if (state === 'processing') return 'Processing...';
     return 'Start Recording (Max 30s)';
   }

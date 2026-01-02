@@ -22,6 +22,7 @@ export class SimulationService {
   // Image State
   isImageLoaded = signal<boolean>(false);
   userImage = signal<string | null>(null);
+  recordingDuration = signal<number>(0);
   
   // Canvas Dimensions (grouped for atomic updates)
   canvasDimensions = signal(CANVAS_DIMENSIONS);

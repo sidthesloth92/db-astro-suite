@@ -54,6 +54,7 @@ export class Simulator implements AfterViewInit {
   private mediaRecorder: MediaRecorder | null = null;
   private videoChunks: Blob[] = [];
   private recordingTimeout: any;
+  private timerInterval: any;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -404,6 +405,12 @@ export class Simulator implements AfterViewInit {
 
       this.mediaRecorder.start();
       
+      // Start duration timer
+      this.simService.recordingDuration.set(0);
+      this.timerInterval = setInterval(() => {
+        this.simService.recordingDuration.update(d => d + 1);
+      }, 1000);
+      
       // Auto-stop after the configured max duration
       this.recordingTimeout = setTimeout(() => this.stopRecording(), MAX_RECORDING_SECONDS * 1000);
     } catch (e) {
@@ -473,6 +480,10 @@ export class Simulator implements AfterViewInit {
       // Recorder is active, finalize the recording and clear auto-stop timer
       this.mediaRecorder.stop();
       clearTimeout(this.recordingTimeout);
+      if (this.timerInterval) {
+        clearInterval(this.timerInterval);
+        this.timerInterval = null;
+      }
     }
   }
 }
