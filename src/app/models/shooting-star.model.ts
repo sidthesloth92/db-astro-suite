@@ -31,9 +31,18 @@ export class ShootingStar {
    * Spawns the star at a random location near the center of the viewport.
    */
   spawn() {
+    // MAX_DEPTH is set to viewport width to keep perspective projection proportional.
+    const MAX_DEPTH = this.width;
+
+    // Centering Logic:
+    // Math.random() [0, 1] -> Shifting [-0.5, 0.5] -> Scaling [-width/2, width/2].
+    // This ensures stars are distributed evenly around the (0,0) center point.
+    // Shooting stars are restricted to a smaller central spawn area.
     this.x = (Math.random() - 0.5) * this.width * CENTER_SPAWN_RATIO;
     this.y = (Math.random() - 0.5) * this.height * CENTER_SPAWN_RATIO;
-    this.z = this.width * 0.8 + Math.random() * this.width * 0.2;
+    
+    // Starting depth is at the far end of the tunnel
+    this.z = MAX_DEPTH * 0.8 + Math.random() * MAX_DEPTH * 0.2;
     this.initialZ = this.z;
     this.trail = [];
     this.isActive = true;

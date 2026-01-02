@@ -35,7 +35,7 @@ export const CONTROLS: Record<ControlKey, ControlMetadata> = {
     min: 0.1,
     max: 5,
     step: 0.1,
-    initial: 0.8,
+    initial: 0.6,
     precision: 1,
   },
   baseStarSize: {
