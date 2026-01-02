@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SimulationService } from '../../services/simulation.service';
-import { CONTROLS } from '../../constants/simulation.constant';
+import { CONTROLS, ASPECT_RATIOS, AspectRatioKey } from '../../constants/simulation.constant';
 import { ControlMetadata, ControlKey } from '../../models/simulation.model';
 
 @Component({
@@ -14,8 +14,15 @@ import { ControlMetadata, ControlKey } from '../../models/simulation.model';
 export class ControlPanel {
   public controlConfig = CONTROLS;
   public controlNames = Object.keys(CONTROLS) as ControlKey[];
+  public aspectRatios = ASPECT_RATIOS;
+  public ratioKeys = Object.keys(ASPECT_RATIOS) as AspectRatioKey[];
 
   constructor(public simService: SimulationService) {}
+
+  updateAspectRatio(event: Event) {
+    const value = (event.target as HTMLSelectElement).value as AspectRatioKey;
+    this.simService.currentAspectRatio.set(value);
+  }
 
   updateControl(control: ControlKey, event: Event) {
     const value = parseFloat((event.target as HTMLInputElement).value);

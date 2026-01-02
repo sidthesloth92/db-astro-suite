@@ -1,6 +1,6 @@
-import { Injectable, signal, Signal, WritableSignal } from '@angular/core';
+import { Injectable, signal, Signal, WritableSignal, computed } from '@angular/core';
 import { RecordingState, ControlKey } from '../models/simulation.model';
-import { CONTROLS, CANVAS_DIMENSIONS } from '../constants/simulation.constant';
+import { CONTROLS, ASPECT_RATIOS, AspectRatioKey } from '../constants/simulation.constant';
 
 @Injectable({
   providedIn: 'root',
@@ -21,11 +21,18 @@ export class SimulationService {
   
   // Image State
   isImageLoaded = signal<boolean>(false);
+  isDefaultImage = signal<boolean>(false);
   userImage = signal<string | null>(null);
   recordingDuration = signal<number>(0);
+
+  // Ratio State
+  currentAspectRatio = signal<AspectRatioKey>('9:16');
   
-  // Canvas Dimensions (grouped for atomic updates)
-  canvasDimensions = signal(CANVAS_DIMENSIONS);
+  // Canvas Dimensions (calculated based on ratio)
+  canvasDimensions = computed(() => {
+    const ratio = this.currentAspectRatio();
+    return ASPECT_RATIOS[ratio];
+  });
 
   getControlValue(control: ControlKey): number {
     return this.controls[control]();

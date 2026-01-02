@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { SimulationService } from '../../services/simulation.service';
 import { AmbientStar } from '../../models/ambient-star.model';
 import { ShootingStar } from '../../models/shooting-star.model';
+import { DEFAULT_GALAXY_URL } from '../../constants/simulation.constant';
 
 /**
  * Configuration and Asset URLs
@@ -55,6 +56,8 @@ export class Simulator implements AfterViewInit {
   private videoChunks: Blob[] = [];
   private recordingTimeout: any;
   private timerInterval: any;
+  private currentGenerationId = 0;
+  private animationFrameId: number | null = null;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -77,14 +80,15 @@ export class Simulator implements AfterViewInit {
 
     /**
      * Effect to respond to canvas dimension changes in the SimulationService.
-     * Ensures the simulation adapts if screen size is changed dynamically.
+     * Ensures the simulation adapts if screen size or aspect ratio is changed dynamically.
      */
     effect(() => {
-      // Reading the signal at the top level ensures this effect tracks it as a 
-      // dependency from the first run, even before the canvas context is ready.
       const dims = this.simService.canvasDimensions();
+      const ratio = this.simService.currentAspectRatio();
+      
       if (this.ctx) {
         this.setupCanvasDimensions(dims);
+        this.resetSimulation();
       }
     });
   }
@@ -108,15 +112,38 @@ export class Simulator implements AfterViewInit {
     this.generateStarTexture();
     this.simService.loadingProgress.set('Initializing...');
 
+    // Load default scene so user sees what the tool can do
+    this.loadDefaultScene();
+
     // Small delay to allow initial UI to render before heavy star generation
     setTimeout(() => {
       this.loadStarsAsync(() => {
         this.simService.loadingProgress.set('Ready');
-        this.animate();
       });
     }, 10);
 
+    this.animate();
     window.addEventListener('resize', () => this.setupCanvasDimensions());
+  }
+
+  /**
+   * Loads the default galaxy image to showcase the tool's capabilities.
+   */
+  private loadDefaultScene() {
+    this.simService.loadingProgress.set('Loading Default Scene...');
+    
+    this.galaxyImage = new Image();
+    this.galaxyImage.onload = () => {
+      this.simService.isDefaultImage.set(true);
+      this.simService.isImageLoaded.set(true);
+      this.simService.loadingProgress.set('Ready');
+      this.lastShootingStarSpawn = Date.now();
+    };
+    this.galaxyImage.onerror = () => {
+      console.error('Failed to load default galaxy image.');
+      this.simService.loadingProgress.set('Ready'); // Still show 'Ready' so user can upload
+    };
+    this.galaxyImage.src = DEFAULT_GALAXY_URL;
   }
 
   /**
@@ -138,14 +165,33 @@ export class Simulator implements AfterViewInit {
   };
 
   /**
+   * Resets the animation state and re-generates stars to fit new dimensions.
+   */
+  private resetSimulation() {
+    this.currentScale = 1.0;
+    this.currentRotation = 0;
+    this.ambientStars = [];
+    this.shootingStars = [];
+    this.simService.loadingProgress.set('Re-initializing...');
+    
+    this.loadStarsAsync(() => {
+      this.simService.loadingProgress.set('Ready');
+    });
+  }
+
+  /**
    * Asynchronously generates stars in batches to avoid blocking the UI thread.
    * @param callback Function to execute once all ambient stars are generated.
    */
   private loadStarsAsync(callback: () => void) {
     let starsGenerated = 0;
     const BATCH_SIZE = 50;
+    const generationId = Date.now();
+    this.currentGenerationId = generationId;
 
     const generateBatch = () => {
+      if (this.currentGenerationId !== generationId) return; // Abort if a new generation started
+
       const targetCount = Math.min(NUM_AMBIENT_STARS, starsGenerated + BATCH_SIZE);
       while (starsGenerated < targetCount) {
         this.ambientStars.push(new AmbientStar(this.width, this.height, this.simService));
@@ -191,8 +237,9 @@ export class Simulator implements AfterViewInit {
       this.simService.userImage.set(result);
       
       this.galaxyImage = new Image();
-      this.galaxyImage.onload = () => {
-        this.simService.isImageLoaded.set(true);
+    this.galaxyImage.onload = () => {
+      this.simService.isDefaultImage.set(false);
+      this.simService.isImageLoaded.set(true);
         this.simService.loadingProgress.set('Ready');
         this.lastShootingStarSpawn = Date.now();
       };
@@ -209,6 +256,7 @@ export class Simulator implements AfterViewInit {
    * Clears the current user image and stops the simulation.
    */
   clearImage() {
+    this.simService.isDefaultImage.set(false);
     this.simService.isImageLoaded.set(false);
     this.simService.userImage.set(null);
     this.galaxyImage = null;
@@ -250,7 +298,10 @@ export class Simulator implements AfterViewInit {
    * Executes every frame to update state and render the scene.
    */
   private animate = () => {
-    requestAnimationFrame(this.animate);
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+    }
+    this.animationFrameId = requestAnimationFrame(this.animate);
     
     if (!this.ctx) {
       return;
@@ -338,7 +389,7 @@ export class Simulator implements AfterViewInit {
    * Scales it to cover the entire canvas.
    */
   private drawGalaxyBackground() {
-    if (!this.ctx || !this.galaxyImage || !this.galaxyImage.complete) {
+    if (!this.ctx || !this.galaxyImage || !this.galaxyImage.complete || this.galaxyImage.naturalWidth === 0) {
       // Assets not fully loaded or context missing, skip background rendering
       return;
     }

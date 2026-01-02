@@ -112,9 +112,9 @@ export class ShootingStar {
       const k = width / t.z;
       const px = t.x * k;
       const py = t.y * k;
-      const baseSizeParallax = 1 - t.z / this.initialZ;
+      const baseSizeParallax = 1 - t.z / width;
       const trailOpacity = (1 - i / this.trail.length) * 0.6;
-      const radius = baseSizeParallax * baseSize * scaleCompensation * 0.25;
+      const radius = baseSizeParallax * baseSize * scaleCompensation * 0.2;
 
       if (radius > 0.1) {
         // Trail segment visible, draw its fading trail point
@@ -136,8 +136,8 @@ export class ShootingStar {
     const k = width / this.z;
     const px = this.x * k;
     const py = this.y * k;
-    const baseSizeParallax = 1 - this.z / this.initialZ;
-    const radius = baseSizeParallax * baseSize * scaleCompensation * 0.5;
+    const baseSizeParallax = 1 - this.z / width;
+    const radius = baseSizeParallax * baseSize * scaleCompensation * 0.4;
 
     if (radius > 0.1) {
       // Head visible, draw main star graphic

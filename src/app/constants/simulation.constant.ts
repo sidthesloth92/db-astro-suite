@@ -5,6 +5,16 @@ export const CANVAS_DIMENSIONS = {
   height: 1920
 };
 
+export const DEFAULT_GALAXY_URL = 'Chrismas_Tree_HOO_16_9_full.jpg';
+
+export const ASPECT_RATIOS = {
+  '9:16': { width: 1080, height: 1920, label: '9:16 Vertical' },
+  '1:1': { width: 1080, height: 1080, label: '1:1 Square' },
+  '4:5': { width: 1080, height: 1350, label: '4:5 Portrait' }
+};
+
+export type AspectRatioKey = keyof typeof ASPECT_RATIOS;
+
 export const CONTROLS: Record<ControlKey, ControlMetadata> = {
   zoomRate: {
     label: 'Galaxy Zoom Rate',

@@ -4,7 +4,29 @@
     <div class="text-[10px] font-mono text-neon-pink/50 animate-pulse">STATUS: ACTIVE</div>
   </div>
 
-  <!-- Dynamic Controls Loop -->
+  <!-- Ratio Selector -->
+  <div class="space-y-2 mb-6 p-4 border border-neon-pink/10 bg-neon-pink/5">
+    <div class="flex justify-between items-center mb-2">
+      <span class="text-[10px] font-mono text-neon-pink uppercase tracking-widest"
+        >Aspect Ratio</span
+      >
+      <span class="text-[10px] font-mono text-white opacity-40 uppercase">{{
+        simService.currentAspectRatio()
+      }}</span>
+    </div>
+    <select
+      (change)="updateAspectRatio($event)"
+      class="w-full bg-space-black border border-neon-pink/30 text-white text-[10px] font-mono uppercase tracking-widest p-2 outline-none focus:border-neon-pink transition-colors"
+    >
+      @for (key of ratioKeys; track key) {
+      <option [value]="key" [selected]="key === simService.currentAspectRatio()">
+        {{ aspectRatios[key].label }}
+      </option>
+      }
+    </select>
+  </div>
+
+  <!-- Sliders -->
   @for (control of controlNames; track control) {
   <div class="space-y-2 group">
     <label
