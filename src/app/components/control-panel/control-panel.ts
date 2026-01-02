@@ -44,8 +44,11 @@ export class ControlPanel {
 
   get buttonClass(): string {
     const state = this.simService.recordingState();
-    if (state === 'recording') return 'bg-red-600 animate-pulse';
-    if (state === 'processing') return 'bg-gray-600 cursor-not-allowed opacity-50';
-    return 'bg-neon-pink/10 hover:bg-neon-pink/20';
+    const isImageLoaded = this.simService.isImageLoaded();
+    
+    if (!isImageLoaded) return 'record-button grayscale opacity-40 cursor-not-allowed';
+    if (state === 'recording') return 'record-button bg-red-600 animate-pulse';
+    if (state === 'processing') return 'record-button bg-gray-600 cursor-not-allowed opacity-50';
+    return 'record-button bg-neon-pink/10 hover:bg-neon-pink/20';
   }
 }

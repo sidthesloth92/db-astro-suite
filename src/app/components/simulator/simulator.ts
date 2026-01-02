@@ -7,7 +7,6 @@ import { ShootingStar } from '../../models/shooting-star.model';
 /**
  * Configuration and Asset URLs
  */
-const M33_GALAXY_URL = '/Christmas_Tree_HOO_Original_full.jpg';
 const TARGET_SCALE = 2.5;
 const NUM_SHOOTING_STARS = 10;
 const NUM_AMBIENT_STARS = 1000;
@@ -110,7 +109,10 @@ export class Simulator implements AfterViewInit {
 
     // Small delay to allow initial UI to render before heavy star generation
     setTimeout(() => {
-      this.loadStarsAsync(() => this.startImageLoading());
+      this.loadStarsAsync(() => {
+        this.simService.loadingProgress.set('Ready');
+        this.animate();
+      });
     }, 10);
 
     window.addEventListener('resize', () => this.setupCanvasDimensions());
@@ -174,27 +176,43 @@ export class Simulator implements AfterViewInit {
   }
 
   /**
-   * Initiates loading of the background galaxy image.
+   * Handles user image upload via file input.
    */
-  private startImageLoading() {
+  handleImageUpload(event: Event) {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+
     this.simService.loadingProgress.set('Loading Image...');
-    this.galaxyImage = new Image();
-    this.galaxyImage.crossOrigin = 'anonymous';
-    this.galaxyImage.onload = () => this.finalizeSetup();
-    this.galaxyImage.onerror = () => {
-      console.warn('Failed to load galaxy image. Simulation will proceed with stars only.');
-      this.finalizeSetup();
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = e.target?.result as string;
+      this.simService.userImage.set(result);
+      
+      this.galaxyImage = new Image();
+      this.galaxyImage.onload = () => {
+        this.simService.isImageLoaded.set(true);
+        this.simService.loadingProgress.set('Ready');
+        this.lastShootingStarSpawn = Date.now();
+      };
+      this.galaxyImage.onerror = () => {
+        console.error('Failed to load user image.');
+        this.simService.loadingProgress.set('Error loading image');
+      };
+      this.galaxyImage.src = result;
     };
-    this.galaxyImage.src = M33_GALAXY_URL;
+    reader.readAsDataURL(file);
   }
 
   /**
-   * Completes the initialization process and begins the animation loop.
+   * Clears the current user image and stops the simulation.
    */
-  private finalizeSetup() {
-    this.simService.loadingProgress.set('Ready');
-    this.lastShootingStarSpawn = Date.now();
-    this.animate();
+  clearImage() {
+    this.simService.isImageLoaded.set(false);
+    this.simService.userImage.set(null);
+    this.galaxyImage = null;
+    this.currentScale = 1.0;
+    this.currentRotation = 0;
   }
 
   /**
@@ -232,13 +250,17 @@ export class Simulator implements AfterViewInit {
    */
   private animate = () => {
     requestAnimationFrame(this.animate);
+    
     if (!this.ctx) {
-      // Canvas context not ready, skip this animation frame
       return;
     }
 
-    this.updateGlobalState();
-    this.handleShootingStarSpawning();
+    // Only update movement state if a mission has been initialized
+    if (this.simService.isImageLoaded()) {
+      this.updateGlobalState();
+      this.handleShootingStarSpawning();
+    }
+
     this.renderFrame();
   };
 
@@ -345,15 +367,21 @@ export class Simulator implements AfterViewInit {
       return;
     }
 
-    // Background layer: flickering ambient stars
+    const isMoving = this.simService.isImageLoaded();
+
+    // Background layer: ambient stars
     for (const star of this.ambientStars) {
-      star.update();
+      if (isMoving) {
+        star.update();
+      }
       star.draw(this.ctx, this.width, this.currentScale, this.starTexture);
     }
 
     // Foreground layer: fast shooting stars with trails
     for (const star of this.shootingStars) {
-      star.update();
+      if (isMoving) {
+        star.update();
+      }
       star.draw(this.ctx, this.width, this.currentScale, this.starTexture);
     }
   }

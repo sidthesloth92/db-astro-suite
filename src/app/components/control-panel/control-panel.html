@@ -33,7 +33,7 @@
   <div class="pt-4">
     <button
       (click)="toggleRecording()"
-      [disabled]="simService.recordingState() === 'processing'"
+      [disabled]="simService.recordingState() === 'processing' || !simService.isImageLoaded()"
       [class]="buttonClass"
       class="w-full py-4 text-sm font-bold uppercase tracking-widest rounded-none border border-neon-pink/50 transition-all duration-300 shadow-[0_0_15px_rgba(255,45,149,0.1)] hover:shadow-[0_0_25px_rgba(255,45,149,0.3)]"
     >

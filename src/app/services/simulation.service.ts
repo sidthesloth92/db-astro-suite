@@ -19,6 +19,10 @@ export class SimulationService {
   recordingState = signal<RecordingState>('idle');
   loadingProgress = signal<string>('Initializing...');
   
+  // Image State
+  isImageLoaded = signal<boolean>(false);
+  userImage = signal<string | null>(null);
+  
   // Canvas Dimensions (grouped for atomic updates)
   canvasDimensions = signal(CANVAS_DIMENSIONS);
 
