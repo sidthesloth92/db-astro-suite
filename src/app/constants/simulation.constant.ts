@@ -1,5 +1,10 @@
 import { ControlKey, ControlMetadata } from '../models/simulation.model';
 
+export const CANVAS_DIMENSIONS = {
+  width: 1080,
+  height: 1920
+};
+
 export const CONTROLS: Record<ControlKey, ControlMetadata> = {
   zoomRate: {
     label: 'Galaxy Zoom Rate',

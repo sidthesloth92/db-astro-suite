@@ -1,5 +1,5 @@
 import { Component, AfterViewInit, Inject, PLATFORM_ID, ElementRef, ViewChild, signal, effect } from '@angular/core';
-import { isPlatformBrowser, CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { SimulationService } from '../../services/simulation.service';
 
 /**
@@ -75,6 +75,19 @@ export class Simulator implements AfterViewInit {
         this.stopRecording();
       }
     });
+
+    /**
+     * Effect to respond to canvas dimension changes in the SimulationService.
+     * Ensures the simulation adapts if screen size is changed dynamically.
+     */
+    effect(() => {
+      // Reading the signal at the top level ensures this effect tracks it as a 
+      // dependency from the first run, even before the canvas context is ready.
+      const dims = this.simService.canvasDimensions();
+      if (this.ctx) {
+        this.setupCanvasDimensions(dims);
+      }
+    });
   }
 
   /**
@@ -82,10 +95,7 @@ export class Simulator implements AfterViewInit {
    * Ensures the canvas is available before initializing the simulation.
    */
   ngAfterViewInit() {
-    if (isPlatformBrowser(this.platformId)) {
-      // Only initialize if running in a real browser environment (prevents SSR errors)
-      this.init();
-    }
+    this.init();
   }
 
   /**
@@ -93,8 +103,7 @@ export class Simulator implements AfterViewInit {
    * starting star generation, and loading assets.
    */
   private init() {
-    const canvas = this.canvasRef.nativeElement;
-    this.ctx = canvas.getContext('2d');
+    this.ctx = this.canvasRef.nativeElement.getContext('2d');
     
     this.setupCanvasDimensions();
     this.simService.loadingProgress.set('Initializing...');
@@ -104,20 +113,23 @@ export class Simulator implements AfterViewInit {
       this.loadStarsAsync(() => this.startImageLoading());
     }, 10);
 
-    window.addEventListener('resize', this.setupCanvasDimensions);
+    window.addEventListener('resize', () => this.setupCanvasDimensions());
   }
 
   /**
    * Configures canvas resolution and scale.
    * Uses a high resolution (1080x1920) for consistent recording quality
-   * regardless of the display viewport.
+   * @param overrideDims Optional dimensions to use, defaults to service values.
    */
-  private setupCanvasDimensions = () => {
+  private setupCanvasDimensions = (overrideDims?: { width: number, height: number }) => {
     const canvas = this.canvasRef.nativeElement;
-    this.width = 1080;
-    this.height = 1920;
-    canvas.width = this.width;
-    canvas.height = this.height;
+    
+    const dims = overrideDims || this.simService.canvasDimensions();
+    canvas.width = dims.width;
+    canvas.height = dims.height;
+    
+    this.width = dims.width;
+    this.height = dims.height;
     this.centerX = this.width / 2;
     this.centerY = this.height / 2;
   };
@@ -165,7 +177,7 @@ export class Simulator implements AfterViewInit {
    * Initiates loading of the background galaxy image.
    */
   private startImageLoading() {
-    this.simService.loadingProgress.set('Loading Assets...');
+    this.simService.loadingProgress.set('Loading Image...');
     this.galaxyImage = new Image();
     this.galaxyImage.crossOrigin = 'anonymous';
     this.galaxyImage.onload = () => this.finalizeSetup();

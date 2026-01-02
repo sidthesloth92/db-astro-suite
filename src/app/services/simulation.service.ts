@@ -1,6 +1,6 @@
 import { Injectable, signal, Signal, WritableSignal } from '@angular/core';
 import { RecordingState, ControlKey } from '../models/simulation.model';
-import { CONTROLS } from '../constants/simulation.constant';
+import { CONTROLS, CANVAS_DIMENSIONS } from '../constants/simulation.constant';
 
 @Injectable({
   providedIn: 'root',
@@ -18,6 +18,9 @@ export class SimulationService {
   // UI / Global states
   recordingState = signal<RecordingState>('idle');
   loadingProgress = signal<string>('Initializing...');
+  
+  // Canvas Dimensions (grouped for atomic updates)
+  canvasDimensions = signal(CANVAS_DIMENSIONS);
 
   getControlValue(control: ControlKey): number {
     return this.controls[control]();
