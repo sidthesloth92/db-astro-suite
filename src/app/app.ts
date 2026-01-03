@@ -4,7 +4,7 @@ import { Simulator } from './components/simulator/simulator';
 import { HeaderComponent } from './components/header/header';
 
 @Component({
-  selector: 'sfg-root',
+  selector: 'sw-root',
   standalone: true,
   imports: [ControlPanel, Simulator, HeaderComponent],
   templateUrl: './app.html',

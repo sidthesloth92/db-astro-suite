@@ -26,7 +26,7 @@ const SHOOTING_STAR_SPAWN_RATE = 1.5;
  * It handles canvas-based rendering, star lifecycle management, and video recording.
  */
 @Component({
-  selector: 'sfg-simulator',
+  selector: 'sw-simulator',
   templateUrl: './simulator.html',
   styleUrl: './simulator.css',
   standalone: true,

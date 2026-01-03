@@ -5,7 +5,7 @@ import { CONTROLS, ASPECT_RATIOS, AspectRatioKey } from '../../constants/simulat
 import { ControlMetadata, ControlKey } from '../../models/simulation.model';
 
 @Component({
-  selector: 'sfg-control-panel',
+  selector: 'sw-control-panel',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './control-panel.html',

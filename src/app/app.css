@@ -6,7 +6,7 @@
   overflow: hidden;
 }
 
-.sfg-container {
+.sw-container {
   flex: 1;
   display: flex;
   flex-direction: row;
@@ -25,7 +25,7 @@
     overflow-y: auto;
   }
 
-  .sfg-container {
+  .sw-container {
     flex-direction: column;
     height: auto;
     overflow: visible;
