@@ -1,11 +1,11 @@
-# StarfieldGenerator
+# Starwizz
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.7.
 
 ## Live Demo
 
 The application is deployed to GitHub Pages:
-**[https://sidthesloth92.github.io/starfield-generator/](https://sidthesloth92.github.io/starfield-generator/)**
+**[https://sidthesloth92.github.io/starwizz/](https://sidthesloth92.github.io/starwizz/)**
 
 ## Development server
 

@@ -11,5 +11,5 @@ import { HeaderComponent } from './components/header/header';
   styleUrl: './app.css',
 })
 export class App {
-  protected readonly title = signal('starfield-generator');
+  protected readonly title = signal('starwizz');
 }

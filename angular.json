@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "starfield-generator": {
+    "starwizz": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -61,10 +61,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "starfield-generator:build:production"
+              "buildTarget": "starwizz:build:production"
             },
             "development": {
-              "buildTarget": "starfield-generator:build:development"
+              "buildTarget": "starwizz:build:development"
             }
           },
           "defaultConfiguration": "development"
