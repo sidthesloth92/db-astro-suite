@@ -4,117 +4,22 @@
   [style.aspect-ratio]="simService.currentAspectRatio().replace(':', '/')"
 >
   <!-- HUD OVERLAYS -->
-  <div class="absolute inset-0 pointer-events-none z-20">
-    <!-- Corner Brackets -->
-    <div class="absolute top-4 left-4 w-8 h-8 border-t-2 border-l-2 border-neon-pink/60"></div>
-    <div class="absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-neon-pink/60"></div>
-    <div class="absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 border-neon-pink/60"></div>
-    <div class="absolute bottom-4 right-4 w-8 h-8 border-b-2 border-r-2 border-neon-pink/60"></div>
-
-    <!-- Scanning Line -->
-    <div
-      class="scan-line absolute left-0 right-0 h-[1px] bg-neon-pink/20 shadow-[0_0_10px_rgba(255,45,149,0.5)]"
-    ></div>
-
-    <!-- HUD Data -->
-    <div class="absolute top-6 left-16 font-mono text-[10px] text-neon-pink/70 space-y-1">
-      <div>COORD_X: <span class="text-white">127.04.92</span></div>
-      <div>COORD_Y: <span class="text-white">842.11.05</span></div>
-      <div>SECTOR: <span class="text-white">GAMMA-9</span></div>
-    </div>
-
-    <div
-      class="absolute bottom-6 right-16 font-mono text-[10px] text-neon-pink/70 text-right space-y-1"
-    >
-      <div>VELOCITY: <span class="text-white">0.92c</span></div>
-      <div>FUEL: <span class="text-white">84%</span></div>
-      <div class="animate-pulse">SIGNAL: STABLE</div>
-    </div>
-  </div>
+  <sw-hud-overlay></sw-hud-overlay>
 
   <!-- Loading Overlay (Visible during setup) -->
-  <div
-    *ngIf="simService.loadingProgress() !== 'Ready'"
-    class="loading-overlay absolute inset-0 z-30 bg-space-black/90 flex flex-col items-center justify-center text-white space-y-4 transition-opacity duration-500"
-  >
-    <div class="spinner-futuristic"></div>
-    <p class="text-xs font-futuristic text-neon-pink animate-pulse">
-      {{ simService.loadingProgress() }}
-    </p>
-  </div>
+  @if (simService.loadingProgress() !== 'Ready') {
+    <sw-loading-overlay [progress]="simService.loadingProgress()"></sw-loading-overlay>
+  }
 
   <!-- Upload Overlay (Visible when no image is loaded) -->
-  <div
-    *ngIf="simService.loadingProgress() === 'Ready' && !simService.isImageLoaded()"
-    class="absolute inset-0 z-20 flex flex-col items-center justify-center p-4 text-center pointer-events-none"
-  >
-    <div
-      class="max-w-[280px] w-full space-y-4 bg-space-black/30 backdrop-blur-sm p-6 border border-neon-pink/30 shadow-[0_0_30px_rgba(255,45,149,0.1)] pointer-events-auto"
-    >
-      <div class="relative group">
-        <label for="imageUpload" class="cursor-pointer block">
-          <div
-            class="flex flex-col items-center justify-center py-6 px-4 border border-dashed border-neon-pink/40 bg-neon-pink/5 hover:bg-neon-pink/10 hover:border-neon-pink/80 transition-all duration-300 rounded-none group-hover:shadow-[0_0_20px_rgba(255,45,149,0.2)]"
-          >
-            <svg
-              class="w-10 h-10 text-neon-pink/70 mb-3 group-hover:scale-110 transition-transform"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="1.5"
-                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-              ></path>
-            </svg>
-            <span class="text-base font-bold tracking-[0.1em] text-white uppercase mb-1"
-              >Upload Target</span
-            >
-            <span class="text-[9px] font-mono text-neon-pink/60 uppercase"
-              >Choose background image</span
-            >
-          </div>
-        </label>
-        <input
-          type="file"
-          id="imageUpload"
-          class="hidden"
-          accept="image/*"
-          (change)="handleImageUpload($event)"
-        />
-      </div>
-      <p class="text-[8px] font-mono text-white/30 uppercase tracking-[0.2em] leading-relaxed">
-        System Ready: Select visual data
-      </p>
-    </div>
-  </div>
+  @if (simService.loadingProgress() === 'Ready' && !simService.isImageLoaded()) {
+    <sw-image-upload (imageSelected)="handleImageUpload($event)"></sw-image-upload>
+  }
 
   <!-- Clear Image Button (Visible when any image is loaded, including demo) -->
-  <div *ngIf="simService.isImageLoaded()" class="absolute top-6 right-6 z-20">
-    <button
-      (click)="clearImage()"
-      class="flex items-center gap-2 py-2 px-3 bg-space-black/60 border border-neon-pink/30 text-neon-pink/70 hover:text-neon-pink hover:border-neon-pink transition-all duration-300 text-[10px] font-bold uppercase tracking-widest"
-    >
-      <svg
-        class="w-3 h-3"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M6 18L18 6M6 6l12 12"
-        ></path>
-      </svg>
-      <span>{{ 'Clear Target' }}</span>
-    </button>
-  </div>
+  @if (simService.isImageLoaded()) {
+    <sw-clear-image-button (clearClicked)="clearImage()"></sw-clear-image-button>
+  }
 
   <!-- Only the canvas remains here -->
   <canvas #starCanvas class="absolute inset-0 block w-full h-full z-10"></canvas>
