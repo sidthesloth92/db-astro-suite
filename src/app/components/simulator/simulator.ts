@@ -61,6 +61,17 @@ export class Simulator implements AfterViewInit {
     this.init();
   }
 
+  handleImageUpload(event: Event) {
+    this.simService.handleImageUpload(event);
+    this.lastShootingStarSpawn = Date.now();
+  }
+
+  clearImage() {
+    this.simService.clearImage();
+    this.currentScale = 1.0;
+    this.currentRotation = 0;
+  }
+
   private init() {
     this.ctx = this.canvasRef.nativeElement.getContext('2d');
     this.setupCanvasDimensions();
@@ -102,17 +113,6 @@ export class Simulator implements AfterViewInit {
     this.simService.loadStarsAsync(this.width, this.height, () => {
       this.simService.loadingProgress.set('Ready');
     });
-  }
-
-  handleImageUpload(event: Event) {
-    this.simService.handleImageUpload(event);
-    this.lastShootingStarSpawn = Date.now();
-  }
-
-  clearImage() {
-    this.simService.clearImage();
-    this.currentScale = 1.0;
-    this.currentRotation = 0;
   }
 
   private generateStarTexture() {
