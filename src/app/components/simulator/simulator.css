@@ -4,7 +4,7 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  padding: 1rem;
+  padding: 0.5rem;
   min-width: 0;
 }
 
@@ -20,9 +20,19 @@
 }
 
 @media (max-width: 768px) {
-  .simulation-wrapper {
+  :host {
     height: auto;
     width: 100%;
+    padding: 0.1rem;
+    display: block; /* Ensure width: 100% works as expected */
+  }
+
+  .simulation-wrapper {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    max-height: 90vh;
+    margin: 0 auto; /* Keep it centered */
   }
 }
 

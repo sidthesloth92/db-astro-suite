@@ -1,22 +1,26 @@
-<div class="control-panel glass-panel p-4 space-y-4 text-white rounded-xl max-w-md mx-auto">
-  <div class="flex items-center justify-between mb-6 border-b border-neon-pink/30 pb-2">
-    <h2 class="text-2xl font-bold neon-text tracking-widest">System Controls</h2>
-    <div class="text-[10px] font-mono text-neon-pink/50 animate-pulse">STATUS: ACTIVE</div>
+<div
+  class="control-panel glass-panel p-3 md:p-4 space-y-3 md:space-y-4 text-white rounded-xl max-w-md mx-auto"
+>
+  <div class="flex items-center justify-between mb-4 md:mb-6 border-b border-neon-pink/30 pb-2">
+    <h2 class="text-xl md:text-2xl font-bold neon-text tracking-widest">System Controls</h2>
+    <div class="text-[8px] md:text-[10px] font-mono text-neon-pink/50 animate-pulse">
+      STATUS: ACTIVE
+    </div>
   </div>
 
   <!-- Ratio Selector -->
-  <div class="space-y-2 mb-6 p-4 border border-neon-pink/10 bg-neon-pink/5">
-    <div class="flex justify-between items-center mb-2">
-      <span class="text-[10px] font-mono text-neon-pink uppercase tracking-widest"
+  <div class="space-y-2 mb-4 md:mb-6 p-3 md:p-4 border border-neon-pink/10 bg-neon-pink/5">
+    <div class="flex justify-between items-center mb-1 md:mb-2">
+      <span class="text-[8px] md:text-[10px] font-mono text-neon-pink uppercase tracking-widest"
         >Aspect Ratio</span
       >
-      <span class="text-[10px] font-mono text-white opacity-40 uppercase">{{
+      <span class="text-[8px] md:text-[10px] font-mono text-white opacity-40 uppercase">{{
         simService.currentAspectRatio()
       }}</span>
     </div>
     <select
       (change)="updateAspectRatio($event)"
-      class="w-full bg-space-black border border-neon-pink/30 text-white text-[10px] font-mono uppercase tracking-widest p-2 outline-none focus:border-neon-pink transition-colors"
+      class="w-full bg-space-black border border-neon-pink/30 text-white text-[9px] md:text-[10px] font-mono uppercase tracking-widest p-1.5 md:p-2 outline-none focus:border-neon-pink transition-colors"
     >
       @for (key of ratioKeys; track key) {
       <option [value]="key" [selected]="key === simService.currentAspectRatio()">
@@ -28,16 +32,16 @@
 
   <!-- Sliders -->
   @for (control of controlNames; track control) {
-  <div class="space-y-2 group">
+  <div class="space-y-1 md:space-y-2 group">
     <label
-      class="block text-xs font-bold uppercase tracking-tighter flex justify-between group-hover:text-neon-pink transition-colors"
+      class="block text-[10px] md:text-xs font-bold uppercase tracking-tighter flex justify-between group-hover:text-neon-pink transition-colors"
     >
       <span>{{ controlConfig[control].label }}</span>
       <span class="font-mono text-neon-pink">
         {{ getControlValue(control).toFixed(controlConfig[control].precision) }}
       </span>
     </label>
-    <div class="relative h-6 flex items-center">
+    <div class="relative h-5 md:h-6 flex items-center">
       <input
         type="range"
         [min]="controlConfig[control].min"
@@ -52,18 +56,20 @@
   }
 
   <!-- Video Recording Button -->
-  <div class="pt-4">
+  <div class="pt-2 md:pt-4">
     <button
       (click)="toggleRecording()"
       [disabled]="simService.recordingState() === 'processing' || !simService.isImageLoaded()"
       [class]="buttonClass"
-      class="w-full py-4 text-sm font-bold uppercase tracking-widest rounded-none border border-neon-pink/50 transition-all duration-300 shadow-[0_0_15px_rgba(255,45,149,0.1)] hover:shadow-[0_0_25px_rgba(255,45,149,0.3)]"
+      class="w-full py-3 md:py-4 text-xs md:text-sm font-bold uppercase tracking-widest rounded-none border border-neon-pink/50 transition-all duration-300 shadow-[0_0_15px_rgba(255,45,149,0.1)] hover:shadow-[0_0_25px_rgba(255,45,149,0.3)]"
     >
       {{ buttonText }}
     </button>
   </div>
 
-  <div class="text-[9px] font-mono text-center text-neon-pink/40 uppercase tracking-widest mt-4">
+  <div
+    class="text-[8px] md:text-[9px] font-mono text-center text-neon-pink/40 uppercase tracking-widest mt-2 md:mt-4"
+  >
     Encryption: AES-256 | Protocol: Starfield-v2.0
   </div>
 </div>
