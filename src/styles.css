@@ -1,31 +1,30 @@
-/* Local Fonts - Offline Ready */
 @font-face {
   font-family: 'Orbitron';
-  src: url('/assets/fonts/Orbitron-Regular.ttf') format('truetype');
+  src: url('../public/assets/fonts/Orbitron-Regular.ttf') format('truetype');
   font-weight: 400;
   font-display: swap;
 }
 @font-face {
   font-family: 'Orbitron';
-  src: url('/assets/fonts/Orbitron-Bold.ttf') format('truetype');
+  src: url('../public/assets/fonts/Orbitron-Bold.ttf') format('truetype');
   font-weight: 700;
   font-display: swap;
 }
 @font-face {
   font-family: 'Rajdhani';
-  src: url('/assets/fonts/Rajdhani-Light.ttf') format('truetype');
+  src: url('../public/assets/fonts/Rajdhani-Light.ttf') format('truetype');
   font-weight: 300;
   font-display: swap;
 }
 @font-face {
   font-family: 'Rajdhani';
-  src: url('/assets/fonts/Rajdhani-Regular.ttf') format('truetype');
+  src: url('../public/assets/fonts/Rajdhani-Regular.ttf') format('truetype');
   font-weight: 500;
   font-display: swap;
 }
 @font-face {
   font-family: 'Rajdhani';
-  src: url('/assets/fonts/Rajdhani-Bold.ttf') format('truetype');
+  src: url('../public/assets/fonts/Rajdhani-Bold.ttf') format('truetype');
   font-weight: 700;
   font-display: swap;
 }

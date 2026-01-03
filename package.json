@@ -6,7 +6,10 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "predeploy": "ng build --configuration production --base-href /starfield-generator/",
+    "postbuild": "cp dist/starfield-generator/browser/index.html dist/starfield-generator/browser/404.html",
+    "deploy": "npm run predeploy && npm run postbuild && npx angular-cli-ghpages --dir=dist/starfield-generator/browser"
   },
   "prettier": {
     "printWidth": 100,
