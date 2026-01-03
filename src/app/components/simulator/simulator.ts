@@ -84,7 +84,6 @@ export class Simulator implements AfterViewInit {
      */
     effect(() => {
       const dims = this.simService.canvasDimensions();
-      const ratio = this.simService.currentAspectRatio();
       
       if (this.ctx) {
         this.setupCanvasDimensions(dims);
@@ -414,8 +413,8 @@ export class Simulator implements AfterViewInit {
    * Updates and renders both ambient and shooting stars.
    */
   private drawStars() {
-    if (!this.ctx) {
-      // Graphics context missing, cannot draw stars
+    if (!this.ctx || !this.simService.isImageLoaded()) {
+      // Graphics context missing or no active mission, skip rendering stars
       return;
     }
 
