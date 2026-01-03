@@ -13,7 +13,7 @@
 
   <!-- Upload Overlay (Visible when no image is loaded) -->
   @if (simService.loadingProgress() === 'Ready' && !simService.isImageLoaded()) {
-    <sw-image-upload (imageSelected)="handleImageUpload($event)"></sw-image-upload>
+    <sw-image-upload-overlay (imageSelected)="handleImageUpload($event)"></sw-image-upload-overlay>
   }
 
   <!-- Clear Image Button (Visible when any image is loaded, including demo) -->

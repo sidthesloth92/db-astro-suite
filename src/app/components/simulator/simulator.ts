@@ -1,9 +1,9 @@
-import { Component, AfterViewInit, ElementRef, ViewChild, effect } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild, effect } from '@angular/core';
 import { SimulationService } from '../../services/simulation.service';
-import { HudOverlay } from './hud-overlay/hud-overlay';
-import { LoadingOverlay } from './loading-overlay/loading-overlay';
-import { ImageUpload } from './image-upload/image-upload';
 import { ClearImageButton } from './clear-image-button/clear-image-button';
+import { HudOverlay } from './hud-overlay/hud-overlay';
+import { ImageUploadOverlay } from './image-upload-overlay/image-upload-overlay';
+import { LoadingOverlay } from './loading-overlay/loading-overlay';
 
 const TARGET_SCALE = 2.5;
 const SHOOTING_STAR_SPAWN_RATE = 1.5;
@@ -19,7 +19,7 @@ const SHOOTING_STAR_SPAWN_RATE = 1.5;
   templateUrl: './simulator.html',
   styleUrl: './simulator.css',
   standalone: true,
-  imports: [HudOverlay, LoadingOverlay, ImageUpload, ClearImageButton],
+  imports: [HudOverlay, LoadingOverlay, ImageUploadOverlay, ClearImageButton],
 })
 export class Simulator implements AfterViewInit {
   @ViewChild('starCanvas') canvasRef!: ElementRef<HTMLCanvasElement>;
