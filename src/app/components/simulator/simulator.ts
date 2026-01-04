@@ -216,7 +216,7 @@ export class Simulator implements AfterViewInit {
 
     const isMoving = this.simService.isImageLoaded();
 
-    for (const star of this.simService.ambientStars()) {
+    for (const star of this.simService.stars()) {
       if (isMoving) star.update();
       star.draw(this.ctx, this.width, this.currentScale, this.starTexture);
     }

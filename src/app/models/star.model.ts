@@ -1,11 +1,11 @@
 import { SimulationService } from '../services/simulation.service';
 
 /**
- * @class AmbientStar
+ * @class Star
  * @description
  * Represents a standard background star that moves slowly towards the viewer.
  */
-export class AmbientStar {
+export class Star {
   x = 0; // X position in 3D space (relative to center)
   y = 0; // Y position in 3D space (relative to center)
   z = 0; // Z position in 3D space (depth from camera)
@@ -40,7 +40,7 @@ export class AmbientStar {
    * Updates the depth of the star.
    */
   update() {
-    const speed = this.simService.controls.ambientStarSpeed();
+    const speed = this.simService.controls.starSpeed();
     this.z -= speed;
     
     // Recycle the star if it's passed behind the camera

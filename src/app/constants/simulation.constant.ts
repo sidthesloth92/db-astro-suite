@@ -40,8 +40,8 @@ export const CONTROLS: Record<ControlKey, ControlMetadata> = {
     initial: 0.7,
     precision: 1,
   },
-  ambientStarSpeed: {
-    label: 'Ambient Star Speed',
+  starSpeed: {
+    label: 'Star Speed',
     min: 0.1,
     max: 5,
     step: 0.1,

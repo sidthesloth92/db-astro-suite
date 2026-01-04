@@ -11,24 +11,28 @@ Starwizz is an Angular 20+ application that creates animated starfield simulatio
 ## Common Commands
 
 ### Development
+
 ```bash
 ng serve              # Start dev server at http://localhost:4200/
 npm start             # Alias for ng serve
 ```
 
 ### Testing
+
 ```bash
 ng test               # Run unit tests with Karma
 ng test --no-watch --code-coverage  # Single run with coverage
 ```
 
 ### Build & Deployment
+
 ```bash
 ng build              # Production build to dist/
 npm run deploy        # Build and deploy to GitHub Pages
 ```
 
 ### Code Generation
+
 ```bash
 ng generate component component-name
 ng generate service service-name
@@ -64,7 +68,7 @@ The `Simulator` component (src/app/components/simulator/simulator.ts) is the cor
 
 1. **Canvas Rendering**: Uses native Canvas 2D API for hardware-accelerated drawing
 2. **Star System**: Two types of stars with object pooling for performance
-   - Ambient stars (1000): Slow-moving background layer
+   - Stars (1000): Slow-moving background layer
    - Shooting stars (10): Fast-moving foreground with trails, spawned from a reusable pool
 3. **Animation Loop**: RequestAnimationFrame-based loop at 60 FPS
 4. **Recording**: MediaRecorder API captures canvas stream, handles browser-specific codecs
@@ -72,7 +76,8 @@ The `Simulator` component (src/app/components/simulator/simulator.ts) is the cor
 
 ### Star Models
 
-Both star types (`AmbientStar`, `ShootingStar`) in src/app/models/:
+Both star types (`Star`, `ShootingStar`) in src/app/models/:
+
 - Inject `SimulationService` for accessing control values
 - Implement `update()` for position/state changes
 - Implement `draw()` for canvas rendering with shared star texture

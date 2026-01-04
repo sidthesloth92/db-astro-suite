@@ -1,6 +1,6 @@
 # Starwizz
 
-Starwizz is a browser-based tool that creates stunning animated starfield simulations with any background image. Upload your own galaxy, nebula, or any space-themed image and watch it come alive with twinkling ambient stars and dramatic shooting stars. Perfect for creating mesmerizing video content for social media, presentations, or just relaxing visual experiences.
+Starwizz is a browser-based tool that creates stunning animated starfield simulations with any background image. Upload your own galaxy, nebula, or any space-themed image and watch it come alive with twinkling stars and dramatic shooting stars. Perfect for creating mesmerizing video content for social media, presentations, or just relaxing visual experiences.
 
 **[Try it live](https://sidthesloth92.github.io/starwizz/)**
 
@@ -57,7 +57,7 @@ Controls how fast shooting stars streak across the screen.
 - **Default**: 0.7
 - **Effect**: Higher values create quick, dramatic streaks; lower values show slower trails
 
-### Ambient Star Speed
+### Star Speed
 
 Controls the movement speed of background stars that create depth in the scene.
 

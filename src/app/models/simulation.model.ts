@@ -4,7 +4,7 @@ export type ControlKey =
   | 'zoomRate'
   | 'rotationRate'
   | 'shootingStarSpeed'
-  | 'ambientStarSpeed'
+  | 'starSpeed'
   | 'baseStarSize';
 
 export interface ControlMetadata {

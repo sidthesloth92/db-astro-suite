@@ -1,7 +1,7 @@
 import { Injectable, signal, WritableSignal, computed } from '@angular/core';
 import { RecordingState, ControlKey } from '../models/simulation.model';
 import { CONTROLS, ASPECT_RATIOS, AspectRatioKey, DEFAULT_GALAXY_URL } from '../constants/simulation.constant';
-import { AmbientStar } from '../models/ambient-star.model';
+import { Star } from '../models/star.model';
 import { ShootingStar } from '../models/shooting-star.model';
 
 /** Frame rate for video recording (frames per second) */
@@ -10,8 +10,8 @@ const FRAME_RATE = 60;
 /** Maximum allowed recording duration in seconds before auto-stop */
 const MAX_RECORDING_SECONDS = 30;
 
-/** Total number of ambient (background) stars to generate */
-const NUM_AMBIENT_STARS = 1000;
+/** Total number of (background) stars to generate */
+const NUM_STARS = 1000;
 
 /** Size of the shooting star object pool for reuse */
 const NUM_SHOOTING_STARS = 10;
@@ -29,7 +29,7 @@ const NUM_SHOOTING_STARS = 10;
  * @responsibilities
  * - Manage simulation control parameters (zoom, rotation, star speeds, etc.)
  * - Handle image loading (default scene and user uploads)
- * - Generate and manage star collections (ambient and shooting stars)
+ * - Generate and manage star collections (stars and shooting stars)
  * - Control video recording lifecycle (start, stop, download)
  * - Track UI state (loading progress, recording duration)
  *
@@ -57,13 +57,13 @@ export class SimulationService {
   /**
    * Config-driven simulation control signals.
    * Each control is a WritableSignal initialized from the CONTROLS constant.
-   * Controls include: zoomRate, rotationRate, shootingStarSpeed, ambientStarSpeed, baseStarSize
+   * Controls include: zoomRate, rotationRate, shootingStarSpeed, starSpeed, baseStarSize
    */
   public readonly controls: Record<ControlKey, WritableSignal<number>> = {
     zoomRate: signal(CONTROLS['zoomRate'].initial),
     rotationRate: signal(CONTROLS['rotationRate'].initial),
     shootingStarSpeed: signal(CONTROLS['shootingStarSpeed'].initial),
-    ambientStarSpeed: signal(CONTROLS['ambientStarSpeed'].initial),
+    starSpeed: signal(CONTROLS['starSpeed'].initial),
     baseStarSize: signal(CONTROLS['baseStarSize'].initial),
   };
 
@@ -133,10 +133,10 @@ export class SimulationService {
   // ==================== Star Collection Signals ====================
 
   /**
-   * Collection of ambient (background) stars.
+   * Collection of (background) stars.
    * These are slow-moving stars that create depth in the simulation.
    */
-  ambientStars = signal<AmbientStar[]>([]);
+  stars = signal<Star[]>([]);
 
   /**
    * Pool of shooting stars available for spawning.
@@ -294,7 +294,7 @@ export class SimulationService {
    * - Generates stars in batches of 50 to keep UI responsive
    * - Uses a generation ID to handle race conditions (if called again before completion)
    * - Updates loading progress with percentage during generation
-   * - Automatically initializes shooting stars when ambient stars are complete
+   * - Automatically initializes shooting stars when stars are complete
    */
   loadStarsAsync(width: number, height: number, callback: () => void): void {
     let starsGenerated = 0;
@@ -305,29 +305,29 @@ export class SimulationService {
     this.currentGenerationId = generationId;
 
     // Accumulate stars in local array before setting signal
-    const currentStars: AmbientStar[] = [];
+    const currentStars: Star[] = [];
 
     const generateBatch = () => {
       // Abort if a newer generation has started (race condition prevention)
       if (this.currentGenerationId !== generationId) return;
 
       // Generate batch of stars
-      const targetCount = Math.min(NUM_AMBIENT_STARS, starsGenerated + BATCH_SIZE);
+      const targetCount = Math.min(NUM_STARS, starsGenerated + BATCH_SIZE);
       while (starsGenerated < targetCount) {
-        currentStars.push(new AmbientStar(width, height, this));
+        currentStars.push(new Star(width, height, this));
         starsGenerated++;
       }
 
       // Update progress indicator
-      const percentage = Math.floor((starsGenerated / NUM_AMBIENT_STARS) * 100);
+      const percentage = Math.floor((starsGenerated / NUM_STARS) * 100);
       this.loadingProgress.set(`Generating Stars: ${percentage}%`);
 
-      if (starsGenerated < NUM_AMBIENT_STARS) {
+      if (starsGenerated < NUM_STARS) {
         // More stars needed, schedule next batch on next frame
         requestAnimationFrame(generateBatch);
       } else {
         // All stars generated, update signal and initialize shooting stars
-        this.ambientStars.set(currentStars);
+        this.stars.set(currentStars);
         this.initShootingStars(width, height);
         callback();
       }
@@ -357,7 +357,7 @@ export class SimulationService {
    * Called when resetting the simulation or changing canvas dimensions.
    */
   resetStars(): void {
-    this.ambientStars.set([]);
+    this.stars.set([]);
     this.shootingStars.set([]);
   }
 
