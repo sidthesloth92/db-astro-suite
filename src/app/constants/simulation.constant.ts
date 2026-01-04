@@ -17,7 +17,7 @@ export type AspectRatioKey = keyof typeof ASPECT_RATIOS;
 
 export const CONTROLS: Record<ControlKey, ControlMetadata> = {
   zoomRate: {
-    label: 'Galaxy Zoom Rate',
+    label: 'Zoom Speed',
     min: 1,
     max: 50,
     step: 1,
@@ -26,7 +26,7 @@ export const CONTROLS: Record<ControlKey, ControlMetadata> = {
     internalMultiplier: 0.0001,
   },
   rotationRate: {
-    label: 'Scene Rotation Rate',
+    label: 'Rotation Speed',
     min: 1,
     max: 50,
     step: 1,

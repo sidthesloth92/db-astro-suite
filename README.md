@@ -33,7 +33,7 @@ Starwizz is a browser-based tool that creates stunning animated starfield simula
 
 Customize your starfield simulation with these controls:
 
-### Galaxy Zoom Rate
+### Zoom Speed
 
 Controls how fast the camera zooms into the background image. The simulation creates an infinite zoom loop effect.
 
@@ -41,7 +41,7 @@ Controls how fast the camera zooms into the background image. The simulation cre
 - **Default**: 2
 - **Effect**: Higher values create a faster, more dramatic zoom; lower values are subtle and calming
 
-### Scene Rotation Rate
+### Rotation Speed
 
 Controls how fast the entire scene rotates around its center.
 
