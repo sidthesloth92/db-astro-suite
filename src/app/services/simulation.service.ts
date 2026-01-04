@@ -176,6 +176,18 @@ export class SimulationService {
   }
 
   /**
+   * Gets the internal (scaled) value of a simulation control.
+   * Applies the internalMultiplier from control metadata if defined.
+   * @param control - The control key to retrieve
+   * @returns The internal numeric value used for simulation calculations
+   */
+  getInternalValue(control: ControlKey): number {
+    const uiValue = this.controls[control]();
+    const multiplier = CONTROLS[control].internalMultiplier ?? 1;
+    return uiValue * multiplier;
+  }
+
+  /**
    * Updates a simulation control to a new value.
    * @param control - The control key to update
    * @param value - The new numeric value to set

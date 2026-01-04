@@ -37,16 +37,16 @@ Customize your starfield simulation with these controls:
 
 Controls how fast the camera zooms into the background image. The simulation creates an infinite zoom loop effect.
 
-- **Range**: 0.0001 - 0.01
-- **Default**: 0.0002
+- **Range**: 1 - 50
+- **Default**: 2
 - **Effect**: Higher values create a faster, more dramatic zoom; lower values are subtle and calming
 
 ### Scene Rotation Rate
 
 Controls how fast the entire scene rotates around its center.
 
-- **Range**: 0.0001 - 0.005
-- **Default**: 0.0001
+- **Range**: 1 - 50
+- **Default**: 1
 - **Effect**: Higher values create a spinning vortex effect; lower values add gentle drift
 
 ### Shooting Star Speed

@@ -153,10 +153,10 @@ export class Simulator implements AfterViewInit {
   };
 
   private updateGlobalState() {
-    this.currentRotation += this.simService.controls.rotationRate();
+    this.currentRotation += this.simService.getInternalValue('rotationRate');
 
     if (this.currentScale < TARGET_SCALE) {
-      this.currentScale += this.simService.controls.zoomRate();
+      this.currentScale += this.simService.getInternalValue('zoomRate');
     } else {
       this.currentScale = 1.0;
     }

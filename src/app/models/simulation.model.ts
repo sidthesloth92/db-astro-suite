@@ -14,4 +14,6 @@ export interface ControlMetadata {
   step: number;
   initial: number;
   precision: number;
+  /** Optional multiplier to convert UI value to internal value (default: 1) */
+  internalMultiplier?: number;
 }
