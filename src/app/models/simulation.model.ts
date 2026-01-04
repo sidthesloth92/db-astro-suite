@@ -9,6 +9,7 @@ export type ControlKey =
 
 export interface ControlMetadata {
   label: string;
+  description: string;
   min: number;
   max: number;
   step: number;

@@ -18,6 +18,7 @@ export type AspectRatioKey = keyof typeof ASPECT_RATIOS;
 export const CONTROLS: Record<ControlKey, ControlMetadata> = {
   zoomRate: {
     label: 'Zoom Speed',
+    description: 'Controls how fast the camera zooms into the background. Higher values create a faster, more dramatic zoom.',
     min: 1,
     max: 50,
     step: 1,
@@ -27,6 +28,7 @@ export const CONTROLS: Record<ControlKey, ControlMetadata> = {
   },
   rotationRate: {
     label: 'Rotation Speed',
+    description: 'Controls how fast the scene rotates. Higher values create a spinning vortex effect.',
     min: 1,
     max: 50,
     step: 1,
@@ -36,6 +38,7 @@ export const CONTROLS: Record<ControlKey, ControlMetadata> = {
   },
   shootingStarSpeed: {
     label: 'Shooting Star Speed',
+    description: 'Controls how fast shooting stars streak across the screen.',
     min: 0,
     max: 10,
     step: 0.1,
@@ -44,6 +47,7 @@ export const CONTROLS: Record<ControlKey, ControlMetadata> = {
   },
   starSpeed: {
     label: 'Star Speed',
+    description: 'Controls the movement speed of background stars that create depth.',
     min: 0.1,
     max: 5,
     step: 0.1,
@@ -52,6 +56,7 @@ export const CONTROLS: Record<ControlKey, ControlMetadata> = {
   },
   baseStarSize: {
     label: 'Star Size Multiplier',
+    description: 'Controls the overall size of all stars in the simulation.',
     min: 1,
     max: 40,
     step: 0.5,

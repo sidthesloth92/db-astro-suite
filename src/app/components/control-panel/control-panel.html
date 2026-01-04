@@ -1,9 +1,11 @@
 <div
   class="control-panel glass-panel p-3 md:p-4 space-y-3 md:space-y-4 text-white rounded-xl max-w-md mx-auto"
 >
-  <div class="flex items-center justify-between mb-4 md:mb-6 border-b border-neon-pink/30 pb-2">
-    <h2 class="text-xl md:text-2xl font-bold neon-text tracking-widest">System Controls</h2>
-    <div class="text-[8px] md:text-[10px] font-mono text-neon-pink/50 animate-pulse">
+  <div
+    class="flex items-center justify-between mb-4 md:mb-6 border-b border-neon-pink/30 pb-2 flex-nowrap gap-2"
+  >
+    <h2 class="text-base font-bold neon-text tracking-widest whitespace-nowrap">System Controls</h2>
+    <div class="text-[10px] font-mono text-neon-pink/50 animate-pulse whitespace-nowrap">
       STATUS: ACTIVE
     </div>
   </div>
@@ -36,7 +38,37 @@
     <label
       class="block text-[10px] md:text-xs font-bold uppercase tracking-tighter flex justify-between group-hover:text-neon-pink transition-colors"
     >
-      <span>{{ controlConfig[control].label }}</span>
+      <span class="flex items-center gap-1">
+        {{ controlConfig[control].label }}
+        <span class="tooltip-container relative inline-block">
+          <svg
+            class="w-[18px] h-[18px] text-neon-pink/70 hover:text-neon-pink cursor-help"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <!-- Circle with thinner stroke -->
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1"
+              d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            ></path>
+            <!-- Question mark with bold stroke -->
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01"
+            ></path>
+          </svg>
+          <span
+            class="tooltip-text absolute left-0 bottom-full mb-2 w-64 p-4 bg-space-black/95 border border-neon-pink/30 text-[13px] text-white/90 font-normal normal-case tracking-normal leading-relaxed z-50 opacity-0 invisible transition-all duration-200"
+          >
+            {{ controlConfig[control].description }}
+          </span>
+        </span>
+      </span>
       <span class="font-mono text-neon-pink">
         {{ getControlValue(control).toFixed(controlConfig[control].precision) }}
       </span>

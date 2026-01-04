@@ -96,3 +96,9 @@ input[type='range']::-webkit-slider-thumb {
 .record-button:not(:disabled):hover {
   cursor: pointer;
 }
+
+/* Tooltip styles */
+.tooltip-container:hover .tooltip-text {
+  opacity: 1;
+  visibility: visible;
+}
