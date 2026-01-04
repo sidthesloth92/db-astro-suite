@@ -9,6 +9,7 @@ Starwizz is a browser-based tool that creates stunning animated starfield simula
 ## Demo
 
 <!-- Add your demo GIF here -->
+
 ![Starwizz Demo](demo.gif)
 
 ---
@@ -33,32 +34,42 @@ Starwizz is a browser-based tool that creates stunning animated starfield simula
 Customize your starfield simulation with these controls:
 
 ### Galaxy Zoom Rate
+
 Controls how fast the camera zooms into the background image. The simulation creates an infinite zoom loop effect.
+
 - **Range**: 0.0001 - 0.01
 - **Default**: 0.0002
 - **Effect**: Higher values create a faster, more dramatic zoom; lower values are subtle and calming
 
 ### Scene Rotation Rate
+
 Controls how fast the entire scene rotates around its center.
+
 - **Range**: 0.0001 - 0.005
 - **Default**: 0.0001
 - **Effect**: Higher values create a spinning vortex effect; lower values add gentle drift
 
 ### Shooting Star Speed
+
 Controls how fast shooting stars streak across the screen.
+
 - **Range**: 0 - 10
 - **Default**: 0.7
 - **Effect**: Higher values create quick, dramatic streaks; lower values show slower trails
 
 ### Ambient Star Speed
+
 Controls the movement speed of background stars that create depth in the scene.
+
 - **Range**: 0.1 - 5
 - **Default**: 0.6
 - **Effect**: Higher values make stars appear to rush past; lower values create a gentler floating effect
 
-### Base Star Size Multiplier
+### Star Size Multiplier
+
 Controls the overall size of all stars in the simulation.
-- **Range**: 1 - 100
+
+- **Range**: 1 - 40
 - **Default**: 10
 - **Effect**: Higher values create larger, more prominent stars; lower values give smaller, subtler points of light
 
@@ -69,10 +80,12 @@ Controls the overall size of all stars in the simulation.
 This project is licensed under the **Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0)**.
 
 You are free to:
+
 - **Share** - Copy and redistribute the material in any medium or format
 - **Adapt** - Remix, transform, and build upon the material
 
 Under the following terms:
+
 - **Attribution** - You must give appropriate credit, provide a link to the license, and indicate if changes were made
 - **NonCommercial** - You may not use the material for commercial purposes
 
