@@ -68,6 +68,19 @@ export class Simulator implements AfterViewInit {
       }
     });
 
+    // Effect to handle restart animation request (without recording)
+    effect(() => {
+      const shouldRestart = this.simService.restartAnimationRequested();
+      if (shouldRestart) {
+        // Reset animation state to beginning (no star regeneration to avoid lag)
+        this.currentScale = 1.0;
+        this.currentRotation = 0;
+        
+        // Clear the request flag
+        this.simService.restartAnimationRequested.set(false);
+      }
+    });
+
     // Effect to respond to canvas dimension changes
     effect(() => {
       const dims = this.simService.canvasDimensions();

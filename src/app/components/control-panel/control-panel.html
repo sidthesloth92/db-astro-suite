@@ -71,8 +71,19 @@
   </div>
   }
 
+  <!-- Restart Animation Button -->
+  <div class="pt-1 md:pt-2">
+    <button
+      (click)="restartAnimation()"
+      [disabled]="!simService.isImageLoaded() || simService.recordingState() !== 'idle'"
+      class="w-full py-2 md:py-3 text-[10px] md:text-xs font-bold uppercase tracking-widest rounded-none border border-neon-pink/30 bg-neon-pink/5 hover:bg-neon-pink/15 text-neon-pink/80 hover:text-neon-pink transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed"
+    >
+      ↺ Restart Animation
+    </button>
+  </div>
+
   <!-- Video Recording Button -->
-  <div class="pt-2 md:pt-4">
+  <div class="pt-0.5 md:pt-1">
     <button
       (click)="toggleRecording()"
       [disabled]="simService.recordingState() === 'processing' || !simService.isImageLoaded()"
@@ -100,11 +111,5 @@
         From Beginning
       </span>
     </label>
-  </div>
-
-  <div
-    class="text-[8px] md:text-[9px] font-mono text-center text-neon-pink/40 uppercase tracking-widest mt-2 md:mt-4"
-  >
-    Encryption: AES-256 | Protocol: Starfield-v2.0
   </div>
 </div>

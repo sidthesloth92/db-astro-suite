@@ -121,6 +121,13 @@ export class SimulationService {
   resetAndRecordRequested = signal<boolean>(false);
 
   /**
+   * Signal to request animation restart without starting recording.
+   * When set to true, the simulator will reset its animation state to beginning.
+   * This is set back to false after handling.
+   */
+  restartAnimationRequested = signal<boolean>(false);
+
+  /**
    * The HTMLImageElement containing the loaded galaxy/background image.
    * Used by the Simulator component for canvas rendering.
    */

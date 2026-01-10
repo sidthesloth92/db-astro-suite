@@ -53,6 +53,10 @@ export class ControlPanel {
     this.simService.recordFromBeginning.set(checked);
   }
 
+  restartAnimation() {
+    this.simService.restartAnimationRequested.set(true);
+  }
+
   get buttonText(): string {
     const state = this.simService.recordingState();
     const duration = this.simService.recordingDuration();
