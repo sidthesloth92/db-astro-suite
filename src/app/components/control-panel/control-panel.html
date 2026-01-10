@@ -1,8 +1,8 @@
 <div
-  class="control-panel glass-panel p-3 md:p-4 space-y-3 md:space-y-4 text-white rounded-xl max-w-md mx-auto"
+  class="control-panel glass-panel p-2 md:p-3 space-y-2 md:space-y-3 text-white rounded-xl max-w-md mx-auto"
 >
   <div
-    class="flex items-center justify-between mb-4 md:mb-6 border-b border-neon-pink/30 pb-2 flex-nowrap gap-2"
+    class="flex items-center justify-between mb-2 md:mb-3 border-b border-neon-pink/30 pb-1.5 flex-nowrap gap-2"
   >
     <h2 class="text-base font-bold neon-text tracking-widest whitespace-nowrap">System Controls</h2>
     <div class="text-[10px] font-mono text-neon-pink/50 animate-pulse whitespace-nowrap">
@@ -11,7 +11,7 @@
   </div>
 
   <!-- Ratio Selector -->
-  <div class="space-y-2 mb-4 md:mb-6 p-3 md:p-4 border border-neon-pink/10 bg-neon-pink/5">
+  <div class="space-y-1 mb-2 md:mb-3 p-2 md:p-3 border border-neon-pink/10 bg-neon-pink/5">
     <div class="flex justify-between items-center mb-1 md:mb-2">
       <span class="text-[8px] md:text-[10px] font-mono text-neon-pink uppercase tracking-widest"
         >Aspect Ratio</span
@@ -34,7 +34,7 @@
 
   <!-- Sliders -->
   @for (control of controlNames; track control) {
-  <div class="space-y-1 md:space-y-2 group">
+  <div class="space-y-0.5 md:space-y-1 group">
     <label
       class="block text-[10px] md:text-xs font-bold uppercase tracking-tighter flex justify-between group-hover:text-neon-pink transition-colors"
     >
@@ -57,7 +57,7 @@
         {{ getControlValue(control).toFixed(controlConfig[control].precision) }}
       </span>
     </label>
-    <div class="relative h-5 md:h-6 flex items-center">
+    <div class="relative h-4 md:h-5 flex items-center">
       <input
         type="range"
         [min]="controlConfig[control].min"
@@ -76,7 +76,7 @@
     <button
       (click)="restartAnimation()"
       [disabled]="!simService.isImageLoaded() || simService.recordingState() !== 'idle'"
-      class="w-full py-2 md:py-3 text-[10px] md:text-xs font-bold uppercase tracking-widest rounded-none border border-neon-pink/30 bg-neon-pink/5 hover:bg-neon-pink/15 text-neon-pink/80 hover:text-neon-pink transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed"
+      class="w-full py-1.5 md:py-2 text-[10px] md:text-xs font-bold uppercase tracking-widest rounded-none border border-neon-pink/30 bg-neon-pink/5 hover:bg-neon-pink/15 text-neon-pink/80 hover:text-neon-pink transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed"
     >
       ↺ Restart Animation
     </button>
@@ -88,14 +88,14 @@
       (click)="toggleRecording()"
       [disabled]="simService.recordingState() === 'processing' || !simService.isImageLoaded()"
       [class]="buttonClass"
-      class="w-full py-3 md:py-4 text-xs md:text-sm font-bold uppercase tracking-widest rounded-none border border-neon-pink/50 transition-all duration-300 shadow-[0_0_15px_rgba(255,45,149,0.1)] hover:shadow-[0_0_25px_rgba(255,45,149,0.3)]"
+      class="w-full py-2 md:py-3 text-xs md:text-sm font-bold uppercase tracking-widest rounded-none border border-neon-pink/50 transition-all duration-300 shadow-[0_0_15px_rgba(255,45,149,0.1)] hover:shadow-[0_0_25px_rgba(255,45,149,0.3)]"
     >
       {{ buttonText }}
     </button>
 
     <!-- From Beginning Checkbox -->
     <label
-      class="flex items-center gap-2 mt-3 cursor-pointer group"
+      class="flex items-center gap-2 mt-2 cursor-pointer group"
       [class.opacity-40]="simService.recordingState() !== 'idle'"
     >
       <input
