@@ -47,6 +47,27 @@ export class Simulator implements AfterViewInit {
       }
     });
 
+    // Effect to handle reset-and-record request (from beginning checkbox)
+    effect(() => {
+      const shouldResetAndRecord = this.simService.resetAndRecordRequested();
+      if (shouldResetAndRecord) {
+        // Reset animation state to beginning (no star regeneration to avoid lag)
+        this.currentScale = 1.0;
+        this.currentRotation = 0;
+        
+        // Clear the request flag
+        this.simService.resetAndRecordRequested.set(false);
+        
+        // Render one frame with reset state before starting recording
+        // This ensures the first frame of recording shows the beginning state
+        requestAnimationFrame(() => {
+          this.renderFrame();
+          // Now start recording
+          this.simService.recordingState.set('recording');
+        });
+      }
+    });
+
     // Effect to respond to canvas dimension changes
     effect(() => {
       const dims = this.simService.canvasDimensions();

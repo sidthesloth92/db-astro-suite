@@ -36,10 +36,21 @@ export class ControlPanel {
   toggleRecording() {
     const currentState = this.simService.recordingState();
     if (currentState === 'idle') {
-      this.simService.recordingState.set('recording');
+      if (this.simService.recordFromBeginning()) {
+        // Request animation reset before recording starts
+        this.simService.resetAndRecordRequested.set(true);
+      } else {
+        // Start recording from current position
+        this.simService.recordingState.set('recording');
+      }
     } else if (currentState === 'recording') {
       this.simService.recordingState.set('idle');
     }
+  }
+
+  toggleFromBeginning(event: Event) {
+    const checked = (event.target as HTMLInputElement).checked;
+    this.simService.recordFromBeginning.set(checked);
   }
 
   get buttonText(): string {

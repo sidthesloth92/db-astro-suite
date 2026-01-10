@@ -81,6 +81,25 @@
     >
       {{ buttonText }}
     </button>
+
+    <!-- From Beginning Checkbox -->
+    <label
+      class="flex items-center gap-2 mt-3 cursor-pointer group"
+      [class.opacity-40]="simService.recordingState() !== 'idle'"
+    >
+      <input
+        type="checkbox"
+        [checked]="simService.recordFromBeginning()"
+        (change)="toggleFromBeginning($event)"
+        [disabled]="simService.recordingState() !== 'idle'"
+        class="w-4 h-4 accent-neon-pink cursor-pointer disabled:cursor-not-allowed"
+      />
+      <span
+        class="text-[10px] md:text-xs font-mono uppercase tracking-widest text-neon-pink/70 group-hover:text-neon-pink transition-colors"
+      >
+        From Beginning
+      </span>
+    </label>
   </div>
 
   <div

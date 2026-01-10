@@ -108,6 +108,19 @@ export class SimulationService {
   recordingDuration = signal<number>(0);
 
   /**
+   * Whether to reset animation to the beginning before recording.
+   * Controlled by the 'From Beginning' checkbox in the control panel.
+   */
+  recordFromBeginning = signal<boolean>(false);
+
+  /**
+   * Signal to request animation reset before recording.
+   * When set to true, the simulator will reset its animation state
+   * and then start recording. This is set back to false after handling.
+   */
+  resetAndRecordRequested = signal<boolean>(false);
+
+  /**
    * The HTMLImageElement containing the loaded galaxy/background image.
    * Used by the Simulator component for canvas rendering.
    */
