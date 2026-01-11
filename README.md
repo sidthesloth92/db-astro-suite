@@ -8,7 +8,7 @@ Starwizz is a browser-based tool that creates stunning animated starfield simula
 
 ## Demo
 
-https://github.com/sidthesloth92/starwizz/raw/main/public/assets/videos/starwizz.m4v
+![Starwizz Demo](public/assets/img/starwizz.gif)
 
 ---
 
