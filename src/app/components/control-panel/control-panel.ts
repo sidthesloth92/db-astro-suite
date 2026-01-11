@@ -57,6 +57,10 @@ export class ControlPanel {
     this.simService.restartAnimationRequested.set(true);
   }
 
+  resetParams() {
+    this.simService.resetControlsToDefaults();
+  }
+
   get buttonText(): string {
     const state = this.simService.recordingState();
     const duration = this.simService.recordingDuration();

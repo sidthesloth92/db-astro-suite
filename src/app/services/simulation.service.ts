@@ -216,6 +216,16 @@ export class SimulationService {
     this.controls[control].set(value);
   }
 
+  /**
+   * Resets all simulation controls to their default initial values.
+   * Values are restored from the CONTROLS constant definitions.
+   */
+  resetControlsToDefaults(): void {
+    for (const key of Object.keys(this.controls) as ControlKey[]) {
+      this.controls[key].set(CONTROLS[key].initial);
+    }
+  }
+
   // ==================== Image Management ====================
 
   /**

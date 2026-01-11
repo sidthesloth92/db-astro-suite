@@ -71,14 +71,21 @@
   </div>
   }
 
-  <!-- Restart Animation Button -->
-  <div class="pt-1 md:pt-2">
+  <!-- Restart Animation & Reset Params Buttons -->
+  <div class="pt-1 md:pt-2 flex gap-2">
     <button
       (click)="restartAnimation()"
       [disabled]="!simService.isImageLoaded() || simService.recordingState() !== 'idle'"
-      class="w-full py-1.5 md:py-2 text-[10px] md:text-xs font-bold uppercase tracking-widest rounded-none border border-neon-pink/30 bg-neon-pink/5 hover:bg-neon-pink/15 text-neon-pink/80 hover:text-neon-pink transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed"
+      class="flex-1 py-1.5 md:py-2 text-[10px] md:text-xs font-bold uppercase tracking-widest rounded-none border border-neon-pink/30 bg-neon-pink/5 hover:bg-neon-pink/15 text-neon-pink/80 hover:text-neon-pink transition-all duration-300 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
     >
-      ↺ Restart Animation
+      ↺ Restart
+    </button>
+    <button
+      (click)="resetParams()"
+      [disabled]="simService.recordingState() !== 'idle'"
+      class="flex-1 py-1.5 md:py-2 text-[10px] md:text-xs font-bold uppercase tracking-widest rounded-none border border-neon-pink/30 bg-neon-pink/5 hover:bg-neon-pink/15 text-neon-pink/80 hover:text-neon-pink transition-all duration-300 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+    >
+      ⟲ Reset Params
     </button>
   </div>
 
