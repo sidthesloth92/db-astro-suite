@@ -76,13 +76,15 @@
     <button
       (click)="restartAnimation()"
       [disabled]="!simService.isImageLoaded() || simService.recordingState() !== 'idle'"
+      title="Restarts playing the animation from the beginning."
       class="flex-1 py-1.5 md:py-2 text-[10px] md:text-xs font-bold uppercase tracking-widest rounded-none border border-neon-pink/30 bg-neon-pink/5 hover:bg-neon-pink/15 text-neon-pink/80 hover:text-neon-pink transition-all duration-300 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
     >
-      ↺ Restart
+      ↺ Reset Animation
     </button>
     <button
       (click)="resetParams()"
       [disabled]="simService.recordingState() !== 'idle'"
+      title="Reset all parameters (zoom speed, rotation, star settings) to default values"
       class="flex-1 py-1.5 md:py-2 text-[10px] md:text-xs font-bold uppercase tracking-widest rounded-none border border-neon-pink/30 bg-neon-pink/5 hover:bg-neon-pink/15 text-neon-pink/80 hover:text-neon-pink transition-all duration-300 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
     >
       ⟲ Reset Params
@@ -95,6 +97,7 @@
       (click)="toggleRecording()"
       [disabled]="simService.recordingState() === 'processing' || !simService.isImageLoaded()"
       [class]="buttonClass"
+      title="Record up to 30 seconds of the animation as a video file"
       class="w-full py-2 md:py-3 text-xs md:text-sm font-bold uppercase tracking-widest rounded-none border border-neon-pink/50 transition-all duration-300 shadow-[0_0_15px_rgba(255,45,149,0.1)] hover:shadow-[0_0_25px_rgba(255,45,149,0.3)]"
     >
       {{ buttonText }}
@@ -113,9 +116,22 @@
         class="w-4 h-4 accent-neon-pink cursor-pointer disabled:cursor-not-allowed"
       />
       <span
-        class="text-[10px] md:text-xs font-mono uppercase tracking-widest text-neon-pink/70 group-hover:text-neon-pink transition-colors"
+        class="flex items-center gap-1 text-[10px] md:text-xs font-bold uppercase tracking-tighter group-hover:text-neon-pink transition-colors"
       >
         From Beginning
+        <span class="tooltip-container relative inline-block">
+          <img
+            src="assets/icons/question-mark-circle.svg"
+            alt="Help"
+            class="w-[16px] h-[16px] cursor-help"
+          />
+          <span
+            class="tooltip-text absolute left-0 bottom-full mb-2 w-64 p-4 bg-space-black/95 border border-neon-pink/30 text-[13px] text-white/90 font-normal normal-case tracking-normal leading-relaxed z-50 opacity-0 invisible transition-all duration-200"
+          >
+            When enabled, the animation resets to its initial position (zoom = 1.0, rotation = 0)
+            before recording starts.
+          </span>
+        </span>
       </span>
     </label>
   </div>
