@@ -8,9 +8,14 @@ export const CANVAS_DIMENSIONS = {
 export const DEFAULT_GALAXY_URL = 'Chrismas_Tree_HOO_16_9_full.jpg';
 
 export const ASPECT_RATIOS = {
+  // Vertical formats (social media)
   '9:16': { width: 1080, height: 1920, label: '9:16 Vertical' },
   '1:1': { width: 1080, height: 1080, label: '1:1 Square' },
   '4:5': { width: 1080, height: 1350, label: '4:5 Portrait' },
+  // YouTube horizontal formats
+  '16:9_720p': { width: 1280, height: 720, label: '720p (1280×720)' },
+  '16:9_1080p': { width: 1920, height: 1080, label: '1080p (1920×1080)' },
+  '16:9_4k': { width: 3840, height: 2160, label: '4K (3840×2160)' },
 };
 
 export type AspectRatioKey = keyof typeof ASPECT_RATIOS;
