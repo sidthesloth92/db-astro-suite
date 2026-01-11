@@ -23,9 +23,14 @@ Starwizz is a browser-based tool that creates stunning animated starfield simula
    - Modify zoom speed, rotation, and star behavior
    - Experiment with different settings to achieve your desired effect
 5. **Choose aspect ratio** - Select from 9:16 (vertical), 1:1 (square), or 4:5 (portrait) formats
-6. **Record your video** - Click the record button to capture up to 30 seconds of the animation
-7. **Download** - The video automatically downloads when recording stops (MP4 or WebM format)
-8. **Clear and restart** - Click "Clear Target" to remove the current image and upload a new one
+6. **Use the utility buttons**:
+   - **Reset Animation** - Restarts playing the animation from the beginning
+   - **Reset Params** - Restores all parameters to their default values
+7. **Record your video**:
+   - Click the record button to capture up to 30 seconds of the animation
+   - Enable **"From Beginning"** checkbox to automatically restart the animation before recording
+8. **Download** - The video automatically downloads when recording stops (MP4 or WebM format)
+9. **Clear and restart** - Click "Clear Target" to remove the current image and upload a new one
 
 ---
 
