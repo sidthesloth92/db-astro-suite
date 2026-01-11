@@ -22,7 +22,7 @@
     </div>
     <select
       (change)="updateAspectRatio($event)"
-      class="w-full bg-space-black border border-neon-pink/30 text-white text-[9px] md:text-[10px] font-mono uppercase tracking-widest p-1.5 md:p-2 outline-none focus:border-neon-pink transition-colors"
+      class="w-full bg-space-black border border-neon-pink/30 text-white text-[9px] md:text-[10px] font-mono uppercase tracking-widest p-1.5 md:p-2 outline-none focus:border-neon-pink transition-colors cursor-pointer"
     >
       @for (key of ratioKeys; track key) {
       <option [value]="key" [selected]="key === simService.currentAspectRatio()">
