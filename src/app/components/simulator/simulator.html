@@ -13,8 +13,9 @@
   <sw-loading-overlay [progress]="simService.loadingProgress()"></sw-loading-overlay>
   }
 
-  <!-- Upload Overlay (Visible when no image is loaded) -->
-  @if (simService.loadingProgress() === 'Ready' && !simService.isImageLoaded()) {
+  <!-- Upload Overlay (Visible when no image is loaded and not loading default) -->
+  @if (simService.loadingProgress() === 'Ready' && !simService.isImageLoaded() &&
+  !simService.isLoadingDefaultImage()) {
   <sw-image-upload-overlay (imageSelected)="handleImageUpload($event)"></sw-image-upload-overlay>
   }
 

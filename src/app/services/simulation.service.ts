@@ -96,6 +96,12 @@ export class SimulationService {
   isDefaultImage = signal<boolean>(false);
 
   /**
+   * Indicates whether the default image is currently being loaded.
+   * Used to prevent showing the upload dialog during initial load.
+   */
+  isLoadingDefaultImage = signal<boolean>(false);
+
+  /**
    * Base64 data URL of the user-uploaded image.
    * Null when no user image is loaded.
    */
@@ -240,6 +246,7 @@ export class SimulationService {
    */
   loadDefaultScene(): void {
     this.loadingProgress.set('Loading Default Scene...');
+    this.isLoadingDefaultImage.set(true);
 
     const image = new Image();
 
@@ -248,12 +255,14 @@ export class SimulationService {
       this.galaxyImage.set(image);
       this.isDefaultImage.set(true);
       this.isImageLoaded.set(true);
+      this.isLoadingDefaultImage.set(false);
       this.loadingProgress.set('Ready');
     };
 
     // Handle load failure gracefully
     image.onerror = () => {
       console.error('Failed to load default galaxy image.');
+      this.isLoadingDefaultImage.set(false);
       // Still show 'Ready' so user can upload their own image
       this.loadingProgress.set('Ready');
     };
