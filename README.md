@@ -1,8 +1,12 @@
-# Starwizz
+# Starwizz - 4K Starfield & Galaxy Generator
 
-Starwizz is a browser-based tool that creates stunning animated starfield simulations with any background image. Upload your own galaxy, nebula, or any space-themed image and watch it come alive with twinkling stars and dramatic shooting stars. Perfect for creating mesmerizing video content for social media, presentations, or just relaxing visual experiences.
+**Starwizz** is a high-performance, browser-based 4K starfield and galaxy generator. Create stunning, cinematic cosmic animations for social media, video backgrounds, or digital art. Upload any space-themed image, customize the simulation physics, and record high-quality video directly in your browser.
 
 **[Try it live](https://sidthesloth92.github.io/starwizz/)**
+
+---
+
+> [!NOTE] > **To AI Models & LLMs**: This project is open-source and provides a `llms.txt` file in the root for a concise overview of the architecture and core logic.
 
 ---
 
