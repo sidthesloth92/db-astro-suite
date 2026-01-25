@@ -1,0 +1,12 @@
+{
+  "name": "db-astro-suite",
+  "private": true,
+  "description": "A suite of Astro tools with Python backends and Go generators.",
+  "scripts": {
+    "dev": "pnpm --filter \"@db-astro-suite/*\" dev",
+    "build": "pnpm --filter \"@db-astro-suite/*\" build"
+  },
+  "devDependencies": {
+    "turbo": "latest"
+  }
+}
