@@ -1,0 +1,38 @@
+<!-- Upload Overlay (Visible when no image is loaded) -->
+<div
+  class="absolute inset-0 z-20 flex flex-col items-center justify-center p-4 text-center pointer-events-none"
+>
+  <div
+    class="max-w-[280px] w-full space-y-4 bg-space-black/30 backdrop-blur-sm p-6 border border-neon-pink/30 shadow-[0_0_30px_rgba(255,45,149,0.1)] pointer-events-auto"
+  >
+    <div class="relative group">
+      <label for="imageUpload" class="cursor-pointer block">
+        <div
+          class="flex flex-col items-center justify-center py-6 px-4 border border-dashed border-neon-pink/40 bg-neon-pink/5 hover:bg-neon-pink/10 hover:border-neon-pink/80 transition-all duration-300 rounded-none group-hover:shadow-[0_0_20px_rgba(255,45,149,0.2)]"
+        >
+          <img
+            src="assets/icons/cloud-upload.svg"
+            alt="Upload"
+            class="w-10 h-10 mb-3 group-hover:scale-110 transition-transform"
+          />
+          <span class="text-base font-bold tracking-[0.1em] text-white uppercase mb-1"
+            >Upload Target</span
+          >
+          <span class="text-[9px] font-mono text-neon-pink/60 uppercase"
+            >Choose background image</span
+          >
+        </div>
+      </label>
+      <input
+        type="file"
+        id="imageUpload"
+        class="hidden"
+        accept="image/*"
+        (change)="handleImageUpload($event)"
+      />
+    </div>
+    <p class="text-[8px] font-mono text-white/30 uppercase tracking-[0.2em] leading-relaxed">
+      System Ready: Select visual data
+    </p>
+  </div>
+</div>

@@ -1,0 +1,138 @@
+<div
+  class="control-panel glass-panel p-2 md:p-3 space-y-2 md:space-y-3 text-white rounded-xl max-w-md mx-auto"
+>
+  <div
+    class="flex items-center justify-between mb-2 md:mb-3 border-b border-neon-pink/30 pb-1.5 flex-nowrap gap-2"
+  >
+    <h2 class="text-base font-bold neon-text tracking-widest whitespace-nowrap">System Controls</h2>
+    <div class="text-[10px] font-mono text-neon-pink/50 animate-pulse whitespace-nowrap">
+      STATUS: ACTIVE
+    </div>
+  </div>
+
+  <!-- Ratio Selector -->
+  <div class="space-y-1 mb-2 md:mb-3 p-2 md:p-3 border border-neon-pink/10 bg-neon-pink/5">
+    <div class="flex justify-between items-center mb-1 md:mb-2">
+      <span class="text-[8px] md:text-[10px] font-mono text-neon-pink uppercase tracking-widest"
+        >Aspect Ratio</span
+      >
+      <span class="text-[8px] md:text-[10px] font-mono text-white opacity-40 uppercase">{{
+        simService.currentAspectRatio()
+      }}</span>
+    </div>
+    <select
+      (change)="updateAspectRatio($event)"
+      class="w-full bg-space-black border border-neon-pink/30 text-white text-[9px] md:text-[10px] font-mono uppercase tracking-widest p-1.5 md:p-2 outline-none focus:border-neon-pink transition-colors cursor-pointer"
+    >
+      @for (key of ratioKeys; track key) {
+      <option [value]="key" [selected]="key === simService.currentAspectRatio()">
+        {{ aspectRatios[key].label }}
+      </option>
+      }
+    </select>
+  </div>
+
+  <!-- Sliders -->
+  @for (control of controlNames; track control) {
+  <div class="space-y-0.5 md:space-y-1 group">
+    <label
+      class="block text-[10px] md:text-xs font-bold uppercase tracking-tighter flex justify-between group-hover:text-neon-pink transition-colors"
+    >
+      <span class="flex items-center gap-1">
+        {{ controlConfig[control].label }}
+        <span class="tooltip-container relative inline-block">
+          <img
+            src="assets/icons/question-mark-circle.svg"
+            alt="Help"
+            class="w-[18px] h-[18px] cursor-help"
+          />
+          <span
+            class="tooltip-text absolute left-0 bottom-full mb-2 w-64 p-4 bg-space-black/95 border border-neon-pink/30 text-[13px] text-white/90 font-normal normal-case tracking-normal leading-relaxed z-50 opacity-0 invisible transition-all duration-200"
+          >
+            {{ controlConfig[control].description }}
+          </span>
+        </span>
+      </span>
+      <span class="font-mono text-neon-pink">
+        {{ getControlValue(control).toFixed(controlConfig[control].precision) }}
+      </span>
+    </label>
+    <div class="relative h-4 md:h-5 flex items-center">
+      <input
+        type="range"
+        [min]="controlConfig[control].min"
+        [max]="controlConfig[control].max"
+        [step]="controlConfig[control].step"
+        [value]="getControlValue(control)"
+        (input)="updateControl(control, $event)"
+        class="futuristic-slider w-full"
+      />
+    </div>
+  </div>
+  }
+
+  <!-- Restart Animation & Reset Params Buttons -->
+  <div class="pt-1 md:pt-2 flex gap-2">
+    <button
+      (click)="restartAnimation()"
+      [disabled]="!simService.isImageLoaded() || simService.recordingState() !== 'idle'"
+      title="Restarts playing the animation from the beginning."
+      class="flex-1 py-1.5 md:py-2 text-[10px] md:text-xs font-bold uppercase tracking-widest rounded-none border border-neon-pink/30 bg-neon-pink/5 hover:bg-neon-pink/15 text-neon-pink/80 hover:text-neon-pink transition-all duration-300 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+    >
+      ↺ Reset Animation
+    </button>
+    <button
+      (click)="resetParams()"
+      [disabled]="simService.recordingState() !== 'idle'"
+      title="Reset all parameters (zoom speed, rotation, star settings) to default values"
+      class="flex-1 py-1.5 md:py-2 text-[10px] md:text-xs font-bold uppercase tracking-widest rounded-none border border-neon-pink/30 bg-neon-pink/5 hover:bg-neon-pink/15 text-neon-pink/80 hover:text-neon-pink transition-all duration-300 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+    >
+      ⟲ Reset Params
+    </button>
+  </div>
+
+  <!-- Video Recording Button -->
+  <div class="pt-0.5 md:pt-1">
+    <button
+      (click)="toggleRecording()"
+      [disabled]="simService.recordingState() === 'processing' || !simService.isImageLoaded()"
+      [class]="buttonClass"
+      title="Record up to 30 seconds of the animation as a video file"
+      class="w-full py-2 md:py-3 text-xs md:text-sm font-bold uppercase tracking-widest rounded-none border border-neon-pink/50 transition-all duration-300 shadow-[0_0_15px_rgba(255,45,149,0.1)] hover:shadow-[0_0_25px_rgba(255,45,149,0.3)]"
+    >
+      {{ buttonText }}
+    </button>
+
+    <!-- From Beginning Checkbox -->
+    <label
+      class="flex items-center gap-2 mt-2 cursor-pointer group"
+      [class.opacity-40]="simService.recordingState() !== 'idle'"
+    >
+      <input
+        type="checkbox"
+        [checked]="simService.recordFromBeginning()"
+        (change)="toggleFromBeginning($event)"
+        [disabled]="simService.recordingState() !== 'idle'"
+        class="w-4 h-4 accent-neon-pink cursor-pointer disabled:cursor-not-allowed"
+      />
+      <span
+        class="flex items-center gap-1 text-[10px] md:text-xs font-bold uppercase tracking-tighter group-hover:text-neon-pink transition-colors"
+      >
+        From Beginning
+        <span class="tooltip-container relative inline-block">
+          <img
+            src="assets/icons/question-mark-circle.svg"
+            alt="Help"
+            class="w-[16px] h-[16px] cursor-help"
+          />
+          <span
+            class="tooltip-text absolute left-0 bottom-full mb-2 w-64 p-4 bg-space-black/95 border border-neon-pink/30 text-[13px] text-white/90 font-normal normal-case tracking-normal leading-relaxed z-50 opacity-0 invisible transition-all duration-200"
+          >
+            When enabled, the animation resets to its initial position (zoom = 1.0, rotation = 0)
+            before recording starts.
+          </span>
+        </span>
+      </span>
+    </label>
+  </div>
+</div>

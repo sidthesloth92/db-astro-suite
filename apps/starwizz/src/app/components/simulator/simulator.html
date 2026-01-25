@@ -1,0 +1,29 @@
+<!-- 9:16 SIMULATION AREA - FIXED TO 1080x1920 PIXELS FOR HIGH-RES OUTPUT -->
+<div
+  class="simulation-wrapper shadow-2xl relative overflow-hidden bg-black"
+  [style.aspectRatio]="
+    simService.canvasDimensions().width + '/' + simService.canvasDimensions().height
+  "
+>
+  <!-- HUD OVERLAYS -->
+  <sw-hud-overlay></sw-hud-overlay>
+
+  <!-- Loading Overlay (Visible during setup) -->
+  @if (simService.loadingProgress() !== 'Ready') {
+  <sw-loading-overlay [progress]="simService.loadingProgress()"></sw-loading-overlay>
+  }
+
+  <!-- Upload Overlay (Visible when no image is loaded and not loading default) -->
+  @if (simService.loadingProgress() === 'Ready' && !simService.isImageLoaded() &&
+  !simService.isLoadingDefaultImage()) {
+  <sw-image-upload-overlay (imageSelected)="handleImageUpload($event)"></sw-image-upload-overlay>
+  }
+
+  <!-- Clear Image Button (Visible when any image is loaded, including demo) -->
+  @if (simService.isImageLoaded()) {
+  <sw-clear-image-button (clearClicked)="clearImage()"></sw-clear-image-button>
+  }
+
+  <!-- Only the canvas remains here -->
+  <canvas #starCanvas class="absolute inset-0 block w-full h-full z-10"></canvas>
+</div>

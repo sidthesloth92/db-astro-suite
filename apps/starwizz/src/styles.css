@@ -1,0 +1,112 @@
+@font-face {
+  font-family: 'Orbitron';
+  src: url('../public/assets/fonts/Orbitron-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Orbitron';
+  src: url('../public/assets/fonts/Orbitron-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Rajdhani';
+  src: url('../public/assets/fonts/Rajdhani-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Rajdhani';
+  src: url('../public/assets/fonts/Rajdhani-Regular.ttf') format('truetype');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Rajdhani';
+  src: url('../public/assets/fonts/Rajdhani-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@import 'tailwindcss';
+
+@theme {
+  --color-space-black: #050508;
+  --color-neon-pink: #ff2d95;
+  --color-neon-blue: #0066ff;
+  --color-accent-pink: #ff00ff;
+
+  --font-orbitron: 'Orbitron', sans-serif;
+  --font-rajdhani: 'Rajdhani', sans-serif;
+
+  --background-image-glass-gradient: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.05)
+  );
+}
+
+:root {
+  --neon-pink: #ff2d95;
+  --neon-blue: #0066ff;
+  --space-bg: #050508;
+  --glass-bg: rgba(10, 15, 25, 0.7);
+  --glass-border: rgba(255, 45, 149, 0.2);
+}
+
+body {
+  margin: 0;
+  background-color: var(--space-bg);
+  color: #e0e0e0;
+  font-family: 'Rajdhani', sans-serif;
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+.font-futuristic {
+  font-family: 'Orbitron', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+}
+
+.neon-text {
+  color: var(--neon-pink);
+  text-shadow: 0 0 5px rgba(255, 45, 149, 0.5), 0 0 10px rgba(255, 45, 149, 0.3);
+}
+
+.neon-border {
+  border: 1px solid var(--neon-pink);
+  box-shadow: 0 0 10px rgba(255, 45, 149, 0.2), inset 0 0 5px rgba(255, 45, 149, 0.1);
+}
+
+@keyframes scanline {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--neon-pink);
+  border-radius: 2px;
+}
