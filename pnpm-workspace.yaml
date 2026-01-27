@@ -1,5 +1,5 @@
 packages:
-  - "apps/*"
+  - "hub"
+  - "tools/*"
   - "packages/*"
   - "services/*"
-  - "tools/*"

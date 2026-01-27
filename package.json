@@ -1,12 +1,13 @@
 {
   "name": "db-astro-suite",
   "private": true,
+  "packageManager": "pnpm@9.15.0",
   "description": "A suite of Astro tools with Python backends and Go generators.",
   "scripts": {
-    "dev": "pnpm --filter \"@db-astro-suite/*\" dev",
-    "build": "pnpm --filter \"@db-astro-suite/*\" build"
-  },
-  "devDependencies": {
-    "turbo": "latest"
+    "dev:hub": "pnpm --filter hub dev",
+    "dev:starwizz": "pnpm --filter @db-astro-suite/starwizz start",
+    "build": "pnpm --filter hub build && pnpm --filter @db-astro-suite/starwizz build",
+    "build:hub": "pnpm --filter hub build",
+    "build:starwizz": "pnpm --filter @db-astro-suite/starwizz build"
   }
 }

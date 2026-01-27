@@ -1,0 +1,14 @@
+{
+  "name": "@db-astro-suite/ui",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Shared Angular UI components for the DB Astro Suite",
+  "peerDependencies": {
+    "@angular/common": ">=17.0.0",
+    "@angular/core": ">=17.0.0"
+  },
+  "dependencies": {
+    "@db-astro-suite/theme": "workspace:*",
+    "tslib": "^2.3.0"
+  }
+}

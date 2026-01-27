@@ -1,0 +1,153 @@
+/**
+ * DB Astro Suite - Neon Theme Design Tokens
+ * 
+ * Import this file in any project to use the shared theme.
+ * Example: @import '@db-astro-suite/theme';
+ */
+
+/* ========================================
+   FONT FACES
+   ======================================== */
+
+@font-face {
+  font-family: "Orbitron";
+  src: url("./fonts/Orbitron-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Orbitron";
+  src: url("./fonts/Orbitron-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Rajdhani";
+  src: url("./fonts/Rajdhani-Light.ttf") format("truetype");
+  font-weight: 300;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Rajdhani";
+  src: url("./fonts/Rajdhani-Regular.ttf") format("truetype");
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Rajdhani";
+  src: url("./fonts/Rajdhani-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-display: swap;
+}
+
+/* ========================================
+   CSS CUSTOM PROPERTIES (DESIGN TOKENS)
+   ======================================== */
+
+:root {
+  /* Colors */
+  --db-color-space-black: #050508;
+  --db-color-neon-pink: #ff2d95;
+  --db-color-neon-blue: #0066ff;
+  --db-color-accent-pink: #ff00ff;
+  --db-color-text-primary: #e0e0e0;
+  --db-color-text-muted: #94a3b8;
+
+  /* Glass Effect */
+  --db-glass-bg: rgba(10, 15, 25, 0.7);
+  --db-glass-border: rgba(255, 45, 149, 0.2);
+  --db-glass-blur: blur(12px);
+
+  /* Fonts */
+  --db-font-display: "Orbitron", sans-serif;
+  --db-font-body: "Rajdhani", sans-serif;
+
+  /* Spacing */
+  --db-spacing-xs: 0.25rem;
+  --db-spacing-sm: 0.5rem;
+  --db-spacing-md: 1rem;
+  --db-spacing-lg: 1.5rem;
+  --db-spacing-xl: 2rem;
+
+  /* Border Radius */
+  --db-radius-sm: 0.25rem;
+  --db-radius-md: 0.5rem;
+  --db-radius-lg: 0.75rem;
+
+  /* Shadows */
+  --db-shadow-neon:
+    0 0 10px rgba(255, 45, 149, 0.2), inset 0 0 5px rgba(255, 45, 149, 0.1);
+  --db-shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+
+  /* Transitions */
+  --db-transition-fast: 150ms ease;
+  --db-transition-normal: 250ms ease;
+}
+
+/* ========================================
+   BASE STYLES
+   ======================================== */
+
+body {
+  margin: 0;
+  background-color: var(--db-color-space-black);
+  color: var(--db-color-text-primary);
+  font-family: var(--db-font-body);
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--db-font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
+
+.db-glass-panel {
+  background: var(--db-glass-bg);
+  backdrop-filter: var(--db-glass-blur);
+  -webkit-backdrop-filter: var(--db-glass-blur);
+  border: 1px solid var(--db-glass-border);
+  box-shadow: var(--db-shadow-glass);
+}
+
+.db-neon-text {
+  color: var(--db-color-neon-pink);
+  text-shadow:
+    0 0 5px rgba(255, 45, 149, 0.5),
+    0 0 10px rgba(255, 45, 149, 0.3);
+}
+
+.db-neon-border {
+  border: 1px solid var(--db-color-neon-pink);
+  box-shadow: var(--db-shadow-neon);
+}
+
+/* ========================================
+   CUSTOM SCROLLBAR
+   ======================================== */
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--db-color-neon-pink);
+  border-radius: 2px;
+}
