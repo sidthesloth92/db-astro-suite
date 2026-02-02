@@ -1,0 +1,20 @@
+# Dependencies
+node_modules
+.pnpm-debug.log*
+
+# Build output
+dist
+.astro
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# Go
+bin/
+
+# OS
+.DS_Store

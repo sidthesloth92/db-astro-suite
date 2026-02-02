@@ -1,0 +1,1 @@
+import{ɵ as n,G as o,b as c,J as i}from"./index-DNV7TOYB.js";const t=class t{};t.ɵfac=function(e){return new(e||t)},t.ɵcmp=n({type:t,selectors:[["hub-starwizz-placeholder"]],decls:2,vars:0,template:function(e,l){e&1&&(o(0,"div"),c(1,"Loading Starwizz..."),i())},encapsulation:2});let a=t;export{a as default};
