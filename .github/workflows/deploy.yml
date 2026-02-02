@@ -36,10 +36,6 @@ jobs:
       - name: Build Unified Suite
         run: pnpm build
 
-      # Create 404.html at the root for AnalogJS SPA routing
-      - name: Create Root 404.html
-        run: cp hub/dist/analog/public/index.html hub/dist/analog/public/404.html
-
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
