@@ -6,9 +6,11 @@
   "scripts": {
     "dev": "pnpm -r --parallel dev",
     "dev:hub": "pnpm --filter hub dev",
-    "dev:starwizz": "pnpm --filter @db-astro-suite/starwizz start",
-    "build": "pnpm --filter hub build && pnpm --filter @db-astro-suite/starwizz build",
+    "dev:starwizz": "pnpm --filter @db-astro-suite/starwizz dev",
+    "build": "pnpm build:hub && pnpm build:starwizz && pnpm build:collect",
     "build:hub": "pnpm --filter hub build",
-    "build:starwizz": "pnpm --filter @db-astro-suite/starwizz build"
+    "build:starwizz": "pnpm --filter @db-astro-suite/starwizz build:prod",
+    "build:collect": "mkdir -p hub/dist/analog/public/starwizz && cp -rv tools/starwizz/dist/starwizz/browser/* hub/dist/analog/public/starwizz/",
+    "deploy": "pnpm build && npx gh-pages -d hub/dist/analog/public"
   }
 }

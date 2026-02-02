@@ -3,14 +3,12 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
     "dev": "ng serve",
     "build": "ng build",
+    "build:prod": "ng build --configuration production --base-href /db-astro-suite/starwizz/ && pnpm postbuild",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "predeploy": "ng build --configuration production --base-href /starwizz/",
-    "postbuild": "cp dist/starwizz/browser/index.html dist/starwizz/browser/404.html",
-    "deploy": "npm run predeploy && npm run postbuild && npx angular-cli-ghpages --dir=dist/starwizz/browser"
+    "postbuild": "cp dist/starwizz/browser/index.html dist/starwizz/browser/404.html"
   },
   "prettier": {
     "printWidth": 100,

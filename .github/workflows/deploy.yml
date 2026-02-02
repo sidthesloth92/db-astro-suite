@@ -31,24 +31,13 @@ jobs:
         run: corepack enable && corepack prepare pnpm@latest --activate
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
-      # Build Hub (AnalogJS)
-      - name: Build Hub
-        run: pnpm --filter hub build
+      - name: Build Unified Suite
+        run: pnpm build
 
-      # Build Starwizz (Angular)
-      - name: Build Starwizz
-        run: pnpm --filter @db-astro-suite/starwizz build --configuration production --base-href /db-astro-suite/starwizz/
-
-      # Copy Starwizz into Hub's dist folder
-      - name: Combine builds
-        run: |
-          mkdir -p hub/dist/analog/public/starwizz
-          cp -r tools/starwizz/dist/starwizz/browser/* hub/dist/analog/public/starwizz/
-
-      # Create 404.html for SPA routing
-      - name: Create 404.html
+      # Create 404.html at the root for AnalogJS SPA routing
+      - name: Create Root 404.html
         run: cp hub/dist/analog/public/index.html hub/dist/analog/public/404.html
 
       - name: Upload artifact
