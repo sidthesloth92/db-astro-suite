@@ -5,6 +5,9 @@
   "description": "Shared neon theme design tokens for the DB Astro Suite",
   "main": "./tokens.css",
   "style": "./tokens.css",
+  "exports": {
+    ".": "./tokens.css"
+  },
   "files": [
     "tokens.css",
     "fonts/"

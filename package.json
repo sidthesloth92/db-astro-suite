@@ -4,6 +4,7 @@
   "packageManager": "pnpm@9.15.0",
   "description": "A suite of Astro tools with Python backends and Go generators.",
   "scripts": {
+    "dev": "pnpm -r --parallel dev",
     "dev:hub": "pnpm --filter hub dev",
     "dev:starwizz": "pnpm --filter @db-astro-suite/starwizz start",
     "build": "pnpm --filter hub build && pnpm --filter @db-astro-suite/starwizz build",
