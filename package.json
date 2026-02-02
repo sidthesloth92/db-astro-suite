@@ -7,10 +7,10 @@
     "dev": "pnpm -r --parallel dev",
     "dev:hub": "pnpm --filter hub dev",
     "dev:starwizz": "pnpm --filter @db-astro-suite/starwizz dev",
-    "build": "rm -rf dist && pnpm build:hub && pnpm build:starwizz && pnpm build:merge",
+    "build": "pnpm -r exec rm -rf dist && rm -rf dist && pnpm build:hub && pnpm build:starwizz && pnpm build:merge",
     "build:hub": "pnpm --filter hub build",
     "build:starwizz": "pnpm --filter @db-astro-suite/starwizz build:prod",
-    "build:merge": "cp -r hub/dist/analog/public dist && cp -r tools/starwizz/dist/starwizz/browser/ dist/starwizz/ && cp dist/index.html dist/404.html",
+    "build:merge": "mkdir -p dist && cp -rf hub/dist/analog/public/* dist/ && cp -rf tools/starwizz/dist/starwizz/browser/* dist/starwizz/ && cp dist/index.html dist/404.html",
     "preview": "npx serve dist",
     "deploy": "pnpm build && npx gh-pages -d dist"
   }
