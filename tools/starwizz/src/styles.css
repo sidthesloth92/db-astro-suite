@@ -2,6 +2,25 @@
 
 @import 'tailwindcss';
 
+@theme {
+  --color-neon-pink: var(--db-color-neon-pink);
+  --color-neon-blue: var(--db-color-neon-blue);
+  --color-space-black: var(--db-color-space-black);
+  
+  --font-orbitron: var(--db-font-display);
+  --font-rajdhani: var(--db-font-body);
+  
+  --shadow-neon: var(--db-shadow-neon);
+  --shadow-glass: var(--db-shadow-glass);
+}
+
+:root {
+  --neon-pink: var(--db-color-neon-pink);
+  --neon-blue: var(--db-color-neon-blue);
+  --space-bg: var(--db-color-space-black);
+  --space-black: var(--db-color-space-black);
+}
+
 /* Shared theme provides --db-* variables. 
    We keep Starwizz-specific overrides if needed. */
 

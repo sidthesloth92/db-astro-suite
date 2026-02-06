@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
       [disabled]="disabled"
       class="neon-button"
       [class.neon-button--secondary]="variant === 'secondary'"
+      [class.neon-button--sm]="size === 'sm'"
     >
       <ng-content></ng-content>
       {{ label }}
@@ -29,6 +30,13 @@ import { CommonModule } from '@angular/common';
       transition: all var(--db-transition-normal, 250ms ease);
       box-shadow: 0 0 10px rgba(255, 45, 149, 0.2), inset 0 0 5px rgba(255, 45, 149, 0.1);
       border-radius: var(--db-radius-sm, 0.25rem);
+      font-size: 0.875rem;
+    }
+
+    .neon-button--sm {
+      padding: 0.35rem 0.75rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.05em;
     }
 
     .neon-button:hover:not(:disabled) {
@@ -59,5 +67,6 @@ export class NeonButtonComponent {
   @Input() label = '';
   @Input() type: 'button' | 'submit' | 'reset' = 'button';
   @Input() variant: 'primary' | 'secondary' = 'primary';
+  @Input() size: 'sm' | 'md' = 'md';
   @Input() disabled = false;
 }
