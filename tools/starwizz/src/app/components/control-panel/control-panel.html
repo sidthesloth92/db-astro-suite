@@ -25,50 +25,25 @@
       class="w-full bg-space-black border border-neon-pink/30 text-white text-[9px] md:text-[10px] font-mono uppercase tracking-widest p-1.5 md:p-2 outline-none focus:border-neon-pink transition-colors cursor-pointer"
     >
       @for (key of ratioKeys; track key) {
-      <option [value]="key" [selected]="key === simService.currentAspectRatio()">
-        {{ aspectRatios[key].label }}
-      </option>
+        <option [value]="key" [selected]="key === simService.currentAspectRatio()">
+          {{ aspectRatios[key].label }}
+        </option>
       }
     </select>
   </div>
 
   <!-- Sliders -->
   @for (control of controlNames; track control) {
-  <div class="space-y-0.5 md:space-y-1 group">
-    <label
-      class="block text-[10px] md:text-xs font-bold uppercase tracking-tighter flex justify-between group-hover:text-neon-pink transition-colors"
-    >
-      <span class="flex items-center gap-1">
-        {{ controlConfig[control].label }}
-        <span class="tooltip-container relative inline-block">
-          <img
-            src="assets/icons/question-mark-circle.svg"
-            alt="Help"
-            class="w-[18px] h-[18px] cursor-help"
-          />
-          <span
-            class="tooltip-text absolute left-0 bottom-full mb-2 w-64 p-4 bg-space-black/95 border border-neon-pink/30 text-[13px] text-white/90 font-normal normal-case tracking-normal leading-relaxed z-50 opacity-0 invisible transition-all duration-200"
-          >
-            {{ controlConfig[control].description }}
-          </span>
-        </span>
-      </span>
-      <span class="font-mono text-neon-pink">
-        {{ getControlValue(control).toFixed(controlConfig[control].precision) }}
-      </span>
-    </label>
-    <div class="relative h-4 md:h-5 flex items-center">
-      <input
-        type="range"
-        [min]="controlConfig[control].min"
-        [max]="controlConfig[control].max"
-        [step]="controlConfig[control].step"
-        [value]="getControlValue(control)"
-        (input)="updateControl(control, $event)"
-        class="futuristic-slider w-full"
-      />
-    </div>
-  </div>
+    <db-slider
+      [label]="controlConfig[control].label"
+      [value]="getControlValue(control)"
+      [min]="controlConfig[control].min"
+      [max]="controlConfig[control].max"
+      [step]="controlConfig[control].step"
+      [precision]="controlConfig[control].precision"
+      [tooltip]="controlConfig[control].description"
+      (valueChange)="updateControlValue(control, $event)"
+    ></db-slider>
   }
 
   <!-- Restart Animation & Reset Params Buttons -->

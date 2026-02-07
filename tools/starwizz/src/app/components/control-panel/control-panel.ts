@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { SliderComponent } from '@db-astro-suite/ui';
 import { SimulationService } from '../../services/simulation.service';
 import { CONTROLS, ASPECT_RATIOS, AspectRatioKey } from '../../constants/simulation.constant';
 import { ControlMetadata, ControlKey } from '../../models/simulation.model';
@@ -7,7 +8,7 @@ import { ControlMetadata, ControlKey } from '../../models/simulation.model';
 @Component({
   selector: 'sw-control-panel',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, SliderComponent],
   templateUrl: './control-panel.html',
   styleUrl: './control-panel.css',
 })
@@ -26,6 +27,10 @@ export class ControlPanel {
 
   updateControl(control: ControlKey, event: Event) {
     const value = parseFloat((event.target as HTMLInputElement).value);
+    this.simService.updateControl(control, value);
+  }
+
+  updateControlValue(control: ControlKey, value: number) {
     this.simService.updateControl(control, value);
   }
 

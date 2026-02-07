@@ -16,7 +16,7 @@
     "module": "preserve",
     "paths": {
       "@db-astro-suite/theme": ["../../packages/theme/tokens.css"],
-      "@db-astro-suite/ui": ["../../packages/ui/index.ts"]
+      "@db-astro-suite/ui": ["../../packages/ui/src/public-api.ts"]
     }
   },
   "angularCompilerOptions": {
