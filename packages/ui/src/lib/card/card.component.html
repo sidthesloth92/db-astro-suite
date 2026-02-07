@@ -1,0 +1,9 @@
+<div class="card" [class.card--clickable]="clickable">
+  <div class="card__header" *ngIf="title">
+    <h3 class="card__title">{{ title }}</h3>
+    <p class="card__subtitle" *ngIf="subtitle">{{ subtitle }}</p>
+  </div>
+  <div class="card__content">
+    <ng-content></ng-content>
+  </div>
+</div>

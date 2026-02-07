@@ -1,0 +1,10 @@
+<button
+  [type]="type"
+  [disabled]="disabled"
+  class="neon-button"
+  [class.neon-button--secondary]="variant === 'secondary'"
+  [class.neon-button--sm]="size === 'sm'"
+>
+  <ng-content></ng-content>
+  {{ label }}
+</button>
