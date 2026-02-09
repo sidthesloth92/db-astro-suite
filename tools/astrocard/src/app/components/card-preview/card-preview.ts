@@ -72,10 +72,8 @@ export class CardPreviewComponent {
     }
 
     try {
-      console.log('--- Export Start ---');
-      console.log('User Agent:', navigator.userAgent);
-      
-      const html2canvas = (await import('html2canvas')).default;
+      console.log('--- Export Start (Modern Screenshot) ---');
+      const { domToJpeg } = await import('modern-screenshot');
       const element = this.cardElement.nativeElement;
       
       const sanitizedTitle = this.data.title
@@ -85,62 +83,44 @@ export class CardPreviewComponent {
         .toLowerCase();
       
       const filename = `${sanitizedTitle || 'astrocard'}.jpg`;
-      const actualWidth = element.offsetWidth;
-      const actualHeight = element.offsetHeight;
 
-      console.log('Capturing:', filename, { actualWidth, actualHeight });
+      // Wait for fonts and all images to be truly ready
+      await document.fonts.ready;
+      const images = Array.from(element.querySelectorAll('img')) as HTMLImageElement[];
+      await Promise.all(images.map(img => {
+        if (img.complete) return Promise.resolve();
+        return new Promise(resolve => {
+          img.onload = resolve;
+          img.onerror = resolve;
+        });
+      }));
 
-      const canvas = await html2canvas(element, {
-        width: actualWidth,
-        height: actualHeight,
+      console.log('DOM ready for capture:', filename);
+
+      const dataUrl = await domToJpeg(element, {
+        quality: 0.95,
         scale: 2,
-        backgroundColor: '#000000',
-        useCORS: true,
-        allowTaint: true,
-        logging: true,
-        onclone: (doc) => {
-          const el = doc.getElementById('card-preview');
-          if (el) {
-            el.style.transform = 'none';
-          }
-        }
+        backgroundColor: '#000000'
       });
       
-      console.log('Canvas generated. Creating file blob...');
+      console.log('Image generated. Triggering download...');
       
-      canvas.toBlob((blob) => {
-        if (!blob) {
-          console.error('Blob generation failed');
-          this.isExporting = false;
-          return;
+      const link = document.createElement('a');
+      link.style.display = 'none';
+      link.href = dataUrl;
+      link.download = filename;
+      
+      document.body.appendChild(link);
+      link.click();
+      
+      // Short delay and reset
+      setTimeout(() => {
+        if (document.body.contains(link)) {
+          document.body.removeChild(link);
         }
-
-        // Using File constructor can help Safari/Chrome associate the name better
-        const file = new File([blob], filename, { type: 'image/jpeg' });
-        const url = URL.createObjectURL(file);
-        
-        const link = document.createElement('a');
-        link.style.display = 'none';
-        link.href = url;
-        link.download = filename;
-        
-        // Reliability for some browsers
-        link.target = '_blank';
-        
-        document.body.appendChild(link);
-        console.log('Triggering download for:', filename);
-        link.click();
-        
-        // Maintain the URL for 10 seconds to ensure the browser has time to "start" the save dialog
-        setTimeout(() => {
-          if (document.body.contains(link)) {
-            document.body.removeChild(link);
-          }
-          URL.revokeObjectURL(url);
-          this.isExporting = false;
-          console.log('--- Export Complete ---');
-        }, 10000);
-      }, 'image/jpeg', 0.95);
+        this.isExporting = false;
+        console.log('--- Export Complete ---');
+      }, 2000);
 
     } catch (error) {
       console.error('Export failed:', error);
