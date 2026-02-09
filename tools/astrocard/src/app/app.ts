@@ -30,6 +30,7 @@ export class App {
       { icon: '🔭', label: 'Telescope', value: 'Askar 103 APO' },
       { icon: '📷', label: 'Camera', value: 'ZWO ASI2600MM Air' },
       { icon: '🏗️', label: 'Mount', value: 'Sky-Watcher Wave 150i' },
+      { icon: '🌈', label: 'Filters', value: 'Antlia LRGB + 3nm Ha/OIII/SII' },
     ],
     software: [
       { icon: '💻', name: 'ASIAIR' },
