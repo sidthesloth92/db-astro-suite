@@ -1,22 +1,23 @@
 <div class="app-root">
-  <!-- Header -->
-
+  <!-- Shared Header -->
   <db-header
-    title="Astrocard"
+    #header
+    title="ASTROCARD"
     tagline="Exposure Card Generator"
     githubLink="https://github.com/sidthesloth92/db-astro-suite"
+    aboutLink="https://dineshbalajiv.dev"
   ></db-header>
 
-  <!-- Main Content: Simulator Left, Config Right -->
+  <!-- Main Work Area -->
   <main class="main-container">
-    <!-- Simulator Panel (Left) -->
-    <section class="simulator-panel">
+    <!-- Preview Section (Left) -->
+    <div class="simulator-panel px-4 md:px-0">
       <ac-card-preview [data]="cardData()"></ac-card-preview>
-    </section>
+    </div>
 
-    <!-- Config Panel (Right - Scrollable) -->
-    <aside class="config-panel glass-panel">
+    <!-- Configuration Section (Right) -->
+    <div class="config-panel db-glass-panel">
       <ac-card-form [data]="cardData()" (dataChange)="onDataChange($event)"> </ac-card-form>
-    </aside>
+    </div>
   </main>
 </div>

@@ -1,7 +1,7 @@
 @import "tailwindcss";
+@source "../../../packages/ui/src/**/*.{html,ts}";
 @import "@db-astro-suite/theme";
 
-/* Starwizz-compatible theme mappings */
 @theme {
   --color-neon-pink: var(--db-color-neon-pink);
   --color-neon-blue: var(--db-color-neon-blue);
@@ -15,60 +15,16 @@
 }
 
 :root {
-  --accent-color: #ff2d95;
+  --accent-color: var(--db-color-neon-pink);
   --neon-pink: var(--db-color-neon-pink);
   --neon-blue: var(--db-color-neon-blue);
   --space-bg: var(--db-color-space-black);
   --space-black: var(--db-color-space-black);
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+/* App-specific styles go below - base styles are now in @db-astro-suite/theme */
 
-body {
-  font-family: var(--db-font-body);
-  background-color: var(--db-color-space-black);
-  color: var(--db-color-text-primary);
-  overflow-x: hidden;
-}
-
-h1, h2, h3, .font-futuristic {
-  font-family: var(--db-font-display);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
-.glass-panel {
-  background: var(--db-glass-bg);
-  backdrop-filter: var(--db-glass-blur);
-  -webkit-backdrop-filter: var(--db-glass-blur);
-  border: 1px solid var(--db-glass-border);
-  box-shadow: var(--db-shadow-glass);
-}
-
-.neon-text {
-  color: var(--db-color-neon-pink);
-  text-shadow: 0 0 5px rgba(255, 45, 149, 0.5), 0 0 10px rgba(255, 45, 149, 0.3);
-}
-
-.neon-border {
-  border: 1px solid var(--db-color-neon-pink);
-  box-shadow: var(--db-shadow-neon);
-}
-
-@keyframes scanline {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-
-.font-display {
-  font-family: var(--db-font-display);
-}
-
-/* Glassmorphism card styles */
+/* Glassmorphism card styles - specific to Astrocard */
 .glass-card {
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(0px);
@@ -82,7 +38,7 @@ h1, h2, h3, .font-futuristic {
   backdrop-filter: blur(0px);
   -webkit-backdrop-filter: blur(0px);
   border: 1px solid var(--accent-color);
-  box-shadow: 0 0 20px rgba(var(--accent-color-rgb, 255, 45, 149), 0.1);
+  box-shadow: 0 0 20px rgba(255, 45, 149, 0.1);
   border-radius: 16px;
 }
 
@@ -91,7 +47,7 @@ h1, h2, h3, .font-futuristic {
   box-shadow: 
     0 0 5px var(--accent-color),
     0 0 10px var(--accent-color),
-    0 0 20px rgba(var(--accent-color-rgb, 255, 45, 149), 0.3);
+    0 0 20px rgba(255, 45, 149, 0.3);
 }
 
 /* Form inputs */
@@ -108,7 +64,7 @@ input, select, textarea {
 input:focus, select:focus, textarea:focus {
   outline: none;
   border-color: var(--accent-color);
-  box-shadow: 0 0 10px rgba(var(--accent-color-rgb, 255, 45, 149), 0.2);
+  box-shadow: 0 0 10px rgba(255, 45, 149, 0.2);
 }
 
 input::placeholder {
