@@ -8,13 +8,13 @@ import {
   SoftwareItem,
   DEFAULT_FILTERS 
 } from '../../models/card-data';
-import { NeonButtonComponent } from '@db-astro-suite/ui';
+import { NeonButtonComponent, AccordionComponent, AccordionItemComponent } from '@db-astro-suite/ui';
 
 
 @Component({
   selector: 'ac-card-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, NeonButtonComponent],
+  imports: [CommonModule, FormsModule, NeonButtonComponent, AccordionComponent, AccordionItemComponent],
   templateUrl: './card-form.html',
   styleUrl: './card-form.css'
 })

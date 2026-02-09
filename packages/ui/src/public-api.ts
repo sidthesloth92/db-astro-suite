@@ -7,4 +7,7 @@ export * from './lib/neon-button/neon-button.component';
 export * from './lib/card/card.component';
 export * from './lib/space-button/space-button.component';
 export * from './lib/slider/slider.component';
+export * from './lib/header/header.component';
+export * from './lib/accordion/accordion.component';
+export * from './lib/accordion/accordion-item.component';
 

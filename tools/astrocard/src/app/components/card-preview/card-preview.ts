@@ -62,29 +62,56 @@ export class CardPreviewComponent {
   }
 
   async exportCard() {
-    // Dynamic import of html2canvas
-    const html2canvas = (await import('html2canvas')).default;
-    
-    const element = this.cardElement.nativeElement;
-    const { width, height } = this.cardDimensions;
-    
-    // Get current element size for scale calculation
-    const rect = element.getBoundingClientRect();
-    const scaleX = width / rect.width;
-    const scaleY = height / rect.height;
-    
-    const canvas = await html2canvas(element, {
-      width: width,
-      height: height,
-      scale: scaleX, // Scale to match exact output dimensions
-      backgroundColor: null,
-      useCORS: true
-    });
-    
-    // Download the image
-    const link = document.createElement('a');
-    link.download = `astrocard-${this.data.title.replace(/\s+/g, '-').toLowerCase()}.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
+    try {
+      // Dynamic import of html2canvas
+      const html2canvas = (await import('html2canvas')).default;
+      
+      const element = this.cardElement.nativeElement;
+      const { width, height } = this.cardDimensions;
+      
+      // Get the actual computed style for width if it's auto/aspect-ratio based
+      const actualWidth = element.offsetWidth;
+      const actualHeight = element.offsetHeight;
+
+      const canvas = await html2canvas(element, {
+        width: actualWidth,
+        height: actualHeight,
+        scale: 2, // Higher quality
+        backgroundColor: null,
+        useCORS: true,
+        logging: true, // Enable for debugging
+        onclone: (doc) => {
+          const el = doc.getElementById('card-preview');
+          if (el) {
+            el.style.transform = 'none';
+          }
+        }
+      });
+      
+      // Download the image
+      const filename = `astrocard-${this.data.title.replace(/\s+/g, '-').toLowerCase() || 'unnamed'}.png`;
+      
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          console.error('Canvas toBlob failed');
+          return;
+        }
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.style.display = 'none';
+        link.download = filename;
+        link.href = url;
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Clean up
+        setTimeout(() => URL.revokeObjectURL(url), 100);
+      }, 'image/png', 1.0); // Added quality param
+    } catch (error) {
+      console.error('Failed to export card:', error);
+      alert('Failed to generate image. Please check the console for details.');
+    }
   }
 }

@@ -60,7 +60,7 @@
   /* Glass Effect */
   --db-glass-bg: rgba(10, 15, 25, 0.7);
   --db-glass-border: rgba(255, 45, 149, 0.2);
-  --db-glass-blur: blur(12px);
+  --db-glass-blur: blur(0px);
 
   /* Fonts */
   --db-font-display: "Orbitron", sans-serif;

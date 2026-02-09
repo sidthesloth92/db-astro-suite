@@ -4,19 +4,19 @@
     <span class="bortle-value">{{ value }}</span>
   </div>
 
-  <div class="bortle-track">
-    <div class="track-bg"></div>
-    <div
-      class="track-indicator"
-      [style.left.%]="getGradientPosition()"
-      [style.background]="accentColor"
-    ></div>
-  </div>
-
-  <div class="bortle-labels">
-    @for (n of scale; track n) {
-      <span [class.active]="n === value">{{ n }}</span>
-    }
-    <span class="city-icon">🏙️</span>
+  <div class="bortle-row">
+    <span class="bortle-icon">🔭</span>
+    <div class="track-container">
+      <div class="bortle-track">
+        <div class="track-bg"></div>
+        <div class="track-indicator" [style.left.%]="getGradientPosition()"></div>
+      </div>
+      <div class="bortle-markers">
+        @for (n of scale; track n) {
+          <span [class.active]="n === value">{{ n }}</span>
+        }
+      </div>
+    </div>
+    <span class="bortle-icon">🏙️</span>
   </div>
 </div>

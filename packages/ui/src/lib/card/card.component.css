@@ -1,7 +1,7 @@
 .card {
   background: var(--db-glass-bg, rgba(10, 15, 25, 0.7));
-  backdrop-filter: var(--db-glass-blur, blur(12px));
-  -webkit-backdrop-filter: var(--db-glass-blur, blur(12px));
+  backdrop-filter: var(--db-glass-blur, blur(0x));
+  -webkit-backdrop-filter: var(--db-glass-blur, blur(0px));
   border: 1px solid var(--db-glass-border, rgba(255, 45, 149, 0.2));
   box-shadow: var(--db-shadow-glass, 0 8px 32px 0 rgba(0, 0, 0, 0.8));
   border-radius: var(--db-radius-lg, 0.75rem);

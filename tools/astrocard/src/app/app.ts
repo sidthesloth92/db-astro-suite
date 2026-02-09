@@ -9,19 +9,22 @@ import {
   ASPECT_RATIOS
 } from './models/card-data';
 
+import { HeaderComponent } from '@db-astro-suite/ui';
+
 @Component({
   selector: 'ac-root',
   standalone: true,
-  imports: [CommonModule, FormsModule, CardFormComponent, CardPreviewComponent],
+  imports: [CommonModule, FormsModule, CardFormComponent, CardPreviewComponent, HeaderComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class App {
   cardData = signal<CardData>({
-    title: 'Pillars of Creation',
+    title: 'M81 - Bode\'s Galaxy',
+    description: 'My first ever attempt at HaLRGB composite. I’ve been diving deep into the world of HaLRGB processing lately. It’s a lot of hours at the computer trying to process it, Infact I spend more time processing than capturing!!! But seeing this result makes the learning curve worth it. Onwards and upwards! 🚀',
     date: new Date().toISOString().split('T')[0],
     location: 'Irving, Texas',
-    author: '@dbwithastro',
+    author: '@astrowithdb',
     filters: JSON.parse(JSON.stringify(DEFAULT_FILTERS)),
     equipment: [
       { icon: '🔭', label: 'Telescope', value: 'Askar 103 APO' },
@@ -29,9 +32,9 @@ export class App {
       { icon: '🏗️', label: 'Mount', value: 'Sky-Watcher Wave 150i' },
     ],
     software: [
-      { icon: '💻', name: 'ASIAIR Plus' },
-      { icon: '⚙️', name: 'PixInsight' },
-      { icon: '✨', name: 'Photoshop' },
+      { icon: '💻', name: 'ASIAIR' },
+      { icon: '⚙️', name: 'PixInsight + Photoshop' },
+      { icon: '✨', name: 'Seti Astro Suite' },
     ],
     bortleScale: 9,
     accentColor: '#ff2d95',

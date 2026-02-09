@@ -1,220 +1,219 @@
 <div class="form-container">
-  <!-- Card Settings Section -->
-  <section class="form-section">
-    <h3 class="section-title">⚙️ Card Settings</h3>
+  <db-accordion>
+    <!-- Card Settings Section -->
+    <db-accordion-item title="⚙️ Card Settings" [expanded]="true">
+      <div class="row">
+        <div class="form-group half">
+          <label>Accent Color</label>
+          <div class="color-picker-wrapper">
+            <input type="color" [(ngModel)]="data.accentColor" (ngModelChange)="emitChange()" />
+            <span class="color-value">{{ data.accentColor }}</span>
+          </div>
+        </div>
 
-    <div class="row">
-      <div class="form-group half">
-        <label>Accent Color</label>
-        <div class="color-picker-wrapper">
-          <input type="color" [(ngModel)]="data.accentColor" (ngModelChange)="emitChange()" />
-          <span class="color-value">{{ data.accentColor }}</span>
+        <div class="form-group half">
+          <label>Aspect Ratio</label>
+          <select [(ngModel)]="data.aspectRatio" (ngModelChange)="emitChange()">
+            <option value="4:5">4:5 (Portrait)</option>
+            <option value="9:16">9:16 (Story)</option>
+          </select>
         </div>
       </div>
 
-      <div class="form-group half">
-        <label>Aspect Ratio</label>
-        <select [(ngModel)]="data.aspectRatio" (ngModelChange)="emitChange()">
-          <option value="4:5">4:5 (Portrait)</option>
-          <option value="9:16">9:16 (Story)</option>
-        </select>
-      </div>
-    </div>
-  </section>
-
-  <!-- Header Section -->
-  <section class="form-section">
-    <h3 class="section-title">📸 Image Details</h3>
-
-    <div class="form-group">
-      <label>Object Name</label>
-      <input
-        type="text"
-        [(ngModel)]="data.title"
-        (ngModelChange)="emitChange()"
-        placeholder="e.g., Pillars of Creation"
-      />
-    </div>
-
-    <div class="form-row">
-      <div class="form-group">
-        <label>📅 Date</label>
-        <input type="date" [(ngModel)]="data.date" (ngModelChange)="emitChange()" />
-      </div>
-      <div class="form-group">
-        <label>📍 Location</label>
-        <input
-          type="text"
-          [(ngModel)]="data.location"
-          (ngModelChange)="emitChange()"
-          placeholder="City, State"
-        />
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label>👤 Author Handle</label>
-      <input
-        type="text"
-        [(ngModel)]="data.author"
-        (ngModelChange)="emitChange()"
-        placeholder="@username"
-      />
-    </div>
-  </section>
-
-  <!-- Background Image Section -->
-  <section class="form-section">
-    <h3 class="section-title">🖼️ Background Image</h3>
-
-    <div class="image-upload">
-      @if (data.backgroundImage) {
-        <div class="image-preview">
-          <img [src]="data.backgroundImage" alt="Background preview" />
-          <button class="remove-btn" (click)="clearBackground()">✕</button>
-        </div>
-      } @else {
-        <label class="upload-area">
-          <input type="file" accept="image/*" (change)="onImageUpload($event)" hidden />
-          <span class="upload-icon">📤</span>
-          <span class="upload-text">Drop image or click to upload</span>
-        </label>
-      }
-    </div>
-  </section>
-
-  <!-- Integration / Filters Section -->
-  <section class="form-section">
-    <h3 class="section-title">⏱️ Integration</h3>
-
-    <div class="filters-list">
-      @for (filter of data.filters; track filter.name; let i = $index) {
-        <div class="filter-row" [class.disabled]="!filter.enabled">
-          <button
-            class="filter-toggle"
-            [style.background]="filter.enabled ? filter.color : 'transparent'"
-            [style.borderColor]="filter.color"
-            (click)="toggleFilter(i)"
-          >
-            {{ filter.name }}
-          </button>
-
-          @if (filter.enabled) {
-            <input
-              type="number"
-              [ngModel]="filter.frames"
-              (ngModelChange)="updateFilter(i, 'frames', $event)"
-              placeholder="Frames"
-              min="0"
-              class="filter-input"
-            />
-            <span class="filter-x">×</span>
-            <input
-              type="number"
-              [ngModel]="filter.seconds"
-              (ngModelChange)="updateFilter(i, 'seconds', $event)"
-              placeholder="Sec"
-              min="0"
-              class="filter-input"
-            />
-            <span class="filter-label">sec</span>
-          }
-
-          @if (i >= 7) {
-            <button class="remove-small-btn" (click)="removeFilter(i)">✕</button>
+      <div class="form-group" style="margin-top: 1rem">
+        <label>🖼️ Background Image</label>
+        <div class="image-upload">
+          @if (data.backgroundImage) {
+            <div class="image-preview">
+              <img [src]="data.backgroundImage" alt="Background preview" />
+              <button class="remove-btn" (click)="clearBackground()">✕</button>
+            </div>
+          } @else {
+            <label class="upload-area">
+              <input type="file" accept="image/*" (change)="onImageUpload($event)" hidden />
+              <span class="upload-icon">📤</span>
+              <span class="upload-text">Upload Background</span>
+            </label>
           }
         </div>
-      }
-    </div>
-
-    <db-neon-button variant="secondary" fullWidth (click)="addCustomFilter()">
-      + Add Custom Filter
-    </db-neon-button>
-  </section>
-
-  <!-- Equipment Section -->
-  <section class="form-section">
-    <h3 class="section-title">🔭 Equipment</h3>
-
-    @for (item of data.equipment; track $index; let i = $index) {
-      <div class="equipment-row">
-        <input
-          type="text"
-          [(ngModel)]="item.icon"
-          (ngModelChange)="emitChange()"
-          class="icon-input"
-          maxlength="2"
-        />
-        <input
-          type="text"
-          [(ngModel)]="item.label"
-          (ngModelChange)="emitChange()"
-          placeholder="Label"
-          class="label-input"
-        />
-        <input
-          type="text"
-          [(ngModel)]="item.value"
-          (ngModelChange)="emitChange()"
-          placeholder="Value"
-          class="value-input"
-        />
-        <button class="remove-small-btn" (click)="removeEquipment(i)">✕</button>
       </div>
-    }
+    </db-accordion-item>
 
-    <db-neon-button variant="secondary" fullWidth (click)="addEquipment()">
-      + Add Equipment
-    </db-neon-button>
-  </section>
-
-  <!-- Software Section -->
-  <section class="form-section">
-    <h3 class="section-title">💻 Software</h3>
-
-    @for (item of data.software; track $index; let i = $index) {
-      <div class="software-row">
+    <!-- Header Section -->
+    <db-accordion-item title="📸 Image Details">
+      <div class="form-group">
+        <label>Object Name</label>
         <input
           type="text"
-          [(ngModel)]="item.icon"
+          [(ngModel)]="data.title"
           (ngModelChange)="emitChange()"
-          class="icon-input"
-          maxlength="2"
+          placeholder="e.g., Pillars of Creation"
         />
-        <input
-          type="text"
-          [(ngModel)]="item.name"
-          (ngModelChange)="emitChange()"
-          placeholder="Software name"
-          class="name-input"
-        />
-        <button class="remove-small-btn" (click)="removeSoftware(i)">✕</button>
       </div>
-    }
 
-    <db-neon-button variant="secondary" fullWidth (click)="addSoftware()">
-      + Add Software
-    </db-neon-button>
-  </section>
+      <div class="form-group">
+        <label>📝 Description</label>
+        <textarea
+          [(ngModel)]="data.description"
+          (ngModelChange)="emitChange()"
+          placeholder="Brief description of the object..."
+          rows="3"
+          class="description-input"
+        ></textarea>
+      </div>
 
-  <!-- Bortle Scale Section -->
-  <section class="form-section">
-    <h3 class="section-title">🏙️ Bortle Scale</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>📅 Date</label>
+          <input type="date" [(ngModel)]="data.date" (ngModelChange)="emitChange()" />
+        </div>
+        <div class="form-group">
+          <label>📍 Location</label>
+          <input
+            type="text"
+            [(ngModel)]="data.location"
+            (ngModelChange)="emitChange()"
+            placeholder="City, State"
+          />
+        </div>
+      </div>
 
-    <div class="bortle-slider">
-      <input
-        type="range"
-        min="1"
-        max="9"
-        [(ngModel)]="data.bortleScale"
-        (ngModelChange)="emitChange()"
-        class="bortle-range"
-      />
-      <div class="bortle-labels">
-        @for (n of [1, 2, 3, 4, 5, 6, 7, 8, 9]; track n) {
-          <span [class.active]="data.bortleScale === n">{{ n }}</span>
+      <div class="form-group">
+        <label>👤 Author Handle</label>
+        <input
+          type="text"
+          [(ngModel)]="data.author"
+          (ngModelChange)="emitChange()"
+          placeholder="@username"
+        />
+      </div>
+    </db-accordion-item>
+
+    <!-- Integration / Filters Section -->
+    <db-accordion-item title="⏱️ Integration">
+      <div class="filters-list">
+        @for (filter of data.filters; track filter.name; let i = $index) {
+          <div class="filter-row" [class.disabled]="!filter.enabled">
+            <button
+              class="filter-toggle"
+              [style.background]="filter.enabled ? filter.color : 'transparent'"
+              [style.borderColor]="filter.color"
+              (click)="toggleFilter(i)"
+            >
+              {{ filter.name }}
+            </button>
+
+            @if (filter.enabled) {
+              <input
+                type="number"
+                [ngModel]="filter.frames"
+                (ngModelChange)="updateFilter(i, 'frames', $event)"
+                placeholder="Frames"
+                min="0"
+                class="filter-input"
+              />
+              <span class="filter-x">×</span>
+              <input
+                type="number"
+                [ngModel]="filter.seconds"
+                (ngModelChange)="updateFilter(i, 'seconds', $event)"
+                placeholder="Sec"
+                min="0"
+                class="filter-input"
+              />
+              <span class="filter-label">sec</span>
+            }
+
+            @if (i >= 7) {
+              <button class="remove-small-btn" (click)="removeFilter(i)">✕</button>
+            }
+          </div>
         }
       </div>
-    </div>
-  </section>
+
+      <db-neon-button variant="secondary" fullWidth (click)="addCustomFilter()">
+        + Add Custom Filter
+      </db-neon-button>
+    </db-accordion-item>
+
+    <!-- Equipment Section -->
+    <db-accordion-item title="🔭 Equipment">
+      @for (item of data.equipment; track $index; let i = $index) {
+        <div class="equipment-row">
+          <input
+            type="text"
+            [(ngModel)]="item.icon"
+            (ngModelChange)="emitChange()"
+            class="icon-input"
+            maxlength="2"
+          />
+          <input
+            type="text"
+            [(ngModel)]="item.label"
+            (ngModelChange)="emitChange()"
+            placeholder="Label"
+            class="label-input"
+          />
+          <input
+            type="text"
+            [(ngModel)]="item.value"
+            (ngModelChange)="emitChange()"
+            placeholder="Value"
+            class="value-input"
+          />
+          <button class="remove-small-btn" (click)="removeEquipment(i)">✕</button>
+        </div>
+      }
+
+      <db-neon-button variant="secondary" fullWidth (click)="addEquipment()">
+        + Add Equipment
+      </db-neon-button>
+    </db-accordion-item>
+
+    <!-- Software Section -->
+    <db-accordion-item title="💻 Software">
+      @for (item of data.software; track $index; let i = $index) {
+        <div class="software-row">
+          <input
+            type="text"
+            [(ngModel)]="item.icon"
+            (ngModelChange)="emitChange()"
+            class="icon-input"
+            maxlength="2"
+          />
+          <input
+            type="text"
+            [(ngModel)]="item.name"
+            (ngModelChange)="emitChange()"
+            placeholder="Software name"
+            class="name-input"
+          />
+          <button class="remove-small-btn" (click)="removeSoftware(i)">✕</button>
+        </div>
+      }
+
+      <db-neon-button variant="secondary" fullWidth (click)="addSoftware()">
+        + Add Software
+      </db-neon-button>
+    </db-accordion-item>
+
+    <!-- Bortle Scale Section -->
+    <db-accordion-item title="🏙️ Bortle Scale">
+      <div class="bortle-slider">
+        <input
+          type="range"
+          min="1"
+          max="9"
+          [(ngModel)]="data.bortleScale"
+          (ngModelChange)="emitChange()"
+          class="bortle-range"
+        />
+        <div class="bortle-labels">
+          @for (n of [1, 2, 3, 4, 5, 6, 7, 8, 9]; track n) {
+            <span [class.active]="data.bortleScale === n">{{ n }}</span>
+          }
+        </div>
+      </div>
+    </db-accordion-item>
+  </db-accordion>
 </div>

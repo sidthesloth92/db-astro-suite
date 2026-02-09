@@ -71,16 +71,16 @@ h1, h2, h3, .font-futuristic {
 /* Glassmorphism card styles */
 .glass-card {
   background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
 }
 
 .glass-card-accent {
   background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
   border: 1px solid var(--accent-color);
   box-shadow: 0 0 20px rgba(var(--accent-color-rgb, 255, 45, 149), 0.1);
   border-radius: 16px;
