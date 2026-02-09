@@ -1,0 +1,116 @@
+@import "tailwindcss";
+@import "@db-astro-suite/theme";
+
+/* Starwizz-compatible theme mappings */
+@theme {
+  --color-neon-pink: var(--db-color-neon-pink);
+  --color-neon-blue: var(--db-color-neon-blue);
+  --color-space-black: var(--db-color-space-black);
+  
+  --font-orbitron: var(--db-font-display);
+  --font-rajdhani: var(--db-font-body);
+  
+  --shadow-neon: var(--db-shadow-neon);
+  --shadow-glass: var(--db-shadow-glass);
+}
+
+:root {
+  --accent-color: #ff2d95;
+  --neon-pink: var(--db-color-neon-pink);
+  --neon-blue: var(--db-color-neon-blue);
+  --space-bg: var(--db-color-space-black);
+  --space-black: var(--db-color-space-black);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--db-font-body);
+  background-color: var(--db-color-space-black);
+  color: var(--db-color-text-primary);
+  overflow-x: hidden;
+}
+
+h1, h2, h3, .font-futuristic {
+  font-family: var(--db-font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.glass-panel {
+  background: var(--db-glass-bg);
+  backdrop-filter: var(--db-glass-blur);
+  -webkit-backdrop-filter: var(--db-glass-blur);
+  border: 1px solid var(--db-glass-border);
+  box-shadow: var(--db-shadow-glass);
+}
+
+.neon-text {
+  color: var(--db-color-neon-pink);
+  text-shadow: 0 0 5px rgba(255, 45, 149, 0.5), 0 0 10px rgba(255, 45, 149, 0.3);
+}
+
+.neon-border {
+  border: 1px solid var(--db-color-neon-pink);
+  box-shadow: var(--db-shadow-neon);
+}
+
+@keyframes scanline {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.font-display {
+  font-family: var(--db-font-display);
+}
+
+/* Glassmorphism card styles */
+.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+}
+
+.glass-card-accent {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--accent-color);
+  box-shadow: 0 0 20px rgba(var(--accent-color-rgb, 255, 45, 149), 0.1);
+  border-radius: 16px;
+}
+
+/* Neon glow effect */
+.neon-glow {
+  box-shadow: 
+    0 0 5px var(--accent-color),
+    0 0 10px var(--accent-color),
+    0 0 20px rgba(var(--accent-color-rgb, 255, 45, 149), 0.3);
+}
+
+/* Form inputs */
+input, select, textarea {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 10px rgba(var(--accent-color-rgb, 255, 45, 149), 0.2);
+}
+
+input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}

@@ -1,0 +1,79 @@
+.bortle {
+  padding: 0.5rem;
+}
+
+.bortle-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.bortle-title {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--accent-color, #ff2d95);
+}
+
+.bortle-value {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: white;
+}
+
+.bortle-track {
+  position: relative;
+  height: 6px;
+  margin-bottom: 0.375rem;
+}
+
+.track-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    #003366 0%,
+    #006666 25%,
+    #339933 50%,
+    #cc6600 75%,
+    #990000 100%
+  );
+  border-radius: 3px;
+  opacity: 0.6;
+}
+
+.track-indicator {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.bortle-labels {
+  display: flex;
+  align-items: center;
+}
+
+.bortle-labels span {
+  flex: 1;
+  text-align: center;
+  font-size: 0.5rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.bortle-labels span.active {
+  color: white;
+  font-weight: 700;
+}
+
+.city-icon {
+  flex: 0 0 auto !important;
+  font-size: 0.75rem !important;
+  margin-left: 0.25rem;
+}

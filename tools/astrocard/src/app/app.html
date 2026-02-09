@@ -1,0 +1,30 @@
+<div class="app-root">
+  <!-- Header -->
+  <header
+    class="header-container glass-panel w-full py-2 px-4 flex items-center justify-between z-50 border-b border-neon-pink/30"
+  >
+    <!-- Left Side: Logo + App Title -->
+    <div class="flex items-center gap-2">
+      <span class="logo-icon">🌌</span>
+      <h1 class="text-lg font-bold neon-text tracking-[0.2em] whitespace-nowrap uppercase">
+        Astrocard
+      </h1>
+    </div>
+
+    <!-- Right Side: Tagline -->
+    <span class="text-xs text-neon-pink/60 tracking-widest uppercase">Exposure Card Generator</span>
+  </header>
+
+  <!-- Main Content: Simulator Left, Config Right -->
+  <main class="main-container">
+    <!-- Simulator Panel (Left) -->
+    <section class="simulator-panel">
+      <ac-card-preview [data]="cardData()"></ac-card-preview>
+    </section>
+
+    <!-- Config Panel (Right - Scrollable) -->
+    <aside class="config-panel glass-panel">
+      <ac-card-form [data]="cardData()" (dataChange)="onDataChange($event)"> </ac-card-form>
+    </aside>
+  </main>
+</div>

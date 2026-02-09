@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, booleanAttribute } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -14,4 +14,5 @@ export class NeonButtonComponent {
   @Input() variant: 'primary' | 'secondary' = 'primary';
   @Input() size: 'sm' | 'md' = 'md';
   @Input() disabled = false;
+  @Input({ transform: booleanAttribute }) fullWidth = false;
 }

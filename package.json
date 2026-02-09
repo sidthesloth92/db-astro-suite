@@ -7,9 +7,11 @@
     "dev": "pnpm -r --parallel dev",
     "dev:hub": "pnpm --filter hub dev",
     "dev:starwizz": "pnpm --filter @db-astro-suite/starwizz dev",
+    "dev:astrocard": "pnpm --filter @db-astro-suite/astrocard dev",
     "build": "pnpm -r exec rm -rf dist && rm -rf dist && pnpm build:hub && pnpm build:starwizz && pnpm build:merge",
     "build:hub": "pnpm --filter hub build",
     "build:starwizz": "pnpm --filter @db-astro-suite/starwizz build:prod",
+    "build:astrocard": "pnpm --filter @db-astro-suite/astrocard build",
     "build:merge": "mkdir -p dist/starwizz && (cp -rf hub/dist/analog/public/* dist/ 2>/dev/null || cp -rf hub/dist/client/* dist/ 2>/dev/null || true) && (cp -rf tools/starwizz/dist/starwizz/browser/* dist/starwizz/ 2>/dev/null || cp -rf tools/starwizz/dist/starwizz/* dist/starwizz/ 2>/dev/null || true) && (cp dist/index.html dist/404.html 2>/dev/null || true)",
     "preview": "npx serve dist",
     "deploy": "pnpm build && npx gh-pages -d dist"

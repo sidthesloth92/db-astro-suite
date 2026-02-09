@@ -1,0 +1,22 @@
+<div class="ring" [style.--ring-color]="color">
+  <svg class="ring-svg" viewBox="0 0 60 60">
+    <!-- Background circle (dim) -->
+    <circle class="ring-bg" cx="30" cy="30" r="26" fill="none" stroke-width="4" />
+    <!-- Progress circle (colored) -->
+    <circle
+      class="ring-fg"
+      cx="30"
+      cy="30"
+      r="26"
+      fill="none"
+      [style.stroke]="color"
+      stroke-width="4"
+      stroke-linecap="round"
+      [style.strokeDashoffset]="strokeDashoffset"
+    />
+  </svg>
+  <div class="ring-content">
+    <span class="ring-name">{{ name }}</span>
+    <span class="ring-duration">{{ duration }}</span>
+  </div>
+</div>

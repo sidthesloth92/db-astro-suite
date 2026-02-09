@@ -1,0 +1,22 @@
+<div class="bortle">
+  <div class="bortle-header">
+    <h3 class="bortle-title">BORTLE SCALE</h3>
+    <span class="bortle-value">{{ value }}</span>
+  </div>
+
+  <div class="bortle-track">
+    <div class="track-bg"></div>
+    <div
+      class="track-indicator"
+      [style.left.%]="getGradientPosition()"
+      [style.background]="accentColor"
+    ></div>
+  </div>
+
+  <div class="bortle-labels">
+    @for (n of scale; track n) {
+      <span [class.active]="n === value">{{ n }}</span>
+    }
+    <span class="city-icon">🏙️</span>
+  </div>
+</div>
