@@ -1,2 +1,34 @@
-/* Inherit shared styles or add specific overrides if needed */
-/* Currently relying on Tailwind utility classes and shared tokens */
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  border-left: 0;
+  border-right: 0;
+  width: 100%;
+  box-sizing: border-box;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--neon-pink), transparent);
+    animation: scanline 4s linear infinite;
+    opacity: 0.5;
+  }
+}
+
+.left-side, .right-side {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+@keyframes scanline {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}

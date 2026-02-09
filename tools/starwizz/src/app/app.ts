@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { ControlPanel } from './components/control-panel/control-panel';
 import { Simulator } from './components/simulator/simulator';
-import { HeaderComponent } from './components/header/header';
+import { HeaderComponent } from '@db-astro-suite/ui';
 
 @Component({
   selector: 'sw-root',

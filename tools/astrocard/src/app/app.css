@@ -6,30 +6,7 @@
   overflow: hidden;
 }
 
-/* Header - Starwizz style */
-.header-container {
-  position: relative;
-  overflow: hidden;
-  border-left: 0;
-  border-right: 0;
-  flex-shrink: 0;
 
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--neon-pink), transparent);
-    animation: scanline 4s linear infinite;
-    opacity: 0.5;
-  }
-}
-
-.logo-icon {
-  font-size: 1.5rem;
-}
 
 /* Main Content: Simulator LEFT, Config RIGHT (like Starwizz) */
 .main-container {
