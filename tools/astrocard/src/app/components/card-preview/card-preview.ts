@@ -23,6 +23,7 @@ export class CardPreviewComponent {
   @Input() data!: CardData;
   @Output() export = new EventEmitter<void>();
   @ViewChild('cardElement') cardElement!: ElementRef;
+  isExporting = false;
 
   get enabledFilters(): FilterExposure[] {
     return this.data.filters.filter(f => f.enabled && f.frames > 0);
@@ -61,25 +62,42 @@ export class CardPreviewComponent {
     });
   }
 
-  async exportCard() {
+  async exportCard(event?: MouseEvent) {
+    if (this.isExporting) return;
+    this.isExporting = true;
+
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
     try {
-      // Dynamic import of html2canvas
+      console.log('--- Export Start ---');
+      console.log('User Agent:', navigator.userAgent);
+      
       const html2canvas = (await import('html2canvas')).default;
-      
       const element = this.cardElement.nativeElement;
-      const { width, height } = this.cardDimensions;
       
-      // Get the actual computed style for width if it's auto/aspect-ratio based
+      const sanitizedTitle = this.data.title
+        .trim()
+        .replace(/[^a-z0-9]/gi, '-')
+        .replace(/-+/g, '-')
+        .toLowerCase();
+      
+      const filename = `${sanitizedTitle || 'astrocard'}.jpg`;
       const actualWidth = element.offsetWidth;
       const actualHeight = element.offsetHeight;
+
+      console.log('Capturing:', filename, { actualWidth, actualHeight });
 
       const canvas = await html2canvas(element, {
         width: actualWidth,
         height: actualHeight,
-        scale: 2, // Higher quality
-        backgroundColor: null,
+        scale: 2,
+        backgroundColor: '#000000',
         useCORS: true,
-        logging: true, // Enable for debugging
+        allowTaint: true,
+        logging: true,
         onclone: (doc) => {
           const el = doc.getElementById('card-preview');
           if (el) {
@@ -88,30 +106,46 @@ export class CardPreviewComponent {
         }
       });
       
-      // Download the image
-      const filename = `astrocard-${this.data.title.replace(/\s+/g, '-').toLowerCase() || 'unnamed'}.png`;
+      console.log('Canvas generated. Creating file blob...');
       
       canvas.toBlob((blob) => {
         if (!blob) {
-          console.error('Canvas toBlob failed');
+          console.error('Blob generation failed');
+          this.isExporting = false;
           return;
         }
-        const url = URL.createObjectURL(blob);
+
+        // Using File constructor can help Safari/Chrome associate the name better
+        const file = new File([blob], filename, { type: 'image/jpeg' });
+        const url = URL.createObjectURL(file);
+        
         const link = document.createElement('a');
         link.style.display = 'none';
-        link.download = filename;
         link.href = url;
+        link.download = filename;
+        
+        // Reliability for some browsers
+        link.target = '_blank';
         
         document.body.appendChild(link);
+        console.log('Triggering download for:', filename);
         link.click();
-        document.body.removeChild(link);
         
-        // Clean up
-        setTimeout(() => URL.revokeObjectURL(url), 100);
-      }, 'image/png', 1.0); // Added quality param
+        // Maintain the URL for 10 seconds to ensure the browser has time to "start" the save dialog
+        setTimeout(() => {
+          if (document.body.contains(link)) {
+            document.body.removeChild(link);
+          }
+          URL.revokeObjectURL(url);
+          this.isExporting = false;
+          console.log('--- Export Complete ---');
+        }, 10000);
+      }, 'image/jpeg', 0.95);
+
     } catch (error) {
-      console.error('Failed to export card:', error);
-      alert('Failed to generate image. Please check the console for details.');
+      console.error('Export failed:', error);
+      alert('Failed to generate image. Please check the console.');
+      this.isExporting = false;
     }
   }
 }

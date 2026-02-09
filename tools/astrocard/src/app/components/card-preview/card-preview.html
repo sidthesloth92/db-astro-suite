@@ -142,6 +142,8 @@
       <span class="aspect-label">{{ data.aspectRatio }}</span>
       <span class="aspect-dimensions">{{ cardDimensions.width }}×{{ cardDimensions.height }}</span>
     </div>
-    <db-neon-button variant="primary" (click)="exportCard()"> ⬇️ Download PNG </db-neon-button>
+    <db-neon-button variant="primary" (click)="exportCard($event)">
+      ⬇️ Download JPEG
+    </db-neon-button>
   </div>
 </div>
