@@ -1,22 +1,24 @@
-<div class="progress-ring" [style.--ring-color]="color">
-  <svg class="ring-svg" viewBox="0 0 60 60">
-    <!-- Background circle (dim) -->
-    <circle class="ring-bg" cx="30" cy="30" r="26" fill="none" stroke-width="4" />
-    <!-- Progress circle (colored) -->
-    <circle
-      class="ring-fg"
-      cx="30"
-      cy="30"
-      r="26"
-      fill="none"
-      [style.stroke]="color"
-      stroke-width="4"
-      stroke-linecap="round"
-      [style.strokeDashoffset]="strokeDashoffset"
-    />
-  </svg>
-  <div class="ring-content">
-    <span class="ring-name">{{ name }}</span>
-    <span class="ring-duration">{{ duration }}</span>
+<div class="filter-ring-container" [style.--ring-color]="color">
+  <div class="progress-ring">
+    <svg class="ring-svg" viewBox="0 0 50 50">
+      <!-- Background circle (dim) -->
+      <circle class="ring-bg" cx="25" cy="25" r="21" fill="none" stroke-width="3" />
+      <!-- Progress circle (colored) -->
+      <circle
+        class="ring-fg"
+        cx="25"
+        cy="25"
+        r="21"
+        fill="none"
+        [style.stroke]="color"
+        stroke-width="3"
+        stroke-linecap="round"
+        [style.strokeDashoffset]="strokeDashoffset"
+      />
+    </svg>
+    <div class="ring-content">
+      <span class="ring-duration">{{ duration }}</span>
+    </div>
   </div>
+  <span class="filter-label">{{ name }}</span>
 </div>

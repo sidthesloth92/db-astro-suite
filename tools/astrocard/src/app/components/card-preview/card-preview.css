@@ -107,7 +107,7 @@
 
 .card-description {
   margin-top: 0.5rem;
-  font-size: 0.7rem;
+  font-size: 0.8rem; /* Increased from 0.7rem */
   line-height: 1.4;
   color: rgba(255, 255, 255, 0.85);
   max-width: 90%;
@@ -140,7 +140,7 @@
 
 .integration-time {
   font-family: var(--db-font-display);
-  font-size: 2rem; /* Reduced from 2.5rem */
+  font-size: 1.25rem; /* Reduced further for space */
   font-weight: 700;
   line-height: 1;
   color: white;
@@ -157,9 +157,9 @@
 .filter-rings {
   display: flex;
   justify-content: center;
-  gap: 0.5rem;
   flex-wrap: wrap;
-  margin-top: 0.75rem; /* Only top margin added */
+  gap: 0.5rem;
+  margin-top: 0.5rem;
   margin-bottom: 0;
 }
 
@@ -229,8 +229,8 @@
   flex-direction: column; /* Vertical layout */
   align-items: center;
   justify-content: center;
-  gap: 0.125rem; /* Reduced from 0.25rem */
-  padding: 0.25rem 0.5rem; /* Reduced vertical padding */
+  gap: 0; /* Removed gap */
+  padding: 0.125rem 0.5rem; /* More compact vertical padding */
   background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(0px);
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -244,7 +244,7 @@
 }
 
 .author-handle {
-  font-size: 0.8rem; /* Slightly reduced */
+  font-size: 0.75rem; /* More compact */
   font-weight: 600;
 }
 

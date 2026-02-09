@@ -1,7 +1,14 @@
+.filter-ring-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+}
+
 .progress-ring {
   position: relative;
-  width: 55px;
-  height: 55px;
+  width: 45px;
+  height: 45px;
   background: transparent;
 }
 
@@ -17,7 +24,7 @@
 }
 
 .ring-fg {
-  stroke-dasharray: 163.36; /* 2 * PI * 26 */
+  stroke-dasharray: 131.95; /* 2 * PI * 21 */
   transition: stroke-dashoffset 0.5s ease;
 }
 
@@ -30,17 +37,18 @@
   justify-content: center;
 }
 
-.ring-name {
-  font-size: 0.5rem; /* Reduced for more space */
-  font-weight: 700;
-  color: var(--ring-color);
-  line-height: 1;
-  margin-bottom: 2px;
-}
-
 .ring-duration {
-  font-size: 0.7rem; /* Reduced for more space */
+  font-size: 0.65rem;
   font-weight: 700;
   color: white;
+  line-height: 1;
+}
+
+.filter-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--ring-color);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   line-height: 1;
 }
