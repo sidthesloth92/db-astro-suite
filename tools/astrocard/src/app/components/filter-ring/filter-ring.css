@@ -7,8 +7,8 @@
 
 .progress-ring {
   position: relative;
-  width: 45px;
-  height: 45px;
+  width: 52px;
+  height: 52px;
   background: transparent;
 }
 
@@ -24,7 +24,7 @@
 }
 
 .ring-fg {
-  stroke-dasharray: 131.95; /* 2 * PI * 21 */
+  stroke-dasharray: 144.5; /* 2 * PI * 23 */
   transition: stroke-dashoffset 0.5s ease;
 }
 

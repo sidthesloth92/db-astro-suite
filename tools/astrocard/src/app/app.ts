@@ -39,6 +39,8 @@ export class App {
     ],
     bortleScale: 9,
     accentColor: '#ff2d95',
+    accentColorRgb: '255, 45, 149',
+    cardOpacity: 0.85,
     backgroundImage: null,
     aspectRatio: '4:5'
   });

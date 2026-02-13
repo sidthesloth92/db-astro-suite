@@ -18,7 +18,11 @@
         <div class="db-form-group">
           <label class="db-form-label">Accent Color</label>
           <div class="color-picker-wrapper">
-            <input type="color" [(ngModel)]="data.accentColor" (ngModelChange)="emitChange()" />
+            <input
+              type="color"
+              [(ngModel)]="data.accentColor"
+              (ngModelChange)="onAccentColorChange()"
+            />
             <span class="color-val">{{ data.accentColor }}</span>
           </div>
         </div>
@@ -38,6 +42,20 @@
               </label>
             }
           </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="db-form-group">
+          <db-slider
+            label="Card Transparency"
+            [value]="data.cardOpacity * 100"
+            [min]="0"
+            [max]="100"
+            [step]="5"
+            [precision]="0"
+            (valueChange)="data.cardOpacity = $event / 100; emitChange()"
+          ></db-slider>
         </div>
       </div>
     </db-accordion-item>

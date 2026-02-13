@@ -8,13 +8,20 @@ import {
   SoftwareItem,
   DEFAULT_FILTERS 
 } from '../../models/card-data';
-import { NeonButtonComponent, AccordionComponent, AccordionItemComponent } from '@db-astro-suite/ui';
+import { NeonButtonComponent, AccordionComponent, AccordionItemComponent, SliderComponent } from '@db-astro-suite/ui';
 
 
 @Component({
   selector: 'ac-card-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, NeonButtonComponent, AccordionComponent, AccordionItemComponent],
+  imports: [
+    CommonModule, 
+    FormsModule, 
+    NeonButtonComponent, 
+    AccordionComponent, 
+    AccordionItemComponent,
+    SliderComponent
+  ],
   templateUrl: './card-form.html',
   styleUrl: './card-form.css',
   styles: [`
@@ -30,6 +37,16 @@ export class CardFormComponent {
   // Emit changes to parent
   emitChange() {
     this.dataChange.emit({ ...this.data });
+  }
+
+  onAccentColorChange() {
+    // Convert hex to RGB for CSS variable use
+    const hex = this.data.accentColor.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    this.data.accentColorRgb = `${r}, ${g}, ${b}`;
+    this.emitChange();
   }
 
   // Background image upload

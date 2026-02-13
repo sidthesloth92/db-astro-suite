@@ -44,6 +44,8 @@ export interface CardData {
 
   // Appearance
   accentColor: string;
+  accentColorRgb?: string; // e.g. "255, 45, 149"
+  cardOpacity: number; // 0 to 1
   backgroundImage: string | null;
   aspectRatio: '4:5' | '9:16';
 }
