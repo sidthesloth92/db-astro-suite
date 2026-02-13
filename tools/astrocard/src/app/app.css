@@ -35,12 +35,12 @@
 /* Config Panel - Scrollable, glass effect */
 .config-panel {
   display: block;
-  flex: 0 0 380px;
-  width: 380px;
+  flex: 0 0 350px;
+  width: 350px;
   max-height: calc(100vh - 80px);
   overflow-y: auto;
-  padding: 1rem;
-  border-radius: 0.5rem;
+  padding: 1.5rem 1rem;
+  border-radius: 0.75rem;
 }
 
 /* Mobile: Stack vertically */

@@ -7,16 +7,18 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   template: `
     <div class="accordion-item" [class.expanded]="expanded">
-      <button class="accordion-header" (click)="toggle()">
+      <button type="button" class="accordion-header" (click)="toggle($event)">
         <span class="accordion-title">{{ title }}</span>
         <span class="accordion-icon">{{ expanded ? '−' : '+' }}</span>
       </button>
       
-      @if (expanded) {
+      <div class="accordion-content-wrapper">
         <div class="accordion-content">
-          <ng-content></ng-content>
+          <div class="accordion-content-inner">
+            <ng-content></ng-content>
+          </div>
         </div>
-      }
+      </div>
     </div>
   `,
   styles: [`
@@ -26,6 +28,7 @@ import { CommonModule } from '@angular/common';
       border-radius: 8px;
       overflow: hidden;
       transition: all 0.3s ease;
+      overflow-anchor: none; /* Prevent browser scroll anchoring "jumps" */
     }
 
     .accordion-header {
@@ -55,7 +58,21 @@ import { CommonModule } from '@angular/common';
       font-weight: bold;
     }
 
+    .accordion-content-wrapper {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.3s ease-in-out;
+    }
+
+    .expanded .accordion-content-wrapper {
+      grid-template-rows: 1fr;
+    }
+
     .accordion-content {
+      overflow: hidden;
+    }
+
+    .accordion-content-inner {
       padding: 1.25rem;
       border-top: 1px solid rgba(255, 45, 149, 0.1);
       background: rgba(0, 0, 0, 0.2);
@@ -71,7 +88,8 @@ export class AccordionItemComponent {
   @Input() title: string = '';
   @Input() expanded: boolean = false;
 
-  toggle() {
+  toggle(event: MouseEvent) {
+    event.preventDefault();
     this.expanded = !this.expanded;
   }
 }

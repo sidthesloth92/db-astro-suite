@@ -58,9 +58,9 @@
   --db-color-text-muted: #94a3b8;
 
   /* Glass Effect */
-  --db-glass-bg: rgba(10, 15, 25, 0.7);
+  --db-glass-bg: rgba(10, 15, 25, 0.85); /* Slightly darker for better contrast */
   --db-glass-border: rgba(255, 45, 149, 0.2);
-  --db-glass-blur: blur(0px);
+  --db-glass-blur: blur(12px);
 
   /* Fonts */
   --db-font-display: "Orbitron", sans-serif;
@@ -135,27 +135,44 @@ h6 {
   box-shadow: var(--db-shadow-neon);
 }
 
-.db-scanline {
+.db-scanline,
+.db-scanline-top {
   position: relative;
   overflow: hidden;
 }
 
-.db-scanline::after {
+.db-scanline::after,
+.db-scanline-top::before {
   content: '';
   position: absolute;
-  bottom: 0;
   left: 0;
   width: 100%;
   height: 2px;
   background: linear-gradient(90deg, transparent, var(--db-color-neon-pink), transparent);
-  animation: db-scanline-anim 4s linear infinite;
-  opacity: 0.5;
+  animation: scanline 6s linear infinite; /* Using unified animation name */
+  opacity: 0.6;
   pointer-events: none;
+  z-index: 10;
+}
+
+.db-scanline::after {
+  bottom: 0;
+}
+
+.db-scanline-top::before {
+  top: 0;
+}
+
+@keyframes scanline {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
 }
 
 @keyframes db-scanline-anim {
   0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  50% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
 }
 
 /* ========================================
