@@ -8,7 +8,12 @@ import {
   SoftwareItem,
   DEFAULT_FILTERS 
 } from '../../models/card-data';
-import { NeonButtonComponent, AccordionComponent, AccordionItemComponent, SliderComponent } from '@db-astro-suite/ui';
+import { 
+  NeonButtonComponent, 
+  AccordionComponent, 
+  AccordionItemComponent,
+  SliderComponent 
+} from '@db-astro-suite/ui';
 
 
 @Component({
