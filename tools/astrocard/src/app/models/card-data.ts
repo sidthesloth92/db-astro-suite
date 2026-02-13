@@ -18,6 +18,7 @@ export interface EquipmentItem {
 
 export interface SoftwareItem {
   icon: string;
+  label: string;
   name: string;
 }
 

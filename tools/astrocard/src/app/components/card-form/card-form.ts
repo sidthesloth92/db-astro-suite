@@ -16,7 +16,12 @@ import { NeonButtonComponent, AccordionComponent, AccordionItemComponent } from 
   standalone: true,
   imports: [CommonModule, FormsModule, NeonButtonComponent, AccordionComponent, AccordionItemComponent],
   templateUrl: './card-form.html',
-  styleUrl: './card-form.css'
+  styleUrl: './card-form.css',
+  styles: [`
+    :host {
+      display: block;
+    }
+  `]
 })
 export class CardFormComponent {
   @Input() data!: CardData;
@@ -85,7 +90,7 @@ export class CardFormComponent {
 
   // Software management
   addSoftware() {
-    this.data.software.push({ icon: '📦', name: '' });
+    this.data.software.push({ icon: '📦', label: '', name: '' });
     this.emitChange();
   }
 

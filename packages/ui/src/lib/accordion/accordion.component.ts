@@ -10,7 +10,7 @@ import { CommonModule } from '@angular/common';
     .accordion-container {
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 1.25rem;
     }
   `]
 })

@@ -33,9 +33,9 @@ export class App {
       { icon: '🌈', label: 'Filters', value: 'Antlia LRGB + 3nm Ha/OIII/SII' },
     ],
     software: [
-      { icon: '💻', name: 'ASIAIR' },
-      { icon: '⚙️', name: 'PixInsight + Photoshop' },
-      { icon: '✨', name: 'Seti Astro Suite' },
+      { icon: '💻', label: 'Capture', name: 'ASIAIR' },
+      { icon: '⚙️', label: 'Processing', name: 'PixInsight + Photoshop' },
+      { icon: '✨', label: 'Suite', name: 'Seti Astro Suite' },
     ],
     bortleScale: 9,
     accentColor: '#ff2d95',

@@ -36,7 +36,7 @@ import { CommonModule } from '@angular/common';
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1rem 1.25rem;
+      padding: 0.6rem 1.25rem;
       background: rgba(255, 255, 255, 0.02);
       border: none;
       cursor: pointer;
@@ -44,7 +44,7 @@ import { CommonModule } from '@angular/common';
       font-family: var(--db-font-display, 'Orbitron', sans-serif);
       text-transform: uppercase;
       letter-spacing: 0.1em;
-      font-size: 0.875rem;
+      font-size: 0.8rem;
       font-weight: 600;
       transition: background 0.2s;
     }
