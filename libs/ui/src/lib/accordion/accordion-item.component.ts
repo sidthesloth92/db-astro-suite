@@ -36,7 +36,7 @@ import { CommonModule } from '@angular/common';
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0.6rem 1.25rem;
+      padding: 0.4rem 0.75rem;
       background: rgba(255, 255, 255, 0.02);
       border: none;
       cursor: pointer;
@@ -73,7 +73,7 @@ import { CommonModule } from '@angular/common';
     }
 
     .accordion-content-inner {
-      padding: 1.25rem;
+      padding: 0.85rem;
       border-top: 1px solid rgba(255, 45, 149, 0.1);
       background: rgba(0, 0, 0, 0.2);
     }
