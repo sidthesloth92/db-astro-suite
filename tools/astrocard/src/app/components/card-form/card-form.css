@@ -21,9 +21,8 @@
   margin-bottom: 0;
 }
 
-/* Global compacting for form groups in this component */
 .db-form-group {
-  margin-bottom: 1rem !important;
+  margin-bottom: 0.75rem !important;
   gap: 4px !important;
 }
 

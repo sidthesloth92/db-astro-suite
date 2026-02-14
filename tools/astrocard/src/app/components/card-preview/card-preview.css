@@ -117,10 +117,9 @@
 
 .card-description {
   margin-top: 0.5rem;
-  font-size: 0.8rem; /* Increased from 0.7rem */
+  font-size: 14px; /* Increased for better legibility */
   line-height: 1.4;
   color: rgba(255, 255, 255, 0.85);
-  max-width: 90%;
   margin-left: auto;
   margin-right: auto;
   padding-bottom: 0.25rem; /* Prevent clipping */
@@ -181,9 +180,29 @@
   gap: 0.375rem;
 }
 
-.half {
-  flex: 1;
+.col-55 {
+  flex: 55;
   min-width: 0;
+}
+
+.col-45 {
+  flex: 45;
+  min-width: 0;
+}
+
+/* Sidebar Stack */
+.vertical-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.compact-section {
+  padding: 0.5rem 0.375rem;
+}
+
+.vertical-stack .card-section {
+  margin-bottom: 0;
 }
 
 /* Item Lists - Vertical layout top-to-bottom */
@@ -191,7 +210,7 @@
   list-style: none;
   display: flex;
   flex-direction: column;
-  padding: 0 0.5rem;
+  padding: 0;
 }
 
 .item-list li {
@@ -236,17 +255,13 @@
 }
 
 /* Author */
-.author {
+.author-content {
   display: flex;
-  flex-direction: column; /* Vertical layout */
+  flex-direction: row; /* Horizontal layout */
   align-items: center;
   justify-content: center;
-  gap: 0; /* Removed gap */
-  padding: 0.5rem; /* More balanced padding */
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(0px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 6px;
+  gap: 0.5rem; /* Space between icon and name */
+  padding: 0.25rem;
 }
 
 .author-icon {

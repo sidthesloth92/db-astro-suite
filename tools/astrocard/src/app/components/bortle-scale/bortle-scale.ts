@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
 export class BortleScaleComponent {
   @Input() value: number = 5;
   @Input() accentColor: string = '#ff2d95';
+  @Input() compact: boolean = false;
 
   readonly scale = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 

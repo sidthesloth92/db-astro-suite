@@ -5,15 +5,17 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'db-input',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [],
   template: `
     <div class="db-form-group">
-      <label *ngIf="label" class="db-form-label">{{ label }}</label>
+      @if (label) {
+        <label class="db-form-label">{{ label }}</label>
+      }
       <input
         [type]="type"
         [placeholder]="placeholder"
-        [ngModel]="value"
-        (ngModelChange)="valueChange.emit($event)"
+        [value]="value"
+        (input)="onInput($event)"
         class="db-form-input"
       />
     </div>
@@ -31,4 +33,9 @@ export class InputComponent {
   @Input() type: 'text' | 'number' | 'date' | 'email' | 'password' | 'color' = 'text';
   
   @Output() valueChange = new EventEmitter<any>();
+
+  onInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.valueChange.emit(input.value);
+  }
 }

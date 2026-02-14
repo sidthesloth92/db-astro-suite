@@ -4,8 +4,38 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'db-slider',
   standalone: true,
-  imports: [CommonModule],
-  templateUrl: './slider.component.html',
+  imports: [],
+  template: `
+<div class="slider-container">
+  <label class="slider-label">
+    <span class="slider-label__text">
+      {{ label }}
+      @if (tooltip) {
+        <span class="slider-tooltip">
+          <img
+            src="assets/icons/question-mark-circle.svg"
+            alt="Help"
+            class="slider-tooltip__icon"
+          />
+          <span class="slider-tooltip__text">{{ tooltip }}</span>
+        </span>
+      }
+    </span>
+    <span class="slider-value">{{ displayValue }}</span>
+  </label>
+  <div class="slider-track">
+    <input
+      type="range"
+      [min]="min"
+      [max]="max"
+      [step]="step"
+      [value]="value"
+      (input)="onInput($event)"
+      class="slider-input"
+    />
+  </div>
+</div>
+  `,
   styleUrl: './slider.component.css'
 })
 export class SliderComponent {

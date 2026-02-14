@@ -20,8 +20,8 @@ import { HeaderComponent } from '@db-astro-suite/ui';
 })
 export class App {
   cardData = signal<CardData>({
-    title: 'M81 - Bode\'s Galaxy',
-    description: 'My first ever attempt at HaLRGB composite. I’ve been diving deep into the world of HaLRGB processing lately. It’s a lot of hours at the computer trying to process it, Infact I spend more time processing than capturing!!! But seeing this result makes the learning curve worth it. Onwards and upwards! 🚀',
+    title: 'NGC 2237 - Rosette Nebula',
+    description: 'The first ever nebula that I shot was the Rosette. I still remember looking at the first frame as it came through in disbelief as to how to the naked eye I couldn\'t see anything however it was just right there hidden among the stars. Here it is in pink on Valentine\'s Day',
     date: new Date().toISOString().split('T')[0],
     location: 'Irving, Texas',
     author: '@astrowithdb',
@@ -30,12 +30,12 @@ export class App {
       { icon: '🔭', label: 'Telescope', value: 'Askar 103 APO' },
       { icon: '📷', label: 'Camera', value: 'ZWO ASI2600MM Air' },
       { icon: '🏗️', label: 'Mount', value: 'Sky-Watcher Wave 150i' },
-      { icon: '🌈', label: 'Filters', value: 'Antlia LRGB + 3nm Ha/OIII/SII' },
+      { icon: '🌈', label: 'Filters', value: 'Astronomik MaxFR 6nm SHO Filters' },
     ],
     software: [
-      { icon: '💻', label: 'Capture', name: 'ASIAIR' },
-      { icon: '⚙️', label: 'Processing', name: 'PixInsight + Photoshop' },
-      { icon: '✨', label: 'Suite', name: 'Seti Astro Suite' },
+      { icon: '💻', label: 'Computer', name: 'ASIAIR' },
+      { icon: '⚙️', label: 'Editing', name: 'PixInsight + Photoshop' },
+      { icon: '✨', label: 'Processing', name: 'Seti Astro Suite' },
     ],
     bortleScale: 9,
     accentColor: '#ff2d95',

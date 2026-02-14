@@ -5,15 +5,17 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'db-textarea',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [],
   template: `
     <div class="db-form-group">
-      <label *ngIf="label" class="db-form-label">{{ label }}</label>
+      @if (label) {
+        <label class="db-form-label">{{ label }}</label>
+      }
       <textarea
         [placeholder]="placeholder"
-        [ngModel]="value"
+        [value]="value"
         [rows]="rows"
-        (ngModelChange)="valueChange.emit($event)"
+        (input)="onInput($event)"
         class="db-form-input db-textarea"
       ></textarea>
     </div>
@@ -39,4 +41,9 @@ export class TextareaComponent {
   @Input() rows = 3;
   
   @Output() valueChange = new EventEmitter<string>();
+
+  onInput(event: Event) {
+    const textarea = event.target as HTMLTextAreaElement;
+    this.valueChange.emit(textarea.value);
+  }
 }

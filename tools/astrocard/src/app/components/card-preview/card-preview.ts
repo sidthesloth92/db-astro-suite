@@ -1,4 +1,4 @@
-import { Component, Input, ElementRef, ViewChild, Output, EventEmitter } from '@angular/core';
+import { Component, Input, ElementRef, ViewChild, Output, EventEmitter, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { 
   CardData, 
@@ -16,6 +16,7 @@ import { NeonButtonComponent } from '@db-astro-suite/ui';
   selector: 'ac-card-preview',
   standalone: true,
   imports: [CommonModule, FilterRingComponent, BortleScaleComponent, NeonButtonComponent],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './card-preview.html',
   styleUrl: './card-preview.css'
 })

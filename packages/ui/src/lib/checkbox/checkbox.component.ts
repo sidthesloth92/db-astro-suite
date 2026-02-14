@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'db-checkbox',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <label class="db-checkbox-container" [class.disabled]="disabled">
       <input
@@ -14,7 +14,9 @@ import { CommonModule } from '@angular/common';
         (change)="onToggle($event)"
       />
       <span class="db-checkmark"></span>
-      <span class="db-checkbox-label" *ngIf="label">{{ label }}</span>
+      @if (label) {
+        <span class="db-checkbox-label">{{ label }}</span>
+      }
       <ng-content></ng-content>
     </label>
   `,

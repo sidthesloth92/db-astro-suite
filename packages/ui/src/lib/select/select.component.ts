@@ -10,19 +10,23 @@ export interface SelectOption {
 @Component({
   selector: 'db-select',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [],
   template: `
     <div class="db-form-group">
-      <label *ngIf="label" class="db-form-label">{{ label }}</label>
+      @if (label) {
+        <label class="db-form-label">{{ label }}</label>
+      }
       <div class="select-wrapper">
         <select
-          [ngModel]="value"
-          (ngModelChange)="valueChange.emit($event)"
+          [value]="value"
+          (change)="onChange($event)"
           class="db-form-select"
         >
-          <option *ngFor="let opt of options" [value]="opt.value">
-            {{ opt.label }}
-          </option>
+          @for (opt of options; track opt.value) {
+            <option [value]="opt.value">
+              {{ opt.label }}
+            </option>
+          }
         </select>
         <div class="select-arrow">▼</div>
       </div>
@@ -64,4 +68,9 @@ export class SelectComponent {
   @Input() options: SelectOption[] = [];
   
   @Output() valueChange = new EventEmitter<any>();
+
+  onChange(event: Event) {
+    const select = event.target as HTMLSelectElement;
+    this.valueChange.emit(select.value);
+  }
 }

@@ -89,4 +89,29 @@
   border: 1.5px solid white;
 }
 
+.bortle.compact {
+  padding: 0;
+}
+
+.bortle.compact .bortle-header {
+  margin-bottom: 0px;
+}
+
+.bortle.compact .bortle-row {
+  gap: 0.25rem;
+}
+
+.bortle.compact .bortle-icon {
+  font-size: 0.6rem;
+}
+
+.bortle.compact .bortle-track {
+  height: 2px;
+}
+
+.bortle.compact .track-indicator {
+  width: 6px;
+  height: 6px;
+}
+
 

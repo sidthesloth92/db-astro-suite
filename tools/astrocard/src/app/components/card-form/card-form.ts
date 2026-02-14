@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, signal } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { 
@@ -33,6 +33,7 @@ import {
     TextareaComponent,
     SelectComponent
   ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './card-form.html',
   styleUrl: './card-form.css',
   styles: [`

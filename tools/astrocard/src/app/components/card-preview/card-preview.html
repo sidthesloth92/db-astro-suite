@@ -60,8 +60,8 @@
         @if (data.description) {
           <div class="card-description">
             {{
-              data.description.length > 200
-                ? (data.description | slice: 0 : 200) + '...'
+              data.description.length > 300
+                ? (data.description | slice: 0 : 300) + '...'
                 : data.description
             }}
           </div>
@@ -90,9 +90,10 @@
         </div>
       </section>
 
-      <!-- Equipment & Software Section -->
+      <!-- Main Footer Columns -->
       <div class="two-column">
-        <section class="card-section half">
+        <!-- Left Column (55%): Equipment -->
+        <section class="card-section col-55">
           <h2 class="section-header">EQUIPMENT</h2>
           <ul class="item-list">
             @for (item of data.equipment; track $index) {
@@ -104,46 +105,50 @@
           </ul>
         </section>
 
-        <section class="card-section half">
-          <h2 class="section-header">SOFTWARE</h2>
-          <ul class="item-list">
-            @for (item of data.software; track $index) {
-              <li>
-                <span class="item-icon">{{ item.icon }}</span>
-                <span class="item-text">{{ item.name }}</span>
-              </li>
-            }
-          </ul>
-        </section>
-      </div>
+        <!-- Right Column (45%): Software, Bortle, Author Stack -->
+        <div class="col-45 vertical-stack">
+          <!-- Software -->
+          <section class="card-section">
+            <h2 class="section-header">SOFTWARE</h2>
+            <ul class="item-list">
+              @for (item of data.software; track $index) {
+                <li>
+                  <span class="item-icon">{{ item.icon }}</span>
+                  <span class="item-text">{{ item.name }}</span>
+                </li>
+              }
+            </ul>
+          </section>
 
-      <!-- Bottom Row: Bortle Scale + Author side by side -->
-      <div class="bottom-row">
-        <section class="card-section">
-          <ac-bortle-scale
-            [value]="data.bortleScale"
-            [accentColor]="data.accentColor"
-          ></ac-bortle-scale>
-        </section>
+          <!-- Bortle Scale -->
+          <section class="card-section compact-section">
+            <ac-bortle-scale
+              [value]="data.bortleScale"
+              [accentColor]="data.accentColor"
+              [compact]="true"
+            ></ac-bortle-scale>
+          </section>
 
-        <section class="card-section author-section">
-          <div class="author-content">
-            <svg
-              class="author-icon"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-            </svg>
-            <span class="author-handle">{{ data.author }}</span>
-          </div>
-        </section>
+          <!-- Author -->
+          <section class="card-section author-section compact-section">
+            <div class="author-content">
+              <svg
+                class="author-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+              </svg>
+              <span class="author-handle">{{ data.author }}</span>
+            </div>
+          </section>
+        </div>
       </div>
     </div>
   </div>
