@@ -195,6 +195,12 @@
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  height: 100%; /* Fill the column height */
+}
+
+/* Make Software section grow to push Bortle Scale to the bottom */
+.vertical-stack > section:first-of-type {
+  flex: 1;
 }
 
 .compact-section {
