@@ -43,7 +43,7 @@ export class App {
     accentColorRgb: '255, 45, 149',
     cardOpacity: 0.60,
     backgroundImage: null,
-    aspectRatio: '4:5'
+    aspectRatio: '3:4'
   });
 
   onDataChange(newData: CardData) {

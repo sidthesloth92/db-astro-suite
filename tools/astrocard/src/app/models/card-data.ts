@@ -47,7 +47,7 @@ export interface CardData {
   accentColorRgb?: string; // e.g. "255, 45, 149"
   cardOpacity: number; // 0 to 1
   backgroundImage: string | null;
-  aspectRatio: '4:5' | '9:16';
+  aspectRatio: '3:4' | '4:5';
 }
 
 // Default filter configurations
@@ -63,8 +63,8 @@ export const DEFAULT_FILTERS: FilterExposure[] = [
 
 // Dimensions for export
 export const ASPECT_RATIOS = {
+  '3:4': { width: 1080, height: 1440 },
   '4:5': { width: 1080, height: 1350 },
-  '9:16': { width: 1080, height: 1920 },
 };
 
 // Helper functions

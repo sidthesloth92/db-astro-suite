@@ -21,13 +21,13 @@
   background: #000; /* Ensure black bg behind image */
 }
 
-.card.aspect-4-5 {
-  aspect-ratio: 4/5;
+.card.aspect-3-4 {
+  aspect-ratio: 3/4;
   width: auto;
 }
 
-.card.aspect-9-16 {
-  aspect-ratio: 9/16;
+.card.aspect-4-5 {
+  aspect-ratio: 4/5;
   width: auto;
 }
 

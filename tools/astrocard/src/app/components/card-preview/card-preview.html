@@ -4,8 +4,8 @@
     #cardElement
     id="card-preview"
     class="card"
+    [class.aspect-3-4]="data.aspectRatio === '3:4'"
     [class.aspect-4-5]="data.aspectRatio === '4:5'"
-    [class.aspect-9-16]="data.aspectRatio === '9:16'"
     [style.--accent-color]="data.accentColor"
     [style.--accent-color-rgb]="data.accentColorRgb"
     [style.--card-opacity]="data.cardOpacity"
