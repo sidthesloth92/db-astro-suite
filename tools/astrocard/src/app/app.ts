@@ -21,7 +21,7 @@ import { HeaderComponent } from '@db-astro-suite/ui';
 export class App {
   cardData = signal<CardData>({
     title: 'NGC 2237 - Rosette Nebula',
-    description: 'The first ever nebula that I shot was the Rosette. I still remember looking at the first frame as it came through in disbelief as to how to the naked eye I couldn\'t see anything however it was just right there hidden among the stars. Here it is in pink on Valentine\'s Day',
+    description: 'The first ever nebula that I shot was the Rosette. I still remember looking at the first frame as it came through in disbelief, as to how to the naked eye I couldn\'t see anything but it was just right there hidden among the stars. Here it is in pink on Valentine\'s Day 🌹',
     date: new Date().toISOString().split('T')[0],
     location: 'Irving, Texas',
     author: '@astrowithdb',
@@ -41,7 +41,7 @@ export class App {
     bortleScale: 9,
     accentColor: '#ff2d95',
     accentColorRgb: '255, 45, 149',
-    cardOpacity: 0.85,
+    cardOpacity: 0.60,
     backgroundImage: null,
     aspectRatio: '4:5'
   });
