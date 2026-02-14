@@ -12,7 +12,10 @@ import {
   NeonButtonComponent, 
   AccordionComponent, 
   AccordionItemComponent,
-  SliderComponent 
+  SliderComponent,
+  InputComponent,
+  TextareaComponent,
+  SelectComponent
 } from '@db-astro-suite/ui';
 
 
@@ -25,7 +28,10 @@ import {
     NeonButtonComponent, 
     AccordionComponent, 
     AccordionItemComponent,
-    SliderComponent
+    SliderComponent,
+    InputComponent,
+    TextareaComponent,
+    SelectComponent
   ],
   templateUrl: './card-form.html',
   styleUrl: './card-form.css',

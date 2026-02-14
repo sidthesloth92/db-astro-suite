@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SliderComponent } from '@db-astro-suite/ui';
+import { SliderComponent, SelectComponent, CheckboxComponent, SelectOption } from '@db-astro-suite/ui';
 import { SimulationService } from '../../services/simulation.service';
 import { CONTROLS, ASPECT_RATIOS, AspectRatioKey } from '../../constants/simulation.constant';
 import { ControlMetadata, ControlKey } from '../../models/simulation.model';
@@ -8,7 +8,7 @@ import { ControlMetadata, ControlKey } from '../../models/simulation.model';
 @Component({
   selector: 'sw-control-panel',
   standalone: true,
-  imports: [CommonModule, SliderComponent],
+  imports: [CommonModule, SliderComponent, SelectComponent, CheckboxComponent],
   templateUrl: './control-panel.html',
   styleUrl: './control-panel.css',
 })
@@ -17,6 +17,10 @@ export class ControlPanel {
   public controlNames = Object.keys(CONTROLS) as ControlKey[];
   public aspectRatios = ASPECT_RATIOS;
   public ratioKeys = Object.keys(ASPECT_RATIOS) as AspectRatioKey[];
+  public ratioOptions: SelectOption[] = this.ratioKeys.map(key => ({
+    label: ASPECT_RATIOS[key].label,
+    value: key
+  }));
 
   constructor(public simService: SimulationService) {}
 

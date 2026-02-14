@@ -12,13 +12,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 0.625rem;
+  font-family: var(--db-font-display, 'Orbitron', sans-serif);
+  font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.15em;
   color: var(--db-color-neon-pink, #ff2d95);
-  opacity: 0.8;
+  opacity: 0.9;
   transition: all 0.2s ease;
 }
 

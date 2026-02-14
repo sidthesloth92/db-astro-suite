@@ -2,17 +2,15 @@
   <db-accordion>
     <!-- Card Settings Section -->
     <db-accordion-item title="⚙️ Card Settings" [expanded]="true">
-      <div class="db-form-group">
-        <label class="db-form-label">Aspect Ratio</label>
-        <select
-          [(ngModel)]="data.aspectRatio"
-          (ngModelChange)="emitChange()"
-          class="db-form-select"
-        >
-          <option value="4:5">4:5 (Portrait)</option>
-          <option value="9:16">9:16 (Story)</option>
-        </select>
-      </div>
+      <db-select
+        label="Aspect Ratio"
+        [(value)]="data.aspectRatio"
+        (valueChange)="emitChange()"
+        [options]="[
+          { label: '4:5 (Portrait)', value: '4:5' },
+          { label: '9:16 (Story)', value: '9:16' },
+        ]"
+      ></db-select>
 
       <div class="form-row compact">
         <div class="db-form-group">
@@ -62,60 +60,44 @@
 
     <!-- Header Section -->
     <db-accordion-item title="📸 Image Details">
-      <div class="db-form-group">
-        <label class="db-form-label">Object Name</label>
-        <input
-          type="text"
-          [(ngModel)]="data.title"
-          (ngModelChange)="emitChange()"
-          placeholder="e.g., Pillars of Creation"
-          class="db-form-input"
-        />
-      </div>
+      <db-input
+        label="Object Name"
+        [(value)]="data.title"
+        (valueChange)="emitChange()"
+        placeholder="e.g., Pillars of Creation"
+      ></db-input>
 
-      <div class="db-form-group">
-        <label class="db-form-label">📝 Description</label>
-        <textarea
-          [(ngModel)]="data.description"
-          (ngModelChange)="emitChange()"
-          placeholder="Brief description of the object..."
-          rows="3"
-          class="db-form-input description-input"
-        ></textarea>
-      </div>
+      <db-textarea
+        label="📝 Description"
+        [(value)]="data.description"
+        (valueChange)="emitChange()"
+        placeholder="Brief description of the object..."
+        [rows]="3"
+      ></db-textarea>
 
       <div class="form-row mb-sm">
-        <div class="db-form-group">
-          <label class="db-form-label">📅 Date</label>
-          <input
-            type="date"
-            [(ngModel)]="data.date"
-            (ngModelChange)="emitChange()"
-            class="db-form-input"
-          />
-        </div>
-        <div class="db-form-group">
-          <label class="db-form-label">📍 Location</label>
-          <input
-            type="text"
-            [(ngModel)]="data.location"
-            (ngModelChange)="emitChange()"
-            placeholder="City, State"
-            class="db-form-input"
-          />
-        </div>
+        <db-input
+          type="date"
+          label="📅 Date"
+          [(value)]="data.date"
+          (valueChange)="emitChange()"
+          class="flex-1"
+        ></db-input>
+        <db-input
+          label="📍 Location"
+          [(value)]="data.location"
+          (valueChange)="emitChange()"
+          placeholder="City, State"
+          class="flex-1"
+        ></db-input>
       </div>
 
-      <div class="db-form-group">
-        <label class="db-form-label">👤 Author Handle</label>
-        <input
-          type="text"
-          [(ngModel)]="data.author"
-          (ngModelChange)="emitChange()"
-          placeholder="@username"
-          class="db-form-input"
-        />
-      </div>
+      <db-input
+        label="👤 Author Handle"
+        [(value)]="data.author"
+        (valueChange)="emitChange()"
+        placeholder="@username"
+      ></db-input>
     </db-accordion-item>
 
     <!-- Integration / Filters Section -->
@@ -191,20 +173,16 @@
               maxlength="2"
             />
             <div class="item-fields">
-              <input
-                type="text"
-                [(ngModel)]="item.label"
-                (ngModelChange)="emitChange()"
+              <db-input
+                [(value)]="item.label"
+                (valueChange)="emitChange()"
                 placeholder="Label (e.g. Telescope)"
-                class="field-label db-form-input"
-              />
-              <input
-                type="text"
-                [(ngModel)]="item.value"
-                (ngModelChange)="emitChange()"
+              ></db-input>
+              <db-input
+                [(value)]="item.value"
+                (valueChange)="emitChange()"
                 placeholder="Model / Value"
-                class="field-value db-form-input"
-              />
+              ></db-input>
             </div>
             <button type="button" class="delete-action-btn" (click)="removeEquipment(i)">✕</button>
           </div>
@@ -229,20 +207,16 @@
               maxlength="2"
             />
             <div class="item-fields">
-              <input
-                type="text"
-                [(ngModel)]="item.label"
-                (ngModelChange)="emitChange()"
+              <db-input
+                [(value)]="item.label"
+                (valueChange)="emitChange()"
                 placeholder="Type (e.g. Processing)"
-                class="field-label db-form-input"
-              />
-              <input
-                type="text"
-                [(ngModel)]="item.name"
-                (ngModelChange)="emitChange()"
+              ></db-input>
+              <db-input
+                [(value)]="item.name"
+                (valueChange)="emitChange()"
                 placeholder="Software Name"
-                class="field-value db-form-input"
-              />
+              ></db-input>
             </div>
             <button type="button" class="delete-action-btn" (click)="removeSoftware(i)">✕</button>
           </div>
