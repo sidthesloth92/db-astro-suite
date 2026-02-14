@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@source "../../../packages/ui/src/**/*.{html,ts}";
+@source "../../../libs/ui/src/**/*.{html,ts}";
 @import "@db-astro-suite/theme";
 
 @theme {

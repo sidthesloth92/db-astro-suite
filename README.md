@@ -11,7 +11,7 @@ A professional, organizational-style monorepo containing a suite of Astro-based 
 ├── apps/               # Scoped as @db-astro-suite/*
 │   ├── hub/            # Central landing page (Astro)
 │   └── starwizz/       # Starfield generator (Angular - Migrated with history)
-├── packages/           # Scoped as @db-astro-suite/*
+├── libs/               # Scoped as @db-astro-suite/*
 │   └── ui/             # Shared UI components (Astro/TS)
 ├── services/           # Backend services (Python)
 │   └── (coming soon)
@@ -67,7 +67,7 @@ go run main.go [script-name]
 
 ### Shared UI Package
 
-When you add components to `packages/ui`, they are immediately available to your apps. To build the shared package:
+When you add components to `libs/ui`, they are immediately available to your apps. To build the shared package:
 
 ```bash
 pnpm --filter @db-astro-suite/ui build
