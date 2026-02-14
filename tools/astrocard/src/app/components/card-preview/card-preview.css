@@ -225,22 +225,59 @@
 }
 
 .item-icon {
-  font-size: 1.1rem; /* Reduced from 1.25rem */
-  width: 1.25rem; /* Reduced from 1.5rem */
+  font-size: 1.1rem;
+  width: 1.5rem; /* Increased slightly for better emoji support */
   display: flex;
   justify-content: center;
   flex-shrink: 0;
+  /* Ensure emojis render with proper system fonts */
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif;
 }
 
 .item-text {
   color: rgba(255, 255, 255, 0.9);
-  font-size: 0.8rem; /* Reduced from 0.85rem */
+  font-size: 0.8rem;
   white-space: nowrap;
   vertical-align: middle;
   overflow: hidden;
   text-overflow: ellipsis;
   flex: 1;
   max-width: none;
+}
+
+/* Information Pair (Stacked Label/Value) */
+.info-pair {
+  display: flex !important;
+  flex-direction: row;
+  align-items: flex-start !important; /* Align icon to top of stack */
+  gap: 0.625rem;
+  margin-bottom: 0.5rem !important;
+}
+
+.pair-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+
+.pair-label {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent-color, #ff2d95);
+  opacity: 0.6;
+  font-weight: 700;
+}
+
+.pair-value {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Bottom Row: Bortle + Author side by side */
@@ -254,25 +291,9 @@
   min-width: 0;
 }
 
-/* Author */
-.author-content {
-  display: flex;
-  flex-direction: row; /* Horizontal layout */
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem; /* Space between icon and name */
-  padding: 0.25rem;
-}
-
-.author-icon {
-  width: 1rem; /* Increased from default .icon size */
-  height: 1rem;
+/* Author (Header) */
+.author-link-icon {
   color: var(--accent-color, #ff2d95);
-}
-
-.author-handle {
-  font-size: 0.75rem; /* More compact */
-  font-weight: 600;
 }
 
 /* Controls Below Card */

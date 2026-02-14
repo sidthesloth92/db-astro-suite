@@ -277,18 +277,20 @@
 }
 
 .field-label {
-  font-size: 0.625rem !important;
-  opacity: 0.6;
+  font-size: 0.6rem !important;
+  color: var(--neon-pink) !important;
+  opacity: 0.8;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding: 0 4px !important;
   height: 1.25rem !important;
   border: none !important;
   background: transparent !important;
+  font-weight: 700;
 }
 
 .field-value {
-  font-weight: bold;
+  font-weight: 700 !important;
   font-size: 0.8rem !important;
   height: 1.75rem !important;
   border-bottom: 1px solid rgba(255, 45, 149, 0.1) !important;

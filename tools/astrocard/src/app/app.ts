@@ -27,10 +27,11 @@ export class App {
     author: '@astrowithdb',
     filters: JSON.parse(JSON.stringify(DEFAULT_FILTERS)),
     equipment: [
-      { icon: '🔭', label: 'Telescope', value: 'Askar 103 APO' },
-      { icon: '📷', label: 'Camera', value: 'ZWO ASI2600MM Air' },
-      { icon: '🏗️', label: 'Mount', value: 'Sky-Watcher Wave 150i' },
-      { icon: '🌈', label: 'Filters', value: 'Astronomik MaxFR 6nm SHO Filters' },
+      { icon: '\uD83D\uDD2D', label: 'Telescope', value: 'Askar 103 APO' },
+      { icon: '\uD83D\uDCF7', label: 'Camera', value: 'ZWO ASI2600MM Air' },
+      { icon: '\uD83C\uDFD7\uFE0F', label: 'Mount', value: 'Sky-Watcher Wave 150i' },
+      { icon: '\uD83C\uDFAF', label: 'Guide Scope and Camera', value: 'SVBony SV106 60mm+ ASI120MM Mini' },
+      { icon: '\uD83C\uDF08', label: 'Filters', value: 'Astronomik MaxFR 6nm SHO' },
     ],
     software: [
       { icon: '💻', label: 'Computer', name: 'ASIAIR' },

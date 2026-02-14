@@ -56,6 +56,22 @@
             </svg>
             {{ data.location }}
           </span>
+          <span class="meta-item">
+            <svg
+              class="icon author-link-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+            </svg>
+            {{ data.author }}
+          </span>
         </div>
         @if (data.description) {
           <div class="card-description">
@@ -97,9 +113,12 @@
           <h2 class="section-header">EQUIPMENT</h2>
           <ul class="item-list">
             @for (item of data.equipment; track $index) {
-              <li>
+              <li class="info-pair">
                 <span class="item-icon">{{ item.icon }}</span>
-                <span class="item-text">{{ item.value }}</span>
+                <div class="pair-content">
+                  <span class="pair-label">{{ item.label }}</span>
+                  <span class="pair-value">{{ item.value }}</span>
+                </div>
               </li>
             }
           </ul>
@@ -112,9 +131,12 @@
             <h2 class="section-header">SOFTWARE</h2>
             <ul class="item-list">
               @for (item of data.software; track $index) {
-                <li>
+                <li class="info-pair">
                   <span class="item-icon">{{ item.icon }}</span>
-                  <span class="item-text">{{ item.name }}</span>
+                  <div class="pair-content">
+                    <span class="pair-label">{{ item.label }}</span>
+                    <span class="pair-value">{{ item.name }}</span>
+                  </div>
                 </li>
               }
             </ul>
@@ -127,26 +149,6 @@
               [accentColor]="data.accentColor"
               [compact]="true"
             ></ac-bortle-scale>
-          </section>
-
-          <!-- Author -->
-          <section class="card-section author-section compact-section">
-            <div class="author-content">
-              <svg
-                class="author-icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-              </svg>
-              <span class="author-handle">{{ data.author }}</span>
-            </div>
           </section>
         </div>
       </div>

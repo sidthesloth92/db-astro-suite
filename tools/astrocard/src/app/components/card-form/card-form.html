@@ -170,19 +170,23 @@
               [(ngModel)]="item.icon"
               (ngModelChange)="emitChange()"
               class="icon-picker-mini db-form-input"
-              maxlength="2"
+              maxlength="10"
             />
             <div class="item-fields">
-              <db-input
-                [(value)]="item.label"
-                (valueChange)="emitChange()"
-                placeholder="Label (e.g. Telescope)"
-              ></db-input>
-              <db-input
-                [(value)]="item.value"
-                (valueChange)="emitChange()"
-                placeholder="Model / Value"
-              ></db-input>
+              <input
+                type="text"
+                [(ngModel)]="item.label"
+                (ngModelChange)="emitChange()"
+                class="db-form-input field-label"
+                placeholder="Label"
+              />
+              <input
+                type="text"
+                [(ngModel)]="item.value"
+                (ngModelChange)="emitChange()"
+                class="db-form-input field-value"
+                placeholder="Value"
+              />
             </div>
             <button type="button" class="delete-action-btn" (click)="removeEquipment(i)">✕</button>
           </div>
@@ -207,16 +211,20 @@
               maxlength="2"
             />
             <div class="item-fields">
-              <db-input
-                [(value)]="item.label"
-                (valueChange)="emitChange()"
-                placeholder="Type (e.g. Processing)"
-              ></db-input>
-              <db-input
-                [(value)]="item.name"
-                (valueChange)="emitChange()"
+              <input
+                type="text"
+                [(ngModel)]="item.label"
+                (ngModelChange)="emitChange()"
+                class="db-form-input field-label"
+                placeholder="Type"
+              />
+              <input
+                type="text"
+                [(ngModel)]="item.name"
+                (ngModelChange)="emitChange()"
+                class="db-form-input field-value"
                 placeholder="Software Name"
-              ></db-input>
+              />
             </div>
             <button type="button" class="delete-action-btn" (click)="removeSoftware(i)">✕</button>
           </div>
