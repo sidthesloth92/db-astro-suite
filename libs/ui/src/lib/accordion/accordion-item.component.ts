@@ -76,6 +76,9 @@ import { CommonModule } from '@angular/common';
       padding: 0.85rem;
       border-top: 1px solid rgba(255, 45, 149, 0.1);
       background: rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
     }
     
     .accordion-item.expanded {

@@ -13,7 +13,6 @@
 
 .form-row.mb-sm {
   display: flex;
-  margin-bottom: 1rem;
   gap: 0.75rem;
 }
 
@@ -22,7 +21,7 @@
 }
 
 .db-form-group {
-  margin-bottom: 0.75rem !important;
+  margin-bottom: 0 !important;
   gap: 4px !important;
 }
 
@@ -245,7 +244,6 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  margin-bottom: 0.75rem;
 }
 
 .equipment-row-complex {
