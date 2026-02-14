@@ -42,10 +42,10 @@ importers:
         version: 21.1.2(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1))(@angular/platform-browser@21.1.2(@angular/animations@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1)))(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1)))(rxjs@7.8.2)
       '@db-astro-suite/theme':
         specifier: workspace:*
-        version: link:../packages/theme
+        version: link:../libs/theme
       '@db-astro-suite/ui':
         specifier: workspace:*
-        version: link:../packages/ui
+        version: link:../libs/ui
       front-matter:
         specifier: 4.0.2
         version: 4.0.2
@@ -108,18 +108,18 @@ importers:
         specifier: 4.0.18
         version: 4.0.18(@types/node@25.2.0)(jiti@2.6.1)(jsdom@22.1.0)(lightningcss@1.30.2)(sass@1.97.1)(terser@5.46.0)
 
-  packages/theme: {}
+  libs/theme: {}
 
-  packages/ui:
+  libs/ui:
     dependencies:
       '@angular/common':
-        specifier: 21.1.2
+        specifier: '>=17.0.0'
         version: 21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2)
       '@angular/core':
-        specifier: 21.1.2
+        specifier: '>=17.0.0'
         version: 21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1)
       '@angular/forms':
-        specifier: 21.1.2
+        specifier: '>=17.0.0'
         version: 21.1.2(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1))(@angular/platform-browser@21.1.2(@angular/animations@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1)))(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1)))(rxjs@7.8.2)
       '@db-astro-suite/theme':
         specifier: workspace:*
@@ -150,7 +150,10 @@ importers:
         version: 21.1.2(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1))(@angular/platform-browser@21.1.2(@angular/animations@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1)))(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1)))(rxjs@7.8.2)
       '@db-astro-suite/theme':
         specifier: workspace:*
-        version: link:../../packages/theme
+        version: link:../../libs/theme
+      '@db-astro-suite/ui':
+        specifier: workspace:*
+        version: link:../../libs/ui
       '@tailwindcss/postcss':
         specifier: 4.1.18
         version: 4.1.18
@@ -232,7 +235,10 @@ importers:
         version: 21.1.2(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1))(@angular/platform-browser@21.1.2(@angular/animations@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1)))(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)(zone.js@0.15.1)))(rxjs@7.8.2)
       '@db-astro-suite/theme':
         specifier: workspace:*
-        version: link:../../packages/theme
+        version: link:../../libs/theme
+      '@db-astro-suite/ui':
+        specifier: workspace:*
+        version: link:../../libs/ui
       '@tailwindcss/postcss':
         specifier: 4.1.18
         version: 4.1.18

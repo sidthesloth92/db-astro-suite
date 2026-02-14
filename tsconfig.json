@@ -5,8 +5,8 @@
     "module": "ES2022",
     "baseUrl": ".",
     "paths": {
-      "@db-astro-suite/theme": ["libs/theme"],
-      "@db-astro-suite/ui": ["libs/ui"]
+      "@db-astro-suite/theme": ["libs/theme/tokens.css"],
+      "@db-astro-suite/ui": ["libs/ui/src/public-api.ts"]
     }
   }
 }
