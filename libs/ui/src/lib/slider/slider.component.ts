@@ -6,23 +6,21 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [],
   template: `
-<div class="slider-container">
-  <label class="slider-label">
-    <span class="slider-label__text">
-      {{ label }}
-      @if (tooltip) {
-        <span class="slider-tooltip">
-          <img
-            src="assets/icons/question-mark-circle.svg"
-            alt="Help"
-            class="slider-tooltip__icon"
-          />
-          <span class="slider-tooltip__text">{{ tooltip }}</span>
-        </span>
-      }
-    </span>
+<div class="db-form-group slider-container">
+  <div class="slider-label-header">
+    <label class="db-form-label">{{ label }}</label>
+    @if (tooltip) {
+      <span class="slider-tooltip">
+        <img
+          src="assets/icons/question-mark-circle.svg"
+          alt="Help"
+          class="slider-tooltip__icon"
+        />
+        <span class="slider-tooltip__text">{{ tooltip }}</span>
+      </span>
+    }
     <span class="slider-value">{{ displayValue }}</span>
-  </label>
+  </div>
   <div class="slider-track">
     <input
       type="range"
