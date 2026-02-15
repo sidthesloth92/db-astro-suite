@@ -6,15 +6,23 @@
   height: 100%;
 }
 
-/* The Card - Fixed dimensions for preview stability */
+/* The Viewport - Plain box that aligns with edges */
+.preview-card-viewport {
+  padding: 0; 
+  border-radius: 0; 
+  display: inline-block; /* Ensure it wraps the card tightly */
+  margin-bottom: 0.5rem;
+  border: 1px solid var(--accent-color, #ff2d95);
+  box-sizing: content-box; /* Border sits outside the card */
+}
+
+/* The Card - Clean for export */
 .card {
   position: relative;
   overflow: hidden;
   border-radius: 0; /* Square edges to mimic screen */
-  border: 2px solid var(--accent-color, #ff2d95); /* Refined neon pink border */
-  box-shadow: 
-    0 0 30px rgba(0, 0, 0, 0.5),
-    0 0 60px rgba(var(--accent-color-rgb, 255, 45, 149), 0.1);
+  border: none !important; /* Remove from export as requested */
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
   flex-shrink: 0;
   /* Use fixed height for preview and let aspect-ratio determine width */
   height: 600px;

@@ -12,7 +12,7 @@ export interface SelectOption {
   standalone: true,
   imports: [],
   template: `
-    <div class="db-form-group">
+    <div class="db-form-group boxed-select-container">
       @if (label) {
         <label class="db-form-label">{{ label }}</label>
       }
@@ -20,7 +20,7 @@ export interface SelectOption {
         <select
           [value]="value"
           (change)="onChange($event)"
-          class="db-form-select"
+          class="db-form-select-themed"
         >
           @for (opt of options; track opt.value) {
             <option [value]="opt.value">
@@ -36,15 +36,39 @@ export interface SelectOption {
     :host {
       display: block;
     }
+    .boxed-select-container {
+      border: 1px solid rgba(255, 45, 149, 0.1);
+      padding: 0.5rem; /* 8px */
+      margin-bottom: 0.5rem !important; /* Matches live site */
+    }
     .select-wrapper {
       position: relative;
       width: 100%;
     }
-    .db-form-select {
+    .db-form-select-themed {
+      width: 100%;
+      height: var(--db-form-control-height, 2rem);
+      background: var(--db-color-space-black);
+      border: 1px solid rgba(255, 45, 149, 0.3);
+      color: var(--db-color-text-primary);
+      padding: 0 0.5rem;
+      font-size: 9px;
+      font-family: var(--db-form-font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border-radius: var(--db-radius-sm);
       appearance: none;
       -webkit-appearance: none;
       padding-right: 2rem;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      transition: all var(--db-transition-fast, 150ms ease);
+    }
+    .db-form-select-themed:focus {
+      outline: none;
+      border-color: var(--db-color-neon-pink);
+      box-shadow: 0 0 10px rgba(255, 45, 149, 0.2);
     }
     .select-arrow {
       position: absolute;
