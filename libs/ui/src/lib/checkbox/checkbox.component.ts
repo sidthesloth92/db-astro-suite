@@ -31,7 +31,7 @@ import { CommonModule } from '@angular/common';
       cursor: pointer;
       user-select: none;
       font-family: var(--db-form-font-mono);
-      font-size: var(--db-form-font-size);
+      font-size: inherit; /* Allow override from parent Utility class */
       text-transform: uppercase;
       font-weight: 700;
       letter-spacing: -0.02em;

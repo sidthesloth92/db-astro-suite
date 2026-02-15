@@ -70,6 +70,7 @@
       [checked]="simService.recordFromBeginning()"
       [disabled]="simService.recordingState() !== 'idle'"
       (checkedChange)="simService.recordFromBeginning.set($event)"
+      class="text-[10px]"
     >
       <span class="tooltip-container relative inline-block ml-1">
         <img
