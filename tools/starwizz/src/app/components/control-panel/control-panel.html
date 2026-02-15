@@ -53,8 +53,8 @@
     </button>
   </div>
 
-  <!-- Video Recording Button -->
-  <div class="pt-0.5 md:pt-1">
+  <!-- Video Recording Button & Checkbox -->
+  <div class="pt-0.5 md:pt-1 space-y-2">
     <button
       (click)="toggleRecording()"
       [disabled]="simService.recordingState() === 'processing' || !simService.isImageLoaded()"
@@ -64,15 +64,12 @@
     >
       {{ buttonText }}
     </button>
-  </div>
 
-  <div class="mt-4">
     <db-checkbox
       label="From Beginning"
       [checked]="simService.recordFromBeginning()"
       [disabled]="simService.recordingState() !== 'idle'"
       (checkedChange)="simService.recordFromBeginning.set($event)"
-      class="text-[10px]"
     >
       <span class="tooltip-container relative inline-block ml-1">
         <img
