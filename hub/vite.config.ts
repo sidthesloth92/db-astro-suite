@@ -33,6 +33,10 @@ export default defineConfig(({ mode }) => ({
         target: 'http://localhost:4200',
         changeOrigin: true,
       },
+      '/db-astro-suite/astrocard': {
+        target: 'http://localhost:4201',
+        changeOrigin: true,
+      },
     },
   },
   ssr: {
