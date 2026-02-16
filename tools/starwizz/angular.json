@@ -47,7 +47,8 @@
                   "maximumError": "8kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "baseHref": "/db-astro-suite/starwizz/"
             },
             "development": {
               "optimization": false,
