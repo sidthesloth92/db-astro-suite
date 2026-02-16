@@ -11,32 +11,26 @@ import { CommonModule } from '@angular/common';
         <div class="footer-section">
           <div class="brand">
             <span class="brand-dot"></span>
-            DB ASTRO SUITE // v1.0.4
+            DB ASTRO SUITE // v1.0.0
           </div>
-          <p class="tagline">MODULAR ASTROPHOTOGRAPHY ECOSYSTEM</p>
+          <p class="tagline">A COLLECTION OF ASTRO TOOLS TO GO FROM SENSOR TO SOCIAL</p>
         </div>
         
         <div class="footer-section status">
           <div class="status-item">
             <span class="label">COORDINATES</span>
-            <span class="value">0.0.0.0 // GLOBAL</span>
-          </div>
-          <div class="status-item">
-            <span class="label">CONNECTION</span>
-            <span class="value">STABLE // ENCRYPTED</span>
+            <span class="value">32.8140° N, 96.9489° W // IRVING, TX</span>
           </div>
         </div>
 
         <div class="footer-links">
           <a href="https://github.com/sidthesloth92/db-astro-suite" target="_blank" class="footer-link">GITHUB</a>
-          <a href="#" class="footer-link">DOCUMENTATION</a>
-          <a href="#" class="footer-link">SUPPORT</a>
+          <a href="https://dineshbalajiv.com" target="_blank" class="footer-link">ABOUT ME</a>
         </div>
       </div>
       
       <div class="footer-bottom">
         <div class="copyright">&copy; 2026 DB ASTRO. ALL RIGHTS RESERVED.</div>
-        <div class="security-clearance">CLEARANCE: LEVEL 4 // AUTHORIZED ONLY</div>
       </div>
     </footer>
   `,
@@ -82,7 +76,8 @@ import { CommonModule } from '@angular/common';
     .tagline {
       font-size: 10px;
       color: rgba(255, 255, 255, 0.4);
-      letter-spacing: 0.3em;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
     }
 
     .status {
@@ -135,10 +130,10 @@ import { CommonModule } from '@angular/common';
       border-top: 1px solid rgba(255, 255, 255, 0.05);
       padding-top: 1.5rem;
       display: flex;
-      justify-content: space-between;
-      color: rgba(255, 255, 255, 0.2);
-      font-size: 9px;
-      letter-spacing: 0.1em;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 10px;
+      letter-spacing: 0.2em;
     }
 
     @media (max-width: 900px) {
@@ -151,8 +146,7 @@ import { CommonModule } from '@angular/common';
       .status { justify-content: center; }
       .footer-links { justify-content: center; }
       .footer-bottom { 
-        flex-direction: column; 
-        gap: 1rem; 
+        padding-top: 1.5rem;
         text-align: center; 
       }
     }

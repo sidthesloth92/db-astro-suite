@@ -24,9 +24,7 @@ import { CommonModule } from '@angular/common';
           <h1 class="hero__title db-neon-text">DB ASTRO SUITE</h1>
           <p class="hero__subtitle">A COLLECTION OF ASTRO TOOLS TO GO FROM SENSOR TO SOCIAL</p>
           <div class="hero__description">
-            DB Astro Suite is a collection of tools for astrophotographers that can ease with their 
-            day to day work by bridging the gap between artistic simulation, technical session 
-            planning, and streamlined data management.
+            DB Astro Suite is a set of tools built to get your space photos off your hard drive and onto social media as cool, shareable videos and posts. It handles the boring stuff like sorting through messy files and typing out gear lists so that you can spend more time shooting and less time stuck behind a screen.
           </div>
         </header>
 
