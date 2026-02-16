@@ -30,6 +30,9 @@ import { CommonModule } from '@angular/common';
               <p class="tagline">Professional Exposure Cards. Instantly.</p>
             </div>
           </div>
+          <a href="/db-astro-suite/astrogram/" target="_self" class="launch-btn">
+            Launch Tool
+          </a>
         </header>
 
         <div class="dossier-grid">
@@ -90,9 +93,7 @@ import { CommonModule } from '@angular/common';
         </div>
 
         <footer class="dossier-footer">
-          <a href="/db-astro-suite/astrogram/" target="_self" class="launch-btn">
-            Launch Tool
-          </a>
+          <!-- Launch button moved to header -->
         </footer>
 
         <db-footer></db-footer>
@@ -184,7 +185,11 @@ import { CommonModule } from '@angular/common';
     }
 
     .dossier-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 4rem;
+      gap: 2rem;
     }
 
     .header-logo-container {
@@ -304,8 +309,6 @@ import { CommonModule } from '@angular/common';
 
     .dossier-footer {
       text-align: center;
-      padding-top: 2rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .launch-btn {
@@ -339,6 +342,11 @@ import { CommonModule } from '@angular/common';
     }
 
     @media (max-width: 600px) {
+      .dossier-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
       .header-logo-container {
         flex-direction: column;
         text-align: center;
@@ -356,6 +364,12 @@ import { CommonModule } from '@angular/common';
         flex-direction: column;
         gap: 1rem;
         align-items: flex-start;
+      }
+      .launch-btn {
+        width: 100%;
+        text-align: center;
+        padding: 1rem 2rem;
+        font-size: 12px;
       }
     }
   `]

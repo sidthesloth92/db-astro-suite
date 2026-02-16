@@ -23,8 +23,13 @@ import { CommonModule } from '@angular/common';
         </nav>
 
         <header class="dossier-header">
-          <h1 class="db-neon-text">FILE GROUPER</h1>
-          <p class="tagline">DATASET ORGANIZATION UTILITY</p>
+          <div>
+            <h1 class="db-neon-text">FILE GROUPER</h1>
+            <p class="tagline">DATASET ORGANIZATION UTILITY</p>
+          </div>
+          <a href="https://github.com/sidthesloth92/db-astro-suite/tree/main/tools/file-grouper" target="_blank" class="launch-btn">
+            ACCESS REPOSITORY
+          </a>
         </header>
 
         <div class="dossier-grid">
@@ -82,9 +87,7 @@ import { CommonModule } from '@angular/common';
         </div>
 
         <footer class="dossier-footer">
-          <a href="https://github.com/sidthesloth92/db-astro-suite/tree/main/tools/file-grouper" target="_blank" class="launch-btn">
-            ACCESS REPOSITORY
-          </a>
+          <!-- Action button moved to header -->
         </footer>
 
         <db-footer></db-footer>
@@ -167,7 +170,11 @@ import { CommonModule } from '@angular/common';
     }
 
     .dossier-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 4rem;
+      gap: 2rem;
     }
 
     .dossier-header h1 {
@@ -300,8 +307,6 @@ import { CommonModule } from '@angular/common';
 
     .dossier-footer {
       text-align: center;
-      padding-top: 2rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .launch-btn {
@@ -335,6 +340,11 @@ import { CommonModule } from '@angular/common';
     }
 
     @media (max-width: 600px) {
+      .dossier-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
       .top-nav {
         flex-direction: column;
         gap: 1rem;
@@ -346,6 +356,12 @@ import { CommonModule } from '@angular/common';
       }
       .tagline {
         letter-spacing: 0.2rem;
+        font-size: 12px;
+      }
+      .launch-btn {
+        width: 100%;
+        text-align: center;
+        padding: 1rem 2rem;
         font-size: 12px;
       }
     }
