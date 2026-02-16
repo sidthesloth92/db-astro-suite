@@ -54,14 +54,10 @@ import { CommonModule } from '@angular/common';
               </db-card>
             </div>
 
-            <div class="mission-card" [routerLink]="['/dossier/file-grouper']">
-              <db-card title="FILE GROUPER" subtitle="CLI Utility" [clickable]="true">
-                <div class="mission-status mission-status--local">LOCAL</div>
+            <div class="mission-card mission-card--disabled">
+              <db-card title="FILE GROUPER" subtitle="CLI Utility" [clickable]="false">
+                <div class="mission-status mission-status--progress">IN PROGRESS</div>
                 <p>A high-performance Go script to automatically group and organize ASIAIR image datasets by camera, date, and object.</p>
-                <a [routerLink]="['/dossier/file-grouper']" class="launch-cta" (click)="$event.stopPropagation()">
-                  <span class="launch-text">LEARN MORE</span>
-                  <span class="launch-arrow">→</span>
-                </a>
               </db-card>
             </div>
           </div>
@@ -263,6 +259,18 @@ import { CommonModule } from '@angular/common';
       border-color: rgba(255, 255, 255, 0.2);
       color: rgba(255, 255, 255, 0.6);
       background: transparent;
+    }
+
+    .mission-status--progress {
+      border-color: rgba(255, 191, 0, 0.4);
+      color: #ffbf00;
+      background: rgba(255, 191, 0, 0.05);
+    }
+
+    .mission-card--disabled {
+      opacity: 0.6;
+      filter: grayscale(0.2);
+      cursor: default;
     }
 
     .mission-card p {
