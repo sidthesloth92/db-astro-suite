@@ -78,15 +78,8 @@ import { CommonModule } from '@angular/common';
 
           <section class="intelligence">
             <db-card title="Demo">
-              <div class="media-placeholder screenshot-placeholder">
-                <div class="placeholder-icon">list</div>
-                <div class="placeholder-text">EQUIPMENT MANIFEST PREVIEW PENDING</div>
-                <div class="placeholder-subtext">User to provide equipment list screenshot</div>
-              </div>
-              <div class="media-placeholder screenshot-placeholder">
-                <div class="placeholder-icon">image</div>
-                <div class="placeholder-text">METADATA CARD DESIGN PENDING</div>
-                <div class="placeholder-subtext">User to provide session card screenshot</div>
+              <div class="demo-image-container">
+                <img src="assets/img/astrogram_demo.jpg" alt="Astrogram Demo" class="demo-image" />
               </div>
             </db-card>
           </section>
@@ -298,6 +291,20 @@ import { CommonModule } from '@angular/common';
       letter-spacing: 0.1em;
       color: white;
       margin-bottom: 0.5rem;
+    }
+
+    .demo-image-container {
+      width: 100%;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 45, 149, 0.2);
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .demo-image {
+      width: 100%;
+      height: auto;
+      display: block;
     }
 
     .placeholder-subtext {
