@@ -22,7 +22,7 @@ import { CommonModule } from '@angular/common';
             DB Astro Suite Core // Online
           </div>
           <h1 class="hero__title db-neon-text">DB ASTRO SUITE</h1>
-          <p class="hero__subtitle">A TACTICAL ECOSYSTEM FOR THE MODERN ASTROPHOTOGRAPHER</p>
+          <p class="hero__subtitle">A TACTICAL COLLECTION OF MISSION-CRITICAL SPACE TOOLS</p>
           <div class="hero__description">
             DB Astro Suite is a collection of tools for astrophotographers that can ease with their 
             day to day work by bridging the gap between artistic simulation, technical session 
