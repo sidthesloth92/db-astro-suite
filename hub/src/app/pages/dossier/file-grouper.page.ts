@@ -193,6 +193,12 @@ import { CommonModule } from '@angular/common';
       margin-bottom: 4rem;
     }
 
+    .briefing {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
     .briefing p {
       color: rgba(255, 255, 255, 0.8);
       line-height: 1.8;
@@ -200,8 +206,10 @@ import { CommonModule } from '@angular/common';
       margin-bottom: 1.5rem;
     }
 
-    .specs-card {
-      margin-top: 2rem;
+    .intelligence {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
     }
 
     .specs-list {
@@ -323,6 +331,22 @@ import { CommonModule } from '@angular/common';
       }
       .dossier-header h1 {
         font-size: 3rem;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .top-nav {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+      }
+      .dossier-header h1 {
+        font-size: clamp(2rem, 10vw, 2.5rem);
+        letter-spacing: 0.1em;
+      }
+      .tagline {
+        letter-spacing: 0.2rem;
+        font-size: 12px;
       }
     }
   `]

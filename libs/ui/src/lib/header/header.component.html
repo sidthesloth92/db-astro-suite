@@ -16,7 +16,7 @@
     }
     <div class="flex items-baseline gap-4">
       <h1
-        class="text-lg md:text-2xl font-bold db-neon-text tracking-[0.2em] md:tracking-[0.4em] whitespace-nowrap uppercase"
+        class="text-base md:text-2xl font-bold db-neon-text tracking-[0.1em] md:tracking-[0.4em] whitespace-nowrap uppercase"
       >
         {{ title }}
       </h1>
@@ -30,14 +30,17 @@
   </a>
 
   <!-- Right Side: Links -->
-  <div class="right-side flex items-center gap-4 md:gap-8">
+  <div class="right-side flex items-center gap-2 md:gap-8">
     <!-- Personal Website -->
     <a
       [href]="aboutLink"
       target="_blank"
       class="tool-link transition-transform active:scale-95"
     >
-      <db-space-button label="About me" size="sm"></db-space-button>
+      <db-space-button
+        [label]="isMobile ? 'Me' : 'About me'"
+        size="sm"
+      ></db-space-button>
     </a>
 
     <!-- GitHub Logo -->
