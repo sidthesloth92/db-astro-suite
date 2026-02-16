@@ -11,5 +11,6 @@ import { CommonModule } from '@angular/common';
 export class CardComponent {
   @Input() title = '';
   @Input() subtitle = '';
+  @Input() logoSrc = '';
   @Input() clickable = false;
 }

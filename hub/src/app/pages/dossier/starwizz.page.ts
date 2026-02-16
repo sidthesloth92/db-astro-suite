@@ -23,8 +23,13 @@ import { CommonModule } from '@angular/common';
         </nav>
 
         <header class="dossier-header">
-          <h1 class="db-neon-text">STARWIZZ</h1>
-          <p class="tagline">CINEMATIC STARFIELD GENERATOR</p>
+          <div class="header-logo-container">
+            <img src="assets/img/sw.png" class="dossier-logo" alt="Starwizz Logo" />
+            <div>
+              <h1 class="db-neon-text">STARWIZZ</h1>
+              <p class="tagline">CINEMATIC STARFIELD GENERATOR</p>
+            </div>
+          </div>
         </header>
 
         <div class="dossier-grid">
@@ -164,6 +169,18 @@ import { CommonModule } from '@angular/common';
 
     .dossier-header {
       margin-bottom: 4rem;
+    }
+
+    .header-logo-container {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .dossier-logo {
+      width: 5rem;
+      height: 5rem;
+      object-fit: contain;
     }
 
     .dossier-header h1 {

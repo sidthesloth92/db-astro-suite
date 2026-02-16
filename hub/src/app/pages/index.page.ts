@@ -33,22 +33,22 @@ import { CommonModule } from '@angular/common';
         <section class="tools">
           <div class="tools__grid">
             <div class="mission-card" [routerLink]="['/dossier/starwizz']">
-              <db-card title="STARWIZZ" subtitle="Starfield Generator" [clickable]="true">
+              <db-card title="STARWIZZ" subtitle="Starfield Generator" [clickable]="true" logoSrc="assets/img/sw.png">
                 <div class="mission-status">READY</div>
                 <p>Generate high-fidelity starfield videos with surgical control over star count, velocity, and rotation parameters.</p>
                 <a [routerLink]="['/dossier/starwizz']" class="launch-cta" (click)="$event.stopPropagation()">
-                  <span class="launch-text">LAUNCH TOOL</span>
+                  <span class="launch-text">LEARN MORE</span>
                   <span class="launch-arrow">→</span>
                 </a>
               </db-card>
             </div>
 
             <div class="mission-card" [routerLink]="['/dossier/astrogram']">
-              <db-card title="ASTROGRAM" subtitle="Professional Exposure Cards. Instantly." [clickable]="true">
+              <db-card title="ASTROGRAM" subtitle="Professional Exposure Cards. Instantly." [clickable]="true" logoSrc="assets/img/astrogram.png">
                 <div class="mission-status">READY</div>
-                <p>Create professional social media slides featuring your equipment, exposure details, and detailed session metadata.</p>
+                <p>Astrogram generates beautifully designed and professional-grade Instagram-ready images that display your full astrophotography exposure details, from target and integration time to equipment, filters, and Bortle scale. All in one clean, shareable image.</p>
                 <a [routerLink]="['/dossier/astrogram']" class="launch-cta" (click)="$event.stopPropagation()">
-                  <span class="launch-text">LAUNCH TOOL</span>
+                  <span class="launch-text">LEARN MORE</span>
                   <span class="launch-arrow">→</span>
                 </a>
               </db-card>
@@ -59,7 +59,7 @@ import { CommonModule } from '@angular/common';
                 <div class="mission-status mission-status--local">LOCAL</div>
                 <p>A high-performance Go script to automatically group and organize ASIAIR image datasets by camera, date, and object.</p>
                 <a [routerLink]="['/dossier/file-grouper']" class="launch-cta" (click)="$event.stopPropagation()">
-                  <span class="launch-text">LAUNCH TOOL</span>
+                  <span class="launch-text">LEARN MORE</span>
                   <span class="launch-arrow">→</span>
                 </a>
               </db-card>

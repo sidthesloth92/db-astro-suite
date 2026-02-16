@@ -23,38 +23,51 @@ import { CommonModule } from '@angular/common';
         </nav>
 
         <header class="dossier-header">
-          <h1 class="db-neon-text">ASTROGRAM</h1>
-          <p class="tagline">Professional Exposure Cards. Instantly.</p>
+          <div class="header-logo-container">
+            <img src="assets/img/astrogram.png" class="dossier-logo" alt="Astrogram Logo" />
+            <div>
+              <h1 class="db-neon-text">ASTROGRAM</h1>
+              <p class="tagline">Professional Exposure Cards. Instantly.</p>
+            </div>
+          </div>
         </header>
 
         <div class="dossier-grid">
           <section class="briefing">
             <db-card title="Overview">
               <p>
-                AstroGram is a high-fidelity utility that allows astrophotographers to generate 
-                beautiful technical summaries of their imaging sessions. It transforms complex 
-                FITS metadata and session logs into polished image slides optimized for social media.
+                Astrogram is a specialized generator designed to take the complexity of your capture session—from gear lists to Bortle scales—and distill it into a beautiful, Instagram-ready graphic. No more messy captions or manually typing out equipment lists for every post.
               </p>
               <p>
-                Documentation is a bridge between science and art. AstroGram ensures your 
-                technical achievements are displayed with the same precision as your final 
-                processed images.
+                Simply input your session metadata, and Astrogram handles the typography, layout, and branding, giving your followers a clear "behind-the-lens" look at how you captured the cosmos.
               </p>
             </db-card>
 
             <db-card title="Features" class="specs-card">
               <ul class="specs-list">
                 <li>
-                  <strong>HARDWARE MANIFEST</strong>
-                  <span>Automatically list your telescope, camera, mount, and filter configurations for every shot.</span>
+                  <strong>VISUAL IMAGE GENERATION</strong>
+                  <span>Instantly render a high-quality .JPG or .PNG graphic with perfectly balanced typography.</span>
                 </li>
                 <li>
-                  <strong>EXPOSURE TELEMETRY</strong>
-                  <span>Display total integration time, individual sub-exposure lengths, gain, and offset values.</span>
+                  <strong>FULL EQUIPMENT STACK</strong>
+                  <span>Dedicated fields for your telescope, mount, main camera, guide scope, and even the software used for acquisition and processing.</span>
                 </li>
                 <li>
-                  <strong>CELESTIAL ARCHIVE</strong>
-                  <span>Embed object names, catalog numbers, Bortle scale ratings, and precise GPS coordinates.</span>
+                  <strong>COMPREHENSIVE METADATA</strong>
+                  <span>Display everything from the target name (DSO) and Bortle class to precise coordinates and session dates.</span>
+                </li>
+                <li>
+                  <strong>EXPOSURE BREAKDOWN</strong>
+                  <span>Clearly highlight your total integration time, individual sub-exposure lengths, and the specific filters (L-RGB, Narrowband) utilized.</span>
+                </li>
+                <li>
+                  <strong>BORTLE & LOCATION INSIGHTS</strong>
+                  <span>Include environmental data like Bortle scale and capture dates to add context to your image.</span>
+                </li>
+                <li>
+                  <strong>SOCIAL BRANDING</strong>
+                  <span>Add your handle and custom notes directly onto the generated image for a professional finish.</span>
                 </li>
               </ul>
             </db-card>
@@ -172,6 +185,18 @@ import { CommonModule } from '@angular/common';
 
     .dossier-header {
       margin-bottom: 4rem;
+    }
+
+    .header-logo-container {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .dossier-logo {
+      width: 5rem;
+      height: 5rem;
+      object-fit: contain;
     }
 
     .dossier-header h1 {
