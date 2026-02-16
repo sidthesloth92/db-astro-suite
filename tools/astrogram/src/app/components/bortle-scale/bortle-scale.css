@@ -1,0 +1,118 @@
+.bortle {
+  padding: 0.125rem 0.5rem; /* More compact vertical padding */
+}
+
+.bortle-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.125rem; /* More compact */
+}
+
+.bortle-title {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--accent-color, #ff2d95);
+}
+
+.bortle-value {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: white;
+}
+
+.bortle-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem; /* Increased from 0.5rem */
+}
+
+.bortle-icon {
+  font-size: 0.75rem;
+  opacity: 0.8;
+  margin: 0 2px; /* Add slight breathing room */
+}
+
+.bortle-track {
+  position: relative;
+  height: 4px;
+  width: 100%;
+  margin: 3px 0; /* Compact margin */
+}
+
+.track-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bortle-markers {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+
+.bortle-markers span {
+  font-size: 0.5rem;
+  color: rgba(255, 255, 255, 0.4);
+  line-height: 1;
+}
+
+.bortle-markers span.active {
+  color: white;
+  font-weight: 700;
+}
+
+.track-bg {
+  position: absolute;
+  inset: 0;
+  /* Pink-themed gradient reflecting Bortle intensity: dark/muted pink to bright pink */
+  background: linear-gradient(to right, 
+    rgba(255, 45, 149, 0.2) 0%, 
+    rgba(255, 45, 149, 0.4) 30%, 
+    rgba(255, 45, 149, 0.7) 70%, 
+    rgba(255, 45, 149, 1) 100%
+  );
+  border-radius: 2px;
+}
+
+.track-indicator {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: white; /* Ensure it's opaque */
+  border: 1.5px solid white;
+}
+
+.bortle.compact {
+  padding: 0;
+}
+
+.bortle.compact .bortle-header {
+  margin-bottom: 0px;
+}
+
+.bortle.compact .bortle-row {
+  gap: 0.75rem; /* Increased spacing between scale and icons */
+}
+
+.bortle.compact .bortle-icon {
+  font-size: 0.6rem;
+}
+
+.bortle.compact .bortle-track {
+  height: 2px;
+}
+
+.bortle.compact .track-indicator {
+  width: 6px;
+  height: 6px;
+}
+
+

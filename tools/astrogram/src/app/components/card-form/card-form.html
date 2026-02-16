@@ -1,0 +1,261 @@
+<div class="form-container">
+  <db-accordion>
+    <!-- Card Settings Section -->
+    <db-accordion-item title="⚙️ Card Settings" [expanded]="true">
+      <db-select
+        label="Aspect Ratio"
+        [(value)]="data.aspectRatio"
+        (valueChange)="emitChange()"
+        [options]="[
+          { label: '3:4 - 1080 x 1440 - New Insta Post', value: '3:4' },
+          { label: '4:5 - 1080 x 1350 - Old Insta Post', value: '4:5' },
+        ]"
+      ></db-select>
+
+      <div class="form-row compact">
+        <div class="db-form-group">
+          <label class="db-form-label">Accent Color</label>
+          <div class="color-picker-wrapper">
+            <input
+              type="color"
+              [(ngModel)]="data.accentColor"
+              (ngModelChange)="onAccentColorChange()"
+            />
+            <span class="color-val">{{ data.accentColor }}</span>
+          </div>
+        </div>
+
+        <div class="db-form-group">
+          <label class="db-form-label">Background</label>
+          <div class="image-upload-mini">
+            @if (data.backgroundImage) {
+              <div class="mini-preview">
+                <img [src]="data.backgroundImage" alt="" />
+                <button type="button" class="mini-remove" (click)="clearBackground()">✕</button>
+              </div>
+            } @else {
+              <label class="mini-upload">
+                <input type="file" accept="image/*" (change)="onImageUpload($event)" hidden />
+                <span>Upload</span>
+              </label>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="db-form-group">
+          <db-slider
+            label="Card Transparency"
+            [value]="data.cardOpacity * 100"
+            [min]="0"
+            [max]="100"
+            [step]="5"
+            [precision]="0"
+            (valueChange)="data.cardOpacity = $event / 100; emitChange()"
+          ></db-slider>
+        </div>
+      </div>
+    </db-accordion-item>
+
+    <!-- Header Section -->
+    <db-accordion-item title="📸 Image Details">
+      <db-input
+        label="Object Name"
+        [(value)]="data.title"
+        (valueChange)="emitChange()"
+        placeholder="e.g., Pillars of Creation"
+      ></db-input>
+
+      <db-textarea
+        label="📝 Description"
+        [(value)]="data.description"
+        (valueChange)="emitChange()"
+        placeholder="Brief description of the object..."
+        [rows]="3"
+      ></db-textarea>
+
+      <div class="form-row mb-sm">
+        <db-input
+          type="date"
+          label="📅 Date"
+          [(value)]="data.date"
+          (valueChange)="emitChange()"
+          class="flex-1"
+        ></db-input>
+        <db-input
+          label="📍 Location"
+          [(value)]="data.location"
+          (valueChange)="emitChange()"
+          placeholder="City, State"
+          class="flex-1"
+        ></db-input>
+      </div>
+
+      <db-input
+        label="👤 Author Handle"
+        [(value)]="data.author"
+        (valueChange)="emitChange()"
+        placeholder="@username"
+      ></db-input>
+    </db-accordion-item>
+
+    <!-- Integration / Filters Section -->
+    <db-accordion-item title="⏱️ Integration">
+      <div class="filters-list">
+        @for (filter of data.filters; track filter.name; let i = $index) {
+          <div class="filter-row-complex" [class.disabled]="!filter.enabled">
+            <div class="filter-main">
+              <button
+                type="button"
+                class="filter-chip"
+                [style.borderColor]="filter.color"
+                [style.background]="filter.enabled ? filter.color + '20' : 'transparent'"
+                [style.color]="filter.enabled ? filter.color : '#666'"
+                (click)="toggleFilter(i)"
+              >
+                {{ filter.name }}
+              </button>
+              <input
+                type="color"
+                [(ngModel)]="filter.color"
+                (ngModelChange)="emitChange()"
+                class="filter-color-btn"
+              />
+            </div>
+
+            @if (filter.enabled) {
+              <div class="filter-inputs">
+                <div class="mini-input-group">
+                  <input
+                    type="number"
+                    [ngModel]="filter.frames"
+                    (ngModelChange)="updateFilter(i, 'frames', $event)"
+                    min="0"
+                  />
+                  <span>fr</span>
+                </div>
+                <span class="op-x">×</span>
+                <div class="mini-input-group">
+                  <input
+                    type="number"
+                    [ngModel]="filter.seconds"
+                    (ngModelChange)="updateFilter(i, 'seconds', $event)"
+                    min="0"
+                  />
+                  <span>s</span>
+                </div>
+              </div>
+            }
+
+            @if (i >= 7) {
+              <button type="button" class="delete-action-btn" (click)="removeFilter(i)">✕</button>
+            }
+          </div>
+        }
+      </div>
+
+      <db-neon-button variant="secondary" fullWidth (click)="addCustomFilter()">
+        + Add Custom Filter
+      </db-neon-button>
+    </db-accordion-item>
+
+    <!-- Equipment Section -->
+    <db-accordion-item title="🔭 Equipment">
+      <div class="items-editor">
+        @for (item of data.equipment; track $index; let i = $index) {
+          <div class="equipment-row-complex">
+            <input
+              type="text"
+              [(ngModel)]="item.icon"
+              (ngModelChange)="emitChange()"
+              class="icon-picker-mini db-form-input"
+              maxlength="10"
+            />
+            <div class="item-fields">
+              <input
+                type="text"
+                [(ngModel)]="item.label"
+                (ngModelChange)="emitChange()"
+                class="db-form-input field-label"
+                placeholder="Label"
+              />
+              <input
+                type="text"
+                [(ngModel)]="item.value"
+                (ngModelChange)="emitChange()"
+                class="db-form-input field-value"
+                placeholder="Value"
+              />
+            </div>
+            <button type="button" class="delete-action-btn" (click)="removeEquipment(i)">✕</button>
+          </div>
+        }
+      </div>
+
+      <db-neon-button variant="secondary" fullWidth (click)="addEquipment()">
+        + Add Equipment
+      </db-neon-button>
+    </db-accordion-item>
+
+    <!-- Software Section -->
+    <db-accordion-item title="💻 Software">
+      <div class="items-editor">
+        @for (item of data.software; track $index; let i = $index) {
+          <div class="equipment-row-complex">
+            <input
+              type="text"
+              [(ngModel)]="item.icon"
+              (ngModelChange)="emitChange()"
+              class="icon-picker-mini db-form-input"
+              maxlength="2"
+            />
+            <div class="item-fields">
+              <input
+                type="text"
+                [(ngModel)]="item.label"
+                (ngModelChange)="emitChange()"
+                class="db-form-input field-label"
+                placeholder="Type"
+              />
+              <input
+                type="text"
+                [(ngModel)]="item.name"
+                (ngModelChange)="emitChange()"
+                class="db-form-input field-value"
+                placeholder="Software Name"
+              />
+            </div>
+            <button type="button" class="delete-action-btn" (click)="removeSoftware(i)">✕</button>
+          </div>
+        }
+      </div>
+
+      <db-neon-button variant="secondary" fullWidth (click)="addSoftware()">
+        + Add Software
+      </db-neon-button>
+    </db-accordion-item>
+
+    <!-- Bortle Scale Section -->
+    <db-accordion-item title="🏙️ Bortle Scale">
+      <div class="bortle-control">
+        <div class="bortle-visual">
+          @for (n of [1, 2, 3, 4, 5, 6, 7, 8, 9]; track n) {
+            <button
+              type="button"
+              class="bortle-step"
+              [class.active]="data.bortleScale === n"
+              [style.background]="'rgba(255, 45, 149, ' + n / 10 + ')'"
+              (click)="data.bortleScale = n; emitChange()"
+            >
+              {{ n }}
+            </button>
+          }
+        </div>
+        <div class="bortle-info">
+          Level: <span class="highlight">{{ data.bortleScale }}</span>
+        </div>
+      </div>
+    </db-accordion-item>
+  </db-accordion>
+</div>

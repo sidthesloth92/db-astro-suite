@@ -7,13 +7,13 @@
     "dev": "pnpm -r --parallel dev",
     "dev:hub": "pnpm --filter hub dev",
     "dev:starwizz": "pnpm --filter @db-astro-suite/starwizz dev",
-    "dev:astro-gram": "pnpm --filter @db-astro-suite/astro-gram dev",
+    "dev:astrogram": "pnpm --filter @db-astro-suite/astrogram dev",
     "dev:grouper": "pnpm --filter @db-astro-suite/file-grouper dev",
-    "build": "pnpm -r exec rm -rf dist && rm -rf dist && pnpm build:hub && pnpm build:starwizz && pnpm build:astro-gram && pnpm build:merge",
+    "build": "pnpm -r exec rm -rf dist && rm -rf dist && pnpm build:hub && pnpm build:starwizz && pnpm build:astrogram && pnpm build:merge",
     "build:hub": "pnpm --filter hub build",
     "build:starwizz": "pnpm --filter @db-astro-suite/starwizz build",
-    "build:astro-gram": "pnpm --filter @db-astro-suite/astro-gram build",
-    "build:merge": "mkdir -p dist/starwizz dist/astro-gram && (cp -rf hub/dist/analog/public/* dist/ 2>/dev/null || cp -rf hub/dist/client/* dist/ 2>/dev/null || true) && (cp -rf tools/starwizz/dist/starwizz/browser/* dist/starwizz/ 2>/dev/null || cp -rf tools/starwizz/dist/starwizz/* dist/starwizz/ 2>/dev/null || true) && (cp -rf tools/astro-gram/dist/astro-gram/browser/* dist/astro-gram/ 2>/dev/null || cp -rf tools/astro-gram/dist/astro-gram/* dist/astro-gram/ 2>/dev/null || true) && (cp dist/index.html dist/404.html 2>/dev/null || true)",
+    "build:astrogram": "pnpm --filter @db-astro-suite/astrogram build",
+    "build:merge": "mkdir -p dist/starwizz dist/astrogram && (cp -rf hub/dist/analog/public/* dist/ 2>/dev/null || cp -rf hub/dist/client/* dist/ 2>/dev/null || true) && (cp -rf tools/starwizz/dist/starwizz/browser/* dist/starwizz/ 2>/dev/null || cp -rf tools/starwizz/dist/starwizz/* dist/starwizz/ 2>/dev/null || true) && (cp -rf tools/astrogram/dist/astrogram/browser/* dist/astrogram/ 2>/dev/null || cp -rf tools/astrogram/dist/astrogram/* dist/astrogram/ 2>/dev/null || true) && (cp dist/index.html dist/404.html 2>/dev/null || true)",
     "preview": "npx serve dist",
     "deploy": "pnpm build && npx gh-pages -d dist"
   }

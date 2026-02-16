@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => ({
       ssr: true,
       static: true,
       prerender: {
-        routes: ['/', '/about', '/dossier/starwizz', '/dossier/astro-gram', '/dossier/file-grouper'],
+        routes: ['/', '/about', '/dossier/starwizz', '/dossier/astrogram', '/dossier/file-grouper'],
       },
       nitro: {
         preset: 'static',
@@ -33,7 +33,7 @@ export default defineConfig(({ mode }) => ({
         target: 'http://localhost:4200',
         changeOrigin: true,
       },
-      '/db-astro-suite/astro-gram': {
+      '/db-astro-suite/astrogram': {
         target: 'http://localhost:4201',
         changeOrigin: true,
       },
