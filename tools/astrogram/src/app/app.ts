@@ -42,7 +42,7 @@ export class App {
     accentColor: '#ff2d95',
     accentColorRgb: '255, 45, 149',
     cardOpacity: 0.60,
-    backgroundImage: null,
+    backgroundImage: 'assets/img/rosette.jpg',
     aspectRatio: '3:4'
   });
 
