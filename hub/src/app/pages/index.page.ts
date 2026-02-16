@@ -43,11 +43,11 @@ import { CommonModule } from '@angular/common';
               </db-card>
             </div>
 
-            <div class="mission-card" [routerLink]="['/dossier/astro-card']">
-              <db-card title="ASTROCARD" subtitle="Exposure Card Generator" [clickable]="true">
+            <div class="mission-card" [routerLink]="['/dossier/astro-gram']">
+              <db-card title="ASTROGRAM" subtitle="Exposure Card Generator" [clickable]="true">
                 <div class="mission-status">READY</div>
                 <p>Create professional social media slides featuring your equipment, exposure details, and detailed session metadata.</p>
-                <a [routerLink]="['/dossier/astro-card']" class="launch-cta" (click)="$event.stopPropagation()">
+                <a [routerLink]="['/dossier/astro-gram']" class="launch-cta" (click)="$event.stopPropagation()">
                   <span class="launch-text">LAUNCH TOOL</span>
                   <span class="launch-arrow">→</span>
                 </a>

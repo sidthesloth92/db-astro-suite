@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://sidthesloth92.github.io/starwizz/sitemap.xml
