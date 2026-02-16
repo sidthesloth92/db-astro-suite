@@ -5,7 +5,7 @@ import { FooterComponent } from '../../../../../libs/ui/src/lib/footer/footer.co
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'hub-starwizz-dossier',
+  selector: 'hub-astro-gram-dossier',
   standalone: true,
   imports: [RouterLink, CardComponent, FooterComponent, CommonModule],
   template: `
@@ -19,48 +19,42 @@ import { CommonModule } from '@angular/common';
           <a routerLink="/" class="back-link">
             <span class="arrow">←</span> RETURN TO HUB
           </a>
-          <div class="mission-id">Module: StarWizz</div>
+          <div class="mission-id">Module: AstroGram</div>
         </nav>
 
         <header class="dossier-header">
-          <div class="header-logo-container">
-            <img src="assets/img/sw.png" class="dossier-logo" alt="Starwizz Logo" />
-            <div>
-              <h1 class="db-neon-text">STARWIZZ</h1>
-              <p class="tagline">CINEMATIC STARFIELD GENERATOR</p>
-            </div>
-          </div>
+          <h1 class="db-neon-text">ASTROGRAM</h1>
+          <p class="tagline">Professional Exposure Cards. Instantly.</p>
         </header>
 
         <div class="dossier-grid">
           <section class="briefing">
             <db-card title="Overview">
               <p>
-                StarWizz is a specialized tool designed to create immersive starfield animations 
-                for astrophotographers and space enthusiasts. It enables users to generate 
-                perfectly looped videos or sequence-based effects that simulate traveling 
-                through deep space.
+                AstroGram is a high-fidelity utility that allows astrophotographers to generate 
+                beautiful technical summaries of their imaging sessions. It transforms complex 
+                FITS metadata and session logs into polished image slides optimized for social media.
               </p>
               <p>
-                Whether you're creating a motion background for an astrophotography presentation 
-                or a cinematic intro for a space-themed video, StarWizz provides the high-fidelity 
-                output needed for professional-grade results.
+                Documentation is a bridge between science and art. AstroGram ensures your 
+                technical achievements are displayed with the same precision as your final 
+                processed images.
               </p>
             </db-card>
 
             <db-card title="Features" class="specs-card">
               <ul class="specs-list">
                 <li>
-                  <strong>POPULATION CONTROL</strong>
-                  <span>Modify the density and number of stars to simulate different galactic sectors.</span>
+                  <strong>HARDWARE MANIFEST</strong>
+                  <span>Automatically list your telescope, camera, mount, and filter configurations for every shot.</span>
                 </li>
                 <li>
-                  <strong>VELOCITY VECTORS</strong>
-                  <span>Adjust travel speed to transition from a slow drift to high-warp effects.</span>
+                  <strong>EXPOSURE TELEMETRY</strong>
+                  <span>Display total integration time, individual sub-exposure lengths, gain, and offset values.</span>
                 </li>
                 <li>
-                  <strong>ROTATIONAL DYNAMICS</strong>
-                  <span>Fine-tune the camera rotation to create chaotic orbits or stable traversals.</span>
+                  <strong>CELESTIAL ARCHIVE</strong>
+                  <span>Embed object names, catalog numbers, Bortle scale ratings, and precise GPS coordinates.</span>
                 </li>
               </ul>
             </db-card>
@@ -68,22 +62,22 @@ import { CommonModule } from '@angular/common';
 
           <section class="intelligence">
             <db-card title="Demo">
-              <div class="media-placeholder video-placeholder">
-                <div class="placeholder-icon">▶</div>
-                <div class="placeholder-text">MISSION VIDEO ASSET PENDING</div>
-                <div class="placeholder-subtext">User to provide StarWizz demo video</div>
+              <div class="media-placeholder screenshot-placeholder">
+                <div class="placeholder-icon">list</div>
+                <div class="placeholder-text">EQUIPMENT MANIFEST PREVIEW PENDING</div>
+                <div class="placeholder-subtext">User to provide equipment list screenshot</div>
               </div>
               <div class="media-placeholder screenshot-placeholder">
-                <div class="placeholder-icon">square</div>
-                <div class="placeholder-text">INTERFACE DIAGRAM PENDING</div>
-                <div class="placeholder-subtext">User to provide control panel screenshot</div>
+                <div class="placeholder-icon">image</div>
+                <div class="placeholder-text">METADATA CARD DESIGN PENDING</div>
+                <div class="placeholder-subtext">User to provide session card screenshot</div>
               </div>
             </db-card>
           </section>
         </div>
 
         <footer class="dossier-footer">
-          <a href="/db-astro-suite/starwizz/" target="_self" class="launch-btn">
+          <a href="/db-astro-suite/astro-gram/" target="_self" class="launch-btn">
             Launch Tool
           </a>
         </footer>
@@ -113,6 +107,15 @@ import { CommonModule } from '@angular/common';
       background-repeat: repeat;
       background-size: 200px 200px;
       opacity: 0.2;
+    }
+
+    .nebula-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%; z-index: 1;
+      background: 
+        radial-gradient(circle at 20% 30%, rgba(255, 45, 149, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 80% 70%, rgba(0, 243, 255, 0.05) 0%, transparent 40%);
+      pointer-events: none;
     }
 
     .scanlines {
@@ -169,18 +172,6 @@ import { CommonModule } from '@angular/common';
 
     .dossier-header {
       margin-bottom: 4rem;
-    }
-
-    .header-logo-container {
-      display: flex;
-      align-items: center;
-      gap: 2rem;
-    }
-
-    .dossier-logo {
-      width: 5rem;
-      height: 5rem;
-      object-fit: contain;
     }
 
     .dossier-header h1 {
@@ -315,4 +306,4 @@ import { CommonModule } from '@angular/common';
     }
   `]
 })
-export default class StarwizzPage {}
+export default class AstroGramPage {}

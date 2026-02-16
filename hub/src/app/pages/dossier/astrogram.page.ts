@@ -74,7 +74,7 @@ import { CommonModule } from '@angular/common';
           </section>
 
           <section class="intelligence">
-            <db-card title="Media">
+            <db-card title="Demo">
               <div class="media-placeholder screenshot-placeholder">
                 <div class="placeholder-icon">list</div>
                 <div class="placeholder-text">EQUIPMENT MANIFEST PREVIEW PENDING</div>
