@@ -15,21 +15,25 @@ Thank you for your interest in contributing to Starwizz! We welcome contribution
 1. **Fork the repository** on GitHub
 
 2. **Clone your fork** locally:
+
    ```bash
-   git clone https://github.com/YOUR_USERNAME/starwizz.git
-   cd starwizz
+   git clone https://github.com/sidthesloth92/db-astro-suite.git
+   cd db-astro-suite/tools/starwizz
    ```
 
 3. **Install dependencies**:
+
    ```bash
    npm install
    ```
 
 4. **Start the development server**:
+
    ```bash
    ng serve
    ```
-   Open your browser to `http://localhost:4200/`
+
+   Open your browser to `http://localhost:4200/db-astro-suite/starwizz/`
 
 5. **Run tests** to ensure everything works:
    ```bash
@@ -41,6 +45,7 @@ Thank you for your interest in contributing to Starwizz! We welcome contribution
 ### Reporting Bugs
 
 If you find a bug, please open an issue with:
+
 - A clear, descriptive title
 - Steps to reproduce the issue
 - Expected behavior vs actual behavior
@@ -50,6 +55,7 @@ If you find a bug, please open an issue with:
 ### Suggesting Features
 
 We love new ideas! When suggesting a feature:
+
 - Check existing issues to avoid duplicates
 - Describe the feature and its use case
 - Explain why it would benefit users
@@ -57,6 +63,7 @@ We love new ideas! When suggesting a feature:
 ### Submitting Pull Requests
 
 1. **Create a branch** for your feature or fix:
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
@@ -64,17 +71,20 @@ We love new ideas! When suggesting a feature:
 2. **Make your changes** following our code style guidelines
 
 3. **Test your changes**:
+
    ```bash
    ng test
    ng build
    ```
 
 4. **Commit with a clear message**:
+
    ```bash
    git commit -m "Add: brief description of your change"
    ```
 
 5. **Push to your fork**:
+
    ```bash
    git push origin feature/your-feature-name
    ```
@@ -100,11 +110,13 @@ We love new ideas! When suggesting a feature:
 ### Code Formatting
 
 This project uses Prettier for code formatting:
+
 - 100 character line width
 - Single quotes
 - 2-space indentation
 
 Run the formatter before committing:
+
 ```bash
 npm run format
 ```

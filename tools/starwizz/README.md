@@ -2,7 +2,7 @@
 
 **Starwizz** is a high-performance, browser-based 4K starfield and galaxy generator. Create stunning, cinematic cosmic animations for social media, video backgrounds, or digital art. Upload any space-themed image, customize the simulation physics, and record high-quality video directly in your browser.
 
-**[Try it live](https://sidthesloth92.github.io/starwizz/)**
+**[Try it live](https://sidthesloth92.github.io/db-astro-suite/starwizz/)**
 
 ---
 
@@ -18,7 +18,7 @@
 
 ## How to Use
 
-1. **Open the app** - Visit [Starwizz](https://sidthesloth92.github.io/starwizz/) in your browser
+1. **Open the app** - Visit [Starwizz](https://sidthesloth92.github.io/db-astro-suite/starwizz/) in your browser
 2. **View the demo** - A default galaxy image loads automatically so you can see the effect immediately
 3. **Upload your image** - Click "Upload Target" to select your own background image (any space/galaxy image works best)
 4. **Adjust parameters** - Use the control sliders on the right panel to customize the animation:
