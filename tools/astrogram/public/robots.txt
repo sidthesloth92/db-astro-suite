@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://sidthesloth92.github.io/starwizz/sitemap.xml
+Sitemap: https://sidthesloth92.github.io/db-astro-suite/astrogram/sitemap.xml
