@@ -1,0 +1,301 @@
+import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { CardComponent } from '@db-astro-suite/ui';
+import { FooterComponent } from '../../../../../libs/ui/src/lib/footer/footer.component';
+import { CommonModule } from '@angular/common';
+
+@Component({
+  selector: 'hub-starwizz-dossier',
+  standalone: true,
+  imports: [RouterLink, CardComponent, FooterComponent, CommonModule],
+  template: `
+    <div class="dossier-container">
+      <div class="stars-overlay"></div>
+      <div class="nebula-overlay"></div>
+      <div class="scanlines"></div>
+
+      <div class="content">
+        <nav class="top-nav">
+          <a routerLink="/" class="back-link">
+            <span class="arrow">←</span> RETURN TO HUB
+          </a>
+          <div class="mission-id">Module: StarWizz</div>
+        </nav>
+
+        <header class="dossier-header">
+          <h1 class="db-neon-text">STARWIZZ</h1>
+          <p class="tagline">CINEMATIC STARFIELD GENERATOR</p>
+        </header>
+
+        <div class="dossier-grid">
+          <section class="briefing">
+            <db-card title="Overview">
+              <p>
+                StarWizz is a specialized tool designed to create immersive starfield animations 
+                for astrophotographers and space enthusiasts. It enables users to generate 
+                perfectly looped videos or sequence-based effects that simulate traveling 
+                through deep space.
+              </p>
+              <p>
+                Whether you're creating a motion background for an astrophotography presentation 
+                or a cinematic intro for a space-themed video, StarWizz provides the high-fidelity 
+                output needed for professional-grade results.
+              </p>
+            </db-card>
+
+            <db-card title="Features" class="specs-card">
+              <ul class="specs-list">
+                <li>
+                  <strong>POPULATION CONTROL</strong>
+                  <span>Modify the density and number of stars to simulate different galactic sectors.</span>
+                </li>
+                <li>
+                  <strong>VELOCITY VECTORS</strong>
+                  <span>Adjust travel speed to transition from a slow drift to high-warp effects.</span>
+                </li>
+                <li>
+                  <strong>ROTATIONAL DYNAMICS</strong>
+                  <span>Fine-tune the camera rotation to create chaotic orbits or stable traversals.</span>
+                </li>
+              </ul>
+            </db-card>
+          </section>
+
+          <section class="intelligence">
+            <db-card title="Media">
+              <div class="media-placeholder video-placeholder">
+                <div class="placeholder-icon">▶</div>
+                <div class="placeholder-text">MISSION VIDEO ASSET PENDING</div>
+                <div class="placeholder-subtext">User to provide StarWizz demo video</div>
+              </div>
+              <div class="media-placeholder screenshot-placeholder">
+                <div class="placeholder-icon">square</div>
+                <div class="placeholder-text">INTERFACE DIAGRAM PENDING</div>
+                <div class="placeholder-subtext">User to provide control panel screenshot</div>
+              </div>
+            </db-card>
+          </section>
+        </div>
+
+        <footer class="dossier-footer">
+          <a href="/db-astro-suite/starwizz/" target="_self" class="launch-btn">
+            Launch Tool
+          </a>
+        </footer>
+
+        <db-footer></db-footer>
+      </div>
+    </div>
+  `,
+  styles: [`
+    .dossier-container {
+      position: relative;
+      min-height: 100vh;
+      background: #05070a;
+      color: white;
+      font-family: var(--db-font-body, 'Rajdhani', sans-serif);
+      padding: 2rem;
+    }
+
+    /* Background (Copied from Hub for consistency) */
+    .stars-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%; z-index: 1;
+      background-image: 
+        radial-gradient(1px 1px at 20px 30px, #eee, rgba(0,0,0,0)),
+        radial-gradient(1px 1px at 40px 70px, #fff, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0,0,0,0));
+      background-repeat: repeat;
+      background-size: 200px 200px;
+      opacity: 0.2;
+    }
+
+    .scanlines {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%; z-index: 100;
+      pointer-events: none;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
+                  linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+      background-size: 100% 3px, 2px 100%;
+      opacity: 0.4;
+    }
+
+    .content {
+      position: relative;
+      z-index: 2;
+      max-width: 1100px;
+      margin: 0 auto;
+      animation: dossier-entry 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    @keyframes dossier-entry {
+      0% { opacity: 0; transform: scale(0.98); filter: blur(10px); }
+      100% { opacity: 1; transform: scale(1); filter: blur(0); }
+    }
+
+    .top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 3rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 1rem;
+    }
+
+    .back-link {
+      color: rgba(255, 255, 255, 0.6);
+      text-decoration: none;
+      font-family: var(--db-font-mono, monospace);
+      font-size: 12px;
+      letter-spacing: 0.2em;
+      transition: color 0.3s;
+    }
+
+    .back-link:hover {
+      color: var(--db-color-neon-pink);
+    }
+
+    .mission-id {
+      font-family: var(--db-font-mono, monospace);
+      font-size: 10px;
+      color: var(--db-color-neon-pink);
+      opacity: 0.7;
+    }
+
+    .dossier-header {
+      margin-bottom: 4rem;
+    }
+
+    .dossier-header h1 {
+      font-size: 4rem;
+      margin: 0;
+      letter-spacing: 0.2em;
+      font-weight: 900;
+    }
+
+    .tagline {
+      font-family: var(--db-font-mono, monospace);
+      font-size: 14px;
+      letter-spacing: 0.5em;
+      color: #00f3ff;
+      margin-top: 0.5rem;
+      text-transform: uppercase;
+    }
+
+    .dossier-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 4rem;
+    }
+
+    .briefing p {
+      color: rgba(255, 255, 255, 0.8);
+      line-height: 1.8;
+      font-size: 16px;
+      margin-bottom: 1.5rem;
+    }
+
+    .specs-card {
+      margin-top: 2rem;
+    }
+
+    .specs-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .specs-list li {
+      margin-bottom: 1.5rem;
+      border-left: 2px solid var(--db-color-neon-pink);
+      padding-left: 1rem;
+    }
+
+    .specs-list strong {
+      display: block;
+      color: var(--db-color-neon-pink);
+      font-family: var(--db-font-display, sans-serif);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.25rem;
+    }
+
+    .specs-list span {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .media-placeholder {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px dashed rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 3rem;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .placeholder-icon {
+      font-size: 2rem;
+      color: var(--db-color-neon-pink);
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    .placeholder-text {
+      font-family: var(--db-font-display, sans-serif);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      color: white;
+      margin-bottom: 0.5rem;
+    }
+
+    .placeholder-subtext {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .dossier-footer {
+      text-align: center;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .launch-btn {
+      display: inline-block;
+      padding: 1.25rem 4rem;
+      background: transparent;
+      border: 1px solid var(--db-color-neon-pink);
+      color: var(--db-color-neon-pink);
+      font-family: var(--db-font-display, sans-serif);
+      font-size: 14px;
+      letter-spacing: 0.3em;
+      text-decoration: none;
+      transition: all 0.3s;
+      box-shadow: 0 0 20px rgba(255, 45, 149, 0.1);
+    }
+
+    .launch-btn:hover {
+      background: var(--db-color-neon-pink);
+      color: white;
+      box-shadow: 0 0 40px rgba(255, 45, 149, 0.4);
+      transform: translateY(-2px);
+    }
+
+    @media (max-width: 900px) {
+      .dossier-grid {
+        grid-template-columns: 1fr;
+      }
+      .dossier-header h1 {
+        font-size: 3rem;
+      }
+    }
+  `]
+})
+export default class StarwizzPage {}

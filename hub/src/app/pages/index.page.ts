@@ -1,12 +1,13 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CardComponent } from '@db-astro-suite/ui';
+import { FooterComponent } from '../../../../libs/ui/src/lib/footer/footer.component';
 import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'hub-home-page',
   standalone: true,
-  imports: [RouterLink, CardComponent, CommonModule],
+  imports: [RouterLink, CardComponent, FooterComponent, CommonModule],
   template: `
     <div class="hub-container">
       <!-- Immersive Background Layers -->
@@ -18,52 +19,55 @@ import { CommonModule } from '@angular/common';
         <header class="hero">
           <div class="system-status">
             <span class="status-indicator animate-pulse"></span>
-            SYSTEM ONLINE: ASTRO SUITE CORE // READY
+            DB Astro Suite Core // Online
           </div>
           <h1 class="hero__title db-neon-text">DB ASTRO SUITE</h1>
-          <p class="hero__subtitle">TERMINAL ACCESSED. SELECT MODULE.</p>
+          <p class="hero__subtitle">A TACTICAL ECOSYSTEM FOR THE MODERN ASTROPHOTOGRAPHER</p>
           <div class="hero__description">
-            A cohesive ecosystem for space enthusiasts and astrophotographers, bridging the gap between 
-            artistic simulation, technical exposure planning, and streamlined data management.
+            DB Astro Suite is a collection of tools for astrophotographers that can ease with their 
+            day to day work by bridging the gap between artistic simulation, technical session 
+            planning, and streamlined data management.
           </div>
         </header>
 
         <section class="tools">
           <div class="tools__grid">
-            <a href="/db-astro-suite/starwizz/" target="_self" class="tool-link mission-card">
-              <db-card title="STARWIZZ" subtitle="GENERATOR // STARFIELD" [clickable]="true">
+            <div class="mission-card" [routerLink]="['/dossier/starwizz']">
+              <db-card title="STARWIZZ" subtitle="Starfield Generator" [clickable]="true">
                 <div class="mission-status">READY</div>
-                <p>Advanced space-themed starfield and nebula generator for cinematic backgrounds.</p>
-                <div class="launch-cta">
+                <p>Generate high-fidelity starfield videos with surgical control over star count, velocity, and rotation parameters.</p>
+                <a [routerLink]="['/dossier/starwizz']" class="launch-cta" (click)="$event.stopPropagation()">
                   <span class="launch-text">LAUNCH TOOL</span>
                   <span class="launch-arrow">→</span>
-                </div>
+                </a>
               </db-card>
-            </a>
+            </div>
 
-            <a href="/db-astro-suite/astrocard/" target="_self" class="tool-link mission-card">
-              <db-card title="ASTROCARD" subtitle="GENERATOR // EXPOSURE" [clickable]="true">
+            <div class="mission-card" [routerLink]="['/dossier/astro-card']">
+              <db-card title="ASTROCARD" subtitle="Exposure Card Generator" [clickable]="true">
                 <div class="mission-status">READY</div>
-                <p>Create detailed astrophotography exposure and session metadata cards.</p>
-                <div class="launch-cta">
+                <p>Create professional social media slides featuring your equipment, exposure details, and detailed session metadata.</p>
+                <a [routerLink]="['/dossier/astro-card']" class="launch-cta" (click)="$event.stopPropagation()">
                   <span class="launch-text">LAUNCH TOOL</span>
                   <span class="launch-arrow">→</span>
-                </div>
+                </a>
               </db-card>
-            </a>
+            </div>
 
-            <a routerLink="/file-grouper" class="tool-link mission-card">
-              <db-card title="FILE GROUPER" subtitle="UTILITY // CLI" [clickable]="true">
+            <div class="mission-card" [routerLink]="['/dossier/file-grouper']">
+              <db-card title="FILE GROUPER" subtitle="CLI Utility" [clickable]="true">
                 <div class="mission-status mission-status--local">LOCAL</div>
-                <p>Platform-agnostic Go utility for organizing and metadata-tagging local file sets.</p>
-                <div class="launch-cta">
+                <p>A high-performance Go script to automatically group and organize ASIAIR image datasets by camera, date, and object.</p>
+                <a [routerLink]="['/dossier/file-grouper']" class="launch-cta" (click)="$event.stopPropagation()">
                   <span class="launch-text">LAUNCH TOOL</span>
                   <span class="launch-arrow">→</span>
-                </div>
+                </a>
               </db-card>
-            </a>
+            </div>
           </div>
         </section>
+
+        <db-footer></db-footer>
       </div>
     </div>
   `,
@@ -194,7 +198,7 @@ import { CommonModule } from '@angular/common';
     }
 
     .hero__title {
-      font-size: clamp(2rem, 6vw, 4rem);
+      font-size: clamp(2rem, 6vw, 40px); /* Fixed max font size for better hierarchy */
       margin-bottom: 0.5rem;
       letter-spacing: 0.1em;
       font-weight: 900;
@@ -211,7 +215,7 @@ import { CommonModule } from '@angular/common';
 
     .hero__description {
       color: rgba(255, 255, 255, 0.7);
-      font-size: 16px;
+      font-size: 15px;
       line-height: 1.6;
       font-weight: 400;
       letter-spacing: 0.02em;
@@ -230,14 +234,11 @@ import { CommonModule } from '@angular/common';
       gap: 2rem;
     }
 
-    .tool-link {
+    .mission-card {
       text-decoration: none;
       color: inherit;
       display: block;
       transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
-    }
-
-    .mission-card {
       position: relative;
     }
 
@@ -269,10 +270,10 @@ import { CommonModule } from '@angular/common';
       line-height: 1.6;
       font-size: 14px;
       margin-bottom: 2rem;
-      height: 3rem;
+      height: 4.5rem; /* Increased for longer descriptions */
       overflow: hidden;
       display: -webkit-box;
-      -webkit-line-clamp: 2;
+      -webkit-line-clamp: 3;
       -webkit-box-orient: vertical;
     }
 
@@ -289,6 +290,8 @@ import { CommonModule } from '@angular/common';
       letter-spacing: 0.2em;
       transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
       overflow: hidden;
+      text-decoration: none;
+      z-index: 10;
     }
 
     .launch-cta::before {
@@ -313,28 +316,28 @@ import { CommonModule } from '@angular/common';
     }
 
     /* Hover States for CTA */
-    .tool-link:hover .launch-cta {
+    .launch-cta:hover {
       border-color: var(--db-color-neon-pink);
       background: rgba(255, 45, 149, 0.1);
       box-shadow: 0 0 15px rgba(255, 45, 149, 0.2);
       transform: scale(1.02);
     }
 
-    .tool-link:hover .launch-cta::before {
+    .launch-cta:hover::before {
       left: 100%;
     }
 
-    .tool-link:hover .launch-text {
+    .launch-cta:hover .launch-text {
       color: white;
       text-shadow: 0 0 8px var(--db-color-neon-pink);
     }
 
-    .tool-link:hover .launch-arrow {
+    .launch-cta:hover .launch-arrow {
       transform: translateX(6px) scale(1.2);
       color: white;
     }
 
-    .tool-link:hover {
+    .mission-card:hover {
       transform: translateY(-8px);
     }
 

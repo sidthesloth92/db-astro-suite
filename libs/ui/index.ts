@@ -9,3 +9,4 @@ export * from './src/lib/input/input.component';
 export * from './src/lib/textarea/textarea.component';
 export * from './src/lib/select/select.component';
 export * from './src/lib/checkbox/checkbox.component';
+export * from './src/lib/footer/footer.component';

@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => ({
       ssr: true,
       static: true,
       prerender: {
-        routes: ['/', '/about', '/file-grouper'],
+        routes: ['/', '/about', '/dossier/starwizz', '/dossier/astro-card', '/dossier/file-grouper'],
       },
       nitro: {
         preset: 'static',
