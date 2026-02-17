@@ -1,4 +1,4 @@
-import { Component, Input, computed } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardData, generateInstagramCaption } from '../../models/card-data';
 
@@ -40,7 +40,7 @@ import { CardData, generateInstagramCaption } from '../../models/card-data';
       <div class="caption-bubble">
         <div class="caption-content">
           <span class="username text-xs font-bold mr-2">{{ data.author || 'astrophotographer' }}</span>
-          <pre class="caption-text">{{ formattedCaption() }}</pre>
+          <pre class="caption-text">{{ formattedCaption }}</pre>
         </div>
       </div>
     </div>
@@ -128,13 +128,13 @@ export class CaptionSectionComponent {
   @Input() data!: CardData;
   copied = false;
 
-  formattedCaption = computed(() => {
+  get formattedCaption(): string {
     return generateInstagramCaption(this.data);
-  });
+  }
 
   async copyToClipboard() {
     try {
-      await navigator.clipboard.writeText(this.formattedCaption());
+      await navigator.clipboard.writeText(this.formattedCaption);
       this.copied = true;
       setTimeout(() => this.copied = false, 2000);
     } catch (err) {

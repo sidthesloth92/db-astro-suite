@@ -120,8 +120,7 @@ export function generateInstagramCaption(data: CardData): string {
     .map(s => `${s.icon} ${s.label}: ${s.name}`)
     .join('\n');
 
-  const defaultHashtags = '#dbastro #astrowithdb #astrophotography';
-  const hashtags = data.hashtags ? `${data.hashtags} ${defaultHashtags}` : defaultHashtags;
+  const hashtags = data.hashtags ? data.hashtags : '';
 
   return `${data.description || ''}
 

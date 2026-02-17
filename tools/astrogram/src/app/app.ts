@@ -25,7 +25,7 @@ export class App {
     description: 'The first ever nebula that I shot was the Rosette. I still remember looking at the first frame as it came through in disbelief, as to how to the naked eye I couldn\'t see anything but it was just right there hidden among the stars. Here it is in pink on Valentine\'s Day 🌹',
     date: new Date().toISOString().split('T')[0],
     location: 'Irving, Texas',
-    author: '@astrowithdb',
+    author: '@astrogram',
     filters: JSON.parse(JSON.stringify(DEFAULT_FILTERS)),
     equipment: [
       { icon: '\uD83D\uDD2D', label: 'Telescope', value: 'Askar 103 APO' },
@@ -44,7 +44,8 @@ export class App {
     accentColorRgb: '255, 45, 149',
     cardOpacity: 0.60,
     backgroundImage: 'assets/img/rosette.jpg',
-    aspectRatio: '3:4'
+    aspectRatio: '3:4',
+    hashtags: '#space #astrophotography'
   });
 
   onDataChange(newData: CardData) {
