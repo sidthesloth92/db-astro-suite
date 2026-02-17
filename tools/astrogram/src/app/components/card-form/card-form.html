@@ -68,14 +68,17 @@
           placeholder="e.g., Pillars of Creation"
           class="flex-1"
         ></db-input>
-        <button
-          type="button"
-          class="fetch-btn mb-2"
-          (click)="fetchObjectInfo()"
-          [disabled]="!data.title || isFetching"
-        >
-          {{ isFetching ? '...' : '🔍 Fetch Description' }}
-        </button>
+        <!-- Temporarily hidden until implementation is complete -->
+        @if (false) {
+          <button
+            type="button"
+            class="fetch-btn mb-2"
+            (click)="fetchObjectInfo()"
+            [disabled]="!data.title || isFetching"
+          >
+            {{ isFetching ? '...' : '🔍 Fetch Description' }}
+          </button>
+        }
       </div>
 
       <db-textarea
