@@ -1,6 +1,33 @@
 <div class="preview-wrapper">
-  <!-- HUD Display Container (Mirrors the Right Panel) -->
-  <div class="preview-card-viewport db-glass-panel">
+  <div class="post-container db-glass-panel">
+    <!-- Header with Circual FAB -->
+    <div class="post-header">
+      <div class="user-meta">
+        <div class="avatar-mini"></div>
+        <span class="username-top">{{ data.author || 'astrophotographer' }}</span>
+      </div>
+      <button
+        class="download-fab"
+        (click)="exportCard($event)"
+        [disabled]="isExporting"
+        title="Download JPEG"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="w-5 h-5"
+        >
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+      </button>
+    </div>
+
     <!-- The Card (Simulator) -->
     <div
       #cardElement
@@ -109,7 +136,6 @@
 
         <!-- Main Footer Columns -->
         <div class="two-column">
-          <!-- Left Column (55%): Equipment -->
           <section class="card-section col-55">
             <h2 class="section-header">EQUIPMENT</h2>
             <ul class="item-list">
@@ -125,9 +151,7 @@
             </ul>
           </section>
 
-          <!-- Right Column (45%): Software, Bortle, Author Stack -->
           <div class="col-45 vertical-stack">
-            <!-- Software -->
             <section class="card-section">
               <h2 class="section-header">SOFTWARE</h2>
               <ul class="item-list">
@@ -142,8 +166,6 @@
                 }
               </ul>
             </section>
-
-            <!-- Bortle Scale -->
             <section class="card-section compact-section">
               <ac-bortle-scale
                 [value]="data.bortleScale"
@@ -155,16 +177,5 @@
         </div>
       </div>
     </div>
-  </div>
-
-  <!-- Controls Below Card -->
-  <div class="card-controls">
-    <div class="aspect-info">
-      <span class="aspect-label">{{ data.aspectRatio }}</span>
-      <span class="aspect-dimensions">{{ cardDimensions.width }}×{{ cardDimensions.height }}</span>
-    </div>
-    <db-neon-button variant="primary" (click)="exportCard($event)">
-      ⬇️ Download JPEG
-    </db-neon-button>
   </div>
 </div>

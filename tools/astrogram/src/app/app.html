@@ -17,8 +17,11 @@
   <!-- Main Work Area -->
   <main class="main-container">
     <!-- Preview Section (Left) -->
-    <div class="simulator-panel px-4 md:px-0">
-      <ac-card-preview [data]="cardData()"></ac-card-preview>
+    <div class="simulator-panel md:px-0">
+      <div class="post-wrap">
+        <ac-card-preview [data]="cardData()"></ac-card-preview>
+        <ac-caption-section [data]="cardData()"></ac-caption-section>
+      </div>
     </div>
 
     <!-- Configuration Section (Right) -->

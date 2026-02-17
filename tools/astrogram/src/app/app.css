@@ -75,7 +75,7 @@
   flex: 1;
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: center; /* Centered as before */
   justify-content: center;
   gap: 1rem;
   width: 100%;
@@ -83,15 +83,31 @@
   overflow: hidden;
 }
 
-/* Simulator Panel - Fixed size, centered */
+/* Simulator Panel - Scrollable, centered by default, shrinks to fit */
 .simulator-panel {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  height: 100%;
-  padding: 0.5rem;
-  overflow: visible;
+  justify-content: flex-start; /* Ensure scrolling starts from top */
+  height: auto;
+  max-height: 100%;
+  padding: 1rem 0.5rem;
+  overflow-y: auto;
+}
+
+.post-wrap {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: stretch; /* Both items will take the width of the widest child */
+  width: min-content; /* Shrink to the narrowest possible width that fits children */
+  max-width: 100%;
+  margin-bottom: 2rem; /* Buffer at bottom */
+}
+
+ac-card-preview, 
+ac-caption-section {
+  display: block;
+  width: 100%;
 }
 
 /* Config Panel - Scrollable, glass effect */
@@ -116,23 +132,27 @@
 
   .main-container {
     flex-direction: column;
+    align-items: center; /* Center both post and config panel */
     height: auto;
     overflow: visible;
-    padding: 1rem 0.5rem;
-    gap: 1.5rem;
+    padding: 1.5rem 1rem; /* More vertical breathing room */
+    gap: 2rem;
   }
 
   .simulator-panel {
     height: auto;
     width: 100%;
+    display: flex;
+    justify-content: center;
   }
 
   .config-panel {
     flex: 0 0 auto;
     width: 100%;
-    max-width: none;
+    max-width: 452px; /* Precisely match the measured width of the 3:4 post */
     max-height: none;
     overflow-y: visible;
-    padding: 0 0.5rem;
+    padding: 1.25rem 1rem; /* Restore top/bottom padding */
+    margin-right: 0;
   }
 }

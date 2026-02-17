@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CardFormComponent } from './components/card-form/card-form';
 import { CardPreviewComponent } from './components/card-preview/card-preview';
+import { CaptionSectionComponent } from './components/caption-section/caption-section';
 import { 
   CardData, 
   DEFAULT_FILTERS,
@@ -14,7 +15,7 @@ import { HeaderComponent } from '@db-astro-suite/ui';
 @Component({
   selector: 'ac-root',
   standalone: true,
-  imports: [CommonModule, FormsModule, CardFormComponent, CardPreviewComponent, HeaderComponent],
+  imports: [CommonModule, FormsModule, CardFormComponent, CardPreviewComponent, CaptionSectionComponent, HeaderComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

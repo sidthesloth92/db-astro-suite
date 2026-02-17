@@ -48,6 +48,9 @@ export interface CardData {
   cardOpacity: number; // 0 to 1
   backgroundImage: string | null;
   aspectRatio: '3:4' | '4:5';
+
+  // Social
+  hashtags?: string;
 }
 
 // Default filter configurations
@@ -86,4 +89,52 @@ export function calculateTotalIntegration(filters: FilterExposure[]): number {
   return filters
     .filter(f => f.enabled)
     .reduce((total, f) => total + calculateTotalSeconds(f), 0);
+}
+
+export function generateInstagramCaption(data: CardData): string {
+  const integrationSeconds = calculateTotalIntegration(data.filters);
+  const totalTime = formatDuration(integrationSeconds);
+  
+  const getFilterEmoji = (name: string) => {
+    const n = name.toUpperCase();
+    if (n.includes('HA')) return '🔴';
+    if (n.includes('OIII')) return '🔵';
+    if (n.includes('SII')) return '🟠';
+    if (n.includes('L')) return '⚪';
+    if (n.includes('R')) return '🟥';
+    if (n.includes('G')) return '🟩';
+    if (n.includes('B')) return '🟦';
+    return '🎞️';
+  };
+
+  const enabledFilters = data.filters.filter(f => f.enabled && f.frames > 0);
+  const exposureList = enabledFilters
+    .map(f => `${getFilterEmoji(f.name)} ${f.name} - ${f.frames} * ${f.seconds}s - ${formatDuration(calculateTotalSeconds(f))}`)
+    .join('\n');
+
+  const gearList = data.equipment
+    .map(e => `${e.icon} ${e.label}: ${e.value}`)
+    .join('\n');
+
+  const swList = data.software
+    .map(s => `${s.icon} ${s.label}: ${s.name}`)
+    .join('\n');
+
+  const defaultHashtags = '#dbastro #astrowithdb #astrophotography';
+  const hashtags = data.hashtags ? `${data.hashtags} ${defaultHashtags}` : defaultHashtags;
+
+  return `${data.description || ''}
+
+🔭 EXPOSURE DETAILS
+${gearList}
+🌌 Bortle Scale: ${data.bortleScale}
+
+⏱️ INTEGRATION TIME
+${exposureList}
+Total Integration: ${totalTime}
+
+💻 SOFTWARE
+${swList}
+
+${hashtags}`;
 }

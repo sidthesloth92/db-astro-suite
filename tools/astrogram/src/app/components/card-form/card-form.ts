@@ -17,6 +17,7 @@ import {
   TextareaComponent,
   SelectComponent
 } from '@db-astro-suite/ui';
+import { AstroInfoService } from '../../services/astro-info.service';
 
 
 @Component({
@@ -45,6 +46,10 @@ import {
 export class CardFormComponent {
   @Input() data!: CardData;
   @Output() dataChange = new EventEmitter<CardData>();
+
+  isFetching = false;
+
+  constructor(private astroInfo: AstroInfoService) {}
 
   // Emit changes to parent
   emitChange() {
@@ -126,5 +131,20 @@ export class CardFormComponent {
   removeSoftware(index: number) {
     this.data.software.splice(index, 1);
     this.emitChange();
+  }
+
+  async fetchObjectInfo() {
+    if (!this.data.title || this.isFetching) return;
+    
+    this.isFetching = true;
+    try {
+      const info = await this.astroInfo.getObjectDescription(this.data.title);
+      if (info) {
+        this.data.description = info.extract;
+        this.emitChange();
+      }
+    } finally {
+      this.isFetching = false;
+    }
   }
 }

@@ -6,27 +6,82 @@
   height: 100%;
 }
 
-/* The Viewport - Plain box that aligns with edges */
-.preview-card-viewport {
-  padding: 0; 
-  border-radius: 0; 
-  display: inline-block; /* Ensure it wraps the card tightly */
-  margin-bottom: 0.5rem;
-  border: 1px solid var(--accent-color, #ff2d95);
-  box-sizing: content-box; /* Border sits outside the card */
+/* The Viewport - Post Container */
+.post-container {
+  padding: 0;
+  border-radius: 12px 12px 0 0;
+  background: rgba(10, 15, 25, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+  width: min-content;
+  display: flex;
+  flex-direction: column;
 }
 
-/* The Card - Clean for export */
+/* Post Header */
+.post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+}
+
+.user-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.avatar-mini {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  border-radius: 50%;
+}
+
+.username-top {
+  font-size: 13px;
+  font-weight: 600;
+  color: white;
+}
+
+/* Download FAB */
+.download-fab {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.download-fab:hover:not(:disabled) {
+  background: rgba(255, 45, 149, 0.15);
+  border-color: rgba(255, 45, 149, 0.4);
+  color: var(--db-color-neon-pink);
+  transform: scale(1.1);
+  box-shadow: 0 0 15px rgba(255, 45, 149, 0.4);
+}
+
+.download-fab:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* The Card - Restricted to Post Container Width */
 .card {
   position: relative;
   overflow: hidden;
-  border-radius: 0; /* Square edges to mimic screen */
-  border: none !important; /* Remove from export as requested */
-  box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+  border: none !important;
   flex-shrink: 0;
-  /* Use fixed height for preview and let aspect-ratio determine width */
   height: 600px;
-  background: #000; /* Ensure black bg behind image */
+  background: #000;
 }
 
 .card.aspect-3-4 {

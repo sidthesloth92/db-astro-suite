@@ -10,12 +10,10 @@ import {
 } from '../../models/card-data';
 import { FilterRingComponent } from '../filter-ring/filter-ring';
 import { BortleScaleComponent } from '../bortle-scale/bortle-scale';
-import { NeonButtonComponent } from '@db-astro-suite/ui';
-
 @Component({
   selector: 'ac-card-preview',
   standalone: true,
-  imports: [CommonModule, FilterRingComponent, BortleScaleComponent, NeonButtonComponent],
+  imports: [CommonModule, FilterRingComponent, BortleScaleComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './card-preview.html',
   styleUrl: './card-preview.css'
