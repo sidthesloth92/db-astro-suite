@@ -1,4 +1,4 @@
-import { Component, Input, ElementRef, ViewChild, Output, EventEmitter, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, Input, ElementRef, ViewChild, Output, EventEmitter, CUSTOM_ELEMENTS_SCHEMA, signal, HostListener, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { 
   CardData, 
@@ -10,6 +10,7 @@ import {
 } from '../../models/card-data';
 import { FilterRingComponent } from '../filter-ring/filter-ring';
 import { BortleScaleComponent } from '../bortle-scale/bortle-scale';
+
 @Component({
   selector: 'ac-card-preview',
   standalone: true,
@@ -18,11 +19,38 @@ import { BortleScaleComponent } from '../bortle-scale/bortle-scale';
   templateUrl: './card-preview.html',
   styleUrl: './card-preview.css'
 })
-export class CardPreviewComponent {
+export class CardPreviewComponent implements AfterViewInit {
   @Input() data!: CardData;
   @Output() export = new EventEmitter<void>();
+  
+  @ViewChild('cardWrapper') cardWrapper!: ElementRef;
   @ViewChild('cardElement') cardElement!: ElementRef;
+  
   isExporting = false;
+  scaleFactor = signal(1);
+
+  @HostListener('window:resize')
+  onResize() {
+    this.calculateScale();
+  }
+
+  ngAfterViewInit() {
+    // Initial calculation with a small delay to ensure layout is settled
+    setTimeout(() => this.calculateScale(), 100);
+  }
+
+  private calculateScale() {
+    if (!this.cardWrapper || !this.cardElement) return;
+    
+    const containerWidth = this.cardWrapper.nativeElement.offsetWidth;
+    const originalWidth = this.cardElement.nativeElement.offsetWidth;
+    
+    if (containerWidth < originalWidth) {
+      this.scaleFactor.set(containerWidth / originalWidth);
+    } else {
+      this.scaleFactor.set(1);
+    }
+  }
 
   get enabledFilters(): FilterExposure[] {
     return this.data.filters.filter(f => f.enabled && f.frames > 0);

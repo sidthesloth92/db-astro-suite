@@ -96,12 +96,17 @@
 }
 
 .post-wrap {
-  display: inline-flex;
+  display: flex;
   flex-direction: column;
-  align-items: stretch; /* Both items will take the width of the widest child */
-  width: min-content; /* Shrink to the narrowest possible width that fits children */
-  max-width: 100%;
-  margin-bottom: 2rem; /* Buffer at bottom */
+  align-items: center;
+  width: 100%;
+  max-width: 452px; /* 3:4 card width + borders */
+  margin-bottom: 2rem;
+  transition: max-width 0.3s ease;
+}
+
+.post-wrap.aspect-4-5 {
+  max-width: 482px; /* 4:5 card width + borders */
 }
 
 ac-card-preview, 

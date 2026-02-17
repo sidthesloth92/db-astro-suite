@@ -1,178 +1,186 @@
-<div class="preview-wrapper">
-  <div class="post-container db-glass-panel">
-    <!-- Header with Circual FAB -->
-    <div class="post-header">
-      <div class="user-meta">
-        <div class="avatar-mini"></div>
-        <span class="username-top">{{ data.author || 'astrophotographer' }}</span>
-      </div>
-      <button
-        class="download-fab"
-        (click)="exportCard($event)"
-        [disabled]="isExporting"
-        title="Download JPEG"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="w-5 h-5"
-        >
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path>
-          <polyline points="7 10 12 15 17 10"></polyline>
-          <line x1="12" y1="15" x2="12" y2="3"></line>
-        </svg>
-      </button>
-    </div>
-
-    <!-- The Card (Simulator) -->
+<div class="preview-wrapper" #cardWrapper>
+  <!-- Scale Host: Manages the virtual space taken by the scaled content -->
+  <div class="post-scale-host" [style.height.px]="680 * scaleFactor()">
     <div
-      #cardElement
-      id="card-preview"
-      class="card"
-      [class.aspect-3-4]="data.aspectRatio === '3:4'"
-      [class.aspect-4-5]="data.aspectRatio === '4:5'"
-      [style.--accent-color]="data.accentColor"
-      [style.--accent-color-rgb]="data.accentColorRgb"
-      [style.--card-opacity]="data.cardOpacity"
+      class="post-container db-glass-panel"
+      [style.transform]="'scale(' + scaleFactor() + ')'"
+      [style.transform-origin]="'top center'"
+      [style.width.px]="data.aspectRatio === '3:4' ? 450 : 480"
     >
-      <!-- Background -->
-      <div class="card-background">
-        @if (data.backgroundImage) {
-          <img [src]="data.backgroundImage" alt="" class="bg-image" />
-        }
-        <div class="bg-overlay"></div>
+      <!-- Header with Circular FAB -->
+      <div class="post-header">
+        <div class="user-meta">
+          <div class="avatar-mini"></div>
+          <span class="username-top">{{ data.author || 'astrophotographer' }}</span>
+        </div>
+        <button
+          class="download-fab"
+          (click)="exportCard($event)"
+          [disabled]="isExporting"
+          title="Download JPEG"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="w-5 h-5"
+          >
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+        </button>
       </div>
 
-      <!-- Content -->
-      <div class="card-content">
-        <!-- Title Section -->
-        <section class="card-section title-section">
-          <h1 class="card-title font-display">{{ data.title }}</h1>
-          <div class="card-meta">
-            <span class="meta-item">
-              <svg
-                class="icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="16" y1="2" x2="16" y2="6"></line>
-                <line x1="8" y1="2" x2="8" y2="6"></line>
-                <line x1="3" y1="10" x2="21" y2="10"></line>
-              </svg>
-              {{ formattedDate }}
-            </span>
-            <span class="meta-item">
-              <svg
-                class="icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                <circle cx="12" cy="10" r="3"></circle>
-              </svg>
-              {{ data.location }}
-            </span>
-            <span class="meta-item">
-              <svg
-                class="icon author-link-icon"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-              </svg>
-              {{ data.author }}
-            </span>
-          </div>
-          @if (data.description) {
-            <div class="card-description">
-              {{
-                data.description.length > 300
-                  ? (data.description | slice: 0 : 300) + '...'
-                  : data.description
-              }}
-            </div>
+      <!-- The Card (Captured for Export) -->
+      <div
+        #cardElement
+        id="card-preview"
+        class="card"
+        [class.aspect-3-4]="data.aspectRatio === '3:4'"
+        [class.aspect-4-5]="data.aspectRatio === '4:5'"
+        [style.--accent-color]="data.accentColor"
+        [style.--accent-color-rgb]="data.accentColorRgb"
+        [style.--card-opacity]="data.cardOpacity"
+      >
+        <!-- Background -->
+        <div class="card-background">
+          @if (data.backgroundImage) {
+            <img [src]="data.backgroundImage" alt="" class="bg-image" />
           }
-        </section>
+          <div class="bg-overlay"></div>
+        </div>
 
-        <!-- Integration Section -->
-        <section class="card-section integration-section">
-          <div class="section-header-row">
-            <h2 class="section-header">INTEGRATION</h2>
-            <div class="integration-total">
-              <span class="integration-label">TOTAL</span>
-              <span class="integration-time">{{ totalIntegration }}</span>
+        <!-- Content -->
+        <div class="card-content">
+          <!-- Title Section -->
+          <section class="card-section title-section">
+            <h1 class="card-title font-display">{{ data.title }}</h1>
+            <div class="card-meta">
+              <span class="meta-item">
+                <svg
+                  class="icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                {{ formattedDate }}
+              </span>
+              <span class="meta-item">
+                <svg
+                  class="icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                {{ data.location }}
+              </span>
+              <span class="meta-item">
+                <svg
+                  class="icon author-link-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                {{ data.author }}
+              </span>
             </div>
-          </div>
-
-          <div class="filter-rings">
-            @for (filter of enabledFilters; track filter.name) {
-              <ac-filter-ring
-                [name]="filter.name"
-                [color]="filter.color"
-                [duration]="getFilterDuration(filter)"
-                [progress]="getFilterProgress(filter)"
-              ></ac-filter-ring>
+            @if (data.description) {
+              <div class="card-description">
+                {{
+                  data.description.length > 300
+                    ? (data.description | slice: 0 : 300) + '...'
+                    : data.description
+                }}
+              </div>
             }
-          </div>
-        </section>
-
-        <!-- Main Footer Columns -->
-        <div class="two-column">
-          <section class="card-section col-55">
-            <h2 class="section-header">EQUIPMENT</h2>
-            <ul class="item-list">
-              @for (item of data.equipment; track $index) {
-                <li class="info-pair">
-                  <span class="item-icon">{{ item.icon }}</span>
-                  <div class="pair-content">
-                    <span class="pair-label">{{ item.label }}</span>
-                    <span class="pair-value">{{ item.value }}</span>
-                  </div>
-                </li>
-              }
-            </ul>
           </section>
 
-          <div class="col-45 vertical-stack">
-            <section class="card-section">
-              <h2 class="section-header">SOFTWARE</h2>
+          <!-- Integration Section -->
+          <section class="card-section integration-section">
+            <div class="section-header-row">
+              <h2 class="section-header">INTEGRATION</h2>
+              <div class="integration-total">
+                <span class="integration-label">TOTAL</span>
+                <span class="integration-time">{{ totalIntegration }}</span>
+              </div>
+            </div>
+
+            <div class="filter-rings">
+              @for (filter of enabledFilters; track filter.name) {
+                <ac-filter-ring
+                  [name]="filter.name"
+                  [color]="filter.color"
+                  [duration]="getFilterDuration(filter)"
+                  [progress]="getFilterProgress(filter)"
+                ></ac-filter-ring>
+              }
+            </div>
+          </section>
+
+          <!-- Main Footer Columns -->
+          <div class="two-column">
+            <section class="card-section col-55">
+              <h2 class="section-header">EQUIPMENT</h2>
               <ul class="item-list">
-                @for (item of data.software; track $index) {
+                @for (item of data.equipment; track $index) {
                   <li class="info-pair">
                     <span class="item-icon">{{ item.icon }}</span>
                     <div class="pair-content">
                       <span class="pair-label">{{ item.label }}</span>
-                      <span class="pair-value">{{ item.name }}</span>
+                      <span class="pair-value">{{ item.value }}</span>
                     </div>
                   </li>
                 }
               </ul>
             </section>
-            <section class="card-section compact-section">
-              <ac-bortle-scale
-                [value]="data.bortleScale"
-                [accentColor]="data.accentColor"
-                [compact]="true"
-              ></ac-bortle-scale>
-            </section>
+
+            <div class="col-45 vertical-stack">
+              <section class="card-section">
+                <h2 class="section-header">SOFTWARE</h2>
+                <ul class="item-list">
+                  @for (item of data.software; track $index) {
+                    <li class="info-pair">
+                      <span class="item-icon">{{ item.icon }}</span>
+                      <div class="pair-content">
+                        <span class="pair-label">{{ item.label }}</span>
+                        <span class="pair-value">{{ item.name }}</span>
+                      </div>
+                    </li>
+                  }
+                </ul>
+              </section>
+              <section class="card-section compact-section">
+                <ac-bortle-scale
+                  [value]="data.bortleScale"
+                  [accentColor]="data.accentColor"
+                  [compact]="true"
+                ></ac-bortle-scale>
+              </section>
+            </div>
           </div>
         </div>
       </div>
