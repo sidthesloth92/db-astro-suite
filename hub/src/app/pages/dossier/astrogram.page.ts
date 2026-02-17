@@ -39,10 +39,10 @@ import { CommonModule } from '@angular/common';
           <section class="briefing">
             <db-card title="Overview">
               <p>
-                Astrogram is a specialized generator designed to take the complexity of your capture session—from gear lists to Bortle scales—and distill it into a beautiful, Instagram-ready graphic. No more messy captions or manually typing out equipment lists for every post.
+                Astrogram is a specialized generator designed to take the complexity of your capture session—from gear lists to Bortle scales—and distill it into a beautiful, Instagram-ready graphic and a perfectly formatted caption. No more messy captions or manually typing out equipment lists for every post.
               </p>
               <p>
-                Simply input your session metadata, and Astrogram handles the typography, layout, and branding, giving your followers a clear "behind-the-lens" look at how you captured the cosmos.
+                Simply input your session metadata, and Astrogram handles the typography, layout, branding, and caption formatting giving your followers a clear "behind-the-lens" look at how you captured the cosmos.
               </p>
             </db-card>
 
@@ -50,27 +50,27 @@ import { CommonModule } from '@angular/common';
               <ul class="specs-list">
                 <li>
                   <strong>VISUAL IMAGE GENERATION</strong>
-                  <span>Instantly render a high-quality .JPG or .PNG graphic with perfectly balanced typography.</span>
+                  <span>Instantly render a high-quality graphic with perfectly balanced typography and real-time preview.</span>
+                </li>
+                <li>
+                  <strong>INSTAGRAM CAPTION GENERATOR</strong>
+                  <span>Automatically format your session data into a structured Instagram caption with themed emojis and relevant hashtags.</span>
+                </li>
+                <li>
+                  <strong>ONE-TAP COPY SYSTEM</strong>
+                  <span>Instantly copy your formatted caption to the clipboard with neon visual feedback, optimized for immediate posting.</span>
                 </li>
                 <li>
                   <strong>FULL EQUIPMENT STACK</strong>
-                  <span>Dedicated fields for your telescope, mount, main camera, guide scope, and even the software used for acquisition and processing.</span>
+                  <span>Dedicated fields for your telescope, mount, main camera, guide scope, and processing software.</span>
                 </li>
                 <li>
-                  <strong>COMPREHENSIVE METADATA</strong>
-                  <span>Display everything from the target name (DSO) and Bortle class to precise coordinates and session dates.</span>
-                </li>
-                <li>
-                  <strong>EXPOSURE BREAKDOWN</strong>
-                  <span>Clearly highlight your total integration time, individual sub-exposure lengths, and the specific filters (L-RGB, Narrowband) utilized.</span>
+                  <strong>EXPOSURE & FILTERS</strong>
+                  <span>Clearly highlight total integration time, individual sub-lengths, and filter configurations with themed indicators.</span>
                 </li>
                 <li>
                   <strong>BORTLE & LOCATION INSIGHTS</strong>
-                  <span>Include environmental data like Bortle scale and capture dates to add context to your image.</span>
-                </li>
-                <li>
-                  <strong>SOCIAL BRANDING</strong>
-                  <span>Add your handle and custom notes directly onto the generated image for a professional finish.</span>
+                  <span>Include environmental data like Bortle scale and capture locations to add scientific context to your art.</span>
                 </li>
               </ul>
             </db-card>
