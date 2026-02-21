@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { 
@@ -18,7 +18,7 @@ import {
   SelectComponent
 } from '@db-astro-suite/ui';
 import { AstroInfoService } from '../../services/astro-info.service';
-
+import { PresetService } from '../../services/preset.service';
 
 @Component({
   selector: 'ac-card-form',
@@ -43,13 +43,92 @@ import { AstroInfoService } from '../../services/astro-info.service';
     }
   `]
 })
-export class CardFormComponent {
+export class CardFormComponent implements OnInit {
   @Input() data!: CardData;
   @Output() dataChange = new EventEmitter<CardData>();
 
   isFetching = false;
 
-  constructor(private astroInfo: AstroInfoService) {}
+  // Preset UI State
+  presetOptions: { label: string, value: string }[] = [];
+  selectedPresetName: string = '';
+  isSavingPreset: boolean = false;
+  newPresetName: string = '';
+  isDeletingPreset: boolean = false;
+
+  constructor(
+    private astroInfo: AstroInfoService,
+    private presetService: PresetService
+  ) {}
+
+  ngOnInit() {
+    this.loadPresets();
+  }
+
+  // Preset Management Methods
+  loadPresets() {
+    const presets = this.presetService.getEquipmentPresets();
+    const names = Object.keys(presets);
+    
+    // Create options for dropdown. Empty option at top if no selection
+    this.presetOptions = [
+      { label: '-- Select Preset --', value: '' },
+      ...names.map(name => ({ label: name, value: name }))
+    ];
+  }
+
+  onPresetChange() {
+    if (!this.selectedPresetName) return;
+    
+    const presets = this.presetService.getEquipmentPresets();
+    const selectedData = presets[this.selectedPresetName];
+    
+    if (selectedData) {
+      // Deep copy to avoid reference issues
+      this.data.equipment = JSON.parse(JSON.stringify(selectedData));
+      this.emitChange();
+    }
+  }
+
+  // Saving Inline Actions
+  startSavePreset() {
+    this.isSavingPreset = true;
+    this.newPresetName = '';
+    this.isDeletingPreset = false; // ensure mutually exclusive
+  }
+
+  confirmSavePreset() {
+    if (!this.newPresetName.trim()) return;
+    
+    this.presetService.saveEquipmentPreset(this.newPresetName.trim(), this.data.equipment);
+    this.loadPresets();
+    this.selectedPresetName = this.newPresetName.trim();
+    this.isSavingPreset = false;
+  }
+
+  cancelSavePreset() {
+    this.isSavingPreset = false;
+  }
+
+  // Deleting Inline Actions
+  startDeletePreset() {
+    if (!this.selectedPresetName) return;
+    this.isDeletingPreset = true;
+    this.isSavingPreset = false; // ensure mutually exclusive
+  }
+
+  confirmDeletePreset() {
+    if (!this.selectedPresetName) return;
+    
+    this.presetService.deleteEquipmentPreset(this.selectedPresetName);
+    this.loadPresets();
+    this.selectedPresetName = '';
+    this.isDeletingPreset = false;
+  }
+
+  cancelDeletePreset() {
+    this.isDeletingPreset = false;
+  }
 
   // Emit changes to parent
   emitChange() {

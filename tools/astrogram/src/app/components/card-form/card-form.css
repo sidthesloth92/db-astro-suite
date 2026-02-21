@@ -239,6 +239,128 @@
   transform: scale(1.2);
 }
 
+/* Preset Toolbar */
+.preset-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.preset-select-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.preset-select {
+  flex: 1;
+  /* Override default margin if db-select brings any */
+  margin-bottom: 0 !important;
+}
+
+.action-icon-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.8);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.action-icon-btn:hover {
+  background: rgba(0, 243, 255, 0.15);
+  border-color: rgba(0, 243, 255, 0.4);
+  color: #00f3ff;
+  transform: scale(1.1);
+  box-shadow: 0 0 12px rgba(0, 243, 255, 0.3);
+}
+
+.action-icon-btn.confirm {
+  color: #4ade80;
+}
+.action-icon-btn.confirm:hover {
+  background: rgba(74, 222, 128, 0.15);
+  border-color: rgba(74, 222, 128, 0.4);
+  box-shadow: 0 0 12px rgba(74, 222, 128, 0.3);
+  color: #4ade80;
+}
+
+.action-icon-btn.delete-yes {
+  color: #ff4444;
+}
+.action-icon-btn.delete-yes:hover {
+  background: rgba(255, 68, 68, 0.15);
+  border-color: rgba(255, 68, 68, 0.4);
+  box-shadow: 0 0 12px rgba(255, 68, 68, 0.3);
+  color: #ff4444;
+}
+
+.action-icon-btn.cancel {
+  color: rgba(255, 255, 255, 0.6);
+}
+.action-icon-btn.cancel:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.3);
+  color: white;
+}
+
+.preset-inline-action {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: var(--db-form-control-height, 32px); /* Match select container height strictly to avoid jank */
+}
+
+.preset-inline-action.delete-confirm {
+  justify-content: space-between;
+}
+
+.preset-name-input {
+  flex: 1;
+  height: 100% !important;
+  background: transparent !important;
+  border: 1px solid rgba(255, 45, 149, 0.3) !important;
+  border-radius: var(--db-radius-sm);
+  color: white;
+  padding: 0 0.5rem !important;
+  font-family: var(--db-form-font-mono);
+  font-size: 9px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: all var(--db-transition-fast, 150ms ease);
+}
+.preset-name-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.preset-name-input:focus {
+  outline: none;
+  border-color: var(--neon-pink) !important;
+  box-shadow: 0 0 10px rgba(255, 45, 149, 0.2) !important;
+}
+
+.confirm-text {
+  font-size: 9px;
+  font-family: var(--db-form-font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: white;
+  font-weight: bold;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
 /* Items Editor (Equipment & Software) */
 .items-editor {
   display: flex;

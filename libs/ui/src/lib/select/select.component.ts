@@ -12,7 +12,7 @@ export interface SelectOption {
   standalone: true,
   imports: [],
   template: `
-    <div class="db-form-group boxed-select-container">
+    <div class="db-form-group boxed-select-container" [class.no-box]="noBox">
       @if (label) {
         <label class="db-form-label">{{ label }}</label>
       }
@@ -40,6 +40,11 @@ export interface SelectOption {
       border: 1px solid rgba(255, 45, 149, 0.1);
       padding: 0.5rem; /* 8px */
       margin-bottom: 0.5rem !important; /* Matches live site */
+    }
+    .boxed-select-container.no-box {
+      border: none;
+      padding: 0;
+      margin-bottom: 0 !important;
     }
     .select-wrapper {
       position: relative;
@@ -90,6 +95,7 @@ export class SelectComponent {
   @Input() label = '';
   @Input() value: any = '';
   @Input() options: SelectOption[] = [];
+  @Input() noBox = false;
   
   @Output() valueChange = new EventEmitter<any>();
 
