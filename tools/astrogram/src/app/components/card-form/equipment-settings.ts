@@ -8,7 +8,7 @@ import { PresetService } from '../../services/preset.service';
 @Component({
   selector: 'ac-equipment-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule, SelectComponent, NeonButtonComponent],
+  imports: [CommonModule, FormsModule, SelectComponent],
   template: `
     <div class="form-container">
       <!-- Preset Toolbar -->
@@ -125,9 +125,9 @@ import { PresetService } from '../../services/preset.service';
         }
       </div>
 
-      <db-neon-button variant="secondary" fullWidth (click)="addEquipment()">
+      <button type="button" class="subtle-add-btn" (click)="addEquipment()">
         + Add Equipment
-      </db-neon-button>
+      </button>
     </div>
   `
 })

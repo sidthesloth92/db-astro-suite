@@ -7,7 +7,7 @@ import { CardDataService } from '../../services/card-data.service';
 @Component({
   selector: 'ac-integration-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule, NeonButtonComponent],
+  imports: [CommonModule, FormsModule],
   template: `
     <div class="form-container">
       <div class="filters-list">
@@ -63,9 +63,9 @@ import { CardDataService } from '../../services/card-data.service';
         }
       </div>
 
-      <db-neon-button variant="secondary" fullWidth (click)="addCustomFilter()">
+      <button type="button" class="subtle-add-btn" (click)="addCustomFilter()">
         + Add Custom Filter
-      </db-neon-button>
+      </button>
     </div>
   `
 })

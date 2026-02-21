@@ -7,7 +7,7 @@ import { CardDataService } from '../../services/card-data.service';
 @Component({
   selector: 'ac-software-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule, NeonButtonComponent],
+  imports: [CommonModule, FormsModule],
   template: `
     <div class="form-container">
       <div class="items-editor">
@@ -41,9 +41,9 @@ import { CardDataService } from '../../services/card-data.service';
         }
       </div>
 
-      <db-neon-button variant="secondary" fullWidth (click)="addSoftware()">
+      <button type="button" class="subtle-add-btn" (click)="addSoftware()">
         + Add Software
-      </db-neon-button>
+      </button>
     </div>
   `
 })
