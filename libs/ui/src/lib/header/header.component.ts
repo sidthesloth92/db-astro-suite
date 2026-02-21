@@ -1,5 +1,5 @@
-import { Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ChangeDetectionStrategy, input, signal, PLATFORM_ID, inject } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { SpaceButtonComponent } from '../space-button/space-button.component';
 
 @Component({
@@ -7,23 +7,25 @@ import { SpaceButtonComponent } from '../space-button/space-button.component';
   standalone: true,
   imports: [CommonModule, SpaceButtonComponent],
   templateUrl: './header.component.html',
-  styleUrl: './header.component.css'
+  styleUrls: ['./header.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HeaderComponent {
-  @Input() title: string = 'App Name';
-  @Input() logoSrc: string = '';
-  @Input() logoLink: string = '';
-  @Input() githubLink: string = '';
-  @Input() aboutLink: string = 'https://dineshbalajiv.com';
-  @Input() tagline: string = '';
+  title = input<string>('App Name');
+  logoSrc = input<string>('');
+  logoLink = input<string>('');
+  githubLink = input<string>('');
+  aboutLink = input<string>('https://dineshbalajiv.com');
+  tagline = input<string>('');
 
-  isMobile = false;
+  isMobile = signal<boolean>(false);
+  private platformId = inject(PLATFORM_ID);
 
   constructor() {
-    if (typeof window !== 'undefined') {
-      this.isMobile = window.innerWidth < 768;
+    if (isPlatformBrowser(this.platformId)) {
+      this.isMobile.set(window.innerWidth < 768);
       window.addEventListener('resize', () => {
-        this.isMobile = window.innerWidth < 768;
+        this.isMobile.set(window.innerWidth < 768);
       });
     }
   }

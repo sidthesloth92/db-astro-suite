@@ -1,0 +1,13 @@
+<label class="db-checkbox-container" [class.disabled]="disabled()">
+  <input
+    type="checkbox"
+    [checked]="checked()"
+    [disabled]="disabled()"
+    (change)="onToggle($event)"
+  />
+  <span class="db-checkmark"></span>
+  @if (label()) {
+    <span class="db-checkbox-label">{{ label() }}</span>
+  }
+  <ng-content></ng-content>
+</label>

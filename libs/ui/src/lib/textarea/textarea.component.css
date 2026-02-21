@@ -1,0 +1,11 @@
+:host {
+  display: block;
+}
+.db-textarea {
+  height: auto;
+  min-height: 4rem;
+  padding-top: var(--db-form-input-padding);
+  padding-bottom: var(--db-form-input-padding);
+  resize: vertical;
+  line-height: 1.4;
+}

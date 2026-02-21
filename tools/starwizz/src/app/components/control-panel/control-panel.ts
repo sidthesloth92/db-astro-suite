@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SliderComponent, SelectComponent, CheckboxComponent, SelectOption } from '@db-astro-suite/ui';
 import { SimulationService } from '../../services/simulation.service';
@@ -11,6 +11,7 @@ import { ControlMetadata, ControlKey } from '../../models/simulation.model';
   imports: [CommonModule, SliderComponent, SelectComponent, CheckboxComponent],
   templateUrl: './control-panel.html',
   styleUrl: './control-panel.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ControlPanel {
   public controlConfig = CONTROLS;
@@ -24,9 +25,8 @@ export class ControlPanel {
 
   constructor(public simService: SimulationService) {}
 
-  updateAspectRatio(event: Event) {
-    const value = (event.target as HTMLSelectElement).value as AspectRatioKey;
-    this.simService.currentAspectRatio.set(value);
+  updateAspectRatio(value: string | number | boolean) {
+    this.simService.currentAspectRatio.set(value as AspectRatioKey);
   }
 
   updateControl(control: ControlKey, event: Event) {

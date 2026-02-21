@@ -1,41 +1,24 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
+
+export type InputType = 'text' | 'number' | 'date' | 'email' | 'password' | 'color';
 
 @Component({
   selector: 'db-input',
   standalone: true,
-  imports: [],
-  template: `
-    <div class="db-form-group">
-      @if (label) {
-        <label class="db-form-label">{{ label }}</label>
-      }
-      <input
-        [type]="type"
-        [placeholder]="placeholder"
-        [value]="value"
-        (input)="onInput($event)"
-        class="db-form-input"
-      />
-    </div>
-  `,
-  styles: [`
-    :host {
-      display: block;
-    }
-  `]
+  templateUrl: './input.component.html',
+  styleUrls: ['./input.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InputComponent {
-  @Input() label = '';
-  @Input() placeholder = '';
-  @Input() value: any = '';
-  @Input() type: 'text' | 'number' | 'date' | 'email' | 'password' | 'color' = 'text';
+  label = input<string>('');
+  placeholder = input<string>('');
+  value = input<string | number>('');
+  type = input<InputType>('text');
   
-  @Output() valueChange = new EventEmitter<any>();
+  valueChange = output<string | number>();
 
   onInput(event: Event) {
-    const input = event.target as HTMLInputElement;
-    this.valueChange.emit(input.value);
+    const inputEl = event.target as HTMLInputElement;
+    this.valueChange.emit(inputEl.value);
   }
 }

@@ -1,0 +1,55 @@
+<div class="caption-container db-glass-panel">
+  <!-- Interaction Icons -->
+  <div class="post-interactions">
+    <div class="left-icons">
+      <span class="ig-icon">❤️</span>
+      <span class="ig-icon">💬</span>
+      <span class="ig-icon">✈️</span>
+    </div>
+
+    <div class="right-icons">
+      <button
+        class="copy-icon-btn"
+        [class.copied]="copied()"
+        (click)="copyToClipboard()"
+        [title]="copied() ? 'Copied!' : 'Copy Caption'"
+      >
+        @if (copied()) {
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="w-4 h-4 text-green-400"
+          >
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        } @else {
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="w-4 h-4"
+          >
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+        }
+      </button>
+    </div>
+  </div>
+
+  <div class="caption-bubble">
+    <div class="caption-content">
+      <span class="username text-xs font-bold mr-2">{{
+        cardData().author || 'astrophotographer'
+      }}</span>
+      <pre class="caption-text">{{ formattedCaption() }}</pre>
+    </div>
+  </div>
+</div>

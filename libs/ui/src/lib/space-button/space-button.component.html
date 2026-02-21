@@ -1,13 +1,13 @@
 <button
-  [type]="type"
-  [disabled]="disabled"
+  [type]="type()"
+  [disabled]="disabled()"
   class="space-button"
-  [class.space-button--sm]="size === 'sm'"
-  [class.space-button--lg]="size === 'lg'"
-  [class.space-button--full]="fullWidth"
-  [class.space-button--recording]="variant === 'recording'"
-  [class.space-button--processing]="variant === 'processing'"
+  [class.space-button--sm]="size() === 'sm'"
+  [class.space-button--lg]="size() === 'lg'"
+  [class.space-button--full]="fullWidth()"
+  [class.space-button--recording]="variant() === 'recording'"
+  [class.space-button--processing]="variant() === 'processing'"
 >
   <ng-content></ng-content>
-  {{ label }}
+  {{ label() }}
 </button>

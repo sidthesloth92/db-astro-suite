@@ -18,15 +18,15 @@
   <main class="main-container">
     <!-- Preview Section (Left) -->
     <div class="simulator-panel md:px-0">
-      <div class="post-wrap" [class.aspect-4-5]="cardData().aspectRatio === '4:5'">
-        <ac-card-preview [data]="cardData()"></ac-card-preview>
-        <ac-caption-section [data]="cardData()"></ac-caption-section>
+      <div class="post-wrap" [class.aspect-4-5]="dataService.cardData().aspectRatio === '4:5'">
+        <ac-card-preview></ac-card-preview>
+        <ac-caption-section></ac-caption-section>
       </div>
     </div>
 
     <!-- Configuration Section (Right) -->
     <div class="config-panel db-glass-panel db-scanline-top">
-      <ac-card-form [data]="cardData()" (dataChange)="onDataChange($event)"> </ac-card-form>
+      <ac-card-form></ac-card-form>
     </div>
   </main>
 </div>

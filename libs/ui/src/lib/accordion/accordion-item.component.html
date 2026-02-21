@@ -1,0 +1,14 @@
+<div class="accordion-item" [class.expanded]="expanded()">
+  <button type="button" class="accordion-header" (click)="toggle($event)">
+    <span class="accordion-title">{{ title() }}</span>
+    <span class="accordion-icon">{{ expanded() ? "−" : "+" }}</span>
+  </button>
+
+  <div class="accordion-content-wrapper">
+    <div class="accordion-content">
+      <div class="accordion-content-inner">
+        <ng-content></ng-content>
+      </div>
+    </div>
+  </div>
+</div>

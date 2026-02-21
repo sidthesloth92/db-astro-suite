@@ -1,33 +1,21 @@
-import { Component, Input, booleanAttribute } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ChangeDetectionStrategy, input, booleanAttribute } from '@angular/core';
+
+export type NeonButtonType = 'button' | 'submit' | 'reset';
+export type NeonButtonVariant = 'primary' | 'secondary';
+export type NeonButtonSize = 'sm' | 'md';
 
 @Component({
   selector: 'db-neon-button',
   standalone: true,
-  imports: [],
-  template: `
-<button
-  [type]="type"
-  [disabled]="disabled"
-  class="neon-button"
-  [class.neon-button--primary]="variant === 'primary'"
-  [class.neon-button--secondary]="variant === 'secondary'"
-  [class.neon-button--sm]="size === 'sm'"
-  [class.neon-button--full-width]="fullWidth"
->
-  @if (label) {
-    <span class="neon-button__text">{{ label }}</span>
-  }
-  <ng-content></ng-content>
-</button>
-  `,
-  styleUrl: './neon-button.component.css'
+  templateUrl: './neon-button.component.html',
+  styleUrls: ['./neon-button.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NeonButtonComponent {
-  @Input() label = '';
-  @Input() type: 'button' | 'submit' | 'reset' = 'button';
-  @Input() variant: 'primary' | 'secondary' = 'primary';
-  @Input() size: 'sm' | 'md' = 'md';
-  @Input() disabled = false;
-  @Input({ transform: booleanAttribute }) fullWidth = false;
+  label = input<string>('');
+  type = input<NeonButtonType>('button');
+  variant = input<NeonButtonVariant>('primary');
+  size = input<NeonButtonSize>('md');
+  disabled = input(false, { transform: booleanAttribute });
+  fullWidth = input(false, { transform: booleanAttribute });
 }

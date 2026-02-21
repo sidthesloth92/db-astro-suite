@@ -3,14 +3,14 @@
 >
   <!-- Left Side: Logo + App Title -->
   <a
-    [href]="logoLink || '/db-astro-suite/'"
+    [href]="logoLink() || '/db-astro-suite/'"
     class="flex items-center gap-2 md:gap-3 transition-opacity hover:opacity-80"
     target="_self"
   >
-    @if (logoSrc) {
+    @if (logoSrc()) {
       <img
-        [src]="logoSrc"
-        [alt]="title + ' Logo'"
+        [src]="logoSrc()"
+        [alt]="title() + ' Logo'"
         class="w-8 h-8 md:w-10 md:h-10"
       />
     }
@@ -18,12 +18,12 @@
       <h1
         class="text-base md:text-2xl font-bold db-neon-text tracking-[0.1em] md:tracking-[0.4em] whitespace-nowrap uppercase"
       >
-        {{ title }}
+        {{ title() }}
       </h1>
-      @if (tagline) {
+      @if (tagline()) {
         <span
           class="hidden md:inline-block text-neon-pink/60 text-xs tracking-widest uppercase border-l border-neon-pink/30 pl-4 py-1"
-          >{{ tagline }}</span
+          >{{ tagline() }}</span
         >
       }
     </div>
@@ -33,20 +33,20 @@
   <div class="right-side flex items-center gap-2 md:gap-8">
     <!-- Personal Website -->
     <a
-      [href]="aboutLink"
+      [href]="aboutLink()"
       target="_blank"
       class="tool-link transition-transform active:scale-95"
     >
       <db-space-button
-        [label]="isMobile ? 'Me' : 'About me'"
+        [label]="isMobile() ? 'Me' : 'About me'"
         size="sm"
       ></db-space-button>
     </a>
 
     <!-- GitHub Logo -->
-    @if (githubLink) {
+    @if (githubLink()) {
       <a
-        [href]="githubLink"
+        [href]="githubLink()"
         target="_blank"
         class="flex items-center text-neon-pink/60 hover:text-neon-pink transition-colors group"
         title="View Source on GitHub"

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -6,11 +6,12 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './card.component.html',
-  styleUrl: './card.component.css'
+  styleUrls: ['./card.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CardComponent {
-  @Input() title = '';
-  @Input() subtitle = '';
-  @Input() logoSrc = '';
-  @Input() clickable = false;
+  title = input<string>('');
+  subtitle = input<string>('');
+  logoSrc = input<string>('');
+  clickable = input<boolean>(false);
 }

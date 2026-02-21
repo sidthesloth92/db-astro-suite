@@ -1,10 +1,11 @@
-import { Component, output } from '@angular/core';
+import { Component, output, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'sw-image-upload-overlay',
   imports: [],
   templateUrl: './image-upload-overlay.html',
   styleUrl: './image-upload-overlay.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ImageUploadOverlay {
   imageSelected = output<Event>();

@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { ControlPanel } from './components/control-panel/control-panel';
 import { Simulator } from './components/simulator/simulator';
 import { HeaderComponent } from '@db-astro-suite/ui';
@@ -9,6 +9,7 @@ import { HeaderComponent } from '@db-astro-suite/ui';
   imports: [ControlPanel, Simulator, HeaderComponent],
   templateUrl: './app.html',
   styleUrl: './app.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class App {
   protected readonly title = signal('starwizz');

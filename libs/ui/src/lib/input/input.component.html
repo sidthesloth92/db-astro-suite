@@ -1,0 +1,12 @@
+<div class="db-form-group">
+  @if (label()) {
+    <label class="db-form-label">{{ label() }}</label>
+  }
+  <input
+    [type]="type()"
+    [placeholder]="placeholder()"
+    [value]="value()"
+    (input)="onInput($event)"
+    class="db-form-input"
+  />
+</div>

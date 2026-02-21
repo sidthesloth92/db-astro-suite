@@ -1,4 +1,4 @@
-import { Component, Input, ElementRef, ViewChild, Output, EventEmitter, CUSTOM_ELEMENTS_SCHEMA, signal, HostListener, AfterViewInit } from '@angular/core';
+import { Component, ElementRef, ViewChild, Output, EventEmitter, CUSTOM_ELEMENTS_SCHEMA, signal, HostListener, AfterViewInit, ChangeDetectionStrategy, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { 
   CardData, 
@@ -10,6 +10,7 @@ import {
 } from '../../models/card-data';
 import { FilterRingComponent } from '../filter-ring/filter-ring';
 import { BortleScaleComponent } from '../bortle-scale/bortle-scale';
+import { CardDataService } from '../../services/card-data.service';
 
 @Component({
   selector: 'ac-card-preview',
@@ -17,10 +18,13 @@ import { BortleScaleComponent } from '../bortle-scale/bortle-scale';
   imports: [CommonModule, FilterRingComponent, BortleScaleComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './card-preview.html',
-  styleUrl: './card-preview.css'
+  styleUrls: ['./card-preview.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CardPreviewComponent implements AfterViewInit {
-  @Input() data!: CardData;
+  private dataService = inject(CardDataService);
+  cardData = this.dataService.cardData;
+
   @Output() export = new EventEmitter<void>();
   
   @ViewChild('cardWrapper') cardWrapper!: ElementRef;
@@ -35,7 +39,6 @@ export class CardPreviewComponent implements AfterViewInit {
   }
 
   ngAfterViewInit() {
-    // Initial calculation with a small delay to ensure layout is settled
     setTimeout(() => this.calculateScale(), 100);
   }
 
@@ -52,42 +55,35 @@ export class CardPreviewComponent implements AfterViewInit {
     }
   }
 
-  get enabledFilters(): FilterExposure[] {
-    return this.data.filters.filter(f => f.enabled && f.frames > 0);
-  }
+  enabledFilters = computed(() => this.cardData().filters.filter(f => f.enabled && f.frames > 0));
 
-  get totalIntegrationSeconds(): number {
-    return calculateTotalIntegration(this.data.filters);
-  }
+  totalIntegrationSeconds = computed(() => calculateTotalIntegration(this.cardData().filters));
 
-  get totalIntegration(): string {
-    return formatDuration(this.totalIntegrationSeconds);
-  }
+  totalIntegration = computed(() => formatDuration(this.totalIntegrationSeconds()));
 
   getFilterDuration(filter: FilterExposure): string {
     return formatDuration(calculateTotalSeconds(filter));
   }
 
   getFilterProgress(filter: FilterExposure): number {
-    const total = this.totalIntegrationSeconds;
+    const total = this.totalIntegrationSeconds();
     if (total === 0) return 0;
     return (calculateTotalSeconds(filter) / total) * 100;
   }
 
-  get cardDimensions() {
-    return ASPECT_RATIOS[this.data.aspectRatio];
-  }
+  cardDimensions = computed(() => ASPECT_RATIOS[this.cardData().aspectRatio]);
 
-  get formattedDate(): string {
-    if (!this.data.date) return '';
-    const date = new Date(this.data.date);
+  formattedDate = computed(() => {
+    const dateStr = this.cardData().date;
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
     return date.toLocaleDateString('en-US', { 
       weekday: 'long', 
       month: 'long', 
       day: 'numeric',
       year: 'numeric'
     });
-  }
+  });
 
   async exportCard(event?: MouseEvent) {
     if (this.isExporting) return;
@@ -103,7 +99,7 @@ export class CardPreviewComponent implements AfterViewInit {
       const { domToJpeg } = await import('modern-screenshot');
       const element = this.cardElement.nativeElement;
       
-      const sanitizedTitle = this.data.title
+      const sanitizedTitle = this.cardData().title
         .trim()
         .replace(/[^a-z0-9]/gi, '-')
         .replace(/-+/g, '-')

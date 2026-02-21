@@ -1,10 +1,11 @@
-import { Component, output } from '@angular/core';
+import { Component, output, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'sw-clear-image-button',
   imports: [],
   templateUrl: './clear-image-button.html',
   styleUrl: './clear-image-button.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ClearImageButton {
   clearClicked = output<void>();

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, ViewChild, effect } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild, effect, ChangeDetectionStrategy } from '@angular/core';
 import { SimulationService } from '../../services/simulation.service';
 import { ClearImageButton } from './clear-image-button/clear-image-button';
 import { HudOverlay } from './hud-overlay/hud-overlay';
@@ -20,6 +20,7 @@ const SHOOTING_STAR_SPAWN_RATE = 1.5;
   styleUrl: './simulator.css',
   standalone: true,
   imports: [HudOverlay, LoadingOverlay, ImageUploadOverlay, ClearImageButton],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Simulator implements AfterViewInit {
   @ViewChild('starCanvas') canvasRef!: ElementRef<HTMLCanvasElement>;

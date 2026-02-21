@@ -15,7 +15,7 @@
   <db-select
     label="Aspect Ratio"
     [value]="simService.currentAspectRatio()"
-    (valueChange)="simService.currentAspectRatio.set($event)"
+    (valueChange)="updateAspectRatio($event)"
     [options]="ratioOptions"
   ></db-select>
 

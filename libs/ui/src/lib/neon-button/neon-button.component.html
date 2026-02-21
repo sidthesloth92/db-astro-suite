@@ -1,11 +1,14 @@
 <button
-  [type]="type"
-  [disabled]="disabled"
+  [type]="type()"
+  [disabled]="disabled()"
   class="neon-button"
-  [class.neon-button--secondary]="variant === 'secondary'"
-  [class.neon-button--sm]="size === 'sm'"
-  [class.neon-button--full]="fullWidth"
+  [class.neon-button--primary]="variant() === 'primary'"
+  [class.neon-button--secondary]="variant() === 'secondary'"
+  [class.neon-button--sm]="size() === 'sm'"
+  [class.neon-button--full-width]="fullWidth()"
 >
+  @if (label()) {
+    <span class="neon-button__text">{{ label() }}</span>
+  }
   <ng-content></ng-content>
-  {{ label }}
 </button>

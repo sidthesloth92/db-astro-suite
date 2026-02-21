@@ -1,11 +1,17 @@
-<div class="card" [class.card--clickable]="clickable">
-  <div class="card__header" *ngIf="title">
-    <div class="card__title-row">
-      <img *ngIf="logoSrc" [src]="logoSrc" class="card__logo" alt="" />
-      <h3 class="card__title">{{ title }}</h3>
+<div class="card" [class.card--clickable]="clickable()">
+  @if (title()) {
+    <div class="card__header">
+      <div class="card__title-row">
+        @if (logoSrc()) {
+          <img [src]="logoSrc()" class="card__logo" alt="" />
+        }
+        <h3 class="card__title">{{ title() }}</h3>
+      </div>
+      @if (subtitle()) {
+        <p class="card__subtitle">{{ subtitle() }}</p>
+      }
     </div>
-    <p class="card__subtitle" *ngIf="subtitle">{{ subtitle }}</p>
-  </div>
+  }
   <div class="card__content">
     <ng-content></ng-content>
   </div>

@@ -1,58 +1,27 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, ChangeDetectionStrategy, input, output, computed } from '@angular/core';
 
 @Component({
   selector: 'db-slider',
   standalone: true,
-  imports: [],
-  template: `
-<div class="db-form-group slider-container">
-  <div class="slider-label-header">
-    <label class="db-form-label">{{ label }}</label>
-    @if (tooltip) {
-      <span class="slider-tooltip">
-        <img
-          src="assets/icons/question-mark-circle.svg"
-          alt="Help"
-          class="slider-tooltip__icon"
-        />
-        <span class="slider-tooltip__text">{{ tooltip }}</span>
-      </span>
-    }
-    <span class="slider-value">{{ displayValue }}</span>
-  </div>
-  <div class="slider-track">
-    <input
-      type="range"
-      [min]="min"
-      [max]="max"
-      [step]="step"
-      [value]="value"
-      (input)="onInput($event)"
-      class="slider-input"
-    />
-  </div>
-</div>
-  `,
-  styleUrl: './slider.component.css'
+  templateUrl: './slider.component.html',
+  styleUrls: ['./slider.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SliderComponent {
-  @Input() label = '';
-  @Input() value = 0;
-  @Input() min = 0;
-  @Input() max = 100;
-  @Input() step = 1;
-  @Input() precision = 0;
-  @Input() tooltip = '';
+  label = input<string>('');
+  value = input<number>(0);
+  min = input<number>(0);
+  max = input<number>(100);
+  step = input<number>(1);
+  precision = input<number>(0);
+  tooltip = input<string>('');
 
-  @Output() valueChange = new EventEmitter<number>();
+  valueChange = output<number>();
 
-  get displayValue(): string {
-    return this.value.toFixed(this.precision);
-  }
+  displayValue = computed(() => this.value().toFixed(this.precision()));
 
   onInput(event: Event): void {
-    const value = parseFloat((event.target as HTMLInputElement).value);
-    this.valueChange.emit(value);
+    const val = parseFloat((event.target as HTMLInputElement).value);
+    this.valueChange.emit(val);
   }
 }

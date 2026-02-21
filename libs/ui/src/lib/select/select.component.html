@@ -1,0 +1,19 @@
+<div class="db-form-group boxed-select-container" [class.no-box]="noBox()">
+  @if (label()) {
+    <label class="db-form-label">{{ label() }}</label>
+  }
+  <div class="select-wrapper">
+    <select
+      [value]="value()"
+      (change)="onChange($event)"
+      class="db-form-select-themed"
+    >
+      @for (opt of options(); track opt.value) {
+        <option [value]="opt.value">
+          {{ opt.label }}
+        </option>
+      }
+    </select>
+    <div class="select-arrow">▼</div>
+  </div>
+</div>

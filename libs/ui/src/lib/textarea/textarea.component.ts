@@ -1,46 +1,19 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
 
 @Component({
   selector: 'db-textarea',
   standalone: true,
-  imports: [],
-  template: `
-    <div class="db-form-group">
-      @if (label) {
-        <label class="db-form-label">{{ label }}</label>
-      }
-      <textarea
-        [placeholder]="placeholder"
-        [value]="value"
-        [rows]="rows"
-        (input)="onInput($event)"
-        class="db-form-input db-textarea"
-      ></textarea>
-    </div>
-  `,
-  styles: [`
-    :host {
-      display: block;
-    }
-    .db-textarea {
-      height: auto;
-      min-height: 4rem;
-      padding-top: var(--db-form-input-padding);
-      padding-bottom: var(--db-form-input-padding);
-      resize: vertical;
-      line-height: 1.4;
-    }
-  `]
+  templateUrl: './textarea.component.html',
+  styleUrls: ['./textarea.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TextareaComponent {
-  @Input() label = '';
-  @Input() placeholder = '';
-  @Input() value: string | undefined = '';
-  @Input() rows = 3;
+  label = input<string>('');
+  placeholder = input<string>('');
+  value = input<string | undefined>('');
+  rows = input<number>(3);
   
-  @Output() valueChange = new EventEmitter<string>();
+  valueChange = output<string>();
 
   onInput(event: Event) {
     const textarea = event.target as HTMLTextAreaElement;
