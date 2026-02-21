@@ -11,7 +11,7 @@ import { AstroInfoService } from '../../services/astro-info.service';
   imports: [CommonModule, FormsModule, InputComponent, TextareaComponent],
   template: `
     <div class="form-container">
-      <div class="form-row items-end gap-2">
+      <div class="form-row items-end gap-2 mb-sm">
         <db-input
           label="Object Name"
           [value]="cardData().title"
@@ -27,6 +27,7 @@ import { AstroInfoService } from '../../services/astro-info.service';
         (valueChange)="updateData('description', $event)"
         placeholder="Brief description of the object..."
         [rows]="3"
+        class="mb-sm block"
       ></db-textarea>
 
       <div class="form-row mb-sm">
