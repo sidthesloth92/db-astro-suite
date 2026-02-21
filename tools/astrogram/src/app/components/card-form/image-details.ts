@@ -27,7 +27,6 @@ import { AstroInfoService } from '../../services/astro-info.service';
         (valueChange)="updateData('description', $event)"
         placeholder="Brief description of the object..."
         [rows]="3"
-        class="mb-sm block"
       ></db-textarea>
 
       <div class="form-row mb-sm">

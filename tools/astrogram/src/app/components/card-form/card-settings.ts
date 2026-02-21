@@ -19,7 +19,6 @@ import { CardDataService } from '../../services/card-data.service';
           { label: '3:4 - 1080 x 1440 - New Insta Post', value: '3:4' },
           { label: '4:5 - 1080 x 1350 - Old Insta Post', value: '4:5' },
         ]"
-        style="margin-bottom: -0.75rem; display: block;"
       ></db-select>
 
       <div class="form-row compact">

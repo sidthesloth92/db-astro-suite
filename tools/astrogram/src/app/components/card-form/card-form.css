@@ -1,7 +1,7 @@
 .form-container {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 0.875rem;
   padding: 0.25rem 0 0.5rem 0;
 }
 
@@ -14,15 +14,6 @@
 .form-row.mb-sm {
   display: flex;
   gap: 0.75rem;
-  margin-bottom: 0.75rem;
-}
-
-.mb-sm {
-  margin-bottom: 0.75rem;
-}
-
-.mb-2 {
-  margin-bottom: 0.5rem;
 }
 
 .block {
@@ -261,7 +252,6 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  margin-bottom: 0.5rem;
 }
 
 .preset-select-group {
