@@ -10,6 +10,7 @@ import { AstroInfoService } from '../../services/astro-info.service';
   standalone: true,
   imports: [CommonModule, FormsModule, InputComponent, TextareaComponent],
   template: `
+    <div class="form-container">
       <div class="form-row items-end gap-2">
         <db-input
           label="Object Name"
@@ -61,6 +62,7 @@ import { AstroInfoService } from '../../services/astro-info.service';
           class="flex-1"
         ></db-input>
       </div>
+    </div>
   `
 })
 export class ImageDetailsComponent {

@@ -10,6 +10,7 @@ import { PresetService } from '../../services/preset.service';
   standalone: true,
   imports: [CommonModule, FormsModule, SelectComponent, NeonButtonComponent],
   template: `
+    <div class="form-container">
       <!-- Preset Toolbar -->
       <div class="preset-toolbar">
         @if (!isSavingPreset && !isDeletingPreset) {
@@ -127,6 +128,7 @@ import { PresetService } from '../../services/preset.service';
       <db-neon-button variant="secondary" fullWidth (click)="addEquipment()">
         + Add Equipment
       </db-neon-button>
+    </div>
   `
 })
 export class EquipmentSettingsComponent implements OnInit {

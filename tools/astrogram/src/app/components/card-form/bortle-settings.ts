@@ -7,6 +7,7 @@ import { CardDataService } from '../../services/card-data.service';
   standalone: true,
   imports: [CommonModule],
   template: `
+    <div class="form-container">
       <div class="bortle-control">
         <div class="bortle-visual">
           @for (n of [1, 2, 3, 4, 5, 6, 7, 8, 9]; track n) {
@@ -25,6 +26,7 @@ import { CardDataService } from '../../services/card-data.service';
           Level: <span class="highlight">{{ cardData().bortleScale }}</span>
         </div>
       </div>
+    </div>
   `
 })
 export class BortleSettingsComponent {

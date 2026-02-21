@@ -9,6 +9,7 @@ import { CardDataService } from '../../services/card-data.service';
   standalone: true,
   imports: [CommonModule, FormsModule, NeonButtonComponent],
   template: `
+    <div class="form-container">
       <div class="filters-list">
         @for (filter of cardData().filters; track filter.name; let i = $index) {
           <div class="filter-row-complex" [class.disabled]="!filter.enabled">
@@ -65,6 +66,7 @@ import { CardDataService } from '../../services/card-data.service';
       <db-neon-button variant="secondary" fullWidth (click)="addCustomFilter()">
         + Add Custom Filter
       </db-neon-button>
+    </div>
   `
 })
 export class IntegrationSettingsComponent {

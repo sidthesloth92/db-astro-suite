@@ -9,6 +9,7 @@ import { CardDataService } from '../../services/card-data.service';
   standalone: true,
   imports: [CommonModule, FormsModule, NeonButtonComponent],
   template: `
+    <div class="form-container">
       <div class="items-editor">
         @for (item of cardData().software; track $index; let i = $index) {
           <div class="equipment-row-complex">
@@ -43,6 +44,7 @@ import { CardDataService } from '../../services/card-data.service';
       <db-neon-button variant="secondary" fullWidth (click)="addSoftware()">
         + Add Software
       </db-neon-button>
+    </div>
   `
 })
 export class SoftwareSettingsComponent {

@@ -9,6 +9,7 @@ import { CardDataService } from '../../services/card-data.service';
   standalone: true,
   imports: [CommonModule, FormsModule, SelectComponent, SliderComponent],
   template: `
+    <div class="form-container">
       <db-select
         label="Aspect Ratio"
         [value]="cardData().aspectRatio"
@@ -63,6 +64,7 @@ import { CardDataService } from '../../services/card-data.service';
           ></db-slider>
         </div>
       </div>
+    </div>
   `
 })
 export class CardSettingsComponent {
