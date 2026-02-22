@@ -5,7 +5,7 @@ import { FooterComponent } from '../../../../../libs/ui/src/lib/footer/footer.co
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'hub-starwizz-dossier',
+  selector: 'dba-hub-starwizz-dossier',
   standalone: true,
   imports: [RouterLink, CardComponent, FooterComponent, CommonModule],
   template: `
@@ -37,7 +37,7 @@ import { CommonModule } from '@angular/common';
 
         <div class="dossier-grid">
           <section class="briefing">
-            <db-card title="Overview">
+            <dba-ui-card title="Overview">
               <p>
                 StarWizz is a specialized tool designed to create immersive starfield animations 
                 for astrophotographers and space enthusiasts. It enables users to generate 
@@ -49,9 +49,9 @@ import { CommonModule } from '@angular/common';
                 or a cinematic intro for a space-themed video, StarWizz provides the high-fidelity 
                 output needed for professional-grade results.
               </p>
-            </db-card>
+            </dba-ui-card>
 
-            <db-card title="Features" class="specs-card">
+            <dba-ui-card title="Features" class="specs-card">
               <ul class="specs-list">
                 <li>
                   <strong>POPULATION CONTROL</strong>
@@ -66,15 +66,15 @@ import { CommonModule } from '@angular/common';
                   <span>Fine-tune the camera rotation to create chaotic orbits or stable traversals.</span>
                 </li>
               </ul>
-            </db-card>
+            </dba-ui-card>
           </section>
 
           <section class="intelligence">
-            <db-card title="Demo">
+            <dba-ui-card title="Demo">
               <div class="demo-image-container">
                 <img src="assets/img/sw_demo.gif" alt="Starwizz Demo" class="demo-image" />
               </div>
-            </db-card>
+            </dba-ui-card>
           </section>
         </div>
 
@@ -82,7 +82,7 @@ import { CommonModule } from '@angular/common';
           <!-- Launch button moved to header -->
         </footer>
 
-        <db-footer></db-footer>
+        <dba-ui-footer></dba-ui-footer>
       </div>
     </div>
   `,

@@ -4,7 +4,7 @@ import { Simulator } from './components/simulator/simulator';
 import { HeaderComponent } from '@db-astro-suite/ui';
 
 @Component({
-  selector: 'sw-root',
+  selector: 'dba-sw-root',
   standalone: true,
   imports: [ControlPanel, Simulator, HeaderComponent],
   templateUrl: './app.html',

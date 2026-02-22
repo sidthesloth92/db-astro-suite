@@ -5,7 +5,7 @@ import { FooterComponent } from '../../../../../libs/ui/src/lib/footer/footer.co
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'hub-astrogram-dossier',
+  selector: 'dba-hub-astrogram-dossier',
   standalone: true,
   imports: [RouterLink, CardComponent, FooterComponent, CommonModule],
   template: `
@@ -37,16 +37,16 @@ import { CommonModule } from '@angular/common';
 
         <div class="dossier-grid">
           <section class="briefing">
-            <db-card title="Overview">
+            <dba-ui-card title="Overview">
               <p>
                 Astrogram is a specialized generator designed to take the complexity of your capture session—from gear lists to Bortle scales—and distill it into a beautiful, Instagram-ready graphic and a perfectly formatted caption. No more messy captions or manually typing out equipment lists for every post.
               </p>
               <p>
                 Simply input your session metadata, and Astrogram handles the typography, layout, branding, and caption formatting giving your followers a clear "behind-the-lens" look at how you captured the cosmos.
               </p>
-            </db-card>
+            </dba-ui-card>
 
-            <db-card title="Features" class="specs-card">
+            <dba-ui-card title="Features" class="specs-card">
               <ul class="specs-list">
                 <li>
                   <strong>VISUAL IMAGE GENERATION</strong>
@@ -73,15 +73,15 @@ import { CommonModule } from '@angular/common';
                   <span>Include environmental data like Bortle scale and capture locations to add scientific context to your art.</span>
                 </li>
               </ul>
-            </db-card>
+            </dba-ui-card>
           </section>
 
           <section class="intelligence">
-            <db-card title="Demo">
+            <dba-ui-card title="Demo">
               <div class="demo-image-container">
                 <img src="assets/img/astrogram_demo.jpg" alt="Astrogram Demo" class="demo-image" />
               </div>
-            </db-card>
+            </dba-ui-card>
           </section>
         </div>
 
@@ -89,7 +89,7 @@ import { CommonModule } from '@angular/common';
           <!-- Launch button moved to header -->
         </footer>
 
-        <db-footer></db-footer>
+        <dba-ui-footer></dba-ui-footer>
       </div>
     </div>
   `,

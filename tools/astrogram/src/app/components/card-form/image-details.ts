@@ -6,61 +6,61 @@ import { CardDataService } from '../../services/card-data.service';
 import { AstroInfoService } from '../../services/astro-info.service';
 
 @Component({
-  selector: 'ac-image-details',
+  selector: 'dba-ag-image-details',
   standalone: true,
   imports: [CommonModule, FormsModule, InputComponent, TextareaComponent],
   template: `
     <div class="form-container">
       <div class="form-row items-end gap-2 mb-sm">
-        <db-input
+        <dba-ui-input
           label="Object Name"
           [value]="cardData().title"
           (valueChange)="updateData('title', $event)"
           placeholder="e.g., Pillars of Creation"
           class="flex-1"
-        ></db-input>
+        ></dba-ui-input>
       </div>
 
-      <db-textarea
+      <dba-ui-textarea
         label="📝 Description"
         [value]="cardData().description"
         (valueChange)="updateData('description', $event)"
         placeholder="Brief description of the object..."
         [rows]="3"
-      ></db-textarea>
+      ></dba-ui-textarea>
 
       <div class="form-row mb-sm">
-        <db-input
+        <dba-ui-input
           type="date"
           label="📅 Date"
           [value]="cardData().date"
           (valueChange)="updateData('date', $event)"
           class="flex-1"
-        ></db-input>
-        <db-input
+        ></dba-ui-input>
+        <dba-ui-input
           label="📍 Location"
           [value]="cardData().location"
           (valueChange)="updateData('location', $event)"
           placeholder="City, State"
           class="flex-1"
-        ></db-input>
+        ></dba-ui-input>
       </div>
 
       <div class="form-row mb-sm">
-        <db-input
+        <dba-ui-input
           label="👤 Author Handle"
           [value]="cardData().author"
           (valueChange)="updateData('author', $event)"
           placeholder="@username"
           class="flex-1"
-        ></db-input>
-        <db-input
+        ></dba-ui-input>
+        <dba-ui-input
           label="🏷️ Hashtags"
           [value]="cardData().hashtags || ''"
           (valueChange)="updateData('hashtags', $event)"
           placeholder="#space #nebula"
           class="flex-1"
-        ></db-input>
+        ></dba-ui-input>
       </div>
     </div>
   `

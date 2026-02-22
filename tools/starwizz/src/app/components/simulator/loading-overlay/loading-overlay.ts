@@ -1,7 +1,7 @@
 import { Component, input, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
-  selector: 'sw-loading-overlay',
+  selector: 'dba-sw-loading-overlay',
   imports: [],
   templateUrl: './loading-overlay.html',
   styleUrl: './loading-overlay.scss',

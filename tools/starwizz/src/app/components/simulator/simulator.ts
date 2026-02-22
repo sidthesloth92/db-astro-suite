@@ -15,7 +15,7 @@ const SHOOTING_STAR_SPAWN_RATE = 1.5;
  * Delegates state management to SimulationService and focuses on canvas rendering.
  */
 @Component({
-  selector: 'sw-simulator',
+  selector: 'dba-sw-simulator',
   templateUrl: './simulator.html',
   styleUrl: './simulator.css',
   standalone: true,

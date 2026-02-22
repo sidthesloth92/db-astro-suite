@@ -1,7 +1,7 @@
 :host {
   display: block;
 }
-.db-checkbox-container {
+.dba-ui-checkbox-container {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -14,10 +14,10 @@
   letter-spacing: -0.02em;
   transition: color 0.2s;
 }
-.db-checkbox-container:hover .db-checkbox-label {
+.dba-ui-checkbox-container:hover .dba-ui-checkbox-label {
   color: var(--db-color-neon-pink);
 }
-.db-checkbox-container.disabled {
+.dba-ui-checkbox-container.disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
@@ -38,7 +38,7 @@ input {
   flex-shrink: 0;
   transition: all 0.2s;
 }
-.db-checkbox-container:hover .db-checkmark {
+.dba-ui-checkbox-container:hover .db-checkmark {
   border-color: var(--db-color-neon-pink);
   box-shadow: 0 0 8px rgba(255, 45, 149, 0.2);
 }

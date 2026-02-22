@@ -6,7 +6,7 @@ import { CONTROLS, ASPECT_RATIOS, AspectRatioKey } from '../../constants/simulat
 import { ControlMetadata, ControlKey } from '../../models/simulation.model';
 
 @Component({
-  selector: 'sw-control-panel',
+  selector: 'dba-sw-control-panel',
   standalone: true,
   imports: [CommonModule, SliderComponent, SelectComponent, CheckboxComponent],
   templateUrl: './control-panel.html',

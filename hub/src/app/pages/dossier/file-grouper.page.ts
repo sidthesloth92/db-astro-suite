@@ -5,7 +5,7 @@ import { FooterComponent } from '../../../../../libs/ui/src/lib/footer/footer.co
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'hub-file-grouper-dossier',
+  selector: 'dba-hub-file-grouper-dossier',
   standalone: true,
   imports: [RouterLink, CardComponent, FooterComponent, CommonModule],
   template: `
@@ -34,7 +34,7 @@ import { CommonModule } from '@angular/common';
 
         <div class="dossier-grid">
           <section class="briefing">
-            <db-card title="Overview">
+            <dba-ui-card title="Overview">
               <p>
                 File Grouper is a platform-agnostic Go utility designed to solve the chaos of 
                 unstructured astrophotography datasets. Specifically optimized for ASIAIR 
@@ -46,9 +46,9 @@ import { CommonModule } from '@angular/common';
                 your data is ready for calibration and stacking before you even open your 
                 processing software.
               </p>
-            </db-card>
+            </dba-ui-card>
 
-            <db-card title="Features" class="specs-card">
+            <dba-ui-card title="Features" class="specs-card">
               <ul class="specs-list">
                 <li>
                   <strong>SENSOR CLASSIFICATION</strong>
@@ -63,11 +63,11 @@ import { CommonModule } from '@angular/common';
                   <span>Classify and folder frames by celestial object names, separating your 'M42' from your 'Rosette' data instantly.</span>
                 </li>
               </ul>
-            </db-card>
+            </dba-ui-card>
           </section>
 
           <section class="intelligence">
-            <db-card title="Setup & Usage">
+            <dba-ui-card title="Setup & Usage">
               <div class="protocol-step">
                 <span class="step-label">INSTALLATION</span>
                 <pre class="code-block"><code>go install github.com/sidthesloth92/db-astro-suite/tools/file-grouper&#64;latest</code></pre>
@@ -82,7 +82,7 @@ import { CommonModule } from '@angular/common';
                 <div class="placeholder-text">CLI EXECUTION DIAGRAM PENDING</div>
                 <div class="placeholder-subtext">User to provide terminal output screenshot</div>
               </div>
-            </db-card>
+            </dba-ui-card>
           </section>
         </div>
 
@@ -90,7 +90,7 @@ import { CommonModule } from '@angular/common';
           <!-- Action button moved to header -->
         </footer>
 
-        <db-footer></db-footer>
+        <dba-ui-footer></dba-ui-footer>
       </div>
     </div>
   `,

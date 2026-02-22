@@ -1,7 +1,7 @@
 :host {
   display: block;
 }
-.db-textarea {
+.dba-ui-textarea {
   height: auto;
   min-height: 4rem;
   padding-top: var(--db-form-input-padding);

@@ -12,16 +12,16 @@
     </div>
   </div>
 
-  <db-select
+  <dba-ui-select
     label="Aspect Ratio"
     [value]="simService.currentAspectRatio()"
     (valueChange)="updateAspectRatio($event)"
     [options]="ratioOptions"
-  ></db-select>
+  ></dba-ui-select>
 
   <!-- Sliders -->
   @for (control of controlNames; track control) {
-    <db-slider
+    <dba-ui-slider
       [label]="controlConfig[control].label"
       [value]="getControlValue(control)"
       [min]="controlConfig[control].min"
@@ -30,7 +30,7 @@
       [precision]="controlConfig[control].precision"
       [tooltip]="controlConfig[control].description"
       (valueChange)="updateControlValue(control, $event)"
-    ></db-slider>
+    ></dba-ui-slider>
   }
 
   <!-- Restart Animation & Reset Params Buttons -->
@@ -65,7 +65,7 @@
       {{ buttonText }}
     </button>
 
-    <db-checkbox
+    <dba-ui-checkbox
       label="From Beginning"
       [checked]="simService.recordFromBeginning()"
       [disabled]="simService.recordingState() !== 'idle'"
@@ -85,6 +85,6 @@
           before recording starts.
         </span>
       </span>
-    </db-checkbox>
+    </dba-ui-checkbox>
   </div>
 </div>

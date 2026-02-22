@@ -6,7 +6,7 @@ export interface SelectOption {
 }
 
 @Component({
-  selector: 'db-select',
+  selector: 'dba-ui-select',
   standalone: true,
   templateUrl: './select.component.html',
   styleUrls: ['./select.component.css'],

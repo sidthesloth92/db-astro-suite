@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'ac-filter-ring',
+  selector: 'dba-ag-filter-ring',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './filter-ring.html',

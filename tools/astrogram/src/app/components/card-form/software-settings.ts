@@ -5,7 +5,7 @@ import { NeonButtonComponent } from '@db-astro-suite/ui';
 import { CardDataService } from '../../services/card-data.service';
 
 @Component({
-  selector: 'ac-software-settings',
+  selector: 'dba-ag-software-settings',
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `

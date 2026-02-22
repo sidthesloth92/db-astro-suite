@@ -1,4 +1,4 @@
-.app-root {
+.dba-hub-root {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -109,8 +109,8 @@
   max-width: 482px; /* 4:5 card width + borders */
 }
 
-ac-card-preview, 
-ac-caption-section {
+dba-ag-card-preview, 
+dba-ag-caption-section {
   display: block;
   width: 100%;
 }
@@ -129,7 +129,7 @@ ac-caption-section {
 
 /* Mobile: Stack vertically */
 @media (max-width: 768px) {
-  .app-root {
+  .dba-hub-root {
     height: auto;
     min-height: 100vh;
     overflow-y: auto;

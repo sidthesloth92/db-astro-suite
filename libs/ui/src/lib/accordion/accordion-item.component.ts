@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, input, model } from '@angular/core'
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'db-accordion-item',
+  selector: 'dba-ui-accordion-item',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './accordion-item.component.html',

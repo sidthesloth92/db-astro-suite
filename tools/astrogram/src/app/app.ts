@@ -9,7 +9,7 @@ import { CardDataService } from './services/card-data.service';
 import { HeaderComponent } from '@db-astro-suite/ui';
 
 @Component({
-  selector: 'ac-root',
+  selector: 'dba-ag-root',
   standalone: true,
   imports: [CommonModule, FormsModule, CardFormComponent, CardPreviewComponent, CaptionSectionComponent, HeaderComponent],
   templateUrl: './app.html',

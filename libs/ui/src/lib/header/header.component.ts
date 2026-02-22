@@ -3,7 +3,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { SpaceButtonComponent } from '../space-button/space-button.component';
 
 @Component({
-  selector: 'db-header',
+  selector: 'dba-ui-header',
   standalone: true,
   imports: [CommonModule, SpaceButtonComponent],
   templateUrl: './header.component.html',

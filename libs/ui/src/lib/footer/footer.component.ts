@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'db-footer',
+  selector: 'dba-ui-footer',
   standalone: true,
   imports: [CommonModule],
   template: `

@@ -5,7 +5,7 @@ export type NeonButtonVariant = 'primary' | 'secondary';
 export type NeonButtonSize = 'sm' | 'md';
 
 @Component({
-  selector: 'db-neon-button',
+  selector: 'dba-ui-neon-button',
   standalone: true,
   templateUrl: './neon-button.component.html',
   styleUrls: ['./neon-button.component.css'],

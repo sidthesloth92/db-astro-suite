@@ -1,4 +1,4 @@
-.app-root {
+.dba-hub-root {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -76,7 +76,7 @@
 }
 
 @media (max-width: 768px) {
-  .app-root {
+  .dba-hub-root {
     height: auto;
     min-height: 100vh;
     overflow-y: auto;

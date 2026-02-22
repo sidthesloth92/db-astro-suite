@@ -5,12 +5,12 @@ import { SelectComponent, SliderComponent } from '@db-astro-suite/ui';
 import { CardDataService } from '../../services/card-data.service';
 
 @Component({
-  selector: 'ac-card-settings',
+  selector: 'dba-ag-card-settings',
   standalone: true,
   imports: [CommonModule, FormsModule, SelectComponent, SliderComponent],
   template: `
     <div class="form-container">
-      <db-select
+      <dba-ui-select
         label="Aspect Ratio"
         [value]="cardData().aspectRatio"
         (valueChange)="updateData('aspectRatio', $event)"
@@ -19,7 +19,7 @@ import { CardDataService } from '../../services/card-data.service';
           { label: '3:4 - 1080 x 1440 - New Insta Post', value: '3:4' },
           { label: '4:5 - 1080 x 1350 - Old Insta Post', value: '4:5' },
         ]"
-      ></db-select>
+      ></dba-ui-select>
 
       <div class="form-row compact">
         <div class="db-form-group">
@@ -54,7 +54,7 @@ import { CardDataService } from '../../services/card-data.service';
 
       <div class="form-row">
         <div class="db-form-group">
-          <db-slider
+          <dba-ui-slider
             label="Card Transparency"
             [value]="cardData().cardOpacity * 100"
             [min]="0"
@@ -62,7 +62,7 @@ import { CardDataService } from '../../services/card-data.service';
             [step]="5"
             [precision]="0"
             (valueChange)="updateData('cardOpacity', $event / 100)"
-          ></db-slider>
+          ></dba-ui-slider>
         </div>
       </div>
     </div>

@@ -3,7 +3,7 @@ import { Component, ChangeDetectionStrategy, input, output } from '@angular/core
 export type InputType = 'text' | 'number' | 'date' | 'email' | 'password' | 'color';
 
 @Component({
-  selector: 'db-input',
+  selector: 'dba-ui-input',
   standalone: true,
   templateUrl: './input.component.html',
   styleUrls: ['./input.component.css'],

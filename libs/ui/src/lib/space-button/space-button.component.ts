@@ -6,7 +6,7 @@ export type SpaceButtonVariant = 'primary' | 'recording' | 'processing';
 export type SpaceButtonSize = 'sm' | 'md' | 'lg';
 
 @Component({
-  selector: 'db-space-button',
+  selector: 'dba-ui-space-button',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './space-button.component.html',

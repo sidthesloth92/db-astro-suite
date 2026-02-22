@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
 
 @Component({
-  selector: 'db-textarea',
+  selector: 'dba-ui-textarea',
   standalone: true,
   templateUrl: './textarea.component.html',
   styleUrls: ['./textarea.component.css'],

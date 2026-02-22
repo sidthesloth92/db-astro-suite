@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { CardDataService } from '../../services/card-data.service';
 
 @Component({
-  selector: 'ac-bortle-settings',
+  selector: 'dba-ag-bortle-settings',
   standalone: true,
   imports: [CommonModule],
   template: `

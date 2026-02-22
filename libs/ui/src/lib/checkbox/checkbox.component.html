@@ -1,4 +1,4 @@
-<label class="db-checkbox-container" [class.disabled]="disabled()">
+<label class="dba-ui-checkbox-container" [class.disabled]="disabled()">
   <input
     type="checkbox"
     [checked]="checked()"
@@ -7,7 +7,7 @@
   />
   <span class="db-checkmark"></span>
   @if (label()) {
-    <span class="db-checkbox-label">{{ label() }}</span>
+    <span class="dba-ui-checkbox-label">{{ label() }}</span>
   }
   <ng-content></ng-content>
 </label>

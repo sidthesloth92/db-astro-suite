@@ -9,7 +9,7 @@ import { SoftwareSettingsComponent } from './software-settings';
 import { BortleSettingsComponent } from './bortle-settings';
 
 @Component({
-  selector: 'ac-card-form',
+  selector: 'dba-ag-card-form',
   standalone: true,
   imports: [
     CommonModule, 

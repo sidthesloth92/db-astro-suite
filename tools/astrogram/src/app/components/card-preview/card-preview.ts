@@ -13,7 +13,7 @@ import { BortleScaleComponent } from '../bortle-scale/bortle-scale';
 import { CardDataService } from '../../services/card-data.service';
 
 @Component({
-  selector: 'ac-card-preview',
+  selector: 'dba-ag-card-preview',
   standalone: true,
   imports: [CommonModule, FilterRingComponent, BortleScaleComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

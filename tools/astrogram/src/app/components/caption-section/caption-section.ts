@@ -4,7 +4,7 @@ import { generateInstagramCaption } from '../../models/card-data';
 import { CardDataService } from '../../services/card-data.service';
 
 @Component({
-  selector: 'ac-caption-section',
+  selector: 'dba-ag-caption-section',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './caption-section.html',

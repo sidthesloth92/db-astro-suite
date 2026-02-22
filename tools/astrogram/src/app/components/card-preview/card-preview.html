@@ -127,12 +127,12 @@
 
             <div class="filter-rings">
               @for (filter of enabledFilters(); track filter.name) {
-                <ac-filter-ring
+                <dba-ag-filter-ring
                   [name]="filter.name"
                   [color]="filter.color"
                   [duration]="getFilterDuration(filter)"
                   [progress]="getFilterProgress(filter)"
-                ></ac-filter-ring>
+                ></dba-ag-filter-ring>
               }
             </div>
           </section>
@@ -170,11 +170,11 @@
                 </ul>
               </section>
               <section class="card-section compact-section">
-                <ac-bortle-scale
+                <dba-ag-bortle-scale
                   [value]="cardData().bortleScale"
                   [accentColor]="cardData().accentColor"
                   [compact]="true"
-                ></ac-bortle-scale>
+                ></dba-ag-bortle-scale>
               </section>
             </div>
           </div>

@@ -6,7 +6,7 @@ import { CardDataService } from '../../services/card-data.service';
 import { PresetService } from '../../services/preset.service';
 
 @Component({
-  selector: 'ac-equipment-settings',
+  selector: 'dba-ag-equipment-settings',
   standalone: true,
   imports: [CommonModule, FormsModule, SelectComponent],
   template: `
@@ -15,13 +15,13 @@ import { PresetService } from '../../services/preset.service';
       <div class="preset-toolbar">
         @if (!isSavingPreset && !isDeletingPreset) {
           <div class="preset-select-group">
-            <db-select
+            <dba-ui-select
               [value]="selectedPresetName"
               (valueChange)="onPresetChange($event)"
               [options]="presetOptions"
               class="preset-select"
               [noBox]="true"
-            ></db-select>
+            ></dba-ui-select>
 
             <button
               type="button"

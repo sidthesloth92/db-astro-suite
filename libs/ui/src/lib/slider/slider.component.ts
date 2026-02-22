@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, input, output, computed } from '@angular/core';
 
 @Component({
-  selector: 'db-slider',
+  selector: 'dba-ui-slider',
   standalone: true,
   templateUrl: './slider.component.html',
   styleUrls: ['./slider.component.css'],

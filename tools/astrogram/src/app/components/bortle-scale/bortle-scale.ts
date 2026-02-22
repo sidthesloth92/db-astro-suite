@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'ac-bortle-scale',
+  selector: 'dba-ag-bortle-scale',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './bortle-scale.html',

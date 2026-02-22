@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 import { NeonButtonComponent } from '@db-astro-suite/ui';
 
 @Component({
-  selector: 'hub-about-page',
+  selector: 'dba-hub-about-page',
   standalone: true,
   imports: [RouterLink, NeonButtonComponent],
   template: `
@@ -31,7 +31,7 @@ import { NeonButtonComponent } from '@db-astro-suite/ui';
 
       <nav class="about__nav">
         <a routerLink="/">
-          <db-neon-button label="← Back to Home"></db-neon-button>
+          <dba-ui-neon-button label="← Back to Home"></dba-ui-neon-button>
         </a>
       </nav>
     </div>

@@ -1,6 +1,6 @@
-<div class="app-root">
+<div class="dba-hub-root">
   <!-- Shared Header -->
-  <db-header
+  <dba-ui-header
     #header
     title="ASTROGRAM"
     tagline="Professional Exposure Cards. Instantly."
@@ -8,7 +8,7 @@
     logoLink="/db-astro-suite/dossier/astrogram"
     githubLink="https://github.com/sidthesloth92/db-astro-suite"
     aboutLink="https://dineshbalajiv.com"
-  ></db-header>
+  ></dba-ui-header>
 
   <div class="stars-overlay"></div>
   <div class="nebula-overlay"></div>
@@ -19,14 +19,14 @@
     <!-- Preview Section (Left) -->
     <div class="simulator-panel md:px-0">
       <div class="post-wrap" [class.aspect-4-5]="dataService.cardData().aspectRatio === '4:5'">
-        <ac-card-preview></ac-card-preview>
-        <ac-caption-section></ac-caption-section>
+        <dba-ag-card-preview></dba-ag-card-preview>
+        <dba-ag-caption-section></dba-ag-caption-section>
       </div>
     </div>
 
     <!-- Configuration Section (Right) -->
     <div class="config-panel db-glass-panel db-scanline-top">
-      <ac-card-form></ac-card-form>
+      <dba-ag-card-form></dba-ag-card-form>
     </div>
   </main>
 </div>

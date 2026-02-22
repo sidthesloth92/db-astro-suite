@@ -262,7 +262,7 @@
 
 .preset-select {
   flex: 1;
-  /* Override default margin if db-select brings any */
+  /* Override default margin if dba-ui-select brings any */
   margin-bottom: 0 !important;
 }
 

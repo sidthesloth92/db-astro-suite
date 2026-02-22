@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
 
 @Component({
-  selector: 'db-checkbox',
+  selector: 'dba-ui-checkbox',
   standalone: true,
   templateUrl: './checkbox.component.html',
   styleUrls: ['./checkbox.component.css'],
