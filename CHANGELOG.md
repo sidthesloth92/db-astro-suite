@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.6.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.5.0...v1.6.0) (2026-03-01)
+
+
+### Features
+
+* enable continuous deployment ([618f39c](https://github.com/sidthesloth92/db-astro-suite/commit/618f39c984446c35c68b6bcc5301831eb6e9e3ce))
+* simplify pipeline triggers ([7fe6dc0](https://github.com/sidthesloth92/db-astro-suite/commit/7fe6dc03c49040ee108e0bb09af6703e7b6ed298))
+* trigger explicit pipeline logic ([4cc3378](https://github.com/sidthesloth92/db-astro-suite/commit/4cc33781dcfb59fefcd0c9490179ce4c0d32323b))
+
 ## [1.5.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.4.0...v1.5.0) (2026-03-01)
 
 
