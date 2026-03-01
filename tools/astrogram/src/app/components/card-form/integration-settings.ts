@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NeonButtonComponent } from '@db-astro-suite/ui';
 import { CardDataService } from '../../services/card-data.service';
+import { FilterExposure } from '../../models/card-data';
 
 @Component({
   selector: 'dba-ag-integration-settings',
@@ -11,19 +12,35 @@ import { CardDataService } from '../../services/card-data.service';
   template: `
     <div class="form-container">
       <div class="filters-list">
-        @for (filter of cardData().filters; track filter.name; let i = $index) {
+        @for (filter of cardData().filters; track i; let i = $index) {
           <div class="filter-row-complex" [class.disabled]="!filter.enabled">
             <div class="filter-main">
-              <button
-                type="button"
-                class="filter-chip"
-                [style.borderColor]="filter.color"
-                [style.background]="filter.enabled ? filter.color + '20' : 'transparent'"
-                [style.color]="filter.enabled ? filter.color : '#666'"
-                (click)="toggleFilter(i)"
-              >
-                {{ filter.name }}
-              </button>
+              <div class="filter-chip-group">
+                <button
+                  type="button"
+                  class="filter-chip"
+                  [style.borderColor]="filter.color"
+                  [style.background]="filter.enabled ? filter.color + '20' : 'transparent'"
+                  [style.color]="filter.enabled ? '#fff' : '#666'"
+                  (click)="toggleFilter(i)"
+                >
+                  <div class="status-dot-mini" [style.background]="filter.enabled ? filter.color : 'transparent'"></div>
+                  @if (i < 7) {
+                    <span>{{ filter.name }}</span>
+                  }
+                </button>
+                @if (i >= 7) {
+                  <input
+                    type="text"
+                    [ngModel]="filter.name"
+                    (ngModelChange)="updateFilter(i, 'name', $event)"
+                    class="filter-name-input-ag"
+                    [style.color]="filter.enabled ? '#fff' : '#666'"
+                    [style.borderColor]="filter.color"
+                    placeholder="Name"
+                  />
+                }
+              </div>
               <input
                 type="color"
                 [ngModel]="filter.color"
@@ -79,7 +96,7 @@ export class IntegrationSettingsComponent {
     });
   }
 
-  updateFilter(index: number, field: 'color'|'frames'|'seconds', value: any) {
+  updateFilter(index: number, field: keyof FilterExposure, value: any) {
     this.dataService.mutateData((data) => {
       (data.filters[index] as any)[field] = value;
     });

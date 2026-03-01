@@ -47,7 +47,7 @@
 .filter-label {
   font-size: 0.65rem;
   font-weight: 700;
-  color: var(--ring-color);
+  color: white;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   line-height: 1;

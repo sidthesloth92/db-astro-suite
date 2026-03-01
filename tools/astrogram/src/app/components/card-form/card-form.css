@@ -143,9 +143,9 @@
 }
 
 .filter-chip {
-  min-width: 50px;
+  min-width: 32px;
   height: 24px;
-  padding: 0 0.5rem;
+  padding: 0 0.375rem;
   border: 1px solid;
   border-radius: 0;
   font-size: 0.75rem;
@@ -156,6 +156,41 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 0.375rem;
+}
+
+.filter-chip-group {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.status-dot-mini {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.filter-name-input-ag {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: inherit;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  width: 70px;
+  height: 24px;
+  padding: 0 4px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.filter-name-input-ag:focus {
+  outline: none;
+  border-color: var(--neon-pink);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .filter-color-btn {
