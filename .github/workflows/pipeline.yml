@@ -82,7 +82,11 @@ jobs:
   deploy:
     name: Deploy to GitHub Pages
     needs: release-please
-    if: needs.release-please.outputs.release_created
+    # Robust trigger: run if release-please says so OR if the commit is explicitly a release commit
+    if: |
+      github.event_name == 'push' && 
+      github.ref == 'refs/heads/main' && 
+      (needs.release-please.outputs.release_created || contains(github.event.head_commit.message, 'chore(main): release'))
     runs-on: ubuntu-latest
     environment:
       name: github-pages
