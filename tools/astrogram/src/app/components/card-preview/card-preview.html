@@ -1,6 +1,12 @@
 <div class="preview-wrapper" #cardWrapper>
   <!-- Scale Host: Manages the virtual space taken by the scaled content -->
   <div class="post-scale-host" [style.height.px]="680 * scaleFactor()">
+    @if (isExporting()) {
+      <div class="export-overlay">
+        <div class="export-spinner"></div>
+        <span class="export-label">GENERATING...</span>
+      </div>
+    }
     <div
       class="post-container db-glass-panel"
       [style.transform]="'scale(' + scaleFactor() + ')'"

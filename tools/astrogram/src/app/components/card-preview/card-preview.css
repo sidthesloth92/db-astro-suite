@@ -15,6 +15,42 @@
   position: relative;
 }
 
+/* Export Processing Overlay */
+.export-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  background: rgba(5, 8, 18, 0.92);
+  backdrop-filter: blur(12px);
+  border-radius: 12px 12px 0 0;
+}
+
+.export-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top-color: var(--accent-color, #ff2d95);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.export-label {
+  font-family: var(--db-form-font-mono, ui-monospace, monospace);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+}
+
 .post-container {
   padding: 0;
   border-radius: 12px 12px 0 0;
