@@ -120,9 +120,21 @@ export class CardPreviewComponent implements AfterViewInit {
 
       console.log('DOM ready for capture:', filename);
 
+      const targetDim = this.cardDimensions();
+      const currentWidth = element.offsetWidth || 1;
+      
+      // Calculate scale factor needed to reach our target (1080px)
+      // This works even on mobile where currentWidth might be smaller (e.g. 320px)
+      const captureScale = targetDim.width / currentWidth;
+      
+      console.log(`Exporting: ${targetDim.width}x${targetDim.height} (Scale: ${captureScale.toFixed(2)})`);
+
+      // Final readiness check
+      await document.fonts.ready;
+      
       const dataUrl = await domToJpeg(element, {
+        scale: captureScale,
         quality: 0.95,
-        scale: 2,
         backgroundColor: '#000000'
       });
       
