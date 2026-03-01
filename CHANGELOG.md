@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.0.0...v1.1.0) (2026-03-01)
+
+
+### Features
+
+* Configure Playwright visual testing with a maximum diff pixel ratio and custom snapshot path, and remove an outdated visual test result. ([5aeab8f](https://github.com/sidthesloth92/db-astro-suite/commit/5aeab8fcf4178d90c71e266d31aa73b4f5747146))
+
 ## 1.0.0 (2026-03-01)
 
 
