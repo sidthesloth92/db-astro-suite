@@ -69,12 +69,12 @@
 .track-bg {
   position: absolute;
   inset: 0;
-  /* Pink-themed gradient reflecting Bortle intensity: dark/muted pink to bright pink */
+  /* Dynamic gradient based on accent color */
   background: linear-gradient(to right, 
-    rgba(255, 45, 149, 0.2) 0%, 
-    rgba(255, 45, 149, 0.4) 30%, 
-    rgba(255, 45, 149, 0.7) 70%, 
-    rgba(255, 45, 149, 1) 100%
+    color-mix(in srgb, var(--accent-color, #ff2d95) 20%, transparent) 0%, 
+    color-mix(in srgb, var(--accent-color, #ff2d95) 40%, transparent) 30%, 
+    color-mix(in srgb, var(--accent-color, #ff2d95) 70%, transparent) 70%, 
+    var(--accent-color, #ff2d95) 100%
   );
   border-radius: 2px;
 }

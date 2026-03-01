@@ -1,6 +1,7 @@
-import { Component, ChangeDetectionStrategy, CUSTOM_ELEMENTS_SCHEMA, ViewEncapsulation } from '@angular/core';
+import { Component, ChangeDetectionStrategy, CUSTOM_ELEMENTS_SCHEMA, ViewEncapsulation, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AccordionComponent, AccordionItemComponent } from '@db-astro-suite/ui';
+import { CardDataService } from '../../services/card-data.service';
 import { CardSettingsComponent } from './card-settings';
 import { ImageDetailsComponent } from './image-details';
 import { IntegrationSettingsComponent } from './integration-settings';
@@ -33,4 +34,7 @@ import { BortleSettingsComponent } from './bortle-settings';
     }
   `]
 })
-export class CardFormComponent {}
+export class CardFormComponent {
+  dataService = inject(CardDataService);
+  cardData = this.dataService.cardData;
+}
