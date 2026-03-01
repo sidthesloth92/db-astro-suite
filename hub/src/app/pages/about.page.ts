@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { RouteMeta } from '@analogjs/router';
 import { NeonButtonComponent } from '@db-astro-suite/ui';
 
 @Component({
@@ -24,8 +25,8 @@ import { NeonButtonComponent } from '@db-astro-suite/ui';
         <h2>About Me</h2>
         <p>
           I'm a developer passionate about building beautiful, functional tools.
-          This suite is my playground for experimenting with Angular, Go, Python,
-          and more.
+          This suite is my playground for experimenting with Angular, Go,
+          Python, and more.
         </p>
       </section>
 
@@ -36,46 +37,59 @@ import { NeonButtonComponent } from '@db-astro-suite/ui';
       </nav>
     </div>
   `,
-  styles: [`
-    .about {
-      min-height: 100vh;
-      padding: var(--db-spacing-xl, 2rem);
-      max-width: 800px;
-      margin: 0 auto;
-    }
+  styles: [
+    `
+      .about {
+        min-height: 100vh;
+        padding: var(--db-spacing-xl, 2rem);
+        max-width: 800px;
+        margin: 0 auto;
+      }
 
-    .about__header {
-      text-align: center;
-      margin-bottom: var(--db-spacing-xl, 2rem);
-    }
+      .about__header {
+        text-align: center;
+        margin-bottom: var(--db-spacing-xl, 2rem);
+      }
 
-    .about__header h1 {
-      font-size: 2.5rem;
-    }
+      .about__header h1 {
+        font-size: 2.5rem;
+      }
 
-    .about__content {
-      padding: var(--db-spacing-xl, 2rem);
-      border-radius: var(--db-radius-lg, 0.75rem);
-      margin-bottom: var(--db-spacing-xl, 2rem);
-    }
+      .about__content {
+        padding: var(--db-spacing-xl, 2rem);
+        border-radius: var(--db-radius-lg, 0.75rem);
+        margin-bottom: var(--db-spacing-xl, 2rem);
+      }
 
-    .about__content h2 {
-      margin-top: var(--db-spacing-lg, 1.5rem);
-      margin-bottom: var(--db-spacing-sm, 0.5rem);
-    }
+      .about__content h2 {
+        margin-top: var(--db-spacing-lg, 1.5rem);
+        margin-bottom: var(--db-spacing-sm, 0.5rem);
+      }
 
-    .about__content h2:first-child {
-      margin-top: 0;
-    }
+      .about__content h2:first-child {
+        margin-top: 0;
+      }
 
-    .about__content p {
-      line-height: 1.7;
-      color: var(--db-color-text-muted, #94a3b8);
-    }
+      .about__content p {
+        line-height: 1.7;
+        color: var(--db-color-text-muted, #94a3b8);
+      }
 
-    .about__nav {
-      text-align: center;
-    }
-  `]
+      .about__nav {
+        text-align: center;
+      }
+    `,
+  ],
 })
 export default class AboutPageComponent {}
+
+export const routeMeta: RouteMeta = {
+  title: 'About DB Astro Suite - Dinesh Balaji Venkataraj',
+  meta: [
+    {
+      name: 'description',
+      content:
+        'Learn more about DB Astro Suite, a collection of tools built to solve real astrophotography problems and explore new technologies.',
+    },
+  ],
+};
