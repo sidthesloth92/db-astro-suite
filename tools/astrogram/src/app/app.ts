@@ -5,6 +5,7 @@ import { CardFormComponent } from './components/card-form/card-form';
 import { CardPreviewComponent } from './components/card-preview/card-preview';
 import { CaptionSectionComponent } from './components/caption-section/caption-section';
 import { CardDataService } from './services/card-data.service';
+import packageJson from '../../../../package.json';
 
 import { HeaderComponent } from '@db-astro-suite/ui';
 
@@ -17,4 +18,5 @@ import { HeaderComponent } from '@db-astro-suite/ui';
 })
 export class App {
   dataService = inject(CardDataService);
+  appVersion = packageJson.version || '1.0.0';
 }

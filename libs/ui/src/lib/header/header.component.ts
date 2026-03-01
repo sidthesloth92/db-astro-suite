@@ -12,6 +12,7 @@ import { SpaceButtonComponent } from '../space-button/space-button.component';
 })
 export class HeaderComponent {
   title = input<string>('App Name');
+  version = input<string>('');
   logoSrc = input<string>('');
   logoLink = input<string>('');
   githubLink = input<string>('');
