@@ -1,4 +1,4 @@
-name: Unified Pipeline
+name: test-release-deploy
 
 on:
   push:
