@@ -21,10 +21,10 @@ concurrency:
 jobs:
   verify:
     name: Build & Verify
-    # Skip verify if this is a release-please commit (which already passed tests in its PR)
+    # Run on PRs, OR on pushes to main THAT ARE NOT release merges
     if: |
-      (github.event_name == 'pull_request') || 
-      (github.event_name == 'push' && github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, 'chore(main): release'))
+      github.event_name == 'pull_request' || 
+      (github.event_name == 'push' && github.ref == 'refs/heads/main' && !startsWith(github.event.head_commit.message, 'chore(main): release'))
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -64,12 +64,13 @@ jobs:
   release-please:
     name: Release Management
     needs: verify
-    # Run only if verify succeeded OR was skipped (for release merges)
+    # Only run on main pushes THAT ARE NOT release merges
     if: |
       always() && 
-      (needs.verify.result == 'success' || needs.verify.result == 'skipped') && 
+      needs.verify.result == 'success' && 
       github.event_name == 'push' && 
-      github.ref == 'refs/heads/main'
+      github.ref == 'refs/heads/main' && 
+      !startsWith(github.event.head_commit.message, 'chore(main): release')
     runs-on: ubuntu-latest
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
@@ -81,12 +82,12 @@ jobs:
 
   deploy:
     name: Deploy to GitHub Pages
-    needs: release-please
-    # Robust trigger: run if release-please says so OR if the commit is explicitly a release commit
+    # Run ONLY on main pushes THAT ARE release merges
     if: |
+      always() &&
       github.event_name == 'push' && 
       github.ref == 'refs/heads/main' && 
-      (needs.release-please.outputs.release_created || contains(github.event.head_commit.message, 'chore(main): release'))
+      startsWith(github.event.head_commit.message, 'chore(main): release')
     runs-on: ubuntu-latest
     environment:
       name: github-pages
