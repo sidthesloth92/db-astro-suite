@@ -16,7 +16,7 @@
         <button
           class="download-fab"
           (click)="exportCard($event)"
-          [disabled]="isExporting"
+          [disabled]="isExporting()"
           title="Download JPEG"
         >
           <svg

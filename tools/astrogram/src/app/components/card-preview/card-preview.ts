@@ -30,7 +30,7 @@ export class CardPreviewComponent implements AfterViewInit {
   @ViewChild('cardWrapper') cardWrapper!: ElementRef;
   @ViewChild('cardElement') cardElement!: ElementRef;
   
-  isExporting = false;
+  isExporting = signal(false);
   scaleFactor = signal(1);
 
   @HostListener('window:resize')
@@ -86,8 +86,8 @@ export class CardPreviewComponent implements AfterViewInit {
   });
 
   async exportCard(event?: MouseEvent) {
-    if (this.isExporting) return;
-    this.isExporting = true;
+    if (this.isExporting()) return;
+    this.isExporting.set(true);
 
     if (event) {
       event.preventDefault();
@@ -124,7 +124,6 @@ export class CardPreviewComponent implements AfterViewInit {
       const currentWidth = element.offsetWidth || 1;
       
       // Calculate scale factor needed to reach our target (1080px)
-      // This works even on mobile where currentWidth might be smaller (e.g. 320px)
       const captureScale = targetDim.width / currentWidth;
       
       console.log(`Exporting: ${targetDim.width}x${targetDim.height} (Scale: ${captureScale.toFixed(2)})`);
@@ -148,19 +147,19 @@ export class CardPreviewComponent implements AfterViewInit {
       document.body.appendChild(link);
       link.click();
       
-      // Short delay and reset
+      // Separate cleanup from UI state reset
       setTimeout(() => {
         if (document.body.contains(link)) {
           document.body.removeChild(link);
         }
-        this.isExporting = false;
-        console.log('--- Export Complete ---');
-      }, 2000);
+      }, 500);
 
     } catch (error) {
       console.error('Export failed:', error);
       alert('Failed to generate image. Please check the console.');
-      this.isExporting = false;
+    } finally {
+      this.isExporting.set(false);
+      console.log('--- Export Process Ready ---');
     }
   }
 }
