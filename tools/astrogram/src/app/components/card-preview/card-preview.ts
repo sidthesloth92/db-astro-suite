@@ -121,21 +121,43 @@ export class CardPreviewComponent implements AfterViewInit {
       console.log('DOM ready for capture:', filename);
 
       const targetDim = this.cardDimensions();
-      const currentWidth = element.offsetWidth || 1;
       
-      // Calculate scale factor needed to reach our target (1080px)
-      const captureScale = targetDim.width / currentWidth;
+      // The card element's natural dimensions (unaffected by CSS transform on parent)
+      const naturalWidth = element.offsetWidth;
+      const naturalHeight = element.offsetHeight;
       
-      console.log(`Exporting: ${targetDim.width}x${targetDim.height} (Scale: ${captureScale.toFixed(2)})`);
+      // Calculate scale to reach target resolution (e.g. 1080px wide)
+      const captureScale = targetDim.width / naturalWidth;
+      
+      console.log(`Natural size: ${naturalWidth}x${naturalHeight}, target: ${targetDim.width}x${targetDim.height}, scale: ${captureScale.toFixed(2)}`);
 
-      // Final readiness check
-      await document.fonts.ready;
-      
-      const dataUrl = await domToJpeg(element, {
-        scale: captureScale,
-        quality: 0.95,
-        backgroundColor: '#000000'
-      });
+      // On mobile, the parent post-container has a CSS scale() transform applied.
+      // modern-screenshot clips to the visible (scaled-down) area, cropping the output.
+      // We temporarily reset the transform to capture the card at its true layout size.
+      const postContainer = element.closest('.post-container') as HTMLElement | null;
+      const originalTransform = postContainer?.style.transform ?? '';
+      const originalTransformOrigin = postContainer?.style.transformOrigin ?? '';
+      if (postContainer) {
+        postContainer.style.transform = 'none';
+        postContainer.style.transformOrigin = 'unset';
+        // Force a reflow so the new layout is applied before capture
+        postContainer.getBoundingClientRect();
+      }
+
+      let dataUrl: string;
+      try {
+        dataUrl = await domToJpeg(element, {
+          scale: captureScale,
+          quality: 0.95,
+          backgroundColor: '#000000'
+        });
+      } finally {
+        // Always restore the transform, even if capture fails
+        if (postContainer) {
+          postContainer.style.transform = originalTransform;
+          postContainer.style.transformOrigin = originalTransformOrigin;
+        }
+      }
       
       console.log('Image generated. Triggering download...');
       
