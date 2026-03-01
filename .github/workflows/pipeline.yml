@@ -63,9 +63,14 @@ jobs:
 
   release-please:
     name: Release Management
+    needs: verify
+    # Run only if verify succeeded OR was skipped (for release merges)
+    if: |
+      always() && 
+      (needs.verify.result == 'success' || needs.verify.result == 'skipped') && 
+      github.event_name == 'push' && 
+      github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    # Run independent of verify so it can be assessed even if verify is skipped
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
     steps:
