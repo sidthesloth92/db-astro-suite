@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.1.0...v1.2.0) (2026-03-01)
+
+
+### Features
+
+* Integrate GitHub Pages deployment directly into the release workflow and update the standalone deploy workflow to be manually triggered. ([5ed503e](https://github.com/sidthesloth92/db-astro-suite/commit/5ed503ee8b8e528b24db2a8897331677de7322ff))
+
 ## [1.1.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.0.0...v1.1.0) (2026-03-01)
 
 
