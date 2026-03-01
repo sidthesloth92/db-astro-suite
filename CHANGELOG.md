@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.2.0...v1.3.0) (2026-03-01)
+
+
+### Features
+
+* Enhance SEO by adding `RouteMeta` to pages and updating public crawl files. ([cddf18f](https://github.com/sidthesloth92/db-astro-suite/commit/cddf18fed4bae2ce07a2e2170e5a48e32440ec07))
+
 ## [1.2.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.1.0...v1.2.0) (2026-03-01)
 
 
