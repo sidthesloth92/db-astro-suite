@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.4.0...v1.5.0) (2026-03-01)
+
+
+### Features
+
+* trigger new release ([5cdd31f](https://github.com/sidthesloth92/db-astro-suite/commit/5cdd31f3ede151348974043365a07190057bc640))
+
 ## [1.4.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.3.0...v1.4.0) (2026-03-01)
 
 
