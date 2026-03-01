@@ -1,6 +1,6 @@
 {
   "name": "db-astro-suite",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "private": true,
   "packageManager": "pnpm@9.15.0",
   "description": "A suite of Astro tools with Python backends and Go generators.",

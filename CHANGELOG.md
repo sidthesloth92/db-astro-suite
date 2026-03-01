@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.3.0...v1.4.0) (2026-03-01)
+
+
+### Features
+
+* Adjust pipeline to allow release-please to run independently and skip verification for release commits. ([ced6a6c](https://github.com/sidthesloth92/db-astro-suite/commit/ced6a6cceb84a1003abbc2bf21be3057c8192d3e))
+* update release-please workflow to depend on and run only after successful or skipped verify job ([ef26c55](https://github.com/sidthesloth92/db-astro-suite/commit/ef26c55ae3912a282eaf8c09d71da31c74a77f63))
+
 ## [1.3.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.2.0...v1.3.0) (2026-03-01)
 
 
