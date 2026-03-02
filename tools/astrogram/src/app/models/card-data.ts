@@ -22,6 +22,14 @@ export interface SoftwareItem {
   name: string;
 }
 
+export interface ObjectAnnotation {
+  id: string;
+  label: string;
+  x: number;
+  y: number;
+  radius: number;
+}
+
 export interface CardData {
   // Header
   title: string;
@@ -51,13 +59,16 @@ export interface CardData {
 
   // Social
   hashtags?: string;
+
+  // Annotations
+  objects?: ObjectAnnotation[];
 }
 
 // Default filter configurations
 export const DEFAULT_FILTERS: FilterExposure[] = [
   { name: 'L', color: '#ffffff', frames: 54, seconds: 180, enabled: false },
   { name: 'Ha', color: '#ff4444', frames: 72, seconds: 300, enabled: true },
-  { name: 'OIII', color: '#00ffff', frames: 32, seconds:300, enabled: true },
+  { name: 'OIII', color: '#00ffff', frames: 32, seconds: 300, enabled: true },
   { name: 'SII', color: '#ff6600', frames: 20, seconds: 300, enabled: true },
   { name: 'R', color: '#ff0000', frames: 14, seconds: 120, enabled: false },
   { name: 'G', color: '#00ff00', frames: 15, seconds: 120, enabled: false },
@@ -78,7 +89,7 @@ export function calculateTotalSeconds(filter: FilterExposure): number {
 export function formatDuration(totalSeconds: number): string {
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
-  
+
   if (hours > 0) {
     return `${hours}h ${minutes}m`;
   }
@@ -86,15 +97,13 @@ export function formatDuration(totalSeconds: number): string {
 }
 
 export function calculateTotalIntegration(filters: FilterExposure[]): number {
-  return filters
-    .filter(f => f.enabled)
-    .reduce((total, f) => total + calculateTotalSeconds(f), 0);
+  return filters.filter((f) => f.enabled).reduce((total, f) => total + calculateTotalSeconds(f), 0);
 }
 
 export function generateInstagramCaption(data: CardData): string {
   const integrationSeconds = calculateTotalIntegration(data.filters);
   const totalTime = formatDuration(integrationSeconds);
-  
+
   const getFilterEmoji = (name: string) => {
     const n = name.toUpperCase();
     if (n.includes('HA')) return '🔴';
@@ -107,18 +116,17 @@ export function generateInstagramCaption(data: CardData): string {
     return '🎞️';
   };
 
-  const enabledFilters = data.filters.filter(f => f.enabled && f.frames > 0);
+  const enabledFilters = data.filters.filter((f) => f.enabled && f.frames > 0);
   const exposureList = enabledFilters
-    .map(f => `${getFilterEmoji(f.name)} ${f.name} - ${f.frames} * ${f.seconds}s - ${formatDuration(calculateTotalSeconds(f))}`)
+    .map(
+      (f) =>
+        `${getFilterEmoji(f.name)} ${f.name} - ${f.frames} * ${f.seconds}s - ${formatDuration(calculateTotalSeconds(f))}`,
+    )
     .join('\n');
 
-  const gearList = data.equipment
-    .map(e => `${e.icon} ${e.label}: ${e.value}`)
-    .join('\n');
+  const gearList = data.equipment.map((e) => `${e.icon} ${e.label}: ${e.value}`).join('\n');
 
-  const swList = data.software
-    .map(s => `${s.icon} ${s.label}: ${s.name}`)
-    .join('\n');
+  const swList = data.software.map((s) => `${s.icon} ${s.label}: ${s.name}`).join('\n');
 
   const hashtags = data.hashtags ? data.hashtags : '';
 

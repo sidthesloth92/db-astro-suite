@@ -1,4 +1,10 @@
-import { Component, ChangeDetectionStrategy, CUSTOM_ELEMENTS_SCHEMA, ViewEncapsulation, inject } from '@angular/core';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ViewEncapsulation,
+  inject,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AccordionComponent, AccordionItemComponent } from '@db-astro-suite/ui';
 import { CardDataService } from '../../services/card-data.service';
@@ -13,26 +19,28 @@ import { BortleSettingsComponent } from './bortle-settings';
   selector: 'dba-ag-card-form',
   standalone: true,
   imports: [
-    CommonModule, 
-    AccordionComponent, 
+    CommonModule,
+    AccordionComponent,
     AccordionItemComponent,
     CardSettingsComponent,
     ImageDetailsComponent,
     IntegrationSettingsComponent,
     EquipmentSettingsComponent,
     SoftwareSettingsComponent,
-    BortleSettingsComponent
+    BortleSettingsComponent,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './card-form.html',
   styleUrls: ['./card-form.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
-  styles: [`
-    :host {
-      display: block;
-    }
-  `]
+  styles: [
+    `
+      :host {
+        display: block;
+      }
+    `,
+  ],
 })
 export class CardFormComponent {
   dataService = inject(CardDataService);

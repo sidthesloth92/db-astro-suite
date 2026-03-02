@@ -1,20 +1,27 @@
-import { Component, ChangeDetectionStrategy, input, output, computed } from '@angular/core';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  input,
+  output,
+  computed,
+} from "@angular/core";
 
 @Component({
-  selector: 'dba-ui-slider',
+  selector: "dba-ui-slider",
   standalone: true,
-  templateUrl: './slider.component.html',
-  styleUrls: ['./slider.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  templateUrl: "./slider.component.html",
+  styleUrls: ["./slider.component.css"],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SliderComponent {
-  label = input<string>('');
+  label = input<string>("");
   value = input<number>(0);
   min = input<number>(0);
   max = input<number>(100);
   step = input<number>(1);
   precision = input<number>(0);
-  tooltip = input<string>('');
+  tooltip = input<string>("");
+  noBox = input<boolean>(false);
 
   valueChange = output<number>();
 

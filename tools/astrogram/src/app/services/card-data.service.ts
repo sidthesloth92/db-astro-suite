@@ -2,12 +2,13 @@ import { Injectable, signal } from '@angular/core';
 import { CardData, DEFAULT_FILTERS } from '../models/card-data';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CardDataService {
   readonly cardData = signal<CardData>({
     title: 'NGC 2237 - Rosette Nebula',
-    description: 'The first ever nebula that I shot was the Rosette. I still remember looking at the first frame as it came through in disbelief, as to how to the naked eye I couldn\'t see anything but it was just right there hidden among the stars. Here it is in pink on Valentine\'s Day 🌹',
+    description:
+      "The first ever nebula that I shot was the Rosette. I still remember looking at the first frame as it came through in disbelief, as to how to the naked eye I couldn't see anything but it was just right there hidden among the stars. Here it is in pink on Valentine's Day 🌹",
     date: new Date().toISOString().split('T')[0],
     location: 'Irving, Texas',
     author: '@astrogram',
@@ -27,19 +28,23 @@ export class CardDataService {
     bortleScale: 9,
     accentColor: '#ff2d95',
     accentColorRgb: '255, 45, 149',
-    cardOpacity: 0.60,
+    cardOpacity: 0.6,
     backgroundImage: 'assets/img/rosette.jpg',
     aspectRatio: '3:4',
-    hashtags: '#space #astrophotography'
+    hashtags: '#space #astrophotography',
+    objects: [
+      { id: '1', label: 'NGC 2244', x: 50, y: 45, radius: 15 },
+      { id: '2', label: '12 Monocerotis', x: 42, y: 38, radius: 3 },
+    ],
   });
 
   updateData(newData: Partial<CardData>) {
-    this.cardData.update(data => ({ ...data, ...newData }));
+    this.cardData.update((data) => ({ ...data, ...newData }));
   }
 
   // Helper method for nested updates to maintain immutability and trigger signals
   mutateData(mutator: (data: CardData) => void) {
-    this.cardData.update(data => {
+    this.cardData.update((data) => {
       const cloned = JSON.parse(JSON.stringify(data)); // Deep clone to break references
       mutator(cloned);
       return cloned;

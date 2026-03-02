@@ -1,4 +1,4 @@
-<div class="db-form-group slider-container">
+<div class="slider-container" [class.db-form-group]="!noBox()">
   <div class="slider-label-header">
     <label class="db-form-label">{{ label() }}</label>
     @if (tooltip()) {
