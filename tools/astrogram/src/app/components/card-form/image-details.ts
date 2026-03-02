@@ -21,13 +21,35 @@ import { AstroInfoService } from '../../services/astro-info.service';
         ></dba-ui-input>
       </div>
 
-      <dba-ui-textarea
-        label="📝 Description"
-        [value]="cardData().description"
-        (valueChange)="updateData('description', $event)"
-        placeholder="Brief description of the object..."
-        [rows]="3"
-      ></dba-ui-textarea>
+      <div class="description-section">
+        <div class="description-header">
+          <label class="db-form-label" style="margin-bottom: 0px;">📝 Description</label>
+          <div class="fetch-group">
+            <input
+              id="dso-search-input"
+              type="text"
+              class="mini-search"
+              placeholder="Search wiki..."
+              [value]="searchQuery()"
+              (input)="updateSearch($event)"
+              (keydown.enter)="fetchObjectInfo()"
+            />
+            <button
+              class="fetch-btn"
+              (click)="fetchObjectInfo()"
+              [disabled]="!searchQuery() || isFetching()"
+            >
+              {{ isFetching() ? '⌛' : 'Find' }}
+            </button>
+          </div>
+        </div>
+        <dba-ui-textarea
+          [value]="cardData().description"
+          (valueChange)="updateData('description', $event)"
+          placeholder="Brief description of the object..."
+          [rows]="5"
+        ></dba-ui-textarea>
+      </div>
 
       <div class="form-row mb-sm">
         <dba-ui-input
@@ -63,7 +85,7 @@ import { AstroInfoService } from '../../services/astro-info.service';
         ></dba-ui-input>
       </div>
     </div>
-  `
+  `,
 })
 export class ImageDetailsComponent {
   dataService = inject(CardDataService);
@@ -71,17 +93,23 @@ export class ImageDetailsComponent {
   cardData = this.dataService.cardData;
 
   isFetching = signal(false);
+  searchQuery = signal('');
+
+  updateSearch(event: Event) {
+    this.searchQuery.set((event.target as HTMLInputElement).value);
+  }
 
   updateData(field: string, value: any) {
     this.dataService.updateData({ [field]: value });
   }
 
   async fetchObjectInfo() {
-    if (!this.cardData().title || this.isFetching()) return;
-    
+    const query = this.searchQuery();
+    if (!query || this.isFetching()) return;
+
     this.isFetching.set(true);
     try {
-      const info = await this.astroInfo.getObjectDescription(this.cardData().title);
+      const info = await this.astroInfo.getObjectDescription(query);
       if (info) {
         this.updateData('description', info.extract);
       }
