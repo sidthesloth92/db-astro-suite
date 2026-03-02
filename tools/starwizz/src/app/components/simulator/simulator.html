@@ -1,27 +1,27 @@
 <!-- 9:16 SIMULATION AREA - FIXED TO 1080x1920 PIXELS FOR HIGH-RES OUTPUT -->
-<div
-  class="simulation-wrapper shadow-2xl relative overflow-hidden bg-black"
-  [style.aspectRatio]="
-    simService.canvasDimensions().width + '/' + simService.canvasDimensions().height
-  "
->
+<div class="simulation-wrapper shadow-2xl relative overflow-hidden bg-black">
   <!-- HUD OVERLAYS -->
   <dba-sw-hud-overlay></dba-sw-hud-overlay>
 
   <!-- Loading Overlay (Visible during setup) -->
   @if (simService.loadingProgress() !== 'Ready') {
-  <dba-sw-loading-overlay [progress]="simService.loadingProgress()"></dba-sw-loading-overlay>
+    <dba-sw-loading-overlay [progress]="simService.loadingProgress()"></dba-sw-loading-overlay>
   }
 
   <!-- Upload Overlay (Visible when no image is loaded and not loading default) -->
-  @if (simService.loadingProgress() === 'Ready' && !simService.isImageLoaded() &&
-  !simService.isLoadingDefaultImage()) {
-  <dba-sw-image-upload-overlay (imageSelected)="handleImageUpload($event)"></dba-sw-image-upload-overlay>
+  @if (
+    simService.loadingProgress() === 'Ready' &&
+    !simService.isImageLoaded() &&
+    !simService.isLoadingDefaultImage()
+  ) {
+    <dba-sw-image-upload-overlay
+      (imageSelected)="handleImageUpload($event)"
+    ></dba-sw-image-upload-overlay>
   }
 
   <!-- Clear Image Button (Visible when any image is loaded, including demo) -->
   @if (simService.isImageLoaded()) {
-  <dba-sw-clear-image-button (clearClicked)="clearImage()"></dba-sw-clear-image-button>
+    <dba-sw-clear-image-button (clearClicked)="clearImage()"></dba-sw-clear-image-button>
   }
 
   <!-- Only the canvas remains here -->

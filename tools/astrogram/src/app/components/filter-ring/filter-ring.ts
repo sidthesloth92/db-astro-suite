@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, HostBinding } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -6,7 +6,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './filter-ring.html',
-  styleUrl: './filter-ring.css'
+  styleUrl: './filter-ring.css',
 })
 export class FilterRingComponent {
   @Input() name: string = '';
@@ -14,10 +14,17 @@ export class FilterRingComponent {
   @Input() duration: string = '0m';
   @Input() progress: number = 100; // Percentage of total integration time
 
+  @HostBinding('style.--ring-color') get ringColor() {
+    return this.color;
+  }
+  @HostBinding('style.--stroke-dashoffset') get strokeOffset() {
+    return this.strokeDashoffset;
+  }
+
   get strokeDashoffset(): number {
     // Circle circumference = 2 * PI * radius (21)
     const circumference = 131.95;
     // Calculate offset based on progress (100% = full circle)
-    return circumference - (circumference * this.progress / 100);
+    return circumference - (circumference * this.progress) / 100;
   }
 }

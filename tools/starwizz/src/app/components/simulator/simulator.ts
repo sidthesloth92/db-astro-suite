@@ -1,4 +1,12 @@
-import { AfterViewInit, Component, ElementRef, ViewChild, effect, ChangeDetectionStrategy } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  ViewChild,
+  effect,
+  ChangeDetectionStrategy,
+  HostBinding,
+} from '@angular/core';
 import { SimulationService } from '../../services/simulation.service';
 import { ClearImageButton } from './clear-image-button/clear-image-button';
 import { HudOverlay } from './hud-overlay/hud-overlay';
@@ -20,10 +28,15 @@ const SHOOTING_STAR_SPAWN_RATE = 1.5;
   styleUrl: './simulator.css',
   standalone: true,
   imports: [HudOverlay, LoadingOverlay, ImageUploadOverlay, ClearImageButton],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Simulator implements AfterViewInit {
   @ViewChild('starCanvas') canvasRef!: ElementRef<HTMLCanvasElement>;
+
+  @HostBinding('style.--aspect-ratio') get aspectRatio() {
+    const dims = this.simService.canvasDimensions();
+    return `${dims.width} / ${dims.height}`;
+  }
 
   // Rendering State
   private ctx: CanvasRenderingContext2D | null = null;
@@ -55,10 +68,10 @@ export class Simulator implements AfterViewInit {
         // Reset animation state to beginning (no star regeneration to avoid lag)
         this.currentScale = 1.0;
         this.currentRotation = 0;
-        
+
         // Clear the request flag
         this.simService.resetAndRecordRequested.set(false);
-        
+
         // Render one frame with reset state before starting recording
         // This ensures the first frame of recording shows the beginning state
         requestAnimationFrame(() => {
@@ -76,7 +89,7 @@ export class Simulator implements AfterViewInit {
         // Reset animation state to beginning (no star regeneration to avoid lag)
         this.currentScale = 1.0;
         this.currentRotation = 0;
-        
+
         // Clear the request flag
         this.simService.restartAnimationRequested.set(false);
       }
@@ -238,7 +251,7 @@ export class Simulator implements AfterViewInit {
 
     const scaleFactor = Math.max(
       this.width / galaxyImage.naturalWidth,
-      this.height / galaxyImage.naturalHeight
+      this.height / galaxyImage.naturalHeight,
     );
     const drawWidth = galaxyImage.naturalWidth * scaleFactor;
     const drawHeight = galaxyImage.naturalHeight * scaleFactor;

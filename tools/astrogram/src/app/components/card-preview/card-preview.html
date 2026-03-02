@@ -1,18 +1,13 @@
 <div class="preview-wrapper" #cardWrapper>
   <!-- Scale Host: Manages the virtual space taken by the scaled content -->
-  <div class="post-scale-host" [style.height.px]="680 * scaleFactor()">
+  <div class="post-scale-host">
     @if (isExporting()) {
       <div class="export-overlay">
         <div class="export-spinner"></div>
         <span class="export-label">GENERATING...</span>
       </div>
     }
-    <div
-      class="post-container db-glass-panel"
-      [style.transform]="'scale(' + scaleFactor() + ')'"
-      [style.transform-origin]="'top center'"
-      [style.width.px]="cardData().aspectRatio === '3:4' ? 450 : 480"
-    >
+    <div class="post-container db-glass-panel">
       <!-- Header with Circular FAB -->
       <div class="post-header">
         <div class="user-meta">
@@ -48,9 +43,6 @@
         class="card"
         [class.aspect-3-4]="cardData().aspectRatio === '3:4'"
         [class.aspect-4-5]="cardData().aspectRatio === '4:5'"
-        [style.--accent-color]="cardData().accentColor"
-        [style.--accent-color-rgb]="cardData().accentColorRgb"
-        [style.--card-opacity]="cardData().cardOpacity"
       >
         <!-- Background -->
         <div class="card-background">

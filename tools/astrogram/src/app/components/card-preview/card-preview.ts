@@ -1,12 +1,26 @@
-import { Component, ElementRef, ViewChild, Output, EventEmitter, CUSTOM_ELEMENTS_SCHEMA, signal, HostListener, AfterViewInit, ChangeDetectionStrategy, inject, computed } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  ViewChild,
+  Output,
+  EventEmitter,
+  CUSTOM_ELEMENTS_SCHEMA,
+  signal,
+  HostListener,
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  inject,
+  computed,
+  HostBinding,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { 
-  CardData, 
+import {
+  CardData,
   FilterExposure,
-  calculateTotalSeconds, 
-  formatDuration, 
+  calculateTotalSeconds,
+  formatDuration,
   calculateTotalIntegration,
-  ASPECT_RATIOS 
+  ASPECT_RATIOS,
 } from '../../models/card-data';
 import { FilterRingComponent } from '../filter-ring/filter-ring';
 import { BortleScaleComponent } from '../bortle-scale/bortle-scale';
@@ -19,17 +33,36 @@ import { CardDataService } from '../../services/card-data.service';
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './card-preview.html',
   styleUrls: ['./card-preview.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CardPreviewComponent implements AfterViewInit {
   private dataService = inject(CardDataService);
   cardData = this.dataService.cardData;
 
+  @HostBinding('style.--scale-factor') get scale() {
+    return this.scaleFactor();
+  }
+  @HostBinding('style.--scale-height.px') get scaleHeight() {
+    return 680 * this.scaleFactor();
+  }
+  @HostBinding('style.--card-width.px') get cardWidth() {
+    return this.cardData().aspectRatio === '3:4' ? 450 : 480;
+  }
+  @HostBinding('style.--accent-color') get accentColor() {
+    return this.cardData().accentColor;
+  }
+  @HostBinding('style.--accent-color-rgb') get accentColorRgb() {
+    return this.cardData().accentColorRgb;
+  }
+  @HostBinding('style.--card-opacity') get cardOpacity() {
+    return this.cardData().cardOpacity;
+  }
+
   @Output() export = new EventEmitter<void>();
-  
+
   @ViewChild('cardWrapper') cardWrapper!: ElementRef;
   @ViewChild('cardElement') cardElement!: ElementRef;
-  
+
   isExporting = signal(false);
   scaleFactor = signal(1);
 
@@ -44,10 +77,10 @@ export class CardPreviewComponent implements AfterViewInit {
 
   private calculateScale() {
     if (!this.cardWrapper || !this.cardElement) return;
-    
+
     const containerWidth = this.cardWrapper.nativeElement.offsetWidth;
     const originalWidth = this.cardElement.nativeElement.offsetWidth;
-    
+
     if (containerWidth < originalWidth) {
       this.scaleFactor.set(containerWidth / originalWidth);
     } else {
@@ -55,7 +88,7 @@ export class CardPreviewComponent implements AfterViewInit {
     }
   }
 
-  enabledFilters = computed(() => this.cardData().filters.filter(f => f.enabled && f.frames > 0));
+  enabledFilters = computed(() => this.cardData().filters.filter((f) => f.enabled && f.frames > 0));
 
   totalIntegrationSeconds = computed(() => calculateTotalIntegration(this.cardData().filters));
 
@@ -77,11 +110,11 @@ export class CardPreviewComponent implements AfterViewInit {
     const dateStr = this.cardData().date;
     if (!dateStr) return '';
     const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', { 
-      weekday: 'long', 
-      month: 'long', 
+    return date.toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'long',
       day: 'numeric',
-      year: 'numeric'
+      year: 'numeric',
     });
   });
 
@@ -98,38 +131,42 @@ export class CardPreviewComponent implements AfterViewInit {
       console.log('--- Export Start (Modern Screenshot) ---');
       const { domToJpeg } = await import('modern-screenshot');
       const element = this.cardElement.nativeElement;
-      
-      const sanitizedTitle = this.cardData().title
-        .trim()
+
+      const sanitizedTitle = this.cardData()
+        .title.trim()
         .replace(/[^a-z0-9]/gi, '-')
         .replace(/-+/g, '-')
         .toLowerCase();
-      
+
       const filename = `${sanitizedTitle || 'astrogram'}.jpg`;
 
       // Wait for fonts and all images to be truly ready
       await document.fonts.ready;
       const images = Array.from(element.querySelectorAll('img')) as HTMLImageElement[];
-      await Promise.all(images.map(img => {
-        if (img.complete) return Promise.resolve();
-        return new Promise(resolve => {
-          img.onload = resolve;
-          img.onerror = resolve;
-        });
-      }));
+      await Promise.all(
+        images.map((img) => {
+          if (img.complete) return Promise.resolve();
+          return new Promise((resolve) => {
+            img.onload = resolve;
+            img.onerror = resolve;
+          });
+        }),
+      );
 
       console.log('DOM ready for capture:', filename);
 
       const targetDim = this.cardDimensions();
-      
+
       // The card element's natural dimensions (unaffected by CSS transform on parent)
       const naturalWidth = element.offsetWidth;
       const naturalHeight = element.offsetHeight;
-      
+
       // Calculate scale to reach target resolution (e.g. 1080px wide)
       const captureScale = targetDim.width / naturalWidth;
-      
-      console.log(`Natural size: ${naturalWidth}x${naturalHeight}, target: ${targetDim.width}x${targetDim.height}, scale: ${captureScale.toFixed(2)}`);
+
+      console.log(
+        `Natural size: ${naturalWidth}x${naturalHeight}, target: ${targetDim.width}x${targetDim.height}, scale: ${captureScale.toFixed(2)}`,
+      );
 
       // On mobile, the parent post-container has a CSS scale() transform applied.
       // modern-screenshot clips to the visible (scaled-down) area, cropping the output.
@@ -149,7 +186,7 @@ export class CardPreviewComponent implements AfterViewInit {
         dataUrl = await domToJpeg(element, {
           scale: captureScale,
           quality: 0.95,
-          backgroundColor: '#000000'
+          backgroundColor: '#000000',
         });
       } finally {
         // Always restore the transform, even if capture fails
@@ -158,24 +195,23 @@ export class CardPreviewComponent implements AfterViewInit {
           postContainer.style.transformOrigin = originalTransformOrigin;
         }
       }
-      
+
       console.log('Image generated. Triggering download...');
-      
+
       const link = document.createElement('a');
       link.style.display = 'none';
       link.href = dataUrl;
       link.download = filename;
-      
+
       document.body.appendChild(link);
       link.click();
-      
+
       // Separate cleanup from UI state reset
       setTimeout(() => {
         if (document.body.contains(link)) {
           document.body.removeChild(link);
         }
       }, 500);
-
     } catch (error) {
       console.error('Export failed:', error);
       alert('Failed to generate image. Please check the console.');
