@@ -1,0 +1,62 @@
+<div class="preview-wrapper" #cardWrapper>
+  <!-- Scale Host: Manages the virtual space taken by the scaled content -->
+  <div class="post-scale-host">
+    @if (isExporting()) {
+      <div class="export-overlay">
+        <div class="export-spinner"></div>
+        <span class="export-label">GENERATING...</span>
+      </div>
+    }
+    <div class="post-container db-glass-panel">
+      <!-- Header with Circular FAB -->
+      <div class="post-header">
+        <div class="user-meta">
+          <div class="avatar-mini"></div>
+          <span class="username-top">{{ author() || 'astrophotographer' }}</span>
+        </div>
+        <button
+          class="download-fab"
+          (click)="exportCard($event)"
+          [disabled]="isExporting()"
+          title="Download JPEG"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="w-5 h-5"
+          >
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- The Card (Captured for Export) -->
+      <div
+        #cardElement
+        id="card-preview"
+        class="card"
+        [class.aspect-3-4]="aspectRatio() === '3:4'"
+        [class.aspect-4-5]="aspectRatio() === '4:5'"
+      >
+        <!-- Background -->
+        <div class="card-background">
+          @if (backgroundImage()) {
+            <img [src]="backgroundImage()" alt="" class="bg-image" />
+          }
+          <div class="bg-overlay"></div>
+        </div>
+
+        <!-- Content -->
+        <div class="card-content">
+          <ng-content></ng-content>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

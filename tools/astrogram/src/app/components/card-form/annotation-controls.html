@@ -1,0 +1,86 @@
+<div class="controls-wrapper">
+  <div class="instructions">
+    Upload an image here for the Stellar Map, then click "Generate Star Map" to plate-solve it.
+  </div>
+
+  <input
+    type="file"
+    accept="image/*"
+    (change)="onImageUpload($event)"
+    #fileInput
+    style="display: none"
+  />
+  <button class="upload-btn" (click)="fileInput.click()">📸 UPLOAD MAP BACKGROUND</button>
+
+  <button
+    class="solve-btn"
+    (click)="triggerPlateSolve()"
+    [disabled]="!mapData().backgroundImage || isSolving"
+  >
+    {{ isSolving ? 'ANALYZING...' : '✨ GENERATE STAR MAP' }}
+  </button>
+
+  @if (solveStatus) {
+    <div class="status-text">{{ solveStatus }}</div>
+  }
+
+  @if (mapData().annotations && mapData().annotations!.length > 0) {
+    <!-- Mock Filters for now until full integration -->
+    <div class="filter-toggles mt-4">
+      <h3
+        style="
+          font-size: 0.7rem;
+          text-transform: uppercase;
+          color: var(--neon-pink);
+          margin-bottom: 0.5rem;
+        "
+      >
+        Filters
+      </h3>
+      <label
+        style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; cursor: pointer"
+      >
+        <input
+          type="checkbox"
+          [checked]="mapData().filters.showMessier"
+          (change)="toggleFilter('showMessier')"
+        />
+        Messier Objects
+      </label>
+      <label
+        style="
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-size: 0.8rem;
+          cursor: pointer;
+          margin-top: 0.25rem;
+        "
+      >
+        <input
+          type="checkbox"
+          [checked]="mapData().filters.showNgc"
+          (change)="toggleFilter('showNgc')"
+        />
+        NGC Objects
+      </label>
+      <label
+        style="
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-size: 0.8rem;
+          cursor: pointer;
+          margin-top: 0.25rem;
+        "
+      >
+        <input
+          type="checkbox"
+          [checked]="mapData().filters.showNamedStars"
+          (change)="toggleFilter('showNamedStars')"
+        />
+        Major Stars
+      </label>
+    </div>
+  }
+</div>

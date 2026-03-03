@@ -1,6 +1,7 @@
 /**
  * AstroGram Data Models
  */
+import { ImageAnnotation } from './annotation.models';
 
 export interface FilterExposure {
   name: string;
@@ -61,7 +62,18 @@ export interface CardData {
   hashtags?: string;
 
   // Annotations
-  objects?: ObjectAnnotation[];
+  annotations?: ImageAnnotation[];
+}
+
+export interface StellarMapData {
+  backgroundImage: string | null;
+  aspectRatio: '3:4' | '4:5';
+  annotations: ImageAnnotation[];
+  filters: {
+    showMessier: boolean;
+    showNgc: boolean;
+    showNamedStars: boolean;
+  };
 }
 
 // Default filter configurations

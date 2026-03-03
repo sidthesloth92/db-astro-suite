@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { CardData, DEFAULT_FILTERS } from '../models/card-data';
+import { CardData, StellarMapData, DEFAULT_FILTERS } from '../models/card-data';
 
 @Injectable({
   providedIn: 'root',
@@ -32,10 +32,20 @@ export class CardDataService {
     backgroundImage: 'assets/img/rosette.jpg',
     aspectRatio: '3:4',
     hashtags: '#space #astrophotography',
-    objects: [
-      { id: '1', label: 'NGC 2244', x: 50, y: 45, radius: 15 },
-      { id: '2', label: '12 Monocerotis', x: 42, y: 38, radius: 3 },
-    ],
+    annotations: [],
+  });
+
+  readonly activeMode = signal<'infographic' | 'stellar-map'>('infographic');
+
+  readonly stellarMapData = signal<StellarMapData>({
+    backgroundImage: null,
+    aspectRatio: '4:5',
+    annotations: [],
+    filters: {
+      showMessier: true,
+      showNgc: false,
+      showNamedStars: true,
+    },
   });
 
   updateData(newData: Partial<CardData>) {

@@ -1,0 +1,21 @@
+<dba-ag-base-card-preview
+  [aspectRatio]="mapData().aspectRatio"
+  [backgroundImage]="mapData().backgroundImage"
+  [author]="''"
+  exportFilename="stellar-map"
+>
+  <!-- Absolute Layer for Annotations mapping identically to the background image dimensions -->
+  <div class="annotations-layer">
+    @for (ann of visibleAnnotations(); track ann.id) {
+      <div
+        class="annotation-marker"
+        [style.left.%]="ann.xPercent"
+        [style.top.%]="ann.yPercent"
+        [style.width.px]="ann.radiusDb * 2"
+        [style.height.px]="ann.radiusDb * 2"
+      >
+        <span class="annotation-label">{{ ann.label }}</span>
+      </div>
+    }
+  </div>
+</dba-ag-base-card-preview>
