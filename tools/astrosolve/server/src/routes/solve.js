@@ -25,7 +25,7 @@ async function parseMultipartRequest(request) {
   const parts = request.parts();
   
   let filePath = null;
-  let hints = {
+  const hints = {
     pixel_size: null,
     focal_length: null,
     ra_hint: null,
@@ -33,18 +33,29 @@ async function parseMultipartRequest(request) {
   };
 
   for await (const part of parts) {
-    if (part.type === 'file' && part.fieldname === 'image') {
+    if (part.type === 'field') {
+      if (hints[part.fieldname] !== undefined) {
+        hints[part.fieldname] = part.value;
+      }
+    } else if (part.type === 'file' && part.fieldname === 'image') {
+      // Fail early: enforce that the required 'pixel_size' field is sent BEFORE the 'image' file.
+      // This prevents the server from streaming a large image to disk just to fail validation later.
+      if (!hints.pixel_size) {
+        throw new Error("Missing 'pixel_size' field. ASTAP requires an approximate pixel size to solve efficiently. Please ensure 'pixel_size' is sent before the 'image' file in the form data.");
+      }
+
       const ext = path.extname(part.filename) || '.jpg';
       const uniqueId = crypto.randomUUID();
       filePath = path.join(UPLOADS_DIR, `${uniqueId}${ext}`);
       
       // Stream directly to disk to prevent memory bloating
       await pipeline(part.file, createWriteStream(filePath));
-    } else if (part.type === 'field') {
-      if (hints[part.fieldname] !== undefined) {
-        hints[part.fieldname] = part.value;
-      }
     }
+  }
+
+  // Validate that the image file was actually received
+  if (!filePath) {
+    throw new Error("Missing 'image' file in multipart payload.");
   }
 
   return { filePath, hints };
@@ -86,26 +97,20 @@ export default async function (fastify) {
 
   fastify.post('/api/v1/solve', async (request, reply) => {
     
-    // 1. Parse payload directly to disk
-    const { filePath, hints } = await parseMultipartRequest(request);
-
-    // 2. Validate extracted data
-    if (!filePath) {
-      return reply.code(400).send({ error: "Missing 'image' file in multipart payload." });
-    }
-
-    if (!hints.pixel_size) {
-      return reply.code(400).send({ 
-        error: "Missing 'pixel_size' field. ASTAP requires an approximate pixel size to solve efficiently." 
-      });
-    }
-
     try {
-      // 3. Ask queue to process the file and execute the solve
+      // 1. Parse payload directly to disk (this now fails early if required params are missing)
+      const { filePath, hints } = await parseMultipartRequest(request);
+
+      // 2. Ask queue to process the file and execute the solve
       const result = await solveQueue.add(() => processSolveRequest(filePath, hints));
       return reply.send(result);
 
     } catch (e) {
+      // Catch our custom validation errors from the parsing loop
+      if (e.message.startsWith('Missing')) {
+        return reply.code(400).send({ error: e.message });
+      }
+
       fastify.log.error(e);
       return reply.code(500).send({ error: "Internal processing error during astrometry solving." });
     }
