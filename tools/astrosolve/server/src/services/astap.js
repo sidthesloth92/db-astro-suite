@@ -6,13 +6,48 @@ import path from 'path';
 const execAsync = promisify(exec);
 
 /**
+ * Executes the ASTAP CLI to plate solve an image, extracts coordinates from the resulting .wcs file,
+ * and then aggressively cleans up both the input image and the generated result file.
+ * 
+ * @param {string} filePath - Absolute path to the uploaded image in the uploads directory
+ * @param {Object} hints - Solving hints { pixel_size, focal_length, ra_hint, dec_hint }
+ * @returns {Promise<Object>} Solved WCS Metadata { ra, dec, scale, status }
+ */
+export async function solveWithASTAP(filePath, hints) {
+  const fileExt = path.extname(filePath);
+  const baseName = path.basename(filePath, fileExt);
+  const dirName = path.dirname(filePath);
+  const wcsFilePath = path.join(dirName, `${baseName}.wcs`);
+
+  try {
+    const command = createAstapCommand(filePath, hints);
+    const wcsData = await executeAstapAndGetWcsData(command, wcsFilePath);
+    const alignmentInfo = generateStarAlignmentInfo(wcsData);
+
+    return {
+      status: "success",
+      ...alignmentInfo
+    };
+
+  } finally {
+    // Phase C Mandatory Cleanup: Delete both files immediately
+    try {
+      await fs.unlink(filePath).catch(() => {});
+      await fs.unlink(wcsFilePath).catch(() => {});
+    } catch (cleanupErr) {
+      console.error("Cleanup failed:", cleanupErr);
+    }
+  }
+}
+
+/**
  * Constructs the ASTAP CLI command based on hints.
  * 
  * @param {string} filePath - Absolute path to the uploaded image in the uploads directory
  * @param {Object} hints - Solving hints { pixel_size, focal_length, ra_hint, dec_hint }
  * @returns {string} The constructed command string
  */
-export function createAstapCommand(filePath, hints) {
+function createAstapCommand(filePath, hints) {
   // Construct the ASTAP command
   // -z 0 (no downsampling natively or configure if needed), -r 30 (search radius 30 deg)
   let command = `astap -f "${filePath}" -z 0 -r 30 -pixelsize ${hints.pixel_size}`;
@@ -37,7 +72,7 @@ export function createAstapCommand(filePath, hints) {
  * @param {string} wcsFilePath - Expected path to the generated .wcs file
  * @returns {Promise<string>} The contents of the .wcs file
  */
-export async function executeAstapAndGetWcsData(command, wcsFilePath) {
+async function executeAstapAndGetWcsData(command, wcsFilePath) {
   try {
     // Execute ASTAP. It returns exit code 0 on success. 
     // Note: If no solve, it might return a different code or just not generate a .wcs file.
@@ -61,7 +96,7 @@ export async function executeAstapAndGetWcsData(command, wcsFilePath) {
  * @param {string} wcsData - The raw content of the .wcs file
  * @returns {Object} Extracted alignment info { ra, dec, scale }
  */
-export function generateStarAlignmentInfo(wcsData) {
+function generateStarAlignmentInfo(wcsData) {
   // Parse WCS for RA (CRVAL1) and DEC (CRVAL2)
   const raMatch = wcsData.match(/CRVAL1\s*=\s*([0-9.-]+)/);
   const decMatch = wcsData.match(/CRVAL2\s*=\s*([0-9.-]+)/);
