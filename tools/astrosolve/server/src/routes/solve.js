@@ -16,6 +16,26 @@ const UPLOADS_DIR = path.join(__dirname, '../../uploads');
 const solveQueue = new PQueue({ concurrency: 2 });
 
 /**
+ * Validates the hints before allowing the image stream to proceed.
+ * @param {Object} hints - Extract hints
+ */
+function validateHints(hints) {
+  if (!hints.pixel_size) {
+    throw new Error("Missing 'pixel_size' field. ASTAP requires an approximate pixel size to solve efficiently. Please ensure 'pixel_size' is sent before the 'image' file in the form data.");
+  }
+}
+
+/**
+ * Validates that an image file was provided in the multipart request.
+ * @param {string|null} filePath - The path to the saved file
+ */
+function validateImageReceived(filePath) {
+  if (!filePath) {
+    throw new Error("Missing 'image' file in multipart payload.");
+  }
+}
+
+/**
  * Parses the Fastify multipart request to stream the image to disk and extract hints.
  * 
  * @param {Object} request - The Fastify request object
@@ -40,9 +60,7 @@ async function parseMultipartRequest(request) {
     } else if (part.type === 'file' && part.fieldname === 'image') {
       // Fail early: enforce that the required 'pixel_size' field is sent BEFORE the 'image' file.
       // This prevents the server from streaming a large image to disk just to fail validation later.
-      if (!hints.pixel_size) {
-        throw new Error("Missing 'pixel_size' field. ASTAP requires an approximate pixel size to solve efficiently. Please ensure 'pixel_size' is sent before the 'image' file in the form data.");
-      }
+      validateHints(hints);
 
       const ext = path.extname(part.filename) || '.jpg';
       const uniqueId = crypto.randomUUID();
@@ -54,9 +72,7 @@ async function parseMultipartRequest(request) {
   }
 
   // Validate that the image file was actually received
-  if (!filePath) {
-    throw new Error("Missing 'image' file in multipart payload.");
-  }
+  validateImageReceived(filePath);
 
   return { filePath, hints };
 }
