@@ -50,6 +50,8 @@ function validateImageReceived(data) {
   }
 }
 
+import sizeOf from 'image-size';
+
 /**
  * Parses the Fastify multipart request, validating hints first before streaming the image to disk.
  * 
@@ -74,6 +76,23 @@ async function parseMultipartRequest(request) {
   const filePath = path.join(UPLOADS_DIR, `${uniqueId}${ext}`);
   
   await pipeline(data.file, createWriteStream(filePath));
+
+  // 4. Validate Dimensions (After saving)
+  try {
+    const dimensions = sizeOf(filePath);
+    if (!dimensions || dimensions.width < 1080 || dimensions.height < 1080) {
+      // Immediately delete the undersized file
+      await fs.unlink(filePath).catch(() => {});
+      throw new Error(`Image resolution is too low (${dimensions?.width}x${dimensions?.height}). ASTAP requires a minimum of 1080x1080 pixels for accurate plate solving.`);
+    }
+  } catch (err) {
+    if (err.message.includes('resolution is too low')) {
+      throw err; // Re-throw our custom validation error
+    }
+    // If image-size fails to read entirely (e.g. corrupt header), fail cleanly
+    await fs.unlink(filePath).catch(() => {});
+    throw new Error("Uploaded image file appears to be corrupted or in an unsupported format.");
+  }
 
   return { filePath, hints };
 }
@@ -124,7 +143,7 @@ export default async function (fastify) {
 
     } catch (e) {
       // Catch our custom validation errors from the parsing loop
-      if (e.message.startsWith('Missing')) {
+      if (e.message.startsWith('Missing') || e.message.includes('resolution is too low') || e.message.includes('Invalid file extension') || e.message.includes('corrupted')) {
         return reply.code(400).send({ error: e.message });
       }
 
