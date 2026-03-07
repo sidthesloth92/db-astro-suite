@@ -117,37 +117,3 @@ function generateStarAlignmentInfo(wcsData) {
   return { ra, dec, scale };
 }
 
-/**
- * Executes the ASTAP CLI to plate solve an image, extracts coordinates from the resulting .wcs file,
- * and then aggressively cleans up both the input image and the generated result file.
- * 
- * @param {string} filePath - Absolute path to the uploaded image in the uploads directory
- * @param {Object} hints - Solving hints { pixel_size, focal_length, ra_hint, dec_hint }
- * @returns {Promise<Object>} Solved WCS Metadata { ra, dec, scale, status }
- */
-export async function solveWithASTAP(filePath, hints) {
-  const fileExt = path.extname(filePath);
-  const baseName = path.basename(filePath, fileExt);
-  const dirName = path.dirname(filePath);
-  const wcsFilePath = path.join(dirName, `${baseName}.wcs`);
-
-  try {
-    const command = createAstapCommand(filePath, hints);
-    const wcsData = await executeAstapAndGetWcsData(command, wcsFilePath);
-    const alignmentInfo = generateStarAlignmentInfo(wcsData);
-
-    return {
-      status: "success",
-      ...alignmentInfo
-    };
-
-  } finally {
-    // Phase C Mandatory Cleanup: Delete both files immediately
-    try {
-      await fs.unlink(filePath).catch(() => {});
-      await fs.unlink(wcsFilePath).catch(() => {});
-    } catch (cleanupErr) {
-      console.error("Cleanup failed:", cleanupErr);
-    }
-  }
-}

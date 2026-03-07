@@ -34,12 +34,19 @@ function validateAndExtractHints(fields) {
 }
 
 /**
- * Validates that an image file was provided in the multipart request.
+ * Validates that an image file was provided in the multipart request and has an allowed extension.
  * @param {Object} data - The Fastify multipart file object
  */
 function validateImageReceived(data) {
   if (!data || !data.file) {
     throw new Error("Missing 'image' file in multipart payload.");
+  }
+
+  const allowedExtensions = ['.jpg', '.jpeg', '.png'];
+  const ext = path.extname(data.filename).toLowerCase();
+  
+  if (!allowedExtensions.includes(ext)) {
+    throw new Error(`Invalid file extension: ${ext}. Only .jpg, .jpeg, and .png are allowed.`);
   }
 }
 
