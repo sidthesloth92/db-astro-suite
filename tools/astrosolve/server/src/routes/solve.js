@@ -17,62 +17,56 @@ const solveQueue = new PQueue({ concurrency: 2 });
 
 /**
  * Validates the hints before allowing the image stream to proceed.
- * @param {Object} hints - Extract hints
+ * @param {Object} fields - Extracted multipart fields
+ * @returns {Object} Clean hints object
  */
-function validateHints(hints) {
-  if (!hints.pixel_size) {
-    throw new Error("Missing 'pixel_size' field. ASTAP requires an approximate pixel size to solve efficiently. Please ensure 'pixel_size' is sent before the 'image' file in the form data.");
+function validateAndExtractHints(fields) {
+  if (!fields.pixel_size || !fields.pixel_size.value) {
+    throw new Error("Missing 'pixel_size' field. ASTAP requires an approximate pixel size to solve efficiently.");
   }
+
+  return {
+    pixel_size: fields.pixel_size.value,
+    focal_length: fields.focal_length ? fields.focal_length.value : null,
+    ra_hint: fields.ra_hint ? fields.ra_hint.value : null,
+    dec_hint: fields.dec_hint ? fields.dec_hint.value : null
+  };
 }
 
 /**
  * Validates that an image file was provided in the multipart request.
- * @param {string|null} filePath - The path to the saved file
+ * @param {Object} data - The Fastify multipart file object
  */
-function validateImageReceived(filePath) {
-  if (!filePath) {
+function validateImageReceived(data) {
+  if (!data || !data.file) {
     throw new Error("Missing 'image' file in multipart payload.");
   }
 }
 
 /**
- * Parses the Fastify multipart request to stream the image to disk and extract hints.
+ * Parses the Fastify multipart request, validating hints first before streaming the image to disk.
  * 
  * @param {Object} request - The Fastify request object
  * @returns {Promise<{filePath: string|null, hints: Object}>}
  */
 async function parseMultipartRequest(request) {
-  const parts = request.parts();
+  // `request.file()` reads the multipart stream up until the first file it finds.
+  // It automatically populates `data.fields` with any fields that arrived BEFORE the file.
+  // This inherently forces the client to send fields first if we validate them here.
+  const data = await request.file();
+
+  // 1. Validate File Presence
+  validateImageReceived(data);
+
+  // 2. Validate Fields
+  const hints = validateAndExtractHints(data.fields);
+
+  // 3. File exists and hints are valid, proceed to save to disk
+  const ext = path.extname(data.filename) || '.jpg';
+  const uniqueId = crypto.randomUUID();
+  const filePath = path.join(UPLOADS_DIR, `${uniqueId}${ext}`);
   
-  let filePath = null;
-  const hints = {
-    pixel_size: null,
-    focal_length: null,
-    ra_hint: null,
-    dec_hint: null
-  };
-
-  for await (const part of parts) {
-    if (part.type === 'field') {
-      if (hints[part.fieldname] !== undefined) {
-        hints[part.fieldname] = part.value;
-      }
-    } else if (part.type === 'file' && part.fieldname === 'image') {
-      // Fail early: enforce that the required 'pixel_size' field is sent BEFORE the 'image' file.
-      // This prevents the server from streaming a large image to disk just to fail validation later.
-      validateHints(hints);
-
-      const ext = path.extname(part.filename) || '.jpg';
-      const uniqueId = crypto.randomUUID();
-      filePath = path.join(UPLOADS_DIR, `${uniqueId}${ext}`);
-      
-      // Stream directly to disk to prevent memory bloating
-      await pipeline(part.file, createWriteStream(filePath));
-    }
-  }
-
-  // Validate that the image file was actually received
-  validateImageReceived(filePath);
+  await pipeline(data.file, createWriteStream(filePath));
 
   return { filePath, hints };
 }
