@@ -1,7 +1,6 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { ImageAnnotation } from '../models/annotation.models';
 
 export interface AstrosolveSolveResponse {
   status: string;
@@ -22,6 +21,7 @@ export interface AstrosolveSolveResponse {
     catalog?: string;
     entryId?: string;
     commonName?: string;
+    sizeArcmin?: number | null;
   }>;
   error?: string;
 }

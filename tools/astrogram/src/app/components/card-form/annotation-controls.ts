@@ -216,37 +216,44 @@ export class AnnotationControlsComponent {
         types: types.length > 0 ? types : undefined,
       };
 
-      console.log('Triggering solve with hints:', hints);
       const result = await this.astrosolveService.solveImage(file, hints, (msg) => {
         this.solveStatus.set(msg);
       });
 
-      console.log('Solve Result SUCCESS:', result);
-      console.log(`Found ${result.objects.length} candidate objects.`);
-
       // Initialize the WCS projection engine with the actual input image dimensions
-      this.wcsService.resetLogCount();
       const nW = this.mapData().naturalWidth || 1080;
       const nH = this.mapData().naturalHeight || 1080;
       this.wcsService.initialize(result.metadata.wcs, nW, nH);
 
-      // Map backend Hybrid results to frontend ImageAnnotations with precision projection
+      // Plate scale for sizing circles from angular diameters
+      const scaleArcsecPerPx = this.wcsService.getArcsecPerPixel();
+
+      // Map backend objects to ImageAnnotations using pixel coordinates
       const annotations: ImageAnnotation[] = result.objects
         .map((obj) => {
-          const coords = this.wcsService.skyToPix(obj.ra, obj.dec);
+          // skyToPix now returns 0-based pixel coordinates
+          const pix = this.wcsService.skyToPix(obj.ra, obj.dec);
+
+          // Convert pixel coords to percentages for CSS positioning
+          const xPercent = pix ? (pix.x / nW) * 100 : 0;
+          const yPercent = pix ? (pix.y / nH) * 100 : 0;
+
+          // Size the circle from the catalog angular diameter
+          let radiusDb = 8;
+          if (obj.sizeArcmin && obj.sizeArcmin > 0 && scaleArcsecPerPx > 0) {
+            const radiusPx = (obj.sizeArcmin * 60) / (2 * scaleArcsecPerPx);
+            radiusDb = Math.max(8, Math.min(radiusPx, Math.min(nW, nH) * 0.25));
+          }
 
           return {
             id: obj.entryId || obj.name,
             label: obj.commonName || obj.name,
             name: obj.name,
             commonName: obj.commonName,
-            x: obj.ra,
-            y: obj.dec,
-            xPercent: coords ? (coords.x / nW) * 100 : 0,
-            yPercent: coords ? (coords.y / nH) * 100 : 0,
-            radius: 20,
-            radiusDb: 20,
-            visible: coords !== null,
+            xPercent,
+            yPercent,
+            radiusDb,
+            visible: pix !== null,
             source: obj.source,
             type: obj.type,
           };
@@ -258,11 +265,7 @@ export class AnnotationControlsComponent {
             a.xPercent <= 100 &&
             a.yPercent >= 0 &&
             a.yPercent <= 100,
-        ); // Only keep annotations that fall within the frame
-
-      console.log(
-        `Mapped ${annotations.length} out of ${result.objects.length} objects from solver.`,
-      );
+        );
 
       this.mapData.update((d: StellarMapData) => ({
         ...d,
@@ -271,7 +274,6 @@ export class AnnotationControlsComponent {
 
       this.solveStatus.set(`Success! Identified ${annotations.length} objects.`);
     } catch (err: any) {
-      console.error('Plate solve failed:', err);
       this.solveStatus.set(`Error: ${err.message}`);
     } finally {
       this.isSolving.set(false);

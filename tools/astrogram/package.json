@@ -33,7 +33,6 @@
     "@db-astro-suite/theme": "workspace:*",
     "@db-astro-suite/ui": "workspace:*",
     "@tailwindcss/postcss": "4.1.18",
-    "coordtxl": "^0.1.5",
     "html2canvas": "^1.4.1",
     "modern-screenshot": "^4.6.8",
     "postcss": "8.5.6",

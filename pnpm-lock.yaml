@@ -161,9 +161,6 @@ importers:
       '@tailwindcss/postcss':
         specifier: 4.1.18
         version: 4.1.18
-      coordtxl:
-        specifier: ^0.1.5
-        version: 0.1.5
       html2canvas:
         specifier: ^1.4.1
         version: 1.4.1
@@ -2510,9 +2507,6 @@ packages:
   cookie@1.1.1:
     resolution: {integrity: sha512-ei8Aos7ja0weRpFzJnEA9UHJ/7XQmqglbRwnf2ATjcB9Wq874VKH9kfjjirM6UhU2/E5fFYadylyhFldcqSidQ==}
     engines: {node: '>=18'}
-
-  coordtxl@0.1.5:
-    resolution: {integrity: sha512-Om7rPDsCo9c1IbT0livuky1UU4rbuu8mx7op9mZTfGdD3+0mhZVNoRPNa/WtEfIdd6HfWr/IsR22IdE6bBxrUQ==}
 
   core-util-is@1.0.3:
     resolution: {integrity: sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==}
@@ -7276,8 +7270,6 @@ snapshots:
   cookie@0.7.2: {}
 
   cookie@1.1.1: {}
-
-  coordtxl@0.1.5: {}
 
   core-util-is@1.0.3: {}
 

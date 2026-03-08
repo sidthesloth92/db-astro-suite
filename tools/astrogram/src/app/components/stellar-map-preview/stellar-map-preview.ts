@@ -20,9 +20,10 @@ import { AnnotationControlsComponent } from '../card-form/annotation-controls';
       .annotation-marker {
         position: absolute;
         transform: translate(-50%, -50%);
-        border: 1px solid #00f3ff;
+        border: 2px solid rgba(0, 243, 255, 0.8);
         border-radius: 50%;
         transition: all 0.3s ease;
+        box-shadow: 0 0 8px rgba(0, 243, 255, 0.4);
       }
       .annotation-label {
         position: absolute;
@@ -199,9 +200,6 @@ export class StellarMapPreviewComponent {
       return filters.showNamedStars;
     });
 
-    console.log(
-      `Visible Annotations: ${items.length} (Filters: M:${filters.showMessier}, NGC:${filters.showNgc}, Stars:${filters.showNamedStars})`,
-    );
     return items;
   });
 
