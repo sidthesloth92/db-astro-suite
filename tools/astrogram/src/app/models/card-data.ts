@@ -93,7 +93,18 @@ export function formatDuration(totalSeconds: number): string {
   if (hours > 0) {
     return `${hours}h ${minutes}m`;
   }
-  return `${minutes}m`;
+
+  if (minutes > 0) {
+    return `${minutes}m`;
+  }
+
+  if (totalSeconds > 0) {
+    // Round to 3 decimal places and remove trailing zeros
+    const formatted = parseFloat(totalSeconds.toFixed(3));
+    return `${formatted}s`;
+  }
+
+  return '0s';
 }
 
 export function calculateTotalIntegration(filters: FilterExposure[]): number {
