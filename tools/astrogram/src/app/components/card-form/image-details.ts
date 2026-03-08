@@ -1,9 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { InputComponent, TextareaComponent } from '@db-astro-suite/ui';
-import { CardDataService } from '../../services/card-data.service';
 import { AstroInfoService } from '../../services/astro-info.service';
+import { CardDataService } from '../../services/card-data.service';
 
 @Component({
   selector: 'dba-ag-image-details',
@@ -23,7 +23,19 @@ import { AstroInfoService } from '../../services/astro-info.service';
 
       <div class="description-section">
         <div class="description-header">
-          <label class="db-form-label" style="margin-bottom: 0px;">📝 Description</label>
+          <label class="db-form-label" style="margin-bottom: 0px;">📝 Description (on image)</label>
+        </div>
+        <dba-ui-textarea
+          [value]="cardData().description || ''"
+          (valueChange)="updateData('description', $event)"
+          placeholder="Brief description of the object..."
+          [rows]="3"
+        ></dba-ui-textarea>
+      </div>
+
+      <div class="description-section">
+        <div class="description-header">
+          <label class="db-form-label" style="margin-bottom: 0px;">🗒️ Caption</label>
           <div class="fetch-group">
             <input
               id="dso-search-input"
@@ -44,9 +56,9 @@ import { AstroInfoService } from '../../services/astro-info.service';
           </div>
         </div>
         <dba-ui-textarea
-          [value]="cardData().description"
-          (valueChange)="updateData('description', $event)"
-          placeholder="Brief description of the object..."
+          [value]="cardData().caption || ''"
+          (valueChange)="updateData('caption', $event)"
+          placeholder="Detailed caption for social media..."
           [rows]="5"
         ></dba-ui-textarea>
       </div>
@@ -111,7 +123,10 @@ export class ImageDetailsComponent {
     try {
       const info = await this.astroInfo.getObjectDescription(query);
       if (info) {
-        this.updateData('description', info.extract);
+        const currentCaption = this.cardData().caption || '';
+        const newText = info.description; // We use short description as requested
+        const separator = currentCaption ? '\n\n' : '';
+        this.updateData('caption', currentCaption + separator + newText);
       }
     } finally {
       this.isFetching.set(false);

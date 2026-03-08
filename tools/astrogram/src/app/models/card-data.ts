@@ -34,6 +34,7 @@ export interface CardData {
   // Header
   title: string;
   description?: string;
+  caption?: string;
   date: string;
   location: string;
   author: string;
@@ -141,7 +142,7 @@ export function generateInstagramCaption(data: CardData): string {
 
   const hashtags = data.hashtags ? data.hashtags : '';
 
-  return `${data.description || ''}
+  return `${data.caption || ''}
 
 🔭 EXPOSURE DETAILS
 ${gearList}
