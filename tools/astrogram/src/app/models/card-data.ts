@@ -50,13 +50,15 @@ export interface CardData {
 
   // Settings
   bortleScale: number;
+  pixelSize: number;
+  focalLength: number | null;
 
   // Appearance
   accentColor: string;
   accentColorRgb?: string; // e.g. "255, 45, 149"
   cardOpacity: number; // 0 to 1
   backgroundImage: string | null;
-  aspectRatio: '3:4' | '4:5';
+  aspectRatio: '3:4' | '4:5' | 'auto';
 
   // Social
   hashtags?: string;
@@ -67,7 +69,11 @@ export interface CardData {
 
 export interface StellarMapData {
   backgroundImage: string | null;
-  aspectRatio: '3:4' | '4:5';
+  rawFile: File | null;
+  aspectRatio: '3:4' | '4:5' | 'auto';
+  isSolving?: boolean;
+  naturalWidth?: number;
+  naturalHeight?: number;
   annotations: ImageAnnotation[];
   filters: {
     showMessier: boolean;

@@ -1,0 +1,31 @@
+# Node.js
+node_modules/
+npm-debug.log*
+
+# Fastify uploads
+uploads/
+
+# Astrometry Index Data (Large FITS files)
+# Should be downloaded via download-indices.sh
+astrometry_data/
+
+# Temporary and test files
+*.axy
+*.corr
+*.match
+*.rdls
+*.wcs
+*.solved
+*.ini
+*.fits
+*.jpg
+sample/
+test-*/
+test.fits
+test.jpg
+temp-*/
+*.log
+
+# Backups and local config
+.env
+*.bak

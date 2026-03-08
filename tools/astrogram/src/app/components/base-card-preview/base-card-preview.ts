@@ -1,16 +1,21 @@
+import { CommonModule } from '@angular/common';
 import {
-  Component,
-  ElementRef,
-  ViewChild,
-  CUSTOM_ELEMENTS_SCHEMA,
-  signal,
-  HostListener,
   AfterViewInit,
   ChangeDetectionStrategy,
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  effect,
+  ElementRef,
   HostBinding,
+  HostListener,
+  inject,
+  Injector,
   input,
+  OnDestroy,
+  OnInit,
+  signal,
+  ViewChild,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'dba-ag-base-card-preview',
@@ -21,9 +26,10 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./base-card-preview.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BaseCardPreviewComponent implements AfterViewInit {
-  aspectRatio = input<'3:4' | '4:5'>('4:5');
+export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestroy {
+  aspectRatio = input<'3:4' | '4:5' | 'auto'>('4:5');
   backgroundImage = input<string | null>(null);
+  fillMode = input<'cover' | 'contain' | 'fill'>('cover');
   author = input<string>('astrophotographer');
   exportFilename = input<string>('astrogram');
 
@@ -34,11 +40,29 @@ export class BaseCardPreviewComponent implements AfterViewInit {
   @HostBinding('style.--scale-factor') get scale() {
     return this.scaleFactor();
   }
-  @HostBinding('style.--scale-height.px') get scaleHeight() {
-    return 680 * this.scaleFactor();
+  @HostBinding('style.--scale-height') get scaleHeight() {
+    return `${this.naturalHeightPx() * this.scaleFactor()}px`;
   }
-  @HostBinding('style.--card-width.px') get cardWidth() {
-    return this.aspectRatio() === '3:4' ? 450 : 480;
+  @HostBinding('style.--card-width') get cardWidth() {
+    if (this.aspectRatio() === 'auto') {
+      const natW = this.naturalImageWidth();
+      if (natW > 0) return `${natW}px`;
+      return this.backgroundImage() ? 'auto' : '480px';
+    }
+    return `${this.aspectRatio() === '3:4' ? 450 : 480}px`;
+  }
+  @HostBinding('style.--img-height') get imgHeight() {
+    const natH = this.naturalImageHeight();
+    return natH > 0 ? `${natH}px` : '600px';
+  }
+  @HostBinding('style.--post-width') get postWidth() {
+    if (this.aspectRatio() === 'auto') {
+      const natW = this.naturalImageWidth();
+      if (natW > 0) return `${natW * this.scaleFactor()}px`;
+      const baseWidth = this.backgroundImage() && this.cardElement ? this.cardElement.nativeElement.offsetWidth : 480;
+      return `${baseWidth * this.scaleFactor()}px`;
+    }
+    return '100%';
   }
   @HostBinding('style.--accent-color') get _accentColor() {
     return this.accentColor();
@@ -52,30 +76,111 @@ export class BaseCardPreviewComponent implements AfterViewInit {
 
   @ViewChild('cardWrapper') cardWrapper!: ElementRef;
   @ViewChild('cardElement') cardElement!: ElementRef;
+  @ViewChild('postContainer') postContainerRef!: ElementRef;
 
   isExporting = signal(false);
   scaleFactor = signal(1);
+  naturalHeightPx = signal(680);
+  naturalImageWidth = signal(0);
+  naturalImageHeight = signal(0);
+  private resizeObserver: ResizeObserver | null = null;
+  private injector = inject(Injector);
 
   @HostListener('window:resize')
   onResize() {
     this.calculateScale();
   }
 
+  ngOnInit() {
+    effect(() => {
+      const img = this.backgroundImage();
+      if (!img) {
+        // Reset natural dimensions so the empty-state card uses its default size
+        this.naturalImageWidth.set(0);
+        this.naturalImageHeight.set(0);
+        this.scaleFactor.set(1);
+      }
+    }, { injector: this.injector });
+  }
+
   ngAfterViewInit() {
+    this.setupResizeObserver();
     setTimeout(() => this.calculateScale(), 100);
+  }
+
+  ngOnDestroy() {
+    this.resizeObserver?.disconnect();
+  }
+
+  onImageLoad(evt: Event) {
+    const img = evt.target as HTMLImageElement;
+    this.naturalImageWidth.set(img.naturalWidth);
+    this.naturalImageHeight.set(img.naturalHeight);
+    setTimeout(() => this.calculateScale(), 50);
+  }
+
+  private setupResizeObserver() {
+    if (!this.cardElement) return;
+    this.resizeObserver = new ResizeObserver(() => {
+      this.calculateScale();
+    });
+    this.resizeObserver.observe(this.cardElement.nativeElement);
   }
 
   private calculateScale() {
     if (!this.cardWrapper || !this.cardElement) return;
 
-    const containerWidth = this.cardWrapper.nativeElement.offsetWidth;
-    const originalWidth = this.cardElement.nativeElement.offsetWidth;
+    const wrapperElement = this.cardWrapper.nativeElement;
+    const cardElement = this.cardElement.nativeElement;
 
-    if (containerWidth < originalWidth) {
-      this.scaleFactor.set(containerWidth / originalWidth);
+    // Get the wrapper width (available space for the simulation panel)
+    const wrapperRect = wrapperElement.getBoundingClientRect();
+    if (wrapperRect.width === 0) return;
+
+    // Measure the full post-container (header + card) at its natural (pre-transform) size.
+    // In auto mode, use the known image natural dimensions for accurate scaling.
+    let naturalHeight: number;
+    let naturalWidth: number;
+
+    if (this.aspectRatio() === 'auto' && this.naturalImageWidth() > 0) {
+      const headerEl = this.postContainerRef?.nativeElement.querySelector('.post-header');
+      const headerH = headerEl ? headerEl.offsetHeight : 50;
+      naturalWidth = this.naturalImageWidth();
+      naturalHeight = headerH + this.naturalImageHeight();
     } else {
-      this.scaleFactor.set(1);
+      naturalHeight = this.postContainerRef?.nativeElement.offsetHeight ?? 680;
+      naturalWidth = cardElement.offsetWidth;
     }
+    this.naturalHeightPx.set(naturalHeight);
+
+    // Scaling strategy differs by mode
+    let scale = 1;
+    
+    // Use window height for better accuracy as the parent .main-container may have padding/margins
+    const viewportHeight = window.innerHeight;
+    const headerHeight = 80; // Adjusted for actual header height
+    const footerPadding = 40; // Small bottom margin
+    const maxAllowedHeight = (viewportHeight - headerHeight - footerPadding) * 0.95;
+
+    if (this.aspectRatio() === 'auto') {
+      // PROPORTIONAL SCALING: Maximize size based on both width AND height constraints
+      const scaleW = (wrapperRect.width - 40) / naturalWidth; // 40px buffer for horizontal margins
+      const scaleH = maxAllowedHeight / naturalHeight;
+
+      // In Auto mode (Stellar Map), we prioritize filling the available screen height (95%)
+      // This ensures 16:10 or landscape images don't look small.
+      scale = Math.min(scaleW, scaleH);
+    } else {
+      // INFOGRAPHIC SCALING: Fixed width priority, scale down if width is too small
+      scale = wrapperRect.width < naturalWidth ? wrapperRect.width / naturalWidth : 1;
+
+      // Safety clamp for vertical overflow in infographic mode too
+      if (naturalHeight * scale > maxAllowedHeight) {
+        scale = maxAllowedHeight / naturalHeight;
+      }
+    }
+
+    this.scaleFactor.set(scale);
   }
 
   async exportCard(event?: MouseEvent) {

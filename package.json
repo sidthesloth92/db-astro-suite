@@ -10,6 +10,8 @@
     "dev:starwizz": "pnpm --filter @db-astro-suite/starwizz dev",
     "dev:astrogram": "pnpm --filter @db-astro-suite/astrogram dev",
     "dev:grouper": "pnpm --filter @db-astro-suite/file-grouper dev",
+    "dev:astrosolve": "pnpm --filter @db-astro-suite/astrosolve-server dev",
+    "start:astrosolve": "pnpm --filter @db-astro-suite/astrosolve-server start",
     "build": "pnpm -r exec rm -rf dist && rm -rf dist && pnpm build:hub && pnpm build:starwizz && pnpm build:astrogram && pnpm build:merge",
     "test:e2e": "playwright test",
     "test:e2e:update": "playwright test --update-snapshots",

@@ -5,8 +5,9 @@ import path from 'path';
 import { pipeline } from 'stream/promises';
 import { fileURLToPath } from 'url';
 import crypto from 'crypto';
-import { solveWithASTAP } from '../services/astap.js';
+import { solveWithAstrometry } from '../services/astrometry.js';
 import { querySimbad } from '../services/simbad.js';
+import { queryLocalCatalog } from '../services/local-catalog.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -21,15 +22,13 @@ const solveQueue = new PQueue({ concurrency: 2 });
  * @returns {Object} Clean hints object
  */
 function validateAndExtractHints(fields) {
-  if (!fields.pixel_size || !fields.pixel_size.value) {
-    throw new Error("Missing 'pixel_size' field. ASTAP requires an approximate pixel size to solve efficiently.");
-  }
+  // Parsing types from comma separated string if provided
+  const typesField = fields.types ? fields.types.value : null;
+  const types = typesField ? typesField.split(',').map(t => t.trim()) : [];
 
   return {
-    pixel_size: fields.pixel_size.value,
-    focal_length: fields.focal_length ? fields.focal_length.value : null,
-    ra_hint: fields.ra_hint ? fields.ra_hint.value : null,
-    dec_hint: fields.dec_hint ? fields.dec_hint.value : null
+    min_magnitude: 20, // Search up to mag 20 for widest coverage
+    types: types
   };
 }
 
@@ -50,7 +49,7 @@ function validateImageReceived(data) {
   }
 }
 
-import sizeOf from 'image-size';
+import { imageSize } from 'image-size';
 
 /**
  * Parses the Fastify multipart request, validating hints first before streaming the image to disk.
@@ -79,18 +78,27 @@ async function parseMultipartRequest(request) {
 
   // 4. Validate Dimensions (After saving)
   try {
-    const dimensions = sizeOf(filePath);
-    if (!dimensions || dimensions.width < 1080 || dimensions.height < 1080) {
+    const stats = await fs.stat(filePath);
+    request.log.info(`Saved upload to ${filePath}. File size on disk: ${stats.size} bytes.`);
+    
+    if (stats.size === 0) {
+      throw new Error("Uploaded file is 0 bytes. Stream was empty.");
+    }
+
+    const fileBuffer = await fs.readFile(filePath);
+    const dimensions = imageSize(new Uint8Array(fileBuffer));
+    if (!dimensions || dimensions.width < 100 || dimensions.height < 100) {
       // Immediately delete the undersized file
       await fs.unlink(filePath).catch(() => {});
-      throw new Error(`Image resolution is too low (${dimensions?.width}x${dimensions?.height}). ASTAP requires a minimum of 1080x1080 pixels for accurate plate solving.`);
+      throw new Error(`Image resolution is too low (${dimensions?.width}x${dimensions?.height}).`);
     }
   } catch (err) {
-    if (err.message.includes('resolution is too low')) {
+    if (err.message.includes('resolution is too low') || err.message.includes('0 bytes')) {
       throw err; // Re-throw our custom validation error
     }
     // If image-size fails to read entirely (e.g. corrupt header), fail cleanly
     await fs.unlink(filePath).catch(() => {});
+    request.log.error(err, "Failed to parse image dimensions");
     throw new Error("Uploaded image file appears to be corrupted or in an unsupported format.");
   }
 
@@ -105,14 +113,41 @@ async function parseMultipartRequest(request) {
  * @returns {Promise<Object>} The combined ASTAP and SIMBAD payload
  */
 async function processSolveRequest(filePath, hints) {
-  // Step 1: Plate Solve using ASTAP (auto-cleans files)
-  const solveResult = await solveWithASTAP(filePath, hints);
+  // Step 1: Plate Solve using local Astrometry.net 
+  const solveResult = await solveWithAstrometry(filePath, hints);
   
-  // Step 2: Query SIMBAD for objects within field of view
-  // Using a conservative radius based on typical deep sky fields (~2 degrees). 
-  // This could be calculated from pixel_size and dimensions in the future.
+  // Step 2: Hybrid Search (Local + SIMBAD)
+  // We search within a 2-degree radius (typical wide field crop)
   const radius = 2.0; 
-  const objects = await querySimbad(solveResult.ra, solveResult.dec, radius);
+  
+  // Fire both queries in parallel
+  const [localObjects, simbadObjects] = await Promise.all([
+    // Local DB Query (Extremely fast, <10ms)
+    Promise.resolve(queryLocalCatalog({
+      ra: solveResult.ra,
+      dec: solveResult.dec,
+      radiusDeg: radius,
+      maxMagnitude: hints.min_magnitude,
+      types: hints.types
+    })).catch(() => []),
+
+    // SIMBAD Query (Slower, network dependent)
+    querySimbad(solveResult.ra, solveResult.dec, radius, hints.min_magnitude).catch(err => {
+      console.error("SIMBAD query failed (falling back to local only):", err.message);
+      return [];
+    })
+  ]);
+
+  // Step 3: Deduplication & Merging
+  // We favor Local results if the names match (better common names)
+  const merged = [...localObjects];
+  const localNames = new Set(localObjects.map(o => o.name.toLowerCase()));
+
+  for (const obj of simbadObjects) {
+    if (!localNames.has(obj.name.toLowerCase())) {
+      merged.push(obj);
+    }
+  }
 
   return {
     status: "success",
@@ -120,9 +155,10 @@ async function processSolveRequest(filePath, hints) {
       ra: solveResult.ra,
       dec: solveResult.dec,
       scale: solveResult.scale,
+      wcs: solveResult.wcsData,
       radius_searched: radius
     },
-    objects: objects
+    objects: merged
   };
 }
 
@@ -135,10 +171,18 @@ export default async function (fastify) {
     
     try {
       // 1. Parse payload directly to disk (this now fails early if required params are missing)
+      fastify.log.info("Parsing multipart request...");
       const { filePath, hints } = await parseMultipartRequest(request);
+      fastify.log.info(`Multipart parsed, starting queue for ${filePath}`);
 
       // 2. Ask queue to process the file and execute the solve
-      const result = await solveQueue.add(() => processSolveRequest(filePath, hints));
+      const result = await solveQueue.add(async () => {
+        fastify.log.info("Queue executing processSolveRequest...");
+        const res = await processSolveRequest(filePath, hints);
+        fastify.log.info("processSolveRequest completed.");
+        return res;
+      });
+      fastify.log.info("Sending reply...");
       return reply.send(result);
 
     } catch (e) {

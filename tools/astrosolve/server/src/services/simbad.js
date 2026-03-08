@@ -6,16 +6,19 @@ import axios from 'axios';
  * @param {number} ra - Right Ascension of the image center (degrees)
  * @param {number} dec - Declination of the image center (degrees)
  * @param {number} radiusDeg - Search radius in degrees 
+ * @param {number} minMagnitude - Brightest magnitude constraint (lower is brighter)
  * @returns {Promise<Array>} List of recognized celestial objects
  */
-export async function querySimbad(ra, dec, radiusDeg) {
-  // Query for basic data, filtering to Galaxies (G), Quasars (QSO), Planetary Nebulae (PN), HII regions
-  // We specify exactly what columns we need: main_id, otype, ra_degree, dec_degree
+export async function querySimbad(ra, dec, radiusDeg, minMagnitude = 13.5) {
+  // Query for basic data, filtering to Galaxies (G), Quasars (QSO), Planetary Nebulae (PN), HII regions, and Stars
+  // We use TOP 400 to ensure a rich star field without overwhelming the UI
   const adqlQuery = `
-    SELECT basic.MAIN_ID, basic.OTYPE, basic.RA, basic.DEC
+    SELECT TOP 400 basic.MAIN_ID, basic.OTYPE, basic.RA, basic.DEC, basic.FLUX_V
     FROM basic
     WHERE CONTAINS(POINT('ICRS', basic.RA, basic.DEC), CIRCLE('ICRS', ${ra}, ${dec}, ${radiusDeg})) = 1
-    AND basic.OTYPE IN ('G', 'QSO', 'PN', 'HII')
+    AND basic.OTYPE IN ('G', 'QSO', 'PN', 'HII', 'Star')
+    AND (basic.FLUX_V <= ${minMagnitude} OR basic.FLUX_V IS NULL)
+    ORDER BY basic.FLUX_V ASC
   `;
 
   try {
@@ -31,16 +34,18 @@ export async function querySimbad(ra, dec, radiusDeg) {
     if (response.data && response.data.data) {
       // Map the array of arrays response from TAP JSON into nicely formatted objects
       return response.data.data.map(row => ({
-        id: row[0],
+        name: row[0],
         type: row[1],
         ra: row[2],
-        dec: row[3]
+        dec: row[3],
+        magnitude: row[4],
+        source: 'simbad'
       }));
     }
 
     return [];
   } catch (err) {
     console.error("SIMBAD TAP error:", err.message);
-    throw new Error("Failed to consult SIMBAD for objects in the solved frame.");
+    return [];
   }
 }

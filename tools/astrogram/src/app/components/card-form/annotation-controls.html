@@ -1,7 +1,20 @@
 <div class="controls-wrapper">
-  <div class="instructions">
-    Upload an image here for the Stellar Map, then click "Generate Star Map" to plate-solve it.
-  </div>
+  @if (!mapData().backgroundImage) {
+    <div
+      style="
+        padding: 1.5rem;
+        border-radius: var(--db-radius-md);
+        background: rgba(255, 45, 149, 0.05);
+        border: 1px solid rgba(255, 45, 149, 0.1);
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.85rem;
+        text-align: center;
+        margin-bottom: 1.5rem;
+      "
+    >
+      Upload a field image in the preview area to begin plate solving.
+    </div>
+  }
 
   <input
     type="file"
@@ -10,77 +23,100 @@
     #fileInput
     style="display: none"
   />
-  <button class="upload-btn" (click)="fileInput.click()">📸 UPLOAD MAP BACKGROUND</button>
 
-  <button
-    class="solve-btn"
-    (click)="triggerPlateSolve()"
-    [disabled]="!mapData().backgroundImage || isSolving"
-  >
-    {{ isSolving ? 'ANALYZING...' : '✨ GENERATE STAR MAP' }}
-  </button>
+  <div class="action-btns">
+    <button
+      class="solve-btn"
+      (click)="triggerPlateSolve()"
+      [disabled]="!mapData().backgroundImage || isSolving()"
+    >
+      @if (isSolving()) {
+        <span class="spinner"></span>
+        ANALYZING...
+      } @else {
+        ✨ GENERATE STAR MAP
+      }
+    </button>
 
-  @if (solveStatus) {
-    <div class="status-text">{{ solveStatus }}</div>
+    <button class="reset-btn" (click)="resetMap()" title="Clear Image & Data">
+      <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+        ></path>
+      </svg>
+    </button>
+  </div>
+
+  @if (solveStatus()) {
+    <div class="status-text">{{ solveStatus() }}</div>
   }
 
-  @if (mapData().annotations && mapData().annotations!.length > 0) {
-    <!-- Mock Filters for now until full integration -->
+  @if (mapData().annotations && mapData().annotations.length > 0) {
     <div class="filter-toggles mt-4">
       <h3
         style="
           font-size: 0.7rem;
           text-transform: uppercase;
           color: var(--neon-pink);
-          margin-bottom: 0.5rem;
+          margin-bottom: 0.8rem;
+          opacity: 0.6;
         "
       >
-        Filters
+        Annotation Filters
       </h3>
-      <label
-        style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; cursor: pointer"
-      >
-        <input
-          type="checkbox"
-          [checked]="mapData().filters.showMessier"
-          (change)="toggleFilter('showMessier')"
-        />
-        Messier Objects
-      </label>
-      <label
-        style="
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          font-size: 0.8rem;
-          cursor: pointer;
-          margin-top: 0.25rem;
-        "
-      >
-        <input
-          type="checkbox"
-          [checked]="mapData().filters.showNgc"
-          (change)="toggleFilter('showNgc')"
-        />
-        NGC Objects
-      </label>
-      <label
-        style="
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          font-size: 0.8rem;
-          cursor: pointer;
-          margin-top: 0.25rem;
-        "
-      >
-        <input
-          type="checkbox"
-          [checked]="mapData().filters.showNamedStars"
-          (change)="toggleFilter('showNamedStars')"
-        />
-        Major Stars
-      </label>
+      <div style="display: flex; flex-direction: column; gap: 0.6rem">
+        <label
+          style="
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+          "
+        >
+          <input
+            type="checkbox"
+            [checked]="mapData().filters.showMessier"
+            (change)="toggleFilter('showMessier')"
+          />
+          Messier Catalog
+        </label>
+        <label
+          style="
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+          "
+        >
+          <input
+            type="checkbox"
+            [checked]="mapData().filters.showNgc"
+            (change)="toggleFilter('showNgc')"
+          />
+          NGC/IC Objects
+        </label>
+        <label
+          style="
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+          "
+        >
+          <input
+            type="checkbox"
+            [checked]="mapData().filters.showNamedStars"
+            (change)="toggleFilter('showNamedStars')"
+          />
+          Named Stars
+        </label>
+      </div>
     </div>
   }
 </div>

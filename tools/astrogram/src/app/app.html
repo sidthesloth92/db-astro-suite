@@ -26,6 +26,11 @@
             ? dataService.cardData().aspectRatio === '4:5'
             : dataService.stellarMapData().aspectRatio === '4:5'
         "
+        [class.aspect-auto]="
+          dataService.activeMode() === 'infographic'
+            ? dataService.cardData().aspectRatio === 'auto'
+            : dataService.stellarMapData().aspectRatio === 'auto'
+        "
       >
         @if (dataService.activeMode() === 'infographic') {
           <dba-ag-card-preview></dba-ag-card-preview>

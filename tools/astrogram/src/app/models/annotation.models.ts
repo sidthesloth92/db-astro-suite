@@ -5,6 +5,10 @@ export interface ImageAnnotation {
   radiusDb: number; // Size derived from local DB or SIMBAD (arcmin -> pixels based on WCS scale)
   label: string; // E.g., "M 42" or "Orion Nebula"
   visible: boolean; // Governed by UI filters
+  source?: 'local' | 'simbad';
+  type?: string;
+  name?: string;
+  commonName?: string;
 }
 
 export interface LocalAstroObject {

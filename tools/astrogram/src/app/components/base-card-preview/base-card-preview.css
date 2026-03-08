@@ -4,16 +4,34 @@
   align-items: center;
   gap: 0.75rem;
   height: 100%;
+  width: 100%;
 }
 
 /* The Viewport - Post Container */
 .post-scale-host {
-  width: 100%;
+  width: var(--post-width, 100%);
+  max-width: 100%;
   display: flex;
   justify-content: center;
-  overflow: hidden; /* Prevent overflow on mobile */
+  align-items: flex-start;
+  overflow: visible; /* We need to allow the scale transform to breathe */
   position: relative;
   height: var(--scale-height);
+}
+
+.post-container {
+  padding: 0;
+  border-radius: 12px 12px 0 0;
+  background: rgba(10, 15, 25, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  transform: scale(var(--scale-factor));
+  transform-origin: top center;
+  width: var(--card-width, max-content);
+  min-width: 0;
 }
 
 /* Export Processing Overlay */
@@ -41,7 +59,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .export-label {
@@ -60,10 +80,11 @@
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
   display: flex;
   flex-direction: column;
-  flex-shrink: 0; /* Don't let flexbox shrink the virtual width */
+  flex-shrink: 0;
   transform: scale(var(--scale-factor));
   transform-origin: top center;
-  width: var(--card-width);
+  width: var(--card-width, max-content);
+  min-width: 0;
 }
 
 /* Post Header */
@@ -83,7 +104,14 @@
 .avatar-mini {
   width: 32px;
   height: 32px;
-  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  background: linear-gradient(
+    45deg,
+    #f09433 0%,
+    #e6683c 25%,
+    #dc2743 50%,
+    #cc2366 75%,
+    #bc1888 100%
+  );
   border-radius: 50%;
 }
 
@@ -125,10 +153,11 @@
 /* The Card - Restricted to Post Container Width */
 .card {
   position: relative;
-  overflow: hidden;
+  overflow: visible; /* Changed from hidden to allow stellar map markers to bleed slightly at edges */
   border: none !important;
   flex-shrink: 0;
   height: 600px;
+  min-height: 600px;
   background: #000;
 }
 
@@ -142,34 +171,79 @@
   width: auto;
 }
 
+.card.aspect-auto {
+  height: var(--img-height, 600px);
+  min-height: 0 !important;
+  width: 100%; /* Fill the post-container which handles the min/max width */
+}
+
+/* Empty state: ensure the card has visible height so the upload overlay renders */
+.card.aspect-auto.no-image {
+  min-height: 600px;
+}
+
 /* Background */
 .card-background {
   position: absolute;
   inset: 0;
   z-index: 0;
+  overflow: hidden;
+}
+
+/* In auto mode, the card has explicit dimensions from the image - bg fills it normally */
+.card.aspect-auto .card-background {
+  position: absolute;
+}
+
+.card.aspect-auto .bg-image {
+  width: 100%;
+  height: 100%;
+  position: static;
+  max-width: unset;
+  max-height: unset;
+  display: block;
 }
 
 .bg-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
   filter: blur(0px);
+  transition: transform 0.8s ease;
+  image-orientation: none; /* CRITICAL: Aligns DOM display with EXIF-blind WCS FITS coordinates */
+}
+
+.bg-image.scale-zoom {
   transform: scale(1.15);
 }
 
 .bg-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, var(--card-opacity, 0.6));
 }
 
 /* Content */
 .card-content {
   position: relative;
-  z-index: 1;
+  z-index: 5;
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* More stable than space-evenly for html2canvas */
-  padding: 0.75rem 1rem; /* Balanced padding */
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+}
+
+.card-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  overflow: hidden; /* Prevent markers from drifting into headers/labels */
+}
+
+/* Ensure children with fullBleed work correctly */
+.card-overlay > [fullBleed] {
+  pointer-events: auto;
+  position: absolute;
+  inset: 0;
 }

@@ -1,24 +1,19 @@
 FROM node:20-slim
 
-# Install necessary system dependencies for ASTAP and downloading packages
+# Install necessary system dependencies and the Astrometry.net CLI
 RUN apt-get update && apt-get install -y \
     wget \
-    libgtk2.0-0 \
-    libcfitsio-bin \
+    astrometry.net \
+    netpbm \
+    file \
     && rm -rf /var/lib/apt/lists/*
 
-# Set working directory for download operations
-WORKDIR /tmp
+# The index files are pre-downloaded on the host to avoid network flakes during the build.
+# Copy them directly into the Astrometry.net search path where solve-field looks for catalogs.
+COPY astrometry_data/ /usr/share/astrometry/data/
 
-# Download and install the ASTAP command line executable
-RUN wget https://www.hnsky.org/astap_amd64.deb \
-    && dpkg -i astap_amd64.deb \
-    && rm astap_amd64.deb
-
-# Download and install the D50 star database (needed for ASTAP to solve images)
-RUN wget -O d50_setup.deb https://www.hnsky.org/d50_star_database.deb \
-    && dpkg -i d50_setup.deb \
-    && rm d50_setup.deb
+# Ensure the location for star catalogs is explicitly configured
+RUN echo "add_path /usr/share/astrometry/data\nautoindex\ninparallel\ncpulimit 300" > /etc/astrometry.cfg
 
 # Switch to the application directory
 WORKDIR /usr/src/app

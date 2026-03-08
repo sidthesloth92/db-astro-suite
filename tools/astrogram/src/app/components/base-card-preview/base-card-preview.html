@@ -7,7 +7,7 @@
         <span class="export-label">GENERATING...</span>
       </div>
     }
-    <div class="post-container db-glass-panel">
+    <div class="post-container db-glass-panel" #postContainer>
       <!-- Header with Circular FAB -->
       <div class="post-header">
         <div class="user-meta">
@@ -43,16 +43,29 @@
         class="card"
         [class.aspect-3-4]="aspectRatio() === '3:4'"
         [class.aspect-4-5]="aspectRatio() === '4:5'"
+        [class.aspect-auto]="aspectRatio() === 'auto'"
+        [class.no-image]="!backgroundImage()"
       >
         <!-- Background -->
         <div class="card-background">
           @if (backgroundImage()) {
-            <img [src]="backgroundImage()" alt="" class="bg-image" />
+            <img
+              [src]="backgroundImage()"
+              alt=""
+              class="bg-image"
+              [class.scale-zoom]="fillMode() === 'cover'"
+              [style.object-fit]="fillMode()"
+              (load)="onImageLoad($event)"
+            />
           }
           <div class="bg-overlay"></div>
         </div>
 
         <!-- Content -->
+        <div class="card-overlay">
+          <ng-content select="[fullBleed]"></ng-content>
+        </div>
+
         <div class="card-content">
           <ng-content></ng-content>
         </div>

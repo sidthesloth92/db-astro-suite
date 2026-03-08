@@ -26,6 +26,8 @@ export class CardDataService {
       { icon: '✨', label: 'Processing', name: 'Seti Astro Suite' },
     ],
     bortleScale: 9,
+    pixelSize: 3.76, // ASI2600MM pixel size
+    focalLength: null,
     accentColor: '#ff2d95',
     accentColorRgb: '255, 45, 149',
     cardOpacity: 0.6,
@@ -39,11 +41,12 @@ export class CardDataService {
 
   readonly stellarMapData = signal<StellarMapData>({
     backgroundImage: null,
-    aspectRatio: '4:5',
+    rawFile: null,
+    aspectRatio: 'auto',
     annotations: [],
     filters: {
       showMessier: true,
-      showNgc: false,
+      showNgc: true,
       showNamedStars: true,
     },
   });

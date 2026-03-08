@@ -1,11 +1,16 @@
-import { Component, ChangeDetectionStrategy, ViewEncapsulation, inject } from '@angular/core';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  ViewEncapsulation,
+  inject,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardDataService } from '../../services/card-data.service';
-import { AstrometryService } from '../../services/astrometry.service';
-import { HttpClient } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
+import { StellarMapData } from '../../models/card-data';
 import { ImageAnnotation } from '../../models/annotation.models';
-
+import { AstrosolveService, AstrosolveSolveResponse } from '../../services/astrosolve.service';
+import { WcsService } from '../../services/wcs.service';
 @Component({
   selector: 'dba-ag-annotation-controls',
   standalone: true,
@@ -15,55 +20,123 @@ import { ImageAnnotation } from '../../models/annotation.models';
     `
       :host {
         display: block;
-        padding: 1rem;
+        padding: 1.5rem;
+        font-family: var(--db-form-font-mono, monospace);
       }
       .controls-wrapper {
         display: flex;
         flex-direction: column;
-        gap: 1rem;
+        gap: 1.5rem;
       }
-      .instructions {
-        font-size: 0.8rem;
-        opacity: 0.7;
-        line-height: 1.4;
+      .upload-card {
+        border: 2px dashed rgba(255, 45, 149, 0.3);
+        background: rgba(255, 45, 149, 0.05);
+        border-radius: var(--db-radius-lg);
+        padding: 2.5rem 1rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        text-align: center;
+      }
+      .upload-card:hover {
+        border-color: var(--neon-pink);
+        background: rgba(255, 45, 149, 0.1);
+        box-shadow: 0 0 20px rgba(255, 45, 149, 0.15);
+        transform: translateY(-2px);
+      }
+      .upload-card.has-image {
+        border-style: solid;
+        border-color: rgba(0, 243, 255, 0.3);
+        background: rgba(0, 243, 255, 0.05);
+      }
+      .upload-card.has-image:hover {
+        border-color: #00f3ff;
+      }
+      .upload-icon {
+        width: 48px;
+        height: 48px;
+        color: var(--neon-pink);
+        margin-bottom: 0.5rem;
+      }
+      .upload-card.has-image .upload-icon {
+        color: #00f3ff;
+      }
+      .upload-title {
+        font-weight: 800;
+        font-size: 1.1rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: white;
+      }
+      .upload-subtitle {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--neon-pink);
+        opacity: 0.8;
+      }
+      .upload-card.has-image .upload-subtitle {
+        color: #00f3ff;
+      }
+      .action-btns {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 1rem;
       }
       .solve-btn {
         background: var(--neon-pink);
         color: white;
         border: none;
-        padding: 0.75rem 1rem;
+        padding: 1rem;
         border-radius: var(--db-radius-md);
-        font-weight: bold;
+        font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.1em;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+      .solve-btn:hover:not(:disabled) {
+        background: #ff47a3;
+        box-shadow: 0 0 20px rgba(255, 45, 149, 0.4);
+        transform: translateY(-1px);
+      }
+      .solve-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+      .reset-btn {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.6);
+        width: 48px;
+        height: 48px;
+        border-radius: var(--db-radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
         cursor: pointer;
         transition: all 0.2s ease;
       }
-      .solve-btn:hover {
-        background: #ff47a3;
-        box-shadow: 0 0 15px rgba(255, 45, 149, 0.4);
-      }
-      .solve-btn:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-      .upload-btn {
-        background: transparent;
-        color: var(--neon-pink);
-        border: 1px solid var(--neon-pink);
-        padding: 0.5rem;
-        border-radius: var(--db-radius-md);
-        font-weight: bold;
-        text-transform: uppercase;
-        cursor: pointer;
-        text-align: center;
-        margin-bottom: 0.5rem;
+      .reset-btn:hover {
+        background: rgba(255, 0, 0, 0.1);
+        border-color: rgba(255, 0, 0, 0.3);
+        color: #ff4d4d;
       }
       .status-text {
         font-size: 0.8rem;
+        font-weight: bold;
         color: var(--neon-pink);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
         text-align: center;
-        margin-bottom: 0.5rem;
+        margin-top: 0.5rem;
       }
     `,
   ],
@@ -72,12 +145,22 @@ import { ImageAnnotation } from '../../models/annotation.models';
 })
 export class AnnotationControlsComponent {
   dataService = inject(CardDataService);
-  astrometry = inject(AstrometryService);
-  http = inject(HttpClient);
 
   mapData = this.dataService.stellarMapData;
-  isSolving = false;
-  solveStatus = '';
+  isSolving = signal(false);
+  solveStatus = signal('');
+
+  resetMap() {
+    this.mapData.update((d) => ({
+      ...d,
+      backgroundImage: null,
+      rawFile: null,
+      annotations: [],
+      naturalWidth: undefined,
+      naturalHeight: undefined,
+    }));
+    this.solveStatus.set('');
+  }
 
   toggleFilter(key: 'showMessier' | 'showNgc' | 'showNamedStars') {
     this.mapData.update((d) => ({
@@ -95,98 +178,108 @@ export class AnnotationControlsComponent {
       const file = input.files[0];
       const reader = new FileReader();
       reader.onload = (e) => {
-        this.mapData.update((d) => ({ ...d, backgroundImage: e.target?.result as string }));
+        const result = e.target?.result as string;
+
+        // Use a temporary image to detect natural dimensions for the WCS engine
+        const img = new Image();
+        img.onload = () => {
+          this.mapData.update((d) => ({
+            ...d,
+            backgroundImage: result,
+            rawFile: file,
+            naturalWidth: img.naturalWidth,
+            naturalHeight: img.naturalHeight,
+          }));
+        };
+        img.src = result;
       };
       reader.readAsDataURL(file);
     }
   }
 
-  // Helper to convert the dataURI we loaded back to a File for Astrometry
-  private dataURItoFile(dataURI: string, filename: string): File {
-    const arr = dataURI.split(',');
-    const mime = arr[0].match(/:(.*?);/)?.[1];
-    const bstr = atob(arr[1]);
-    let n = bstr.length;
-    const u8arr = new Uint8Array(n);
-    while (n--) {
-      u8arr[n] = bstr.charCodeAt(n);
-    }
-    return new File([u8arr], filename, { type: mime });
-  }
+  astrosolveService = inject(AstrosolveService);
+  wcsService = inject(WcsService);
 
   async triggerPlateSolve() {
-    const bg = this.mapData().backgroundImage;
-    if (!bg) return;
+    const file = this.mapData().rawFile;
+    if (!file) {
+      this.solveStatus.set('Error: No image uploaded.');
+      return;
+    }
 
-    this.isSolving = true;
-    this.solveStatus = 'Preparing image...';
+    this.isSolving.set(true);
+    this.mapData.update((d) => ({ ...d, isSolving: true }));
+    this.solveStatus.set('Starting plate solve...');
 
     try {
-      const file = this.dataURItoFile(bg, 'upload.jpg');
+      // Determine which catalog types to request based on UI toggles
+      const types = [];
+      if (this.mapData().filters.showMessier) types.push('M');
+      if (this.mapData().filters.showNgc)
+        types.push('NGC/IC', 'NGC', 'IC', 'Neb', 'G', 'PN', 'OCl');
+      if (this.mapData().filters.showNamedStars) types.push('Star');
 
-      // Fetch the local JSON database (use window.MOCK_DB if available for E2E)
-      this.solveStatus = 'Loading local database...';
-      const dbUrl = new URL(
-        'assets/data/objects_db.json',
-        window.location.origin + window.location.pathname,
-      ).href;
-      let localDbRaw: any;
-      try {
-        if ((window as any).MOCK_DB) {
-          localDbRaw = (window as any).MOCK_DB;
-        } else {
-          localDbRaw = await firstValueFrom(this.http.get<any>(dbUrl));
-        }
-      } catch (err: any) {
-        console.error('DB Fetch Error:', err);
-        throw new Error('Could not load local objects API DB.');
-      }
+      const hints = {
+        types: types.length > 0 ? types : undefined,
+      };
 
-      // Call the astrometry service
-      const annotationsRaw = await this.astrometry.solveImage(file, (msg) => {
-        this.solveStatus = msg;
+      console.log('Triggering solve with hints:', hints);
+      const result = await this.astrosolveService.solveImage(file, hints, (msg) => {
+        this.solveStatus.set(msg);
       });
 
-      this.solveStatus = 'Processing annotations...';
+      console.log('Solve Result SUCCESS:', result);
+      console.log(`Found ${result.objects.length} candidate objects.`);
 
-      // Cross-reference Astrometry names with our local DB
-      const processed: ImageAnnotation[] = [];
+      // Initialize the WCS projection engine with the actual input image dimensions
+      this.wcsService.resetLogCount();
+      const nW = this.mapData().naturalWidth || 1080;
+      const nH = this.mapData().naturalHeight || 1080;
+      this.wcsService.initialize(result.metadata.wcs, nW, nH);
 
-      for (const ann of annotationsRaw) {
-        // Astrometry provides an array of names for a single object
-        const matchedName = ann.names.find((n) => localDbRaw[n.trim()]);
-        const localObj = matchedName ? localDbRaw[matchedName.trim()] : null;
+      // Map backend Hybrid results to frontend ImageAnnotations with precision projection
+      const annotations: ImageAnnotation[] = result.objects
+        .map((obj) => {
+          const coords = this.wcsService.skyToPix(obj.ra, obj.dec);
 
-        // Astrometry returns radius in degrees, we map it, but our LocalDB has sizeId in arcmin
-        // We calculate an expected pixel radius
-        let pixelRadius = ann.radius > 0 ? ann.radius * 30 : 20; // Rough fallback
-        if (localObj && localObj.sizeId) {
-          // If local obj has size in arcmin, map to pixel radius roughly based on Astrometry's scale
-          // For now just multiply by a constant factor since we don't have exactly the arcsec/pixel easily accessible here
-          pixelRadius = Math.max(localObj.sizeId * 2, 10);
-        }
+          return {
+            id: obj.entryId || obj.name,
+            label: obj.commonName || obj.name,
+            name: obj.name,
+            commonName: obj.commonName,
+            x: obj.ra,
+            y: obj.dec,
+            xPercent: coords ? coords.x : 0,
+            yPercent: coords ? coords.y : 0,
+            radius: 20,
+            radiusDb: 20,
+            visible: coords !== null,
+            source: obj.source,
+            type: obj.type,
+          };
+        })
+        .filter((a) => a.visible); // Only keep annotations that fall within the frame
 
-        const primaryName = matchedName || ann.names[0];
+      console.log(
+        `Mapped ${annotations.length} out of ${result.objects.length} objects from solver.`,
+      );
 
-        processed.push({
-          id: primaryName,
-          label: primaryName,
-          xPercent: (ann.pixelx / 1080) * 100, // We assume roughly 1080x1350 target canvas
-          yPercent: (ann.pixely / 1350) * 100,
-          radiusDb: pixelRadius,
-          visible: true,
-        });
-      }
+      this.mapData.update((d: StellarMapData) => ({
+        ...d,
+        annotations,
+      }));
 
-      this.mapData.update((d) => ({ ...d, annotations: processed }));
-      this.solveStatus = 'Done!';
-    } catch (e: any) {
-      console.error(e);
-      alert('Plate solving failed: ' + e.message);
-      this.solveStatus = 'Failed to solve.';
+      this.solveStatus.set(`Success! Identified ${annotations.length} objects.`);
+    } catch (err: any) {
+      console.error('Plate solve failed:', err);
+      this.solveStatus.set(`Error: ${err.message}`);
     } finally {
-      this.isSolving = false;
-      setTimeout(() => (this.solveStatus = ''), 3000);
+      this.isSolving.set(false);
+      this.mapData.update((d) => ({ ...d, isSolving: false }));
+      // Clear status after a few seconds on success
+      if (!this.solveStatus().startsWith('Error')) {
+        setTimeout(() => this.solveStatus.set(''), 5000);
+      }
     }
   }
 }
