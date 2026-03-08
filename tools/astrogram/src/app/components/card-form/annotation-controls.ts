@@ -1,21 +1,24 @@
+import { CommonModule } from '@angular/common';
 import {
-  Component,
   ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  ViewChild,
   ViewEncapsulation,
   inject,
   signal,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { CardDataService } from '../../services/card-data.service';
-import { StellarMapData } from '../../models/card-data';
 import { ImageAnnotation } from '../../models/annotation.models';
-import { AstrosolveService, AstrosolveSolveResponse } from '../../services/astrosolve.service';
+import { StellarMapData } from '../../models/card-data';
+import { AstrosolveService } from '../../services/astrosolve.service';
+import { CardDataService } from '../../services/card-data.service';
 import { WcsService } from '../../services/wcs.service';
 @Component({
   selector: 'dba-ag-annotation-controls',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './annotation-controls.html',
+  exportAs: 'dbaAnnotationControls',
   styles: [
     `
       :host {
@@ -82,52 +85,39 @@ import { WcsService } from '../../services/wcs.service';
         color: #00f3ff;
       }
       .action-btns {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 1rem;
+        display: block;
       }
       .solve-btn {
-        background: var(--neon-pink);
-        color: white;
-        border: none;
+        background: transparent;
+        color: var(--neon-pink);
+        border: 1px solid var(--neon-pink);
+        width: 100%;
         padding: 1rem;
         border-radius: var(--db-radius-md);
         font-weight: 800;
         text-transform: uppercase;
         letter-spacing: 0.1em;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
       }
       .solve-btn:hover:not(:disabled) {
-        background: #ff47a3;
-        box-shadow: 0 0 20px rgba(255, 45, 149, 0.4);
-        transform: translateY(-1px);
+        background: rgba(255, 45, 149, 0.1);
+        box-shadow: 0 0 20px rgba(255, 45, 149, 0.3);
+        transform: translateY(-2px);
+      }
+      .solve-btn:active:not(:disabled) {
+        background: var(--neon-pink);
+        color: white;
       }
       .solve-btn:disabled {
         opacity: 0.4;
         cursor: not-allowed;
-      }
-      .reset-btn {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        color: rgba(255, 255, 255, 0.6);
-        width: 48px;
-        height: 48px;
-        border-radius: var(--db-radius-md);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.2s ease;
-      }
-      .reset-btn:hover {
-        background: rgba(255, 0, 0, 0.1);
-        border-color: rgba(255, 0, 0, 0.3);
-        color: #ff4d4d;
+        border-color: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.3);
       }
       .status-text {
         font-size: 0.8rem;
@@ -150,12 +140,15 @@ export class AnnotationControlsComponent {
   isSolving = signal(false);
   solveStatus = signal('');
 
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+
   resetMap() {
     this.mapData.update((d) => ({
       ...d,
       backgroundImage: null,
       rawFile: null,
       annotations: [],
+      isSolving: false,
       naturalWidth: undefined,
       naturalHeight: undefined,
     }));
@@ -249,8 +242,8 @@ export class AnnotationControlsComponent {
             commonName: obj.commonName,
             x: obj.ra,
             y: obj.dec,
-            xPercent: coords ? coords.x : 0,
-            yPercent: coords ? coords.y : 0,
+            xPercent: coords ? (coords.x / nW) * 100 : 0,
+            yPercent: coords ? (coords.y / nH) * 100 : 0,
             radius: 20,
             radiusDb: 20,
             visible: coords !== null,
@@ -258,7 +251,14 @@ export class AnnotationControlsComponent {
             type: obj.type,
           };
         })
-        .filter((a) => a.visible); // Only keep annotations that fall within the frame
+        .filter(
+          (a) =>
+            a.visible &&
+            a.xPercent >= 0 &&
+            a.xPercent <= 100 &&
+            a.yPercent >= 0 &&
+            a.yPercent <= 100,
+        ); // Only keep annotations that fall within the frame
 
       console.log(
         `Mapped ${annotations.length} out of ${result.objects.length} objects from solver.`,

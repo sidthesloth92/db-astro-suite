@@ -1,12 +1,13 @@
-import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, inject, ViewChild } from '@angular/core';
 import { CardDataService } from '../../services/card-data.service';
 import { BaseCardPreviewComponent } from '../base-card-preview/base-card-preview';
+import { AnnotationControlsComponent } from '../card-form/annotation-controls';
 
 @Component({
   selector: 'dba-ag-stellar-map-preview',
   standalone: true,
-  imports: [CommonModule, BaseCardPreviewComponent],
+  imports: [CommonModule, BaseCardPreviewComponent, AnnotationControlsComponent],
   templateUrl: './stellar-map-preview.html',
   styles: [
     `
@@ -134,6 +135,31 @@ import { BaseCardPreviewComponent } from '../base-card-preview/base-card-preview
         color: var(--neon-pink);
         opacity: 0.7;
       }
+      .clear-btn {
+        position: absolute;
+        top: 1.5rem;
+        right: 1.5rem;
+        z-index: 30;
+        background: rgba(10, 15, 25, 0.6);
+        border: 1px solid rgba(255, 45, 149, 0.4);
+        color: var(--neon-pink);
+        width: 44px;
+        height: 44px;
+        border-radius: var(--db-radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        backdrop-filter: blur(8px);
+      }
+      .clear-btn:hover {
+        background: rgba(255, 45, 149, 0.15);
+        border-color: var(--neon-pink);
+        box-shadow: 0 0 20px rgba(255, 45, 149, 0.3);
+        transform: translateY(-2px);
+        color: white;
+      }
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -141,6 +167,14 @@ import { BaseCardPreviewComponent } from '../base-card-preview/base-card-preview
 export class StellarMapPreviewComponent {
   dataService = inject(CardDataService);
   mapData = this.dataService.stellarMapData;
+
+  @ViewChild('controls') controlsComponent!: AnnotationControlsComponent;
+
+  clearAll() {
+    if (this.controlsComponent) {
+      this.controlsComponent.resetMap();
+    }
+  }
 
   visibleAnnotations = computed(() => {
     const filters = this.mapData().filters;

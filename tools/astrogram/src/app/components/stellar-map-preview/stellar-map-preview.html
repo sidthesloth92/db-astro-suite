@@ -6,6 +6,19 @@
   [author]="''"
   exportFilename="stellar-map"
 >
+  @if (mapData().backgroundImage) {
+    <button class="clear-btn" (click)="clearAll()" title="Clear Image & Data">
+      <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+        ></path>
+      </svg>
+    </button>
+  }
+
   <!-- Absolute Layer for Annotations mapping identically to the background image dimensions -->
   <div class="annotations-layer" fullBleed>
     @for (ann of visibleAnnotations(); track ann.id) {
@@ -31,7 +44,7 @@
   <!-- Starwizz-style Upload Card when empty -->
   @if (!mapData().backgroundImage && !mapData().isSolving) {
     <div class="upload-overlay" fullBleed>
-      <div class="upload-card-inner" (click)="fileInput.click()">
+      <div class="upload-card-inner" (click)="controls.fileInput.nativeElement.click()">
         <svg
           class="upload-icon"
           fill="none"
@@ -47,15 +60,27 @@
           ></path>
         </svg>
         <div class="upload-title">Upload Target</div>
-        <div class="upload-subtitle">Choose background image</div>
+        <div
+          class="upload-help-text"
+          style="
+            color: var(--neon-pink);
+            font-size: 0.8rem;
+            margin-top: 0.75rem;
+            max-width: 220px;
+            text-align: center;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            opacity: 0.8;
+          "
+        >
+          UPLOAD AN IMAGE TO BEGIN PLATE SOLVING
+        </div>
       </div>
-      <input
-        #fileInput
-        type="file"
-        accept="image/*"
-        (change)="onImageUpload($event)"
-        style="display: none"
-      />
     </div>
   }
+
+  <dba-ag-annotation-controls
+    #controls="dbaAnnotationControls"
+    style="display: none"
+  ></dba-ag-annotation-controls>
 </dba-ag-base-card-preview>
