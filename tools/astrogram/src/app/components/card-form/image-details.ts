@@ -124,7 +124,7 @@ export class ImageDetailsComponent {
       const info = await this.astroInfo.getObjectDescription(query);
       if (info) {
         const currentCaption = this.cardData().caption || '';
-        const newText = info.description; // We use short description as requested
+        const newText = info.extract; // Use full extract as requested
         const separator = currentCaption ? '\n\n' : '';
         this.updateData('caption', currentCaption + separator + newText);
       }
