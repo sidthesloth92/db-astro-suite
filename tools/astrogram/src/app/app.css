@@ -113,7 +113,7 @@
 
 .post-wrap.aspect-auto {
   max-width: 100%;
-  min-width: 482px; 
+  min-width: 482px;
   width: auto;
   flex: 0 1 auto;
   overflow: hidden;

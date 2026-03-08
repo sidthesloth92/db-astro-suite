@@ -59,7 +59,10 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
     if (this.aspectRatio() === 'auto') {
       const natW = this.naturalImageWidth();
       if (natW > 0) return `${natW * this.scaleFactor()}px`;
-      const baseWidth = this.backgroundImage() && this.cardElement ? this.cardElement.nativeElement.offsetWidth : 480;
+      const baseWidth =
+        this.backgroundImage() && this.cardElement
+          ? this.cardElement.nativeElement.offsetWidth
+          : 480;
       return `${baseWidth * this.scaleFactor()}px`;
     }
     return '100%';
@@ -92,15 +95,18 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
   }
 
   ngOnInit() {
-    effect(() => {
-      const img = this.backgroundImage();
-      if (!img) {
-        // Reset natural dimensions so the empty-state card uses its default size
-        this.naturalImageWidth.set(0);
-        this.naturalImageHeight.set(0);
-        this.scaleFactor.set(1);
-      }
-    }, { injector: this.injector });
+    effect(
+      () => {
+        const img = this.backgroundImage();
+        if (!img) {
+          // Reset natural dimensions so the empty-state card uses its default size
+          this.naturalImageWidth.set(0);
+          this.naturalImageHeight.set(0);
+          this.scaleFactor.set(1);
+        }
+      },
+      { injector: this.injector },
+    );
   }
 
   ngAfterViewInit() {
@@ -155,7 +161,7 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
 
     // Scaling strategy differs by mode
     let scale = 1;
-    
+
     // Use window height for better accuracy as the parent .main-container may have padding/margins
     const viewportHeight = window.innerHeight;
     const headerHeight = 80; // Adjusted for actual header height
