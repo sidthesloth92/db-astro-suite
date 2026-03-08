@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.7.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.6.0...v1.7.0) (2026-03-02)
+
+
+### Features
+
+* Implement and test DSO description fetching functionality. ([6b4a38c](https://github.com/sidthesloth92/db-astro-suite/commit/6b4a38c956de301d03c73f7e91f3c2c078c2532e))
+* Introduce `noBox` input for the slider component and add `ObjectAnnotation` support to the card data model. ([6b3828f](https://github.com/sidthesloth92/db-astro-suite/commit/6b3828f81c489d782a2efa6735386c83cae1c3b1))
+
 ## [1.6.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.5.0...v1.6.0) (2026-03-01)
 
 

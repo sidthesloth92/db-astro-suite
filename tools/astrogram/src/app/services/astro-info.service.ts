@@ -4,22 +4,43 @@ import { Injectable } from '@angular/core';
   providedIn: 'root',
 })
 export class AstroInfoService {
-  private readonly WIKI_API = 'https://en.wikipedia.org/api/rest_v1/page/summary/';
+  private readonly WIKI_SUMMARY_API = 'https://en.wikipedia.org/api/rest_v1/page/summary/';
+  private readonly WIKI_SEARCH_API = 'https://en.wikipedia.org/w/api.php';
 
   async getObjectDescription(
     name: string,
   ): Promise<{ description: string; extract: string } | null> {
     if (!name) return null;
 
-    // Sanitize name for API (spaces to underscores)
-    const encodedName = encodeURIComponent(name.trim().replace(/\s+/g, '_'));
-    const url = `${this.WIKI_API}${encodedName}`;
-
     try {
-      const response = await fetch(url);
-      if (!response.ok) return null;
+      // Step 1: Search for the best matching Page Title
+      const searchParams = new URLSearchParams({
+        action: 'query',
+        list: 'search',
+        srsearch: name.trim(),
+        format: 'json',
+        origin: '*',
+        srlimit: '1',
+      });
 
-      const data = await response.json();
+      const searchResponse = await fetch(`${this.WIKI_SEARCH_API}?${searchParams.toString()}`);
+      if (!searchResponse.ok) return null;
+
+      const searchData = await searchResponse.json();
+      const bestMatch = searchData.query?.search?.[0]?.title;
+
+      if (!bestMatch) {
+        return null;
+      }
+
+      // Step 2: Fetch the summary for the best match
+      const encodedName = encodeURIComponent(bestMatch.replace(/\s+/g, '_'));
+      const summaryUrl = `${this.WIKI_SUMMARY_API}${encodedName}`;
+
+      const summaryResponse = await fetch(summaryUrl);
+      if (!summaryResponse.ok) return null;
+
+      const data = await summaryResponse.json();
       return {
         description: data.description || '',
         extract: data.extract || '',

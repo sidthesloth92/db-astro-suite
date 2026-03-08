@@ -8,7 +8,9 @@ export class CardDataService {
   readonly cardData = signal<CardData>({
     title: 'NGC 2237 - Rosette Nebula',
     description:
-      "The first ever nebula that I shot was the Rosette. I still remember looking at the first frame as it came through in disbelief, as to how to the naked eye I couldn't see anything but it was just right there hidden among the stars. Here it is in pink on Valentine's Day 🌹",
+      "The first ever nebula that I shot was the Rosette. Here it is in pink on Valentine's Day 🌹",
+    caption:
+      "The first ever nebula that I shot was the Rosette. I still remember looking at the first frame as it came through in disbelief, as to how to the naked eye I couldn't see anything but it was just right there hidden among the stars.",
     date: new Date().toISOString().split('T')[0],
     location: 'Irving, Texas',
     author: '@astrogram',

@@ -35,6 +35,7 @@ export interface CardData {
   // Header
   title: string;
   description?: string;
+  caption?: string;
   date: string;
   location: string;
   author: string;
@@ -111,7 +112,18 @@ export function formatDuration(totalSeconds: number): string {
   if (hours > 0) {
     return `${hours}h ${minutes}m`;
   }
-  return `${minutes}m`;
+
+  if (minutes > 0) {
+    return `${minutes}m`;
+  }
+
+  if (totalSeconds > 0) {
+    // Round to 3 decimal places and remove trailing zeros
+    const formatted = parseFloat(totalSeconds.toFixed(3));
+    return `${formatted}s`;
+  }
+
+  return '0s';
 }
 
 export function calculateTotalIntegration(filters: FilterExposure[]): number {
@@ -148,7 +160,7 @@ export function generateInstagramCaption(data: CardData): string {
 
   const hashtags = data.hashtags ? data.hashtags : '';
 
-  return `${data.description || ''}
+  return `${data.caption || ''}
 
 🔭 EXPOSURE DETAILS
 ${gearList}
