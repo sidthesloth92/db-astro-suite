@@ -136,29 +136,25 @@ import { AnnotationControlsComponent } from '../card-form/annotation-controls';
         opacity: 0.7;
       }
       .clear-btn {
-        position: absolute;
-        top: 1.5rem;
-        right: 1.5rem;
-        z-index: 30;
-        background: rgba(10, 15, 25, 0.6);
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: rgba(255, 45, 149, 0.08);
         border: 1px solid rgba(255, 45, 149, 0.4);
         color: var(--neon-pink);
-        width: 44px;
-        height: 44px;
-        border-radius: var(--db-radius-md);
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        backdrop-filter: blur(8px);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
       }
       .clear-btn:hover {
-        background: rgba(255, 45, 149, 0.15);
+        background: rgba(255, 45, 149, 0.2);
         border-color: var(--neon-pink);
-        box-shadow: 0 0 20px rgba(255, 45, 149, 0.3);
-        transform: translateY(-2px);
+        box-shadow: 0 0 15px rgba(255, 45, 149, 0.4);
         color: white;
+        transform: scale(1.1);
       }
     `,
   ],

@@ -55,6 +55,16 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
     const natH = this.naturalImageHeight();
     return natH > 0 ? `${natH}px` : '600px';
   }
+  @HostBinding('style.--header-width') get headerWidth() {
+    const scale = this.scaleFactor();
+    if (this.aspectRatio() === 'auto') {
+      const natW = this.naturalImageWidth();
+      if (natW > 0) return `${natW * scale}px`;
+      return `${480 * scale}px`;
+    }
+    const baseW = this.aspectRatio() === '3:4' ? 450 : 480;
+    return `${baseW * scale}px`;
+  }
   @HostBinding('style.--post-width') get postWidth() {
     if (this.aspectRatio() === 'auto') {
       const natW = this.naturalImageWidth();
@@ -149,10 +159,8 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
     let naturalWidth: number;
 
     if (this.aspectRatio() === 'auto' && this.naturalImageWidth() > 0) {
-      const headerEl = this.postContainerRef?.nativeElement.querySelector('.post-header');
-      const headerH = headerEl ? headerEl.offsetHeight : 50;
       naturalWidth = this.naturalImageWidth();
-      naturalHeight = headerH + this.naturalImageHeight();
+      naturalHeight = this.naturalImageHeight(); // Header is outside the scale container, not included
     } else {
       naturalHeight = this.postContainerRef?.nativeElement.offsetHeight ?? 680;
       naturalWidth = cardElement.offsetWidth;

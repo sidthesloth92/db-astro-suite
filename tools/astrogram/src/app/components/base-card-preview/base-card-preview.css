@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0;
   height: 100%;
   width: 100%;
 }
@@ -21,9 +21,10 @@
 
 .post-container {
   padding: 0;
-  border-radius: 12px 12px 0 0;
+  border-radius: 0;
   background: rgba(10, 15, 25, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: none;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
   display: flex;
   flex-direction: column;
@@ -72,33 +73,32 @@
   text-transform: uppercase;
 }
 
-.post-container {
-  padding: 0;
-  border-radius: 12px 12px 0 0;
-  background: rgba(10, 15, 25, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  transform: scale(var(--scale-factor));
-  transform-origin: top center;
-  width: var(--card-width, max-content);
-  min-width: 0;
-}
-
-/* Post Header */
+/* Post Header - lives outside the scaled container */
 .post-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem 1rem;
+  width: var(--header-width, 480px);
+  max-width: 100%;
+  background: rgba(10, 15, 25, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: none;
+  border-radius: 12px 12px 0 0;
+  box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.4);
+  flex-shrink: 0;
 }
 
 .user-meta {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .avatar-mini {

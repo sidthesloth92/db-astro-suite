@@ -2,13 +2,13 @@
   [aspectRatio]="mapData().aspectRatio"
   [backgroundImage]="mapData().backgroundImage"
   fillMode="fill"
-  [cardOpacity]="0.85"
+  [cardOpacity]="mapData().backgroundImage ? 0 : 0.85"
   [author]="''"
   exportFilename="stellar-map"
 >
   @if (mapData().backgroundImage) {
-    <button class="clear-btn" (click)="clearAll()" title="Clear Image & Data">
-      <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <button headerAction class="clear-btn" (click)="clearAll()" title="Clear Image & Data">
+      <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path
           stroke-linecap="round"
           stroke-linejoin="round"
