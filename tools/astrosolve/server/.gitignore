@@ -26,6 +26,10 @@ test.jpg
 temp-*/
 *.log
 
+# SQLite WAL-mode runtime artifacts
+*.sqlite-shm
+*.sqlite-wal
+
 # Backups and local config
 .env
 *.bak
