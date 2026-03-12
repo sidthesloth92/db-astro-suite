@@ -28,66 +28,172 @@
 
   @if (mapData().annotations && mapData().annotations.length > 0) {
     <div class="filter-toggles mt-4">
-      <h3
-        style="
-          font-size: 0.7rem;
-          text-transform: uppercase;
-          color: var(--neon-pink);
-          margin-bottom: 0.8rem;
-          opacity: 0.6;
-        "
-      >
-        Annotation Filters
-      </h3>
-      <div style="display: flex; flex-direction: column; gap: 0.6rem">
-        <label
-          style="
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            font-size: 0.85rem;
-            cursor: pointer;
-          "
-        >
-          <input
-            type="checkbox"
-            [checked]="mapData().filters.showMessier"
-            (change)="toggleFilter('showMessier')"
-          />
-          Messier Catalog
-        </label>
-        <label
-          style="
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            font-size: 0.85rem;
-            cursor: pointer;
-          "
-        >
-          <input
-            type="checkbox"
-            [checked]="mapData().filters.showNgc"
-            (change)="toggleFilter('showNgc')"
-          />
-          NGC/IC Objects
-        </label>
-        <label
-          style="
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            font-size: 0.85rem;
-            cursor: pointer;
-          "
-        >
-          <input
-            type="checkbox"
-            [checked]="mapData().filters.showNamedStars"
-            (change)="toggleFilter('showNamedStars')"
-          />
-          Named Stars
-        </label>
+      <!-- ── SECTION HEADER ─────────────────────────────────────── -->
+      <h3 class="filter-section-title">Annotation Filters</h3>
+
+      <!-- ── STARS ─────────────────────────────────────────────── -->
+      <div class="filter-group">
+        <div class="filter-group-label">Stars</div>
+        <div class="filter-row">
+          <label class="filter-check">
+            <input
+              type="checkbox"
+              [checked]="mapData().filters.showNamedStars"
+              (change)="toggleFilter('showNamedStars')"
+            />
+            Named Stars
+          </label>
+          <label class="filter-check">
+            <input
+              type="checkbox"
+              [checked]="mapData().filters.showHDStars"
+              (change)="toggleFilter('showHDStars')"
+            />
+            HD Stars
+          </label>
+        </div>
+        @if (mapData().filters.showNamedStars || mapData().filters.showHDStars) {
+          <div class="mag-slider-row">
+            <span class="mag-label">mag ≤ {{ mapData().filters.maxStarMagnitude.toFixed(1) }}</span>
+            <input
+              type="range"
+              class="mag-slider"
+              min="0"
+              max="15"
+              step="0.5"
+              [value]="mapData().filters.maxStarMagnitude"
+              (input)="setStarMagnitude($event)"
+              list="mag-ticks"
+            />
+            <datalist id="mag-ticks">
+              <option value="0" label="Brightest"></option>
+              <option value="3"></option>
+              <option value="6" label="Naked Eye"></option>
+              <option value="8" label="Binoculars"></option>
+              <option value="10"></option>
+              <option value="12"></option>
+              <option value="15" label="Faint"></option>
+            </datalist>
+            <div class="mag-tick-labels">
+              <span>0</span><span>3</span><span>6</span><span>8</span><span>10</span><span>12</span
+              ><span>15</span>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- ── CATALOGS ───────────────────────────────────────────── -->
+      <div class="filter-group">
+        <div class="filter-group-label">Catalogs</div>
+        <div class="filter-row">
+          <label class="filter-check">
+            <input
+              type="checkbox"
+              [checked]="mapData().filters.showMessier"
+              (change)="toggleFilter('showMessier')"
+            />
+            Messier
+          </label>
+          <label class="filter-check">
+            <input
+              type="checkbox"
+              [checked]="mapData().filters.showNGC"
+              (change)="toggleFilter('showNGC')"
+            />
+            NGC
+          </label>
+          <label class="filter-check">
+            <input
+              type="checkbox"
+              [checked]="mapData().filters.showIC"
+              (change)="toggleFilter('showIC')"
+            />
+            IC
+          </label>
+          <label class="filter-check">
+            <input
+              type="checkbox"
+              [checked]="mapData().filters.showCaldwell"
+              (change)="toggleFilter('showCaldwell')"
+            />
+            Caldwell
+          </label>
+        </div>
+        <div class="filter-row">
+          <label class="filter-check">
+            <input
+              type="checkbox"
+              [checked]="mapData().filters.showSharpless"
+              (change)="toggleFilter('showSharpless')"
+            />
+            Sharpless
+          </label>
+          <label class="filter-check">
+            <input
+              type="checkbox"
+              [checked]="mapData().filters.showAbellClusters"
+              (change)="toggleFilter('showAbellClusters')"
+            />
+            Abell Clusters
+          </label>
+        </div>
+      </div>
+
+      <!-- ── OBJECT TYPES ───────────────────────────────────────── -->
+      <div class="filter-group">
+        <div class="filter-group-label">Object Types</div>
+        <div class="filter-row">
+          <label class="filter-check">
+            <input
+              type="checkbox"
+              [checked]="mapData().filters.showGalaxies"
+              (change)="toggleFilter('showGalaxies')"
+            />
+            Galaxies
+          </label>
+          <label class="filter-check">
+            <input
+              type="checkbox"
+              [checked]="mapData().filters.showOpenClusters"
+              (change)="toggleFilter('showOpenClusters')"
+            />
+            Open Clusters
+          </label>
+          <label class="filter-check">
+            <input
+              type="checkbox"
+              [checked]="mapData().filters.showGlobularClusters"
+              (change)="toggleFilter('showGlobularClusters')"
+            />
+            Globular Clusters
+          </label>
+        </div>
+        <div class="filter-row">
+          <label class="filter-check">
+            <input
+              type="checkbox"
+              [checked]="mapData().filters.showPlanetaryNebulae"
+              (change)="toggleFilter('showPlanetaryNebulae')"
+            />
+            Planetary Nebulae
+          </label>
+          <label class="filter-check">
+            <input
+              type="checkbox"
+              [checked]="mapData().filters.showNebulae"
+              (change)="toggleFilter('showNebulae')"
+            />
+            Nebulae
+          </label>
+          <label class="filter-check">
+            <input
+              type="checkbox"
+              [checked]="mapData().filters.showQuasars"
+              (change)="toggleFilter('showQuasars')"
+            />
+            Quasars
+          </label>
+        </div>
       </div>
     </div>
   }

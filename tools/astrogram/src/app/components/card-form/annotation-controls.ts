@@ -128,6 +128,75 @@ import { WcsService } from '../../services/wcs.service';
         text-align: center;
         margin-top: 0.5rem;
       }
+      .filter-section-title {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--neon-pink);
+        opacity: 0.6;
+        margin: 0 0 1rem 0;
+      }
+      .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      .filter-group:last-child {
+        border-bottom: none;
+      }
+      .filter-group-label {
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: rgba(0, 243, 255, 0.5);
+        margin-bottom: 0.25rem;
+      }
+      .filter-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 1.2rem;
+      }
+      .filter-check {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.8rem;
+        cursor: pointer;
+        color: rgba(255, 255, 255, 0.85);
+        user-select: none;
+      }
+      .filter-check input[type='checkbox'] {
+        accent-color: var(--neon-pink);
+        width: 14px;
+        height: 14px;
+        cursor: pointer;
+      }
+      .mag-slider-row {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+        margin-top: 0.4rem;
+      }
+      .mag-label {
+        font-size: 0.75rem;
+        color: #00f3ff;
+        font-weight: bold;
+        letter-spacing: 0.05em;
+      }
+      .mag-slider {
+        width: 100%;
+        accent-color: #00f3ff;
+        cursor: pointer;
+      }
+      .mag-tick-labels {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.6rem;
+        color: rgba(255, 255, 255, 0.35);
+        padding: 0 2px;
+      }
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -155,13 +224,23 @@ export class AnnotationControlsComponent {
     this.solveStatus.set('');
   }
 
-  toggleFilter(key: 'showMessier' | 'showNgc' | 'showNamedStars') {
+  toggleFilter(
+    key: keyof Omit<import('../../models/card-data').AnnotationFilters, 'maxStarMagnitude'>,
+  ) {
     this.mapData.update((d) => ({
       ...d,
       filters: {
         ...d.filters,
-        [key]: !d.filters[key],
+        [key]: !d.filters[key as keyof typeof d.filters],
       },
+    }));
+  }
+
+  setStarMagnitude(event: Event) {
+    const value = parseFloat((event.target as HTMLInputElement).value);
+    this.mapData.update((d) => ({
+      ...d,
+      filters: { ...d.filters, maxStarMagnitude: value },
     }));
   }
 
@@ -205,16 +284,8 @@ export class AnnotationControlsComponent {
     this.solveStatus.set('Starting plate solve...');
 
     try {
-      // Determine which catalog types to request based on UI toggles
-      const types = [];
-      if (this.mapData().filters.showMessier) types.push('M');
-      if (this.mapData().filters.showNgc)
-        types.push('NGC/IC', 'NGC', 'IC', 'Neb', 'G', 'PN', 'OCl');
-      if (this.mapData().filters.showNamedStars) types.push('Star');
-
-      const hints = {
-        types: types.length > 0 ? types : undefined,
-      };
+      // Fetch everything — filtering is done client-side
+      const hints = {};
 
       const result = await this.astrosolveService.solveImage(file, hints, (msg) => {
         this.solveStatus.set(msg);
@@ -225,24 +296,30 @@ export class AnnotationControlsComponent {
       const nH = this.mapData().naturalHeight || 1080;
       this.wcsService.initialize(result.metadata.wcs, nW, nH);
 
+      // Use WCS internal dimensions for coordinate math — these may differ from nW/nH
+      // if the solver downsampled the image (--downsample 2 halves IMAGEW/IMAGEH in the header).
+      // All pixel coordinates from skyToPix() are in this WCS pixel space.
+      const wcsW = this.wcsService.getImageWidth() || nW;
+      const wcsH = this.wcsService.getImageHeight() || nH;
+
       // Plate scale for sizing circles from angular diameters
       const scaleArcsecPerPx = this.wcsService.getArcsecPerPixel();
 
       // Map backend objects to ImageAnnotations using pixel coordinates
       const annotations: ImageAnnotation[] = result.objects
         .map((obj) => {
-          // skyToPix now returns 0-based pixel coordinates
+          // skyToPix now returns 0-based pixel coordinates in WCS pixel space
           const pix = this.wcsService.skyToPix(obj.ra, obj.dec);
 
           // Convert pixel coords to percentages for CSS positioning
-          const xPercent = pix ? (pix.x / nW) * 100 : 0;
-          const yPercent = pix ? (pix.y / nH) * 100 : 0;
+          const xPercent = pix ? (pix.x / wcsW) * 100 : 0;
+          const yPercent = pix ? (pix.y / wcsH) * 100 : 0;
 
           // Size the circle from the catalog angular diameter
           let radiusDb = 8;
           if (obj.sizeArcmin && obj.sizeArcmin > 0 && scaleArcsecPerPx > 0) {
             const radiusPx = (obj.sizeArcmin * 60) / (2 * scaleArcsecPerPx);
-            radiusDb = Math.max(8, Math.min(radiusPx, Math.min(nW, nH) * 0.25));
+            radiusDb = Math.max(8, Math.min(radiusPx, Math.min(wcsW, wcsH) * 0.25));
           }
 
           return {
@@ -255,7 +332,9 @@ export class AnnotationControlsComponent {
             radiusDb,
             visible: pix !== null,
             source: obj.source,
+            catalog: obj.catalog,
             type: obj.type,
+            magnitude: obj.magnitude ?? undefined,
           };
         })
         .filter(

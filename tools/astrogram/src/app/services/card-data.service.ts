@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { CardData, StellarMapData, DEFAULT_FILTERS } from '../models/card-data';
+import { CardData, DEFAULT_FILTERS, StellarMapData } from '../models/card-data';
 
 @Injectable({
   providedIn: 'root',
@@ -48,8 +48,20 @@ export class CardDataService {
     annotations: [],
     filters: {
       showMessier: true,
-      showNgc: true,
+      showNGC: true,
+      showIC: true,
+      showCaldwell: true,
+      showSharpless: true,
+      showAbellClusters: true,
+      showGalaxies: true,
+      showOpenClusters: true,
+      showGlobularClusters: true,
+      showPlanetaryNebulae: true,
+      showNebulae: true,
+      showQuasars: true,
       showNamedStars: true,
+      showHDStars: true,
+      maxStarMagnitude: 7,
     },
   });
 

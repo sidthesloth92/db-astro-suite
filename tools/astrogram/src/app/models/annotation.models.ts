@@ -6,9 +6,11 @@ export interface ImageAnnotation {
   label: string; // E.g., "M 42" or "Orion Nebula"
   visible: boolean; // Governed by UI filters
   source?: 'local' | 'simbad';
-  type?: string;
+  catalog?: string; // 'M', 'C', 'NGC/IC', 'Sh2', 'ACO', 'HD', 'Star', etc.
+  type?: string; // OpenNGC type code: 'G', 'PN', 'HII', 'GClus', 'Star', etc.
   name?: string;
   commonName?: string;
+  magnitude?: number;
 }
 
 export interface LocalAstroObject {

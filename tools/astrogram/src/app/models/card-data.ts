@@ -76,11 +76,28 @@ export interface StellarMapData {
   naturalWidth?: number;
   naturalHeight?: number;
   annotations: ImageAnnotation[];
-  filters: {
-    showMessier: boolean;
-    showNgc: boolean;
-    showNamedStars: boolean;
-  };
+  filters: AnnotationFilters;
+}
+
+export interface AnnotationFilters {
+  // Catalogs
+  showMessier: boolean;
+  showNGC: boolean;
+  showIC: boolean;
+  showCaldwell: boolean;
+  showSharpless: boolean;
+  showAbellClusters: boolean;
+  // Object types
+  showGalaxies: boolean;
+  showOpenClusters: boolean;
+  showGlobularClusters: boolean;
+  showPlanetaryNebulae: boolean;
+  showNebulae: boolean;
+  showQuasars: boolean;
+  // Stars (OR logic: star shows if either matching checkbox is on AND mag <= slider)
+  showNamedStars: boolean;
+  showHDStars: boolean;
+  maxStarMagnitude: number;
 }
 
 // Default filter configurations

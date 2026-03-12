@@ -173,34 +173,166 @@ export class StellarMapPreviewComponent {
     }
   }
 
+  // ── Type lookup sets (OpenNGC codes + SIMBAD OTYPEs, all uppercase) ────────
+  private static readonly STAR_TYPES = new Set([
+    // OpenNGC
+    'STAR',
+    '*',
+    '**',
+    '*ASS',
+    // SIMBAD
+    'V*',
+    'CE*',
+    'RR*',
+    'LP*',
+    'MI*',
+    'SR*',
+    'NO*',
+    'SN*',
+    'WR*',
+    'C*',
+    'BE*',
+    'HB*',
+    'WD*',
+    'N*',
+    'TT*',
+    'AE*',
+    'HS*',
+    'S*',
+    'SG*',
+    'S*R',
+    'S*B',
+    'S*Y',
+    'EM*',
+    'OR*',
+  ]);
+  private static readonly GALAXY_TYPES = new Set([
+    // OpenNGC
+    'G',
+    'GPAIR',
+    'GTRPL',
+    'GGROUP',
+    // SIMBAD
+    'GX',
+    'GIP',
+    'GIG',
+    'GIC',
+    'BCLG',
+    'SY*',
+    'SY1',
+    'SY2',
+    'AGN',
+    'LINER',
+    'EMG',
+  ]);
+  private static readonly OPEN_CLUSTER_TYPES = new Set([
+    // OpenNGC
+    'OCL',
+    'CL+N',
+    // SIMBAD
+    'OPC',
+    'CL*',
+    'AS*',
+    'OAS',
+  ]);
+  private static readonly GLOB_CLUSTER_TYPES = new Set([
+    // OpenNGC
+    'GCL',
+    // SIMBAD
+    'GLC',
+  ]);
+  private static readonly NEBULA_TYPES = new Set([
+    // OpenNGC
+    'HII',
+    'EMN',
+    'NEB',
+    'RFN',
+    'DARKNEB',
+    'SNR',
+    'NOVA',
+    // SIMBAD
+    'RNE',
+    'MOC',
+    'DNE',
+    'SNR',
+    'EMO',
+    'BUB',
+    'HH',
+  ]);
+  private static readonly GALAXY_CLUSTER_TYPES = new Set([
+    // OpenNGC / local ACO
+    'GCLUS',
+    // SIMBAD
+    'CLG',
+  ]);
+  private static readonly QUASAR_TYPES = new Set(['QSO', 'BLA']);
+
   visibleAnnotations = computed(() => {
-    const filters = this.mapData().filters;
-    const items = this.mapData().annotations.filter((ann) => {
-      const type = ann.type?.toUpperCase() || '';
-      const lbl = (ann.label || '').toUpperCase();
+    const f = this.mapData().filters;
+    const T = StellarMapPreviewComponent;
 
-      // Show Messier objects: Either explicit type 'M' or starts with M + digit
-      if (type === 'M' || (lbl.startsWith('M') && /\d/.test(lbl))) {
-        return filters.showMessier;
+    return this.mapData().annotations.filter((ann) => {
+      const type = (ann.type ?? '').toUpperCase();
+      const catalog = (ann.catalog ?? '').toUpperCase();
+      const name = (ann.name ?? '').toUpperCase();
+      const label = (ann.label ?? '').toUpperCase();
+      const mag = ann.magnitude ?? Infinity;
+
+      // ── Stars ────────────────────────────────────────────────────
+      if (T.STAR_TYPES.has(type)) {
+        const isHD = catalog === 'HD' || name.startsWith('HD ') || label.startsWith('HD ');
+        const namedMatch =
+          f.showNamedStars && !!ann.commonName && !isHD && mag <= f.maxStarMagnitude;
+        const hdMatch =
+          f.showHDStars && isHD && (ann.magnitude == null || mag <= f.maxStarMagnitude);
+        return namedMatch || hdMatch;
       }
 
-      // Show NGC/IC: Explicit morphological types, generic catalogs, or explicit naming structure
-      const isDSO = ['NGC', 'IC', 'NGC/IC', 'NEB', 'G', 'PN', 'OCL'].includes(type);
-      const hasDsoName =
-        lbl.startsWith('NGC') ||
-        lbl.startsWith('IC') ||
-        (ann.name &&
-          (ann.name.toUpperCase().startsWith('NGC') || ann.name.toUpperCase().startsWith('IC')));
+      // ── DSOs: accumulate OR across all matching groups ───────────
+      let show = false;
 
-      if (isDSO || hasDsoName) {
-        return filters.showNgc;
+      // Catalog-level
+      if (catalog === 'M' || type === 'M') show ||= f.showMessier;
+      if (catalog === 'C' || type === 'C') show ||= f.showCaldwell;
+      if (catalog === 'SH2') show ||= f.showSharpless;
+      if (catalog === 'ACO') show ||= f.showAbellClusters;
+      if (name.startsWith('NGC') || (catalog === 'NGC/IC' && name.startsWith('NGC')))
+        show ||= f.showNGC;
+      if (name.startsWith('IC') || (catalog === 'NGC/IC' && name.startsWith('IC')))
+        show ||= f.showIC;
+      // Also handle SIMBAD names like 'M 13', 'NGC 6205'
+      if (!name.startsWith('NGC') && label.startsWith('NGC')) show ||= f.showNGC;
+      if (!name.startsWith('IC') && label.startsWith('IC')) show ||= f.showIC;
+
+      // Object-type checks
+      if (T.GALAXY_TYPES.has(type)) show ||= f.showGalaxies;
+      if (T.OPEN_CLUSTER_TYPES.has(type)) show ||= f.showOpenClusters;
+      if (T.GLOB_CLUSTER_TYPES.has(type)) show ||= f.showGlobularClusters;
+      if (type === 'PN') show ||= f.showPlanetaryNebulae;
+      if (T.NEBULA_TYPES.has(type)) show ||= f.showNebulae;
+      if (T.GALAXY_CLUSTER_TYPES.has(type)) show ||= f.showAbellClusters;
+      if (T.QUASAR_TYPES.has(type)) show ||= f.showQuasars;
+
+      // ── Final fallback: unknown / Dup / Other / NonEx types ──────
+      // Use catalog or name prefix so nothing silently disappears
+      if (!show) {
+        if (catalog === 'NGC/IC' || name.startsWith('NGC') || label.startsWith('NGC'))
+          show = f.showNGC;
+        else if (name.startsWith('IC') || label.startsWith('IC')) show = f.showIC;
+        else if (catalog === 'M' || name.startsWith('M ') || label.startsWith('M '))
+          show = f.showMessier;
+        else if (catalog === 'C' || name.startsWith('C ') || label.startsWith('C '))
+          show = f.showCaldwell;
+        else if (catalog === 'SH2') show = f.showSharpless;
+        else if (catalog === 'ACO') show = f.showAbellClusters;
+        else if (catalog === 'HD' || name.startsWith('HD '))
+          show = f.showHDStars && mag <= f.maxStarMagnitude;
+        // SIMBAD objects with unrecognised types: show under NGC/IC if local, show under Named Stars fallback otherwise
+        else if (ann.source === 'simbad') show = f.showNGC;
       }
 
-      // Show Everything else if Stars/Named is checked (includes SIMBAD deep hits)
-      return filters.showNamedStars;
+      return show;
     });
-
-    return items;
   });
 
   onImageUpload(event: Event) {

@@ -99,7 +99,7 @@ async function seed() {
           sizeArcmin,
         );
 
-        // If it has a Messier cross-reference, add it as a separate Messier record for the UI filter
+        // Messier cross-reference
         if (row.Messier) {
           insert.run(
             "M",
@@ -113,10 +113,182 @@ async function seed() {
             sizeArcmin,
           );
         }
+
+        // Caldwell cross-reference
+        if (row.Caldwell) {
+          insert.run(
+            "C",
+            `C${row.Caldwell}`,
+            `C ${row.Caldwell}`,
+            commonName || name,
+            "C",
+            ra,
+            dec,
+            magnitude,
+            sizeArcmin,
+          );
+        }
       }
     })();
 
     console.log(`OpenNGC Seeding Complete: ${records.length} objects added.`);
+
+    // --- Sharpless (Sh2) Catalog: HII Emission Nebulae ---
+    console.log("Downloading Sharpless Sh2 catalog from VizieR...");
+    try {
+      // VizieR TAP query for Sharpless 1959 catalog (VII/20H)
+      const sh2Response = await axios.get(
+        "https://vizier.cds.unistra.fr/viz-bin/asu-tsv",
+        {
+          params: {
+            "-source": "VII/20H/sharpless",
+            "-out": "_RAJ2000,_DEJ2000,Sh2,Diam",
+            "-out.max": "9999",
+          },
+          responseType: "text",
+        },
+      );
+
+      const sh2Lines = sh2Response.data
+        .split("\n")
+        .filter(
+          (l) => l && !l.startsWith("#") && !l.startsWith("-") && l.trim(),
+        );
+
+      const sh2Insert = db.transaction(() => {
+        for (const line of sh2Lines) {
+          const cols = line.split("\t").map((c) => c.trim());
+          if (cols.length < 3) continue;
+          const ra = parseFloat(cols[0]);
+          const dec = parseFloat(cols[1]);
+          const sh2Num = cols[2];
+          const diam = parseFloat(cols[3]) || null;
+          if (isNaN(ra) || isNaN(dec) || !sh2Num) continue;
+          insert.run(
+            "Sh2",
+            `Sh2-${sh2Num}`,
+            `Sh2 ${sh2Num}`,
+            null,
+            "HII",
+            ra,
+            dec,
+            null,
+            diam,
+          );
+        }
+      });
+      sh2Insert();
+      console.log("Sharpless Sh2 catalog seeded.");
+    } catch (err) {
+      console.warn(
+        "Sharpless catalog download failed (skipping):",
+        err.message,
+      );
+    }
+
+    // --- Abell Galaxy Clusters (ACO) ---
+    console.log("Downloading Abell Galaxy Clusters (ACO) from VizieR...");
+    try {
+      const acoResponse = await axios.get(
+        "https://vizier.cds.unistra.fr/viz-bin/asu-tsv",
+        {
+          params: {
+            "-source": "VII/110A/table3",
+            "-out": "_RAJ2000,_DEJ2000,ACO,m10,Diam",
+            "-out.max": "9999",
+          },
+          responseType: "text",
+        },
+      );
+
+      const acoLines = acoResponse.data
+        .split("\n")
+        .filter(
+          (l) => l && !l.startsWith("#") && !l.startsWith("-") && l.trim(),
+        );
+
+      const acoInsert = db.transaction(() => {
+        for (const line of acoLines) {
+          const cols = line.split("\t").map((c) => c.trim());
+          if (cols.length < 3) continue;
+          const ra = parseFloat(cols[0]);
+          const dec = parseFloat(cols[1]);
+          const acoNum = cols[2];
+          const mag = parseFloat(cols[3]) || null;
+          const diam = parseFloat(cols[4]) || null;
+          if (isNaN(ra) || isNaN(dec) || !acoNum) continue;
+          insert.run(
+            "ACO",
+            `Abell ${acoNum}`,
+            `Abell ${acoNum}`,
+            null,
+            "GClus",
+            ra,
+            dec,
+            mag,
+            diam,
+          );
+        }
+      });
+      acoInsert();
+      console.log("Abell Galaxy Clusters (ACO) seeded.");
+    } catch (err) {
+      console.warn("ACO catalog download failed (skipping):", err.message);
+    }
+
+    // --- Henry Draper (HD) Full Catalog ---
+    console.log(
+      "Downloading Henry Draper (HD) catalog from VizieR (~225k stars, may take a moment)...",
+    );
+    try {
+      const hdResponse = await axios.get(
+        "https://vizier.cds.unistra.fr/viz-bin/asu-tsv",
+        {
+          params: {
+            "-source": "III/135A/catalog",
+            "-out": "_RAJ2000,_DEJ2000,HD,Ptm",
+            "-out.max": "unlimited",
+          },
+          responseType: "text",
+          timeout: 120000,
+        },
+      );
+
+      const hdLines = hdResponse.data
+        .split("\n")
+        .filter(
+          (l) => l && !l.startsWith("#") && !l.startsWith("-") && l.trim(),
+        );
+
+      let hdCount = 0;
+      const hdInsert = db.transaction(() => {
+        for (const line of hdLines) {
+          const cols = line.split("\t").map((c) => c.trim());
+          if (cols.length < 3) continue;
+          const ra = parseFloat(cols[0]);
+          const dec = parseFloat(cols[1]);
+          const hdNum = cols[2];
+          const mag = parseFloat(cols[3]) || null;
+          if (isNaN(ra) || isNaN(dec) || !hdNum) continue;
+          insert.run(
+            "HD",
+            `HD ${hdNum}`,
+            `HD ${hdNum}`,
+            null,
+            "Star",
+            ra,
+            dec,
+            mag,
+            null,
+          );
+          hdCount++;
+        }
+      });
+      hdInsert();
+      console.log(`Henry Draper catalog seeded: ${hdCount} stars.`);
+    } catch (err) {
+      console.warn("HD catalog download failed (skipping):", err.message);
+    }
 
     // Add some "Named Stars" for the Orion region to ensure Horsehead image looks great
     const brightStars = [

@@ -48,7 +48,7 @@ export function queryLocalCatalog({
     FROM objects
     WHERE (ra BETWEEN ? AND ?)
       AND (dec BETWEEN ? AND ?)
-      AND (magnitude <= ? OR catalog = 'NGC/IC')
+      AND (magnitude <= ? OR catalog = 'NGC/IC' OR catalog = 'HD' OR catalog = 'Sh2' OR catalog = 'ACO')
   `;
 
   const queryParams = [minRA, maxRA, minDec, maxDec, maxMagnitude];
