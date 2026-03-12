@@ -236,7 +236,67 @@ async function seed() {
       console.warn("ACO catalog download failed (skipping):", err.message);
     }
 
+    // --- Hipparcos Catalog (I/239/hip_main) - Tier 2: Accurate positions for HD stars ---
+    // Hipparcos has milliarcsecond accuracy vs the 1920s photographic plate errors in III/135A.
+    // We store these as catalog='HIP' so solve.js can prefer them over catalog='HD' entries.
+    // The frontend detects them as HD stars via name.startsWith('HD ') — no UI changes needed.
+    console.log(
+      "Downloading Hipparcos catalog for accurate HD star positions (~118k stars)...",
+    );
+    try {
+      const hipResponse = await axios.get(
+        "https://vizier.cds.unistra.fr/viz-bin/asu-tsv",
+        {
+          params: {
+            "-source": "I/239/hip_main",
+            "-out": "_RAJ2000,_DEJ2000,HD,Vmag",
+            "-out.max": "unlimited",
+          },
+          responseType: "text",
+          timeout: 120000,
+        },
+      );
+
+      const hipLines = hipResponse.data
+        .split("\n")
+        .filter(
+          (l) => l && !l.startsWith("#") && !l.startsWith("-") && l.trim(),
+        );
+
+      let hipCount = 0;
+      const hipInsert = db.transaction(() => {
+        for (const line of hipLines) {
+          const cols = line.split("\t").map((c) => c.trim());
+          if (cols.length < 3) continue;
+          const ra = parseFloat(cols[0]);
+          const dec = parseFloat(cols[1]);
+          const hdNum = cols[2];
+          const mag = parseFloat(cols[3]) || null;
+          // Skip entries with no HD number (many Hipparcos stars lack HD identifiers)
+          if (isNaN(ra) || isNaN(dec) || !hdNum || hdNum === '') continue;
+          insert.run(
+            "HIP",
+            `HD ${hdNum}`,
+            `HD ${hdNum}`,
+            null,
+            "Star",
+            ra,
+            dec,
+            mag,
+            null,
+          );
+          hipCount++;
+        }
+      });
+      hipInsert();
+      console.log(`Hipparcos catalog seeded: ${hipCount} HD stars with accurate positions.`);
+    } catch (err) {
+      console.warn("Hipparcos catalog download failed (skipping):", err.message);
+    }
+
     // --- Henry Draper (HD) Full Catalog ---
+    // Legacy source: 1920s photographic plates, ±1–30 arcsec accuracy.
+    // Used as last-resort fallback for the ~140k HD stars not covered by Hipparcos.
     console.log(
       "Downloading Henry Draper (HD) catalog from VizieR (~225k stars, may take a moment)...",
     );

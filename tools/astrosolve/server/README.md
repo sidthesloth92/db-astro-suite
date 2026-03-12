@@ -17,7 +17,18 @@ cd tools/astrosolve/server
 sh download-indices.sh
 ```
 
-### 2. Build the Docker Image
+### 2. Seed the Local Celestial Database
+
+Run the seeder on your host machine before building the image if you want the SQLite catalog bundled into the container image:
+
+```bash
+cd tools/astrosolve/server
+npm run seed
+```
+
+This creates `src/data/celestial.sqlite`. With the current Dockerfile, that file is copied into the image during `docker build`.
+
+### 3. Build the Docker Image
 
 Run this command from the `tools/astrosolve/server` directory to build the image:
 
@@ -25,7 +36,7 @@ Run this command from the `tools/astrosolve/server` directory to build the image
 docker build -t astrosolve .
 ```
 
-### 2. Run the Server (Live Reloading)
+### 4. Run the Server (Live Reloading)
 
 To run the server during development, use a volume mount to sync your local `./src` folder into the container, and override the default start command with `npm run dev` to enable `node --watch`:
 
@@ -38,7 +49,9 @@ docker run -p 3000:3000 \
   npm run dev
 ```
 
-### 3. View Logs
+If you are using this bind-mounted development flow, reseeding on the host updates the data the container sees immediately. You only need to restart the container; you do not need to rebuild the image.
+
+### 5. View Logs
 
 Once the container is running, you can view the live Fastify logs by finding the container ID with `docker ps` and streaming the output:
 
@@ -51,6 +64,7 @@ docker logs -f <CONTAINER_ID>
 To build and run the server without live-reloading for production (or for testing the final build):
 
 ```bash
+npm run seed
 docker build -t astrosolve .
 docker run -d -p 3000:3000 astrosolve
 ```
