@@ -308,7 +308,7 @@ export class StellarMapPreviewComponent {
         const namedMatch =
           f.showNamedStars && !!ann.commonName && !isHD && mag <= f.maxStarMagnitude;
         const hdMatch =
-          f.showHDStars && isHD && (ann.magnitude == null || mag <= f.maxStarMagnitude);
+          f.showHDStars && isHD && mag <= f.maxStarMagnitude;
         return namedMatch || hdMatch;
       }
 

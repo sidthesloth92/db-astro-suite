@@ -25,7 +25,7 @@ export async function querySimbad(ra, dec, radiusDeg, minMagnitude = 13.5) {
       'HII', 'RNe', 'MoC', 'DNe', 'SNR', 'EmO', 'bub',
       'ClG'
     )
-    AND (basic.FLUX_V <= ${minMagnitude} OR basic.FLUX_V IS NULL)
+    AND basic.FLUX_V <= ${minMagnitude}
     ORDER BY basic.FLUX_V ASC
   `;
 

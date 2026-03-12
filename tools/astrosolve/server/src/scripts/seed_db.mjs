@@ -253,7 +253,7 @@ async function seed() {
             "-out.max": "unlimited",
           },
           responseType: "text",
-          timeout: 120000,
+          timeout: 300000,
         },
       );
 
@@ -271,9 +271,10 @@ async function seed() {
           const ra = parseFloat(cols[0]);
           const dec = parseFloat(cols[1]);
           const hdNum = cols[2];
-          const mag = parseFloat(cols[3]) || null;
+          const _hipParsed = parseFloat(cols[3]);
+          const mag = isNaN(_hipParsed) ? null : _hipParsed;
           // Skip entries with no HD number (many Hipparcos stars lack HD identifiers)
-          if (isNaN(ra) || isNaN(dec) || !hdNum || hdNum === '') continue;
+          if (isNaN(ra) || isNaN(dec) || !hdNum || hdNum === "") continue;
           insert.run(
             "HIP",
             `HD ${hdNum}`,
@@ -289,49 +290,64 @@ async function seed() {
         }
       });
       hipInsert();
-      console.log(`Hipparcos catalog seeded: ${hipCount} HD stars with accurate positions.`);
+      console.log(
+        `Hipparcos catalog seeded: ${hipCount} HD stars with accurate positions.`,
+      );
     } catch (err) {
-      console.warn("Hipparcos catalog download failed (skipping):", err.message);
+      console.warn(
+        "Hipparcos catalog download failed (skipping):",
+        err.message,
+      );
     }
 
-    // --- Henry Draper (HD) Full Catalog ---
-    // Legacy source: 1920s photographic plates, ±1–30 arcsec accuracy.
-    // Used as last-resort fallback for the ~140k HD stars not covered by Hipparcos.
+    // --- Tycho-2 HD Cross-Match ---
+    // Accurate modern positions (20–100 mas) for HD stars not in Hipparcos.
+    // Uses the Wright et al. 2003 HD-to-Tycho-2 cross-match (III/231/appdxb)
+    // joined against Tycho-2 main positions (I/259/tyc2) via VizieR TAP.
     console.log(
-      "Downloading Henry Draper (HD) catalog from VizieR (~225k stars, may take a moment)...",
+      "Downloading Tycho-2 HD cross-match from VizieR TAP (~110k stars, may take a moment)...",
     );
     try {
-      const hdResponse = await axios.get(
-        "https://vizier.cds.unistra.fr/viz-bin/asu-tsv",
+      const tycQuery = [
+        'SELECT b.HD, t.RAmdeg, t.DEmdeg, t.VTmag',
+        'FROM "III/231/appdxb" AS b',
+        'JOIN "I/259/tyc2" AS t ON (b.TYC1=t.TYC1 AND b.TYC2=t.TYC2 AND b.TYC3=t.TYC3)',
+        'WHERE b.HD IS NOT NULL',
+      ].join(' ');
+      const tycResponse = await axios.get(
+        "https://tapvizier.u-strasbg.fr/TAPVizieR/tap/sync",
         {
           params: {
-            "-source": "III/135A/catalog",
-            "-out": "_RAJ2000,_DEJ2000,HD,Ptm",
-            "-out.max": "unlimited",
+            REQUEST: "doQuery",
+            LANG: "ADQL",
+            FORMAT: "tsv",
+            MAXREC: 200000,
+            QUERY: tycQuery,
           },
           responseType: "text",
-          timeout: 120000,
+          timeout: 300000,
         },
       );
 
-      const hdLines = hdResponse.data
+      const tycLines = tycResponse.data
         .split("\n")
         .filter(
           (l) => l && !l.startsWith("#") && !l.startsWith("-") && l.trim(),
         );
 
-      let hdCount = 0;
-      const hdInsert = db.transaction(() => {
-        for (const line of hdLines) {
+      let tycCount = 0;
+      const tycInsert = db.transaction(() => {
+        for (const line of tycLines) {
           const cols = line.split("\t").map((c) => c.trim());
-          if (cols.length < 3) continue;
-          const ra = parseFloat(cols[0]);
-          const dec = parseFloat(cols[1]);
-          const hdNum = cols[2];
-          const mag = parseFloat(cols[3]) || null;
+          if (cols.length < 4) continue;
+          const hdNum = cols[0];
+          const ra = parseFloat(cols[1]);
+          const dec = parseFloat(cols[2]);
+          const _tycParsed = parseFloat(cols[3]);
+          const mag = isNaN(_tycParsed) ? null : _tycParsed;
           if (isNaN(ra) || isNaN(dec) || !hdNum) continue;
           insert.run(
-            "HD",
+            "TYC",
             `HD ${hdNum}`,
             `HD ${hdNum}`,
             null,
@@ -341,13 +357,18 @@ async function seed() {
             mag,
             null,
           );
-          hdCount++;
+          tycCount++;
         }
       });
-      hdInsert();
-      console.log(`Henry Draper catalog seeded: ${hdCount} stars.`);
+      tycInsert();
+      console.log(
+        `Tycho-2 catalog seeded: ${tycCount} HD stars with accurate positions.`,
+      );
     } catch (err) {
-      console.warn("HD catalog download failed (skipping):", err.message);
+      console.warn(
+        "Tycho-2 catalog download failed (skipping):",
+        err.message,
+      );
     }
 
     // Add some "Named Stars" for the Orion region to ensure Horsehead image looks great
