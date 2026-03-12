@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.7.1](https://github.com/sidthesloth92/db-astro-suite/compare/v1.7.0...v1.7.1) (2026-03-08)
+
+
+### Bug Fixes
+
+* Add .fits files to .gitignore to exclude Astrometry binary index files ([8c626a0](https://github.com/sidthesloth92/db-astro-suite/commit/8c626a00c3926f56f632febdb43bd1601c7e36ed))
+* Enhance duration formatting to handle seconds and zero values ([a1cada4](https://github.com/sidthesloth92/db-astro-suite/commit/a1cada4ecf67341618321e3d2896f69b5a92439e))
+
 ## [1.7.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.6.0...v1.7.0) (2026-03-02)
 
 
