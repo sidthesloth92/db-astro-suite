@@ -8,6 +8,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { SliderComponent } from '@db-astro-suite/ui';
 import { ImageAnnotation } from '../../models/annotation.models';
 import { StellarMapData } from '../../models/card-data';
 import { AstrosolveService } from '../../services/astrosolve.service';
@@ -16,7 +17,7 @@ import { WcsService } from '../../services/wcs.service';
 @Component({
   selector: 'dba-ag-annotation-controls',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, SliderComponent],
   templateUrl: './annotation-controls.html',
   exportAs: 'dbaAnnotationControls',
   styles: [
@@ -177,18 +178,7 @@ import { WcsService } from '../../services/wcs.service';
         display: flex;
         flex-direction: column;
         gap: 0.3rem;
-        margin-top: 0.4rem;
-      }
-      .mag-label {
-        font-size: 0.75rem;
-        color: #00f3ff;
-        font-weight: bold;
-        letter-spacing: 0.05em;
-      }
-      .mag-slider {
-        width: 100%;
-        accent-color: #00f3ff;
-        cursor: pointer;
+        margin-top: 1rem;
       }
       .mag-tick-labels {
         display: flex;
@@ -196,6 +186,7 @@ import { WcsService } from '../../services/wcs.service';
         font-size: 0.6rem;
         color: rgba(255, 255, 255, 0.35);
         padding: 0 2px;
+        margin-top: -0.25rem;
       }
     `,
   ],
@@ -236,8 +227,7 @@ export class AnnotationControlsComponent {
     }));
   }
 
-  setStarMagnitude(event: Event) {
-    const value = parseFloat((event.target as HTMLInputElement).value);
+  setStarMagnitude(value: number) {
     this.mapData.update((d) => ({
       ...d,
       filters: { ...d.filters, maxStarMagnitude: value },
