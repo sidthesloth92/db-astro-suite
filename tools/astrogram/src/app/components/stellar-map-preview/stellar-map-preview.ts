@@ -42,6 +42,23 @@ import { AnnotationControlsComponent } from '../card-form/annotation-controls';
         text-shadow: 0 1px 3px rgba(0, 0, 0, 1);
         border: 1px solid rgba(0, 243, 255, 0.3);
       }
+      .annotation-label.label-top {
+        top: auto;
+        bottom: calc(100% + 6px);
+        left: 50%;
+        transform: translateX(-50%);
+      }
+      .annotation-label.label-right {
+        top: 50%;
+        left: calc(100% + 6px);
+        transform: translateY(-50%);
+      }
+      .annotation-label.label-left {
+        top: 50%;
+        left: auto;
+        right: calc(100% + 6px);
+        transform: translateY(-50%);
+      }
       .solve-loader-overlay {
         position: absolute;
         inset: 0;
@@ -171,6 +188,13 @@ export class StellarMapPreviewComponent {
     if (this.controlsComponent) {
       this.controlsComponent.resetMap();
     }
+  }
+
+  getLabelPosition(xPercent: number, yPercent: number): string {
+    if (yPercent > 90) return 'label-top';
+    if (xPercent < 10) return 'label-right';
+    if (xPercent > 90) return 'label-left';
+    return '';
   }
 
   // ── Type lookup sets (OpenNGC codes + SIMBAD OTYPEs, all uppercase) ────────

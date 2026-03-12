@@ -29,7 +29,9 @@
         [style.width.px]="ann.radiusDb * 2"
         [style.height.px]="ann.radiusDb * 2"
       >
-        <span class="annotation-label">{{ ann.label }}</span>
+        <span class="annotation-label" [ngClass]="getLabelPosition(ann.xPercent, ann.yPercent)">{{
+          ann.label
+        }}</span>
       </div>
     }
   </div>
