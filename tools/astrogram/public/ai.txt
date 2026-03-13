@@ -1,2 +1,39 @@
 User-agent: *
 Allow: /
+
+# Astrogram
+
+Astrogram is a free web application for astrophotographers that generates beautiful,
+Instagram-ready exposure cards from session metadata.
+
+## What it does
+You input your astrophotography session details: telescope, camera, mount, software,
+Bortle scale sky quality, and integration times per filter (L, Ha, OIII, SII, R, G, B).
+Astrogram renders a professional exposure card with circular progress rings, glassmorphism
+UI, and neon accents — ready to share on Instagram or any astrophotography community.
+
+It also includes a plate-solving feature: upload your astrophoto and Astrogram identifies
+the region of sky using WCS (World Coordinate System), then overlays labeled annotations
+for stars (Tycho-2 catalog), galaxies, nebulae, and clusters (Messier, NGC, IC catalogs).
+
+## Core Features
+- Exposure card generator with per-filter integration time tracking (L, Ha, OIII, SII, R, G, B)
+- Circular progress ring visualization per filter channel
+- Plate solving backed by Astrosolve (astrometry.net-compatible)
+- WCS annotation overlay: Messier, NGC, IC, Tycho-2 star catalogs
+- Annotation filters: toggle by type (stars, galaxies, nebulae) and magnitude limit
+- Bortle scale gradient selector (1–9)
+- Custom accent color and background image upload
+- High-quality JPEG export
+
+## Tech Stack
+Angular 21 (Standalone Components, Signals), TailwindCSS 4, modern-screenshot,
+custom TypeScript WCS projection engine (TAN/gnomonic)
+
+## Author
+Dinesh Balaji Venkataraj
+
+## Links
+- Live app: https://sidthesloth92.github.io/db-astro-suite/astrogram/
+- Repo: https://github.com/sidthesloth92/db-astro-suite
+- LLMs context: https://sidthesloth92.github.io/db-astro-suite/astrogram/llms.txt

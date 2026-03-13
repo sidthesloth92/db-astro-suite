@@ -5,17 +5,21 @@
     <title>Astrogram - Professional Exposure Cards. Instantly.</title>
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="Dinesh Balaji Venkataraj" />
     <meta
       name="description"
-      content="Astrogram is a specialized generator designed to take the complexity of your capture session from gear lists to Bortle scales and distill it into a beautiful, Instagram-ready graphic. Simply input your session metadata, and Astrogram handles the typography, layout, and branding."
+      content="Astrogram is a free astrophotography tool that generates professional exposure cards for Instagram and social media. Input your filters (Ha, OIII, SII, LRGB), gear, Bortle scale, and integration times — Astrogram builds a beautiful shareable graphic instantly. Includes plate solving and WCS annotation overlays."
     />
     <meta
       name="keywords"
-      content="astrophotography, exposure card, astrogram, social media slides, space photography, image integration, dinesh balaji venkataraj, astrocard"
+      content="astrophotography, exposure card, astrogram, social media slides, space photography, image integration, dinesh balaji venkataraj, astrocard, plate solving, image annotation, wcs"
     />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Astrogram" />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:url" content="https://sidthesloth92.github.io/db-astro-suite/astrogram/" />
     <meta property="og:title" content="Astrogram - Professional Exposure Cards. Instantly." />
     <meta
@@ -24,7 +28,13 @@
     />
     <meta
       property="og:image"
-      content="https://sidthesloth92.github.io/db-astro-suite/astrogram/favicon.png"
+      content="https://sidthesloth92.github.io/db-astro-suite/astrogram/assets/img/og-astrogram.png"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Astrogram - Professional Exposure Cards for Astrophotographers"
     />
 
     <!-- Twitter -->
@@ -40,10 +50,16 @@
     />
     <meta
       property="twitter:image"
-      content="https://sidthesloth92.github.io/db-astro-suite/astrogram/favicon.png"
+      content="https://sidthesloth92.github.io/db-astro-suite/astrogram/assets/img/og-astrogram.png"
     />
+    <meta
+      property="twitter:image:alt"
+      content="Astrogram - Professional Exposure Cards for Astrophotographers"
+    />
+    <meta name="twitter:creator" content="@dineshbalajiv" />
 
     <link rel="canonical" href="https://sidthesloth92.github.io/db-astro-suite/astrogram/" />
+    <link rel="sitemap" type="application/xml" href="sitemap.xml" />
     <link rel="icon" type="image/png" href="favicon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -51,6 +67,41 @@
       href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap"
       rel="stylesheet"
     />
+
+    <!-- Structured Data: WebApplication -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Astrogram",
+        "url": "https://sidthesloth92.github.io/db-astro-suite/astrogram/",
+        "description": "Astrogram is a free web app for astrophotographers that generates beautiful, Instagram-ready exposure cards from your session metadata — gear, filters, integration times, Bortle scale, and more.",
+        "applicationCategory": "PhotographyApplication",
+        "operatingSystem": "Any",
+        "browserRequirements": "Requires a modern web browser with JavaScript enabled",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "author": {
+          "@type": "Person",
+          "name": "Dinesh Balaji Venkataraj"
+        },
+        "keywords": "astrophotography, exposure card, plate solving, image annotation, Bortle scale, LRGB, Ha, OIII, SII",
+        "featureList": [
+          "Exposure card generator for astrophotographers",
+          "LRGB, Ha, OIII, SII filter integration time tracking",
+          "Circular progress ring visualization",
+          "Plate solving with WCS annotation overlay",
+          "Messier, NGC, IC, Tycho-2 star catalog annotations",
+          "Bortle scale sky quality selector",
+          "Custom accent color and background image",
+          "High-quality JPEG export"
+        ],
+        "screenshot": "https://sidthesloth92.github.io/db-astro-suite/astrogram/assets/img/og-astrogram.png"
+      }
+    </script>
 
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-SBXMGWP56E"></script>
@@ -66,5 +117,38 @@
   </head>
   <body>
     <dba-ag-root></dba-ag-root>
+    <!-- noscript: rich content for search crawlers that don't execute JavaScript -->
+    <noscript>
+      <main style="font-family: sans-serif; max-width: 800px; margin: 2rem auto; padding: 1rem">
+        <h1>Astrogram — Professional Astrophotography Exposure Cards</h1>
+        <p>
+          Astrogram is a free web tool for astrophotographers. It generates beautiful,
+          Instagram-ready exposure cards from your capture session metadata — gear lists, filter
+          integration times (L, Ha, OIII, SII, R, G, B), Bortle scale sky quality, telescope,
+          camera, mount, and software.
+        </p>
+        <h2>Features</h2>
+        <ul>
+          <li>Exposure card generator with LRGB, Ha, OIII, SII filter integration time tracking</li>
+          <li>Circular progress ring visualization per filter channel</li>
+          <li>Plate solving — upload your astrophoto to solve sky coordinates (RA/Dec) via WCS</li>
+          <li>Annotation overlay: Messier, NGC, IC catalog objects and Tycho-2 named stars</li>
+          <li>Bortle scale sky quality gradient selector</li>
+          <li>Custom accent color and background image upload</li>
+          <li>High-quality JPEG export for Instagram and social media</li>
+        </ul>
+        <h2>Who is it for?</h2>
+        <p>
+          Astrophotographers who want to share their session details — equipment, exposure times,
+          filters used, and sky conditions — in a visually polished format on Instagram, Reddit,
+          Cloudy Nights, or any astrophotography community.
+        </p>
+        <p>
+          <a href="https://sidthesloth92.github.io/db-astro-suite/astrogram/">Open Astrogram</a>
+          &nbsp;|&nbsp;
+          <a href="https://github.com/sidthesloth92/db-astro-suite">GitHub Repository</a>
+        </p>
+      </main>
+    </noscript>
   </body>
 </html>

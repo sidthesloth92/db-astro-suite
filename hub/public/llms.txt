@@ -1,0 +1,46 @@
+# DB Astro Suite
+
+DB Astro Suite is a free, professional collection of social-media focused astrophotography tools
+built with Angular. The suite is designed around a single idea: go from sensor to social — take
+your raw astrophotography captures and turn them into shareable, visually polished content.
+
+## Mission
+"From Sensor to Social" — bridging the gap between raw astrophotography data and shareable
+social media content through automation and high-fidelity generation.
+
+## Tools in the Suite
+
+### Starwizz
+A free browser-based 4K starfield and galaxy animation generator.
+- Live: https://sidthesloth92.github.io/db-astro-suite/starwizz/
+- LLMs: https://sidthesloth92.github.io/db-astro-suite/starwizz/llms.txt
+- Features: real-time starfield simulation, galaxy background rendering, shooting stars,
+  in-browser 4K video recording and download via MediaRecorder API
+
+### Astrogram
+A free astrophotography exposure card generator for Instagram and social media.
+- Live: https://sidthesloth92.github.io/db-astro-suite/astrogram/
+- LLMs: https://sidthesloth92.github.io/db-astro-suite/astrogram/llms.txt
+- Features: per-filter integration time tracking (L, Ha, OIII, SII, R, G, B), circular
+  progress ring visualization, plate solving with WCS annotation overlay (Messier, NGC, IC,
+  Tycho-2 catalogs), Bortle scale selector, high-quality JPEG export
+
+### File Grouper (CLI)
+A Go CLI utility for automated astrophotography dataset organisation.
+- Purpose: organises ASIAIR and other capture system output by camera, date, and object target
+- Command: `file-grouper --organize-asiair ./path/to/raw`
+- Language: Go
+
+## Tech Stack
+- **Framework**: Angular 21 (Standalone Components, Signals)
+- **Meta-framework (Hub)**: AnalogJS (SSR/SSG for Angular)
+- **Styling**: TailwindCSS 4
+- **CLI**: Go
+
+## Author
+Dinesh Balaji Venkataraj
+
+## Links
+- Suite Home: https://sidthesloth92.github.io/db-astro-suite/
+- About: https://sidthesloth92.github.io/db-astro-suite/about
+- Repo: https://github.com/sidthesloth92/db-astro-suite

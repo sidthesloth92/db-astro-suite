@@ -10,17 +10,25 @@ Astrogram is a high-performance exposure card generator for astrophotographers b
 - **Bortle Scale**: Gradient selector to indicate sky quality.
 - **Customization**: Upload your own blurred background image and choose custom accent colors.
 - **Export**: Download high-quality JPEG images directly from the app.
+- **Plate Solving**: Upload an astrophoto and solve it against the Astrosolve backend to identify the exact sky region (RA/Dec) using WCS (World Coordinate System). The solver determines pixel-accurate sky coordinates for the entire image.
+- **Annotation Overlay**: After a successful plate solve, overlays labeled circles on the image for named stars (Tycho-2), deep-sky objects (Messier, NGC, IC catalogs), and named nebulae. Circle sizes are derived from catalog angular diameters.
+- **Annotation Filters**: Toggle visibility of named stars, HD catalog stars, Messier, NGC, IC objects, and nebulae independently. Filter stars by magnitude limit (0–15) using a slider.
 
 ## Tech Stack
 - **Framework**: Angular (Standalone Components, Signals)
 - **State Management**: Angular Signals
 - **Styling**: TailwindCSS
 - **Export**: modern-screenshot library
+- **Plate Solving Backend**: Astrosolve — custom Node.js service wrapping the astrometry.net CLI tools
+- **WCS Engine**: Custom TypeScript WCS projection (TAN/gnomonic) for sky-to-pixel and pixel-to-sky coordinate mapping
 
 ## Key Files
 - `src/app/models/card-data.ts`: Data models and utility functions for card calculations.
 - `src/app/components/card-preview/card-preview.ts`: Main preview component with export logic.
 - `src/app/components/card-form/card-form.ts`: Form component for data entry.
+- `src/app/components/card-form/annotation-controls.ts`: Plate solve upload trigger and annotation filter controls.
+- `src/app/services/wcs.service.ts`: WCS projection engine for sky-to-pixel coordinate mapping.
+- `src/app/services/astrosolve.service.ts`: HTTP client for the Astrosolve plate-solving backend.
 
 ## URL
 - Repo: https://github.com/sidthesloth92/db-astro-suite
