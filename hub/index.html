@@ -5,6 +5,8 @@
     <title>DB Astro Suite - From Sensor to Social</title>
     <base href="/db-astro-suite/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="Dinesh Balaji Venkataraj" />
     <meta
       name="description"
       content="A professional collection of social-media focused astrophotography tools. Seamlessly transform your captures into cinematic starfield animations with Starwizz or professional Instagram exposure cards with Astrogram. Spend less time processing data and more time capturing the cosmos."
@@ -16,6 +18,8 @@
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="DB Astro Suite" />
+    <meta property="og:locale" content="en_US" />
     <meta
       property="og:url"
       content="https://sidthesloth92.github.io/db-astro-suite/"
@@ -30,7 +34,13 @@
     />
     <meta
       property="og:image"
-      content="https://sidthesloth92.github.io/db-astro-suite/favicon.ico"
+      content="https://sidthesloth92.github.io/db-astro-suite/assets/img/og-dbastrosuite.png"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="DB Astro Suite - Professional Astrophotography Tools"
     />
 
     <!-- Twitter -->
@@ -45,17 +55,23 @@
     />
     <meta
       property="twitter:description"
-      content="Immersive space tools for the modern astrophotographer."
+      content="Professional astrophotography tools for the modern enthusiast. Generate starfields, create high-quality exposure cards, and automate your workflow."
     />
     <meta
       property="twitter:image"
-      content="https://sidthesloth92.github.io/db-astro-suite/favicon.ico"
+      content="https://sidthesloth92.github.io/db-astro-suite/assets/img/og-dbastrosuite.png"
     />
+    <meta
+      property="twitter:image:alt"
+      content="DB Astro Suite - Professional Astrophotography Tools"
+    />
+    <meta name="twitter:creator" content="@dineshbalajiv" />
 
     <link
       rel="canonical"
       href="https://sidthesloth92.github.io/db-astro-suite/"
     />
+    <link rel="sitemap" type="application/xml" href="sitemap.xml" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="stylesheet" href="/src/styles.css" />
 
@@ -76,27 +92,37 @@
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
+        "@type": "WebApplication",
         "name": "DB Astro Suite",
         "url": "https://sidthesloth92.github.io/db-astro-suite/",
-        "applicationCategory": "MultimediaApplication",
-        "operatingSystem": "Web",
-        "description": "A professional collection of social-media focused astrophotography tools including Starwizz and Astrogram.",
+        "applicationCategory": "PhotographyApplication",
+        "operatingSystem": "Any",
+        "browserRequirements": "Requires a modern web browser with JavaScript enabled",
+        "description": "A free, professional collection of social-media focused astrophotography tools. Go from sensor to social with Starwizz (4K starfield generator) and Astrogram (exposure card generator with plate solving).",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
         "author": {
           "@type": "Person",
           "name": "Dinesh Balaji Venkataraj"
         },
-        "screenshot": "https://sidthesloth92.github.io/db-astro-suite/favicon.ico",
-        "softwareAddOn": [
+        "screenshot": "https://sidthesloth92.github.io/db-astro-suite/assets/img/og-dbastrosuite.png",
+        "hasPart": [
           {
-            "@type": "SoftwareApplication",
+            "@type": "WebApplication",
             "name": "Starwizz",
-            "description": "4K Starfield & Galaxy Animation Generator"
+            "url": "https://sidthesloth92.github.io/db-astro-suite/starwizz/",
+            "description": "4K Starfield & Galaxy Animation Generator. Create cinematic starfield videos with customizable star density, velocity, rotation, and shooting stars.",
+            "applicationCategory": "MultimediaApplication"
           },
           {
-            "@type": "SoftwareApplication",
+            "@type": "WebApplication",
             "name": "Astrogram",
-            "description": "Professional Exposure Card Generator for Instagram"
+            "url": "https://sidthesloth92.github.io/db-astro-suite/astrogram/",
+            "description": "Professional Exposure Card Generator for astrophotographers. Create Instagram-ready cards with filter integration times, gear, Bortle scale, and plate-solved WCS annotation overlays.",
+            "applicationCategory": "PhotographyApplication"
           }
         ]
       }

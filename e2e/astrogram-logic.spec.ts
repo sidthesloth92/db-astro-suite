@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 test.describe("Astrogram Logic & Functional Tests", () => {
   test.beforeEach(async ({ page }) => {
@@ -78,22 +78,75 @@ test.describe("Astrogram Logic & Functional Tests", () => {
     const findBtn = page
       .locator("button.fetch-btn")
       .filter({ hasText: "Find" });
-    const descriptionTextarea = page.locator("dba-ui-textarea textarea");
+    // Target the caption textarea specifically (the Find button populates the caption field)
+    const captionTextarea = page.locator(
+      'textarea[placeholder="Detailed caption for social media..."]',
+    );
 
-    const defaultDesc =
-      "The first ever nebula that I shot was the Rosette. I still remember looking at the first frame as it came through in disbelief, as to how to the naked eye I couldn't see anything but it was just right there hidden among the stars. Here it is in pink on Valentine's Day 🌹";
+    const defaultCaption =
+      "The first ever nebula that I shot was the Rosette. I still remember looking at the first frame as it came through in disbelief, as to how to the naked eye I couldn't see anything but it was just right there hidden among the stars.";
 
     // Clear and fill correctly
     await searchInput.fill("Andromeda Galaxy");
     await findBtn.click();
 
-    // Wait for the description to change from default
-    await expect(descriptionTextarea).not.toHaveValue(defaultDesc, {
+    // Wait for the caption to change from its default value
+    await expect(captionTextarea).not.toHaveValue(defaultCaption, {
       timeout: 15000,
     });
 
-    const value = await descriptionTextarea.inputValue();
-    console.log("Fetched Description:", value);
+    const value = await captionTextarea.inputValue();
+    console.log("Fetched Caption:", value);
     expect(value.toLowerCase()).toContain("andromeda");
+  });
+});
+
+test.describe("Astrogram SEO", () => {
+  test("meta tags and structured data are correct", async ({ page }) => {
+    await page.goto("http://localhost:4201/db-astro-suite/astrogram/");
+
+    await expect(page).toHaveTitle(
+      "Astrogram - Professional Exposure Cards. Instantly.",
+    );
+
+    const ogTitle = await page.getAttribute(
+      'meta[property="og:title"]',
+      "content",
+    );
+    expect(ogTitle).toBe("Astrogram - Professional Exposure Cards. Instantly.");
+
+    const ogImage = await page.getAttribute(
+      'meta[property="og:image"]',
+      "content",
+    );
+    expect(ogImage).toContain("og-astrogram.png");
+
+    const twitterCard = await page.getAttribute(
+      'meta[property="twitter:card"]',
+      "content",
+    );
+    expect(twitterCard).toBe("summary_large_image");
+
+    const canonical = await page.getAttribute('link[rel="canonical"]', "href");
+    expect(canonical).toContain("astrogram");
+
+    const jsonLdText = await page.evaluate(
+      () =>
+        document.querySelector('script[type="application/ld+json"]')
+          ?.textContent ?? "",
+    );
+    const jsonLd = JSON.parse(jsonLdText);
+    expect(jsonLd["@type"]).toBe("WebApplication");
+    expect(jsonLd.name).toBe("Astrogram");
+    expect(jsonLd.applicationCategory).toBe("PhotographyApplication");
+    expect(Array.isArray(jsonLd.featureList)).toBe(true);
+
+    const noscriptHtml = await page.evaluate(
+      () => document.querySelector("noscript")?.innerHTML ?? "",
+    );
+    expect(noscriptHtml).toContain(
+      "Astrogram is a free web tool for astrophotographers",
+    );
+    expect(noscriptHtml).toContain("Plate solving");
   });
 });

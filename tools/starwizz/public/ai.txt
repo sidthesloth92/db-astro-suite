@@ -1,2 +1,39 @@
 User-agent: *
 Allow: /
+
+# Starwizz
+
+Starwizz is a free browser-based 4K starfield and galaxy animation generator.
+Create cinematic cosmic backgrounds and videos entirely in the browser — no downloads, no uploads.
+
+## What it does
+You control a real-time starfield simulation: set star density, velocity vectors, rotation speed,
+zoom level, and enable shooting star sequences. When satisfied, record the output as a 4K video
+directly in the browser using the MediaRecorder API and download it instantly.
+
+## Core Features
+- Realistic 4K starfield generation with depth and parallax movement
+- Galaxy background rendering with nebula cloud effects
+- Real-time controls: star density, velocity, rotation speed, zoom level
+- Shooting star simulation with high-performance object pooling
+- In-browser 4K video recording and direct download (no server upload required)
+- Responsive HUD for live simulation parameter adjustments
+
+## Use Cases
+- YouTube channel intros and motion backgrounds
+- Presentation slide backgrounds
+- Space-themed social media stories and reels
+- Atmospheric b-roll for astrophotography content
+
+## Tech Stack
+Angular 21 (Standalone Components, Signals), HTML5 Canvas 2D API, MediaRecorder API, TailwindCSS 4
+
+## Part of DB Astro Suite
+Starwizz is one tool in the DB Astro Suite — a free collection of astrophotography and space tools
+by Dinesh Balaji Venkataraj.
+
+## Links
+- Live app: https://sidthesloth92.github.io/db-astro-suite/starwizz/
+- Suite home: https://sidthesloth92.github.io/db-astro-suite/
+- Repo: https://github.com/sidthesloth92/db-astro-suite
+- LLMs context: https://sidthesloth92.github.io/db-astro-suite/starwizz/llms.txt
