@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 test.describe("Astrogram Logic & Functional Tests", () => {
   test.beforeEach(async ({ page }) => {
@@ -95,5 +95,55 @@ test.describe("Astrogram Logic & Functional Tests", () => {
     const value = await descriptionTextarea.inputValue();
     console.log("Fetched Description:", value);
     expect(value.toLowerCase()).toContain("andromeda");
+  });
+});
+
+test.describe("Astrogram SEO", () => {
+  test("meta tags and structured data are correct", async ({ page }) => {
+    await page.goto("http://localhost:4201/db-astro-suite/astrogram/");
+
+    await expect(page).toHaveTitle(
+      "Astrogram - Professional Exposure Cards. Instantly.",
+    );
+
+    const ogTitle = await page.getAttribute(
+      'meta[property="og:title"]',
+      "content",
+    );
+    expect(ogTitle).toBe("Astrogram - Professional Exposure Cards. Instantly.");
+
+    const ogImage = await page.getAttribute(
+      'meta[property="og:image"]',
+      "content",
+    );
+    expect(ogImage).toContain("og-astrogram.png");
+
+    const twitterCard = await page.getAttribute(
+      'meta[property="twitter:card"]',
+      "content",
+    );
+    expect(twitterCard).toBe("summary_large_image");
+
+    const canonical = await page.getAttribute('link[rel="canonical"]', "href");
+    expect(canonical).toContain("astrogram");
+
+    const jsonLdText = await page.evaluate(
+      () =>
+        document.querySelector('script[type="application/ld+json"]')
+          ?.textContent ?? "",
+    );
+    const jsonLd = JSON.parse(jsonLdText);
+    expect(jsonLd["@type"]).toBe("WebApplication");
+    expect(jsonLd.name).toBe("Astrogram");
+    expect(jsonLd.applicationCategory).toBe("PhotographyApplication");
+    expect(Array.isArray(jsonLd.featureList)).toBe(true);
+
+    const noscriptHtml = await page.evaluate(
+      () => document.querySelector("noscript")?.innerHTML ?? "",
+    );
+    expect(noscriptHtml).toContain(
+      "Astrogram is a free web tool for astrophotographers",
+    );
+    expect(noscriptHtml).toContain("Plate solving");
   });
 });
