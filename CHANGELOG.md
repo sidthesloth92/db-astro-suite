@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.8.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.7.1...v1.8.0) (2026-03-13)
+
+
+### Features
+
+* Add SEO tests for Astrogram, Hub, and Starwizz components to verify meta tags and structured data ([b75464e](https://github.com/sidthesloth92/db-astro-suite/commit/b75464edc1ed0669b4f1988f5bca85402e1c0df2))
+* Enhance metadata and descriptions for improved SEO and user engagement across the suite ([85ce5c3](https://github.com/sidthesloth92/db-astro-suite/commit/85ce5c3c9776dd6db8e344bc7cc60a517aa5764b))
+* Update tests to target caption field for improved social media integration ([4c5b4d0](https://github.com/sidthesloth92/db-astro-suite/commit/4c5b4d0b876cad4d01a37f4af016809e3d2c5d55))
+
 ## [1.7.1](https://github.com/sidthesloth92/db-astro-suite/compare/v1.7.0...v1.7.1) (2026-03-08)
 
 
