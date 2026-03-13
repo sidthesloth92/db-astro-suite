@@ -6,6 +6,10 @@ node_modules
 dist
 .astro
 
+# Playwright
+playwright-report/
+test-results/
+
 # Python
 __pycache__/
 *.py[cod]
