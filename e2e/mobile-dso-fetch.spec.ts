@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 test.describe("Astrogram Mobile DSO Fetch", () => {
   test.use({ viewport: { width: 375, height: 667 } });
@@ -19,8 +19,8 @@ test.describe("Astrogram Mobile DSO Fetch", () => {
       .locator("button.fetch-btn")
       .filter({ hasText: "Find" });
 
-    // On mobile (<480px) these should stack due to flex-direction: column in .description-header
-    const header = page.locator(".description-header");
+    // The caption section is the second .description-header (contains the search UI)
+    const header = page.locator(".description-header").nth(1);
     const flexDirection = await header.evaluate(
       (el) => getComputedStyle(el).flexDirection,
     );
@@ -30,19 +30,21 @@ test.describe("Astrogram Mobile DSO Fetch", () => {
     await expect(findBtn).toBeVisible();
 
     // Verify functionality still works on mobile
-    // Use fill directly as it should overwrite in Playwright if no existing input is stubborn
     await searchInput.fill("Orion Nebula");
     await findBtn.click();
 
-    const descriptionTextarea = page.locator("dba-ui-textarea textarea");
-    const defaultDesc =
-      "The first ever nebula that I shot was the Rosette. I still remember looking at the first frame as it came through in disbelief, as to how to the naked eye I couldn't see anything but it was just right there hidden among the stars. Here it is in pink on Valentine's Day 🌹";
+    // The Find button populates the caption field (second textarea)
+    const captionTextarea = page.locator(
+      'textarea[placeholder="Detailed caption for social media..."]',
+    );
+    const defaultCaption =
+      "The first ever nebula that I shot was the Rosette. I still remember looking at the first frame as it came through in disbelief, as to how to the naked eye I couldn't see anything but it was just right there hidden among the stars.";
 
-    await expect(descriptionTextarea).not.toHaveValue(defaultDesc, {
+    await expect(captionTextarea).not.toHaveValue(defaultCaption, {
       timeout: 15000,
     });
-    const value = await descriptionTextarea.inputValue();
-    console.log("Mobile Fetched Description:", value);
+    const value = await captionTextarea.inputValue();
+    console.log("Mobile Fetched Caption:", value);
     expect(value.toLowerCase()).toContain("orion");
   });
 });

@@ -78,22 +78,25 @@ test.describe("Astrogram Logic & Functional Tests", () => {
     const findBtn = page
       .locator("button.fetch-btn")
       .filter({ hasText: "Find" });
-    const descriptionTextarea = page.locator("dba-ui-textarea textarea");
+    // Target the caption textarea specifically (the Find button populates the caption field)
+    const captionTextarea = page.locator(
+      'textarea[placeholder="Detailed caption for social media..."]',
+    );
 
-    const defaultDesc =
-      "The first ever nebula that I shot was the Rosette. I still remember looking at the first frame as it came through in disbelief, as to how to the naked eye I couldn't see anything but it was just right there hidden among the stars. Here it is in pink on Valentine's Day 🌹";
+    const defaultCaption =
+      "The first ever nebula that I shot was the Rosette. I still remember looking at the first frame as it came through in disbelief, as to how to the naked eye I couldn't see anything but it was just right there hidden among the stars.";
 
     // Clear and fill correctly
     await searchInput.fill("Andromeda Galaxy");
     await findBtn.click();
 
-    // Wait for the description to change from default
-    await expect(descriptionTextarea).not.toHaveValue(defaultDesc, {
+    // Wait for the caption to change from its default value
+    await expect(captionTextarea).not.toHaveValue(defaultCaption, {
       timeout: 15000,
     });
 
-    const value = await descriptionTextarea.inputValue();
-    console.log("Fetched Description:", value);
+    const value = await captionTextarea.inputValue();
+    console.log("Fetched Caption:", value);
     expect(value.toLowerCase()).toContain("andromeda");
   });
 });
