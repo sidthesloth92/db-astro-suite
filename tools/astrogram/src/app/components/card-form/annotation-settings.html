@@ -1,20 +1,15 @@
 <div class="settings-grid">
   <!-- ── Circle ──────────────────────────────────────────────── -->
-  <div class="settings-group-label">Circle</div>
-
-  <!-- Circle colour -->
-  <div class="setting-row">
-    <div class="color-row">
-      <span class="setting-label">Color</span>
-      <div class="color-picker-wrapper">
-        <input
-          type="color"
-          [value]="settings().color"
-          (input)="update({ color: $any($event.target).value })"
-          title="Pick circle colour"
-        />
-        <span class="color-val">{{ settings().color }}</span>
-      </div>
+  <div class="section-header">
+    <span class="settings-group-label">Circle</span>
+    <div class="color-picker-wrapper">
+      <input
+        type="color"
+        [value]="settings().color"
+        (input)="update({ color: $any($event.target).value })"
+        title="Pick circle colour"
+      />
+      <span class="color-val">{{ settings().color }}</span>
     </div>
   </div>
 
@@ -47,21 +42,16 @@
   </div>
 
   <!-- ── Label ───────────────────────────────────────────────── -->
-  <div class="settings-group-label" style="margin-top: 0.5rem">Label</div>
-
-  <!-- Label colour -->
-  <div class="setting-row">
-    <div class="color-row">
-      <span class="setting-label">Color</span>
-      <div class="color-picker-wrapper">
-        <input
-          type="color"
-          [value]="settings().labelColor"
-          (input)="update({ labelColor: $any($event.target).value })"
-          title="Pick label colour"
-        />
-        <span class="color-val">{{ settings().labelColor }}</span>
-      </div>
+  <div class="section-header" style="margin-top: 0.25rem">
+    <span class="settings-group-label">Label</span>
+    <div class="color-picker-wrapper">
+      <input
+        type="color"
+        [value]="settings().labelColor"
+        (input)="update({ labelColor: $any($event.target).value })"
+        title="Pick label colour"
+      />
+      <span class="color-val">{{ settings().labelColor }}</span>
     </div>
   </div>
 

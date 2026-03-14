@@ -122,12 +122,18 @@ import { CardDataService } from '../../services/card-data.service';
       }
       .settings-group-label {
         font-family: var(--db-form-font-mono, monospace);
-        font-size: 0.625rem;
+        font-size: 0.75rem;
         text-transform: uppercase;
-        letter-spacing: 0.15em;
-        color: var(--db-color-neon-pink);
-        opacity: 0.8;
+        letter-spacing: 0.12em;
+        color: #00f3ff;
+        opacity: 0.9;
         font-weight: 700;
+      }
+      .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
       }
     `,
   ],
