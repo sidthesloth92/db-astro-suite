@@ -4,7 +4,7 @@ test.describe("Astrogram Mobile DSO Fetch", () => {
   test.use({ viewport: { width: 375, height: 667 } });
 
   test.beforeEach(async ({ page }) => {
-    await page.goto("http://localhost:4201/db-astro-suite/astrogram/");
+    await page.goto("http://localhost:4201/astrogram/");
   });
 
   test("Search field and Find button layout on mobile", async ({ page }) => {

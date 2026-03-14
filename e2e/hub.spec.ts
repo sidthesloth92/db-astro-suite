@@ -1,12 +1,12 @@
 import { expect, test } from "@playwright/test";
 
 test("Hub homepage visual test", async ({ page }) => {
-  await page.goto("http://localhost:5173/db-astro-suite/");
+  await page.goto("http://localhost:5173/");
   await expect(page).toHaveScreenshot("hub-homepage.png", { fullPage: true });
 });
 
 test("Hub SEO meta tags and structured data are correct", async ({ page }) => {
-  await page.goto("http://localhost:5173/db-astro-suite/");
+  await page.goto("http://localhost:5173/");
 
   await expect(page).toHaveTitle(
     "DB Astro Suite - Professional Astrophotography Tools",

@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test.describe("Astrogram Logic & Functional Tests", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("http://localhost:4201/db-astro-suite/astrogram/");
+    await page.goto("http://localhost:4201/astrogram/");
     await expect(page.locator(".form-container").first()).toBeVisible();
   });
 
@@ -103,7 +103,7 @@ test.describe("Astrogram Logic & Functional Tests", () => {
 
 test.describe("Astrogram SEO", () => {
   test("meta tags and structured data are correct", async ({ page }) => {
-    await page.goto("http://localhost:4201/db-astro-suite/astrogram/");
+    await page.goto("http://localhost:4201/astrogram/");
 
     await expect(page).toHaveTitle(
       "Astrogram - Professional Exposure Cards. Instantly.",
