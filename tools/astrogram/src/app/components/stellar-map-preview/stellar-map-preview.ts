@@ -286,8 +286,7 @@ export class StellarMapPreviewComponent {
   }
 
   effectiveShowLabel(ann: ImageAnnotation): boolean {
-    const g = this.mapData().globalAnnotationSettings;
-    return ann.style?.showLabel ?? g.showLabels;
+    return ann.style?.showLabel ?? true;
   }
 
   getLabelPosition(xPercent: number, yPercent: number): string {

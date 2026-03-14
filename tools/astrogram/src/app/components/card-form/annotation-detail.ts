@@ -269,7 +269,7 @@ export class AnnotationDetailComponent {
   effectiveShowLabel = computed(() => {
     const ann = this.annotation();
     if (!ann) return true;
-    return ann.style?.showLabel ?? this.globalSettings().showLabels;
+    return ann.style?.showLabel ?? true;
   });
 
   updateStyle(patch: Partial<AnnotationStyle>) {

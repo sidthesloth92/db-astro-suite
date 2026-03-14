@@ -93,19 +93,6 @@
     ></dba-ui-slider>
   </div>
 
-  <!-- Show Labels toggle -->
-  <div class="toggle-row">
-    <span class="toggle-label">Show Labels</span>
-    <label class="toggle-switch">
-      <input
-        type="checkbox"
-        [checked]="settings().showLabels"
-        (change)="update({ showLabels: $any($event.target).checked })"
-      />
-      <span class="toggle-track"></span>
-    </label>
-  </div>
-
   <!-- Font Family — model-ready, UI coming soon -->
   <div class="future-row" title="Font picker coming soon">
     <span class="toggle-label">Label Font</span>

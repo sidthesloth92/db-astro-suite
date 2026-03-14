@@ -60,8 +60,6 @@ export interface GlobalAnnotationSettings {
    * touching the model or service.
    */
   fontFamily: string;
-  /** Show annotation labels globally. Individual annotations can still override via AnnotationStyle.showLabel. Default true. */
-  showLabels: boolean;
 }
 
 export const DEFAULT_GLOBAL_ANNOTATION_SETTINGS: GlobalAnnotationSettings = {
@@ -72,5 +70,4 @@ export const DEFAULT_GLOBAL_ANNOTATION_SETTINGS: GlobalAnnotationSettings = {
   fontSize: 0.65,
   labelOpacity: 0.85,
   fontFamily: 'monospace',
-  showLabels: true,
 };
