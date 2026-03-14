@@ -40,52 +40,111 @@ import { FooterComponent } from '../../../../../libs/ui/src/lib/footer/footer.co
           </a>
         </header>
 
-        <div class="dossier-grid">
-          <section class="briefing">
-            <dba-ui-card title="Overview">
-              <p>
-                StarWizz is a specialized tool designed to create immersive
-                starfield animations for astrophotographers and space
-                enthusiasts. It enables users to generate perfectly looped
-                videos or sequence-based effects that simulate traveling through
-                deep space.
-              </p>
-              <p>
-                Whether you're creating a motion background for an
-                astrophotography presentation or a cinematic intro for a
-                space-themed video, StarWizz provides the high-fidelity output
-                needed for professional-grade results.
-              </p>
-            </dba-ui-card>
+        <section class="overview-section">
+          <dba-ui-card title="Overview">
+            <p>
+              Starwizz is a browser-based 4K starfield and galaxy animation
+              generator. Set your parameters, hit record, and download a
+              cinematic space background in minutes &mdash; no software to
+              install, no account required.
+            </p>
+            <h4 class="subsection-title">The Problem It Solves</h4>
+            <p>
+              Creating a cinematic space background used to require 3D software,
+              stock footage subscriptions, or a graphics team. For
+              astrophotographers, content creators, and educators working alone,
+              none of those options are quick or free. Starwizz removes every
+              barrier &mdash; no installation, no subscription, no render queue.
+            </p>
+            <p>
+              Open it in a browser, dial in your simulation parameters, and
+              record a perfectly looped 4K starfield video in minutes. The
+              output is professional-grade and suited for YouTube intros,
+              Instagram Reels, presentation backdrops, and virtual meeting
+              backgrounds.
+            </p>
+          </dba-ui-card>
+        </section>
 
-            <dba-ui-card title="Features" class="specs-card">
-              <ul class="specs-list">
+        <section class="features-section">
+          <dba-ui-card title="Features">
+            <div class="features-grid">
+              <div class="feature-item">
+                <div class="feature-icon">&#x2B50;</div>
+                <strong>POPULATION CONTROL</strong>
+                <span
+                  >Modify the density and number of stars to simulate different
+                  galactic sectors.</span
+                >
+              </div>
+              <div class="feature-item">
+                <div class="feature-icon">&#x1F680;</div>
+                <strong>VELOCITY VECTORS</strong>
+                <span
+                  >Adjust travel speed to transition from a slow gentle drift to
+                  full high-warp effects.</span
+                >
+              </div>
+              <div class="feature-item">
+                <div class="feature-icon">&#x1F300;</div>
+                <strong>ROTATIONAL DYNAMICS</strong>
+                <span
+                  >Fine-tune camera rotation to create chaotic orbits or smooth
+                  stable traversals.</span
+                >
+              </div>
+            </div>
+          </dba-ui-card>
+        </section>
+
+        <div class="bottom-grid">
+          <section class="how-it-works-section">
+            <dba-ui-card title="How It Works">
+              <ol class="steps-list">
                 <li>
-                  <strong>POPULATION CONTROL</strong>
+                  <strong>CHOOSE A SCENE TYPE</strong>
                   <span
-                    >Modify the density and number of stars to simulate
-                    different galactic sectors.</span
+                    >Select a pure deep-space starfield or a galaxy background
+                    with dynamic nebula cloud overlays.</span
                   >
                 </li>
                 <li>
-                  <strong>VELOCITY VECTORS</strong>
+                  <strong>SET YOUR PARAMETERS</strong>
                   <span
-                    >Adjust travel speed to transition from a slow drift to
-                    high-warp effects.</span
+                    >Use the real-time HUD to adjust star density, travel
+                    velocity, rotation speed, zoom factor, and shooting star
+                    frequency.</span
                   >
                 </li>
                 <li>
-                  <strong>ROTATIONAL DYNAMICS</strong>
+                  <strong>PREVIEW LIVE</strong>
                   <span
-                    >Fine-tune the camera rotation to create chaotic orbits or
-                    stable traversals.</span
+                    >The Canvas-based renderer updates immediately &mdash; what
+                    you see in the browser is exactly what will be
+                    recorded.</span
                   >
                 </li>
-              </ul>
+                <li>
+                  <strong>RECORD AT 4K</strong>
+                  <span
+                    >Hit Record and Starwizz captures the animation at full 4K
+                    resolution directly in the browser using the MediaRecorder
+                    API &mdash; no plugins required.</span
+                  >
+                </li>
+                <li>
+                  <strong>DOWNLOAD AND USE</strong>
+                  <span
+                    >Save the video file and drop it straight into your video
+                    editor, presentation software, or upload it directly to
+                    social media.</span
+                  >
+                </li>
+              </ol>
             </dba-ui-card>
           </section>
 
-          <section class="intelligence">
+          <section class="demo-section">
             <dba-ui-card title="Demo">
               <div class="demo-image-container">
                 <img
@@ -231,6 +290,16 @@ import { FooterComponent } from '../../../../../libs/ui/src/lib/footer/footer.co
         margin: 0;
         letter-spacing: 0.2em;
         font-weight: 900;
+        color: var(--db-color-neon-pink);
+      }
+
+      ::ng-deep dba-ui-card .card__title {
+        color: var(--db-color-neon-pink);
+        text-shadow: 0 0 8px rgba(255, 45, 149, 0.35);
+      }
+
+      :host {
+        --card-title-color: var(--db-color-neon-pink);
       }
 
       .tagline {
@@ -242,30 +311,84 @@ import { FooterComponent } from '../../../../../libs/ui/src/lib/footer/footer.co
         text-transform: uppercase;
       }
 
-      .dossier-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 2rem;
-        margin-bottom: 4rem;
+      .overview-section {
+        margin-bottom: 2rem;
       }
 
-      .briefing {
-        display: flex;
-        flex-direction: column;
-        gap: 2rem;
-      }
-
-      .briefing p {
+      .overview-section p {
         color: rgba(255, 255, 255, 0.8);
         line-height: 1.8;
         font-size: 16px;
         margin-bottom: 1.5rem;
       }
 
-      .intelligence {
+      .features-section {
+        margin-bottom: 2rem;
+      }
+
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+      }
+
+      .feature-item {
         display: flex;
         flex-direction: column;
+        gap: 0.5rem;
+        padding: 1.25rem;
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.02);
+        transition: border-color 0.3s;
+      }
+
+      .feature-item:hover {
+        border-color: rgba(255, 45, 149, 0.4);
+      }
+
+      .feature-icon {
+        font-size: 1.75rem;
+        line-height: 1;
+        margin-bottom: 0.25rem;
+      }
+
+      .feature-item strong {
+        display: block;
+        color: var(--db-color-neon-pink);
+        font-family: var(--db-font-display, sans-serif);
+        font-size: 11px;
+        letter-spacing: 0.1em;
+      }
+
+      .feature-item span {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.6);
+        line-height: 1.6;
+      }
+
+      .bottom-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
         gap: 2rem;
+        margin-bottom: 4rem;
+      }
+
+      .how-it-works-section,
+      .demo-section {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .subsection-title {
+        font-family: var(--db-font-display, sans-serif);
+        font-size: 12px;
+        letter-spacing: 0.15em;
+        color: var(--db-color-neon-pink);
+        text-transform: uppercase;
+        margin: 1.5rem 0 0.75rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 1px solid rgba(255, 45, 149, 0.3);
       }
 
       .specs-list {
@@ -290,6 +413,34 @@ import { FooterComponent } from '../../../../../libs/ui/src/lib/footer/footer.co
       }
 
       .specs-list span {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      .steps-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        counter-reset: steps;
+      }
+
+      .steps-list li {
+        margin-bottom: 1.5rem;
+        border-left: 2px solid #00f3ff;
+        padding-left: 1rem;
+        counter-increment: steps;
+      }
+
+      .steps-list strong {
+        display: block;
+        color: #00f3ff;
+        font-family: var(--db-font-display, sans-serif);
+        font-size: 12px;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.25rem;
+      }
+
+      .steps-list span {
         font-size: 14px;
         color: rgba(255, 255, 255, 0.6);
       }
@@ -369,8 +520,11 @@ import { FooterComponent } from '../../../../../libs/ui/src/lib/footer/footer.co
       }
 
       @media (max-width: 900px) {
-        .dossier-grid {
+        .bottom-grid {
           grid-template-columns: 1fr;
+        }
+        .features-grid {
+          grid-template-columns: repeat(2, 1fr);
         }
         .dossier-header h1 {
           font-size: 3rem;
@@ -378,6 +532,9 @@ import { FooterComponent } from '../../../../../libs/ui/src/lib/footer/footer.co
       }
 
       @media (max-width: 600px) {
+        .features-grid {
+          grid-template-columns: 1fr;
+        }
         .dossier-header {
           flex-direction: column;
           align-items: center;
