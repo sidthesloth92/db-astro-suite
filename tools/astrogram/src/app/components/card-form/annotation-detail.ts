@@ -303,6 +303,11 @@ import { CardDataService } from '../../services/card-data.service';
         margin-top: 0.25rem;
         gap: 0.5rem;
       }
+      .toggle-action-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -393,6 +398,22 @@ export class AnnotationDetailComponent {
   hasLabelOpacityOverride = computed(() => this.annotation()?.style?.labelOpacity !== undefined);
   hasFontSizeOverride = computed(() => this.annotation()?.style?.fontSize !== undefined);
   hasRadiusOverride = computed(() => this.annotation()?.style?.radiusOverride !== undefined);
+  hasShowMagnitudeOverride = computed(() => this.annotation()?.style?.showMagnitude !== undefined);
+
+  /** Max circle radius = half the smaller image dimension, or 400 when no image is loaded. */
+  maxRadius = computed(() => {
+    const d = this.dataService.stellarMapData();
+    if (d.naturalWidth && d.naturalHeight) {
+      return Math.floor(Math.min(d.naturalWidth, d.naturalHeight) / 2);
+    }
+    return 400;
+  });
+
+  effectiveShowMagnitude = computed(() => {
+    const ann = this.annotation();
+    if (ann?.style?.showMagnitude !== undefined) return ann.style.showMagnitude;
+    return this.globalSettings().showMagnitude;
+  });
 
   effectiveThickness = computed(() => {
     const ann = this.annotation();

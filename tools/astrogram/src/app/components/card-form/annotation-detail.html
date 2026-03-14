@@ -123,7 +123,7 @@
           label="Size"
           [value]="effectiveRadius()"
           [min]="4"
-          [max]="400"
+          [max]="maxRadius()"
           [step]="1"
           [precision]="0"
           [noBox]="true"
@@ -226,9 +226,9 @@
           label="Font Size"
           [value]="effectiveFontSize()"
           [min]="0.45"
-          [max]="1.4"
-          [step]="0.05"
-          [precision]="2"
+          [max]="10"
+          [step]="0.1"
+          [precision]="1"
           [noBox]="true"
           (valueChange)="updateStyle({ fontSize: $event })"
         ></dba-ui-slider>
@@ -237,6 +237,24 @@
             <button class="reset-btn" (click)="clearField('fontSize')">Use global</button>
           </div>
         }
+      </div>
+    </div>
+
+    <!-- Show magnitude toggle -->
+    <div class="toggle-row">
+      <span class="toggle-label">Show Magnitude</span>
+      <div class="toggle-action-row">
+        @if (hasShowMagnitudeOverride()) {
+          <button class="reset-btn" (click)="clearField('showMagnitude')">Use global</button>
+        }
+        <label class="toggle-switch">
+          <input
+            type="checkbox"
+            [checked]="effectiveShowMagnitude()"
+            (change)="updateStyle({ showMagnitude: $any($event.target).checked })"
+          />
+          <span class="toggle-track"></span>
+        </label>
       </div>
     </div>
   </div>

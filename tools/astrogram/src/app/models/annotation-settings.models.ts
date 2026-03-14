@@ -37,6 +37,8 @@ export interface AnnotationStyle {
   customLabel?: string;
   // ── future slots (model ready, no UI yet) ────────────────────────
   fontSize?: number;
+  /** Show magnitude value below the label text. Overrides global showMagnitude. */
+  showMagnitude?: boolean;
   // fontFamily?: string;
 }
 
@@ -60,6 +62,8 @@ export interface GlobalAnnotationSettings {
    * touching the model or service.
    */
   fontFamily: string;
+  /** Show magnitude value below the label text. Default false. */
+  showMagnitude: boolean;
 }
 
 export const DEFAULT_GLOBAL_ANNOTATION_SETTINGS: GlobalAnnotationSettings = {
@@ -70,4 +74,5 @@ export const DEFAULT_GLOBAL_ANNOTATION_SETTINGS: GlobalAnnotationSettings = {
   fontSize: 0.65,
   labelOpacity: 0.85,
   fontFamily: 'monospace',
+  showMagnitude: false,
 };

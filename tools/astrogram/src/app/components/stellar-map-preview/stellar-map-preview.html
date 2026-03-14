@@ -38,8 +38,13 @@
             [ngClass]="getLabelPosition(ann.xPercent, ann.yPercent)"
             [ngStyle]="labelStyle(ann)"
             (click)="directSelect(ann.id, $event)"
-            >{{ effectiveLabel(ann) }}</span
-          >
+            >{{ effectiveLabel(ann) }}
+            @if (effectiveShowMagnitude(ann) && ann.magnitude !== undefined) {
+              <span style="display: block; font-size: 0.85em; opacity: 0.8">{{
+                ann.magnitude | number: '1.1-1'
+              }}</span>
+            }
+          </span>
         }
       </div>
     }

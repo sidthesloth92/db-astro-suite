@@ -43,6 +43,7 @@ import { AnnotationControlsComponent } from '../card-form/annotation-controls';
         border-radius: 4px;
         font-weight: bold;
         white-space: nowrap;
+        text-align: center;
         text-transform: uppercase;
         text-shadow: 0 1px 3px rgba(0, 0, 0, 1);
         cursor: pointer;
@@ -287,6 +288,12 @@ export class StellarMapPreviewComponent {
 
   effectiveShowLabel(ann: ImageAnnotation): boolean {
     return ann.style?.showLabel ?? true;
+  }
+
+  effectiveShowMagnitude(ann: ImageAnnotation): boolean {
+    const override = ann.style?.showMagnitude;
+    if (override !== undefined) return override;
+    return this.mapData().globalAnnotationSettings.showMagnitude ?? false;
   }
 
   getLabelPosition(xPercent: number, yPercent: number): string {
