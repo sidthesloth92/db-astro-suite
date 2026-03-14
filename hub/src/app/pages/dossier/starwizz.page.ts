@@ -1,9 +1,9 @@
+import { RouteMeta } from '@analogjs/router';
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { RouteMeta } from '@analogjs/router';
 import { CardComponent } from '@db-astro-suite/ui';
 import { FooterComponent } from '../../../../../libs/ui/src/lib/footer/footer.component';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'dba-hub-starwizz-dossier',

@@ -1,7 +1,7 @@
 /// <reference types="vitest" />
 
-import { defineConfig } from 'vite';
 import analog from '@analogjs/platform';
+import { defineConfig } from 'vite';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -17,7 +17,13 @@ export default defineConfig(({ mode }) => ({
       ssr: true,
       static: true,
       prerender: {
-        routes: ['/', '/about', '/dossier/starwizz', '/dossier/astrogram', '/dossier/file-grouper'],
+        routes: [
+          '/',
+          '/about',
+          '/dossier/starwizz',
+          '/dossier/astrogram',
+          '/dossier/file-grouper',
+        ],
       },
       nitro: {
         preset: 'static',
