@@ -1,9 +1,9 @@
+import { RouteMeta } from '@analogjs/router';
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { RouteMeta } from '@analogjs/router';
 import { CardComponent } from '@db-astro-suite/ui';
 import { FooterComponent } from '../../../../libs/ui/src/lib/footer/footer.component';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'dba-hub-home-page',
@@ -468,7 +468,7 @@ export const routeMeta: RouteMeta = {
     {
       property: 'og:description',
       content:
-        'Immersive space tools for the modern astrophotographer. Streamline your workflow from capture to sharing.',
+        'A professional collection of social-media focused astrophotography tools built to get your space photos off your hard drive and onto social media',
     },
   ],
 };
