@@ -255,7 +255,7 @@ export class StellarMapPreviewComponent {
     const s = ann.style ?? {};
     const color = s.color ?? g.color;
     const thickness = s.thickness ?? g.thickness;
-    const opacity = s.opacity ?? g.opacity;
+    const opacity = s.opacity ?? g.circleOpacity;
     const radius = (s.radiusOverride ?? ann.radiusDb) * 2;
     return {
       width: radius + 'px',
@@ -267,13 +267,17 @@ export class StellarMapPreviewComponent {
     };
   }
 
-  labelStyle(): Record<string, string> {
+  labelStyle(ann: ImageAnnotation): Record<string, string> {
     const g = this.mapData().globalAnnotationSettings;
+    const s = ann.style ?? {};
+    const color = s.labelColor ?? g.labelColor;
+    const opacity = s.labelOpacity ?? g.labelOpacity;
     return {
-      color: g.color,
+      color,
+      opacity: String(opacity),
       'font-size': g.fontSize + 'rem',
       'font-family': g.fontFamily,
-      border: `1px solid ${g.color}4d`,
+      border: `1px solid ${color}4d`,
     };
   }
 

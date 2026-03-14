@@ -1,14 +1,18 @@
 <div class="settings-grid">
-  <!-- Color -->
+
+  <!-- ── Circle ──────────────────────────────────────────────── -->
+  <div class="settings-group-label">Circle</div>
+
+  <!-- Circle colour -->
   <div class="setting-row">
-    <div class="setting-label">Annotation Colour</div>
+    <div class="setting-label">Colour</div>
     <div class="color-row">
       <div class="color-swatch" [style.background]="settings().color">
         <input
           type="color"
           [value]="settings().color"
           (input)="update({ color: $any($event.target).value })"
-          title="Pick annotation colour"
+          title="Pick circle colour"
         />
       </div>
       <span class="color-hex">{{ settings().color }}</span>
@@ -29,10 +33,43 @@
     ></dba-ui-slider>
   </div>
 
-  <!-- Font Size -->
+  <!-- Circle opacity -->
   <div class="setting-row">
     <dba-ui-slider
-      label="Label Font Size"
+      label="Opacity"
+      [value]="settings().circleOpacity"
+      [min]="0.1"
+      [max]="1"
+      [step]="0.05"
+      [precision]="2"
+      [noBox]="true"
+      (valueChange)="update({ circleOpacity: $event })"
+    ></dba-ui-slider>
+  </div>
+
+  <!-- ── Label ───────────────────────────────────────────────── -->
+  <div class="settings-group-label" style="margin-top: 0.5rem">Label</div>
+
+  <!-- Label colour -->
+  <div class="setting-row">
+    <div class="setting-label">Colour</div>
+    <div class="color-row">
+      <div class="color-swatch" [style.background]="settings().labelColor">
+        <input
+          type="color"
+          [value]="settings().labelColor"
+          (input)="update({ labelColor: $any($event.target).value })"
+          title="Pick label colour"
+        />
+      </div>
+      <span class="color-hex">{{ settings().labelColor }}</span>
+    </div>
+  </div>
+
+  <!-- Label font size -->
+  <div class="setting-row">
+    <dba-ui-slider
+      label="Font Size"
       [value]="settings().fontSize"
       [min]="0.5"
       [max]="1.5"
@@ -43,17 +80,17 @@
     ></dba-ui-slider>
   </div>
 
-  <!-- Opacity -->
+  <!-- Label opacity -->
   <div class="setting-row">
     <dba-ui-slider
       label="Opacity"
-      [value]="settings().opacity"
+      [value]="settings().labelOpacity"
       [min]="0.1"
       [max]="1"
       [step]="0.05"
       [precision]="2"
       [noBox]="true"
-      (valueChange)="onOpacityChange($event)"
+      (valueChange)="update({ labelOpacity: $event })"
     ></dba-ui-slider>
   </div>
 

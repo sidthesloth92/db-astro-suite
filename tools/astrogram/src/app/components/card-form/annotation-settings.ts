@@ -123,6 +123,15 @@ import { CardDataService } from '../../services/card-data.service';
         border-radius: 3px;
         padding: 1px 4px;
       }
+      .settings-group-label {
+        font-family: var(--db-form-font-mono, monospace);
+        font-size: 0.625rem;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: var(--db-color-neon-pink);
+        opacity: 0.8;
+        font-weight: 700;
+      }
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -144,7 +153,4 @@ export class AnnotationSettingsComponent {
     this.update({ fontSize: value });
   }
 
-  onOpacityChange(value: number) {
-    this.update({ opacity: value });
-  }
 }

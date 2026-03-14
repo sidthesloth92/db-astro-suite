@@ -207,6 +207,16 @@ import { CardDataService } from '../../services/card-data.service';
         display: flex;
         justify-content: flex-end;
       }
+      .detail-group-label {
+        font-family: var(--db-form-font-mono, monospace);
+        font-size: 0.625rem;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: var(--db-color-neon-pink);
+        opacity: 0.8;
+        font-weight: 700;
+        margin-top: 0.25rem;
+      }
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -222,7 +232,7 @@ export class AnnotationDetailComponent {
 
   globalSettings = computed(() => this.dataService.stellarMapData().globalAnnotationSettings);
 
-  /** Effective colour: per-annotation override OR global default. */
+  /** Effective circle colour: per-annotation override OR global. */
   effectiveColor = computed(() => {
     const ann = this.annotation();
     return ann?.style?.color ?? this.globalSettings().color;
@@ -235,18 +245,31 @@ export class AnnotationDetailComponent {
     return ann.style?.radiusOverride ?? ann.radiusDb;
   });
 
+  /** Effective circle opacity. */
+  effectiveOpacity = computed(() => {
+    const ann = this.annotation();
+    if (!ann) return this.globalSettings().circleOpacity;
+    return ann.style?.opacity ?? this.globalSettings().circleOpacity;
+  });
+
+  /** Effective label colour: per-annotation override OR global. */
+  effectiveLabelColor = computed(() => {
+    const ann = this.annotation();
+    return ann?.style?.labelColor ?? this.globalSettings().labelColor;
+  });
+
+  /** Effective label opacity. */
+  effectiveLabelOpacity = computed(() => {
+    const ann = this.annotation();
+    if (!ann) return this.globalSettings().labelOpacity;
+    return ann.style?.labelOpacity ?? this.globalSettings().labelOpacity;
+  });
+
   /** Effective label visibility. */
   effectiveShowLabel = computed(() => {
     const ann = this.annotation();
     if (!ann) return true;
     return ann.style?.showLabel ?? this.globalSettings().showLabels;
-  });
-
-  /** Effective opacity. */
-  effectiveOpacity = computed(() => {
-    const ann = this.annotation();
-    if (!ann) return this.globalSettings().opacity;
-    return ann.style?.opacity ?? this.globalSettings().opacity;
   });
 
   updateStyle(patch: Partial<AnnotationStyle>) {
@@ -266,6 +289,8 @@ export class AnnotationDetailComponent {
 
   hasColorOverride = computed(() => !!this.annotation()?.style?.color);
   hasOpacityOverride = computed(() => this.annotation()?.style?.opacity !== undefined);
+  hasLabelColorOverride = computed(() => !!this.annotation()?.style?.labelColor);
+  hasLabelOpacityOverride = computed(() => this.annotation()?.style?.labelOpacity !== undefined);
   hasRadiusOverride = computed(() => this.annotation()?.style?.radiusOverride !== undefined);
   hasLabelOverride = computed(() => this.annotation()?.style?.showLabel !== undefined);
 }
