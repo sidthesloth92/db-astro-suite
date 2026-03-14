@@ -45,7 +45,7 @@ import { AnnotationControlsComponent } from '../card-form/annotation-controls';
         white-space: nowrap;
         text-transform: uppercase;
         text-shadow: 0 1px 3px rgba(0, 0, 0, 1);
-        pointer-events: none;
+        cursor: pointer;
       }
       .annotation-label.label-top {
         top: auto;
@@ -237,6 +237,13 @@ export class StellarMapPreviewComponent {
 
   deselectAll() {
     this.dataService.selectAnnotation(null);
+  }
+
+  /** Direct select bypassing ring-hit-test — used when clicking a label. */
+  directSelect(id: string, event: MouseEvent) {
+    event.stopPropagation();
+    const current = this.dataService.selectedAnnotationId();
+    this.dataService.selectAnnotation(current === id ? null : id);
   }
 
   // ── Effective style helpers ──────────────────────────────────────

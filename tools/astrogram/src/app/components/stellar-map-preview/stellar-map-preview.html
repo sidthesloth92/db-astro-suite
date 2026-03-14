@@ -37,6 +37,7 @@
             class="annotation-label"
             [ngClass]="getLabelPosition(ann.xPercent, ann.yPercent)"
             [ngStyle]="labelStyle()"
+            (click)="directSelect(ann.id, $event)"
             >{{ effectiveLabel(ann) }}</span
           >
         }
