@@ -152,5 +152,4 @@ export class AnnotationSettingsComponent {
   onFontSizeChange(value: number) {
     this.update({ fontSize: value });
   }
-
 }
