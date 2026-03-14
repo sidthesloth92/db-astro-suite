@@ -198,6 +198,34 @@ import { AnnotationSettingsComponent } from './annotation-settings';
         padding: 0 2px;
         margin-top: -0.25rem;
       }
+      .detail-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+      }
+      .back-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: none;
+        border: 1px solid rgba(0, 243, 255, 0.25);
+        border-radius: var(--db-radius-md);
+        color: rgba(0, 243, 255, 0.7);
+        font-family: var(--db-form-font-mono, monospace);
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        padding: 0.5rem 0.75rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        align-self: flex-start;
+      }
+      .back-btn:hover {
+        color: #00f3ff;
+        border-color: rgba(0, 243, 255, 0.6);
+        background: rgba(0, 243, 255, 0.06);
+      }
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -210,8 +238,12 @@ export class AnnotationControlsComponent {
   isSolving = signal(false);
   solveStatus = signal('');
 
-  /** True when an annotation is selected — drives the "Selected Object" section. */
+  /** True when an annotation is selected — drives the full-panel detail view. */
   hasSelection = computed(() => this.dataService.selectedAnnotationId() !== null);
+
+  deselect() {
+    this.dataService.selectAnnotation(null);
+  }
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 

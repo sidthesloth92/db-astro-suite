@@ -7,27 +7,40 @@
     style="display: none"
   />
 
-  <div class="action-btns">
-    <button
-      class="solve-btn"
-      (click)="triggerPlateSolve()"
-      [disabled]="!mapData().backgroundImage || isSolving()"
-    >
-      @if (isSolving()) {
-        <span class="spinner"></span>
-        ANALYZING...
-      } @else {
-        🚀 ASTROSOLVE
-      }
-    </button>
-  </div>
+  @if (hasSelection()) {
+    <!-- ── ANNOTATION DETAIL: full-panel takeover ──────────────── -->
+    <div class="detail-panel">
+      <button class="back-btn" (click)="deselect()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
+        </svg>
+        Back to Controls
+      </button>
+      <dba-ag-annotation-detail></dba-ag-annotation-detail>
+    </div>
+  } @else {
+    <!-- ── NORMAL CONTROLS ─────────────────────────────────────── -->
+    <div class="action-btns">
+      <button
+        class="solve-btn"
+        (click)="triggerPlateSolve()"
+        [disabled]="!mapData().backgroundImage || isSolving()"
+      >
+        @if (isSolving()) {
+          <span class="spinner"></span>
+          ANALYZING...
+        } @else {
+          🚀 ASTROSOLVE
+        }
+      </button>
+    </div>
 
-  @if (solveStatus()) {
-    <div class="status-text">{{ solveStatus() }}</div>
-  }
+    @if (solveStatus()) {
+      <div class="status-text">{{ solveStatus() }}</div>
+    }
 
-  @if (mapData().annotations && mapData().annotations.length > 0) {
-    <dba-ui-accordion>
+    @if (mapData().annotations && mapData().annotations.length > 0) {
+      <dba-ui-accordion>
       <!-- ── SECTION 1: Annotation Filters ──────────────────────── -->
       <dba-ui-accordion-item title="📍 Annotation Filters" [expanded]="true">
         <div class="filter-toggles">
@@ -192,13 +205,7 @@
       <dba-ui-accordion-item title="🎨 Annotation Settings">
         <dba-ag-annotation-settings></dba-ag-annotation-settings>
       </dba-ui-accordion-item>
-
-      <!-- ── SECTION 3: Selected Object ────────────────────────── -->
-      @if (hasSelection()) {
-        <dba-ui-accordion-item title="🔍 Selected Object" [expanded]="true">
-          <dba-ag-annotation-detail></dba-ag-annotation-detail>
-        </dba-ui-accordion-item>
-      }
     </dba-ui-accordion>
-  }
+    }
+  } <!-- end @else (normal controls) -->
 </div>
