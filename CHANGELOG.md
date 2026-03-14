@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.10.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.9.0...v1.10.0) (2026-03-14)
+
+
+### Features
+
+* Add visual tests and SEO meta tag validation for Astrogram and Starwizz dossier pages ([4ef4d55](https://github.com/sidthesloth92/db-astro-suite/commit/4ef4d55d2831f9bea6b93a4539b899d2f90c1de8))
+* Enhance Astrogram and StarWizz pages with updated content and features sections ([5501f6f](https://github.com/sidthesloth92/db-astro-suite/commit/5501f6f6bcc834dfda45cfc4c0f535b344af846d))
+* Update SEO meta tags and add canonical links across multiple pages ([910928c](https://github.com/sidthesloth92/db-astro-suite/commit/910928c798c440343dde9c763d2c5405c8641716))
+* Update SEO meta tags and enhance Twitter card support for Astrogram and Starwizz pages ([664c3a8](https://github.com/sidthesloth92/db-astro-suite/commit/664c3a8bed8f449b63a2f5ccf06bbf01296374b3))
+
 ## [1.9.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.8.0...v1.9.0) (2026-03-14)
 
 
