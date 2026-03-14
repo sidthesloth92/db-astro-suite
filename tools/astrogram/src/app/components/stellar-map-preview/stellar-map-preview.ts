@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, ViewChild } from '@angular/core';
+import { ImageAnnotation } from '../../models/annotation.models';
 import { CardDataService } from '../../services/card-data.service';
 import { BaseCardPreviewComponent } from '../base-card-preview/base-card-preview';
 import { AnnotationControlsComponent } from '../card-form/annotation-controls';
@@ -15,32 +16,36 @@ import { AnnotationControlsComponent } from '../card-form/annotation-controls';
         position: absolute;
         inset: 0;
         z-index: 10;
-        pointer-events: none;
+        /* pointer-events auto so markers are clickable; background click deselects */
+        pointer-events: auto;
       }
       .annotation-marker {
         position: absolute;
         transform: translate(-50%, -50%);
-        border: 2px solid rgba(0, 243, 255, 0.8);
+        border-style: solid;
         border-radius: 50%;
-        transition: all 0.3s ease;
-        box-shadow: 0 0 8px rgba(0, 243, 255, 0.4);
+        transition: all 0.25s ease;
+        cursor: pointer;
+        pointer-events: auto;
+      }
+      .annotation-marker.selected {
+        outline: 2px solid rgba(255, 255, 255, 0.9);
+        outline-offset: 3px;
+        filter: brightness(1.4) drop-shadow(0 0 6px white);
       }
       .annotation-label {
         position: absolute;
         top: calc(100% + 6px);
         left: 50%;
         transform: translateX(-50%);
-        color: #00f3ff;
         background: rgba(0, 0, 0, 0.6);
         padding: 2px 6px;
         border-radius: 4px;
-        font-size: 0.65rem;
         font-weight: bold;
-        font-family: var(--db-form-font-mono, monospace);
         white-space: nowrap;
         text-transform: uppercase;
         text-shadow: 0 1px 3px rgba(0, 0, 0, 1);
-        border: 1px solid rgba(0, 243, 255, 0.3);
+        pointer-events: none;
       }
       .annotation-label.label-top {
         top: auto;
@@ -181,6 +186,7 @@ import { AnnotationControlsComponent } from '../card-form/annotation-controls';
 export class StellarMapPreviewComponent {
   dataService = inject(CardDataService);
   mapData = this.dataService.stellarMapData;
+  selectedAnnotationId = this.dataService.selectedAnnotationId;
 
   @ViewChild('controls') controlsComponent!: AnnotationControlsComponent;
 
@@ -188,6 +194,89 @@ export class StellarMapPreviewComponent {
     if (this.controlsComponent) {
       this.controlsComponent.resetMap();
     }
+  }
+
+  /**
+   * Click handler shared by every annotation marker AND the layer background.
+   *
+   * Uses document.elementsFromPoint() to collect ALL stacked elements at the
+   * click coordinate — including those hidden behind the topmost marker div.
+   * Each annotation-marker candidate is ring-hit-tested: we only consider a
+   * hit if the click lands within HIT_TOLERANCE px of the circle's border.
+   * This lets the user click the ring of a small circle even when it is
+   * fully inside the interior of a larger circle.
+   */
+  onAnnotationClick(event: MouseEvent) {
+    event.stopPropagation();
+    const HIT_TOLERANCE = 10; // px on either side of the border
+
+    const allElements = document.elementsFromPoint(event.clientX, event.clientY);
+    for (const el of allElements) {
+      if (!(el instanceof HTMLElement)) continue;
+      if (!el.classList.contains('annotation-marker')) continue;
+
+      const rect = el.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dist = Math.sqrt((event.clientX - cx) ** 2 + (event.clientY - cy) ** 2);
+      const radius = rect.width / 2;
+
+      if (Math.abs(dist - radius) <= HIT_TOLERANCE) {
+        const id = el.dataset['annotationId'];
+        if (id) {
+          const current = this.dataService.selectedAnnotationId();
+          this.dataService.selectAnnotation(current === id ? null : id);
+          return;
+        }
+      }
+    }
+
+    // No ring was hit — treat as background click and deselect
+    this.dataService.selectAnnotation(null);
+  }
+
+  deselectAll() {
+    this.dataService.selectAnnotation(null);
+  }
+
+  // ── Effective style helpers ──────────────────────────────────────
+  // Called per annotation during render. Safe with OnPush because
+  // they only run when the signal-driven change detection triggers.
+
+  markerStyle(ann: ImageAnnotation): Record<string, string> {
+    const g = this.mapData().globalAnnotationSettings;
+    const s = ann.style ?? {};
+    const color = s.color ?? g.color;
+    const thickness = s.thickness ?? g.thickness;
+    const opacity = s.opacity ?? g.opacity;
+    const radius = (s.radiusOverride ?? ann.radiusDb) * 2;
+    return {
+      width: radius + 'px',
+      height: radius + 'px',
+      'border-width': thickness + 'px',
+      'border-color': color,
+      'box-shadow': `0 0 ${thickness * 4}px ${color}66`,
+      opacity: String(opacity),
+    };
+  }
+
+  labelStyle(): Record<string, string> {
+    const g = this.mapData().globalAnnotationSettings;
+    return {
+      color: g.color,
+      'font-size': g.fontSize + 'rem',
+      'font-family': g.fontFamily,
+      border: `1px solid ${g.color}4d`,
+    };
+  }
+
+  effectiveLabel(ann: ImageAnnotation): string {
+    return ann.style?.customLabel || ann.label;
+  }
+
+  effectiveShowLabel(ann: ImageAnnotation): boolean {
+    const g = this.mapData().globalAnnotationSettings;
+    return ann.style?.showLabel ?? g.showLabels;
   }
 
   getLabelPosition(xPercent: number, yPercent: number): string {
@@ -307,8 +396,7 @@ export class StellarMapPreviewComponent {
         const isHD = catalog === 'HD' || name.startsWith('HD ') || label.startsWith('HD ');
         const namedMatch =
           f.showNamedStars && !!ann.commonName && !isHD && mag <= f.maxStarMagnitude;
-        const hdMatch =
-          f.showHDStars && isHD && mag <= f.maxStarMagnitude;
+        const hdMatch = f.showHDStars && isHD && mag <= f.maxStarMagnitude;
         return namedMatch || hdMatch;
       }
 

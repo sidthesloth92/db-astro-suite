@@ -5,19 +5,29 @@ import {
   ElementRef,
   ViewChild,
   ViewEncapsulation,
+  computed,
   inject,
   signal,
 } from '@angular/core';
-import { SliderComponent } from '@db-astro-suite/ui';
+import { AccordionComponent, AccordionItemComponent, SliderComponent } from '@db-astro-suite/ui';
 import { ImageAnnotation } from '../../models/annotation.models';
 import { StellarMapData } from '../../models/card-data';
 import { AstrosolveService } from '../../services/astrosolve.service';
 import { CardDataService } from '../../services/card-data.service';
 import { WcsService } from '../../services/wcs.service';
+import { AnnotationDetailComponent } from './annotation-detail';
+import { AnnotationSettingsComponent } from './annotation-settings';
 @Component({
   selector: 'dba-ag-annotation-controls',
   standalone: true,
-  imports: [CommonModule, SliderComponent],
+  imports: [
+    CommonModule,
+    SliderComponent,
+    AccordionComponent,
+    AccordionItemComponent,
+    AnnotationSettingsComponent,
+    AnnotationDetailComponent,
+  ],
   templateUrl: './annotation-controls.html',
   exportAs: 'dbaAnnotationControls',
   styles: [
@@ -199,6 +209,9 @@ export class AnnotationControlsComponent {
   mapData = this.dataService.stellarMapData;
   isSolving = signal(false);
   solveStatus = signal('');
+
+  /** True when an annotation is selected — drives the "Selected Object" section. */
+  hasSelection = computed(() => this.dataService.selectedAnnotationId() !== null);
 
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 

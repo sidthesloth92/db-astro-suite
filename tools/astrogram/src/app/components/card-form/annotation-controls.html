@@ -27,164 +27,178 @@
   }
 
   @if (mapData().annotations && mapData().annotations.length > 0) {
-    <div class="filter-toggles mt-4">
-      <!-- ── SECTION HEADER ─────────────────────────────────────── -->
-      <h3 class="filter-section-title">Annotation Filters</h3>
+    <dba-ui-accordion>
+      <!-- ── SECTION 1: Annotation Filters ──────────────────────── -->
+      <dba-ui-accordion-item title="📍 Annotation Filters" [expanded]="true">
+        <div class="filter-toggles">
+          <!-- Stars -->
+          <div class="filter-group">
+            <div class="filter-group-label">Stars</div>
+            <div class="filter-row">
+              <label class="filter-check">
+                <input
+                  type="checkbox"
+                  [checked]="mapData().filters.showNamedStars"
+                  (change)="toggleFilter('showNamedStars')"
+                />
+                Named Stars
+              </label>
+              <label class="filter-check">
+                <input
+                  type="checkbox"
+                  [checked]="mapData().filters.showHDStars"
+                  (change)="toggleFilter('showHDStars')"
+                />
+                HD Stars
+              </label>
+            </div>
+            @if (mapData().filters.showNamedStars || mapData().filters.showHDStars) {
+              <div class="mag-slider-row">
+                <dba-ui-slider
+                  label="Max Magnitude"
+                  [value]="mapData().filters.maxStarMagnitude"
+                  [min]="0"
+                  [max]="15"
+                  [step]="0.5"
+                  [precision]="1"
+                  [noBox]="true"
+                  (valueChange)="setStarMagnitude($event)"
+                ></dba-ui-slider>
+                <div class="mag-tick-labels">
+                  <span>0 (Brightest)</span>
+                  <span>15 (Faint)</span>
+                </div>
+              </div>
+            }
+          </div>
 
-      <!-- ── STARS ─────────────────────────────────────────────── -->
-      <div class="filter-group">
-        <div class="filter-group-label">Stars</div>
-        <div class="filter-row">
-          <label class="filter-check">
-            <input
-              type="checkbox"
-              [checked]="mapData().filters.showNamedStars"
-              (change)="toggleFilter('showNamedStars')"
-            />
-            Named Stars
-          </label>
-          <label class="filter-check">
-            <input
-              type="checkbox"
-              [checked]="mapData().filters.showHDStars"
-              (change)="toggleFilter('showHDStars')"
-            />
-            HD Stars
-          </label>
-        </div>
-        @if (mapData().filters.showNamedStars || mapData().filters.showHDStars) {
-          <div class="mag-slider-row">
-            <dba-ui-slider
-              label="Max Magnitude"
-              [value]="mapData().filters.maxStarMagnitude"
-              [min]="0"
-              [max]="15"
-              [step]="0.5"
-              [precision]="1"
-              [noBox]="true"
-              (valueChange)="setStarMagnitude($event)"
-            ></dba-ui-slider>
-            <div class="mag-tick-labels">
-              <span>0 (Brightest)</span>
-              <span>15 (Faint)</span>
+          <!-- Catalogs -->
+          <div class="filter-group">
+            <div class="filter-group-label">Catalogs</div>
+            <div class="filter-row">
+              <label class="filter-check">
+                <input
+                  type="checkbox"
+                  [checked]="mapData().filters.showMessier"
+                  (change)="toggleFilter('showMessier')"
+                />
+                Messier
+              </label>
+              <label class="filter-check">
+                <input
+                  type="checkbox"
+                  [checked]="mapData().filters.showNGC"
+                  (change)="toggleFilter('showNGC')"
+                />
+                NGC
+              </label>
+              <label class="filter-check">
+                <input
+                  type="checkbox"
+                  [checked]="mapData().filters.showIC"
+                  (change)="toggleFilter('showIC')"
+                />
+                IC
+              </label>
+              <label class="filter-check">
+                <input
+                  type="checkbox"
+                  [checked]="mapData().filters.showCaldwell"
+                  (change)="toggleFilter('showCaldwell')"
+                />
+                Caldwell
+              </label>
+            </div>
+            <div class="filter-row">
+              <label class="filter-check">
+                <input
+                  type="checkbox"
+                  [checked]="mapData().filters.showSharpless"
+                  (change)="toggleFilter('showSharpless')"
+                />
+                Sharpless
+              </label>
+              <label class="filter-check">
+                <input
+                  type="checkbox"
+                  [checked]="mapData().filters.showAbellClusters"
+                  (change)="toggleFilter('showAbellClusters')"
+                />
+                Abell Clusters
+              </label>
             </div>
           </div>
-        }
-      </div>
 
-      <!-- ── CATALOGS ───────────────────────────────────────────── -->
-      <div class="filter-group">
-        <div class="filter-group-label">Catalogs</div>
-        <div class="filter-row">
-          <label class="filter-check">
-            <input
-              type="checkbox"
-              [checked]="mapData().filters.showMessier"
-              (change)="toggleFilter('showMessier')"
-            />
-            Messier
-          </label>
-          <label class="filter-check">
-            <input
-              type="checkbox"
-              [checked]="mapData().filters.showNGC"
-              (change)="toggleFilter('showNGC')"
-            />
-            NGC
-          </label>
-          <label class="filter-check">
-            <input
-              type="checkbox"
-              [checked]="mapData().filters.showIC"
-              (change)="toggleFilter('showIC')"
-            />
-            IC
-          </label>
-          <label class="filter-check">
-            <input
-              type="checkbox"
-              [checked]="mapData().filters.showCaldwell"
-              (change)="toggleFilter('showCaldwell')"
-            />
-            Caldwell
-          </label>
+          <!-- Object Types -->
+          <div class="filter-group">
+            <div class="filter-group-label">Object Types</div>
+            <div class="filter-row">
+              <label class="filter-check">
+                <input
+                  type="checkbox"
+                  [checked]="mapData().filters.showGalaxies"
+                  (change)="toggleFilter('showGalaxies')"
+                />
+                Galaxies
+              </label>
+              <label class="filter-check">
+                <input
+                  type="checkbox"
+                  [checked]="mapData().filters.showOpenClusters"
+                  (change)="toggleFilter('showOpenClusters')"
+                />
+                Open Clusters
+              </label>
+              <label class="filter-check">
+                <input
+                  type="checkbox"
+                  [checked]="mapData().filters.showGlobularClusters"
+                  (change)="toggleFilter('showGlobularClusters')"
+                />
+                Globular Clusters
+              </label>
+            </div>
+            <div class="filter-row">
+              <label class="filter-check">
+                <input
+                  type="checkbox"
+                  [checked]="mapData().filters.showPlanetaryNebulae"
+                  (change)="toggleFilter('showPlanetaryNebulae')"
+                />
+                Planetary Nebulae
+              </label>
+              <label class="filter-check">
+                <input
+                  type="checkbox"
+                  [checked]="mapData().filters.showNebulae"
+                  (change)="toggleFilter('showNebulae')"
+                />
+                Nebulae
+              </label>
+              <label class="filter-check">
+                <input
+                  type="checkbox"
+                  [checked]="mapData().filters.showQuasars"
+                  (change)="toggleFilter('showQuasars')"
+                />
+                Quasars
+              </label>
+            </div>
+          </div>
         </div>
-        <div class="filter-row">
-          <label class="filter-check">
-            <input
-              type="checkbox"
-              [checked]="mapData().filters.showSharpless"
-              (change)="toggleFilter('showSharpless')"
-            />
-            Sharpless
-          </label>
-          <label class="filter-check">
-            <input
-              type="checkbox"
-              [checked]="mapData().filters.showAbellClusters"
-              (change)="toggleFilter('showAbellClusters')"
-            />
-            Abell Clusters
-          </label>
-        </div>
-      </div>
+      </dba-ui-accordion-item>
 
-      <!-- ── OBJECT TYPES ───────────────────────────────────────── -->
-      <div class="filter-group">
-        <div class="filter-group-label">Object Types</div>
-        <div class="filter-row">
-          <label class="filter-check">
-            <input
-              type="checkbox"
-              [checked]="mapData().filters.showGalaxies"
-              (change)="toggleFilter('showGalaxies')"
-            />
-            Galaxies
-          </label>
-          <label class="filter-check">
-            <input
-              type="checkbox"
-              [checked]="mapData().filters.showOpenClusters"
-              (change)="toggleFilter('showOpenClusters')"
-            />
-            Open Clusters
-          </label>
-          <label class="filter-check">
-            <input
-              type="checkbox"
-              [checked]="mapData().filters.showGlobularClusters"
-              (change)="toggleFilter('showGlobularClusters')"
-            />
-            Globular Clusters
-          </label>
-        </div>
-        <div class="filter-row">
-          <label class="filter-check">
-            <input
-              type="checkbox"
-              [checked]="mapData().filters.showPlanetaryNebulae"
-              (change)="toggleFilter('showPlanetaryNebulae')"
-            />
-            Planetary Nebulae
-          </label>
-          <label class="filter-check">
-            <input
-              type="checkbox"
-              [checked]="mapData().filters.showNebulae"
-              (change)="toggleFilter('showNebulae')"
-            />
-            Nebulae
-          </label>
-          <label class="filter-check">
-            <input
-              type="checkbox"
-              [checked]="mapData().filters.showQuasars"
-              (change)="toggleFilter('showQuasars')"
-            />
-            Quasars
-          </label>
-        </div>
-      </div>
-    </div>
+      <!-- ── SECTION 2: Annotation Settings (global) ────────────── -->
+      <dba-ui-accordion-item title="🎨 Annotation Settings">
+        <dba-ag-annotation-settings></dba-ag-annotation-settings>
+      </dba-ui-accordion-item>
+
+      <!-- ── SECTION 3: Selected Object ────────────────────────── -->
+      @if (hasSelection()) {
+        <dba-ui-accordion-item title="🔍 Selected Object" [expanded]="true">
+          <dba-ag-annotation-detail></dba-ag-annotation-detail>
+        </dba-ui-accordion-item>
+      }
+    </dba-ui-accordion>
   }
 </div>

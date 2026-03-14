@@ -20,18 +20,26 @@
   }
 
   <!-- Absolute Layer for Annotations mapping identically to the background image dimensions -->
-  <div class="annotations-layer" fullBleed>
+  <div class="annotations-layer" fullBleed (click)="deselectAll()">
     @for (ann of visibleAnnotations(); track ann.id) {
       <div
         class="annotation-marker"
+        [class.selected]="selectedAnnotationId() === ann.id"
         [style.left.%]="ann.xPercent"
         [style.top.%]="ann.yPercent"
-        [style.width.px]="ann.radiusDb * 2"
-        [style.height.px]="ann.radiusDb * 2"
+        [ngStyle]="markerStyle(ann)"
+        [attr.data-annotation-id]="ann.id"
+        (click)="onAnnotationClick($event)"
+        [title]="ann.label"
       >
-        <span class="annotation-label" [ngClass]="getLabelPosition(ann.xPercent, ann.yPercent)">{{
-          ann.label
-        }}</span>
+        @if (effectiveShowLabel(ann)) {
+          <span
+            class="annotation-label"
+            [ngClass]="getLabelPosition(ann.xPercent, ann.yPercent)"
+            [ngStyle]="labelStyle()"
+            >{{ effectiveLabel(ann) }}</span
+          >
+        }
       </div>
     }
   </div>

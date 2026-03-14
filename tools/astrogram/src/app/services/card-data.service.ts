@@ -1,5 +1,11 @@
 import { Injectable, signal } from '@angular/core';
-import { CardData, DEFAULT_FILTERS, StellarMapData } from '../models/card-data';
+import { AnnotationStyle, GlobalAnnotationSettings } from '../models/annotation-settings.models';
+import {
+  CardData,
+  DEFAULT_FILTERS,
+  DEFAULT_GLOBAL_ANNOTATION_SETTINGS,
+  StellarMapData,
+} from '../models/card-data';
 
 @Injectable({
   providedIn: 'root',
@@ -63,7 +69,56 @@ export class CardDataService {
       showHDStars: true,
       maxStarMagnitude: 7,
     },
+    globalAnnotationSettings: { ...DEFAULT_GLOBAL_ANNOTATION_SETTINGS },
   });
+
+  /**
+   * Transient UI selection — lives outside StellarMapData because selection
+   * is ephemeral view state, not part of the persisted document model.
+   */
+  readonly selectedAnnotationId = signal<string | null>(null);
+
+  selectAnnotation(id: string | null) {
+    this.selectedAnnotationId.set(id);
+  }
+
+  updateGlobalAnnotationSettings(patch: Partial<GlobalAnnotationSettings>) {
+    this.stellarMapData.update((d) => ({
+      ...d,
+      globalAnnotationSettings: { ...d.globalAnnotationSettings, ...patch },
+    }));
+  }
+
+  updateAnnotationStyle(id: string, patch: Partial<AnnotationStyle>) {
+    this.stellarMapData.update((d) => ({
+      ...d,
+      annotations: d.annotations.map((ann) =>
+        ann.id === id ? { ...ann, style: { ...(ann.style ?? {}), ...patch } } : ann,
+      ),
+    }));
+  }
+
+  clearAnnotationStyleField(id: string, field: keyof AnnotationStyle) {
+    this.stellarMapData.update((d) => ({
+      ...d,
+      annotations: d.annotations.map((ann) => {
+        if (ann.id !== id || !ann.style) return ann;
+        const { [field]: _removed, ...rest } = ann.style;
+        return {
+          ...ann,
+          style: Object.keys(rest).length > 0 ? (rest as AnnotationStyle) : undefined,
+        };
+      }),
+    }));
+  }
+
+  removeAnnotation(id: string) {
+    this.selectedAnnotationId.set(null);
+    this.stellarMapData.update((d) => ({
+      ...d,
+      annotations: d.annotations.filter((ann) => ann.id !== id),
+    }));
+  }
 
   updateData(newData: Partial<CardData>) {
     this.cardData.update((data) => ({ ...data, ...newData }));

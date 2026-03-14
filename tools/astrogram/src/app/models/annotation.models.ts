@@ -1,3 +1,5 @@
+import { AnnotationStyle } from './annotation-settings.models';
+
 export interface ImageAnnotation {
   id: string; // Target name or UUID
   xPercent: number; // Relative to *original* uncropped image width (0-100)
@@ -11,6 +13,8 @@ export interface ImageAnnotation {
   name?: string;
   commonName?: string;
   magnitude?: number;
+  /** Per-annotation visual overrides. Absent = inherit GlobalAnnotationSettings. */
+  style?: AnnotationStyle;
 }
 
 export interface LocalAstroObject {

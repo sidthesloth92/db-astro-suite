@@ -1,7 +1,13 @@
 /**
  * AstroGram Data Models
  */
+import {
+  DEFAULT_GLOBAL_ANNOTATION_SETTINGS,
+  GlobalAnnotationSettings,
+} from './annotation-settings.models';
 import { ImageAnnotation } from './annotation.models';
+
+export { DEFAULT_GLOBAL_ANNOTATION_SETTINGS };
 
 export interface FilterExposure {
   name: string;
@@ -77,6 +83,8 @@ export interface StellarMapData {
   naturalHeight?: number;
   annotations: ImageAnnotation[];
   filters: AnnotationFilters;
+  /** Global visual theme applied to all annotations unless overridden per-annotation. */
+  globalAnnotationSettings: GlobalAnnotationSettings;
 }
 
 export interface AnnotationFilters {

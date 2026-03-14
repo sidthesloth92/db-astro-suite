@@ -1,0 +1,78 @@
+<div class="settings-grid">
+  <!-- Color -->
+  <div class="setting-row">
+    <div class="setting-label">Annotation Colour</div>
+    <div class="color-row">
+      <div class="color-swatch" [style.background]="settings().color">
+        <input
+          type="color"
+          [value]="settings().color"
+          (input)="update({ color: $any($event.target).value })"
+          title="Pick annotation colour"
+        />
+      </div>
+      <span class="color-hex">{{ settings().color }}</span>
+    </div>
+  </div>
+
+  <!-- Thickness -->
+  <div class="setting-row">
+    <dba-ui-slider
+      label="Border Thickness"
+      [value]="settings().thickness"
+      [min]="1"
+      [max]="6"
+      [step]="0.5"
+      [precision]="1"
+      [noBox]="true"
+      (valueChange)="onThicknessChange($event)"
+    ></dba-ui-slider>
+  </div>
+
+  <!-- Font Size -->
+  <div class="setting-row">
+    <dba-ui-slider
+      label="Label Font Size"
+      [value]="settings().fontSize"
+      [min]="0.5"
+      [max]="1.5"
+      [step]="0.05"
+      [precision]="2"
+      [noBox]="true"
+      (valueChange)="onFontSizeChange($event)"
+    ></dba-ui-slider>
+  </div>
+
+  <!-- Opacity -->
+  <div class="setting-row">
+    <dba-ui-slider
+      label="Opacity"
+      [value]="settings().opacity"
+      [min]="0.1"
+      [max]="1"
+      [step]="0.05"
+      [precision]="2"
+      [noBox]="true"
+      (valueChange)="onOpacityChange($event)"
+    ></dba-ui-slider>
+  </div>
+
+  <!-- Show Labels toggle -->
+  <div class="toggle-row">
+    <span class="toggle-label">Show Labels</span>
+    <label class="toggle-switch">
+      <input
+        type="checkbox"
+        [checked]="settings().showLabels"
+        (change)="update({ showLabels: $any($event.target).checked })"
+      />
+      <span class="toggle-track"></span>
+    </label>
+  </div>
+
+  <!-- Font Family — model-ready, UI coming soon -->
+  <div class="future-row" title="Font picker coming soon">
+    <span class="toggle-label">Label Font</span>
+    <span class="future-badge">coming soon</span>
+  </div>
+</div>
