@@ -181,7 +181,8 @@ async function processSolveRequest(filePath, hints) {
   ]);
 
   // Catalog accuracy priority for local star sources (higher = more accurate)
-  const CATALOG_PRIORITY = { HIP: 3, TYC: 2 };
+  // Named = IAU WGSN approved names; highest priority so they display over HD numbers
+  const CATALOG_PRIORITY = { Named: 4, HIP: 3, TYC: 2 };
 
   // Build best-per-name map from local stars (HIP beats HD when both present)
   const localStarsByName = new Map();
@@ -198,8 +199,26 @@ async function processSolveRequest(filePath, hints) {
   // do a 30" spatial match to handle cases where SIMBAD MAIN_ID ≠ local HD name
   // (e.g. local has "HD 150679", SIMBAD returns the same star as "HIP 81693").
   // This prevents duplicate annotations for the same physical star.
-  const localStarSnapshot = [...localStarsByName.values()]; // snapshot before updates
+  // Remove HD/HIP/TYC entries shadowed by a Named catalog entry at the same position.
+  // This prevents "HD 48915" and "Sirius" both appearing as annotations for the same star.
   const MATCH_DEG = 30 / 3600; // 30 arcseconds in degrees
+  const namedEntries = [...localStarsByName.values()].filter(
+    (o) => o.catalog === "Named",
+  );
+  if (namedEntries.length > 0) {
+    for (const [key, obj] of localStarsByName) {
+      if (obj.catalog === "Named") continue;
+      const cosDec = Math.cos(((obj.dec ?? 0) * Math.PI) / 180);
+      const shadowed = namedEntries.some((n) => {
+        const dRa = (n.ra - obj.ra) * cosDec;
+        const dDec = n.dec - obj.dec;
+        return dRa * dRa + dDec * dDec < MATCH_DEG * MATCH_DEG;
+      });
+      if (shadowed) localStarsByName.delete(key);
+    }
+  }
+
+  const localStarSnapshot = [...localStarsByName.values()]; // snapshot before updates
 
   for (const obj of simbadObjects.filter((o) => STAR_TYPES.has(o.type))) {
     const nameKey = obj.name.toLowerCase();
@@ -285,11 +304,9 @@ export default async function (fastify) {
       }
 
       fastify.log.error(e);
-      return reply
-        .code(500)
-        .send({
-          error: "Internal processing error during astrometry solving.",
-        });
+      return reply.code(500).send({
+        error: "Internal processing error during astrometry solving.",
+      });
     }
   });
 }
