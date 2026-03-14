@@ -36,7 +36,7 @@ import { CommonModule } from '@angular/common';
             </div>
           </div>
           <a
-            href="/db-astro-suite/astrogram/"
+            href="/astrogram/"
             target="_self"
             class="launch-btn"
           >

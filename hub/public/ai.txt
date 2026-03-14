@@ -7,7 +7,7 @@ User-agent: *
 Project-Name: DB Astro Suite
 Description: A professional collection of social-media focused astrophotography tools. Seamlessly transform captures into cinematic starfield animations with Starwizz or professional Instagram exposure cards with Astrogram.
 Author: Dinesh Balaji Venkataraj
-Base-URL: https://sidthesloth92.github.io/db-astro-suite/
+Base-URL: https://dbastrosuite.com/
 Primary-Stack: Angular, AnalogJS, Tailwind CSS, Go (CLI)
 
 # Core Mission

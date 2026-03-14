@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://sidthesloth92.github.io/db-astro-suite/sitemap.xml
+Sitemap: https://dbastrosuite.com/sitemap.xml

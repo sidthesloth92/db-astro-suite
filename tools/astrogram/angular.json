@@ -48,13 +48,13 @@
                 }
               ],
               "outputHashing": "all",
-              "baseHref": "/db-astro-suite/astrogram/"
+              "baseHref": "/astrogram/"
             },
             "development": {
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true,
-              "baseHref": "/db-astro-suite/astrogram/"
+              "baseHref": "/astrogram/"
             }
           },
           "defaultConfiguration": "production"

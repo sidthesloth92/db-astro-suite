@@ -35,7 +35,7 @@ import { CommonModule } from '@angular/common';
               <p class="tagline">CINEMATIC STARFIELD GENERATOR</p>
             </div>
           </div>
-          <a href="/db-astro-suite/starwizz/" target="_self" class="launch-btn">
+          <a href="/starwizz/" target="_self" class="launch-btn">
             Launch Tool
           </a>
         </header>

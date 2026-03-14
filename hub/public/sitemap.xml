@@ -2,13 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Main Hub -->
   <url>
-    <loc>https://sidthesloth92.github.io/db-astro-suite/</loc>
+    <loc>https://dbastrosuite.com/</loc>
     <lastmod>2026-03-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://sidthesloth92.github.io/db-astro-suite/about</loc>
+    <loc>https://dbastrosuite.com/about</loc>
     <lastmod>2026-03-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
@@ -16,19 +16,19 @@
 
   <!-- Dossier Pages -->
   <url>
-    <loc>https://sidthesloth92.github.io/db-astro-suite/dossier/starwizz</loc>
+    <loc>https://dbastrosuite.com/dossier/starwizz</loc>
     <lastmod>2026-03-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://sidthesloth92.github.io/db-astro-suite/dossier/astrogram</loc>
+    <loc>https://dbastrosuite.com/dossier/astrogram</loc>
     <lastmod>2026-03-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://sidthesloth92.github.io/db-astro-suite/dossier/file-grouper</loc>
+    <loc>https://dbastrosuite.com/dossier/file-grouper</loc>
     <lastmod>2026-03-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -36,13 +36,13 @@
 
   <!-- Individual Tools -->
   <url>
-    <loc>https://sidthesloth92.github.io/db-astro-suite/starwizz/</loc>
+    <loc>https://dbastrosuite.com/starwizz/</loc>
     <lastmod>2026-03-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sidthesloth92.github.io/db-astro-suite/astrogram/</loc>
+    <loc>https://dbastrosuite.com/astrogram/</loc>
     <lastmod>2026-03-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

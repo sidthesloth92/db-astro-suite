@@ -5,7 +5,7 @@ import analog from '@analogjs/platform';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: '/db-astro-suite/',
+  base: '/',
   build: {
     target: ['es2020'],
   },
@@ -29,11 +29,11 @@ export default defineConfig(({ mode }) => ({
   ],
   server: {
     proxy: {
-      '/db-astro-suite/starwizz': {
+      '/starwizz': {
         target: 'http://localhost:4200',
         changeOrigin: true,
       },
-      '/db-astro-suite/astrogram': {
+      '/astrogram': {
         target: 'http://localhost:4201',
         changeOrigin: true,
       },

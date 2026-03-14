@@ -48,13 +48,13 @@
                 }
               ],
               "outputHashing": "all",
-              "baseHref": "/db-astro-suite/starwizz/"
+              "baseHref": "/starwizz/"
             },
             "development": {
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true,
-              "baseHref": "/db-astro-suite/starwizz/"
+              "baseHref": "/starwizz/"
             }
           },
           "defaultConfiguration": "production"

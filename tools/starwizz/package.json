@@ -5,7 +5,7 @@
     "ng": "ng",
     "dev": "ng serve",
     "build": "ng build",
-    "build:prod": "ng build --configuration production --base-href /db-astro-suite/starwizz/ && pnpm postbuild",
+    "build:prod": "ng build --configuration production --base-href /starwizz/ && pnpm postbuild",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "postbuild": "cp dist/starwizz/browser/index.html dist/starwizz/browser/404.html"
