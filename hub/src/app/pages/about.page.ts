@@ -122,5 +122,22 @@ export const routeMeta: RouteMeta = {
       property: 'og:url',
       content: 'https://dbastrosuite.com/about',
     },
+    {
+      name: 'twitter:card',
+      content: 'summary_large_image',
+    },
+    {
+      name: 'twitter:title',
+      content: 'About DB Astro Suite - Dinesh Balaji Venkataraj',
+    },
+    {
+      name: 'twitter:description',
+      content:
+        'Learn more about DB Astro Suite, a collection of tools built to solve real astrophotography problems and explore new technologies.',
+    },
+    {
+      name: 'twitter:image',
+      content: 'https://dbastrosuite.com/assets/img/og-dbastrosuite.png',
+    },
   ],
 };

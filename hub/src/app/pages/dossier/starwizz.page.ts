@@ -584,12 +584,12 @@ export default class StarwizzPage {
 }
 
 export const routeMeta: RouteMeta = {
-  title: 'Starwizz Dossier - Cinematic Starfield Generator',
+  title: 'Starwizz - Cinematic Starfield Generator',
   meta: [
     {
       name: 'description',
       content:
-        'Starwizz is a high-fidelity starfield generator for creating immersive space animations and cinematic backgrounds.',
+        'Starwizz is a high-fidelity browser-based tool for creating immersive 4K starfield animations and cinematic space backgrounds — no install required.',
     },
     {
       property: 'og:title',
@@ -598,7 +598,7 @@ export const routeMeta: RouteMeta = {
     {
       property: 'og:description',
       content:
-        'Generate perfectly looped starfield videos with surgical control over star density, velocity, and rotation.',
+        'Starwizz is a high-fidelity browser-based tool for creating immersive 4K starfield animations and cinematic space backgrounds — no install required.',
     },
     {
       property: 'og:image',
@@ -607,6 +607,23 @@ export const routeMeta: RouteMeta = {
     {
       property: 'og:url',
       content: 'https://dbastrosuite.com/dossier/starwizz',
+    },
+    {
+      name: 'twitter:card',
+      content: 'summary_large_image',
+    },
+    {
+      name: 'twitter:title',
+      content: 'Starwizz - Cinematic Starfield Generator',
+    },
+    {
+      name: 'twitter:description',
+      content:
+        'Starwizz is a high-fidelity browser-based tool for creating immersive 4K starfield animations and cinematic space backgrounds — no install required.',
+    },
+    {
+      name: 'twitter:image',
+      content: 'https://dbastrosuite.com/starwizz/assets/img/preview.png',
     },
   ],
 };

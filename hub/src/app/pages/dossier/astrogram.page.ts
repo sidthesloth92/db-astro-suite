@@ -639,12 +639,12 @@ export const routeMeta: RouteMeta = {
     },
     {
       property: 'og:title',
-      content: 'Astrogram - Professional Exposure Cards',
+      content: 'Astrogram Dossier - Professional Exposure Cards',
     },
     {
       property: 'og:description',
       content:
-        'Transform your capture session complexity into beautiful graphics and perfectly formatted captions instantly.',
+        'Astrogram generates sleek, professional Instagram-ready graphics and captions for your astrophotography session metadata.',
     },
     {
       property: 'og:image',
@@ -653,6 +653,23 @@ export const routeMeta: RouteMeta = {
     {
       property: 'og:url',
       content: 'https://dbastrosuite.com/dossier/astrogram',
+    },
+    {
+      name: 'twitter:card',
+      content: 'summary_large_image',
+    },
+    {
+      name: 'twitter:title',
+      content: 'Astrogram Dossier - Professional Exposure Cards',
+    },
+    {
+      name: 'twitter:description',
+      content:
+        'Astrogram generates sleek, professional Instagram-ready graphics and captions for your astrophotography session metadata.',
+    },
+    {
+      name: 'twitter:image',
+      content: 'https://dbastrosuite.com/astrogram/assets/img/og-astrogram.png',
     },
   ],
 };

@@ -22,7 +22,7 @@ test.describe("Astrogram Dossier Page", () => {
       'meta[property="og:title"]',
       "content",
     );
-    expect(ogTitle).toBe("Astrogram - Professional Exposure Cards");
+    expect(ogTitle).toBe("Astrogram Dossier - Professional Exposure Cards");
 
     const ogImage = await page.getAttribute(
       'meta[property="og:image"]',
@@ -36,6 +36,26 @@ test.describe("Astrogram Dossier Page", () => {
     );
     expect(description).toBeTruthy();
     expect(description!.toLowerCase()).toContain("astrogram");
+
+    const twitterCard = await page.getAttribute(
+      'meta[name="twitter:card"]',
+      "content",
+    );
+    expect(twitterCard).toBe("summary_large_image");
+
+    const twitterTitle = await page.getAttribute(
+      'meta[name="twitter:title"]',
+      "content",
+    );
+    expect(twitterTitle).toBe(
+      "Astrogram Dossier - Professional Exposure Cards",
+    );
+
+    const twitterImage = await page.getAttribute(
+      'meta[name="twitter:image"]',
+      "content",
+    );
+    expect(twitterImage).toContain("og-astrogram.png");
 
     const canonical = await page.getAttribute('link[rel="canonical"]', "href");
     expect(canonical).toBe("https://dbastrosuite.com/dossier/astrogram");
@@ -119,9 +139,7 @@ test.describe("Starwizz Dossier Page", () => {
   });
 
   test("Starwizz dossier SEO meta tags are correct", async ({ page }) => {
-    await expect(page).toHaveTitle(
-      "Starwizz Dossier - Cinematic Starfield Generator",
-    );
+    await expect(page).toHaveTitle("Starwizz - Cinematic Starfield Generator");
 
     const ogTitle = await page.getAttribute(
       'meta[property="og:title"]',
@@ -141,6 +159,24 @@ test.describe("Starwizz Dossier Page", () => {
     );
     expect(description).toBeTruthy();
     expect(description!.toLowerCase()).toContain("starwizz");
+
+    const twitterCard = await page.getAttribute(
+      'meta[name="twitter:card"]',
+      "content",
+    );
+    expect(twitterCard).toBe("summary_large_image");
+
+    const twitterTitle = await page.getAttribute(
+      'meta[name="twitter:title"]',
+      "content",
+    );
+    expect(twitterTitle).toBe("Starwizz - Cinematic Starfield Generator");
+
+    const twitterImage = await page.getAttribute(
+      'meta[name="twitter:image"]',
+      "content",
+    );
+    expect(twitterImage).toContain("preview.png");
 
     const canonical = await page.getAttribute('link[rel="canonical"]', "href");
     expect(canonical).toBe("https://dbastrosuite.com/dossier/starwizz");
