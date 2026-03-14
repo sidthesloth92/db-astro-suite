@@ -2,7 +2,67 @@
   <div class="detail-grid">
     <!-- Object header -->
     <div class="object-header">
-      <div class="object-name">{{ ann.style?.customLabel || ann.label }}</div>
+      @if (isEditingLabel()) {
+        <div class="object-name-edit">
+          <input
+            class="object-name-input"
+            type="text"
+            [value]="editLabelValue()"
+            [placeholder]="annotation()?.label ?? ''"
+            (input)="editLabelValue.set($any($event.target).value)"
+            (keyup.enter)="saveLabel()"
+            (keyup.escape)="cancelLabel()"
+          />
+          <button class="action-icon-btn save" (click)="saveLabel()" title="Save">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              width="14"
+              height="14"
+            >
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </button>
+          <button class="action-icon-btn cancel" (click)="cancelLabel()" title="Cancel">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              width="14"
+              height="14"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      } @else {
+        <div class="object-name-display">
+          <span class="object-name-text">{{ ann.style?.customLabel || ann.label }}</span>
+          <button class="action-icon-btn edit" (click)="startEditLabel()" title="Edit label">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              width="14"
+              height="14"
+            >
+              <path d="M12 20h9"></path>
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"></path>
+            </svg>
+          </button>
+        </div>
+      }
       <div class="object-meta">
         @if (ann.name) {
           <span class="object-badge">{{ ann.name }}</span>
@@ -16,7 +76,24 @@
         @if (ann.magnitude !== undefined) {
           <span class="object-badge">mag {{ ann.magnitude | number: '1.1-1' }}</span>
         }
-        <button class="remove-icon-btn" (click)="remove()" title="Remove annotation">Delete</button>
+        <button class="action-icon-btn delete" (click)="remove()" title="Remove annotation">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            width="14"
+            height="14"
+          >
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+            <path d="M10 11v6"></path>
+            <path d="M14 11v6"></path>
+            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+          </svg>
+        </button>
       </div>
     </div>
 
@@ -167,18 +244,6 @@
           </div>
         }
       </div>
-    </div>
-
-    <!-- Custom Label text -->
-    <div class="setting-row">
-      <div class="setting-label">Custom Label Text</div>
-      <input
-        class="custom-label-input"
-        type="text"
-        [value]="ann.style?.customLabel ?? ''"
-        [placeholder]="ann.label"
-        (input)="updateStyle({ customLabel: $any($event.target).value || undefined })"
-      />
     </div>
   </div>
 }
