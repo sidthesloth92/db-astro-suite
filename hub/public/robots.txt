@@ -2,3 +2,7 @@ User-agent: *
 Allow: /
 
 Sitemap: https://dbastrosuite.com/sitemap.xml
+
+# LLM / AI crawlers
+LLMs-txt: https://dbastrosuite.com/llms.txt
+LLMs-txt-full: https://dbastrosuite.com/llms-full.txt

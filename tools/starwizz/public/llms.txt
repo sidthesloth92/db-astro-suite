@@ -26,3 +26,6 @@ Starwizz is a high-performance web-based starfield and galaxy generator built wi
 ## URL
 - Repo: https://github.com/sidthesloth92/db-astro-suite
 - Live: https://dbastrosuite.com/starwizz/
+- Dossier: https://dbastrosuite.com/dossier/starwizz
+- Suite: https://dbastrosuite.com/
+- Suite LLMs context: https://dbastrosuite.com/llms.txt

@@ -43,4 +43,7 @@ Dinesh Balaji Venkataraj
 ## Links
 - Suite Home: https://dbastrosuite.com/
 - About: https://dbastrosuite.com/about
+- Starwizz Dossier: https://dbastrosuite.com/dossier/starwizz
+- Astrogram Dossier: https://dbastrosuite.com/dossier/astrogram
 - Repo: https://github.com/sidthesloth92/db-astro-suite
+- Full LLMs context: https://dbastrosuite.com/llms-full.txt

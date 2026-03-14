@@ -33,3 +33,6 @@ Astrogram is a high-performance exposure card generator for astrophotographers b
 ## URL
 - Repo: https://github.com/sidthesloth92/db-astro-suite
 - Live: https://dbastrosuite.com/astrogram/
+- Dossier: https://dbastrosuite.com/dossier/astrogram
+- Suite: https://dbastrosuite.com/
+- Suite LLMs context: https://dbastrosuite.com/llms.txt
