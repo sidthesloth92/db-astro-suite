@@ -180,6 +180,27 @@ import { AnnotationControlsComponent } from '../card-form/annotation-controls';
         color: white;
         transform: scale(1.1);
       }
+      .add-annotation-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: rgba(0, 243, 255, 0.08);
+        border: 1px solid rgba(0, 243, 255, 0.4);
+        color: #00f3ff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      }
+      .add-annotation-btn:hover {
+        background: rgba(0, 243, 255, 0.2);
+        border-color: #00f3ff;
+        box-shadow: 0 0 15px rgba(0, 243, 255, 0.4);
+        color: white;
+        transform: scale(1.1);
+      }
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -238,6 +259,26 @@ export class StellarMapPreviewComponent {
 
   deselectAll() {
     this.dataService.selectAnnotation(null);
+  }
+
+  addCenterAnnotation() {
+    const d = this.mapData();
+    // Default radius = 12.5% of the smaller image dimension (→ ~25% diameter).
+    // Falls back to 80px if image dimensions aren't recorded yet.
+    const radiusDb =
+      d.naturalWidth && d.naturalHeight
+        ? Math.round(Math.min(d.naturalWidth, d.naturalHeight) * 0.125)
+        : 80;
+    const ann: ImageAnnotation = {
+      id: 'custom-' + Date.now(),
+      xPercent: 50,
+      yPercent: 50,
+      radiusDb,
+      label: 'Custom',
+      visible: true,
+      source: 'custom',
+    };
+    this.dataService.addAnnotation(ann);
   }
 
   /** Direct select bypassing ring-hit-test — used when clicking a label. */
@@ -402,6 +443,9 @@ export class StellarMapPreviewComponent {
     const T = StellarMapPreviewComponent;
 
     return this.mapData().annotations.filter((ann) => {
+      // User-placed custom annotations are always visible
+      if (ann.source === 'custom') return ann.visible;
+
       const type = (ann.type ?? '').toUpperCase();
       const catalog = (ann.catalog ?? '').toUpperCase();
       const name = (ann.name ?? '').toUpperCase();

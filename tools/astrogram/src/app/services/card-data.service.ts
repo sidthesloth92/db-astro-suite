@@ -1,5 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { AnnotationStyle, GlobalAnnotationSettings } from '../models/annotation-settings.models';
+import { ImageAnnotation } from '../models/annotation.models';
 import {
   CardData,
   DEFAULT_FILTERS,
@@ -118,6 +119,11 @@ export class CardDataService {
       ...d,
       annotations: d.annotations.filter((ann) => ann.id !== id),
     }));
+  }
+
+  addAnnotation(ann: ImageAnnotation) {
+    this.stellarMapData.update((d) => ({ ...d, annotations: [...d.annotations, ann] }));
+    this.selectedAnnotationId.set(ann.id);
   }
 
   updateData(newData: Partial<CardData>) {

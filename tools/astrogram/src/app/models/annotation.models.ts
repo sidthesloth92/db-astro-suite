@@ -7,7 +7,7 @@ export interface ImageAnnotation {
   radiusDb: number; // Size derived from local DB or SIMBAD (arcmin -> pixels based on WCS scale)
   label: string; // E.g., "M 42" or "Orion Nebula"
   visible: boolean; // Governed by UI filters
-  source?: 'local' | 'simbad';
+  source?: 'local' | 'simbad' | 'custom';
   catalog?: string; // 'M', 'C', 'NGC/IC', 'Sh2', 'ACO', 'HD', 'Star', etc.
   type?: string; // OpenNGC type code: 'G', 'PN', 'HII', 'GClus', 'Star', etc.
   name?: string;
