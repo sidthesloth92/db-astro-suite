@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.10.0...v1.11.0) (2026-03-14)
+
+
+### Features
+
+* Add full LLMs context and update robots.txt for Starwizz and Astrogram tools ([ee6280c](https://github.com/sidthesloth92/db-astro-suite/commit/ee6280cd9ac5f5929c9c6d7efa0e448463f52124))
+
 ## [1.10.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.9.0...v1.10.0) (2026-03-14)
 
 
