@@ -14,9 +14,10 @@
     "test:e2e": "playwright test",
     "test:e2e:update": "playwright test --update-snapshots",
     "build:hub": "pnpm --filter hub build",
+    "build:flatten": "mkdir -p dist/dossier && (cp dist/about/index.html dist/about.html 2>/dev/null || true) && (cp dist/dossier/astrogram/index.html dist/dossier/astrogram.html 2>/dev/null || true) && (cp dist/dossier/starwizz/index.html dist/dossier/starwizz.html 2>/dev/null || true) && (cp dist/dossier/file-grouper/index.html dist/dossier/file-grouper.html 2>/dev/null || true)",
     "build:starwizz": "pnpm --filter @db-astro-suite/starwizz build:prod",
     "build:astrogram": "pnpm --filter @db-astro-suite/astrogram build:prod",
-    "build:merge": "mkdir -p dist/starwizz dist/astrogram && (cp -rf hub/dist/analog/public/* dist/ 2>/dev/null || cp -rf hub/dist/client/* dist/ 2>/dev/null || true) && (cp -rf tools/starwizz/dist/starwizz/browser/* dist/starwizz/ 2>/dev/null || cp -rf tools/starwizz/dist/starwizz/* dist/starwizz/ 2>/dev/null || true) && (cp -rf tools/astrogram/dist/astrogram/browser/* dist/astrogram/ 2>/dev/null || cp -rf tools/astrogram/dist/astrogram/* dist/astrogram/ 2>/dev/null || true) && (cp dist/index.html dist/404.html 2>/dev/null || true)",
+    "build:merge": "mkdir -p dist/starwizz dist/astrogram && (cp -rf hub/dist/analog/public/* dist/ 2>/dev/null || cp -rf hub/dist/client/* dist/ 2>/dev/null || true) && (cp -rf tools/starwizz/dist/starwizz/browser/* dist/starwizz/ 2>/dev/null || cp -rf tools/starwizz/dist/starwizz/* dist/starwizz/ 2>/dev/null || true) && (cp -rf tools/astrogram/dist/astrogram/browser/* dist/astrogram/ 2>/dev/null || cp -rf tools/astrogram/dist/astrogram/* dist/astrogram/ 2>/dev/null || true) && (cp dist/index.html dist/404.html 2>/dev/null || true) && pnpm build:flatten",
     "preview": "npx serve dist",
     "deploy": "pnpm build && npx gh-pages -d dist"
   },
