@@ -47,17 +47,19 @@ import { CardDataService } from '../../services/card-data.service';
         border: 1px solid rgba(255, 60, 60, 0.4);
         border-radius: 4px;
         color: rgba(255, 100, 100, 0.85);
-        font-size: 0.75rem;
-        width: 22px;
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
         height: 22px;
+        padding: 0 8px;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        padding: 0;
         line-height: 1;
         flex-shrink: 0;
         transition: all 0.2s;
+        white-space: nowrap;
       }
       .remove-icon-btn:hover {
         background: rgba(255, 60, 60, 0.15);
