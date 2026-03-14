@@ -85,10 +85,15 @@ import { NeonButtonComponent } from '@db-astro-suite/ui';
 export default class AboutPageComponent {
   constructor() {
     const doc = inject(DOCUMENT);
-    const link: HTMLLinkElement = doc.createElement('link');
-    link.setAttribute('rel', 'canonical');
+    let link: HTMLLinkElement | null = doc.querySelector(
+      'link[rel="canonical"]',
+    );
+    if (!link) {
+      link = doc.createElement('link');
+      link.setAttribute('rel', 'canonical');
+      doc.head.appendChild(link);
+    }
     link.setAttribute('href', 'https://dbastrosuite.com/about');
-    doc.head.appendChild(link);
   }
 }
 

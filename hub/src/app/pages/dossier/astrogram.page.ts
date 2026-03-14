@@ -617,10 +617,15 @@ import { FooterComponent } from '../../../../../libs/ui/src/lib/footer/footer.co
 export default class AstroGramPage {
   constructor() {
     const doc = inject(DOCUMENT);
-    const link: HTMLLinkElement = doc.createElement('link');
-    link.setAttribute('rel', 'canonical');
+    let link: HTMLLinkElement | null = doc.querySelector(
+      'link[rel="canonical"]',
+    );
+    if (!link) {
+      link = doc.createElement('link');
+      link.setAttribute('rel', 'canonical');
+      doc.head.appendChild(link);
+    }
     link.setAttribute('href', 'https://dbastrosuite.com/dossier/astrogram');
-    doc.head.appendChild(link);
   }
 }
 
