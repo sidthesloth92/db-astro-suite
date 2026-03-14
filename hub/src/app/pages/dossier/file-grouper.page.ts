@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { RouteMeta } from '@analogjs/router';
+import { CommonModule, DOCUMENT } from '@angular/common';
+import { Component, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { CardComponent } from '@db-astro-suite/ui';
 import { FooterComponent } from '../../../../../libs/ui/src/lib/footer/footer.component';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'dba-hub-file-grouper-dossier',
@@ -417,7 +417,20 @@ import { CommonModule } from '@angular/common';
     `,
   ],
 })
-export default class FileGrouperPageComponent {}
+export default class FileGrouperPageComponent {
+  constructor() {
+    const doc = inject(DOCUMENT);
+    let link: HTMLLinkElement | null = doc.querySelector(
+      'link[rel="canonical"]',
+    );
+    if (!link) {
+      link = doc.createElement('link');
+      link.setAttribute('rel', 'canonical');
+      doc.head.appendChild(link);
+    }
+    link.setAttribute('href', 'https://dbastrosuite.com/dossier/file-grouper');
+  }
+}
 
 export const routeMeta: RouteMeta = {
   title: 'File Grouper Dossier - Dataset Organization Utility',
@@ -435,6 +448,23 @@ export const routeMeta: RouteMeta = {
       property: 'og:description',
       content:
         'Automate the tedious task of sorting thousands of frames into a logical hierarchy for cleaner processing.',
+    },
+    {
+      property: 'og:url',
+      content: 'https://dbastrosuite.com/dossier/file-grouper',
+    },
+    {
+      name: 'twitter:card',
+      content: 'summary_large_image',
+    },
+    {
+      name: 'twitter:title',
+      content: 'File Grouper - Organize Your Space Data',
+    },
+    {
+      name: 'twitter:description',
+      content:
+        'A high-performance Go utility for automatically organizing astrophotography datasets by camera, date, and object.',
     },
   ],
 };

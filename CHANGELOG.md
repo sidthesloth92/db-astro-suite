@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.13.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.12.0...v1.13.0) (2026-03-14)
+
+
+### Features
+
+* Update footer component to display dynamic version and improve layout ([ce35d8b](https://github.com/sidthesloth92/db-astro-suite/commit/ce35d8b0271abce23e62aaa4a90ca00bd2562c51))
+
+## [1.12.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.11.0...v1.12.0) (2026-03-14)
+
+
+### Features
+
+* Enhance FileGrouperPageComponent with canonical link and update SEO metadata ([be25ae9](https://github.com/sidthesloth92/db-astro-suite/commit/be25ae91af8848965e9b88769a802e8212b1aaee))
+
 ## [1.11.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.10.0...v1.11.0) (2026-03-14)
 
 
