@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { RouteMeta } from '@analogjs/router';
+import { CommonModule, DOCUMENT } from '@angular/common';
+import { Component, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { CardComponent } from '@db-astro-suite/ui';
 import { FooterComponent } from '../../../../../libs/ui/src/lib/footer/footer.component';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'dba-hub-astrogram-dossier',
@@ -35,84 +35,141 @@ import { CommonModule } from '@angular/common';
               <p class="tagline">Professional Exposure Cards. Instantly.</p>
             </div>
           </div>
-          <a
-            href="/db-astro-suite/astrogram/"
-            target="_self"
-            class="launch-btn"
-          >
+          <a href="/astrogram/" target="_self" class="launch-btn">
             Launch Tool
           </a>
         </header>
 
-        <div class="dossier-grid">
-          <section class="briefing">
-            <dba-ui-card title="Overview">
-              <p>
-                Astrogram is a specialized generator designed to take the
-                complexity of your capture session—from gear lists to Bortle
-                scales—and distill it into a beautiful, Instagram-ready graphic
-                and a perfectly formatted caption. No more messy captions or
-                manually typing out equipment lists for every post.
-              </p>
-              <p>
-                Simply input your session metadata, and Astrogram handles the
-                typography, layout, branding, and caption formatting giving your
-                followers a clear "behind-the-lens" look at how you captured the
-                cosmos.
-              </p>
-            </dba-ui-card>
+        <section class="overview-section">
+          <dba-ui-card title="Overview">
+            <p>
+              Astrogram turns your astrophotography session metadata into a
+              pixel-perfect exposure card and a structured, hashtag-ready
+              Instagram caption &mdash; instantly. No manual formatting, no
+              repetitive typing; just enter your data and post.
+            </p>
+            <h4 class="subsection-title">The Problem It Solves</h4>
+            <p>
+              Every astrophotographer faces the same post-session dilemma:
+              you've spent a clear night capturing photons, stacked your frames,
+              and produced a stunning image &mdash; but when it comes to sharing
+              it, you're back at square one. Manually writing out your equipment
+              list, filter integrations, Bortle scale, and sky conditions for
+              every post is tedious, inconsistent, and kills the momentum of
+              sharing your work.
+            </p>
+            <p>
+              Astrogram was built to solve exactly this. Instead of spending 20
+              minutes formatting a caption from scratch, you enter your session
+              data once and get a pixel-perfect exposure card and a structured,
+              hashtag-rich Instagram caption instantly &mdash; ready to copy and
+              post without any further editing.
+            </p>
+          </dba-ui-card>
+        </section>
 
-            <dba-ui-card title="Features" class="specs-card">
-              <ul class="specs-list">
+        <section class="features-section">
+          <dba-ui-card title="Features">
+            <div class="features-grid">
+              <div class="feature-item">
+                <div class="feature-icon">&#x1F5BC;</div>
+                <strong>VISUAL IMAGE GENERATION</strong>
+                <span
+                  >Instantly render a high-quality graphic with perfectly
+                  balanced typography and real-time preview.</span
+                >
+              </div>
+              <div class="feature-item">
+                <div class="feature-icon">&#x270F;</div>
+                <strong>INSTAGRAM CAPTION GENERATOR</strong>
+                <span
+                  >Automatically format your session data into a structured
+                  caption with themed emojis and relevant hashtags.</span
+                >
+              </div>
+              <div class="feature-item">
+                <div class="feature-icon">&#x1F4CB;</div>
+                <strong>ONE-TAP COPY SYSTEM</strong>
+                <span
+                  >Instantly copy your formatted caption to the clipboard with
+                  neon visual feedback.</span
+                >
+              </div>
+              <div class="feature-item">
+                <div class="feature-icon">&#x1F52D;</div>
+                <strong>FULL EQUIPMENT STACK</strong>
+                <span
+                  >Dedicated fields for your telescope, mount, main camera,
+                  guide scope, and processing software.</span
+                >
+              </div>
+              <div class="feature-item">
+                <div class="feature-icon">&#x23F1;</div>
+                <strong>EXPOSURE &amp; FILTERS</strong>
+                <span
+                  >Highlight total integration time, sub-frame lengths, and LRGB
+                  / narrowband filter configurations.</span
+                >
+              </div>
+              <div class="feature-item">
+                <div class="feature-icon">&#x1F303;</div>
+                <strong>BORTLE &amp; LOCATION</strong>
+                <span
+                  >Include Bortle scale and capture location to add scientific
+                  context to your art.</span
+                >
+              </div>
+            </div>
+          </dba-ui-card>
+        </section>
+
+        <div class="bottom-grid">
+          <section class="how-it-works-section">
+            <dba-ui-card title="How It Works">
+              <ol class="steps-list">
                 <li>
-                  <strong>VISUAL IMAGE GENERATION</strong>
+                  <strong>ENTER YOUR TARGET</strong>
                   <span
-                    >Instantly render a high-quality graphic with perfectly
-                    balanced typography and real-time preview.</span
+                    >Type the deep-sky object name (e.g. M31, NGC 7000, Orion
+                    Nebula) to populate the card header and caption.</span
                   >
                 </li>
                 <li>
-                  <strong>INSTAGRAM CAPTION GENERATOR</strong>
+                  <strong>INPUT YOUR GEAR STACK</strong>
                   <span
-                    >Automatically format your session data into a structured
-                    Instagram caption with themed emojis and relevant
-                    hashtags.</span
+                    >Add your telescope OTA, mount, main imaging camera, guide
+                    scope, and processing software.</span
                   >
                 </li>
                 <li>
-                  <strong>ONE-TAP COPY SYSTEM</strong>
+                  <strong>SET FILTER INTEGRATIONS</strong>
                   <span
-                    >Instantly copy your formatted caption to the clipboard with
-                    neon visual feedback, optimized for immediate posting.</span
+                    >Configure LRGB, H-alpha, OIII, and SII channels with
+                    individual sub-frame lengths and frame counts. Total
+                    integration time is calculated automatically.</span
                   >
                 </li>
                 <li>
-                  <strong>FULL EQUIPMENT STACK</strong>
+                  <strong>ADD SESSION CONTEXT</strong>
                   <span
-                    >Dedicated fields for your telescope, mount, main camera,
-                    guide scope, and processing software.</span
+                    >Include your Bortle scale rating, capture location, and
+                    observation date for scientific context and richer
+                    captions.</span
                   >
                 </li>
                 <li>
-                  <strong>EXPOSURE & FILTERS</strong>
+                  <strong>CUSTOMISE &amp; EXPORT</strong>
                   <span
-                    >Clearly highlight total integration time, individual
-                    sub-lengths, and filter configurations with themed
-                    indicators.</span
+                    >Choose an accent colour, preview your card in real time,
+                    export as a high-quality JPEG, and copy your formatted
+                    caption to the clipboard with a single tap.</span
                   >
                 </li>
-                <li>
-                  <strong>BORTLE & LOCATION INSIGHTS</strong>
-                  <span
-                    >Include environmental data like Bortle scale and capture
-                    locations to add scientific context to your art.</span
-                  >
-                </li>
-              </ul>
+              </ol>
             </dba-ui-card>
           </section>
 
-          <section class="intelligence">
+          <section class="demo-section">
             <dba-ui-card title="Demo">
               <div class="demo-image-container">
                 <img
@@ -279,6 +336,16 @@ import { CommonModule } from '@angular/common';
         margin: 0;
         letter-spacing: 0.2em;
         font-weight: 900;
+        color: var(--db-color-neon-pink);
+      }
+
+      ::ng-deep dba-ui-card .card__title {
+        color: var(--db-color-neon-pink);
+        text-shadow: 0 0 8px rgba(255, 45, 149, 0.35);
+      }
+
+      :host {
+        --card-title-color: var(--db-color-neon-pink);
       }
 
       .tagline {
@@ -290,30 +357,84 @@ import { CommonModule } from '@angular/common';
         text-transform: uppercase;
       }
 
-      .dossier-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 2rem;
-        margin-bottom: 4rem;
+      .overview-section {
+        margin-bottom: 2rem;
       }
 
-      .briefing {
-        display: flex;
-        flex-direction: column;
-        gap: 2rem;
-      }
-
-      .briefing p {
+      .overview-section p {
         color: rgba(255, 255, 255, 0.8);
         line-height: 1.8;
         font-size: 16px;
         margin-bottom: 1.5rem;
       }
 
-      .intelligence {
+      .features-section {
+        margin-bottom: 2rem;
+      }
+
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+      }
+
+      .feature-item {
         display: flex;
         flex-direction: column;
+        gap: 0.5rem;
+        padding: 1.25rem;
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.02);
+        transition: border-color 0.3s;
+      }
+
+      .feature-item:hover {
+        border-color: rgba(255, 45, 149, 0.4);
+      }
+
+      .feature-icon {
+        font-size: 1.75rem;
+        line-height: 1;
+        margin-bottom: 0.25rem;
+      }
+
+      .feature-item strong {
+        display: block;
+        color: var(--db-color-neon-pink);
+        font-family: var(--db-font-display, sans-serif);
+        font-size: 11px;
+        letter-spacing: 0.1em;
+      }
+
+      .feature-item span {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.6);
+        line-height: 1.6;
+      }
+
+      .bottom-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
         gap: 2rem;
+        margin-bottom: 4rem;
+      }
+
+      .how-it-works-section,
+      .demo-section {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .subsection-title {
+        font-family: var(--db-font-display, sans-serif);
+        font-size: 12px;
+        letter-spacing: 0.15em;
+        color: var(--db-color-neon-pink);
+        text-transform: uppercase;
+        margin: 1.5rem 0 0.75rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 1px solid rgba(255, 45, 149, 0.3);
       }
 
       .specs-list {
@@ -338,6 +459,34 @@ import { CommonModule } from '@angular/common';
       }
 
       .specs-list span {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      .steps-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        counter-reset: steps;
+      }
+
+      .steps-list li {
+        margin-bottom: 1.5rem;
+        border-left: 2px solid #00f3ff;
+        padding-left: 1rem;
+        counter-increment: steps;
+      }
+
+      .steps-list strong {
+        display: block;
+        color: #00f3ff;
+        font-family: var(--db-font-display, sans-serif);
+        font-size: 12px;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.25rem;
+      }
+
+      .steps-list span {
         font-size: 14px;
         color: rgba(255, 255, 255, 0.6);
       }
@@ -417,8 +566,11 @@ import { CommonModule } from '@angular/common';
       }
 
       @media (max-width: 900px) {
-        .dossier-grid {
+        .bottom-grid {
           grid-template-columns: 1fr;
+        }
+        .features-grid {
+          grid-template-columns: repeat(2, 1fr);
         }
         .dossier-header h1 {
           font-size: 3rem;
@@ -426,6 +578,9 @@ import { CommonModule } from '@angular/common';
       }
 
       @media (max-width: 600px) {
+        .features-grid {
+          grid-template-columns: 1fr;
+        }
         .dossier-header {
           flex-direction: column;
           align-items: center;
@@ -459,7 +614,20 @@ import { CommonModule } from '@angular/common';
     `,
   ],
 })
-export default class AstroGramPage {}
+export default class AstroGramPage {
+  constructor() {
+    const doc = inject(DOCUMENT);
+    let link: HTMLLinkElement | null = doc.querySelector(
+      'link[rel="canonical"]',
+    );
+    if (!link) {
+      link = doc.createElement('link');
+      link.setAttribute('rel', 'canonical');
+      doc.head.appendChild(link);
+    }
+    link.setAttribute('href', 'https://dbastrosuite.com/dossier/astrogram');
+  }
+}
 
 export const routeMeta: RouteMeta = {
   title: 'Astrogram Dossier - Professional Exposure Cards',
@@ -471,12 +639,37 @@ export const routeMeta: RouteMeta = {
     },
     {
       property: 'og:title',
-      content: 'Astrogram - Professional Exposure Cards',
+      content: 'Astrogram Dossier - Professional Exposure Cards',
     },
     {
       property: 'og:description',
       content:
-        'Transform your capture session complexity into beautiful graphics and perfectly formatted captions instantly.',
+        'Astrogram generates sleek, professional Instagram-ready graphics and captions for your astrophotography session metadata.',
+    },
+    {
+      property: 'og:image',
+      content: 'https://dbastrosuite.com/astrogram/assets/img/og-astrogram.png',
+    },
+    {
+      property: 'og:url',
+      content: 'https://dbastrosuite.com/dossier/astrogram',
+    },
+    {
+      name: 'twitter:card',
+      content: 'summary_large_image',
+    },
+    {
+      name: 'twitter:title',
+      content: 'Astrogram Dossier - Professional Exposure Cards',
+    },
+    {
+      name: 'twitter:description',
+      content:
+        'Astrogram generates sleek, professional Instagram-ready graphics and captions for your astrophotography session metadata.',
+    },
+    {
+      name: 'twitter:image',
+      content: 'https://dbastrosuite.com/astrogram/assets/img/og-astrogram.png',
     },
   ],
 };

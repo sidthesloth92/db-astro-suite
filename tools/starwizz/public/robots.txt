@@ -1,4 +1,8 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://sidthesloth92.github.io/db-astro-suite/starwizz/sitemap.xml
+Sitemap: https://dbastrosuite.com/starwizz/sitemap.xml
+
+# LLM / AI crawlers
+LLMs-txt: https://dbastrosuite.com/starwizz/llms.txt
+LLMs-txt-full: https://dbastrosuite.com/llms-full.txt

@@ -3,13 +3,13 @@
   <head>
     <meta charset="utf-8" />
     <title>DB Astro Suite - From Sensor to Social</title>
-    <base href="/db-astro-suite/" />
+    <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="index, follow" />
     <meta name="author" content="Dinesh Balaji Venkataraj" />
     <meta
       name="description"
-      content="A professional collection of social-media focused astrophotography tools. Seamlessly transform your captures into cinematic starfield animations with Starwizz or professional Instagram exposure cards with Astrogram. Spend less time processing data and more time capturing the cosmos."
+      content="Professional astrophotography tools for the modern enthusiast. Generate 4K starfields with Starwizz or create Instagram-ready exposure cards with Astrogram."
     />
     <meta
       name="keywords"
@@ -20,10 +20,7 @@
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="DB Astro Suite" />
     <meta property="og:locale" content="en_US" />
-    <meta
-      property="og:url"
-      content="https://sidthesloth92.github.io/db-astro-suite/"
-    />
+    <meta property="og:url" content="https://dbastrosuite.com/" />
     <meta
       property="og:title"
       content="DB Astro Suite - From Sensor to Social"
@@ -34,7 +31,7 @@
     />
     <meta
       property="og:image"
-      content="https://sidthesloth92.github.io/db-astro-suite/assets/img/og-dbastrosuite.png"
+      content="https://dbastrosuite.com/assets/img/og-dbastrosuite.png"
     />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
@@ -44,36 +41,30 @@
     />
 
     <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://dbastrosuite.com/" />
     <meta
-      property="twitter:url"
-      content="https://sidthesloth92.github.io/db-astro-suite/"
-    />
-    <meta
-      property="twitter:title"
+      name="twitter:title"
       content="DB Astro Suite - From Sensor to Social"
     />
     <meta
-      property="twitter:description"
+      name="twitter:description"
       content="Professional astrophotography tools for the modern enthusiast. Generate starfields, create high-quality exposure cards, and automate your workflow."
     />
     <meta
-      property="twitter:image"
-      content="https://sidthesloth92.github.io/db-astro-suite/assets/img/og-dbastrosuite.png"
+      name="twitter:image"
+      content="https://dbastrosuite.com/assets/img/og-dbastrosuite.png"
     />
     <meta
-      property="twitter:image:alt"
+      name="twitter:image:alt"
       content="DB Astro Suite - Professional Astrophotography Tools"
     />
-    <meta name="twitter:creator" content="@dineshbalajiv" />
+    <meta name="twitter:creator" content="@sidthesloth92" />
+    <meta name="twitter:site" content="@sidthesloth92" />
 
-    <link
-      rel="canonical"
-      href="https://sidthesloth92.github.io/db-astro-suite/"
-    />
+    <link rel="canonical" href="https://dbastrosuite.com/" />
     <link rel="sitemap" type="application/xml" href="sitemap.xml" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <link rel="stylesheet" href="/src/styles.css" />
 
     <!-- Google tag (gtag.js) -->
     <script
@@ -94,7 +85,7 @@
         "@context": "https://schema.org",
         "@type": "WebApplication",
         "name": "DB Astro Suite",
-        "url": "https://sidthesloth92.github.io/db-astro-suite/",
+        "url": "https://dbastrosuite.com/",
         "applicationCategory": "PhotographyApplication",
         "operatingSystem": "Any",
         "browserRequirements": "Requires a modern web browser with JavaScript enabled",
@@ -106,21 +97,25 @@
         },
         "author": {
           "@type": "Person",
-          "name": "Dinesh Balaji Venkataraj"
+          "name": "Dinesh Balaji Venkataraj",
+          "sameAs": [
+            "https://twitter.com/sidthesloth92",
+            "https://www.instagram.com/astrowithdb"
+          ]
         },
-        "screenshot": "https://sidthesloth92.github.io/db-astro-suite/assets/img/og-dbastrosuite.png",
+        "screenshot": "https://dbastrosuite.com/assets/img/og-dbastrosuite.png",
         "hasPart": [
           {
             "@type": "WebApplication",
             "name": "Starwizz",
-            "url": "https://sidthesloth92.github.io/db-astro-suite/starwizz/",
+            "url": "https://dbastrosuite.com/starwizz/",
             "description": "4K Starfield & Galaxy Animation Generator. Create cinematic starfield videos with customizable star density, velocity, rotation, and shooting stars.",
             "applicationCategory": "MultimediaApplication"
           },
           {
             "@type": "WebApplication",
             "name": "Astrogram",
-            "url": "https://sidthesloth92.github.io/db-astro-suite/astrogram/",
+            "url": "https://dbastrosuite.com/astrogram/",
             "description": "Professional Exposure Card Generator for astrophotographers. Create Instagram-ready cards with filter integration times, gear, Bortle scale, and plate-solved WCS annotation overlays.",
             "applicationCategory": "PhotographyApplication"
           }
@@ -131,5 +126,41 @@
   <body>
     <dba-hub-root></dba-hub-root>
     <script type="module" src="/src/main.ts"></script>
+    <noscript>
+      <main
+        style="
+          font-family: sans-serif;
+          max-width: 800px;
+          margin: 2rem auto;
+          padding: 1rem;
+        "
+      >
+        <h1>DB Astro Suite — Professional Astrophotography Tools</h1>
+        <p>
+          DB Astro Suite is a free collection of social-media focused
+          astrophotography tools. Go from sensor to social — transform your raw
+          captures into cinematic starfield animations or professional Instagram
+          exposure cards.
+        </p>
+        <h2>Tools</h2>
+        <ul>
+          <li>
+            <a href="/starwizz/">Starwizz</a> — 4K cinematic starfield &amp;
+            galaxy animation generator
+          </li>
+          <li>
+            <a href="/astrogram/">Astrogram</a> — Professional exposure card
+            generator with plate solving
+          </li>
+        </ul>
+        <p>
+          <a href="https://dbastrosuite.com/">DB Astro Suite</a>
+          &nbsp;|&nbsp;
+          <a href="https://github.com/sidthesloth92/db-astro-suite"
+            >GitHub Repository</a
+          >
+        </p>
+      </main>
+    </noscript>
   </body>
 </html>

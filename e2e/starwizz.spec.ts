@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test("Starwizz app visual test", async ({ page }) => {
-  await page.goto("http://localhost:4200/db-astro-suite/starwizz/");
+  await page.goto("http://localhost:4200/starwizz/");
   await expect(page.locator("dba-sw-control-panel").first()).toBeVisible();
 
   // The WebGL canvas has randomly generated stars which will break pixel-to-pixel comparison.
@@ -16,7 +16,7 @@ test("Starwizz app visual test", async ({ page }) => {
 test("Starwizz SEO meta tags and structured data are correct", async ({
   page,
 }) => {
-  await page.goto("http://localhost:4200/db-astro-suite/starwizz/");
+  await page.goto("http://localhost:4200/starwizz/");
   await expect(page.locator("dba-sw-control-panel").first()).toBeVisible();
 
   await expect(page).toHaveTitle("Starwizz - 4K Starfield & Galaxy Generator");
@@ -38,6 +38,12 @@ test("Starwizz SEO meta tags and structured data are correct", async ({
     "content",
   );
   expect(twitterCard).toBe("summary_large_image");
+
+  const twitterSite = await page.getAttribute(
+    'meta[name="twitter:site"]',
+    "content",
+  );
+  expect(twitterSite).toBe("@sidthesloth92");
 
   const canonical = await page.getAttribute('link[rel="canonical"]', "href");
   expect(canonical).toContain("starwizz");

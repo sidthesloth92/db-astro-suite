@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { RouteMeta } from '@analogjs/router';
+import { DOCUMENT } from '@angular/common';
+import { Component, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { NeonButtonComponent } from '@db-astro-suite/ui';
 
 @Component({
@@ -81,7 +82,20 @@ import { NeonButtonComponent } from '@db-astro-suite/ui';
     `,
   ],
 })
-export default class AboutPageComponent {}
+export default class AboutPageComponent {
+  constructor() {
+    const doc = inject(DOCUMENT);
+    let link: HTMLLinkElement | null = doc.querySelector(
+      'link[rel="canonical"]',
+    );
+    if (!link) {
+      link = doc.createElement('link');
+      link.setAttribute('rel', 'canonical');
+      doc.head.appendChild(link);
+    }
+    link.setAttribute('href', 'https://dbastrosuite.com/about');
+  }
+}
 
 export const routeMeta: RouteMeta = {
   title: 'About DB Astro Suite - Dinesh Balaji Venkataraj',
@@ -90,6 +104,40 @@ export const routeMeta: RouteMeta = {
       name: 'description',
       content:
         'Learn more about DB Astro Suite, a collection of tools built to solve real astrophotography problems and explore new technologies.',
+    },
+    {
+      property: 'og:title',
+      content: 'About DB Astro Suite - Dinesh Balaji Venkataraj',
+    },
+    {
+      property: 'og:description',
+      content:
+        'Learn more about DB Astro Suite, a collection of tools built to solve real astrophotography problems and explore new technologies.',
+    },
+    {
+      property: 'og:image',
+      content: 'https://dbastrosuite.com/assets/img/og-dbastrosuite.png',
+    },
+    {
+      property: 'og:url',
+      content: 'https://dbastrosuite.com/about',
+    },
+    {
+      name: 'twitter:card',
+      content: 'summary_large_image',
+    },
+    {
+      name: 'twitter:title',
+      content: 'About DB Astro Suite - Dinesh Balaji Venkataraj',
+    },
+    {
+      name: 'twitter:description',
+      content:
+        'Learn more about DB Astro Suite, a collection of tools built to solve real astrophotography problems and explore new technologies.',
+    },
+    {
+      name: 'twitter:image',
+      content: 'https://dbastrosuite.com/assets/img/og-dbastrosuite.png',
     },
   ],
 };

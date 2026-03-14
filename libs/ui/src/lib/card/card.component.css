@@ -35,14 +35,14 @@
 }
 
 .card__title {
-  font-family: var(--db-font-display, 'Orbitron', sans-serif);
+  font-family: var(--db-font-display, "Orbitron", sans-serif);
   font-size: 1.25rem;
   margin: 0;
-  color: var(--db-color-text-primary, #e0e0e0);
+  color: var(--card-title-color, var(--db-color-text-primary, #e0e0e0));
 }
 
 .card__subtitle {
-  font-family: var(--db-font-body, 'Rajdhani', sans-serif);
+  font-family: var(--db-font-body, "Rajdhani", sans-serif);
   font-size: 0.875rem;
   margin: 0.25rem 0 0 0;
   color: var(--db-color-text-muted, #94a3b8);
