@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.11.0...v1.12.0) (2026-03-14)
+
+
+### Features
+
+* Enhance FileGrouperPageComponent with canonical link and update SEO metadata ([be25ae9](https://github.com/sidthesloth92/db-astro-suite/commit/be25ae91af8848965e9b88769a802e8212b1aaee))
+
 ## [1.11.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.10.0...v1.11.0) (2026-03-14)
 
 
