@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.9.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.8.0...v1.9.0) (2026-03-14)
+
+
+### Features
+
+* Update base URLs and links to point to the new domain dbastrosuite.com ([244e244](https://github.com/sidthesloth92/db-astro-suite/commit/244e2441517f0f3154d5fd01df65d78a4b7aa5ad))
+
+
+### Bug Fixes
+
+* Update test URLs to remove obsolete base path for improved navigation ([e6734c8](https://github.com/sidthesloth92/db-astro-suite/commit/e6734c84598461cc03fb899369153f5f1f01e5ff))
+
 ## [1.8.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.7.1...v1.8.0) (2026-03-13)
 
 
