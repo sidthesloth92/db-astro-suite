@@ -39,6 +39,12 @@ test("Starwizz SEO meta tags and structured data are correct", async ({
   );
   expect(twitterCard).toBe("summary_large_image");
 
+  const twitterSite = await page.getAttribute(
+    'meta[name="twitter:site"]',
+    "content",
+  );
+  expect(twitterSite).toBe("@sidthesloth92");
+
   const canonical = await page.getAttribute('link[rel="canonical"]', "href");
   expect(canonical).toContain("starwizz");
 

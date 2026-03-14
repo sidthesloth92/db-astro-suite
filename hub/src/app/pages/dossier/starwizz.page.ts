@@ -1,6 +1,6 @@
 import { RouteMeta } from '@analogjs/router';
-import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CardComponent } from '@db-astro-suite/ui';
 import { FooterComponent } from '../../../../../libs/ui/src/lib/footer/footer.component';
@@ -411,7 +411,15 @@ import { FooterComponent } from '../../../../../libs/ui/src/lib/footer/footer.co
     `,
   ],
 })
-export default class StarwizzPage {}
+export default class StarwizzPage {
+  constructor() {
+    const doc = inject(DOCUMENT);
+    const link: HTMLLinkElement = doc.createElement('link');
+    link.setAttribute('rel', 'canonical');
+    link.setAttribute('href', 'https://dbastrosuite.com/dossier/starwizz');
+    doc.head.appendChild(link);
+  }
+}
 
 export const routeMeta: RouteMeta = {
   title: 'Starwizz Dossier - Cinematic Starfield Generator',
@@ -429,6 +437,14 @@ export const routeMeta: RouteMeta = {
       property: 'og:description',
       content:
         'Generate perfectly looped starfield videos with surgical control over star density, velocity, and rotation.',
+    },
+    {
+      property: 'og:image',
+      content: 'https://dbastrosuite.com/starwizz/assets/img/preview.png',
+    },
+    {
+      property: 'og:url',
+      content: 'https://dbastrosuite.com/dossier/starwizz',
     },
   ],
 };

@@ -1,6 +1,6 @@
 import { RouteMeta } from '@analogjs/router';
-import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CardComponent } from '@db-astro-suite/ui';
 import { FooterComponent } from '../../../../../libs/ui/src/lib/footer/footer.component';
@@ -455,7 +455,15 @@ import { FooterComponent } from '../../../../../libs/ui/src/lib/footer/footer.co
     `,
   ],
 })
-export default class AstroGramPage {}
+export default class AstroGramPage {
+  constructor() {
+    const doc = inject(DOCUMENT);
+    const link: HTMLLinkElement = doc.createElement('link');
+    link.setAttribute('rel', 'canonical');
+    link.setAttribute('href', 'https://dbastrosuite.com/dossier/astrogram');
+    doc.head.appendChild(link);
+  }
+}
 
 export const routeMeta: RouteMeta = {
   title: 'Astrogram Dossier - Professional Exposure Cards',
@@ -473,6 +481,14 @@ export const routeMeta: RouteMeta = {
       property: 'og:description',
       content:
         'Transform your capture session complexity into beautiful graphics and perfectly formatted captions instantly.',
+    },
+    {
+      property: 'og:image',
+      content: 'https://dbastrosuite.com/astrogram/assets/img/og-astrogram.png',
+    },
+    {
+      property: 'og:url',
+      content: 'https://dbastrosuite.com/dossier/astrogram',
     },
   ],
 };

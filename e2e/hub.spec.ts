@@ -31,6 +31,12 @@ test("Hub SEO meta tags and structured data are correct", async ({ page }) => {
   expect(description).toBeTruthy();
   expect(description!.length).toBeGreaterThan(20);
 
+  const twitterSite = await page.getAttribute(
+    'meta[name="twitter:site"]',
+    "content",
+  );
+  expect(twitterSite).toBe("@sidthesloth92");
+
   const jsonLdText = await page.evaluate(
     () =>
       document.querySelector('script[type="application/ld+json"]')
@@ -41,4 +47,11 @@ test("Hub SEO meta tags and structured data are correct", async ({ page }) => {
   expect(jsonLd.name).toBe("DB Astro Suite");
   expect(Array.isArray(jsonLd.hasPart)).toBe(true);
   expect(jsonLd.hasPart).toHaveLength(2);
+
+  const noscriptHtml = await page.evaluate(
+    () => document.querySelector("noscript")?.innerHTML ?? "",
+  );
+  expect(noscriptHtml).toContain("DB Astro Suite");
+  expect(noscriptHtml).toContain("Starwizz");
+  expect(noscriptHtml).toContain("Astrogram");
 });
