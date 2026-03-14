@@ -36,8 +36,8 @@ export interface AnnotationStyle {
   /** Replace the displayed label text (e.g. "Orion Nebula" instead of "M 42"). */
   customLabel?: string;
   // ── future slots (model ready, no UI yet) ────────────────────────
+  fontSize?: number;
   // fontFamily?: string;
-  // fontSize?: number;
 }
 
 /** Global visual settings applied to every annotation on the map. */

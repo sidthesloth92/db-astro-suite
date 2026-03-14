@@ -33,34 +33,31 @@ import { CardDataService } from '../../services/card-data.service';
       .color-row {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 0.5rem;
       }
-      .color-swatch {
-        width: 36px;
-        height: 36px;
-        border-radius: var(--db-radius-sm, 4px);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        cursor: pointer;
+      .color-picker-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 45, 149, 0.2);
+        padding: 0 8px;
+        border-radius: 4px;
+        height: var(--db-form-control-height);
+      }
+      .color-picker-wrapper input[type='color'] {
+        width: 24px;
+        height: 24px;
         padding: 0;
-        background: none;
-        overflow: hidden;
+        border: none;
+        background: transparent;
+        cursor: pointer;
         flex-shrink: 0;
       }
-      .color-swatch input[type='color'] {
-        width: 150%;
-        height: 150%;
-        border: none;
-        cursor: pointer;
-        margin: -25%;
-        padding: 0;
-        background: none;
-      }
-      .color-hex {
+      .color-val {
         font-size: 0.75rem;
-        font-family: var(--db-form-font-mono, monospace);
-        color: rgba(255, 255, 255, 0.75);
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
+        font-family: monospace;
+        color: rgba(255, 255, 255, 0.85);
       }
       .toggle-row {
         display: flex;

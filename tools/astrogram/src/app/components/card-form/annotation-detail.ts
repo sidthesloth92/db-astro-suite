@@ -39,6 +39,29 @@ import { CardDataService } from '../../services/card-data.service';
         display: flex;
         gap: 0.5rem;
         flex-wrap: wrap;
+        align-items: center;
+      }
+      .remove-icon-btn {
+        margin-left: auto;
+        background: none;
+        border: 1px solid rgba(255, 60, 60, 0.4);
+        border-radius: 4px;
+        color: rgba(255, 100, 100, 0.85);
+        font-size: 0.75rem;
+        width: 22px;
+        height: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+        flex-shrink: 0;
+        transition: all 0.2s;
+      }
+      .remove-icon-btn:hover {
+        background: rgba(255, 60, 60, 0.15);
+        border-color: rgba(255, 80, 80, 0.8);
       }
       .object-badge {
         font-size: 0.6rem;
@@ -60,38 +83,34 @@ import { CardDataService } from '../../services/card-data.service';
         letter-spacing: 0.08em;
         color: rgba(0, 243, 255, 0.5);
       }
+      .color-picker-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 45, 149, 0.2);
+        padding: 0 8px;
+        border-radius: 4px;
+        height: var(--db-form-control-height);
+      }
+      .color-picker-wrapper input[type='color'] {
+        width: 24px;
+        height: 24px;
+        padding: 0;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        flex-shrink: 0;
+      }
+      .color-val {
+        font-size: 0.75rem;
+        font-family: monospace;
+        color: rgba(255, 255, 255, 0.85);
+      }
       .color-row {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
-      }
-      .color-swatch {
-        width: 36px;
-        height: 36px;
-        border-radius: var(--db-radius-sm, 4px);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        cursor: pointer;
-        padding: 0;
-        background: none;
-        overflow: hidden;
-        flex-shrink: 0;
-      }
-      .color-swatch input[type='color'] {
-        width: 150%;
-        height: 150%;
-        border: none;
-        cursor: pointer;
-        margin: -25%;
-        padding: 0;
-        background: none;
-      }
-      .color-hex {
-        font-size: 0.75rem;
-        font-family: var(--db-form-font-mono, monospace);
-        color: rgba(255, 255, 255, 0.75);
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-        flex: 1;
+        gap: 0.5rem;
       }
       .reset-btn {
         font-size: 0.6rem;
@@ -178,25 +197,7 @@ import { CardDataService } from '../../services/card-data.service';
         font-style: italic;
       }
       .remove-btn {
-        width: 100%;
-        padding: 0.75rem;
-        background: transparent;
-        border: 1px solid rgba(255, 60, 60, 0.5);
-        border-radius: var(--db-radius-md);
-        color: rgba(255, 100, 100, 0.9);
-        font-size: 0.75rem;
-        font-weight: 800;
-        font-family: var(--db-form-font-mono, monospace);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        cursor: pointer;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        margin-top: 0.5rem;
-      }
-      .remove-btn:hover {
-        background: rgba(255, 60, 60, 0.12);
-        border-color: rgba(255, 80, 80, 0.8);
-        box-shadow: 0 0 12px rgba(255, 60, 60, 0.25);
+        display: none;
       }
       .slider-with-reset {
         display: flex;
@@ -265,13 +266,6 @@ export class AnnotationDetailComponent {
     return ann.style?.labelOpacity ?? this.globalSettings().labelOpacity;
   });
 
-  /** Effective label visibility. */
-  effectiveShowLabel = computed(() => {
-    const ann = this.annotation();
-    if (!ann) return true;
-    return ann.style?.showLabel ?? true;
-  });
-
   updateStyle(patch: Partial<AnnotationStyle>) {
     const id = this.dataService.selectedAnnotationId();
     if (id) this.dataService.updateAnnotationStyle(id, patch);
@@ -289,8 +283,19 @@ export class AnnotationDetailComponent {
 
   hasColorOverride = computed(() => !!this.annotation()?.style?.color);
   hasOpacityOverride = computed(() => this.annotation()?.style?.opacity !== undefined);
+  hasThicknessOverride = computed(() => this.annotation()?.style?.thickness !== undefined);
   hasLabelColorOverride = computed(() => !!this.annotation()?.style?.labelColor);
   hasLabelOpacityOverride = computed(() => this.annotation()?.style?.labelOpacity !== undefined);
+  hasFontSizeOverride = computed(() => this.annotation()?.style?.fontSize !== undefined);
   hasRadiusOverride = computed(() => this.annotation()?.style?.radiusOverride !== undefined);
-  hasLabelOverride = computed(() => this.annotation()?.style?.showLabel !== undefined);
+
+  effectiveThickness = computed(() => {
+    const ann = this.annotation();
+    return ann?.style?.thickness ?? this.globalSettings().thickness;
+  });
+
+  effectiveFontSize = computed(() => {
+    const ann = this.annotation();
+    return ann?.style?.fontSize ?? this.globalSettings().fontSize;
+  });
 }

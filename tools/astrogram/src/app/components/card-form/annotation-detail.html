@@ -16,6 +16,9 @@
         @if (ann.magnitude !== undefined) {
           <span class="object-badge">mag {{ ann.magnitude | number: '1.1-1' }}</span>
         }
+        <button class="remove-icon-btn" (click)="remove()" title="Remove annotation">
+          &#x2715;
+        </button>
       </div>
     </div>
 
@@ -24,17 +27,17 @@
 
     <!-- Circle colour override -->
     <div class="setting-row">
-      <div class="setting-label">Colour</div>
       <div class="color-row">
-        <div class="color-swatch" [style.background]="effectiveColor()">
+        <span class="setting-label">Color</span>
+        <div class="color-picker-wrapper">
           <input
             type="color"
             [value]="effectiveColor()"
             (input)="updateStyle({ color: $any($event.target).value })"
             title="Pick circle colour"
           />
+          <span class="color-val">{{ effectiveColor() }}</span>
         </div>
-        <span class="color-hex">{{ effectiveColor() }}</span>
         @if (hasColorOverride()) {
           <button class="reset-btn" (click)="clearField('color')">Use global</button>
         }
@@ -83,22 +86,43 @@
       </div>
     </div>
 
+    <!-- Border thickness override -->
+    <div class="setting-row">
+      <div class="slider-with-reset">
+        <dba-ui-slider
+          label="Thickness"
+          [value]="effectiveThickness()"
+          [min]="1"
+          [max]="8"
+          [step]="0.5"
+          [precision]="1"
+          [noBox]="true"
+          (valueChange)="updateStyle({ thickness: $event })"
+        ></dba-ui-slider>
+        @if (hasThicknessOverride()) {
+          <div class="slider-reset-row">
+            <button class="reset-btn" (click)="clearField('thickness')">Use global</button>
+          </div>
+        }
+      </div>
+    </div>
+
     <!-- ── Label ───────────────────────────────────────────────── -->
     <div class="detail-group-label">Label</div>
 
     <!-- Label colour override -->
     <div class="setting-row">
-      <div class="setting-label">Colour</div>
       <div class="color-row">
-        <div class="color-swatch" [style.background]="effectiveLabelColor()">
+        <span class="setting-label">Color</span>
+        <div class="color-picker-wrapper">
           <input
             type="color"
             [value]="effectiveLabelColor()"
             (input)="updateStyle({ labelColor: $any($event.target).value })"
             title="Pick label colour"
           />
+          <span class="color-val">{{ effectiveLabelColor() }}</span>
         </div>
-        <span class="color-hex">{{ effectiveLabelColor() }}</span>
         @if (hasLabelColorOverride()) {
           <button class="reset-btn" (click)="clearField('labelColor')">Use global</button>
         }
@@ -126,21 +150,24 @@
       </div>
     </div>
 
-    <!-- Show Label toggle -->
-    <div class="toggle-row">
-      <span class="toggle-label">Show Label</span>
-      <div style="display: flex; align-items: center; gap: 0.5rem">
-        @if (hasLabelOverride()) {
-          <button class="reset-btn" (click)="clearField('showLabel')">Use global</button>
+    <!-- Font size override -->
+    <div class="setting-row">
+      <div class="slider-with-reset">
+        <dba-ui-slider
+          label="Font Size"
+          [value]="effectiveFontSize()"
+          [min]="0.45"
+          [max]="1.4"
+          [step]="0.05"
+          [precision]="2"
+          [noBox]="true"
+          (valueChange)="updateStyle({ fontSize: $event })"
+        ></dba-ui-slider>
+        @if (hasFontSizeOverride()) {
+          <div class="slider-reset-row">
+            <button class="reset-btn" (click)="clearField('fontSize')">Use global</button>
+          </div>
         }
-        <label class="toggle-switch">
-          <input
-            type="checkbox"
-            [checked]="effectiveShowLabel()"
-            (change)="updateStyle({ showLabel: $any($event.target).checked })"
-          />
-          <span class="toggle-track"></span>
-        </label>
       </div>
     </div>
 
@@ -155,8 +182,5 @@
         (input)="updateStyle({ customLabel: $any($event.target).value || undefined })"
       />
     </div>
-
-    <!-- Remove annotation -->
-    <button class="remove-btn" (click)="remove()">⛔ Remove Annotation</button>
   </div>
 }

@@ -275,7 +275,7 @@ export class StellarMapPreviewComponent {
     return {
       color,
       opacity: String(opacity),
-      'font-size': g.fontSize + 'rem',
+      'font-size': (s.fontSize ?? g.fontSize) + 'rem',
       'font-family': g.fontFamily,
       border: `1px solid ${color}4d`,
     };

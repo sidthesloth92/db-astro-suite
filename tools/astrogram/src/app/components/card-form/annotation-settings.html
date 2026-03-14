@@ -4,24 +4,24 @@
 
   <!-- Circle colour -->
   <div class="setting-row">
-    <div class="setting-label">Colour</div>
     <div class="color-row">
-      <div class="color-swatch" [style.background]="settings().color">
+      <span class="setting-label">Color</span>
+      <div class="color-picker-wrapper">
         <input
           type="color"
           [value]="settings().color"
           (input)="update({ color: $any($event.target).value })"
           title="Pick circle colour"
         />
+        <span class="color-val">{{ settings().color }}</span>
       </div>
-      <span class="color-hex">{{ settings().color }}</span>
     </div>
   </div>
 
   <!-- Thickness -->
   <div class="setting-row">
     <dba-ui-slider
-      label="Border Thickness"
+      label="Thickness"
       [value]="settings().thickness"
       [min]="1"
       [max]="6"
@@ -51,17 +51,17 @@
 
   <!-- Label colour -->
   <div class="setting-row">
-    <div class="setting-label">Colour</div>
     <div class="color-row">
-      <div class="color-swatch" [style.background]="settings().labelColor">
+      <span class="setting-label">Color</span>
+      <div class="color-picker-wrapper">
         <input
           type="color"
           [value]="settings().labelColor"
           (input)="update({ labelColor: $any($event.target).value })"
           title="Pick label colour"
         />
+        <span class="color-val">{{ settings().labelColor }}</span>
       </div>
-      <span class="color-hex">{{ settings().labelColor }}</span>
     </div>
   </div>
 
