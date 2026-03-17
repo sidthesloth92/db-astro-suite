@@ -71,10 +71,15 @@
     }
   </div>
 
+  <!-- Solving overlay (dark scrim + centered loader + text) -->
   @if (mapData().isSolving) {
-    <div class="solve-loader-overlay" fullBleed>
-      <dba-ui-constellation-loader [size]="280" />
-      <div class="solve-loader-text">Analyzing Star Field...</div>
+    <div class="solve-loader-overlay" viewportOverlay>
+      <div class="solve-loader-shell">
+        <div class="solve-loader-canvas" aria-hidden="true">
+          <dba-ui-constellation-loader [fill]="true" />
+        </div>
+        <div class="solve-loader-text">Analyzing Star Field...</div>
+      </div>
     </div>
   }
 
@@ -82,35 +87,26 @@
   @if (!mapData().backgroundImage && !mapData().isSolving) {
     <div class="upload-overlay" fullBleed>
       <div class="upload-card-inner" (click)="controls.fileInput.nativeElement.click()">
-        <svg
-          class="upload-icon"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-          ></path>
-        </svg>
-        <div class="upload-title">Upload Target</div>
-        <div
-          class="upload-help-text"
-          style="
-            color: var(--neon-pink);
-            font-size: 0.8rem;
-            margin-top: 0.75rem;
-            max-width: 220px;
-            text-align: center;
-            font-weight: 600;
-            letter-spacing: 0.05em;
-            opacity: 0.8;
-          "
-        >
-          UPLOAD AN IMAGE TO BEGIN PLATE SOLVING
+        <div class="upload-card-loader" aria-hidden="true">
+          <dba-ui-constellation-loader [fill]="true" />
+        </div>
+        <div class="upload-card-content">
+          <svg
+            class="upload-icon"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+            ></path>
+          </svg>
+          <div class="upload-title">Upload Target</div>
+          <div class="upload-help-text">UPLOAD AN IMAGE TO BEGIN PLATE SOLVING</div>
         </div>
       </div>
     </div>

@@ -19,6 +19,13 @@
   height: var(--scale-height);
 }
 
+.post-scale-host > [viewportOverlay] {
+  position: absolute;
+  inset: 0;
+  z-index: 90;
+  pointer-events: auto;
+}
+
 .post-container {
   padding: 0;
   border-radius: 0;

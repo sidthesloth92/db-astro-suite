@@ -9,7 +9,12 @@ import { AnnotationControlsComponent } from '../card-form/annotation-controls';
 @Component({
   selector: 'dba-ag-stellar-map-preview',
   standalone: true,
-  imports: [CommonModule, BaseCardPreviewComponent, AnnotationControlsComponent, ConstellationLoaderComponent],
+  imports: [
+    CommonModule,
+    BaseCardPreviewComponent,
+    AnnotationControlsComponent,
+    ConstellationLoaderComponent,
+  ],
   templateUrl: './stellar-map-preview.html',
   styles: [
     `
@@ -76,12 +81,48 @@ import { AnnotationControlsComponent } from '../card-form/annotation-controls';
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 1rem;
         color: #00f3ff;
+        overflow: hidden;
+        clip-path: inset(0);
+      }
+      .solve-loader-shell {
+        position: relative;
+        width: min(340px, calc(100% - 3rem));
+        aspect-ratio: 1;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        padding: 2rem;
+        overflow: hidden;
+        border-radius: var(--db-radius-lg);
+      }
+      .solve-loader-shell::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          180deg,
+          rgba(4, 8, 16, 0.02) 0%,
+          rgba(4, 8, 16, 0.12) 45%,
+          rgba(4, 8, 16, 0.7) 100%
+        );
+        pointer-events: none;
+      }
+      .solve-loader-canvas {
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        overflow: hidden;
+        pointer-events: none;
       }
       .solve-loader-text {
+        position: relative;
+        z-index: 1;
+        max-width: 14rem;
+        text-align: center;
         font-family: var(--db-form-font-mono, monospace);
         font-weight: bold;
+        font-size: 0.78rem;
         letter-spacing: 0.1em;
         text-transform: uppercase;
         animation: pulse 1.5s ease-in-out infinite;
@@ -105,6 +146,7 @@ import { AnnotationControlsComponent } from '../card-form/annotation-controls';
         pointer-events: auto;
       }
       .upload-card-inner {
+        position: relative;
         width: 100%;
         max-width: 340px;
         aspect-ratio: 1;
@@ -112,14 +154,39 @@ import { AnnotationControlsComponent } from '../card-form/annotation-controls';
         background: rgba(10, 15, 25, 0.4);
         border: 2px dashed rgba(255, 45, 149, 0.2);
         border-radius: var(--db-radius-lg);
+        overflow: hidden;
+        isolation: isolate;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        backdrop-filter: blur(8px);
+      }
+      .upload-card-loader {
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        overflow: hidden;
+        pointer-events: none;
+      }
+      .upload-card-loader::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          180deg,
+          rgba(8, 12, 22, 0.45) 0%,
+          rgba(8, 12, 22, 0.58) 40%,
+          rgba(8, 12, 22, 0.82) 100%
+        );
+      }
+      .upload-card-content {
+        position: relative;
+        z-index: 1;
         display: flex;
+        height: 100%;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         gap: 1.25rem;
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        backdrop-filter: blur(8px);
       }
       .upload-card-inner:hover {
         border-color: var(--neon-pink);
@@ -146,6 +213,16 @@ import { AnnotationControlsComponent } from '../card-form/annotation-controls';
         letter-spacing: 0.1em;
         color: var(--neon-pink);
         opacity: 0.7;
+      }
+      .upload-help-text {
+        color: var(--neon-pink);
+        font-size: 0.8rem;
+        margin-top: 0.75rem;
+        max-width: 220px;
+        text-align: center;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        opacity: 0.8;
       }
       .clear-btn {
         width: 36px;

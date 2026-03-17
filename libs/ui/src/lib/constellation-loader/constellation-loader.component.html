@@ -1,7 +1,9 @@
 <div
+  #wrapper
   class="constellation-loader"
-  [style.width.px]="size()"
-  [style.height.px]="size()"
+  [class.fill]="fill()"
+  [style.width.px]="fill() ? null : size()"
+  [style.height.px]="fill() ? null : size()"
   role="status"
   aria-label="Loading"
 >
