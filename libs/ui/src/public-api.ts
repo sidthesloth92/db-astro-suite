@@ -8,6 +8,8 @@ export * from "./lib/accordion/accordion.component";
 export * from "./lib/card/card.component";
 export * from "./lib/checkbox/checkbox.component";
 export * from "./lib/constellation-loader/constellation-loader.component";
+export * from "./lib/black-hole-loader/black-hole-loader.component";
+export * from "./lib/warp-speed-loader/warp-speed-loader.component";
 export * from "./lib/footer/footer.component";
 export * from "./lib/header/header.component";
 export * from "./lib/input/input.component";

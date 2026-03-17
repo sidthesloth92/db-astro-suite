@@ -1,0 +1,6 @@
+<div #wrapper class="black-hole-loader" [class.fill]="fill()"
+  [style.width.px]="fill() ? null : size()"
+  [style.height.px]="fill() ? null : size()"
+  role="status" aria-label="Loading">
+  <canvas #starCanvas></canvas>
+</div>

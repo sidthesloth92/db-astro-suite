@@ -2,18 +2,28 @@ import { RouteMeta } from '@analogjs/router';
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CardComponent } from '@db-astro-suite/ui';
+import { CardComponent, BlackHoleLoaderComponent } from '@db-astro-suite/ui';
 import { FooterComponent } from '../../../../libs/ui/src/lib/footer/footer.component';
 
 @Component({
   selector: 'dba-hub-home-page',
   standalone: true,
-  imports: [RouterLink, CardComponent, FooterComponent, CommonModule],
+  imports: [
+    RouterLink,
+    CardComponent,
+    FooterComponent,
+    CommonModule,
+    BlackHoleLoaderComponent,
+  ],
   template: `
     <div class="hub-container">
       <!-- Immersive Background Layers -->
       <div class="stars-overlay"></div>
       <div class="nebula-overlay"></div>
+      <div class="black-hole-bg">
+        <dba-ui-black-hole-loader [fill]="true"></dba-ui-black-hole-loader>
+      </div>
+      <div class="bg-scrim"></div>
       <div class="scanlines"></div>
 
       <main class="content">
@@ -181,6 +191,22 @@ import { FooterComponent } from '../../../../libs/ui/src/lib/footer/footer.compo
             rgba(0, 243, 255, 0.05) 0%,
             transparent 40%
           );
+        pointer-events: none;
+      }
+
+      .black-hole-bg {
+        position: fixed;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+        opacity: 0.8;
+      }
+
+      .bg-scrim {
+        position: fixed;
+        inset: 0;
+        z-index: 2;
+        background: rgba(5, 7, 10, 0.25);
         pointer-events: none;
       }
 

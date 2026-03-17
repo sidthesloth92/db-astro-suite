@@ -74,12 +74,10 @@
   <!-- Solving overlay (dark scrim + centered loader + text) -->
   @if (mapData().isSolving) {
     <div class="solve-loader-overlay" viewportOverlay>
-      <div class="solve-loader-shell">
-        <div class="solve-loader-canvas" aria-hidden="true">
-          <dba-ui-constellation-loader [fill]="true" />
-        </div>
-        <div class="solve-loader-text">Analyzing Star Field...</div>
+      <div class="solve-loader-canvas" aria-hidden="true" style="pointer-events: auto;">
+        <dba-ui-constellation-loader [fill]="true" />
       </div>
+      <div class="solve-loader-text">Analyzing Star Field...</div>
     </div>
   }
 
@@ -87,10 +85,9 @@
   @if (!mapData().backgroundImage && !mapData().isSolving) {
     <div class="upload-overlay" fullBleed>
       <div class="upload-card-inner" (click)="controls.fileInput.nativeElement.click()">
-        <div class="upload-card-loader" aria-hidden="true">
-          <dba-ui-constellation-loader [fill]="true" />
+        <div class="upload-card-loader" aria-hidden="true" style="pointer-events: none;">
         </div>
-        <div class="upload-card-content">
+        <div class="upload-card-content" style="pointer-events: none;">
           <svg
             class="upload-icon"
             fill="none"

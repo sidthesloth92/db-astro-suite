@@ -85,33 +85,9 @@ import { AnnotationControlsComponent } from '../card-form/annotation-controls';
         overflow: hidden;
         clip-path: inset(0);
       }
-      .solve-loader-shell {
-        position: relative;
-        width: min(340px, calc(100% - 3rem));
-        aspect-ratio: 1;
-        display: flex;
-        align-items: flex-end;
-        justify-content: center;
-        padding: 2rem;
-        overflow: hidden;
-        border-radius: var(--db-radius-lg);
-      }
-      .solve-loader-shell::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(
-          180deg,
-          rgba(4, 8, 16, 0.02) 0%,
-          rgba(4, 8, 16, 0.12) 45%,
-          rgba(4, 8, 16, 0.7) 100%
-        );
-        pointer-events: none;
-      }
       .solve-loader-canvas {
         position: absolute;
         inset: 0;
-        border-radius: inherit;
         overflow: hidden;
         pointer-events: none;
       }
@@ -151,14 +127,14 @@ import { AnnotationControlsComponent } from '../card-form/annotation-controls';
         max-width: 340px;
         aspect-ratio: 1;
         padding: 2rem;
-        background: rgba(10, 15, 25, 0.4);
+        background: rgba(10, 15, 25, 0.2);
         border: 2px dashed rgba(255, 45, 149, 0.2);
         border-radius: var(--db-radius-lg);
         overflow: hidden;
         isolation: isolate;
         cursor: pointer;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        backdrop-filter: blur(8px);
+        backdrop-filter: blur(4px);
       }
       .upload-card-loader {
         position: absolute;
@@ -174,8 +150,8 @@ import { AnnotationControlsComponent } from '../card-form/annotation-controls';
         background: linear-gradient(
           180deg,
           rgba(8, 12, 22, 0.45) 0%,
-          rgba(8, 12, 22, 0.58) 40%,
-          rgba(8, 12, 22, 0.82) 100%
+          rgba(8, 12, 22, 0.1) 40%,
+          rgba(8, 12, 22, 0.4) 100%
         );
       }
       .upload-card-content {

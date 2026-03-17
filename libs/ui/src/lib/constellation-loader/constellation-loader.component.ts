@@ -75,8 +75,12 @@ export class ConstellationLoaderComponent implements AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    cancelAnimationFrame(this.rafId);
-    this.resizeObserver?.disconnect();
+    if (this.rafId) {
+      cancelAnimationFrame(this.rafId);
+    }
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+    }
   }
 
   private resize(w: number, h: number): void {
