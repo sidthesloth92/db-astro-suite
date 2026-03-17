@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, ViewChild } from '@angular/core';
+import { ConstellationLoaderComponent } from '@db-astro-suite/ui';
 import { ImageAnnotation } from '../../models/annotation.models';
 import { CardDataService } from '../../services/card-data.service';
 import { BaseCardPreviewComponent } from '../base-card-preview/base-card-preview';
@@ -8,7 +9,7 @@ import { AnnotationControlsComponent } from '../card-form/annotation-controls';
 @Component({
   selector: 'dba-ag-stellar-map-preview',
   standalone: true,
-  imports: [CommonModule, BaseCardPreviewComponent, AnnotationControlsComponent],
+  imports: [CommonModule, BaseCardPreviewComponent, AnnotationControlsComponent, ConstellationLoaderComponent],
   templateUrl: './stellar-map-preview.html',
   styles: [
     `
@@ -75,21 +76,8 @@ import { AnnotationControlsComponent } from '../card-form/annotation-controls';
         flex-direction: column;
         align-items: center;
         justify-content: center;
+        gap: 1rem;
         color: #00f3ff;
-      }
-      .spinner {
-        width: 48px;
-        height: 48px;
-        border: 4px solid rgba(0, 243, 255, 0.2);
-        border-top-color: #00f3ff;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin-bottom: 1rem;
-      }
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
       }
       .solve-loader-text {
         font-family: var(--db-form-font-mono, monospace);
