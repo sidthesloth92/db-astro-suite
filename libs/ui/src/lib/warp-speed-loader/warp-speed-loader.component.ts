@@ -55,7 +55,7 @@ export class WarpSpeedLoaderComponent implements AfterViewInit, OnDestroy {
       const s = this.size();
       this.resize(s, s);
     }
-    this.ctx = this.canvasRef.nativeElement.getContext('2d');
+    this.ctx = this.canvasRef.nativeElement.getContext("2d");
     this.loop();
   }
 
@@ -84,7 +84,7 @@ export class WarpSpeedLoaderComponent implements AfterViewInit, OnDestroy {
       x: (Math.random() - 0.5) * w * 2,
       y: (Math.random() - 0.5) * h * 2,
       z: Math.random() * w,
-      color: Math.random() < 0.3 ? 'cyan' : 'white',
+      color: Math.random() < 0.3 ? "cyan" : "white",
     }));
   }
 
@@ -101,9 +101,9 @@ export class WarpSpeedLoaderComponent implements AfterViewInit, OnDestroy {
     const cx = w / 2;
     const cy = h / 2;
 
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+    ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
     ctx.fillRect(0, 0, w, h);
-    
+
     for (const p of this.particles) {
       const pastZ = p.z;
       p.z -= 4;
@@ -113,16 +113,16 @@ export class WarpSpeedLoaderComponent implements AfterViewInit, OnDestroy {
         p.y = (Math.random() - 0.5) * h * 2;
         continue;
       }
-      const x = cx + p.x / p.z * 100;
-      const y = cy + p.y / p.z * 100;
-      const px = cx + p.x / pastZ * 100;
-      const py = cy + p.y / pastZ * 100;
+      const x = cx + (p.x / p.z) * 100;
+      const y = cy + (p.y / p.z) * 100;
+      const px = cx + (p.x / pastZ) * 100;
+      const py = cy + (p.y / pastZ) * 100;
 
       ctx.beginPath();
       ctx.moveTo(px, py);
       ctx.lineTo(x, y);
       ctx.strokeStyle = p.color;
-      ctx.lineWidth = Math.max(0.5, 3 - p.z / w * 3);
+      ctx.lineWidth = Math.max(0.5, 3 - (p.z / w) * 3);
       ctx.stroke();
     }
   }

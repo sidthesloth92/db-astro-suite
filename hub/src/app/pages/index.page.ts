@@ -2,7 +2,7 @@ import { RouteMeta } from '@analogjs/router';
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CardComponent, BlackHoleLoaderComponent } from '@db-astro-suite/ui';
+import { BlackHoleLoaderComponent, CardComponent } from '@db-astro-suite/ui';
 import { FooterComponent } from '../../../../libs/ui/src/lib/footer/footer.component';
 
 @Component({

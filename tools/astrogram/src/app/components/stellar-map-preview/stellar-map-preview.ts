@@ -74,7 +74,7 @@ import { AnnotationControlsComponent } from '../card-form/annotation-controls';
       .solve-loader-overlay {
         position: absolute;
         inset: 0;
-        background: rgba(0, 0, 0, 0.7);
+        background: rgba(0, 0, 0, 0.45);
         backdrop-filter: blur(4px);
         z-index: 20;
         display: flex;
@@ -86,8 +86,10 @@ import { AnnotationControlsComponent } from '../card-form/annotation-controls';
         clip-path: inset(0);
       }
       .solve-loader-canvas {
-        position: absolute;
-        inset: 0;
+        position: relative;
+        width: 180px;
+        height: 180px;
+        margin-bottom: 2rem;
         overflow: hidden;
         pointer-events: none;
       }
