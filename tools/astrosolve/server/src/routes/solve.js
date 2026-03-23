@@ -9,6 +9,19 @@ import { solveWithAstrometry } from "../services/astrometry.js";
 import { querySimbad } from "../services/simbad.js";
 import { queryLocalCatalog } from "../services/local-catalog.js";
 
+/**
+ * A typed error that carries an HTTP status code, used to distinguish
+ * client-caused failures (4xx) from unexpected server errors (5xx).
+ */
+class SolveError extends Error {
+  /** @param {number} statusCode @param {string} message */
+  constructor(statusCode, message) {
+    super(message);
+    this.name = "SolveError";
+    this.statusCode = statusCode;
+  }
+}
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const UPLOADS_DIR = path.join(__dirname, "../../uploads");
@@ -38,14 +51,15 @@ function validateAndExtractHints(fields) {
  */
 function validateImageReceived(data) {
   if (!data || !data.file) {
-    throw new Error("Missing 'image' file in multipart payload.");
+    throw new SolveError(400, "Missing 'image' file in multipart payload.");
   }
 
   const allowedExtensions = [".jpg", ".jpeg", ".png"];
   const ext = path.extname(data.filename).toLowerCase();
 
   if (!allowedExtensions.includes(ext)) {
-    throw new Error(
+    throw new SolveError(
+      400,
       `Invalid file extension: ${ext}. Only .jpg, .jpeg, and .png are allowed.`,
     );
   }
@@ -86,7 +100,7 @@ async function parseMultipartRequest(request) {
     );
 
     if (stats.size === 0) {
-      throw new Error("Uploaded file is 0 bytes. Stream was empty.");
+      throw new SolveError(400, "Uploaded file is 0 bytes. Stream was empty.");
     }
 
     const fileBuffer = await fs.readFile(filePath);
@@ -94,21 +108,20 @@ async function parseMultipartRequest(request) {
     if (!dimensions || dimensions.width < 100 || dimensions.height < 100) {
       // Immediately delete the undersized file
       await fs.unlink(filePath).catch(() => {});
-      throw new Error(
+      throw new SolveError(
+        400,
         `Image resolution is too low (${dimensions?.width}x${dimensions?.height}).`,
       );
     }
   } catch (err) {
-    if (
-      err.message.includes("resolution is too low") ||
-      err.message.includes("0 bytes")
-    ) {
-      throw err; // Re-throw our custom validation error
+    if (err instanceof SolveError) {
+      throw err; // Re-throw our own validation errors as-is
     }
     // If image-size fails to read entirely (e.g. corrupt header), fail cleanly
     await fs.unlink(filePath).catch(() => {});
     request.log.error(err, "Failed to parse image dimensions");
-    throw new Error(
+    throw new SolveError(
+      400,
       "Uploaded image file appears to be corrupted or in an unsupported format.",
     );
   }
@@ -117,15 +130,19 @@ async function parseMultipartRequest(request) {
 }
 
 /**
- * Executes the ASTAP WCS solve and queries SIMBAD for matching objects sequentially.
+ * Executes the astrometry plate-solve and queries both the local catalog and SIMBAD
+ * for objects within the solved field.
  *
  * @param {string} filePath - Absolute path to the saved image file
  * @param {Object} hints - Solving hints extracted from the request
- * @returns {Promise<Object>} The combined ASTAP and SIMBAD payload
+ * @param {Object} log - Fastify-compatible logger (request.log)
+ * @returns {Promise<{metadata: Object, objects: Array, warnings: string[]}>} Merged solve result
  */
-async function processSolveRequest(filePath, hints) {
+async function processSolveRequest(filePath, hints, log) {
+  const warnings = [];
+
   // Step 1: Plate Solve using local Astrometry.net
-  const solveResult = await solveWithAstrometry(filePath, hints);
+  const solveResult = await solveWithAstrometry(filePath, hints, log);
 
   // Step 2: Hybrid Search (Local + SIMBAD)
   // We search within a 2-degree radius (typical wide field crop)
@@ -134,15 +151,20 @@ async function processSolveRequest(filePath, hints) {
   // Fire both queries in parallel
   const [localObjects, simbadObjects] = await Promise.all([
     // Local DB Query (Extremely fast, <10ms)
-    Promise.resolve(
-      queryLocalCatalog({
-        ra: solveResult.ra,
-        dec: solveResult.dec,
-        radiusDeg: radius,
-        maxMagnitude: hints.min_magnitude,
-        types: hints.types,
+    Promise.resolve()
+      .then(() =>
+        queryLocalCatalog({
+          ra: solveResult.ra,
+          dec: solveResult.dec,
+          radiusDeg: radius,
+          maxMagnitude: hints.min_magnitude,
+          types: hints.types,
+        }),
+      )
+      .catch((err) => {
+        log.error({ err }, "Local catalog query failed");
+        return [];
       }),
-    ).catch(() => []),
 
     // SIMBAD Query (Slower, network dependent)
     querySimbad(
@@ -151,9 +173,12 @@ async function processSolveRequest(filePath, hints) {
       radius,
       hints.min_magnitude,
     ).catch((err) => {
-      console.error(
-        "SIMBAD query failed (falling back to local only):",
-        err.message,
+      log.warn(
+        { err },
+        "SIMBAD query failed; falling back to local catalog only",
+      );
+      warnings.push(
+        "Catalog service (SIMBAD) was unavailable; displayed objects may be incomplete.",
       );
       return [];
     }),
@@ -260,7 +285,6 @@ async function processSolveRequest(filePath, hints) {
   const merged = [...localDSOs, ...localStarsByName.values(), ...simbadDSOs];
 
   return {
-    status: "success",
     metadata: {
       ra: solveResult.ra,
       dec: solveResult.dec,
@@ -269,6 +293,7 @@ async function processSolveRequest(filePath, hints) {
       radius_searched: radius,
     },
     objects: merged,
+    warnings,
   };
 }
 
@@ -285,27 +310,35 @@ export default async function (fastify) {
 
       // 2. Ask queue to process the file and execute the solve
       const result = await solveQueue.add(async () => {
-        fastify.log.info("Queue executing processSolveRequest...");
-        const res = await processSolveRequest(filePath, hints);
-        fastify.log.info("processSolveRequest completed.");
+        request.log.info("Queue executing processSolveRequest...");
+        const res = await processSolveRequest(filePath, hints, request.log);
+        request.log.info("processSolveRequest completed.");
         return res;
       });
-      fastify.log.info("Sending reply...");
-      return reply.send(result);
+      request.log.info("Sending reply...");
+      return reply.send({
+        code: "OK",
+        message: "Solve complete",
+        details: {
+          metadata: result.metadata,
+          objects: result.objects,
+          ...(result.warnings.length ? { warnings: result.warnings } : {}),
+        },
+      });
     } catch (e) {
-      // Catch our custom validation errors from the parsing loop
-      if (
-        e.message.startsWith("Missing") ||
-        e.message.includes("resolution is too low") ||
-        e.message.includes("Invalid file extension") ||
-        e.message.includes("corrupted")
-      ) {
-        return reply.code(400).send({ error: e.message });
+      if (e instanceof SolveError) {
+        return reply.code(e.statusCode).send({
+          code: "VALIDATION_ERROR",
+          message: e.message,
+          details: {},
+        });
       }
 
       fastify.log.error(e);
       return reply.code(500).send({
-        error: "Internal processing error during astrometry solving.",
+        code: "SOLVE_FAILED",
+        message: "Internal processing error during astrometry solving.",
+        details: {},
       });
     }
   });

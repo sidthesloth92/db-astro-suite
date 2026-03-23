@@ -1,19 +1,20 @@
-import { exec } from 'child_process';
-import { promisify } from 'util';
-import fs from 'fs/promises';
-import path from 'path';
+import { exec } from "child_process";
+import { promisify } from "util";
+import fs from "fs/promises";
+import path from "path";
 
 const execAsync = promisify(exec);
 
 /**
- * Executes the local Astrometry.net CLI (solve-field) to plate solve an image, extracts coordinates 
+ * Executes the local Astrometry.net CLI (solve-field) to plate solve an image, extracts coordinates
  * from the resulting .wcs file, and then aggressively cleans up all generated files.
- * 
+ *
  * @param {string} filePath - Absolute path to the uploaded image in the uploads directory
  * @param {Object} hints - Solving hints { pixel_size, focal_length, ra_hint, dec_hint }
+ * @param {Object} log - Fastify-compatible logger (request.log)
  * @returns {Promise<Object>} Solved WCS Metadata { ra, dec, scale, status }
  */
-export async function solveWithAstrometry(filePath, hints) {
+export async function solveWithAstrometry(filePath, hints, log) {
   const fileExt = path.extname(filePath);
   const baseName = path.basename(filePath, fileExt);
   const dirName = path.dirname(filePath);
@@ -21,16 +22,19 @@ export async function solveWithAstrometry(filePath, hints) {
 
   try {
     const command = createAstrometryCommand(filePath, hints);
-    console.log("Executing:", command);
-    const wcsData = await executeAstrometryAndGetWcsData(command, wcsFilePath);
+    log.info({ command }, "Executing astrometry solve-field");
+    const wcsData = await executeAstrometryAndGetWcsData(
+      command,
+      wcsFilePath,
+      log,
+    );
     const alignmentInfo = parseAstrometryWcs(wcsData);
 
     return {
       status: "success",
       wcsData: wcsData,
-      ...alignmentInfo
+      ...alignmentInfo,
     };
-
   } finally {
     // Astrometry.net creates many intermediate files (*.axy, *.corr, *.match, etc).
     // The easiest cleanup is simply matching the basename in the folder.
@@ -38,18 +42,21 @@ export async function solveWithAstrometry(filePath, hints) {
       const files = await fs.readdir(dirName);
       for (const file of files) {
         if (file.startsWith(baseName)) {
-           await fs.unlink(path.join(dirName, file)).catch(() => {});
+          await fs.unlink(path.join(dirName, file)).catch(() => {});
         }
       }
     } catch (cleanupErr) {
-      console.error("Cleanup failed:", cleanupErr);
+      log.error(
+        { err: cleanupErr },
+        "Cleanup of astrometry intermediate files failed",
+      );
     }
   }
 }
 
 /**
  * Constructs the solve-field command based on hints.
- * 
+ *
  * @param {string} filePath - Absolute path to the uploaded image
  * @param {Object} hints - Solving hints
  * @returns {string} The constructed command string
@@ -63,15 +70,17 @@ function createAstrometryCommand(filePath, hints) {
   // --tweak-order 2 (better polynomial fit for distortion)
   // --downsample 2 (standard for modern high-res digital cameras)
   const baseCommand = `solve-field "${filePath}" -O -p --no-plots --objs 1000 --tweak-order 2 --downsample 2 --new-fits none --no-verify`;
-  const wcsOut = `-W "${filePath.replace(path.extname(filePath), '.wcs')}"`;
-  
+  const wcsOut = `-W "${filePath.replace(path.extname(filePath), ".wcs")}"`;
+
   // Blind solve mode restricted to downloaded indices (index 19 reaches ~34 degrees)
   const scaleParams = `--scale-units degwidth --scale-low 0.1 --scale-high 34.0`;
 
-  // Location hints
-  let posParams = '';
-  if (hints.ra_hint && !isNaN(parseFloat(hints.ra_hint)) && hints.dec_hint && !isNaN(parseFloat(hints.dec_hint))) {
-    posParams = `--ra ${hints.ra_hint} --dec ${hints.dec_hint} --radius 5`;
+  // Location hints — coerce to Number before interpolation to prevent shell injection
+  let posParams = "";
+  const raNum = Number(hints.ra_hint);
+  const decNum = Number(hints.dec_hint);
+  if (isFinite(raNum) && isFinite(decNum)) {
+    posParams = `--ra ${raNum} --dec ${decNum} --radius 5`;
   }
 
   return `${baseCommand} ${wcsOut} ${scaleParams} ${posParams}`;
@@ -79,26 +88,31 @@ function createAstrometryCommand(filePath, hints) {
 
 /**
  * Executes the solve-field command and reads the resulting .wcs file.
+ *
+ * @param {string} command - The shell command to execute
+ * @param {string} wcsFilePath - Expected path of the output .wcs file
+ * @param {Object} log - Fastify-compatible logger
+ * @returns {Promise<string>} Raw WCS file contents
  */
-async function executeAstrometryAndGetWcsData(command, wcsFilePath) {
+async function executeAstrometryAndGetWcsData(command, wcsFilePath, log) {
   try {
-    const { stdout, stderr } = await execAsync(command);
-    console.log("Astrometry solve-field output:");
-    if (stdout) console.log(stdout);
-    if (stderr) console.error(stderr);
+    const { stdout, stderr } = await execAsync(command, { timeout: 120_000 });
+    if (stdout) log.info({ stdout }, "solve-field stdout");
+    if (stderr) log.warn({ stderr }, "solve-field stderr");
   } catch (execError) {
-    console.error("Astrometry solve-field CRITICAL FAILURE:");
-    console.error("Command tried:", command);
-    console.error("Error Message:", execError.message);
-    if (execError.stdout) console.log("Failed Stdout:", execError.stdout);
-    if (execError.stderr) console.error("Failed Stderr:", execError.stderr);
+    log.error(
+      { err: execError, stdout: execError.stdout, stderr: execError.stderr },
+      "solve-field process failed; checking for .wcs output anyway",
+    );
   }
 
   // The true test of success is whether the .wcs file was generated.
   try {
-    return await fs.readFile(wcsFilePath, 'utf8');
+    return await fs.readFile(wcsFilePath, "utf8");
   } catch (readErr) {
-    throw new Error("Astrometry.net failed to plate-solve the image. The image might not contain enough stars or match the downloaded index files.");
+    throw new Error(
+      "Astrometry.net failed to plate-solve the image. The image might not contain enough stars or match the downloaded index files.",
+    );
   }
 }
 
@@ -123,9 +137,10 @@ function parseAstrometryWcs(wcsData) {
   }
 
   if (ra === null || dec === null) {
-    throw new Error("WCS file generated but could not parse CRVAL1/CRVAL2 for coordinates.");
+    throw new Error(
+      "WCS file generated but could not parse CRVAL1/CRVAL2 for coordinates.",
+    );
   }
 
   return { ra, dec, scale };
 }
-

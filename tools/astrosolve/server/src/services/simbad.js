@@ -33,6 +33,7 @@ export async function querySimbad(ra, dec, radiusDeg, minMagnitude = 13.5) {
     const response = await axios.get(
       "http://simbad.u-strasbg.fr/simbad/sim-tap/sync",
       {
+        timeout: 10_000,
         params: {
           request: "doQuery",
           lang: "adql",
@@ -56,7 +57,6 @@ export async function querySimbad(ra, dec, radiusDeg, minMagnitude = 13.5) {
 
     return [];
   } catch (err) {
-    console.error("SIMBAD TAP error:", err.message);
-    return [];
+    throw new Error(`SIMBAD TAP query failed: ${err.message}`, { cause: err });
   }
 }

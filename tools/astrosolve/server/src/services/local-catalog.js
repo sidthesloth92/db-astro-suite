@@ -9,12 +9,15 @@ const DB_PATH = path.join(__dirname, "../data/celestial.sqlite");
  * Initialize connection to the celestial SQLite database.
  */
 let db;
+let dbInitError = null;
 try {
   db = new Database(DB_PATH, { readonly: true, fileMustExist: true });
 } catch (err) {
-  console.error(
-    "Local Celestial Database not found. Run 'node src/scripts/seed_db.mjs' first.",
+  dbInitError = new Error(
+    "Local catalog database is not available. Run 'node src/scripts/seed_db.mjs' first.",
+    { cause: err },
   );
+  console.error(dbInitError.message);
 }
 
 /**
@@ -31,7 +34,8 @@ export function queryLocalCatalog({
   maxMagnitude = 10,
   types = [],
 }) {
-  if (!db) return [];
+  if (!db)
+    throw dbInitError ?? new Error("Local catalog database is not available.");
 
   const cosDec = Math.cos((dec * Math.PI) / 180.0);
 
