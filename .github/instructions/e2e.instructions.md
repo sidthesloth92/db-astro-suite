@@ -9,6 +9,19 @@ applyTo: "e2e/**"
 - ONLY use `getByRole`, `getByText`, `getByLabel`, `getByPlaceholder`, `getByTestId`.
 - NEVER use CSS selectors or XPath — they are brittle and couple tests to implementation.
 
+## Page Object Model
+
+- Every distinct page or major feature area must have a Page Object class in `e2e/pages/`.
+- Page Objects expose user-intent methods (`fillForm()`, `submitSolve()`) — not raw locators.
+- If a page's UI changes, update the Page Object only — not every test that uses it.
+
+## Test Structure & Isolation
+
+- Every test must be fully independent — no shared state, no execution-order dependencies.
+- Use Playwright's `page` fixture (function scope) to guarantee a clean context per test.
+- `describe` blocks map to pages or features. `test`/`it` descriptions read as user behaviour sentences: `'should show an error when no image is uploaded'`.
+- Pre-conditions must be set programmatically (API calls or fixtures), not by running other tests first.
+
 ## Scope
 
 - E2E tests cover critical user flows only.

@@ -32,7 +32,10 @@ Path-specific instruction files in `.github/instructions/` provide detailed per-
 
 - TypeScript only. ESM (`import`/`export`). `async/await` throughout.
 - Every `async` function has explicit error handling — no unhandled promise rejections.
-- Strong typing required. Never use `any` without documented justification.
+- Strong typing required. Never use `any`, `as SomeType` casts, or `!` non-null assertions without documented justification.
+- Throw domain-specific error subclasses (e.g. `class SolveError extends Error`) from business logic. Never throw a plain `new Error('...')` from a service — it forces fragile string-matching at the catch site.
+- Use the application framework's structured logger (e.g. Fastify's `request.log`). Never use `console.log/error` in production code.
+- Read all environment variables once at startup into a validated config object. Never scatter `process.env.X` reads across business logic files.
 
 ---
 
@@ -89,6 +92,44 @@ All backend responses must follow this shape:
 
 ---
 
+## File Naming Conventions (All Languages)
+
+Every discrete concern lives in its own file. Apply across Angular, Node/TypeScript, Go, and Python:
+
+| Content                          | File suffix / pattern                      |
+| -------------------------------- | ------------------------------------------ |
+| Domain / DTO model class or type | `*.model.ts` / `*_model.py` / `*_model.go` |
+| Constants                        | `*.constants.ts` / `*_constants.py`        |
+| Enums                            | `*.enum.ts` / `*_enum.py`                  |
+| Interfaces (TS)                  | `*.interface.ts`                           |
+| Type aliases (TS)                | `*.types.ts`                               |
+
+- Never co-locate model classes, constants, or enums inside service, component, or route files.
+- One concept per file — a model file holds one primary model (and closely related sub-types only).
+- Barrel files (`index.ts`) re-export at the package boundary; they do not define types themselves.
+
+---
+
+## SOLID Principles
+
+All code in this repository must respect these principles:
+
+- **SRP** — Every class, function, and file has exactly one reason to change. If a unit does more than one thing, split it.
+- **OCP** — Extend behaviour through new code (new implementations, new parameters, composition), not by modifying existing stable code.
+- **LSP** — Subtypes and implementations must be substitutable for their base type/interface without changing caller behaviour.
+- **ISP** — Define small, consumer-focused interfaces. A consumer should never be forced to depend on methods it does not use. Prefer several small interfaces over one large one.
+- **DIP** — High-level modules depend on abstractions (interfaces / injection tokens), not concrete implementations. Inject dependencies; do not instantiate them inside a class.
+
+---
+
+## Immutability
+
+- Prefer immutable data. Never mutate an object or array in place — produce new values (`spread`, `map`, `filter`, `structuredClone`).
+- Signal values that are objects or arrays must be replaced via `.set()` / `.update()` — never mutated by reference.
+- DTOs and domain models received from services are treated as read-only at all call sites.
+
+---
+
 ## Change Evaluation Protocol
 
 Before making any change, identify:
@@ -124,6 +165,10 @@ When code changes, first determine whether the **behaviour changed intentionally
 - Blindly updating snapshots or tests to make CI green
 - Mutable shared state stored in components
 - Hardcoded hex/color values outside `/libs/theme`
+- Mutating objects or arrays in place — always produce new values
+- Defining models, constants, or enums inline inside service or component files
+- Fat interfaces that bundle unrelated methods — split by consumer need (ISP)
+- Instantiating dependencies inside a class instead of injecting them (DIP violation)
 
 ---
 
@@ -137,7 +182,7 @@ Every change — regardless of size — must satisfy all of the following:
 - [ ] Test integrity respected — tests updated because behaviour changed, not to force a pass
 - [ ] If UI changed: visual baselines updated in CI only (`pnpm e2e:update-snapshots`)
 - [ ] No locally-generated snapshots committed
-- [ ] `CHANGELOG.md` updated with a meaningful entry
+- [ ] Commits follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `refactor:`, etc.) — release-please auto-generates `CHANGELOG.md` from these; do **not** edit `CHANGELOG.md` manually
 - [ ] PR description explains _what_ changed and _why_
 - [ ] No forbidden dependency directions introduced
 - [ ] No HTTP in components; no business logic in `/libs/ui`
