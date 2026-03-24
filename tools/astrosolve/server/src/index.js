@@ -1,9 +1,9 @@
-import Fastify from 'fastify';
-import cors from '@fastify/cors';
-import rateLimit from '@fastify/rate-limit';
-import multipart from '@fastify/multipart';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import Fastify from "fastify";
+import cors from "@fastify/cors";
+import rateLimit from "@fastify/rate-limit";
+import multipart from "@fastify/multipart";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,35 +13,35 @@ const fastify = Fastify({ logger: true });
 // Register Rate Limiting
 fastify.register(rateLimit, {
   max: 5,
-  timeWindow: '1 minute'
+  timeWindow: "1 minute",
 });
 
 // Register CORS
+// Set ASTROSOLVE_ORIGIN env var to restrict to a specific origin in production (e.g. https://yourapp.com)
 fastify.register(cors, {
-  origin: '*', // Restrict to front-end in production
-  methods: ['GET', 'POST']
+  origin: process.env.ASTROSOLVE_ORIGIN ?? "*",
+  methods: ["GET", "POST"],
 });
 
 // Configure Multipart for file uploads immediately saving to disk
 fastify.register(multipart, {
   limits: {
-    fileSize: 10 * 1024 * 1024 // 10MB limit
-  }
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  },
 });
 
 // Register routes
-import solveRoute from './routes/solve.js';
+import solveRoute from "./routes/solve.js";
 fastify.register(solveRoute);
 
-
 // Health check route
-fastify.get('/', async (request, reply) => {
-  return { status: 'Astrosolve API is running' };
+fastify.get("/", async (request, reply) => {
+  return { status: "Astrosolve API is running" };
 });
 
 const start = async () => {
   try {
-    await fastify.listen({ port: 3000, host: '0.0.0.0' });
+    await fastify.listen({ port: 3000, host: "0.0.0.0" });
     fastify.log.info(`Server listening on port 3000`);
   } catch (err) {
     fastify.log.error(err);

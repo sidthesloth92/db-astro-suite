@@ -8,6 +8,7 @@ import crypto from "crypto";
 import { solveWithAstrometry } from "../services/astrometry.js";
 import { querySimbad } from "../services/simbad.js";
 import { queryLocalCatalog } from "../services/local-catalog.js";
+import { parsePositiveInteger } from "../utils/config-utils.js";
 
 /**
  * A typed error that carries an HTTP status code, used to distinguish
@@ -24,10 +25,20 @@ class SolveError extends Error {
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const UPLOADS_DIR = path.join(__dirname, "../../uploads");
+const DATA_DIR = path.join(__dirname, "../../data");
+const UPLOADS_DIR = path.join(DATA_DIR, "uploads");
 
-// Concurrency queue to protect backend execution (max 2 parallel ASTAP solves)
-const solveQueue = new PQueue({ concurrency: 2 });
+const solveQueueConcurrency = parsePositiveInteger(
+  process.env.ASTROSOLVE_QUEUE_CONCURRENCY,
+  2,
+);
+const solveQueueMaxSize = parsePositiveInteger(
+  process.env.ASTROSOLVE_QUEUE_MAX_SIZE,
+  10,
+);
+
+// Concurrency queue to protect backend execution.
+const solveQueue = new PQueue({ concurrency: solveQueueConcurrency });
 
 /**
  * Validates the hints before allowing the image stream to proceed.
@@ -307,6 +318,15 @@ export default async function (fastify) {
       fastify.log.info("Parsing multipart request...");
       const { filePath, hints } = await parseMultipartRequest(request);
       fastify.log.info(`Multipart parsed, starting queue for ${filePath}`);
+
+      if (solveQueue.size + solveQueue.pending >= solveQueueMaxSize) {
+        await fs.unlink(filePath).catch(() => {});
+        return reply.code(503).send({
+          code: "SERVER_BUSY",
+          message: "Solver queue is full. Please retry in a minute.",
+          details: {},
+        });
+      }
 
       // 2. Ask queue to process the file and execute the solve
       const result = await solveQueue.add(async () => {

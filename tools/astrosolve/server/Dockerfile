@@ -8,12 +8,8 @@ RUN apt-get update && apt-get install -y \
     file \
     && rm -rf /var/lib/apt/lists/*
 
-# The index files are pre-downloaded on the host to avoid network flakes during the build.
-# Copy them directly into the Astrometry.net search path where solve-field looks for catalogs.
-COPY astrometry_data/ /usr/share/astrometry/data/
-
 # Ensure the location for star catalogs is explicitly configured
-RUN echo "add_path /usr/share/astrometry/data\nautoindex\ninparallel\ncpulimit 300" > /etc/astrometry.cfg
+RUN echo "add_path /usr/src/app/data/astrometry\nautoindex\ninparallel\ncpulimit 300" > /etc/astrometry.cfg
 
 # Switch to the application directory
 WORKDIR /usr/src/app
@@ -25,8 +21,9 @@ RUN npm install
 # Copy the rest of the backend codebase
 COPY . .
 
-# Ensure the uploads directory exists for `@fastify/multipart`
-RUN mkdir -p uploads
+# Runtime data is mounted from the host in production so index and catalog growth
+# does not require rebuilding the image.
+RUN mkdir -p /usr/src/app/data/astrometry /usr/src/app/data/local-catalog /usr/src/app/data/uploads
 
 # Expose the API port
 EXPOSE 3000

@@ -3,7 +3,10 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DB_PATH = path.join(__dirname, "../data/celestial.sqlite");
+const DB_PATH = path.join(
+  __dirname,
+  "../../data/local-catalog/celestial.sqlite",
+);
 
 /**
  * Initialize connection to the celestial SQLite database.
@@ -14,7 +17,7 @@ try {
   db = new Database(DB_PATH, { readonly: true, fileMustExist: true });
 } catch (err) {
   dbInitError = new Error(
-    "Local catalog database is not available. Run 'node src/scripts/seed_db.mjs' first.",
+    "Local catalog database is not available. Run 'npm run init-db' first and ensure data/local-catalog/celestial.sqlite exists.",
     { cause: err },
   );
   console.error(dbInitError.message);

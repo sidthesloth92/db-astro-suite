@@ -2,12 +2,11 @@
 node_modules/
 npm-debug.log*
 
-# Fastify uploads
-uploads/
-
-# Astrometry Index Data (Large FITS files)
-# Should be downloaded via download-indices.sh
-astrometry_data/
+# Runtime data
+data/astrometry/*
+!data/astrometry/.gitkeep
+data/uploads/*
+!data/uploads/.gitkeep
 
 # Temporary and test files
 *.axy

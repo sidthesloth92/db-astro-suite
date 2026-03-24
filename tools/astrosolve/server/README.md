@@ -1,70 +1,69 @@
 # Astrosolve Server
 
-A local, headless Node.js microservice utilizing the Astrometry.net engine for fast plate-solving celestial images.
+A headless Node.js microservice that uses Astrometry.net for plate solving.
 
-## Development with Docker
+## Local Development
 
-To run the plate-solving server locally, you must use Docker to ensure the Astrometry.net solver and huge index catalogs are properly containerized.
+To run the server locally, use Docker so the Astrometry.net system dependencies match production.
 
-> **Important Setup Step**: Make sure that **Docker Desktop is running** on your Mac before executing any of these commands!
+> Make sure Docker Desktop is running before building or starting the container.
 
-### 1. Download the Star Catalogs
-
-Run the downloader script to pull the necessary `index-42**` and `index-41**` Astrometry FITS index files locally. (This is a one-time step and takes several gigabytes).
+### 1. Initialize databases (Astrometry indexes and Local Catalog)
 
 ```bash
 cd tools/astrosolve/server
-sh download-indices.sh
+npm install
+npm run init-db
 ```
 
-### 2. Seed the Local Celestial Database
+This runs both `init-astrometry-db` (populates `data/astrometry/`) and `init-local-catalog-db` (creates `data/local-catalog/celestial.sqlite`).
 
-Run the seeder on your host machine before building the image if you want the SQLite catalog bundled into the container image:
+### 2. Build the image
 
 ```bash
 cd tools/astrosolve/server
-npm run seed
-```
-
-This creates `src/data/celestial.sqlite`. With the current Dockerfile, that file is copied into the image during `docker build`.
-
-### 3. Build the Docker Image
-
-Run this command from the `tools/astrosolve/server` directory to build the image:
-
-```bash
 docker build -t astrosolve .
 ```
 
-### 4. Run the Server (Live Reloading)
-
-To run the server during development, use a volume mount to sync your local `./src` folder into the container, and override the default start command with `npm run dev` to enable `node --watch`:
-
-Run this command from the `tools/astrosolve/server` directory:
+### 4. Run the server with mounted local data
 
 ```bash
-docker run -p 3000:3000 \
-  -v $(pwd)/src:/usr/src/app/src \
-  astrosolve \
-  npm run dev
+cd tools/astrosolve/server
+docker run --rm -p 3000:3000 \
+  -e ASTROSOLVE_ORIGIN=http://localhost:4200 \
+  -v $(pwd)/data/astrometry:/usr/src/app/data/astrometry:ro \
+  -v $(pwd)/data/local-catalog:/usr/src/app/data/local-catalog \
+  -v $(pwd)/data/uploads:/usr/src/app/data/uploads \
+  astrosolve
 ```
 
-If you are using this bind-mounted development flow, reseeding on the host updates the data the container sees immediately. You only need to restart the container; you do not need to rebuild the image.
-
-### 5. View Logs
-
-Once the container is running, you can view the live Fastify logs by finding the container ID with `docker ps` and streaming the output:
+### 5. View logs
 
 ```bash
+docker ps
 docker logs -f <CONTAINER_ID>
 ```
 
 ## Production
 
-To build and run the server without live-reloading for production (or for testing the final build):
+Production keeps heavy runtime data on the server, not in the image:
+
+- Astrometry indexes are mounted from persistent host storage
+- `celestial.sqlite` is included from `data/local-catalog` in the image
+- uploads are mounted from persistent host storage
+
+Use the deploy runbook for the one-time Hetzner setup:
 
 ```bash
-npm run seed
-docker build -t astrosolve .
-docker run -d -p 3000:3000 astrosolve
+cat tools/astrosolve/server/scripts/deploy/deploy.md
 ```
+
+The deployment scripts are:
+
+```bash
+tools/astrosolve/server/scripts/deploy/server_init.sh
+tools/astrosolve/server/scripts/deploy/server_update.sh
+tools/astrosolve/server/scripts/deploy/server_deploy.sh
+```
+
+Use `server_init.sh` for one-time server bootstrap, and use `server_deploy.sh <release-version>` for rollouts and rollbacks.

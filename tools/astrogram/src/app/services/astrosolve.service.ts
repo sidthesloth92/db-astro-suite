@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface AstrosolveSolveResponse {
   status: string;
@@ -30,7 +31,7 @@ export interface AstrosolveSolveResponse {
   providedIn: 'root',
 })
 export class AstrosolveService {
-  private readonly baseUrl = 'http://localhost:3000/api v1';
+  private readonly baseUrl = `${environment.apiBaseUrl}/api/v1`;
 
   constructor(private http: HttpClient) {}
 
@@ -61,10 +62,7 @@ export class AstrosolveService {
 
     try {
       const result = await firstValueFrom(
-        this.http.post<AstrosolveSolveResponse>(
-          `${this.baseUrl.replace(' ', '/')}/solve`,
-          formData,
-        ),
+        this.http.post<AstrosolveSolveResponse>(`${this.baseUrl}/solve`, formData),
       );
 
       onProgress?.('Solve successful! Identifying objects...');
