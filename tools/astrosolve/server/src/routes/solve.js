@@ -338,7 +338,10 @@ export default async function (fastify) {
         } finally {
           // Cleanup the uploaded file immediately after processing is finished (success or error)
           await fs.unlink(filePath).catch((err) => {
-            request.log.error({ err, filePath }, "Failed to delete uploaded file after processing");
+            request.log.error(
+              { err, filePath },
+              "Failed to delete uploaded file after processing",
+            );
           });
         }
       });
