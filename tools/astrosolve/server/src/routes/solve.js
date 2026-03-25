@@ -330,10 +330,17 @@ export default async function (fastify) {
 
       // 2. Ask queue to process the file and execute the solve
       const result = await solveQueue.add(async () => {
-        request.log.info("Queue executing processSolveRequest...");
-        const res = await processSolveRequest(filePath, hints, request.log);
-        request.log.info("processSolveRequest completed.");
-        return res;
+        try {
+          request.log.info("Queue executing processSolveRequest...");
+          const res = await processSolveRequest(filePath, hints, request.log);
+          request.log.info("processSolveRequest completed.");
+          return res;
+        } finally {
+          // Cleanup the uploaded file immediately after processing is finished (success or error)
+          await fs.unlink(filePath).catch((err) => {
+            request.log.error({ err, filePath }, "Failed to delete uploaded file after processing");
+          });
+        }
       });
       request.log.info("Sending reply...");
       return reply.send({
