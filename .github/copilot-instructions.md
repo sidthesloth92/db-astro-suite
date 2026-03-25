@@ -22,7 +22,7 @@ Path-specific instruction files in `.github/instructions/` provide detailed per-
 | ----------------------------------------------------------------- | -------------- | ------------------------- |
 | `/hub/*`, `/tools/astrogram/**`, `/tools/starwizz/**`, `/libs/**` | Angular v17+   | `angular.instructions.md` |
 | `/tools/astro-gen-go/**`                                          | Go             | `go.instructions.md`      |
-| `/tools/astrosolve/**`                                            | Python 3.x     | `python.instructions.md`  |
+| `/tools/astrosolve/**`                                            | Node.js ESM    | `node.instructions.md`    |
 | `/services/**`, `/tools/node-scripts/**`                          | TypeScript ESM | _(rules below)_           |
 | `/e2e/**`                                                         | Playwright     | `e2e.instructions.md`     |
 
@@ -103,6 +103,11 @@ Every discrete concern lives in its own file. Apply across Angular, Node/TypeScr
 | Enums                            | `*.enum.ts` / `*_enum.py`                  |
 | Interfaces (TS)                  | `*.interface.ts`                           |
 | Type aliases (TS)                | `*.types.ts`                               |
+| Services (business logic)        | `*.service.ts` / `*.service.js`            |
+| Routes / controllers             | `*.route.ts` / `*.route.js`                |
+| Domain error classes             | `*.error.ts` / `*.error.js` / `errors.js`  |
+| Config / startup                 | `*.config.ts` / `*.config.js`              |
+| Utility functions                | `*.util.ts` / `*.util.js`                  |
 
 - Never co-locate model classes, constants, or enums inside service, component, or route files.
 - One concept per file — a model file holds one primary model (and closely related sub-types only).
