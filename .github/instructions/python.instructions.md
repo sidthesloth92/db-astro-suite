@@ -1,5 +1,5 @@
 ---
-applyTo: "tools/astrosolve/**"
+applyTo: "tools/astro-gen-go/**"
 ---
 
 # Python Rules
