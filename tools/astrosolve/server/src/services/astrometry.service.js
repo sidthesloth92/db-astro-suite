@@ -2,6 +2,7 @@ import { exec } from "child_process";
 import { promisify } from "util";
 import fs from "fs/promises";
 import path from "path";
+import { AstrometryError } from "../errors.js";
 
 const execAsync = promisify(exec);
 
@@ -110,7 +111,7 @@ async function executeAstrometryAndGetWcsData(command, wcsFilePath, log) {
   try {
     return await fs.readFile(wcsFilePath, "utf8");
   } catch (readErr) {
-    throw new Error(
+    throw new AstrometryError(
       "Astrometry.net failed to plate-solve the image. The image might not contain enough stars or match the downloaded index files.",
     );
   }
@@ -137,7 +138,7 @@ function parseAstrometryWcs(wcsData) {
   }
 
   if (ra === null || dec === null) {
-    throw new Error(
+    throw new AstrometryError(
       "WCS file generated but could not parse CRVAL1/CRVAL2 for coordinates.",
     );
   }

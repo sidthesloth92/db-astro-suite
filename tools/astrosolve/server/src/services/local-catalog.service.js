@@ -1,12 +1,16 @@
 import Database from "better-sqlite3";
 import path from "path";
 import { fileURLToPath } from "url";
+import pino from "pino";
+import { CatalogError } from "../errors.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DB_PATH = path.join(
   __dirname,
   "../../data/local-catalog/celestial.sqlite",
 );
+
+const logger = pino({ name: "local-catalog" });
 
 /**
  * Initialize connection to the celestial SQLite database.
@@ -16,11 +20,12 @@ let dbInitError = null;
 try {
   db = new Database(DB_PATH, { readonly: true, fileMustExist: true });
 } catch (err) {
-  dbInitError = new Error(
+  dbInitError = new CatalogError(
+    "local",
     "Local catalog database is not available. Run 'npm run init-db' first and ensure data/local-catalog/celestial.sqlite exists.",
-    { cause: err },
   );
-  console.error(dbInitError.message);
+  dbInitError.cause = err;
+  logger.error(dbInitError.message);
 }
 
 /**
@@ -38,7 +43,7 @@ export function queryLocalCatalog({
   types = [],
 }) {
   if (!db)
-    throw dbInitError ?? new Error("Local catalog database is not available.");
+    throw dbInitError ?? new CatalogError("local", "Local catalog database is not available.");
 
   const cosDec = Math.cos((dec * Math.PI) / 180.0);
 

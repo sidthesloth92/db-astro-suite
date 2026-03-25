@@ -5,40 +5,20 @@ import path from "path";
 import { pipeline } from "stream/promises";
 import { fileURLToPath } from "url";
 import crypto from "crypto";
-import { solveWithAstrometry } from "../services/astrometry.js";
-import { querySimbad } from "../services/simbad.js";
-import { queryLocalCatalog } from "../services/local-catalog.js";
-import { parsePositiveInteger } from "../utils/config-utils.js";
-
-/**
- * A typed error that carries an HTTP status code, used to distinguish
- * client-caused failures (4xx) from unexpected server errors (5xx).
- */
-class SolveError extends Error {
-  /** @param {number} statusCode @param {string} message */
-  constructor(statusCode, message) {
-    super(message);
-    this.name = "SolveError";
-    this.statusCode = statusCode;
-  }
-}
+import { imageSize } from "image-size";
+import config from "../config.js";
+import { SolveError } from "../errors.js";
+import { solveWithAstrometry } from "../services/astrometry.service.js";
+import { querySimbad } from "../services/simbad.service.js";
+import { queryLocalCatalog } from "../services/local-catalog.service.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DATA_DIR = path.join(__dirname, "../../data");
 const UPLOADS_DIR = path.join(DATA_DIR, "uploads");
 
-const solveQueueConcurrency = parsePositiveInteger(
-  process.env.ASTROSOLVE_QUEUE_CONCURRENCY,
-  2,
-);
-const solveQueueMaxSize = parsePositiveInteger(
-  process.env.ASTROSOLVE_QUEUE_MAX_SIZE,
-  10,
-);
-
 // Concurrency queue to protect backend execution.
-const solveQueue = new PQueue({ concurrency: solveQueueConcurrency });
+const solveQueue = new PQueue({ concurrency: config.queueConcurrency });
 
 /**
  * Validates the hints before allowing the image stream to proceed.
@@ -75,8 +55,6 @@ function validateImageReceived(data) {
     );
   }
 }
-
-import { imageSize } from "image-size";
 
 /**
  * Parses the Fastify multipart request, validating hints first before streaming the image to disk.
@@ -319,7 +297,7 @@ export default async function (fastify) {
       const { filePath, hints } = await parseMultipartRequest(request);
       fastify.log.info(`Multipart parsed, starting queue for ${filePath}`);
 
-      if (solveQueue.size + solveQueue.pending >= solveQueueMaxSize) {
+      if (solveQueue.size + solveQueue.pending >= config.queueMaxSize) {
         await fs.unlink(filePath).catch(() => {});
         return reply.code(503).send({
           code: "SERVER_BUSY",

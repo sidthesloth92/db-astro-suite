@@ -2,11 +2,8 @@ import Fastify from "fastify";
 import cors from "@fastify/cors";
 import rateLimit from "@fastify/rate-limit";
 import multipart from "@fastify/multipart";
-import path from "path";
-import { fileURLToPath } from "url";
+import config from "./config.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const fastify = Fastify({ logger: true });
 
@@ -19,7 +16,7 @@ fastify.register(rateLimit, {
 // Register CORS
 // Set ASTROSOLVE_ORIGIN env var to restrict to a specific origin in production (e.g. https://yourapp.com)
 fastify.register(cors, {
-  origin: process.env.ASTROSOLVE_ORIGIN ?? "*",
+  origin: config.origin,
   methods: ["GET", "POST"],
 });
 
@@ -31,7 +28,7 @@ fastify.register(multipart, {
 });
 
 // Register routes
-import solveRoute from "./routes/solve.js";
+import solveRoute from "./routes/solve.route.js";
 fastify.register(solveRoute);
 
 // Health check route

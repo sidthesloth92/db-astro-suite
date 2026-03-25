@@ -1,4 +1,5 @@
 import axios from "axios";
+import { CatalogError } from "../errors.js";
 
 /**
  * Queries the SIMBAD TAP service to find DSOs within a given radius using an ADQL command.
@@ -57,6 +58,6 @@ export async function querySimbad(ra, dec, radiusDeg, minMagnitude = 13.5) {
 
     return [];
   } catch (err) {
-    throw new Error(`SIMBAD TAP query failed: ${err.message}`, { cause: err });
+    throw new CatalogError("simbad", `SIMBAD TAP query failed: ${err.message}`);
   }
 }
