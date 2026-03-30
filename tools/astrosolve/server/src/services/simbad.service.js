@@ -14,7 +14,7 @@ export async function querySimbad(ra, dec, radiusDeg, minMagnitude = 13.5) {
   // Query for basic data, filtering to Galaxies (G), Quasars (QSO), Planetary Nebulae (PN), HII regions, and Stars
   // We use TOP 400 to ensure a rich star field without overwhelming the UI
   const adqlQuery = `
-    SELECT TOP 500 basic.MAIN_ID, basic.OTYPE, basic.RA, basic.DEC, basic.FLUX_V
+    SELECT TOP 500 basic.MAIN_ID, basic.OTYPE, basic.RA, basic.DEC
     FROM basic
     WHERE CONTAINS(POINT('ICRS', basic.RA, basic.DEC), CIRCLE('ICRS', ${ra}, ${dec}, ${radiusDeg})) = 1
     AND basic.OTYPE IN (
@@ -26,8 +26,6 @@ export async function querySimbad(ra, dec, radiusDeg, minMagnitude = 13.5) {
       'HII', 'RNe', 'MoC', 'DNe', 'SNR', 'EmO', 'bub',
       'ClG'
     )
-    AND basic.FLUX_V <= ${minMagnitude}
-    ORDER BY basic.FLUX_V ASC
   `;
 
   try {
@@ -51,7 +49,7 @@ export async function querySimbad(ra, dec, radiusDeg, minMagnitude = 13.5) {
         type: row[1],
         ra: row[2],
         dec: row[3],
-        magnitude: row[4],
+        magnitude: null,
         source: "simbad",
       }));
     }

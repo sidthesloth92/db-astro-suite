@@ -1,19 +1,20 @@
 import Database from "better-sqlite3";
 import path from "path";
 import { fileURLToPath } from "url";
-import pino from "pino";
 import { CatalogError } from "../errors.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// The Database is located in the top-level data directory, two levels up from src/services/
 const DB_PATH = path.join(
   __dirname,
   "../../data/local-catalog/celestial.sqlite",
 );
 
-const logger = pino({ name: "local-catalog" });
-
 /**
  * Initialize connection to the celestial SQLite database.
+ * This is done lazily or at module load; we log errors but don't crash
+ * until a query is actually attempted.
  */
 let db;
 let dbInitError = null;
@@ -22,17 +23,17 @@ try {
 } catch (err) {
   dbInitError = new CatalogError(
     "local",
-    "Local catalog database is not available. Run 'npm run init-db' first and ensure data/local-catalog/celestial.sqlite exists.",
+    "Local catalog database is not available. Run 'npm run init-db' first.",
   );
+  dbInitError.message += ` Checked path: ${DB_PATH}`;
   dbInitError.cause = err;
-  logger.error(dbInitError.message);
 }
 
 /**
  * Finds celestial objects within a given radius using a conical search.
  * This function uses a fast bounding-box filter followed by a spherical distance check.
  *
- * @param {Object} params - Search parameters { ra, dec, radiusDeg, maxMagnitude, types }
+ * @param {Object} params - Search parameters { ra, dec, radiusDeg, maxMagnitude, types, log }
  * @returns {Array} List of matching celestial objects
  */
 export function queryLocalCatalog({
@@ -41,9 +42,12 @@ export function queryLocalCatalog({
   radiusDeg,
   maxMagnitude = 10,
   types = [],
+  log,
 }) {
-  if (!db)
+  if (!db) {
+    if (log && dbInitError) log.error({ err: dbInitError }, "Database connection failed");
     throw dbInitError ?? new CatalogError("local", "Local catalog database is not available.");
+  }
 
   const cosDec = Math.cos((dec * Math.PI) / 180.0);
 

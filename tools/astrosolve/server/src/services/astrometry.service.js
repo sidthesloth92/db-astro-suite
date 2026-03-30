@@ -80,7 +80,7 @@ function createAstrometryCommand(filePath, hints) {
   let posParams = "";
   const raNum = Number(hints.ra_hint);
   const decNum = Number(hints.dec_hint);
-  if (isFinite(raNum) && isFinite(decNum)) {
+  if (Number.isFinite(raNum) && Number.isFinite(decNum)) {
     posParams = `--ra ${raNum} --dec ${decNum} --radius 5`;
   }
 

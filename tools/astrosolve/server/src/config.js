@@ -8,8 +8,18 @@ import { parsePositiveInteger } from "./utils/config.util.js";
  * reading `process.env` directly.
  */
 const config = Object.freeze({
+  /** API server port. */
+  port: parsePositiveInteger(process.env.ASTROSOLVE_PORT, 3000),
+
+  /** API server host (0.0.0.0 for Docker). */
+  host: process.env.ASTROSOLVE_HOST ?? "0.0.0.0",
+
   /** CORS origin — restrict in production via ASTROSOLVE_ORIGIN env var. */
-  origin: process.env.ASTROSOLVE_ORIGIN ?? "*",
+  origin: (() => {
+    const org = process.env.ASTROSOLVE_ORIGIN ?? "*";
+    if (org.includes("localhost")) return "*";
+    return org.includes(",") ? org.split(",").map((s) => s.trim()) : org;
+  })(),
 
   /** Maximum concurrent plate-solve jobs. */
   queueConcurrency: parsePositiveInteger(
