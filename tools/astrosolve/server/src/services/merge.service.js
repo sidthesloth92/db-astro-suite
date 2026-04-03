@@ -80,10 +80,20 @@ export function mergeObjects(localObjects, simbadObjects) {
 
   // DSOs: local always wins; SIMBAD adds only what local doesn't have
   const localDSOs = localObjects.filter((o) => !STAR_TYPES.has(o.type));
-  const localDSONames = new Set(localDSOs.map((o) => o.name.toLowerCase()));
-  const simbadDSOs = simbadObjects.filter(
-    (o) => !STAR_TYPES.has(o.type) && !localDSONames.has(o.name.toLowerCase()),
-  );
+  const simbadDSOs = [];
+
+  for (const obj of simbadObjects.filter((o) => !STAR_TYPES.has(o.type))) {
+    const cosDec = Math.cos(((obj.dec ?? 0) * Math.PI) / 180);
+    const nearby = localDSOs.some((s) => {
+      const dRa = (obj.ra - s.ra) * cosDec;
+      const dDec = obj.dec - s.dec;
+      return dRa * dRa + dDec * dDec < MATCH_DEG * MATCH_DEG;
+    });
+
+    if (!nearby) {
+      simbadDSOs.push(obj);
+    }
+  }
 
   return [...localDSOs, ...localStarsByName.values(), ...simbadDSOs];
 }

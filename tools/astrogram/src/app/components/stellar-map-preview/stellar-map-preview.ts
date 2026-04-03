@@ -543,8 +543,9 @@ export class StellarMapPreviewComponent {
         else if (catalog === 'ACO') show = f.showAbellClusters;
         else if (catalog === 'HD' || name.startsWith('HD '))
           show = f.showHDStars && mag <= f.maxStarMagnitude;
-        // SIMBAD objects with unrecognised types: show under NGC/IC if local, show under Named Stars fallback otherwise
-        else if (ann.source === 'simbad') show = f.showNGC;
+        // Unrecognised SIMBAD objects (e.g. [SSA2010], [CBB2017], BCLMP) are obscure
+        // research catalog entries with no value for astrophotography annotation.
+        // They remain hidden unless they match a real filter above.
       }
 
       return show;

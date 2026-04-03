@@ -43,7 +43,6 @@ export async function querySimbad(ra, dec, radiusDeg, minMagnitude = 13.5) {
     );
 
     if (response.data && response.data.data) {
-      // Map the array of arrays response from TAP JSON into nicely formatted objects
       return response.data.data.map((row) => ({
         name: row[0],
         type: row[1],
