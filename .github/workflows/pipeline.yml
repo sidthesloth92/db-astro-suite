@@ -13,6 +13,7 @@ permissions:
   pull-requests: write
   pages: write
   id-token: write
+  packages: write
 
 concurrency:
   group: "pages"
@@ -118,3 +119,75 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  build-backend-image:
+    name: Build Backend Image
+    if: |
+      always() &&
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' &&
+      startsWith(github.event.head_commit.message, 'chore(main): release')
+    runs-on: ubuntu-latest
+    outputs:
+      image_name: ${{ steps.image.outputs.name }}
+      image_tag: ${{ steps.meta.outputs.tag }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Compute image name
+        id: image
+        run: echo "name=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/db-astro-suite-astrosolve" >> "$GITHUB_OUTPUT"
+
+      - name: Compute image tag from release version
+        id: meta
+        run: |
+          version=$(python3 - <<'PY'
+          import json
+          with open('package.json', 'r', encoding='utf-8') as package_file:
+              print(json.load(package_file)['version'])
+          PY
+          )
+          echo "tag=${version}" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ github.token }}
+
+      - name: Build and push backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./tools/astrosolve/server
+          file: ./tools/astrosolve/server/Dockerfile
+          push: true
+          tags: |
+            ${{ steps.image.outputs.name }}:${{ steps.meta.outputs.tag }}
+
+  deploy-backend:
+    name: Deploy Backend To Hetzner
+    needs: build-backend-image
+    if: |
+      always() &&
+      needs.build-backend-image.result == 'success' &&
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' &&
+      startsWith(github.event.head_commit.message, 'chore(main): release')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Start SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.HETZNER_SSH_KEY }}
+
+      - name: Trust Hetzner host key
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H "${{ secrets.HETZNER_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Deploy backend
+        run: |
+          ssh "${{ secrets.HETZNER_USER }}@${{ secrets.HETZNER_HOST }}" \
+            "GHCR_USERNAME='${{ github.repository_owner }}' GHCR_TOKEN='${{ github.token }}' /opt/astrosolve/scripts/server_deploy.sh '${{ needs.build-backend-image.outputs.image_tag }}'"

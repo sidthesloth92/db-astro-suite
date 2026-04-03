@@ -1,5 +1,12 @@
 import { Injectable, signal } from '@angular/core';
-import { CardData, DEFAULT_FILTERS } from '../models/card-data';
+import { AnnotationStyle, GlobalAnnotationSettings } from '../models/annotation-settings.models';
+import { ImageAnnotation } from '../models/annotation.models';
+import {
+  CardData,
+  DEFAULT_FILTERS,
+  DEFAULT_GLOBAL_ANNOTATION_SETTINGS,
+  StellarMapData,
+} from '../models/card-data';
 
 @Injectable({
   providedIn: 'root',
@@ -28,17 +35,96 @@ export class CardDataService {
       { icon: '✨', label: 'Processing', name: 'Seti Astro Suite' },
     ],
     bortleScale: 9,
+    pixelSize: 3.76, // ASI2600MM pixel size
+    focalLength: null,
     accentColor: '#ff2d95',
     accentColorRgb: '255, 45, 149',
     cardOpacity: 0.6,
     backgroundImage: 'assets/img/rosette.jpg',
     aspectRatio: '3:4',
     hashtags: '#space #astrophotography',
-    objects: [
-      { id: '1', label: 'NGC 2244', x: 50, y: 45, radius: 15 },
-      { id: '2', label: '12 Monocerotis', x: 42, y: 38, radius: 3 },
-    ],
+    annotations: [],
   });
+
+  readonly activeMode = signal<'infographic' | 'stellar-map'>('infographic');
+
+  readonly stellarMapData = signal<StellarMapData>({
+    backgroundImage: null,
+    rawFile: null,
+    aspectRatio: 'auto',
+    annotations: [],
+    filters: {
+      showMessier: true,
+      showNGC: true,
+      showIC: true,
+      showCaldwell: true,
+      showSharpless: true,
+      showAbellClusters: true,
+      showGalaxies: true,
+      showOpenClusters: true,
+      showGlobularClusters: true,
+      showPlanetaryNebulae: true,
+      showNebulae: true,
+      showQuasars: true,
+      showNamedStars: true,
+      showHDStars: true,
+      maxStarMagnitude: 7,
+    },
+    globalAnnotationSettings: { ...DEFAULT_GLOBAL_ANNOTATION_SETTINGS },
+  });
+
+  /**
+   * Transient UI selection — lives outside StellarMapData because selection
+   * is ephemeral view state, not part of the persisted document model.
+   */
+  readonly selectedAnnotationId = signal<string | null>(null);
+
+  selectAnnotation(id: string | null) {
+    this.selectedAnnotationId.set(id);
+  }
+
+  updateGlobalAnnotationSettings(patch: Partial<GlobalAnnotationSettings>) {
+    this.stellarMapData.update((d) => ({
+      ...d,
+      globalAnnotationSettings: { ...d.globalAnnotationSettings, ...patch },
+    }));
+  }
+
+  updateAnnotationStyle(id: string, patch: Partial<AnnotationStyle>) {
+    this.stellarMapData.update((d) => ({
+      ...d,
+      annotations: d.annotations.map((ann) =>
+        ann.id === id ? { ...ann, style: { ...(ann.style ?? {}), ...patch } } : ann,
+      ),
+    }));
+  }
+
+  clearAnnotationStyleField(id: string, field: keyof AnnotationStyle) {
+    this.stellarMapData.update((d) => ({
+      ...d,
+      annotations: d.annotations.map((ann) => {
+        if (ann.id !== id || !ann.style) return ann;
+        const { [field]: _removed, ...rest } = ann.style;
+        return {
+          ...ann,
+          style: Object.keys(rest).length > 0 ? (rest as AnnotationStyle) : undefined,
+        };
+      }),
+    }));
+  }
+
+  removeAnnotation(id: string) {
+    this.selectedAnnotationId.set(null);
+    this.stellarMapData.update((d) => ({
+      ...d,
+      annotations: d.annotations.filter((ann) => ann.id !== id),
+    }));
+  }
+
+  addAnnotation(ann: ImageAnnotation) {
+    this.stellarMapData.update((d) => ({ ...d, annotations: [...d.annotations, ann] }));
+    this.selectedAnnotationId.set(ann.id);
+  }
 
   updateData(newData: Partial<CardData>) {
     this.cardData.update((data) => ({ ...data, ...newData }));

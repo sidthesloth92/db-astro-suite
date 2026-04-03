@@ -1,0 +1,117 @@
+<dba-ag-base-card-preview
+  [aspectRatio]="mapData().aspectRatio"
+  [backgroundImage]="mapData().backgroundImage"
+  fillMode="fill"
+  [cardOpacity]="mapData().backgroundImage ? 0 : 0.85"
+  [author]="''"
+  exportFilename="stellar-map"
+>
+  @if (mapData().backgroundImage) {
+    <button
+      headerAction
+      class="add-annotation-btn"
+      (click)="addCenterAnnotation()"
+      title="Add annotation"
+    >
+      <svg
+        width="18"
+        height="18"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.5"
+        stroke-linecap="round"
+        viewBox="0 0 24 24"
+      >
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+    </button>
+  }
+  @if (mapData().backgroundImage) {
+    <button headerAction class="clear-btn" (click)="clearAll()" title="Clear Image & Data">
+      <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+        ></path>
+      </svg>
+    </button>
+  }
+
+  <!-- Absolute Layer for Annotations mapping identically to the background image dimensions -->
+  <div class="annotations-layer" fullBleed (click)="deselectAll()">
+    @for (ann of visibleAnnotations(); track ann.id) {
+      <div
+        class="annotation-marker"
+        [class.selected]="selectedAnnotationId() === ann.id"
+        [style.left.%]="ann.xPercent"
+        [style.top.%]="ann.yPercent"
+        [ngStyle]="markerStyle(ann)"
+        [attr.data-annotation-id]="ann.id"
+        (click)="onAnnotationClick($event)"
+        [title]="ann.label"
+      >
+        @if (effectiveShowLabel(ann)) {
+          <span
+            class="annotation-label"
+            [ngClass]="getLabelPosition(ann.xPercent, ann.yPercent)"
+            [ngStyle]="labelStyle(ann)"
+            (click)="directSelect(ann.id, $event)"
+            >{{ effectiveLabel(ann) }}
+            @if (effectiveShowMagnitude(ann) && ann.magnitude !== undefined) {
+              <span style="display: block; font-size: 0.85em; opacity: 0.8">{{
+                ann.magnitude | number: '1.1-1'
+              }}</span>
+            }
+          </span>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Solving overlay (dark scrim + centered loader + text) -->
+  @if (mapData().isSolving) {
+    <div class="solve-loader-overlay" viewportOverlay>
+      <div class="solve-loader-canvas" aria-hidden="true" style="pointer-events: auto">
+        <dba-ui-constellation-loader [fill]="true" />
+      </div>
+      <div class="solve-loader-text">Analyzing Star Field...</div>
+    </div>
+  }
+
+  <!-- Starwizz-style Upload Card when empty -->
+  @if (!mapData().backgroundImage && !mapData().isSolving) {
+    <div class="upload-overlay" fullBleed>
+      <div class="upload-card-inner" (click)="controls.fileInput.nativeElement.click()">
+        <div class="upload-card-loader" aria-hidden="true" style="pointer-events: none">
+          <dba-ui-constellation-loader [fill]="true" />
+        </div>
+        <div class="upload-card-content" style="pointer-events: none">
+          <svg
+            class="upload-icon"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+            ></path>
+          </svg>
+          <div class="upload-title">Upload Target</div>
+          <div class="upload-help-text">UPLOAD AN IMAGE TO BEGIN PLATE SOLVING</div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <dba-ag-annotation-controls
+    #controls="dbaAnnotationControls"
+    style="display: none"
+  ></dba-ag-annotation-controls>
+</dba-ag-base-card-preview>

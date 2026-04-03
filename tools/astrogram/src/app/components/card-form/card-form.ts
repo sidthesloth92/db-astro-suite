@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   CUSTOM_ELEMENTS_SCHEMA,
   ViewEncapsulation,
+  signal,
   inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';

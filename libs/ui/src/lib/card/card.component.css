@@ -34,6 +34,10 @@
   object-fit: contain;
 }
 
+.card__logo--hidden {
+  display: none;
+}
+
 .card__title {
   font-family: var(--db-font-display, "Orbitron", sans-serif);
   font-size: 1.25rem;

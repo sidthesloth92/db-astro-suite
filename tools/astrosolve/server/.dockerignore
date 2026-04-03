@@ -1,0 +1,15 @@
+node_modules
+npm-debug.log
+.env
+.DS_Store
+.git
+.gitignore
+*.md
+
+# Data directories (only celestial.sqlite is baked into the image)
+data/astrometry/
+data/uploads/
+
+# Build/Orchestration scripts (run on host, not in container)
+scripts/
+

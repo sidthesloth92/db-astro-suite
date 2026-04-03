@@ -1,5 +1,6 @@
 packages:
   - "hub"
   - "tools/*"
+  - "tools/astrosolve/*"
   - "libs/*"
   - "services/*"

@@ -1,0 +1,34 @@
+# Node.js
+node_modules/
+npm-debug.log*
+
+# Runtime data
+data/astrometry/*
+!data/astrometry/.gitkeep
+data/uploads/*
+!data/uploads/.gitkeep
+
+# Temporary and test files
+*.axy
+*.corr
+*.match
+*.rdls
+*.wcs
+*.solved
+*.ini
+*.fits
+*.jpg
+sample/
+test-*/
+test.fits
+test.jpg
+temp-*/
+*.log
+
+# SQLite WAL-mode runtime artifacts
+*.sqlite-shm
+*.sqlite-wal
+
+# Backups and local config
+.env
+*.bak

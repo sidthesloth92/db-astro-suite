@@ -1,0 +1,104 @@
+<div class="settings-grid">
+  <!-- ── Circle ──────────────────────────────────────────────── -->
+  <div class="section-header">
+    <span class="settings-group-label">Circle</span>
+    <div class="color-picker-wrapper">
+      <input
+        type="color"
+        [value]="settings().color"
+        (input)="update({ color: $any($event.target).value })"
+        title="Pick circle colour"
+      />
+      <span class="color-val">{{ settings().color }}</span>
+    </div>
+  </div>
+
+  <!-- Thickness -->
+  <div class="setting-row">
+    <dba-ui-slider
+      label="Thickness"
+      [value]="settings().thickness"
+      [min]="1"
+      [max]="25"
+      [step]="0.5"
+      [precision]="1"
+      [noBox]="true"
+      (valueChange)="onThicknessChange($event)"
+    ></dba-ui-slider>
+  </div>
+
+  <!-- Circle opacity -->
+  <div class="setting-row">
+    <dba-ui-slider
+      label="Opacity"
+      [value]="settings().circleOpacity"
+      [min]="0.1"
+      [max]="1"
+      [step]="0.05"
+      [precision]="2"
+      [noBox]="true"
+      (valueChange)="update({ circleOpacity: $event })"
+    ></dba-ui-slider>
+  </div>
+
+  <!-- ── Label ───────────────────────────────────────────────── -->
+  <div class="section-header" style="margin-top: 0.25rem">
+    <span class="settings-group-label">Label</span>
+    <div class="color-picker-wrapper">
+      <input
+        type="color"
+        [value]="settings().labelColor"
+        (input)="update({ labelColor: $any($event.target).value })"
+        title="Pick label colour"
+      />
+      <span class="color-val">{{ settings().labelColor }}</span>
+    </div>
+  </div>
+
+  <!-- Label font size -->
+  <div class="setting-row">
+    <dba-ui-slider
+      label="Font Size"
+      [value]="settings().fontSize"
+      [min]="0.5"
+      [max]="10"
+      [step]="0.1"
+      [precision]="1"
+      [noBox]="true"
+      (valueChange)="onFontSizeChange($event)"
+    ></dba-ui-slider>
+  </div>
+
+  <!-- Label opacity -->
+  <div class="setting-row">
+    <dba-ui-slider
+      label="Opacity"
+      [value]="settings().labelOpacity"
+      [min]="0.1"
+      [max]="1"
+      [step]="0.05"
+      [precision]="2"
+      [noBox]="true"
+      (valueChange)="update({ labelOpacity: $event })"
+    ></dba-ui-slider>
+  </div>
+
+  <!-- Show magnitude -->
+  <div class="toggle-row">
+    <span class="toggle-label">Show Magnitude</span>
+    <label class="toggle-switch">
+      <input
+        type="checkbox"
+        [checked]="settings().showMagnitude"
+        (change)="update({ showMagnitude: $any($event.target).checked })"
+      />
+      <span class="toggle-track"></span>
+    </label>
+  </div>
+
+  <!-- Font Family — model-ready, UI coming soon -->
+  <div class="future-row" title="Font picker coming soon">
+    <span class="toggle-label">Label Font</span>
+    <span class="future-badge">coming soon</span>
+  </div>
+</div>

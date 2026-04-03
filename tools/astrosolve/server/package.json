@@ -1,0 +1,30 @@
+{
+  "name": "@db-astro-suite/astrosolve-server",
+  "version": "1.0.0",
+  "description": "Headless Astrosolve plate-solving microservice",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "init-astrometry-db": "bash scripts/data/init-astrometry-db.sh",
+    "init-local-catalog-db": "node scripts/data/init-local-catalog-db.mjs",
+    "init-db": "npm run init-astrometry-db && npm run init-local-catalog-db",
+    "start": "node src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@fastify/cors": "^11.2.0",
+    "@fastify/multipart": "^9.4.0",
+    "@fastify/rate-limit": "^10.3.0",
+    "axios": "^1.13.6",
+    "better-sqlite3": "^12.6.2",
+    "csv-parse": "^6.1.0",
+    "fastify": "^5.8.1",
+    "image-size": "^2.0.2",
+    "p-queue": "^9.1.0",
+    "pino": "^10.3.1"
+  }
+}

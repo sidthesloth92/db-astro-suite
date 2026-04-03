@@ -1,6 +1,13 @@
 /**
  * AstroGram Data Models
  */
+import {
+  DEFAULT_GLOBAL_ANNOTATION_SETTINGS,
+  GlobalAnnotationSettings,
+} from './annotation-settings.models';
+import { ImageAnnotation } from './annotation.models';
+
+export { DEFAULT_GLOBAL_ANNOTATION_SETTINGS };
 
 export interface FilterExposure {
   name: string;
@@ -50,19 +57,55 @@ export interface CardData {
 
   // Settings
   bortleScale: number;
+  pixelSize: number;
+  focalLength: number | null;
 
   // Appearance
   accentColor: string;
   accentColorRgb?: string; // e.g. "255, 45, 149"
   cardOpacity: number; // 0 to 1
   backgroundImage: string | null;
-  aspectRatio: '3:4' | '4:5';
+  aspectRatio: '3:4' | '4:5' | 'auto';
 
   // Social
   hashtags?: string;
 
   // Annotations
-  objects?: ObjectAnnotation[];
+  annotations?: ImageAnnotation[];
+}
+
+export interface StellarMapData {
+  backgroundImage: string | null;
+  rawFile: File | null;
+  aspectRatio: '3:4' | '4:5' | 'auto';
+  isSolving?: boolean;
+  naturalWidth?: number;
+  naturalHeight?: number;
+  annotations: ImageAnnotation[];
+  filters: AnnotationFilters;
+  /** Global visual theme applied to all annotations unless overridden per-annotation. */
+  globalAnnotationSettings: GlobalAnnotationSettings;
+}
+
+export interface AnnotationFilters {
+  // Catalogs
+  showMessier: boolean;
+  showNGC: boolean;
+  showIC: boolean;
+  showCaldwell: boolean;
+  showSharpless: boolean;
+  showAbellClusters: boolean;
+  // Object types
+  showGalaxies: boolean;
+  showOpenClusters: boolean;
+  showGlobularClusters: boolean;
+  showPlanetaryNebulae: boolean;
+  showNebulae: boolean;
+  showQuasars: boolean;
+  // Stars (OR logic: star shows if either matching checkbox is on AND mag <= slider)
+  showNamedStars: boolean;
+  showHDStars: boolean;
+  maxStarMagnitude: number;
 }
 
 // Default filter configurations
