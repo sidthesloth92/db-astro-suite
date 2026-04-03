@@ -552,26 +552,4 @@ export class StellarMapPreviewComponent {
     });
   });
 
-  onImageUpload(event: Event) {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files[0]) {
-      const file = input.files[0];
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        const img = new Image();
-        img.onload = () => {
-          this.mapData.update((d) => ({
-            ...d,
-            backgroundImage: result,
-            rawFile: file,
-            naturalWidth: img.naturalWidth,
-            naturalHeight: img.naturalHeight,
-          }));
-        };
-        img.src = result;
-      };
-      reader.readAsDataURL(file);
-    }
-  }
 }

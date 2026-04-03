@@ -258,6 +258,9 @@ export class AnnotationControlsComponent {
       naturalHeight: undefined,
     }));
     this.solveStatus.set('');
+    if (this.fileInput?.nativeElement) {
+      this.fileInput.nativeElement.value = '';
+    }
   }
 
   toggleFilter(
