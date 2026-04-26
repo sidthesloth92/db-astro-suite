@@ -44,6 +44,8 @@ jobs:
 
       - name: Install Dependencies
         run: pnpm install
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
 
       - name: Build All Applications
         run: pnpm build
