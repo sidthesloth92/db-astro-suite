@@ -97,7 +97,7 @@ function createAstrometryCommand(filePath, hints) {
  */
 async function executeAstrometryAndGetWcsData(command, wcsFilePath, log) {
   try {
-    const { stdout, stderr } = await execAsync(command, { timeout: 120_000 });
+    const { stdout, stderr } = await execAsync(command, { timeout: 300_000 });
     if (stdout) log.info({ stdout }, "solve-field stdout");
     if (stderr) log.warn({ stderr }, "solve-field stderr");
   } catch (execError) {
