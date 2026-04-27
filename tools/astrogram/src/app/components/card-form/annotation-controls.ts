@@ -23,7 +23,7 @@ import { WcsService } from '../../services/wcs.service';
 import { AnnotationDetailComponent } from './annotation-detail';
 import { AnnotationSettingsComponent } from './annotation-settings';
 import { AccessKeyModalComponent } from './access-key-modal.component';
-import { AccessKeyError } from '../../services/astrosolve.error';
+import { AccessKeyError } from '../../services/models/access-key.error';
 @Component({
   selector: 'dba-ag-annotation-controls',
   standalone: true,

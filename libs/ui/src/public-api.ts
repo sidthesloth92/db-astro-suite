@@ -18,3 +18,5 @@ export * from "./lib/slider/slider.component";
 export * from "./lib/space-button/space-button.component";
 export * from "./lib/textarea/textarea.component";
 export * from "./lib/warp-speed-loader/warp-speed-loader.component";
+export * from "./lib/services/storage.service";
+export * from "./lib/services/local-storage.service";

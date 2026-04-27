@@ -47,12 +47,44 @@ From this output extract:
 | `.github/workflows/**`, `**/Dockerfile`                        | Infra        | `infra-engineer`             |
 | Mixed                                                          | Multiple     | route to each relevant agent |
 
+### Step 2.5 — Propose Solutions and Wait for Approval
+
+Before invoking any developer agent, produce a solution proposal for every review comment and present them all in a single message:
+
+```
+## Feedback Solution Plan — PR #<number>
+
+---
+
+**Comment 1** (by <author>, on `<file>:<line>`):
+> <quoted comment text>
+
+**Proposed fix**: <one-paragraph description — specific enough to redirect: which file, what changes, why this approach>
+
+---
+
+**Comment 2** (by <author>, on `<file>:<line>`):
+> <quoted comment text>
+
+**Proposed fix**: <description>
+
+---
+
+Does this plan look right? Reply 'approved' to proceed, correct any item inline, or tell me to skip a comment entirely.
+```
+
+**Do not invoke any developer agent until the user explicitly approves (or adjusts) this plan.**
+
+If the user corrects an item: update the proposed fix for that comment, re-show only the corrected entry, and ask for final confirmation before proceeding.
+
+> This step applies in both Interactive and Automated mode — the user should always have a chance to redirect the approach before any code is written.
+
 ### Step 3 — Hand Off to Developer Agent(s)
 
 Invoke the correct agent(s) with this context package:
 
 1. **Feature context** — the `## Feature Context` section from the PR description
-2. **Fix list** — each review comment as a numbered fix item
+2. **Approved fix plan** — the approved solution description per comment (from Step 2.5), as a numbered list
 3. **Branch name** — must commit all fixes to the existing branch, NOT create a new one
 4. **Instruction** — write files only; do not run any git commands
 

@@ -1,29 +1,31 @@
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
+import { STORAGE_SERVICE_TOKEN } from '@db-astro-suite/ui';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { AccessKeyError } from './astrosolve.error';
-import { AstrosolveError } from './astrosolve-server.error';
-import { AstrosolveSolveResponse } from './astrosolve.model';
+import { AccessKeyError } from './models/access-key.error';
+import { AstrosolveError } from './models/astrosolve.error';
+import { AstroSolveResponse } from './models/astrosolve.response';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AstrosolveService {
   private readonly http = inject(HttpClient);
+  private readonly storage = inject(STORAGE_SERVICE_TOKEN);
   private readonly baseUrl = `${environment.apiBaseUrl}/api/v1`;
   private readonly ACCESS_KEY_STORAGE_KEY = 'astrosolve_access_key';
 
   hasAccessKey(): boolean {
-    return localStorage.getItem(this.ACCESS_KEY_STORAGE_KEY) !== null;
+    return this.storage.getItem(this.ACCESS_KEY_STORAGE_KEY) !== null;
   }
 
   saveAccessKey(key: string): void {
-    localStorage.setItem(this.ACCESS_KEY_STORAGE_KEY, key);
+    this.storage.setItem(this.ACCESS_KEY_STORAGE_KEY, key);
   }
 
   clearAccessKey(): void {
-    localStorage.removeItem(this.ACCESS_KEY_STORAGE_KEY);
+    this.storage.removeItem(this.ACCESS_KEY_STORAGE_KEY);
   }
 
   /**
@@ -38,7 +40,7 @@ export class AstrosolveService {
       types?: string[];
     },
     onProgress?: (msg: string) => void,
-  ): Promise<AstrosolveSolveResponse> {
+  ): Promise<AstroSolveResponse> {
     onProgress?.('Preparing upload for plate solving...');
 
     const formData = new FormData();
@@ -51,14 +53,14 @@ export class AstrosolveService {
 
     onProgress?.('Astrometry.net is solving your image...');
 
-    const accessKey = localStorage.getItem(this.ACCESS_KEY_STORAGE_KEY);
+    const accessKey = this.storage.getItem(this.ACCESS_KEY_STORAGE_KEY);
     const headers = new HttpHeaders(
       accessKey ? { 'x-access-key': accessKey } : {},
     );
 
     try {
       const result = await firstValueFrom(
-        this.http.post<AstrosolveSolveResponse>(`${this.baseUrl}/solve`, formData, { headers }),
+        this.http.post<AstroSolveResponse>(`${this.baseUrl}/solve`, formData, { headers }),
       );
 
       onProgress?.('Solve successful! Identifying objects...');

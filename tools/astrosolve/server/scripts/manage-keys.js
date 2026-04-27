@@ -5,7 +5,7 @@ import { createKey, removeKey, listKeys } from '../src/access-key.service.js';
 import { AccessKeyError } from '../src/access-key.error.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DB_PATH = path.join(__dirname, '../data/access-keys.sqlite');
+const DB_PATH = path.join(__dirname, '../data/astrosolve.sqlite');
 
 const [, , command, username] = process.argv;
 

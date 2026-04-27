@@ -1,4 +1,4 @@
-export interface AstrosolveSolveResponse {
+export interface AstroSolveResponse {
   status: string;
   metadata: {
     ra: number;

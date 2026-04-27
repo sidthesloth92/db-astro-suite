@@ -7,14 +7,13 @@ import config from "../config.js";
 import { SolveError } from "../errors.js";
 import { parseMultipartRequest } from "../services/upload.service.js";
 import { processSolveRequest } from "../services/solve.service.js";
-import { validateKey } from "../access-key.service.js";
-import crypto from "crypto";
+import { solveAuthHook } from "../hooks/solve-auth.hook.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DATA_DIR = path.join(__dirname, "../../data");
 const UPLOADS_DIR = path.join(DATA_DIR, "uploads");
-const ACCESS_KEYS_DB_PATH = path.join(DATA_DIR, "access-keys.sqlite");
+const ACCESS_KEYS_DB_PATH = path.join(DATA_DIR, "astrosolve.sqlite");
 
 // Concurrency queue to protect backend execution.
 const solveQueue = new PQueue({ concurrency: config.queueConcurrency });
@@ -35,51 +34,7 @@ export default async function (fastify) {
   const routeOptions = {};
 
   if (config.solveApiKeyRequired) {
-    routeOptions.preHandler = async (request, reply) => {
-      const key = request.headers["x-access-key"];
-
-      if (!key) {
-        request.log.warn("access-key preHandler: x-access-key header missing");
-        return reply.code(401).send({
-          code: "UNAUTHORIZED",
-          message: "Invalid or missing access key",
-          details: {},
-        });
-      }
-
-      const keyHash = crypto.createHash("sha256").update(key).digest("hex");
-      let valid = false;
-      try {
-        valid = validateKey(accessKeyDb, key);
-      } catch (err) {
-        request.log.error(
-          { err, dbPath: ACCESS_KEYS_DB_PATH },
-          "access-key preHandler: DB error during key validation",
-        );
-        return reply.code(401).send({
-          code: "UNAUTHORIZED",
-          message: "Invalid or missing access key",
-          details: {},
-        });
-      }
-
-      if (!valid) {
-        request.log.warn(
-          { keyHashPrefix: keyHash.slice(0, 12) + "..." },
-          "access-key preHandler: key not found or inactive",
-        );
-        return reply.code(401).send({
-          code: "UNAUTHORIZED",
-          message: "Invalid or missing access key",
-          details: {},
-        });
-      }
-
-      request.log.info(
-        { keyHashPrefix: keyHash.slice(0, 12) + "..." },
-        "access-key preHandler: key validated OK",
-      );
-    };
+    routeOptions.preHandler = solveAuthHook(config, accessKeyDb);
   }
 
   fastify.post("/api/v1/solve", routeOptions, async (request, reply) => {

@@ -66,11 +66,12 @@ Invoke with:
 The agent asks two questions upfront: the PR number (if not already in your prompt) and the execution mode. Then it:
 
 1. Reads PR body, review comments, and changed files from GitHub via `gh` CLI
-2. Routes each comment to the correct developer agent(s)
-3. **Interactive**: stages all fixes → shows a diff checkpoint → waits for your confirmation → commits + pushes
-4. **Automated**: commits and pushes immediately without pausing
-5. Replies to each comment thread on GitHub with the commit SHA and a one-line explanation
-6. Appends a `## Feedback Round N` section to the PR description (never replaces it)
+2. Proposes a specific fix for each comment — **waits for your approval before writing any code** (applies in both modes)
+3. Routes each approved fix to the correct developer agent(s)
+4. **Interactive**: stages all fixes → shows a diff checkpoint → waits for your confirmation → commits + pushes
+5. **Automated**: commits and pushes immediately without pausing
+6. Replies to each comment thread on GitHub with the commit SHA and a one-line explanation
+7. Appends a `## Feedback Round N` section to the PR description (never replaces it)
 
 ---
 

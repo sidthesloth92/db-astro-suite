@@ -17,7 +17,7 @@ export function initDatabases(log) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
 
   // Access-keys database
-  const accessKeysDbPath = path.join(DATA_DIR, 'access-keys.sqlite');
+  const accessKeysDbPath = path.join(DATA_DIR, 'astrosolve.sqlite');
   const accessKeysDb = new Database(accessKeysDbPath);
   accessKeysDb.exec(`
     CREATE TABLE IF NOT EXISTS solve_api_access_keys (

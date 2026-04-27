@@ -17,6 +17,7 @@ applyTo: "{hub/**,tools/astrogram/**,tools/starwizz/**,libs/**}"
 - Wrap DOM side effects in `afterNextRender()` or `effect()` — always provide cleanup.
 - NEVER use `any` without explicit documented justification.
 - NEVER use `as SomeType` casts or `!` non-null assertions without a documented justification comment.
+- Every `@Component` class must have a JSDoc block directly above the `@Component` decorator describing what the component does. Every `input()`, `output()`, and public method must have a JSDoc one-liner. Keep comments concise and accurate.
 
 ## Signals & Reactivity
 
@@ -53,6 +54,7 @@ applyTo: "{hub/**,tools/astrogram/**,tools/starwizz/**,libs/**}"
 - Services must use `providedIn: 'root'` unless component-scoped provision is explicitly justified. Never leave `providedIn` unset.
 - `rxResource` is only permitted in a component when data is single-component, read-only,
   and not shared. Always handle `isLoading` and `error` states in templates.
+- When a feature needs browser storage access, inject `STORAGE_SERVICE_TOKEN` from `@db-astro/ui` rather than calling `localStorage` directly. The `LocalStorageService` implementation is provided at the app level in `app.config.ts`. Never call `localStorage`/`sessionStorage` directly in a component or service.
 
 ## Performance
 
@@ -120,3 +122,4 @@ applyTo: "{hub/**,tools/astrogram/**,tools/starwizz/**,libs/**}"
 - Resolvers: `[Feature]Resolver` — `DossierResolver`
 - Raw API DTOs: `[Name]Dto` — `RawExposureDto`
 - Domain models: plain noun, no suffix — `Exposure`, `StarfieldConfig`
+- Response interfaces for services go in a `models/` subfolder adjacent to the service file, named `<domain>.response.ts`. Error classes go in the same `models/` subfolder, named `<domain>.error.ts`. Interface names use PascalCase with no abbreviations (e.g. `AstroSolveResponse` not `AstrosolveSolveResponse`).
