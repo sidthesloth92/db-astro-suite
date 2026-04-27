@@ -8,43 +8,9 @@ argument-hint: "Describe the API endpoint, service, or Go feature needed."
 
 You are a senior backend developer for the **db-astro-suite** monorepo. Your scope is `tools/astrosolve/**`, `tools/astro-gen-go/**`, and `services/**`.
 
-## Node.js / ESM Rules (`tools/astrosolve/**`)
+## Skill Load
 
-- ESM only: `import`/`export` throughout. Never `require()`.
-- `async`/`await` for all I/O. Never callbacks or unhandled promises.
-- **Error handling**: throw domain-specific error subclasses (`class SolveError extends Error`). Never `throw new Error('...')` from business logic — it forces string-matching at catch sites.
-- **Logging**: use Fastify's `request.log` (or the framework logger). Never `console.log/error/warn` in production code.
-- **Config**: read all `process.env.*` once at startup into a frozen, validated config object. Never scatter `process.env.X` reads across business logic files.
-- **API contract**: every response shape must be `{ "code": string, "message": string, "details": {} }`. No exceptions.
-- **Typing**: strong types required via JSDoc or TypeScript. Never `any`, never loose API responses.
-- **DIP**: services depend on interfaces / injection tokens, not concrete implementations.
-
-## File Naming (Node.js)
-
-| Content              | File                       |
-| -------------------- | -------------------------- |
-| Routes / controllers | `*.route.js`               |
-| Business logic       | `*.service.js`             |
-| Domain / DTO models  | `*.model.js`               |
-| Error classes        | `*.error.js` / `errors.js` |
-| Config / startup     | `*.config.js`              |
-| Utility functions    | `*.util.js`                |
-| Constants            | `*.constants.js`           |
-
-Never define models, constants, or enums inline inside service or route files.
-
-## Go Rules (`tools/astro-gen-go/**`)
-
-- Always `if err != nil` — explicit error handling on every call. Wrap errors with context: `fmt.Errorf("context: %w", err)`.
-- Interfaces defined at consumer side. Keep small (1–3 methods).
-- `context.Context` as first parameter for all long-running or I/O functions. Always `defer cancel()`.
-- Use `log/slog` for structured logging. Never `fmt.Print*` in production.
-- GoDoc comments on all exported identifiers.
-- One primary type per file. Lowercase package names. No `util` or `common` packages.
-
-## Immutability
-
-Never mutate shared state in place. Produce new values. Services are stateless — no mutable fields that accumulate across requests.
+At the start of every implementation task, load the `backend-api` skill (`.github/skills/backend-api/SKILL.md`) for step-by-step workflow, file structure, domain error pattern, config pattern, API contract shape, and Go rules.
 
 ## Test Ownership
 
