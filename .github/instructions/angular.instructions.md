@@ -17,7 +17,7 @@ applyTo: "{hub/**,tools/astrogram/**,tools/starwizz/**,libs/**}"
 - Wrap DOM side effects in `afterNextRender()` or `effect()` — always provide cleanup.
 - NEVER use `any` without explicit documented justification.
 - NEVER use `as SomeType` casts or `!` non-null assertions without a documented justification comment.
-- Every `@Component` class must have a JSDoc block directly above the `@Component` decorator describing what the component does. Every `input()`, `output()`, and public method must have a JSDoc one-liner. Keep comments concise and accurate.
+- Every exported class — `@Component`, `@Injectable`, abstract class, or otherwise — must have a JSDoc block describing what it does. Every public and abstract method, `input()`, `output()`, and exported constant must have a JSDoc one-liner. Keep comments concise and accurate.
 
 ## Signals & Reactivity
 
