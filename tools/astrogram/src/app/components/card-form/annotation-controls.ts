@@ -17,6 +17,8 @@ import { CardDataService } from '../../services/card-data.service';
 import { WcsService } from '../../services/wcs.service';
 import { AnnotationDetailComponent } from './annotation-detail';
 import { AnnotationSettingsComponent } from './annotation-settings';
+import { AccessKeyModalComponent } from './access-key-modal.component';
+import { AccessKeyError } from '../../services/astrosolve.error';
 @Component({
   selector: 'dba-ag-annotation-controls',
   standalone: true,
@@ -27,6 +29,7 @@ import { AnnotationSettingsComponent } from './annotation-settings';
     AccordionItemComponent,
     AnnotationSettingsComponent,
     AnnotationDetailComponent,
+    AccessKeyModalComponent,
   ],
   templateUrl: './annotation-controls.html',
   exportAs: 'dbaAnnotationControls',
@@ -237,6 +240,8 @@ export class AnnotationControlsComponent {
   mapData = this.dataService.stellarMapData;
   isSolving = signal(false);
   solveStatus = signal('');
+  showAccessKeyModal = signal(false);
+  showAccessKeyError = signal(false);
 
   /** True when an annotation is selected — drives the full-panel detail view. */
   hasSelection = computed(() => this.dataService.selectedAnnotationId() !== null);
@@ -317,6 +322,11 @@ export class AnnotationControlsComponent {
       return;
     }
 
+    if (!this.astrosolveService.hasAccessKey()) {
+      this.showAccessKeyModal.set(true);
+      return;
+    }
+
     this.isSolving.set(true);
     this.mapData.update((d) => ({ ...d, isSolving: true }));
     this.solveStatus.set('Starting plate solve...');
@@ -390,8 +400,15 @@ export class AnnotationControlsComponent {
       }));
 
       this.solveStatus.set(`Success! Identified ${annotations.length} objects.`);
-    } catch (err: any) {
-      this.solveStatus.set(`Error: ${err.message}`);
+    } catch (err: unknown) {
+      if (err instanceof AccessKeyError) {
+        this.solveStatus.set('');
+        this.showAccessKeyError.set(true);
+        this.showAccessKeyModal.set(true);
+        return;
+      }
+      const message = err instanceof Error ? err.message : 'Unknown error occurred';
+      this.solveStatus.set(`Error: ${message}`);
     } finally {
       this.isSolving.set(false);
       this.mapData.update((d) => ({ ...d, isSolving: false }));
@@ -400,5 +417,17 @@ export class AnnotationControlsComponent {
         setTimeout(() => this.solveStatus.set(''), 5000);
       }
     }
+  }
+
+  onAccessKeySubmit(key: string): void {
+    this.astrosolveService.saveAccessKey(key);
+    this.showAccessKeyModal.set(false);
+    this.showAccessKeyError.set(false);
+    this.triggerPlateSolve();
+  }
+
+  onAccessKeyCancel(): void {
+    this.showAccessKeyModal.set(false);
+    this.showAccessKeyError.set(false);
   }
 }

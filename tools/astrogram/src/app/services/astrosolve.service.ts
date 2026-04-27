@@ -1,39 +1,30 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
-
-export interface AstrosolveSolveResponse {
-  status: string;
-  metadata: {
-    ra: number;
-    dec: number;
-    scale: number;
-    wcs: string;
-    radius_searched: number;
-  };
-  objects: Array<{
-    name: string;
-    type: string;
-    ra: number;
-    dec: number;
-    magnitude: number;
-    source: 'local' | 'simbad';
-    catalog?: string;
-    entryId?: string;
-    commonName?: string;
-    sizeArcmin?: number | null;
-  }>;
-  error?: string;
-}
+import { AccessKeyError } from './astrosolve.error';
+import { AstrosolveError } from './astrosolve-server.error';
+import { AstrosolveSolveResponse } from './astrosolve.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AstrosolveService {
+  private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiBaseUrl}/api/v1`;
+  private readonly ACCESS_KEY_STORAGE_KEY = 'astrosolve_access_key';
 
-  constructor(private http: HttpClient) {}
+  hasAccessKey(): boolean {
+    return localStorage.getItem(this.ACCESS_KEY_STORAGE_KEY) !== null;
+  }
+
+  saveAccessKey(key: string): void {
+    localStorage.setItem(this.ACCESS_KEY_STORAGE_KEY, key);
+  }
+
+  clearAccessKey(): void {
+    localStorage.removeItem(this.ACCESS_KEY_STORAGE_KEY);
+  }
 
   /**
    * Upload an image to the local Astrosolve API for fast plate solving.
@@ -60,16 +51,29 @@ export class AstrosolveService {
 
     onProgress?.('Astrometry.net is solving your image...');
 
+    const accessKey = localStorage.getItem(this.ACCESS_KEY_STORAGE_KEY);
+    const headers = new HttpHeaders(
+      accessKey ? { 'x-access-key': accessKey } : {},
+    );
+
     try {
       const result = await firstValueFrom(
-        this.http.post<AstrosolveSolveResponse>(`${this.baseUrl}/solve`, formData),
+        this.http.post<AstrosolveSolveResponse>(`${this.baseUrl}/solve`, formData, { headers }),
       );
 
       onProgress?.('Solve successful! Identifying objects...');
       return result;
-    } catch (error: any) {
-      const errorMsg = error.error?.error || error.message || 'Unknown error occurred';
-      throw new Error(`Astrosolve failed: ${errorMsg}`);
+    } catch (error: unknown) {
+      if (error instanceof HttpErrorResponse && error.status === 401) {
+        this.clearAccessKey();
+        throw new AccessKeyError();
+      }
+      const httpError = error instanceof HttpErrorResponse ? error : null;
+      const errorMsg =
+        httpError?.error?.message ||
+        (error instanceof Error ? error.message : undefined) ||
+        'Unknown error occurred';
+      throw new AstrosolveError(`Astrosolve failed: ${errorMsg}`);
     }
   }
 }

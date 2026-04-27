@@ -1,4 +1,12 @@
 <div class="controls-wrapper">
+  @if (showAccessKeyModal()) {
+    <dba-ag-access-key-modal
+      [showError]="showAccessKeyError()"
+      (submitted)="onAccessKeySubmit($event)"
+      (cancelled)="onAccessKeyCancel()"
+    ></dba-ag-access-key-modal>
+  }
+
   <input
     type="file"
     accept="image/*"

@@ -32,6 +32,9 @@ const config = Object.freeze({
     process.env.ASTROSOLVE_QUEUE_MAX_SIZE,
     10,
   ),
+
+  /** When true, POST /api/v1/solve requires a valid x-access-key header. */
+  accessKeyRequired: process.env.ACCESS_KEY_REQUIRED === "true",
 });
 
 export default config;
