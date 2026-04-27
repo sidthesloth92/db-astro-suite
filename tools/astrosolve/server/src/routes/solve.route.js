@@ -27,13 +27,13 @@ export default async function (fastify) {
   await fs.mkdir(UPLOADS_DIR, { recursive: true });
 
   let accessKeyDb = null;
-  if (config.accessKeyRequired) {
+  if (config.solveApiKeyRequired) {
     accessKeyDb = new Database(ACCESS_KEYS_DB_PATH);
   }
 
   const routeOptions = {};
 
-  if (config.accessKeyRequired) {
+  if (config.solveApiKeyRequired) {
     routeOptions.preHandler = async (request, reply) => {
       const key = request.headers["x-access-key"];
       const valid = key ? validateKey(accessKeyDb, key) : false;

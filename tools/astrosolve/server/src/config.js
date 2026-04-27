@@ -34,7 +34,7 @@ const config = Object.freeze({
   ),
 
   /** When true, POST /api/v1/solve requires a valid x-access-key header. */
-  accessKeyRequired: process.env.ACCESS_KEY_REQUIRED === "true",
+  solveApiKeyRequired: process.env.SOLVE_API_KEY_REQUIRED === "true",
 });
 
 export default config;

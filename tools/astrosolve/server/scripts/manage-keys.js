@@ -13,7 +13,7 @@ const db = new Database(DB_PATH);
 
 // Ensure the table exists so the CLI works standalone, before the init script is run.
 db.exec(`
-  CREATE TABLE IF NOT EXISTS access_keys (
+  CREATE TABLE IF NOT EXISTS solve_api_access_keys (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT NOT NULL UNIQUE,
     key_hash TEXT NOT NULL,

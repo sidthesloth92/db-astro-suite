@@ -29,8 +29,8 @@ RUN mkdir -p /usr/src/app/data/astrometry /usr/src/app/data/local-catalog /usr/s
 EXPOSE 3000
 
 # Set to "true" to require a valid access key on /api/v1/solve requests.
-# Override at runtime: docker run -e ACCESS_KEY_REQUIRED=true ...
-ENV ACCESS_KEY_REQUIRED=false
+# Override at runtime: docker run -e SOLVE_API_KEY_REQUIRED=false ...
+ENV SOLVE_API_KEY_REQUIRED=true
 
 # Start the Fastify server
 CMD ["node", "src/index.js"]

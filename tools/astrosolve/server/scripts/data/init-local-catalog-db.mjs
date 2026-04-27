@@ -679,7 +679,7 @@ seed();
 
   const accessKeysDb = sqlite3(accessKeysDbPath);
   accessKeysDb.exec(`
-    CREATE TABLE IF NOT EXISTS access_keys (
+    CREATE TABLE IF NOT EXISTS solve_api_access_keys (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username TEXT NOT NULL UNIQUE,
       key_hash TEXT NOT NULL,

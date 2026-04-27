@@ -74,11 +74,11 @@ Access keys protect the `/api/v1/solve` endpoint. When enabled, each caller must
 
 ### Enabling access control
 
-Pass `ACCESS_KEY_REQUIRED=true` when starting the container:
+Pass `SOLVE_API_KEY_REQUIRED=true` when starting the container:
 
 ```bash
 docker run --rm -p 3000:3000 \
-  -e ACCESS_KEY_REQUIRED=true \
+  -e SOLVE_API_KEY_REQUIRED=true \
   -e ASTROSOLVE_ORIGIN=http://localhost:4200 \
   -v $(pwd)/data/astrometry:/usr/src/app/data/astrometry:ro \
   -v $(pwd)/data/local-catalog:/usr/src/app/data/local-catalog \

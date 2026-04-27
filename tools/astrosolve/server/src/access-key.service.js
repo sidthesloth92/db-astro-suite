@@ -24,7 +24,7 @@ export function createKey(db, username) {
 
   try {
     db.prepare(
-      'INSERT INTO access_keys (username, key_hash) VALUES (?, ?)',
+      'INSERT INTO solve_api_access_keys (username, key_hash) VALUES (?, ?)',
     ).run(username, keyHash);
   } catch (err) {
     if (err.message?.includes('UNIQUE constraint failed')) {
@@ -45,7 +45,7 @@ export function createKey(db, username) {
  */
 export function removeKey(db, username) {
   const result = db
-    .prepare('UPDATE access_keys SET active = 0 WHERE username = ?')
+    .prepare('UPDATE solve_api_access_keys SET active = 0 WHERE username = ?')
     .run(username);
 
   if (result.changes === 0) {
@@ -61,7 +61,7 @@ export function removeKey(db, username) {
  */
 export function listKeys(db) {
   return db
-    .prepare('SELECT username, created_at, active FROM access_keys')
+    .prepare('SELECT username, created_at, active FROM solve_api_access_keys')
     .all();
 }
 
@@ -79,7 +79,7 @@ export function validateKey(db, plainKey) {
   try {
     const keyHash = hashKey(plainKey);
     const row = db
-      .prepare('SELECT id FROM access_keys WHERE key_hash = ? AND active = 1')
+      .prepare('SELECT id FROM solve_api_access_keys WHERE key_hash = ? AND active = 1')
       .get(keyHash);
     return row != null;
   } catch {
