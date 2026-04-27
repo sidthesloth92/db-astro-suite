@@ -37,6 +37,9 @@ Before invoking any agent, ask the user the following questions in a single mess
 5. **Are any files already changed?** If yes, list them — implementation may be partial.
 6. **Are there any known constraints or decisions already made?** (API shape, component names, etc.)
 7. **Are E2E tests required?** (Default: yes — only skip if explicitly stated)
+8. **Execution mode? (required — no default assumed, must ask)**
+   - **Automated** — run all phases without stopping; only pause if a blocker requires human input
+   - **Interactive** — pause after each phase completes, show what was done, and wait for your go-ahead before the next phase starts
 
 Once you have the answers, produce a written plan in this exact format:
 
@@ -66,6 +69,9 @@ Once you have the answers, produce a written plan in this exact format:
 
 ### E2E coverage
 - <what user flows will be tested>
+
+### Execution mode
+- <Automated | Interactive>
 
 ### Out of scope
 - <anything explicitly excluded>
@@ -104,6 +110,22 @@ Hand each agent: the feature requirements, list of already-changed files (if any
 
 Update the todo list after each agent completes.
 
+**Interactive mode checkpoint** — after all Phase 1 agents complete, pause **before invoking `lead-pr-reviewer`** and show:
+
+```
+## Phase 1 Complete — Implementation Summary
+
+**Files changed:**
+- <file> — <one-line reason>
+
+**What was done:** <brief summary per agent>
+
+Does this look right? Reply 'continue' to start the automated review, or describe what to fix first.
+```
+
+If the user provides feedback: treat it as a mini fix cycle — re-invoke the same agent(s) with the feedback, then re-show this checkpoint.
+Automated mode: skip the checkpoint and proceed directly to Phase 2.
+
 ## Phase 2 — First Review
 
 Invoke `lead-pr-reviewer` with:
@@ -127,6 +149,21 @@ Invoke `lead-pr-reviewer` again.
 - **APPROVED** → proceed to Phase 3
 - **CHANGES REQUESTED** (second time) → pause, list the outstanding blockers, and ask the user how to proceed. Never loop more than twice without human input.
 
+**Interactive mode checkpoint** — after Phase 2 results in APPROVED, pause and show:
+
+```
+## Phase 2 Complete — Review Summary
+
+**Verdict:** APPROVED
+**Review cycles:** <1 or 2>
+**Issues resolved:** <list of MUST FIX items addressed, or "none">
+
+Ready to proceed to E2E testing. Reply 'continue', 'skip e2e' to go straight to PR, or describe anything to fix.
+```
+
+If the user provides feedback: re-invoke the relevant developer agent(s) with the feedback, then re-run `lead-pr-reviewer`, then re-show this checkpoint.
+Automated mode: skip the checkpoint and proceed directly to Phase 3.
+
 ## Phase 3 — E2E Testing
 
 If E2E testing was agreed in the plan, invoke `e2e-tester` with:
@@ -134,6 +171,19 @@ If E2E testing was agreed in the plan, invoke `e2e-tester` with:
 - The feature description
 - All changed files
 - The user flows introduced or modified by this feature
+
+**Interactive mode checkpoint** — after Phase 3 completes, pause and show:
+
+```
+## Phase 3 Complete — E2E Summary
+
+**Tests written/updated:** <list>
+**Bugs found:** <list or "none">
+
+Ready to open the PR. Reply 'continue' or describe anything to fix before the PR is created.
+```
+
+Automated mode: skip the checkpoint and proceed directly to Phase 3.5.
 
 ## Phase 3.5 — Open Pull Request
 
@@ -176,6 +226,10 @@ If any phase is unresolved, set **Status: BLOCKED** and list the open items.
 - Always run Mode Detection first. Never skip it.
 - In feedback mode: load the `pr-feedback` skill immediately. Never ask Phase 0 questions.
 - Never skip Phase 0 (new feature mode). Never invoke any agent before the user explicitly approves the plan.
+- Default execution mode is **Interactive** — always ask question 8 in Phase 0.
+- Never assume an execution mode — question 8 is required and must be answered before the plan is produced.
+- In Interactive mode: always pause at the end of Phase 1, Phase 2, and Phase 3 checkpoints. Never skip ahead without explicit user confirmation.
+- In Automated mode: only pause when a genuine blocker requires human input (e.g. second review cycle failure, ambiguous stack).
 - Never implement on the base branch — always create the feature branch in Phase 0.5 first.
 - Always complete Phase 0.5 before Phase 1.
 - Never invoke `e2e-tester` before `lead-pr-reviewer` has approved.
