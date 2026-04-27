@@ -11,5 +11,6 @@ data/astrometry/
 data/uploads/
 
 # Build/Orchestration scripts (run on host, not in container)
-scripts/
+scripts/data/
+scripts/deploy/
 

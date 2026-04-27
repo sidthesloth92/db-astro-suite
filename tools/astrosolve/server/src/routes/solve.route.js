@@ -29,16 +29,6 @@ export default async function (fastify) {
   let accessKeyDb = null;
   if (config.solveApiKeyRequired) {
     accessKeyDb = new Database(ACCESS_KEYS_DB_PATH);
-    accessKeyDb.exec(`
-      CREATE TABLE IF NOT EXISTS solve_api_access_keys (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT NOT NULL UNIQUE,
-        key_hash TEXT NOT NULL,
-        created_at TEXT NOT NULL DEFAULT (datetime('now')),
-        active INTEGER NOT NULL DEFAULT 1
-      )
-    `);
-    fastify.log.info({ dbPath: ACCESS_KEYS_DB_PATH }, "access-key DB ready");
   }
 
   const routeOptions = {};

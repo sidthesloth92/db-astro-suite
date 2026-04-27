@@ -30,6 +30,7 @@ docker build -t astrosolve .
 ```bash
 cd tools/astrosolve/server
 docker run --rm -p 3000:3000 \
+  --name astrosolve \
   -e ASTROSOLVE_ORIGIN=http://localhost:4200 \
   -v $(pwd)/data/astrometry:/usr/src/app/data/astrometry:ro \
   -v $(pwd)/data/local-catalog:/usr/src/app/data/local-catalog \
@@ -78,6 +79,7 @@ Pass `SOLVE_API_KEY_REQUIRED=true` when starting the container:
 
 ```bash
 docker run --rm -p 3000:3000 \
+  --name astrosolve \
   -e SOLVE_API_KEY_REQUIRED=true \
   -e ASTROSOLVE_ORIGIN=http://localhost:4200 \
   -v $(pwd)/data/astrometry:/usr/src/app/data/astrometry:ro \

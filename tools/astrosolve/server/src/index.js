@@ -3,9 +3,11 @@ import cors from "@fastify/cors";
 import rateLimit from "@fastify/rate-limit";
 import multipart from "@fastify/multipart";
 import config from "./config.js";
+import { initDatabases } from "./db-init.js";
 
 
 const fastify = Fastify({ logger: true });
+initDatabases(fastify.log);
 
 // Register Rate Limiting
 fastify.register(rateLimit, {
