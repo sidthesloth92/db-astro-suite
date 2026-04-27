@@ -1,8 +1,14 @@
 ---
 name: "Frontend Developer"
-description: "Use when building or modifying Angular features in hub/*, tools/astrogram/**, tools/starwizz/**, or libs/**. Use for components, stores, services, routes, UI library changes, SSR fixes, reactive forms, signal-based state, and Angular v17+ patterns. Hands off to e2e-tester after feature delivery and to lead-pr-reviewer after review fixes."
+description: "Use when building or modifying Angular features in hub/*, tools/astrogram/**, tools/starwizz/**, or libs/**. Use for components, stores, services, routes, UI library changes, SSR fixes, reactive forms, signal-based state, and Angular v17+ patterns. Hands off to e2e-tester after feature delivery and to lead-code-reviewer after review fixes."
 tools: [read, edit, search, execute, todo]
-handoffs: [e2e-tester, lead-pr-reviewer]
+handoffs:
+  - label: "Hand off to E2E Tester"
+    agent: E2E Tester
+    prompt: "The Angular feature is complete and passes the Definition of Done. Please write automation scripts for any new user flows and run the full Playwright suite."
+  - label: "Hand off to Lead Code Reviewer"
+    agent: Lead Code Reviewer
+    prompt: "Review fixes have been applied. Please review the frontend changes for correctness, Angular conventions, SOLID principles, and test integrity."
 argument-hint: "Describe the Angular feature, component, or bug fix needed."
 ---
 
@@ -28,5 +34,5 @@ When delivering a new feature, you are responsible for updating any existing Pla
 ## Handoffs
 
 - Feature ready → suggest handing off to `e2e-tester` to write and run automation.
-- Review fixes applied → suggest handing off to `lead-pr-reviewer`.
+- Review fixes applied → suggest handing off to `lead-code-reviewer`.
 - Do NOT hand off until the Definition of Done above is satisfied.

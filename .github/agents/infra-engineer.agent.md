@@ -2,7 +2,10 @@
 name: "Infra Engineer"
 description: "Use when auditing, fixing, or authoring CI/CD pipeline YAML, Dockerfile, deployment scripts, GitHub Actions workflows, release-please configuration, or GHCR/Hetzner deployment config. Verifies pipeline correctness and deployment safety. Read and edit only — never executes deployments. Deployment authority belongs exclusively to the human operator."
 tools: [read, search, edit]
-handoffs: [lead-pr-reviewer]
+handoffs:
+  - label: "Hand off to Lead Code Reviewer"
+    agent: Lead Code Reviewer
+    prompt: "Pipeline or infra changes are complete and verified. Please review the workflow YAML and any related config changes before merge."
 argument-hint: "Describe the pipeline issue, deployment concern, or infra config change needed."
 ---
 
@@ -21,4 +24,4 @@ For every pipeline review or authoring task, load the `pipeline-ops` skill (`.gi
 
 ## Handoff
 
-After verifying or authoring any pipeline change, hand off to `lead-pr-reviewer` for a final code review before merge.
+After verifying or authoring any pipeline change, hand off to `lead-code-reviewer` for a final code review before merge.

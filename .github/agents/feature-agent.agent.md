@@ -3,7 +3,7 @@ name: "Feature Agent"
 description: "Use when you want to take a feature from implementation through review, fixes, re-review, and E2E test coverage in one automated pipeline. Plans first, waits for explicit user approval, then orchestrates: developer → reviewer → developer (fix) → reviewer (approve) → e2e-tester → PR creation → done report. Works for Angular frontend, Node.js/Go backend, infra, or full-stack features."
 tools: [agent, todo, execute]
 agents:
-  [frontend-dev, backend-dev, infra-engineer, lead-pr-reviewer, e2e-tester]
+  [frontend-dev, backend-dev, infra-engineer, lead-code-reviewer, e2e-tester]
 argument-hint: "Describe a new feature (what it does, which stack, any files already changed) OR say 'PR #N has feedback to address' to enter feedback mode."
 ---
 
@@ -66,7 +66,7 @@ Once you have the answers, produce a written plan in this exact format:
 - <file> — <why>
 
 ### Review cycles expected
-- First review by `lead-pr-reviewer` after implementation
+- First review by `lead-code-reviewer` after implementation
 - Fix cycle if changes requested (max 2 cycles before asking user)
 
 ### E2E coverage
@@ -112,7 +112,7 @@ Hand each agent: the feature requirements, list of already-changed files (if any
 
 Update the todo list after each agent completes.
 
-**Interactive mode checkpoint** — after all Phase 1 agents complete, pause **before invoking `lead-pr-reviewer`**:
+**Interactive mode checkpoint** — after all Phase 1 agents complete, pause **before invoking `lead-code-reviewer`**:
 
 1. Run `git add -A` to stage all changes
 2. Show:
@@ -136,7 +136,7 @@ Automated mode: commit immediately after each agent completes and proceed direct
 
 ## Phase 2 — First Review
 
-Invoke `lead-pr-reviewer` with:
+Invoke `lead-code-reviewer` with:
 
 - All files changed during Phase 1
 - The feature description for context
@@ -152,7 +152,7 @@ Invoke the same agent(s) from Phase 1 with the reviewer's full MUST FIX list.
 
 ### Phase 2b — Re-Review
 
-Invoke `lead-pr-reviewer` again.
+Invoke `lead-code-reviewer` again.
 
 - **APPROVED** → proceed to Phase 3
 - **CHANGES REQUESTED** (second time) → pause, list the outstanding blockers, and ask the user how to proceed. Never loop more than twice without human input.
@@ -258,8 +258,8 @@ If any phase is unresolved, set **Status: BLOCKED** and list the open items.
 - In Automated mode: only pause when a genuine blocker requires human input (e.g. second review cycle failure, ambiguous stack). Push and PR creation happen automatically.
 - Never implement on the base branch — always create the feature branch in Phase 0.5 first.
 - Always complete Phase 0.5 before Phase 1.
-- Never invoke `e2e-tester` before `lead-pr-reviewer` has approved.
-- Never invoke `lead-pr-reviewer` before all developer/infra agents have completed.
+- Never invoke `e2e-tester` before `lead-code-reviewer` has approved.
+- Never invoke `lead-code-reviewer` before all developer/infra agents have completed.
 - If the stack is still ambiguous after Phase 0 answers, ask a follow-up before proceeding.
 - Max 2 review cycles before asking the user how to proceed.
 - Keep the todo list updated at every phase transition so the user can see progress.
