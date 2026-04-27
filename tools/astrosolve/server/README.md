@@ -25,7 +25,7 @@ cd tools/astrosolve/server
 docker build -t astrosolve .
 ```
 
-### 4. Run the server with mounted local data
+### 3. Run the server with mounted local data
 
 ```bash
 cd tools/astrosolve/server
@@ -38,7 +38,7 @@ docker run --rm -p 3000:3000 \
   astrosolve
 ```
 
-### 5. View logs
+### 4. View logs
 
 ```bash
 docker ps

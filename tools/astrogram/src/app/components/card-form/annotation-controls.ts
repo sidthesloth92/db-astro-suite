@@ -6,6 +6,7 @@ import {
   ComponentRef,
   ElementRef,
   EnvironmentInjector,
+  OnDestroy,
   ViewChild,
   ViewEncapsulation,
   computed,
@@ -62,7 +63,7 @@ import { AccessKeyError } from '../../services/astrosolve.error';
         text-align: center;
       }
       .upload-card:hover {
-        border-color: var(--neon-pink);
+        border-color: var(--db-color-neon-pink);
         background: rgba(255, 45, 149, 0.1);
         box-shadow: 0 0 20px rgba(255, 45, 149, 0.15);
         transform: translateY(-2px);
@@ -78,7 +79,7 @@ import { AccessKeyError } from '../../services/astrosolve.error';
       .upload-icon {
         width: 48px;
         height: 48px;
-        color: var(--neon-pink);
+        color: var(--db-color-neon-pink);
         margin-bottom: 0.5rem;
       }
       .upload-card.has-image .upload-icon {
@@ -95,7 +96,7 @@ import { AccessKeyError } from '../../services/astrosolve.error';
         font-size: 0.75rem;
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        color: var(--neon-pink);
+        color: var(--db-color-neon-pink);
         opacity: 0.8;
       }
       .upload-card.has-image .upload-subtitle {
@@ -106,8 +107,8 @@ import { AccessKeyError } from '../../services/astrosolve.error';
       }
       .solve-btn {
         background: transparent;
-        color: var(--neon-pink);
-        border: 1px solid var(--neon-pink);
+        color: var(--db-color-neon-pink);
+        border: 1px solid var(--db-color-neon-pink);
         width: 100%;
         padding: 1rem;
         border-radius: var(--db-radius-md);
@@ -127,7 +128,7 @@ import { AccessKeyError } from '../../services/astrosolve.error';
         transform: translateY(-2px);
       }
       .solve-btn:active:not(:disabled) {
-        background: var(--neon-pink);
+        background: var(--db-color-neon-pink);
         color: white;
       }
       .solve-btn:disabled {
@@ -139,7 +140,7 @@ import { AccessKeyError } from '../../services/astrosolve.error';
       .status-text {
         font-size: 0.8rem;
         font-weight: bold;
-        color: var(--neon-pink);
+        color: var(--db-color-neon-pink);
         text-transform: uppercase;
         letter-spacing: 0.05em;
         text-align: center;
@@ -149,7 +150,7 @@ import { AccessKeyError } from '../../services/astrosolve.error';
         font-size: 0.7rem;
         text-transform: uppercase;
         letter-spacing: 0.1em;
-        color: var(--neon-pink);
+        color: var(--db-color-neon-pink);
         opacity: 0.6;
         margin: 0 0 1rem 0;
       }
@@ -185,7 +186,7 @@ import { AccessKeyError } from '../../services/astrosolve.error';
         user-select: none;
       }
       .filter-check input[type='checkbox'] {
-        accent-color: var(--neon-pink);
+        accent-color: var(--db-color-neon-pink);
         width: 14px;
         height: 14px;
         cursor: pointer;
@@ -237,7 +238,7 @@ import { AccessKeyError } from '../../services/astrosolve.error';
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
 })
-export class AnnotationControlsComponent {
+export class AnnotationControlsComponent implements OnDestroy {
   dataService = inject(CardDataService);
 
   mapData = this.dataService.stellarMapData;
@@ -270,6 +271,10 @@ export class AnnotationControlsComponent {
     document.body.appendChild(ref.location.nativeElement);
     ref.changeDetectorRef.detectChanges();
     this.modalRef = ref;
+  }
+
+  ngOnDestroy(): void {
+    this.destroyModal();
   }
 
   private destroyModal(): void {

@@ -8,6 +8,7 @@ import { SolveError } from "../errors.js";
 import { parseMultipartRequest } from "../services/upload.service.js";
 import { processSolveRequest } from "../services/solve.service.js";
 import { validateKey } from "../access-key.service.js";
+import crypto from "crypto";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -46,6 +47,7 @@ export default async function (fastify) {
         });
       }
 
+      const keyHash = crypto.createHash("sha256").update(key).digest("hex");
       let valid = false;
       try {
         valid = validateKey(accessKeyDb, key);
@@ -63,7 +65,7 @@ export default async function (fastify) {
 
       if (!valid) {
         request.log.warn(
-          { keyPrefix: key.slice(0, 8) + "..." },
+          { keyHashPrefix: keyHash.slice(0, 12) + "..." },
           "access-key preHandler: key not found or inactive",
         );
         return reply.code(401).send({
@@ -74,7 +76,7 @@ export default async function (fastify) {
       }
 
       request.log.info(
-        { keyPrefix: key.slice(0, 8) + "..." },
+        { keyHashPrefix: keyHash.slice(0, 12) + "..." },
         "access-key preHandler: key validated OK",
       );
     };

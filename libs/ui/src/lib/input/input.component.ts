@@ -2,6 +2,8 @@ import { Component, ChangeDetectionStrategy, input, output } from '@angular/core
 
 export type InputType = 'text' | 'number' | 'date' | 'email' | 'password' | 'color';
 
+let nextInputId = 0;
+
 @Component({
   selector: 'dba-ui-input',
   standalone: true,
@@ -10,6 +12,8 @@ export type InputType = 'text' | 'number' | 'date' | 'email' | 'password' | 'col
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InputComponent {
+  readonly inputId = `dba-ui-input-${++nextInputId}`;
+
   label = input<string>('');
   placeholder = input<string>('');
   value = input<string | number>('');
