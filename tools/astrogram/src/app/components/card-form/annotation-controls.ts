@@ -1,11 +1,15 @@
 import { CommonModule } from '@angular/common';
 import {
+  ApplicationRef,
   ChangeDetectionStrategy,
   Component,
+  ComponentRef,
   ElementRef,
+  EnvironmentInjector,
   ViewChild,
   ViewEncapsulation,
   computed,
+  createComponent,
   inject,
   signal,
 } from '@angular/core';
@@ -29,7 +33,6 @@ import { AccessKeyError } from '../../services/astrosolve.error';
     AccordionItemComponent,
     AnnotationSettingsComponent,
     AnnotationDetailComponent,
-    AccessKeyModalComponent,
   ],
   templateUrl: './annotation-controls.html',
   exportAs: 'dbaAnnotationControls',
@@ -240,8 +243,42 @@ export class AnnotationControlsComponent {
   mapData = this.dataService.stellarMapData;
   isSolving = signal(false);
   solveStatus = signal('');
-  showAccessKeyModal = signal(false);
-  showAccessKeyError = signal(false);
+
+  private readonly appRef = inject(ApplicationRef);
+  private readonly envInjector = inject(EnvironmentInjector);
+  private modalRef: ComponentRef<AccessKeyModalComponent> | null = null;
+
+  private openAccessKeyModal(showError: boolean): void {
+    if (this.modalRef) {
+      this.modalRef.setInput('showError', showError);
+      this.modalRef.changeDetectorRef.detectChanges();
+      return;
+    }
+    const ref = createComponent(AccessKeyModalComponent, {
+      environmentInjector: this.envInjector,
+    });
+    ref.setInput('showError', showError);
+    ref.instance.submitted.subscribe((key: string) => {
+      this.destroyModal();
+      this.onAccessKeySubmit(key);
+    });
+    ref.instance.cancelled.subscribe(() => {
+      this.destroyModal();
+      this.onAccessKeyCancel();
+    });
+    this.appRef.attachView(ref.hostView);
+    document.body.appendChild(ref.location.nativeElement);
+    ref.changeDetectorRef.detectChanges();
+    this.modalRef = ref;
+  }
+
+  private destroyModal(): void {
+    if (this.modalRef) {
+      this.appRef.detachView(this.modalRef.hostView);
+      this.modalRef.destroy();
+      this.modalRef = null;
+    }
+  }
 
   /** True when an annotation is selected — drives the full-panel detail view. */
   hasSelection = computed(() => this.dataService.selectedAnnotationId() !== null);
@@ -323,7 +360,7 @@ export class AnnotationControlsComponent {
     }
 
     if (!this.astrosolveService.hasAccessKey()) {
-      this.showAccessKeyModal.set(true);
+      this.openAccessKeyModal(false);
       return;
     }
 
@@ -403,8 +440,7 @@ export class AnnotationControlsComponent {
     } catch (err: unknown) {
       if (err instanceof AccessKeyError) {
         this.solveStatus.set('');
-        this.showAccessKeyError.set(true);
-        this.showAccessKeyModal.set(true);
+        this.openAccessKeyModal(true);
         return;
       }
       const message = err instanceof Error ? err.message : 'Unknown error occurred';
@@ -421,13 +457,10 @@ export class AnnotationControlsComponent {
 
   onAccessKeySubmit(key: string): void {
     this.astrosolveService.saveAccessKey(key);
-    this.showAccessKeyModal.set(false);
-    this.showAccessKeyError.set(false);
     this.triggerPlateSolve();
   }
 
   onAccessKeyCancel(): void {
-    this.showAccessKeyModal.set(false);
-    this.showAccessKeyError.set(false);
+    // modal already destroyed by destroyModal() before this is called
   }
 }
