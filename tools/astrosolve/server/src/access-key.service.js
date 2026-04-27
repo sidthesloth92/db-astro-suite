@@ -76,13 +76,11 @@ export function listKeys(db) {
 export function validateKey(db, plainKey) {
   if (!plainKey) return false;
 
-  try {
-    const keyHash = hashKey(plainKey);
-    const row = db
-      .prepare('SELECT id FROM solve_api_access_keys WHERE key_hash = ? AND active = 1')
-      .get(keyHash);
-    return row != null;
-  } catch {
-    return false;
-  }
+  // DB errors propagate — callers should catch and log them separately.
+  // Only a hash mismatch (no matching row) returns false cleanly.
+  const keyHash = hashKey(plainKey);
+  const row = db
+    .prepare('SELECT id FROM solve_api_access_keys WHERE key_hash = ? AND active = 1')
+    .get(keyHash);
+  return row != null;
 }

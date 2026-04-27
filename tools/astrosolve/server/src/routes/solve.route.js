@@ -36,14 +36,47 @@ export default async function (fastify) {
   if (config.solveApiKeyRequired) {
     routeOptions.preHandler = async (request, reply) => {
       const key = request.headers["x-access-key"];
-      const valid = key ? validateKey(accessKeyDb, key) : false;
-      if (!valid) {
+
+      if (!key) {
+        request.log.warn("access-key preHandler: x-access-key header missing");
         return reply.code(401).send({
           code: "UNAUTHORIZED",
           message: "Invalid or missing access key",
           details: {},
         });
       }
+
+      let valid = false;
+      try {
+        valid = validateKey(accessKeyDb, key);
+      } catch (err) {
+        request.log.error(
+          { err, dbPath: ACCESS_KEYS_DB_PATH },
+          "access-key preHandler: DB error during key validation",
+        );
+        return reply.code(401).send({
+          code: "UNAUTHORIZED",
+          message: "Invalid or missing access key",
+          details: {},
+        });
+      }
+
+      if (!valid) {
+        request.log.warn(
+          { keyPrefix: key.slice(0, 8) + "..." },
+          "access-key preHandler: key not found or inactive",
+        );
+        return reply.code(401).send({
+          code: "UNAUTHORIZED",
+          message: "Invalid or missing access key",
+          details: {},
+        });
+      }
+
+      request.log.info(
+        { keyPrefix: key.slice(0, 8) + "..." },
+        "access-key preHandler: key validated OK",
+      );
     };
   }
 

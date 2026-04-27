@@ -54,10 +54,38 @@ Invoke the correct agent(s) with this context package:
 1. **Feature context** — the `## Feature Context` section from the PR description
 2. **Fix list** — each review comment as a numbered fix item
 3. **Branch name** — must commit all fixes to the existing branch, NOT create a new one
-4. **Instruction** — signal clearly when all fixes are committed
+4. **Instruction** — write files only; do not run any git commands
 
 If multiple stacks are involved, route to each agent in this order:
 `backend-dev` → `frontend-dev` → `infra-engineer`
+
+### Step 3.5 — Stage, Checkpoint, Commit, Push
+
+Once all developer agents have confirmed their files are written:
+
+1. Run `git add -A` to stage all changes
+
+**Interactive mode**: pause and show:
+
+```
+## Feedback Fixes Ready — Review Before Committing
+
+**PR**: #<number>
+**Comments addressed**: <count>
+**Files changed:**
+- <file> — <fix applied>
+
+Changes are staged but NOT committed or pushed. Run `git diff --staged` to review.
+Reply 'continue' to commit and push, or describe anything to adjust first.
+```
+
+If the user provides feedback: run `git restore --staged .`, re-invoke the relevant agent(s), re-stage, and re-show this checkpoint.
+On 'continue':
+
+2. `git commit -m "fix: address PR #<number> review feedback"`
+3. `git push` (to the existing remote branch)
+
+**Automated mode**: commit and push immediately without pausing.
 
 ### Step 4 — Reply to Each Comment Thread
 
@@ -109,6 +137,7 @@ Report to the user:
 ## Rules
 
 - **Never create a new branch** — all fixes commit to the existing feature branch
+- **In Interactive mode: never commit or push until the user confirms at the Step 3.5 checkpoint**
 - **Never invoke `lead-pr-reviewer`** — the human is the reviewer in this flow
 - **Never replace the full PR description** — only append the `## Feedback Round N` section
 - **One reply per comment thread** — do not batch multiple fixes into one comment
