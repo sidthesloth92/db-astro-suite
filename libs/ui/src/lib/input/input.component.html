@@ -1,8 +1,9 @@
 <div class="db-form-group">
   @if (label()) {
-    <label class="db-form-label">{{ label() }}</label>
+    <label class="db-form-label" [for]="inputId">{{ label() }}</label>
   }
   <input
+    [id]="inputId"
     [type]="type()"
     [placeholder]="placeholder()"
     [value]="value()"

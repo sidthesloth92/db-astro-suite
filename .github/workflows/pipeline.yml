@@ -190,6 +190,9 @@ jobs:
           ssh-keyscan -H "${{ secrets.HETZNER_HOST }}" >> ~/.ssh/known_hosts
 
       - name: Deploy backend
+        # ACCESS_KEY_REQUIRED is not passed here — it is managed on the server
+        # via the deploy script environment. Set it in the server's compose/run
+        # config or export it before calling server_deploy.sh.
         run: |
           ssh "${{ secrets.HETZNER_USER }}@${{ secrets.HETZNER_HOST }}" \
             "GHCR_USERNAME='${{ github.repository_owner }}' GHCR_TOKEN='${{ github.token }}' /opt/astrosolve/scripts/server_deploy.sh '${{ needs.build-backend-image.outputs.image_tag }}'"

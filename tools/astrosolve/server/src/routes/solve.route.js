@@ -2,15 +2,18 @@ import PQueue from "p-queue";
 import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
+import Database from "better-sqlite3";
 import config from "../config.js";
 import { SolveError } from "../errors.js";
 import { parseMultipartRequest } from "../services/upload.service.js";
 import { processSolveRequest } from "../services/solve.service.js";
+import { solveAuthHook } from "../hooks/solve-auth.hook.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const DATA_DIR = path.join(__dirname, "../../data");
 const UPLOADS_DIR = path.join(DATA_DIR, "uploads");
+const ACCESS_KEYS_DB_PATH = path.join(DATA_DIR, "astrosolve.sqlite");
 
 // Concurrency queue to protect backend execution.
 const solveQueue = new PQueue({ concurrency: config.queueConcurrency });
@@ -23,7 +26,18 @@ const solveQueue = new PQueue({ concurrency: config.queueConcurrency });
 export default async function (fastify) {
   await fs.mkdir(UPLOADS_DIR, { recursive: true });
 
-  fastify.post("/api/v1/solve", async (request, reply) => {
+  let accessKeyDb = null;
+  if (config.solveApiKeyRequired) {
+    accessKeyDb = new Database(ACCESS_KEYS_DB_PATH);
+  }
+
+  const routeOptions = {};
+
+  if (config.solveApiKeyRequired) {
+    routeOptions.preHandler = solveAuthHook(config, accessKeyDb);
+  }
+
+  fastify.post("/api/v1/solve", routeOptions, async (request, reply) => {
     try {
       fastify.log.info("Parsing multipart request...");
       const { filePath, hints } = await parseMultipartRequest(request, UPLOADS_DIR);

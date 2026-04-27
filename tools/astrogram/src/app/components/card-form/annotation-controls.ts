@@ -1,11 +1,16 @@
 import { CommonModule } from '@angular/common';
 import {
+  ApplicationRef,
   ChangeDetectionStrategy,
   Component,
+  ComponentRef,
   ElementRef,
+  EnvironmentInjector,
+  OnDestroy,
   ViewChild,
   ViewEncapsulation,
   computed,
+  createComponent,
   inject,
   signal,
 } from '@angular/core';
@@ -17,6 +22,8 @@ import { CardDataService } from '../../services/card-data.service';
 import { WcsService } from '../../services/wcs.service';
 import { AnnotationDetailComponent } from './annotation-detail';
 import { AnnotationSettingsComponent } from './annotation-settings';
+import { AccessKeyModalComponent } from './access-key-modal.component';
+import { AccessKeyError } from '../../services/models/access-key.error';
 @Component({
   selector: 'dba-ag-annotation-controls',
   standalone: true,
@@ -56,7 +63,7 @@ import { AnnotationSettingsComponent } from './annotation-settings';
         text-align: center;
       }
       .upload-card:hover {
-        border-color: var(--neon-pink);
+        border-color: var(--db-color-neon-pink);
         background: rgba(255, 45, 149, 0.1);
         box-shadow: 0 0 20px rgba(255, 45, 149, 0.15);
         transform: translateY(-2px);
@@ -72,7 +79,7 @@ import { AnnotationSettingsComponent } from './annotation-settings';
       .upload-icon {
         width: 48px;
         height: 48px;
-        color: var(--neon-pink);
+        color: var(--db-color-neon-pink);
         margin-bottom: 0.5rem;
       }
       .upload-card.has-image .upload-icon {
@@ -89,7 +96,7 @@ import { AnnotationSettingsComponent } from './annotation-settings';
         font-size: 0.75rem;
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        color: var(--neon-pink);
+        color: var(--db-color-neon-pink);
         opacity: 0.8;
       }
       .upload-card.has-image .upload-subtitle {
@@ -100,8 +107,8 @@ import { AnnotationSettingsComponent } from './annotation-settings';
       }
       .solve-btn {
         background: transparent;
-        color: var(--neon-pink);
-        border: 1px solid var(--neon-pink);
+        color: var(--db-color-neon-pink);
+        border: 1px solid var(--db-color-neon-pink);
         width: 100%;
         padding: 1rem;
         border-radius: var(--db-radius-md);
@@ -121,7 +128,7 @@ import { AnnotationSettingsComponent } from './annotation-settings';
         transform: translateY(-2px);
       }
       .solve-btn:active:not(:disabled) {
-        background: var(--neon-pink);
+        background: var(--db-color-neon-pink);
         color: white;
       }
       .solve-btn:disabled {
@@ -133,7 +140,7 @@ import { AnnotationSettingsComponent } from './annotation-settings';
       .status-text {
         font-size: 0.8rem;
         font-weight: bold;
-        color: var(--neon-pink);
+        color: var(--db-color-neon-pink);
         text-transform: uppercase;
         letter-spacing: 0.05em;
         text-align: center;
@@ -143,7 +150,7 @@ import { AnnotationSettingsComponent } from './annotation-settings';
         font-size: 0.7rem;
         text-transform: uppercase;
         letter-spacing: 0.1em;
-        color: var(--neon-pink);
+        color: var(--db-color-neon-pink);
         opacity: 0.6;
         margin: 0 0 1rem 0;
       }
@@ -179,7 +186,7 @@ import { AnnotationSettingsComponent } from './annotation-settings';
         user-select: none;
       }
       .filter-check input[type='checkbox'] {
-        accent-color: var(--neon-pink);
+        accent-color: var(--db-color-neon-pink);
         width: 14px;
         height: 14px;
         cursor: pointer;
@@ -231,12 +238,52 @@ import { AnnotationSettingsComponent } from './annotation-settings';
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
 })
-export class AnnotationControlsComponent {
+export class AnnotationControlsComponent implements OnDestroy {
   dataService = inject(CardDataService);
 
   mapData = this.dataService.stellarMapData;
   isSolving = signal(false);
   solveStatus = signal('');
+
+  private readonly appRef = inject(ApplicationRef);
+  private readonly envInjector = inject(EnvironmentInjector);
+  private modalRef: ComponentRef<AccessKeyModalComponent> | null = null;
+
+  private openAccessKeyModal(showError: boolean): void {
+    if (this.modalRef) {
+      this.modalRef.setInput('showError', showError);
+      this.modalRef.changeDetectorRef.detectChanges();
+      return;
+    }
+    const ref = createComponent(AccessKeyModalComponent, {
+      environmentInjector: this.envInjector,
+    });
+    ref.setInput('showError', showError);
+    ref.instance.submitted.subscribe((key: string) => {
+      this.destroyModal();
+      this.onAccessKeySubmit(key);
+    });
+    ref.instance.cancelled.subscribe(() => {
+      this.destroyModal();
+      this.onAccessKeyCancel();
+    });
+    this.appRef.attachView(ref.hostView);
+    document.body.appendChild(ref.location.nativeElement);
+    ref.changeDetectorRef.detectChanges();
+    this.modalRef = ref;
+  }
+
+  ngOnDestroy(): void {
+    this.destroyModal();
+  }
+
+  private destroyModal(): void {
+    if (this.modalRef) {
+      this.appRef.detachView(this.modalRef.hostView);
+      this.modalRef.destroy();
+      this.modalRef = null;
+    }
+  }
 
   /** True when an annotation is selected — drives the full-panel detail view. */
   hasSelection = computed(() => this.dataService.selectedAnnotationId() !== null);
@@ -317,6 +364,11 @@ export class AnnotationControlsComponent {
       return;
     }
 
+    if (!this.astrosolveService.hasAccessKey()) {
+      this.openAccessKeyModal(false);
+      return;
+    }
+
     this.isSolving.set(true);
     this.mapData.update((d) => ({ ...d, isSolving: true }));
     this.solveStatus.set('Starting plate solve...');
@@ -390,8 +442,14 @@ export class AnnotationControlsComponent {
       }));
 
       this.solveStatus.set(`Success! Identified ${annotations.length} objects.`);
-    } catch (err: any) {
-      this.solveStatus.set(`Error: ${err.message}`);
+    } catch (err: unknown) {
+      if (err instanceof AccessKeyError) {
+        this.solveStatus.set('');
+        this.openAccessKeyModal(true);
+        return;
+      }
+      const message = err instanceof Error ? err.message : 'Unknown error occurred';
+      this.solveStatus.set(`Error: ${message}`);
     } finally {
       this.isSolving.set(false);
       this.mapData.update((d) => ({ ...d, isSolving: false }));
@@ -400,5 +458,14 @@ export class AnnotationControlsComponent {
         setTimeout(() => this.solveStatus.set(''), 5000);
       }
     }
+  }
+
+  onAccessKeySubmit(key: string): void {
+    this.astrosolveService.saveAccessKey(key);
+    this.triggerPlateSolve();
+  }
+
+  onAccessKeyCancel(): void {
+    // modal already destroyed by destroyModal() before this is called
   }
 }
