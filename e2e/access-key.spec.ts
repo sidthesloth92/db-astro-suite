@@ -18,8 +18,8 @@ test.describe("Access Key Modal", () => {
   test.beforeEach(async ({ page }) => {
     stellarMapPage = new StellarMapPage(page);
     accessKeyModalPage = new AccessKeyModalPage(page);
-    await page.evaluate(() => localStorage.clear());
     await stellarMapPage.navigate();
+    await page.evaluate(() => localStorage.clear());
   });
 
   /**
@@ -45,6 +45,13 @@ test.describe("Access Key Modal", () => {
     page,
   }) => {
     const testKey = "test-access-key-123";
+
+    // Mock the solve endpoint so it never returns 401 (which would clear the key).
+    // A 503 triggers the non-401 error path — key stays in storage.
+    await page.route("**/api/v1/solve", (route) =>
+      route.fulfill({ status: 503, body: JSON.stringify({ code: "UNAVAILABLE", message: "mocked", details: {} }) }),
+    );
+
     await triggerModal();
     await expect(accessKeyModalPage.getModal()).toBeVisible();
 
@@ -81,6 +88,11 @@ test.describe("Access Key Modal", () => {
   test("key persists across page reloads — modal does not appear when key is already stored", async ({
     page,
   }) => {
+    // Mock solve so it succeeds (non-401) — prevents key being cleared and modal re-appearing.
+    await page.route("**/api/v1/solve", (route) =>
+      route.abort(),
+    );
+
     // beforeEach cleared localStorage; now store a key before the next navigation
     await page.evaluate(
       ([storageKey, value]) => localStorage.setItem(storageKey, value),
