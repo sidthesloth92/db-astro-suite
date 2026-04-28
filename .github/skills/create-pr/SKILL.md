@@ -1,6 +1,6 @@
 ---
 name: create-pr
-description: "Workflow for pushing a feature branch and opening a GitHub PR with a rich, structured description. Use in feature-agent Phase 3.5 after all implementation, review, and E2E phases are complete. Covers PR description template, git push, gh pr create, and printing the PR URL."
+description: "Workflow for pushing a feature branch and opening a GitHub PR with a rich, structured description. Use in feature-agent Phase 3.5 after all implementation, review, and E2E phases are complete. Covers PR description template, git push, GitHub PR tool invocation, and printing the PR URL."
 argument-hint: "Provide the feature branch name, base branch, all files changed, original plan, decisions made, review cycles, and out-of-scope items."
 ---
 
@@ -61,13 +61,12 @@ Compose the PR body using all context accumulated during the feature pipeline:
 
 ### Step 3 — Open the PR
 
-```sh
-gh pr create \
-  --base <base-branch> \
-  --head <feature-branch> \
-  --title "<conventional-commit title>" \
-  --body "<assembled description from Step 2>"
-```
+Use the `github-pull-request_create_pull_request` tool with:
+
+- **`title`** — a Conventional Commits title (see rules below)
+- **`head`** — the feature branch name
+- **`base`** — the base branch name
+- **`body`** — the assembled description from Step 2
 
 **Title rules** (Conventional Commits):
 
@@ -79,4 +78,4 @@ gh pr create \
 
 ### Step 4 — Print the PR URL
 
-After `gh pr create` succeeds, print the full PR URL so the user can navigate directly to it.
+The tool returns the PR URL in its response. Print it so the user can navigate directly to it.
