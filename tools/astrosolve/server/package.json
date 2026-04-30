@@ -9,7 +9,7 @@
     "init-local-catalog-db": "node scripts/data/init-local-catalog-db.mjs",
     "init-db": "npm run init-astrometry-db && npm run init-local-catalog-db",
     "start": "node src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test src/**/*.test.js"
   },
   "keywords": [],
   "author": "",

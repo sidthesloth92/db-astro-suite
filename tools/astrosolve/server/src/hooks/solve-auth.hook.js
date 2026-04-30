@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { validateKey } from "../access-key.service.js";
+import { validateKey, incrementUseCount } from "../access-key.service.js";
 
 /**
  * Returns a Fastify preHandler that validates the x-access-key header
@@ -23,9 +23,9 @@ export function solveAuthHook(config, db) {
     }
 
     const keyHash = crypto.createHash("sha256").update(key).digest("hex");
-    let valid = false;
+    let keyId = null;
     try {
-      valid = validateKey(db, key);
+      keyId = validateKey(db, key);
     } catch (err) {
       request.log.error(
         { err, dbPath: db.name },
@@ -38,7 +38,7 @@ export function solveAuthHook(config, db) {
       });
     }
 
-    if (!valid) {
+    if (keyId == null) {
       request.log.warn(
         { keyHashPrefix: keyHash.slice(0, 12) + "..." },
         "access-key preHandler: key not found or inactive",
@@ -48,6 +48,16 @@ export function solveAuthHook(config, db) {
         message: "Invalid or missing access key",
         details: {},
       });
+    }
+
+    try {
+      incrementUseCount(db, keyId);
+      request.log.debug({ keyId }, "access-key preHandler: use_count incremented");
+    } catch (err) {
+      request.log.error(
+        { err },
+        "access-key preHandler: failed to increment use_count",
+      );
     }
 
     request.log.info(

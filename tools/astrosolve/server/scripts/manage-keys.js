@@ -50,7 +50,7 @@ try {
       } else {
         for (const k of keys) {
           const status = k.active ? 'active' : 'inactive';
-          console.log(`${k.username}\t${k.created_at}\t${status}`);
+          console.log(`${k.username}	${k.created_at}	${status}	${k.use_count} use(s)`);
         }
       }
       break;
