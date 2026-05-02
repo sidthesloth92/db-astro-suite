@@ -18,7 +18,8 @@ db.exec(`
     username TEXT NOT NULL UNIQUE,
     key_hash TEXT NOT NULL,
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
-    active INTEGER NOT NULL DEFAULT 1
+    active INTEGER NOT NULL DEFAULT 1,
+    use_count INTEGER NOT NULL DEFAULT 0
   );
 `);
 
@@ -50,7 +51,7 @@ try {
       } else {
         for (const k of keys) {
           const status = k.active ? 'active' : 'inactive';
-          console.log(`${k.username}\t${k.created_at}\t${status}`);
+          console.log(`${k.username}	${k.created_at}	${status}	${k.use_count} use(s)`);
         }
       }
       break;

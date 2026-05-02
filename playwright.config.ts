@@ -42,5 +42,14 @@ export default defineConfig({
       reuseExistingServer: !process.env.CI,
       timeout: 180 * 1000,
     },
+    {
+      // Dedicated test instance on port 3001 (separate from the Docker server on
+      // 3000) so the test can open the same host-filesystem DB file directly.
+      command:
+        "SOLVE_API_KEY_REQUIRED=true ASTROSOLVE_PORT=3001 pnpm start:astrosolve",
+      url: "http://localhost:3001",
+      reuseExistingServer: !process.env.CI,
+      timeout: 30 * 1000,
+    },
   ],
 });

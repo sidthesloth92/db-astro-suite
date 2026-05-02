@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { validateKey } from "../access-key.service.js";
+import { validateKey, incrementUseCount } from "../access-key.service.js";
 
 /**
  * Returns a Fastify preHandler that validates the x-access-key header
@@ -9,6 +9,7 @@ import { validateKey } from "../access-key.service.js";
  * @param {import('better-sqlite3').Database} db - Open better-sqlite3 database instance
  * @returns {(request: import('fastify').FastifyRequest, reply: import('fastify').FastifyReply) => Promise<void>}
  */
+// config is intentionally kept in the signature for forward-compatibility (e.g. rate-limit config)
 export function solveAuthHook(config, db) {
   return async function (request, reply) {
     const key = request.headers["x-access-key"];
@@ -23,9 +24,9 @@ export function solveAuthHook(config, db) {
     }
 
     const keyHash = crypto.createHash("sha256").update(key).digest("hex");
-    let valid = false;
+    let keyId = null;
     try {
-      valid = validateKey(db, key);
+      keyId = validateKey(db, key);
     } catch (err) {
       request.log.error(
         { err, dbPath: db.name },
@@ -38,7 +39,7 @@ export function solveAuthHook(config, db) {
       });
     }
 
-    if (!valid) {
+    if (keyId == null) {
       request.log.warn(
         { keyHashPrefix: keyHash.slice(0, 12) + "..." },
         "access-key preHandler: key not found or inactive",
@@ -48,6 +49,16 @@ export function solveAuthHook(config, db) {
         message: "Invalid or missing access key",
         details: {},
       });
+    }
+
+    try {
+      incrementUseCount(db, keyId);
+      request.log.debug({ keyId }, "access-key preHandler: use_count incremented");
+    } catch (err) {
+      request.log.error(
+        { err },
+        "access-key preHandler: failed to increment use_count",
+      );
     }
 
     request.log.info(

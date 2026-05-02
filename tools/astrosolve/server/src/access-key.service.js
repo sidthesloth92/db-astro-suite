@@ -61,26 +61,37 @@ export function removeKey(db, username) {
  */
 export function listKeys(db) {
   return db
-    .prepare('SELECT username, created_at, active FROM solve_api_access_keys')
+    .prepare('SELECT username, created_at, active, use_count FROM solve_api_access_keys')
     .all();
 }
 
 /**
  * Validates a plain-text key against the stored hashes.
- * Returns false (never throws) so callers do not need a try/catch for invalid keys.
+ * Returns the row id on success, or null if the key is invalid/inactive.
+ * DB errors propagate — callers should catch and log them separately.
  *
  * @param {import('better-sqlite3').Database} db
  * @param {string} plainKey
- * @returns {boolean}
+ * @returns {number | null} Row id if valid, null otherwise
  */
 export function validateKey(db, plainKey) {
-  if (!plainKey) return false;
+  if (!plainKey) return null;
 
-  // DB errors propagate — callers should catch and log them separately.
-  // Only a hash mismatch (no matching row) returns false cleanly.
   const keyHash = hashKey(plainKey);
   const row = db
     .prepare('SELECT id FROM solve_api_access_keys WHERE key_hash = ? AND active = 1')
     .get(keyHash);
-  return row != null;
+  return row?.id ?? null;
+}
+
+/**
+ * Atomically increments the use_count for the key with the given id.
+ *
+ * @param {import('better-sqlite3').Database} db
+ * @param {number} id
+ */
+export function incrementUseCount(db, id) {
+  db.prepare(
+    'UPDATE solve_api_access_keys SET use_count = use_count + 1 WHERE id = ?',
+  ).run(id);
 }

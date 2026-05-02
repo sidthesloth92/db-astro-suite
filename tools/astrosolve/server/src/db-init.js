@@ -6,17 +6,9 @@ import fs from 'fs';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = path.join(__dirname, '../data');
 
-/**
- * Initialises all SQLite databases required at runtime.
- * Called once at server startup — all statements use CREATE TABLE IF NOT EXISTS
- * so this is safe to run on every boot against an existing DB.
- *
- * @param {import('fastify').FastifyBaseLogger} log
- */
 export function initDatabases(log) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
 
-  // Access-keys database
   const accessKeysDbPath = path.join(DATA_DIR, 'astrosolve.sqlite');
   const accessKeysDb = new Database(accessKeysDbPath);
   accessKeysDb.exec(`
@@ -25,9 +17,23 @@ export function initDatabases(log) {
       username TEXT NOT NULL UNIQUE,
       key_hash TEXT NOT NULL,
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      active INTEGER NOT NULL DEFAULT 1
+      active INTEGER NOT NULL DEFAULT 1,
+      use_count INTEGER NOT NULL DEFAULT 0
     )
   `);
-  accessKeysDb.close();
+
+  try {
+    accessKeysDb.exec(
+      'ALTER TABLE solve_api_access_keys ADD COLUMN use_count INTEGER NOT NULL DEFAULT 0',
+    );
+  } catch (err) {
+    if (!err.message?.includes('duplicate column name')) {
+      throw err;
+    }
+    log.debug({ table: 'solve_api_access_keys', column: 'use_count' }, 'use_count column already exists — skipping ALTER TABLE');
+  } finally {
+    accessKeysDb.close();
+  }
+
   log.info({ path: accessKeysDbPath }, 'access-keys DB initialised');
 }
