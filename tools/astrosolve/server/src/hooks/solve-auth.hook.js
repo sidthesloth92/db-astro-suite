@@ -9,6 +9,7 @@ import { validateKey, incrementUseCount } from "../access-key.service.js";
  * @param {import('better-sqlite3').Database} db - Open better-sqlite3 database instance
  * @returns {(request: import('fastify').FastifyRequest, reply: import('fastify').FastifyReply) => Promise<void>}
  */
+// config is intentionally kept in the signature for forward-compatibility (e.g. rate-limit config)
 export function solveAuthHook(config, db) {
   return async function (request, reply) {
     const key = request.headers["x-access-key"];

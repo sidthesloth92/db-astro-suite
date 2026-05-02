@@ -18,7 +18,8 @@ db.exec(`
     username TEXT NOT NULL UNIQUE,
     key_hash TEXT NOT NULL,
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
-    active INTEGER NOT NULL DEFAULT 1
+    active INTEGER NOT NULL DEFAULT 1,
+    use_count INTEGER NOT NULL DEFAULT 0
   );
 `);
 

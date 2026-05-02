@@ -26,7 +26,10 @@ export function initDatabases(log) {
     accessKeysDb.exec(
       'ALTER TABLE solve_api_access_keys ADD COLUMN use_count INTEGER NOT NULL DEFAULT 0',
     );
-  } catch {
+  } catch (err) {
+    if (!err.message?.includes('duplicate column name')) {
+      throw err;
+    }
     log.debug({ table: 'solve_api_access_keys', column: 'use_count' }, 'use_count column already exists — skipping ALTER TABLE');
   }
 
