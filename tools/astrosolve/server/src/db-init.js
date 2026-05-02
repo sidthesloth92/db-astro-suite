@@ -31,8 +31,9 @@ export function initDatabases(log) {
       throw err;
     }
     log.debug({ table: 'solve_api_access_keys', column: 'use_count' }, 'use_count column already exists — skipping ALTER TABLE');
+  } finally {
+    accessKeysDb.close();
   }
 
-  accessKeysDb.close();
   log.info({ path: accessKeysDbPath }, 'access-keys DB initialised');
 }
