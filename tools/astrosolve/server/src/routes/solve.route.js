@@ -1,7 +1,7 @@
 import PQueue from "p-queue";
 import fs from "fs/promises";
 import config from "../config.js";
-import { SolveError } from "../errors.js";
+import { SolveError } from "../models/errors.model.js";
 import { parseMultipartRequest } from "../services/upload.service.js";
 import { processSolveRequest } from "../services/solve.service.js";
 import { solveAuthHook } from "../hooks/solve-auth.hook.js";

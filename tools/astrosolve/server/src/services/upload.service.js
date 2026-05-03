@@ -5,7 +5,7 @@ import { pipeline } from "stream/promises";
 import crypto from "crypto";
 import { imageSize } from "image-size";
 import config from "../config.js";
-import { SolveError } from "../errors.js";
+import { SolveError } from "../models/errors.model.js";
 
 /**
  * Validates the hints before allowing the image stream to proceed.

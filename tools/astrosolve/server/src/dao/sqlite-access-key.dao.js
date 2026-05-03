@@ -1,7 +1,7 @@
 import Database from "better-sqlite3";
 import config from "../config.js";
 import { SqliteBaseDao } from "./sqlite-base.dao.js";
-import { AccessKeyError } from "../errors.js";
+import { AccessKeyError } from "../models/errors.model.js";
 
 /**
  * SQLite-backed implementation of the AccessKeyDao interface contract.

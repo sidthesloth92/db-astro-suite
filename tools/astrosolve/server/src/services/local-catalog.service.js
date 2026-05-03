@@ -1,4 +1,4 @@
-import { CatalogError } from "../errors.js";
+import { CatalogError } from "../models/errors.model.js";
 import { LocalCatalogDao } from "../dao/local-catalog.dao.js";
 import { CatalogObject } from "../models/solve.model.js";
 

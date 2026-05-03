@@ -1,5 +1,5 @@
 import axios from "axios";
-import { CatalogError } from "../errors.js";
+import { CatalogError } from "../models/errors.model.js";
 
 /**
  * Queries the SIMBAD TAP service to find DSOs within a given radius using an ADQL command.
