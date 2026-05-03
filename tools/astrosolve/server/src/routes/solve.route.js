@@ -76,13 +76,11 @@ export default async function (fastify, opts) {
 
       request.log.info("Sending reply...");
       return reply.send({
-        code: "SOLVE_SUCCESS",
+        status: "success",
         message: "Plate solve completed successfully.",
-        details: {
-          metadata: result.metadata,
-          objects: result.objects,
-          ...(result.warnings?.length ? { warnings: result.warnings } : {}),
-        },
+        metadata: result.metadata,
+        objects: result.objects,
+        ...(result.warnings?.length ? { warnings: result.warnings } : {}),
       });
     } catch (e) {
       if (e instanceof SolveError) {
