@@ -8,7 +8,9 @@ import { CatalogError } from "../models/errors.model.js";
  * @param {number} ra - Right Ascension of the image center (degrees)
  * @param {number} dec - Declination of the image center (degrees)
  * @param {number} radiusDeg - Search radius in degrees
- * @param {number} minMagnitude - Brightest magnitude constraint (lower is brighter)
+ * @param {number} minMagnitude - Reserved for future magnitude filtering; not currently applied
+ *   (SIMBAD TAP magnitude filtering requires a JOIN on the flux table — accepted for API
+ *   compatibility with the local catalog path but has no effect on SIMBAD results)
  * @returns {Promise<Array>} List of recognized celestial objects
  */
 export async function querySimbad(ra, dec, radiusDeg, minMagnitude = 13.5) {
@@ -18,7 +20,6 @@ export async function querySimbad(ra, dec, radiusDeg, minMagnitude = 13.5) {
     SELECT TOP 500 basic.MAIN_ID, basic.OTYPE, basic.RA, basic.DEC
     FROM basic
     WHERE CONTAINS(POINT('ICRS', basic.RA, basic.DEC), CIRCLE('ICRS', ${ra}, ${dec}, ${radiusDeg})) = 1
-    AND V < ${minMagnitude}
     AND basic.OTYPE IN (
       '*', '**', 'V*', 'Ce*', 'RR*', 'LP*', 'Mi*', 'WR*', 'C*', 'Be*', 'HB*', 'WD*', 'No*', 'SN*',
       'G', 'GiP', 'GiG', 'GiC', 'BClG', 'Sy1', 'Sy2', 'Sy*', 'AGN', 'LINER', 'EmG',
