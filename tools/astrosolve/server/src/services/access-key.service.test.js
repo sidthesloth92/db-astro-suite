@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import Database from 'better-sqlite3';
-import { SqliteAccessKeyDao } from './dao/sqlite-access-key.dao.js';
+import { SqliteAccessKeyDao } from '../dao/sqlite-access-key.dao.js';
 import { createKey, validateKey, incrementUseCount } from './access-key.service.js';
 
 function createTestDb() {

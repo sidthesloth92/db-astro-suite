@@ -1,6 +1,6 @@
 import crypto from "crypto";
-import { AccessKeyDao } from "./dao/access-key.dao.js";
-import { AccessKeyError } from "./errors.js";
+import { AccessKeyDao } from "../dao/access-key.dao.js";
+import { AccessKeyError } from "../errors.js";
 
 /**
  * Hashes a plain-text key with SHA-256.

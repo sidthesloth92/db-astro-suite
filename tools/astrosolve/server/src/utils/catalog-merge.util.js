@@ -3,7 +3,7 @@ import {
   STAR_TYPES,
   CATALOG_PRIORITY,
   MATCH_DEG,
-} from "../catalog.constants.js";
+} from "../constants/catalog.constants.js";
 
 /**
  * Merges and deduplicates celestial objects from the local catalog and SIMBAD.

@@ -1,6 +1,6 @@
 import Database from "better-sqlite3";
 import { SqliteAccessKeyDao } from "../src/dao/sqlite-access-key.dao.js";
-import { createKey, removeKey, listKeys } from "../src/access-key.service.js";
+import { createKey, removeKey, listKeys } from "../src/services/access-key.service.js";
 import { AccessKeyError } from "../src/errors.js";
 import config from "../src/config.js";
 
