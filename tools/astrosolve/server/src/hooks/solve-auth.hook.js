@@ -1,4 +1,7 @@
-import { validateKey, incrementUseCount } from "../services/access-key.service.js";
+import {
+  validateKey,
+  incrementUseCount,
+} from "../services/access-key.service.js";
 import { AccessKeyDao } from "../dao/access-key.dao.js";
 
 /**

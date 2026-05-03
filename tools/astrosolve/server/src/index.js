@@ -15,7 +15,10 @@ fs.mkdirSync(config.uploadsDir, { recursive: true });
 
 // Each DAO owns its own database connection and initialization.
 const accessKeyDao = SqliteAccessKeyDao.create();
-fastify.log.info({ path: config.accessKeysDbPath }, "Access-keys DB initialised");
+fastify.log.info(
+  { path: config.accessKeysDbPath },
+  "Access-keys DB initialised",
+);
 
 let localCatalogDao;
 try {

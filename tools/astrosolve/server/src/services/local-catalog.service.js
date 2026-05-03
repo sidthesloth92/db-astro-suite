@@ -1,5 +1,6 @@
 import { LocalCatalogDao } from "../dao/local-catalog.dao.js";
 import { CatalogObject } from "../models/solve.model.js";
+import { CatalogError } from "../models/errors.model.js";
 
 /**
  * Finds celestial objects within a given radius of the given coordinates using a
@@ -18,10 +19,10 @@ import { CatalogObject } from "../models/solve.model.js";
  * @param {number} [params.maxMagnitude=10] - Faintest magnitude to include
  * @param {string[]} [params.types=[]] - Object type codes to additionally include
  * @param {Object} params.log - Fastify-compatible structured logger
- * @returns {CatalogObject[]} Matching celestial objects, or an empty array if the
+ * @returns {Promise<CatalogObject[]>} Matching celestial objects, or an empty array if the
  *   local catalog is unavailable
  */
-export function findObjectsInRadius(
+export async function findObjectsInRadius(
   localCatalogDao,
   { ra, dec, radiusDeg, maxMagnitude = 10, types = [], log },
 ) {
@@ -61,6 +62,17 @@ export function findObjectsInRadius(
       if (cleanName && cleanName.match(/^(NGC|IC)0*(\d+)$/)) {
         cleanName = cleanName.replace(/^(NGC|IC)0*(\d+)$/, "$1 $2");
       }
-      return { ...obj, name: cleanName, source: "local" };
+      return new CatalogObject(
+        cleanName,
+        obj.type,
+        obj.ra,
+        obj.dec,
+        obj.magnitude ?? null,
+        "local",
+        obj.catalog,
+        obj.entryId,
+        obj.commonName,
+        obj.sizeArcmin ?? null,
+      );
     });
 }

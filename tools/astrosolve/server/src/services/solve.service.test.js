@@ -1,24 +1,28 @@
 /**
- * Unit tests for the solve service domain model contract.
+ * Unit tests for the solve service domain model contract and processSolveRequest.
  *
- * These tests verify that the objects returned by processSolveRequest conform
- * to the SolveResult / SolveMetadata domain model shape — the same shape that
- * solve.route.js spreads into the `details` response field and that the Angular
- * frontend expects as `AstroSolveApiResponse.details`.
+ * Domain model tests verify that SolveResult / SolveMetadata / CatalogObject
+ * conform to the shape that solve.route.js spreads into `details` and that the
+ * Angular frontend expects as `AstroSolveApiResponse.details`.
  *
- * External dependencies (solveWithAstrometry, querySimbad, findObjectsInRadius)
- * are not available in the unit-test environment, so this suite tests the domain
- * model classes and the route ↔ frontend contract directly.
+ * processSolveRequest tests inject mock collaborators via the optional `_deps`
+ * parameter so no module-level mocking infrastructure is needed.
  */
-import { describe, it } from "node:test";
+import { describe, it, mock } from "node:test";
 import assert from "node:assert/strict";
-import { SolveResult, SolveMetadata } from "../models/solve.model.js";
+import { SolveResult, SolveMetadata, CatalogObject } from "../models/solve.model.js";
+import { CatalogError } from "../models/errors.model.js";
+import { processSolveRequest } from "./solve.service.js";
 
 const FAKE_WCS = "SIMPLE  =                    T\nCTYPE1  = 'RA---TAN'\n";
 
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
 /**
- * Constructs a SolveResult the same way processSolveRequest does after the fix,
- * using the concrete domain model classes.
+ * Constructs a SolveResult the same way processSolveRequest does, using the
+ * concrete domain model classes.
  *
  * @returns {SolveResult}
  */
@@ -32,22 +36,33 @@ function buildFakeSolveResult() {
       2.0,     // radius_searched
     ),
     [
-      {
-        name: "NGC 1976",
-        type: "HII",
-        ra: 83.82,
-        dec: -5.39,
-        magnitude: 4.0,
-        source: "local",
-        catalog: "NGC/IC",
-        entryId: "NGC1976",
-        commonName: "Orion Nebula",
-        sizeArcmin: 65,
-      },
+      new CatalogObject(
+        "NGC 1976",
+        "HII",
+        83.82,
+        -5.39,
+        4.0,
+        "local",
+        "NGC/IC",
+        "NGC1976",
+        "Orion Nebula",
+        65,
+      ),
     ],
     [],
   );
 }
+
+/** Minimal Fastify-compatible no-op logger */
+const fakeLog = {
+  info: () => {},
+  warn: () => {},
+  error: () => {},
+};
+
+// ---------------------------------------------------------------------------
+// Domain model tests
+// ---------------------------------------------------------------------------
 
 describe("SolveResult domain model — service return type", () => {
   it("processSolveRequest returns a SolveResult instance (not a plain object)", () => {
@@ -142,5 +157,119 @@ describe("solve route details payload — frontend contract", () => {
       "warnings key must be present when the service emits warnings",
     );
     assert.equal(details.warnings.length, 1);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// processSolveRequest unit tests (injected mock.fn() collaborators)
+// ---------------------------------------------------------------------------
+
+describe("processSolveRequest — orchestration contract", () => {
+  const fakeAstrometryResult = {
+    status: "success",
+    ra: 83.82,
+    dec: -5.39,
+    scale: 0.00125,
+    wcsData: FAKE_WCS,
+  };
+
+  const fakeCatalogObject = new CatalogObject(
+    "NGC 1976", "HII", 83.82, -5.39, 4.0, "local",
+    "NGC/IC", "NGC1976", "Orion Nebula", 65,
+  );
+
+  const fakeSimbadObject = new CatalogObject(
+    "M 42", "HII", 83.82, -5.39, 4.0, "simbad",
+    undefined, undefined, undefined, null,
+  );
+
+  /** @returns {{ solveWithAstrometryFn, querySimbadFn, findObjectsInRadiusFn }} */
+  function makeDeps(overrides = {}) {
+    return {
+      solveWithAstrometryFn: mock.fn(async () => fakeAstrometryResult),
+      querySimbadFn: mock.fn(async () => [fakeSimbadObject]),
+      findObjectsInRadiusFn: mock.fn(async () => [fakeCatalogObject]),
+      ...overrides,
+    };
+  }
+
+  it("returns a SolveResult instance", async () => {
+    const result = await processSolveRequest(
+      "/tmp/fake.jpg",
+      { min_magnitude: 10, types: [] },
+      {},
+      fakeLog,
+      makeDeps(),
+    );
+    assert.ok(result instanceof SolveResult, "must return instanceof SolveResult");
+  });
+
+  it("result.metadata is a SolveMetadata instance", async () => {
+    const result = await processSolveRequest(
+      "/tmp/fake.jpg",
+      { min_magnitude: 10, types: [] },
+      {},
+      fakeLog,
+      makeDeps(),
+    );
+    assert.ok(result.metadata instanceof SolveMetadata, "result.metadata must be instanceof SolveMetadata");
+  });
+
+  it("result.metadata.wcs is populated from solveResult.wcsData", async () => {
+    const result = await processSolveRequest(
+      "/tmp/fake.jpg",
+      { min_magnitude: 10, types: [] },
+      {},
+      fakeLog,
+      makeDeps(),
+    );
+    assert.equal(result.metadata.wcs, FAKE_WCS,
+      "SolveMetadata.wcs must be set from the astrometry DTO's wcsData field");
+    assert.equal(result.metadata.wcsData, undefined,
+      "wcsData must NOT be exposed on SolveMetadata");
+  });
+
+  it("result.objects contains CatalogObject instances from both catalogs", async () => {
+    const result = await processSolveRequest(
+      "/tmp/fake.jpg",
+      { min_magnitude: 10, types: [] },
+      {},
+      fakeLog,
+      makeDeps(),
+    );
+    assert.ok(Array.isArray(result.objects), "result.objects must be an array");
+    assert.ok(result.objects.length > 0, "result.objects must be non-empty");
+    for (const obj of result.objects) {
+      assert.ok(
+        obj instanceof CatalogObject,
+        `every object must be a CatalogObject, got ${Object.prototype.toString.call(obj)}`,
+      );
+    }
+  });
+
+  it("when localCatalogDao is null, findObjectsInRadius returns [] and result still has objects from SIMBAD", async () => {
+    const deps = makeDeps({
+      // Mirror the real implementation: return [] when dao is null
+      findObjectsInRadiusFn: mock.fn(async (dao) => (dao ? [fakeCatalogObject] : [])),
+    });
+
+    const result = await processSolveRequest(
+      "/tmp/fake.jpg",
+      { min_magnitude: 10, types: [] },
+      null,   // ← no local catalog DAO
+      fakeLog,
+      deps,
+    );
+
+    // findObjectsInRadius must still have been called (with null)
+    assert.equal(deps.findObjectsInRadiusFn.mock.calls.length, 1,
+      "findObjectsInRadiusFn must be called even when dao is null");
+    assert.equal(deps.findObjectsInRadiusFn.mock.calls[0].arguments[0], null,
+      "first argument must be null");
+
+    assert.ok(result instanceof SolveResult, "must return instanceof SolveResult");
+    assert.ok(Array.isArray(result.objects), "result.objects must be an array");
+    // SIMBAD object should be present since local returned []
+    assert.ok(result.objects.length > 0, "result.objects must contain SIMBAD objects when local DAO is null");
   });
 });
