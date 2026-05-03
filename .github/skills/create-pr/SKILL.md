@@ -61,12 +61,20 @@ Compose the PR body using all context accumulated during the feature pipeline:
 
 ### Step 3 — Open the PR
 
-Use the `github-pull-request_create_pull_request` tool with:
+Write the PR description from Step 2 to a temporary file, then open the PR using `gh`:
 
-- **`title`** — a Conventional Commits title (see rules below)
-- **`head`** — the feature branch name
-- **`base`** — the base branch name
-- **`body`** — the assembled description from Step 2
+```sh
+# Write body to a temp file to avoid shell quoting issues with multi-line content
+cat > /tmp/pr-body.md << 'EOF'
+<assembled description from Step 2>
+EOF
+
+gh pr create \
+  --title "<conventional-commits title>" \
+  --head <feature-branch> \
+  --base <base-branch> \
+  --body-file /tmp/pr-body.md
+```
 
 **Title rules** (Conventional Commits):
 
@@ -76,6 +84,14 @@ Use the `github-pull-request_create_pull_request` tool with:
 - `chore(<scope>): <short description>` — tooling, config, infra
 - Scope is the affected package/area (e.g. `hub`, `astrosolve`, `e2e`, `pipeline`)
 
+> Using `gh pr create` works in both VS Code Copilot Chat and GitHub Copilot CLI background sessions. Do not use the `github-pull-request_create_pull_request` VS Code extension tool — it is unavailable in CLI sessions.
+
 ### Step 4 — Print the PR URL
 
-The tool returns the PR URL in its response. Print it so the user can navigate directly to it.
+`gh pr create` prints the PR URL to stdout on success. Capture and print it so the user can navigate directly to the PR.
+
+```sh
+# If the URL was not printed above, retrieve it:
+gh pr view <feature-branch> --json url --jq '.url'
+```
+
