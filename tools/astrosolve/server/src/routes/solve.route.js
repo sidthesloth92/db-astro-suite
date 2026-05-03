@@ -11,13 +11,15 @@ import { LocalCatalogDao } from "../dao/local-catalog.dao.js";
 // Concurrency queue to protect backend execution.
 const solveQueue = new PQueue({ concurrency: config.queueConcurrency });
 
+/** @typedef {import('fastify').FastifyInstance} FastifyInstance */
+
 /**
  * Fastify route plugin — registers the POST /api/v1/solve endpoint.
  * Receives DAO instances via plugin opts (dependency injection).
  * Handles request parsing, queue management, and response mapping only.
  * All business logic is delegated to the solve service.
  *
- * @param {import('fastify').FastifyInstance} fastify
+ * @param {FastifyInstance} fastify
  * @param {{ accessKeyDao: AccessKeyDao, localCatalogDao: LocalCatalogDao }} opts
  */
 export default async function (fastify, opts) {

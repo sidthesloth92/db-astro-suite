@@ -18,6 +18,7 @@ export async function querySimbad(ra, dec, radiusDeg, minMagnitude = 13.5) {
     SELECT TOP 500 basic.MAIN_ID, basic.OTYPE, basic.RA, basic.DEC
     FROM basic
     WHERE CONTAINS(POINT('ICRS', basic.RA, basic.DEC), CIRCLE('ICRS', ${ra}, ${dec}, ${radiusDeg})) = 1
+    AND V < ${minMagnitude}
     AND basic.OTYPE IN (
       '*', '**', 'V*', 'Ce*', 'RR*', 'LP*', 'Mi*', 'WR*', 'C*', 'Be*', 'HB*', 'WD*', 'No*', 'SN*',
       'G', 'GiP', 'GiG', 'GiC', 'BClG', 'Sy1', 'Sy2', 'Sy*', 'AGN', 'LINER', 'EmG',
