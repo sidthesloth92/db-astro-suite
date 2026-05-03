@@ -1,21 +1,21 @@
 import Database from "better-sqlite3";
 import config from "../config.js";
+import { SqliteBaseDao } from "./sqlite-base.dao.js";
 import { AccessKeyError } from "../errors.js";
 
 /**
  * SQLite-backed implementation of the AccessKeyDao interface contract.
+ * Extends {@link SqliteBaseDao} for shared database lifecycle management.
  *
  * Use the static {@link SqliteAccessKeyDao.create} factory for production.
  * Pass an in-memory `Database` to the constructor directly in tests.
  */
-export class SqliteAccessKeyDao {
-  #db;
-
+export class SqliteAccessKeyDao extends SqliteBaseDao {
   /**
    * @param {Database} db - Open better-sqlite3 database instance
    */
   constructor(db) {
-    this.#db = db;
+    super(db);
   }
 
   /**
@@ -49,16 +49,6 @@ export class SqliteAccessKeyDao {
   }
 
   /**
-   * Closes the underlying database connection.
-   * Call this when the process is shutting down (e.g. in CLI scripts).
-   *
-   * @returns {void}
-   */
-  close() {
-    this.#db.close();
-  }
-
-  /**
    * @param {string} username
    * @param {string} keyHash
    * @returns {void}
@@ -66,7 +56,7 @@ export class SqliteAccessKeyDao {
    */
   insertAccessKey(username, keyHash) {
     try {
-      this.#db
+      this.db
         .prepare(
           "INSERT INTO solve_api_access_keys (username, key_hash) VALUES (?, ?)",
         )
@@ -87,7 +77,7 @@ export class SqliteAccessKeyDao {
    * @throws {AccessKeyError}
    */
   deactivateAccessKey(username) {
-    const result = this.#db
+    const result = this.db
       .prepare("UPDATE solve_api_access_keys SET active = 0 WHERE username = ?")
       .run(username);
 
@@ -100,7 +90,7 @@ export class SqliteAccessKeyDao {
    * @returns {{ username: string, created_at: string, active: number, use_count: number }[]}
    */
   listAccessKeys() {
-    return this.#db
+    return this.db
       .prepare(
         "SELECT username, created_at, active, use_count FROM solve_api_access_keys",
       )
@@ -112,7 +102,7 @@ export class SqliteAccessKeyDao {
    * @returns {number | null}
    */
   findActiveKeyByHash(keyHash) {
-    const row = this.#db
+    const row = this.db
       .prepare(
         "SELECT id FROM solve_api_access_keys WHERE key_hash = ? AND active = 1",
       )
@@ -125,7 +115,7 @@ export class SqliteAccessKeyDao {
    * @returns {void}
    */
   incrementKeyUseCount(id) {
-    this.#db
+    this.db
       .prepare(
         "UPDATE solve_api_access_keys SET use_count = use_count + 1 WHERE id = ?",
       )

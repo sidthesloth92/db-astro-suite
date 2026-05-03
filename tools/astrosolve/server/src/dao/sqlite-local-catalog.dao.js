@@ -1,21 +1,21 @@
 import Database from "better-sqlite3";
 import config from "../config.js";
+import { SqliteBaseDao } from "./sqlite-base.dao.js";
 import { CatalogError } from "../errors.js";
 
 /**
  * SQLite-backed implementation of the LocalCatalogDao interface contract.
+ * Extends {@link SqliteBaseDao} for shared database lifecycle management.
  *
  * Use the static {@link SqliteLocalCatalogDao.create} factory for production.
  * Pass an in-memory `Database` to the constructor directly in tests.
  */
-export class SqliteLocalCatalogDao {
-  #db;
-
+export class SqliteLocalCatalogDao extends SqliteBaseDao {
   /**
    * @param {Database} db - Open, read-only better-sqlite3 catalog database
    */
   constructor(db) {
-    this.#db = db;
+    super(db);
   }
 
   /**
@@ -38,15 +38,6 @@ export class SqliteLocalCatalogDao {
         `Failed to open local catalog DB at "${config.localCatalogDbPath}": ${err.message}`,
       );
     }
-  }
-
-  /**
-   * Closes the underlying database connection.
-   *
-   * @returns {void}
-   */
-  close() {
-    this.#db.close();
   }
 
   /**
@@ -76,6 +67,6 @@ export class SqliteLocalCatalogDao {
       queryParams.push(...types, ...types);
     }
 
-    return this.#db.prepare(sql).all(...queryParams);
+    return this.db.prepare(sql).all(...queryParams);
   }
 }
