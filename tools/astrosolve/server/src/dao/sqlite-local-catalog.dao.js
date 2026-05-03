@@ -1,16 +1,13 @@
-import { LocalCatalogDao } from "./local-catalog.dao.js";
-
 /**
- * SQLite-backed implementation of {@link LocalCatalogDao}.
+ * SQLite-backed implementation of the LocalCatalogDao interface contract.
  */
-export class SqliteLocalCatalogDao extends LocalCatalogDao {
+export class SqliteLocalCatalogDao {
   #db;
 
   /**
    * @param db - Open, read-only better-sqlite3 catalog database
    */
   constructor(db) {
-    super();
     this.#db = db;
   }
 

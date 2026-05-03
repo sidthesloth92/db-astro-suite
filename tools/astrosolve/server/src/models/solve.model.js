@@ -71,10 +71,3 @@ export class SolveResult {
   }
 }
 
-// ── JSDoc aliases (kept for IDE hover support) ──────────────────────────────
-
-/**
- * @typedef {SolveMetadata} SolveMetadata
- * @typedef {CatalogObject} CatalogObject
- * @typedef {SolveResult} SolveResult
- */

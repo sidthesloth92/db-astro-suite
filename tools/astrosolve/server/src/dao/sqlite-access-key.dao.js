@@ -1,17 +1,15 @@
-import { AccessKeyDao } from "./access-key.dao.js";
 import { AccessKeyError } from "../errors.js";
 
 /**
- * SQLite-backed implementation of {@link AccessKeyDao}.
+ * SQLite-backed implementation of the AccessKeyDao interface contract.
  */
-export class SqliteAccessKeyDao extends AccessKeyDao {
+export class SqliteAccessKeyDao {
   #db;
 
   /**
    * @param db - Open better-sqlite3 database instance
    */
   constructor(db) {
-    super();
     this.#db = db;
   }
 
