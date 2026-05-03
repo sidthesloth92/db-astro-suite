@@ -1,8 +1,13 @@
-import { Injectable, signal, WritableSignal, computed } from '@angular/core';
-import { RecordingState, ControlKey } from '../models/simulation.model';
-import { CONTROLS, ASPECT_RATIOS, AspectRatioKey, DEFAULT_GALAXY_URL } from '../constants/simulation.constant';
-import { Star } from '../models/star.model';
+import { computed, Injectable, signal, WritableSignal } from '@angular/core';
+import {
+  ASPECT_RATIOS,
+  AspectRatioKey,
+  CONTROLS,
+  DEFAULT_GALAXY_URL,
+} from '../constants/simulation.constant';
 import { ShootingStar } from '../models/shooting-star.model';
+import { ControlKey, RecordingState } from '../models/simulation.model';
+import { Star } from '../models/star.model';
 
 /** Frame rate for video recording (frames per second) */
 const FRAME_RATE = 60;
@@ -52,6 +57,8 @@ const NUM_SHOOTING_STARS = 10;
   providedIn: 'root',
 })
 export class SimulationService {
+  private analyticsService = inject(ANALYTICS_SERVICE_TOKEN);
+
   // ==================== Control Signals ====================
 
   /**
@@ -548,6 +555,10 @@ export class SimulationService {
     URL.revokeObjectURL(url);
     this.recordingState.set('idle');
     this.mediaRecorder = null;
+
+    // Track video generation event
+    const videoFormat = extension.substring(1); // Remove leading dot
+    this.analyticsService.trackVideoGeneration('starwizz-user', videoFormat);
   }
 
   /**

@@ -19,11 +19,11 @@ import { ImageAnnotation } from '../../models/annotation.models';
 import { StellarMapData } from '../../models/card-data';
 import { AstrosolveService } from '../../services/astrosolve.service';
 import { CardDataService } from '../../services/card-data.service';
+import { AccessKeyError } from '../../services/models/access-key.error';
 import { WcsService } from '../../services/wcs.service';
+import { AccessKeyModalComponent } from './access-key-modal.component';
 import { AnnotationDetailComponent } from './annotation-detail';
 import { AnnotationSettingsComponent } from './annotation-settings';
-import { AccessKeyModalComponent } from './access-key-modal.component';
-import { AccessKeyError } from '../../services/models/access-key.error';
 @Component({
   selector: 'dba-ag-annotation-controls',
   standalone: true,
@@ -240,6 +240,7 @@ import { AccessKeyError } from '../../services/models/access-key.error';
 })
 export class AnnotationControlsComponent implements OnDestroy {
   dataService = inject(CardDataService);
+  analyticsService = inject(ANALYTICS_SERVICE_TOKEN);
 
   mapData = this.dataService.stellarMapData;
   isSolving = signal(false);
@@ -442,6 +443,10 @@ export class AnnotationControlsComponent implements OnDestroy {
       }));
 
       this.solveStatus.set(`Success! Identified ${annotations.length} objects.`);
+
+      // Track plate solve event
+      const toolsUsed = `plate-solve,wcs-projection,${annotations.length}-objects`;
+      this.analyticsService.trackImageGeneration('astrogram-user', toolsUsed);
     } catch (err: unknown) {
       if (err instanceof AccessKeyError) {
         this.solveStatus.set('');
