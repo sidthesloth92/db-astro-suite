@@ -30,8 +30,10 @@ Each agent's `argument-hint` in the panel describes what to provide.
 
 ### New Feature Flow
 
-1. Agent asks 8 planning questions (stack, branch name, execution mode, etc.) in a single message
+1. Agent asks 9 planning questions (stack, branch name, execution mode, environment, etc.) in a single message
 2. Produces a written plan — you approve before anything runs
+3. If using **Local** mode: Creates the feature branch in your workspace.
+4. If using **Copilot CLI** mode: You click 'Continue in Copilot CLI' to hand off execution to a background worktree.
 3. Creates the feature branch
 4. Invokes developer agent(s) → reviewer → fix cycle (max 2) → E2E tester → PR creation
 5. Delivers a Done Report with PR URL

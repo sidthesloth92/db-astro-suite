@@ -3,7 +3,7 @@ name: "Feature Agent"
 description: "Use when you want to take a feature from implementation through review, fixes, re-review, and E2E test coverage in one automated pipeline. Plans first, waits for explicit user approval, then orchestrates: developer → reviewer → developer (fix) → reviewer (approve) → e2e-tester → PR creation → done report. Works for Angular frontend, Node.js/Go backend, infra, or full-stack features."
 tools: [agent, todo, execute]
 agents:
-  [frontend-dev, backend-dev, infra-engineer, lead-code-reviewer, e2e-tester]
+  [frontend-dev, backend-dev, infra-engineer, lead-pr-reviewer, e2e-tester]
 argument-hint: "Describe a new feature (what it does, which stack, any files already changed) OR say 'PR #N has feedback to address' to enter feedback mode."
 ---
 
@@ -42,6 +42,9 @@ Before invoking any agent, ask the user the following questions in a single mess
 8. **Execution mode? (required — no default assumed, must ask)**
    - **Automated** — run all phases without stopping; only pause if a blocker requires human input
    - **Interactive** — pause after each phase completes, show what was done, and wait for your go-ahead before the next phase starts
+9. **Execution environment? (required)**
+   - **Local (VS Code)** — Best for step-by-step guidance and interactive review. Runs in the foreground.
+   - **Copilot CLI (Background)** — Best for autonomous execution. This uses the VS Code 'Continue in Copilot CLI' handoff to run the implementation in a background process with built-in Git worktree isolation.
 
 Once you have the answers, produce a written plan in this exact format:
 
@@ -52,6 +55,7 @@ Once you have the answers, produce a written plan in this exact format:
 **Stack**: <frontend | backend | infra | full-stack | mixed>
 **Base branch**: <branch to branch from>
 **Feature branch**: <branch name to create>
+**Environment**: <Local | Copilot CLI>
 
 ### Agents to invoke (in order)
 
@@ -66,7 +70,7 @@ Once you have the answers, produce a written plan in this exact format:
 - <file> — <why>
 
 ### Review cycles expected
-- First review by `lead-code-reviewer` after implementation
+- First review by `lead-pr-reviewer` after implementation
 - Fix cycle if changes requested (max 2 cycles before asking user)
 
 ### E2E coverage
@@ -83,7 +87,11 @@ Then say: **"Does this plan look correct? Reply 'approved' to proceed, or tell m
 
 **Do not invoke any agent until the user explicitly says "approved", "go ahead", "looks good", or equivalent.**
 
-## Phase 0.5 — Branch Setup
+## Phase 0.5 — Branch/Environment Setup
+
+Based on the selected Execution Environment:
+
+### Local (VS Code)
 
 Before any implementation, create the feature branch:
 
@@ -93,7 +101,11 @@ git pull origin <base-branch>
 git checkout -b <feature-branch>
 ```
 
-Confirm the branch was created successfully before proceeding to Phase 1.
+### Copilot CLI (Background)
+
+In background mode, VS Code manages isolation automatically via Git worktrees. Do NOT manually create worktrees or switch branches if this mode is selected. Proceed to Step 1 directly after the plan is approved. The user will initiate the handoff via the 'Continue in Copilot CLI' button.
+
+Confirm the branch or environment is ready before proceeding to Phase 1.
 
 ## Phase 1 — Implementation
 
@@ -112,7 +124,7 @@ Hand each agent: the feature requirements, list of already-changed files (if any
 
 Update the todo list after each agent completes.
 
-**Interactive mode checkpoint** — after all Phase 1 agents complete, pause **before invoking `lead-code-reviewer`**:
+**Interactive mode checkpoint** — after all Phase 1 agents complete, pause **before invoking `lead-pr-reviewer`**:
 
 1. Run `git add -A` to stage all changes
 2. Show:
@@ -136,7 +148,7 @@ Automated mode: commit immediately after each agent completes and proceed direct
 
 ## Phase 2 — First Review
 
-Invoke `lead-code-reviewer` with:
+Invoke `lead-pr-reviewer` with:
 
 - All files changed during Phase 1
 - The feature description for context
@@ -152,7 +164,7 @@ Invoke the same agent(s) from Phase 1 with the reviewer's full MUST FIX list.
 
 ### Phase 2b — Re-Review
 
-Invoke `lead-code-reviewer` again.
+Invoke `lead-pr-reviewer` again.
 
 - **APPROVED** → proceed to Phase 3
 - **CHANGES REQUESTED** (second time) → pause, list the outstanding blockers, and ask the user how to proceed. Never loop more than twice without human input.
@@ -252,14 +264,17 @@ If any phase is unresolved, set **Status: BLOCKED** and list the open items.
 - In feedback mode: ask only the PR number (if missing) and execution mode before loading the `pr-feedback` skill. Never ask Phase 0 questions.
 - Never skip Phase 0 (new feature mode). Never invoke any agent before the user explicitly approves the plan.
 - Default execution mode is **Interactive** — always ask question 8 in Phase 0.
-- Never assume an execution mode — question 8 is required and must be answered before the plan is produced.
+- Never assume an execution mode or environment — questions 8 and 9 are required.
+- If **Copilot CLI (Background)** mode is selected, default to **Automated** execution (no interactive checkpoints).
+- If running in a Copilot CLI session, ALL tool calls are auto-approved. The agent must proceed autonomously until Phase 3.5 completes, unless a critical ambiguous decision is required.
+- In Background (Copilot CLI) mode, ensure all findings and progress are summarized in the chat history periodically so the user can review them later in VS Code.
 - In Interactive mode: always pause at the end of Phase 1, Phase 2, and Phase 3 checkpoints. Never skip ahead without explicit user confirmation.
 - In Interactive mode: **never run `git push` or `gh pr create` until the user explicitly confirms at the Phase 3 checkpoint.** All commits stay local until that point.
 - In Automated mode: only pause when a genuine blocker requires human input (e.g. second review cycle failure, ambiguous stack). Push and PR creation happen automatically.
 - Never implement on the base branch — always create the feature branch in Phase 0.5 first.
 - Always complete Phase 0.5 before Phase 1.
-- Never invoke `e2e-tester` before `lead-code-reviewer` has approved.
-- Never invoke `lead-code-reviewer` before all developer/infra agents have completed.
+- Never invoke `e2e-tester` before `lead-pr-reviewer` has approved.
+- Never invoke `lead-pr-reviewer` before all developer/infra agents have completed.
 - If the stack is still ambiguous after Phase 0 answers, ask a follow-up before proceeding.
 - Max 2 review cycles before asking the user how to proceed.
 - Keep the todo list updated at every phase transition so the user can see progress.
