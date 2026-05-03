@@ -111,5 +111,6 @@ Skills are passive instruction files — agents load them via `read_file` when n
 ## Prerequisites
 
 - `git` configured with remote `origin` pointing to this repository
+- `gh` CLI authenticated (`gh auth login`) — used for PR creation, reading review comments, and replying to comment threads
 - VS Code with the GitHub Copilot Chat extension (agent mode enabled)
 - GitHub account connected in VS Code (used by the GitHub PR extension tools for PR creation)

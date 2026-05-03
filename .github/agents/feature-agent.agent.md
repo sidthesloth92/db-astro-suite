@@ -1,9 +1,8 @@
 ---
 name: "Feature Agent"
 description: "Use when you want to take a feature from implementation through review, fixes, re-review, and E2E test coverage in one automated pipeline. Plans first, waits for explicit user approval, then orchestrates: developer → reviewer → developer (fix) → reviewer (approve) → e2e-tester → PR creation → done report. Works for Angular frontend, Node.js/Go backend, infra, or full-stack features."
-tools: [agent, todo, execute]
-agents:
-  [frontend-dev, backend-dev, infra-engineer, lead-pr-reviewer, e2e-tester]
+tools: [agent, read, todo, execute]
+agents: [frontend-dev, backend-dev, infra-engineer, lead-pr-reviewer, e2e-tester]
 argument-hint: "Describe a new feature (what it does, which stack, any files already changed) OR say 'PR #N has feedback to address' to enter feedback mode."
 ---
 

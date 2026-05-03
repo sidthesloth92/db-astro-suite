@@ -6,7 +6,7 @@ handoffs:
   - label: "Hand off to E2E Tester"
     agent: e2e-tester
     prompt: "The Angular feature is complete and passes the Definition of Done. Please write automation scripts for any new user flows and run the full Playwright suite."
-  - label: "Hand off to Lead Code Reviewer"
+  - label: "Hand off to Lead PR Reviewer"
     agent: lead-pr-reviewer
     prompt: "Review fixes have been applied. Please review the frontend changes for correctness, Angular conventions, SOLID principles, and test integrity."
 argument-hint: "Describe the Angular feature, component, or bug fix needed."
