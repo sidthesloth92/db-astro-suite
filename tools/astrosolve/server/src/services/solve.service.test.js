@@ -179,7 +179,7 @@ describe("processSolveRequest — orchestration contract", () => {
   );
 
   const fakeSimbadObject = new CatalogObject(
-    "M 42", "HII", 83.82, -5.39, 4.0, "simbad",
+    "M 42", "HII", 90.0, 5.0, 4.0, "simbad",
     undefined, undefined, undefined, null,
   );
 
@@ -238,7 +238,7 @@ describe("processSolveRequest — orchestration contract", () => {
       makeDeps(),
     );
     assert.ok(Array.isArray(result.objects), "result.objects must be an array");
-    assert.ok(result.objects.length > 0, "result.objects must be non-empty");
+    assert.ok(result.objects.length >= 2, "result.objects must contain entries from both local and SIMBAD");
     for (const obj of result.objects) {
       assert.ok(
         obj instanceof CatalogObject,
@@ -271,5 +271,100 @@ describe("processSolveRequest — orchestration contract", () => {
     assert.ok(Array.isArray(result.objects), "result.objects must be an array");
     // SIMBAD object should be present since local returned []
     assert.ok(result.objects.length > 0, "result.objects must contain SIMBAD objects when local DAO is null");
+  });
+
+  it("when findObjectsInRadiusFn throws CatalogError, result still resolves with no local objects", async () => {
+    const errorLog = { ...fakeLog, error: mock.fn() };
+    const deps = makeDeps({
+      findObjectsInRadiusFn: mock.fn(async () => {
+        throw new CatalogError("local", "local catalog unavailable");
+      }),
+    });
+
+    const result = await processSolveRequest(
+      "/tmp/fake.jpg",
+      { min_magnitude: 10, types: [] },
+      {},
+      errorLog,
+      deps,
+    );
+
+    assert.ok(result instanceof SolveResult, "must still resolve to SolveResult");
+    assert.ok(Array.isArray(result.objects), "result.objects must be an array");
+    assert.ok(
+      result.objects.every((o) => o.source === "simbad"),
+      "all objects must come from SIMBAD when local catalog threw CatalogError",
+    );
+    assert.equal(errorLog.error.mock.calls.length, 1, "error must be logged once");
+  });
+
+  it("when querySimbadFn throws CatalogError, result resolves with warning and local-only objects", async () => {
+    const warnLog = { ...fakeLog, warn: mock.fn() };
+    const deps = makeDeps({
+      querySimbadFn: mock.fn(async () => {
+        throw new CatalogError("simbad", "SIMBAD unavailable");
+      }),
+    });
+
+    const result = await processSolveRequest(
+      "/tmp/fake.jpg",
+      { min_magnitude: 10, types: [] },
+      {},
+      warnLog,
+      deps,
+    );
+
+    assert.ok(result instanceof SolveResult, "must still resolve to SolveResult");
+    assert.equal(result.warnings.length, 1, "must have exactly one warning");
+    assert.ok(
+      result.warnings[0].includes("SIMBAD"),
+      "warning must mention SIMBAD",
+    );
+    assert.ok(
+      result.objects.every((o) => o.source === "local"),
+      "all objects must come from local catalog when SIMBAD threw CatalogError",
+    );
+  });
+
+  it("when findObjectsInRadiusFn throws a plain Error, processSolveRequest rejects", async () => {
+    const deps = makeDeps({
+      findObjectsInRadiusFn: mock.fn(async () => {
+        throw new Error("unexpected low-level failure");
+      }),
+    });
+
+    await assert.rejects(
+      () =>
+        processSolveRequest(
+          "/tmp/fake.jpg",
+          { min_magnitude: 10, types: [] },
+          {},
+          fakeLog,
+          deps,
+        ),
+      (err) => err instanceof Error && !(err instanceof CatalogError),
+      "non-CatalogError from findObjectsInRadiusFn must propagate as rejection",
+    );
+  });
+
+  it("when querySimbadFn throws a plain Error, processSolveRequest rejects", async () => {
+    const deps = makeDeps({
+      querySimbadFn: mock.fn(async () => {
+        throw new Error("unexpected network failure");
+      }),
+    });
+
+    await assert.rejects(
+      () =>
+        processSolveRequest(
+          "/tmp/fake.jpg",
+          { min_magnitude: 10, types: [] },
+          {},
+          fakeLog,
+          deps,
+        ),
+      (err) => err instanceof Error && !(err instanceof CatalogError),
+      "non-CatalogError from querySimbadFn must propagate as rejection",
+    );
   });
 });

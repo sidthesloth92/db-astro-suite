@@ -2,6 +2,9 @@ import { LocalCatalogDao } from "../dao/local-catalog.dao.js";
 import { CatalogObject } from "../models/solve.model.js";
 import { CatalogError } from "../models/errors.model.js";
 
+/** Regex used to normalise OpenNGC compact names (e.g. NGC2023 → NGC 2023, IC0434 → IC 434). */
+const NAME_NORMALISE_RE = /^(NGC|IC)0*(\d+)$/;
+
 /**
  * Finds celestial objects within a given radius of the given coordinates using a
  * two-step conical search: a fast bounding-box SQL pre-filter followed by an
@@ -59,8 +62,8 @@ export async function findObjectsInRadius(
     .map((obj) => {
       // Normalise OpenNGC syntax: IC0434 → IC 434, NGC2023 → NGC 2023
       let cleanName = obj.name;
-      if (cleanName && cleanName.match(/^(NGC|IC)0*(\d+)$/)) {
-        cleanName = cleanName.replace(/^(NGC|IC)0*(\d+)$/, "$1 $2");
+      if (cleanName && NAME_NORMALISE_RE.test(cleanName)) {
+        cleanName = cleanName.replace(NAME_NORMALISE_RE, "$1 $2");
       }
       return new CatalogObject(
         cleanName,

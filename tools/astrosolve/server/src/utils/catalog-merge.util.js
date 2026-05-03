@@ -65,11 +65,21 @@ export function mergeObjects(localObjects, simbadObjects) {
     });
 
     if (nearby) {
-      localStarsByName.set(nearby.name.toLowerCase(), {
-        ...nearby,
-        ra: obj.ra,
-        dec: obj.dec,
-      });
+      localStarsByName.set(
+        nearby.name.toLowerCase(),
+        new CatalogObject(
+          nearby.name,
+          nearby.type,
+          obj.ra,
+          obj.dec,
+          nearby.magnitude,
+          nearby.source,
+          nearby.catalog,
+          nearby.entryId,
+          nearby.commonName,
+          nearby.sizeArcmin,
+        ),
+      );
     } else {
       localStarsByName.set(nameKey, obj);
     }

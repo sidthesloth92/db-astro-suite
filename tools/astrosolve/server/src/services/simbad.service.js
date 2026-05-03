@@ -1,4 +1,5 @@
 import axios from "axios";
+import { CatalogObject } from "../models/solve.model.js";
 import { CatalogError } from "../models/errors.model.js";
 
 /**
@@ -43,14 +44,21 @@ export async function querySimbad(ra, dec, radiusDeg, minMagnitude = 13.5) {
     );
 
     if (response.data && response.data.data) {
-      return response.data.data.map((row) => ({
-        name: row[0],
-        type: row[1],
-        ra: row[2],
-        dec: row[3],
-        magnitude: null,
-        source: "simbad",
-      }));
+      return response.data.data.map(
+        (row) =>
+          new CatalogObject(
+            row[0],
+            row[1],
+            parseFloat(row[2]),
+            parseFloat(row[3]),
+            null,
+            "simbad",
+            undefined,
+            undefined,
+            undefined,
+            null,
+          ),
+      );
     }
 
     return [];
