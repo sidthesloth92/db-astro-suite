@@ -1,4 +1,6 @@
-/** Metadata produced by the Astrometry.net plate-solve step. */
+/**
+ * Metadata produced by the Astrometry.net plate-solve step.
+ */
 export interface SolveMetadata {
   ra: number;
   dec: number;
@@ -7,7 +9,9 @@ export interface SolveMetadata {
   radius_searched: number;
 }
 
-/** A single celestial object returned by the plate-solve catalog query. */
+/**
+ * A single celestial object returned by the plate-solve catalog query.
+ */
 export interface CatalogObject {
   name: string;
   type: string;
@@ -25,15 +29,17 @@ export interface CatalogObject {
  * Domain model returned by `AstrosolveService.solveImage()`.
  * This is the unwrapped `details` payload — components work directly with this shape.
  */
-export interface SolveData {
+export interface AstroSolveResponse {
   metadata: SolveMetadata;
   objects: CatalogObject[];
   warnings?: string[];
 }
 
-/** Raw response body returned by POST /api/v1/solve on success (API contract shape). */
-export interface AstroSolveResponse {
+/**
+ * Raw response body returned by POST /api/v1/solve on success (API contract shape).
+ */
+export interface AstroSolveApiResponse {
   code: string;
   message: string;
-  details: SolveData;
+  details: AstroSolveResponse;
 }

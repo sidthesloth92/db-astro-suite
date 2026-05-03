@@ -1,15 +1,17 @@
 import { validateKey, incrementUseCount } from "../access-key.service.js";
 
+/** @typedef {import('../dao/access-key.dao.js').AccessKeyDao} AccessKeyDao */
+
 /**
  * Returns a Fastify preHandler that validates the x-access-key header
  * against the access-keys database.
  *
  * @param {object} config - Application config object (kept for forward-compatibility)
- * @param {import('better-sqlite3').Database} db - Open better-sqlite3 database instance
+ * @param {AccessKeyDao} accessKeyDao - DAO instance for access key operations
  * @returns {(request: import('fastify').FastifyRequest, reply: import('fastify').FastifyReply) => Promise<void>}
  */
 // config is intentionally kept in the signature for forward-compatibility (e.g. rate-limit config)
-export function solveAuthHook(config, db) {
+export function solveAuthHook(config, accessKeyDao) {
   return async function (request, reply) {
     const key = request.headers["x-access-key"];
 
@@ -24,10 +26,10 @@ export function solveAuthHook(config, db) {
 
     let keyId = null;
     try {
-      keyId = validateKey(db, key);
+      keyId = validateKey(accessKeyDao, key);
     } catch (err) {
       request.log.error(
-        { err, dbPath: db.name },
+        { err },
         "access-key preHandler: DB error during key validation",
       );
       return reply.code(401).send({
@@ -47,7 +49,7 @@ export function solveAuthHook(config, db) {
     }
 
     try {
-      incrementUseCount(db, keyId);
+      incrementUseCount(accessKeyDao, keyId);
       request.log.debug(
         { keyId },
         "access-key preHandler: use_count incremented",

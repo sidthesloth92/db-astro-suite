@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import Database from 'better-sqlite3';
+import { SqliteAccessKeyDao } from './dao/access-key.dao.js';
 import { createKey, validateKey, incrementUseCount } from './access-key.service.js';
 
 function createTestDb() {
@@ -20,12 +21,13 @@ function createTestDb() {
 
 test('use_count increments after a successful auth', () => {
   const db = createTestDb();
-  const plainKey = createKey(db, 'testuser');
+  const dao = new SqliteAccessKeyDao(db);
+  const plainKey = createKey(dao, 'testuser');
 
-  const keyId = validateKey(db, plainKey);
+  const keyId = validateKey(dao, plainKey);
   assert.ok(keyId != null, 'validateKey should return an id for a valid key');
 
-  incrementUseCount(db, keyId);
+  incrementUseCount(dao, keyId);
 
   const row = db
     .prepare('SELECT use_count FROM solve_api_access_keys WHERE id = ?')
@@ -37,9 +39,10 @@ test('use_count increments after a successful auth', () => {
 
 test('use_count does not increment for invalid tokens', () => {
   const db = createTestDb();
-  createKey(db, 'testuser');
+  const dao = new SqliteAccessKeyDao(db);
+  createKey(dao, 'testuser');
 
-  const keyId = validateKey(db, 'not-a-real-key');
+  const keyId = validateKey(dao, 'not-a-real-key');
   assert.equal(keyId, null, 'validateKey should return null for an invalid key');
 
   // keyId is null so the hook would not call incrementUseCount
@@ -53,14 +56,15 @@ test('use_count does not increment for invalid tokens', () => {
 
 test('use_count increments correctly across multiple successful auths', () => {
   const db = createTestDb();
-  const plainKey = createKey(db, 'multiuser');
+  const dao = new SqliteAccessKeyDao(db);
+  const plainKey = createKey(dao, 'multiuser');
 
-  const keyId = validateKey(db, plainKey);
+  const keyId = validateKey(dao, plainKey);
   assert.ok(keyId != null);
 
-  incrementUseCount(db, keyId);
-  incrementUseCount(db, keyId);
-  incrementUseCount(db, keyId);
+  incrementUseCount(dao, keyId);
+  incrementUseCount(dao, keyId);
+  incrementUseCount(dao, keyId);
 
   const row = db
     .prepare('SELECT use_count FROM solve_api_access_keys WHERE id = ?')
@@ -72,14 +76,15 @@ test('use_count increments correctly across multiple successful auths', () => {
 
 test('use_count does not increment for inactive tokens', () => {
   const db = createTestDb();
-  const plainKey = createKey(db, 'inactiveuser');
+  const dao = new SqliteAccessKeyDao(db);
+  const plainKey = createKey(dao, 'inactiveuser');
 
   // Deactivate the key
   db.prepare(
     'UPDATE solve_api_access_keys SET active = 0 WHERE username = ?',
   ).run('inactiveuser');
 
-  const keyId = validateKey(db, plainKey);
+  const keyId = validateKey(dao, plainKey);
   assert.equal(keyId, null, 'validateKey should return null for an inactive key');
 
   const row = db

@@ -4,24 +4,29 @@ import rateLimit from "@fastify/rate-limit";
 import multipart from "@fastify/multipart";
 import config from "./config.js";
 import { initDatabases, openLocalCatalogDb } from "./db-init.js";
+import { SqliteAccessKeyDao } from "./dao/access-key.dao.js";
+import { SqliteLocalCatalogDao } from "./dao/local-catalog.dao.js";
 import solveRoute from "./routes/solve.route.js";
 
 const fastify = Fastify({ logger: true });
 
 const { accessKeysDb } = initDatabases(fastify.log);
+const accessKeyDao = new SqliteAccessKeyDao(accessKeysDb);
 
-let localCatalogDb = null;
+let localCatalogDao;
 try {
-  localCatalogDb = openLocalCatalogDb();
+  const localCatalogDb = openLocalCatalogDb();
   fastify.log.info(
     { path: config.localCatalogDbPath },
     "Local catalog DB opened",
   );
+  localCatalogDao = new SqliteLocalCatalogDao(localCatalogDb);
 } catch (err) {
-  fastify.log.warn(
+  fastify.log.error(
     { err, path: config.localCatalogDbPath },
-    "Local catalog DB not available — catalog queries will be skipped. Run 'npm run init-db' first.",
+    "Local catalog DB failed to open — run 'npm run init-db' first. Aborting.",
   );
+  process.exit(1);
 }
 
 // Register Rate Limiting
@@ -44,8 +49,8 @@ fastify.register(multipart, {
   },
 });
 
-// Register routes — pass open DB connections via plugin options (DI via Fastify plugin opts)
-fastify.register(solveRoute, { accessKeysDb, localCatalogDb });
+// Register routes — pass DAO instances via plugin options (DI via Fastify plugin opts)
+fastify.register(solveRoute, { accessKeyDao, localCatalogDao });
 
 // Health check route
 fastify.get("/", async (request, reply) => {

@@ -1,3 +1,5 @@
+/** @typedef {import('../models/solve.model.js').CatalogObject} CatalogObject */
+
 import {
   STAR_TYPES,
   CATALOG_PRIORITY,
@@ -13,9 +15,9 @@ import {
  * - DSOs: local always wins; SIMBAD adds only objects not already present within the
  *   spatial match threshold.
  *
- * @param {import('../models/solve.model.js').CatalogObject[]} localObjects - Objects from the local SQLite catalog
- * @param {import('../models/solve.model.js').CatalogObject[]} simbadObjects - Objects from the SIMBAD TAP service
- * @returns {import('../models/solve.model.js').CatalogObject[]} Deduplicated and merged list of celestial objects
+ * @param {CatalogObject[]} localObjects - Objects from the local SQLite catalog
+ * @param {CatalogObject[]} simbadObjects - Objects from the SIMBAD TAP service
+ * @returns {CatalogObject[]} Deduplicated and merged list of celestial objects
  */
 export function mergeObjects(localObjects, simbadObjects) {
   // Build best-per-name map from local stars (Named beats HIP/TYC when both present)

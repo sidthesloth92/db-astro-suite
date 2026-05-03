@@ -5,7 +5,7 @@ import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { AccessKeyError } from './models/access-key.error';
 import { AstrosolveError } from './models/astrosolve.error';
-import { AstroSolveResponse, SolveData } from './models/astrosolve.response';
+import { AstroSolveApiResponse, AstroSolveResponse } from './models/astrosolve.response';
 
 @Injectable({
   providedIn: 'root',
@@ -30,7 +30,7 @@ export class AstrosolveService {
 
   /**
    * Upload an image to the local Astrosolve API for fast plate solving.
-   * Maps the raw API response to the `SolveData` domain model before returning.
+   * Maps the raw API response to the `AstroSolveResponse` domain model before returning.
    *
    * @param file The background image file (must be >= 1080x1080)
    * @param hints The hints required/optional for Astrometry.net to solve the image
@@ -41,7 +41,7 @@ export class AstrosolveService {
       types?: string[];
     },
     onProgress?: (msg: string) => void,
-  ): Promise<SolveData> {
+  ): Promise<AstroSolveResponse> {
     onProgress?.('Preparing upload for plate solving...');
 
     const formData = new FormData();
@@ -59,7 +59,7 @@ export class AstrosolveService {
 
     try {
       const response = await firstValueFrom(
-        this.http.post<AstroSolveResponse>(`${this.baseUrl}/solve`, formData, { headers }),
+        this.http.post<AstroSolveApiResponse>(`${this.baseUrl}/solve`, formData, { headers }),
       );
 
       onProgress?.('Solve successful! Identifying objects...');

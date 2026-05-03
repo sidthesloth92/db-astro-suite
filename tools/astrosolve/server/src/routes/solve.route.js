@@ -6,27 +6,30 @@ import { parseMultipartRequest } from "../services/upload.service.js";
 import { processSolveRequest } from "../services/solve.service.js";
 import { solveAuthHook } from "../hooks/solve-auth.hook.js";
 
+/** @typedef {import('../dao/access-key.dao.js').AccessKeyDao} AccessKeyDao */
+/** @typedef {import('../dao/local-catalog.dao.js').LocalCatalogDao} LocalCatalogDao */
+
 // Concurrency queue to protect backend execution.
 const solveQueue = new PQueue({ concurrency: config.queueConcurrency });
 
 /**
  * Fastify route plugin — registers the POST /api/v1/solve endpoint.
- * Receives open DB connections via plugin opts (dependency injection).
+ * Receives DAO instances via plugin opts (dependency injection).
  * Handles request parsing, queue management, and response mapping only.
  * All business logic is delegated to the solve service.
  *
  * @param {import('fastify').FastifyInstance} fastify
- * @param {{ accessKeysDb: import('better-sqlite3').Database | null, localCatalogDb: import('better-sqlite3').Database | null }} opts
+ * @param {{ accessKeyDao: AccessKeyDao, localCatalogDao: LocalCatalogDao }} opts
  */
 export default async function (fastify, opts) {
-  const { accessKeysDb, localCatalogDb } = opts;
+  const { accessKeyDao, localCatalogDao } = opts;
 
   await fs.mkdir(config.uploadsDir, { recursive: true });
 
   const routeOptions = {};
 
   if (config.solveApiKeyRequired) {
-    routeOptions.preHandler = solveAuthHook(config, accessKeysDb);
+    routeOptions.preHandler = solveAuthHook(config, accessKeyDao);
   }
 
   fastify.post("/api/v1/solve", routeOptions, async (request, reply) => {
@@ -53,7 +56,7 @@ export default async function (fastify, opts) {
           const res = await processSolveRequest(
             filePath,
             hints,
-            localCatalogDb,
+            localCatalogDao,
             request.log,
           );
           request.log.info("processSolveRequest completed.");

@@ -30,6 +30,7 @@ applyTo: "tools/astrosolve/**"
 
 - One primary class or responsibility per module. If a module does more than one thing, split it.
 - JSDoc docstrings on all exported functions and classes.
+- **No inline JSDoc `import()` expressions** — Never use `{import('module').Type}` inline in JSDoc `@param` or `@returns` tags. Declare `@typedef` imports at the top of the file and reference the alias.
 
 ## File Naming Conventions
 

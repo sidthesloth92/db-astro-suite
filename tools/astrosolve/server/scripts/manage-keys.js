@@ -1,4 +1,5 @@
 import Database from "better-sqlite3";
+import { SqliteAccessKeyDao } from "../src/dao/access-key.dao.js";
 import { createKey, removeKey, listKeys } from "../src/access-key.service.js";
 import { AccessKeyError } from "../src/errors.js";
 import config from "../src/config.js";
@@ -19,6 +20,8 @@ db.exec(`
   );
 `);
 
+const accessKeyDao = new SqliteAccessKeyDao(db);
+
 try {
   switch (command) {
     case "add": {
@@ -26,7 +29,7 @@ try {
         console.error("Usage: node scripts/manage-keys.js add <username>");
         process.exit(1);
       }
-      const key = createKey(db, username);
+      const key = createKey(accessKeyDao, username);
       console.log(`Key created for "${username}":`);
       console.log(key);
       break;
@@ -36,12 +39,12 @@ try {
         console.error("Usage: node scripts/manage-keys.js remove <username>");
         process.exit(1);
       }
-      removeKey(db, username);
+      removeKey(accessKeyDao, username);
       console.log(`Key deactivated for "${username}".`);
       break;
     }
     case "list": {
-      const keys = listKeys(db);
+      const keys = listKeys(accessKeyDao);
       if (keys.length === 0) {
         console.log("No access keys found.");
       } else {

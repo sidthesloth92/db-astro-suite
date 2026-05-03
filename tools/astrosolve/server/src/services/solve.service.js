@@ -3,19 +3,22 @@ import { querySimbad } from "./simbad.service.js";
 import { queryLocalCatalog } from "./local-catalog.service.js";
 import { mergeObjects } from "../utils/catalog-merge.util.js";
 
+/** @typedef {import('../dao/local-catalog.dao.js').LocalCatalogDao} LocalCatalogDao */
+/** @typedef {import('../models/solve.model.js').SolveResult} SolveResult */
+
 /**
  * Orchestrates the full plate-solve pipeline: astrometry → catalog queries → merge.
  *
  * @param {string} filePath - Absolute path to the saved image file
  * @param {Object} hints - Solving hints extracted from the request
- * @param {import('better-sqlite3').Database | null} localCatalogDb - Open catalog DB, or null if unavailable
+ * @param {LocalCatalogDao} localCatalogDao - DAO for the local catalog
  * @param {Object} log - Fastify-compatible logger (request.log)
- * @returns {Promise<import('../models/solve.model.js').SolveResult>} Merged solve result
+ * @returns {Promise<SolveResult>} Merged solve result
  */
 export async function processSolveRequest(
   filePath,
   hints,
-  localCatalogDb,
+  localCatalogDao,
   log,
 ) {
   const warnings = [];
@@ -32,7 +35,7 @@ export async function processSolveRequest(
     // Local DB Query (Extremely fast, <10ms)
     Promise.resolve()
       .then(() =>
-        queryLocalCatalog(localCatalogDb, {
+        queryLocalCatalog(localCatalogDao, {
           ra: solveResult.ra,
           dec: solveResult.dec,
           radiusDeg: radius,

@@ -1,12 +1,15 @@
 import { CatalogError } from "../errors.js";
-import { queryObjectsByBoundingBox } from "../dao/local-catalog.dao.js";
+import { LocalCatalogDao } from "../dao/local-catalog.dao.js";
+
+/** @typedef {import('../dao/local-catalog.dao.js').LocalCatalogDao} LocalCatalogDao */
+/** @typedef {import('../models/solve.model.js').CatalogObject} CatalogObject */
 
 /**
  * Finds celestial objects within a given radius of the given coordinates using a
  * two-step conical search: a fast bounding-box SQL pre-filter followed by an
  * accurate spherical distance check.
  *
- * @param {import('better-sqlite3').Database} db - Open, read-only catalog database
+ * @param {LocalCatalogDao} localCatalogDao - DAO instance for the local catalog
  * @param {Object} params - Search parameters
  * @param {number} params.ra - Right Ascension of the search center (degrees)
  * @param {number} params.dec - Declination of the search center (degrees)
@@ -14,14 +17,14 @@ import { queryObjectsByBoundingBox } from "../dao/local-catalog.dao.js";
  * @param {number} [params.maxMagnitude=10] - Faintest magnitude to include
  * @param {string[]} [params.types=[]] - Object type codes to additionally include
  * @param {Object} params.log - Fastify-compatible structured logger
- * @returns {import('../models/solve.model.js').CatalogObject[]} Matching celestial objects
- * @throws {import('../errors.js').CatalogError} If the database is not provided
+ * @returns {CatalogObject[]} Matching celestial objects
+ * @throws {CatalogError} If the DAO is not provided
  */
 export function queryLocalCatalog(
-  db,
+  localCatalogDao,
   { ra, dec, radiusDeg, maxMagnitude = 10, types = [], log },
 ) {
-  if (!db) {
+  if (!localCatalogDao) {
     throw new CatalogError("local", "Local catalog database is not available.");
   }
 
@@ -34,7 +37,7 @@ export function queryLocalCatalog(
   const minDec = dec - radiusDeg;
   const maxDec = dec + radiusDeg;
 
-  const candidates = queryObjectsByBoundingBox(db, {
+  const candidates = localCatalogDao.queryObjectsByBoundingBox({
     minRA,
     maxRA,
     minDec,

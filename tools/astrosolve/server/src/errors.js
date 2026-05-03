@@ -7,14 +7,25 @@
  */
 
 /**
+ * Base class for all Astrosolve domain errors.
+ * Sets `this.name` automatically to the subclass constructor name.
+ */
+export class AppError extends Error {
+  /** @param {string} message */
+  constructor(message) {
+    super(message);
+    this.name = this.constructor.name;
+  }
+}
+
+/**
  * A typed error that carries an HTTP status code, used to distinguish
  * client-caused failures (4xx) from unexpected server errors (5xx).
  */
-export class SolveError extends Error {
+export class SolveError extends AppError {
   /** @param {number} statusCode @param {string} message */
   constructor(statusCode, message) {
     super(message);
-    this.name = "SolveError";
     this.statusCode = statusCode;
   }
 }
@@ -24,11 +35,10 @@ export class SolveError extends Error {
  * This covers CLI execution failures, missing WCS output, or
  * unparsable WCS data.
  */
-export class AstrometryError extends Error {
+export class AstrometryError extends AppError {
   /** @param {string} message */
   constructor(message) {
     super(message);
-    this.name = "AstrometryError";
   }
 }
 
@@ -36,14 +46,13 @@ export class AstrometryError extends Error {
  * Thrown when a catalog query (local SQLite or SIMBAD TAP) fails.
  * Carries an optional `source` field to distinguish which catalog errored.
  */
-export class CatalogError extends Error {
+export class CatalogError extends AppError {
   /**
    * @param {string} source - The catalog that failed ('local' | 'simbad')
    * @param {string} message
    */
   constructor(source, message) {
     super(message);
-    this.name = "CatalogError";
     this.source = source;
   }
 }
@@ -52,10 +61,9 @@ export class CatalogError extends Error {
  * Thrown when an access key operation fails — e.g. username already exists,
  * key not found, or a database error during key validation.
  */
-export class AccessKeyError extends Error {
+export class AccessKeyError extends AppError {
   /** @param {string} message */
   constructor(message) {
     super(message);
-    this.name = "AccessKeyError";
   }
 }
