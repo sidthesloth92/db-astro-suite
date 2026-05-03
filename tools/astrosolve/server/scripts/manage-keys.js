@@ -1,26 +1,10 @@
-import Database from "better-sqlite3";
 import { SqliteAccessKeyDao } from "../src/dao/sqlite-access-key.dao.js";
 import { createKey, removeKey, listKeys } from "../src/services/access-key.service.js";
 import { AccessKeyError } from "../src/errors.js";
-import config from "../src/config.js";
 
 const [, , command, username] = process.argv;
 
-const db = new Database(config.accessKeysDbPath);
-
-// Ensure the table exists so the CLI works standalone, before the init script is run.
-db.exec(`
-  CREATE TABLE IF NOT EXISTS solve_api_access_keys (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT NOT NULL UNIQUE,
-    key_hash TEXT NOT NULL,
-    created_at TEXT NOT NULL DEFAULT (datetime('now')),
-    active INTEGER NOT NULL DEFAULT 1,
-    use_count INTEGER NOT NULL DEFAULT 0
-  );
-`);
-
-const accessKeyDao = new SqliteAccessKeyDao(db);
+const accessKeyDao = SqliteAccessKeyDao.create();
 
 try {
   switch (command) {
@@ -71,5 +55,5 @@ try {
   }
   process.exit(1);
 } finally {
-  db.close();
+  accessKeyDao.close();
 }

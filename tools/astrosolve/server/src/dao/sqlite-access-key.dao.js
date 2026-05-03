@@ -1,16 +1,61 @@
+import Database from "better-sqlite3";
+import config from "../config.js";
 import { AccessKeyError } from "../errors.js";
 
 /**
  * SQLite-backed implementation of the AccessKeyDao interface contract.
+ *
+ * Use the static {@link SqliteAccessKeyDao.create} factory for production.
+ * Pass an in-memory `Database` to the constructor directly in tests.
  */
 export class SqliteAccessKeyDao {
   #db;
 
   /**
-   * @param db - Open better-sqlite3 database instance
+   * @param {Database} db - Open better-sqlite3 database instance
    */
   constructor(db) {
     this.#db = db;
+  }
+
+  /**
+   * Opens the SQLite database at the path specified in config, runs schema
+   * creation and migrations, and returns a ready-to-use dao instance.
+   *
+   * @returns {SqliteAccessKeyDao}
+   */
+  static create() {
+    const db = new Database(config.accessKeysDbPath);
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS solve_api_access_keys (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL UNIQUE,
+        key_hash TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        active INTEGER NOT NULL DEFAULT 1,
+        use_count INTEGER NOT NULL DEFAULT 0
+      )
+    `);
+    try {
+      db.exec(
+        "ALTER TABLE solve_api_access_keys ADD COLUMN use_count INTEGER NOT NULL DEFAULT 0",
+      );
+    } catch (err) {
+      if (!err.message?.includes("duplicate column name")) {
+        throw err;
+      }
+    }
+    return new SqliteAccessKeyDao(db);
+  }
+
+  /**
+   * Closes the underlying database connection.
+   * Call this when the process is shutting down (e.g. in CLI scripts).
+   *
+   * @returns {void}
+   */
+  close() {
+    this.#db.close();
   }
 
   /**

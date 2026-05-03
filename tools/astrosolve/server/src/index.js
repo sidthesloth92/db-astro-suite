@@ -1,26 +1,29 @@
+import fs from "fs";
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import rateLimit from "@fastify/rate-limit";
 import multipart from "@fastify/multipart";
 import config from "./config.js";
-import { initDatabases, openLocalCatalogDb } from "./db-init.js";
 import { SqliteAccessKeyDao } from "./dao/sqlite-access-key.dao.js";
 import { SqliteLocalCatalogDao } from "./dao/sqlite-local-catalog.dao.js";
 import solveRoute from "./routes/solve.route.js";
 
 const fastify = Fastify({ logger: true });
 
-const { accessKeysDb } = initDatabases(fastify.log);
-const accessKeyDao = new SqliteAccessKeyDao(accessKeysDb);
+// Ensure the uploads directory exists before any file handling begins.
+fs.mkdirSync(config.uploadsDir, { recursive: true });
+
+// Each DAO owns its own database connection and initialization.
+const accessKeyDao = SqliteAccessKeyDao.create();
+fastify.log.info({ path: config.accessKeysDbPath }, "Access-keys DB initialised");
 
 let localCatalogDao;
 try {
-  const localCatalogDb = openLocalCatalogDb();
+  localCatalogDao = SqliteLocalCatalogDao.create();
   fastify.log.info(
     { path: config.localCatalogDbPath },
     "Local catalog DB opened",
   );
-  localCatalogDao = new SqliteLocalCatalogDao(localCatalogDb);
 } catch (err) {
   fastify.log.error(
     { err, path: config.localCatalogDbPath },
