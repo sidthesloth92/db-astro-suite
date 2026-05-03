@@ -11,7 +11,9 @@
  * Sets `this.name` automatically to the subclass constructor name.
  */
 export class AppError extends Error {
-  /** @param {string} message */
+  /**
+   * @param {string} message
+   */
   constructor(message) {
     super(message);
     this.name = this.constructor.name;
@@ -23,7 +25,10 @@ export class AppError extends Error {
  * client-caused failures (4xx) from unexpected server errors (5xx).
  */
 export class SolveError extends AppError {
-  /** @param {number} statusCode @param {string} message */
+  /**
+   * @param {number} statusCode
+   * @param {string} message
+   */
   constructor(statusCode, message) {
     super(message);
     this.statusCode = statusCode;
@@ -36,7 +41,9 @@ export class SolveError extends AppError {
  * unparsable WCS data.
  */
 export class AstrometryError extends AppError {
-  /** @param {string} message */
+  /**
+   * @param {string} message
+   */
   constructor(message) {
     super(message);
   }
@@ -62,7 +69,9 @@ export class CatalogError extends AppError {
  * key not found, or a database error during key validation.
  */
 export class AccessKeyError extends AppError {
-  /** @param {string} message */
+  /**
+   * @param {string} message
+   */
   constructor(message) {
     super(message);
   }

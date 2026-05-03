@@ -119,6 +119,9 @@ async function executeAstrometryAndGetWcsData(command, wcsFilePath, log) {
 
 /**
  * Parses Astrometry.net WCS data string to extract RA, DEC, and scaling.
+ *
+ * @param {string} wcsData - Raw WCS file contents from Astrometry.net
+ * @returns {{ ra: number, dec: number, scale: number | null }} Parsed coordinate and scale data
  */
 function parseAstrometryWcs(wcsData) {
   // Parse WCS for RA (CRVAL1) and DEC (CRVAL2)

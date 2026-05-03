@@ -30,5 +30,7 @@ export const STAR_TYPES = new Set([
  */
 export const CATALOG_PRIORITY = Object.freeze({ Named: 4, HIP: 3, TYC: 2 });
 
-/** Spatial match threshold for star deduplication: 30 arcseconds expressed in degrees. */
+/**
+ * Spatial match threshold for star deduplication: 30 arcseconds expressed in degrees.
+ */
 export const MATCH_DEG = 30 / 3600;

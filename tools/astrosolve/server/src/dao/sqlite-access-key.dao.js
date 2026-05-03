@@ -51,7 +51,9 @@ export class SqliteAccessKeyDao {
     }
   }
 
-  /** @returns {{ username: string, created_at: string, active: number, use_count: number }[]} */
+  /**
+   * @returns {{ username: string, created_at: string, active: number, use_count: number }[]}
+   */
   listAccessKeys() {
     return this.#db
       .prepare(
