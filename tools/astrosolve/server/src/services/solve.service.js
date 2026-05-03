@@ -3,7 +3,7 @@ import { querySimbad } from "./simbad.service.js";
 import { findObjectsInRadius } from "./local-catalog.service.js";
 import { mergeObjects } from "../utils/catalog-merge.util.js";
 import { LocalCatalogDao } from "../dao/local-catalog.dao.js";
-import { SolveResult } from "../models/solve.model.js";
+import { SolveResult, SolveMetadata } from "../models/solve.model.js";
 
 /**
  * Orchestrates the full plate-solve pipeline: astrometry → catalog queries → merge.
@@ -69,15 +69,15 @@ export async function processSolveRequest(
   // Step 3: Deduplication & Merging
   const objects = mergeObjects(localObjects, simbadObjects);
 
-  return {
-    metadata: {
-      ra: solveResult.ra,
-      dec: solveResult.dec,
-      scale: solveResult.scale,
-      wcs: solveResult.wcsData,
-      radius_searched: radius,
-    },
+  return new SolveResult(
+    new SolveMetadata(
+      solveResult.ra,
+      solveResult.dec,
+      solveResult.scale,
+      solveResult.wcsData,
+      radius,
+    ),
     objects,
     warnings,
-  };
+  );
 }

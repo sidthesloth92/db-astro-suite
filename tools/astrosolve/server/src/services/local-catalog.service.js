@@ -1,4 +1,3 @@
-import { CatalogError } from "../models/errors.model.js";
 import { LocalCatalogDao } from "../dao/local-catalog.dao.js";
 import { CatalogObject } from "../models/solve.model.js";
 
@@ -7,7 +6,11 @@ import { CatalogObject } from "../models/solve.model.js";
  * two-step conical search: a fast bounding-box SQL pre-filter followed by an
  * accurate spherical distance check.
  *
- * @param {LocalCatalogDao} localCatalogDao - DAO instance for the local catalog
+ * When `localCatalogDao` is `null` (local catalog not configured), returns an
+ * empty array gracefully so the caller can fall back to remote catalog data.
+ *
+ * @param {LocalCatalogDao | null} localCatalogDao - DAO instance for the local catalog,
+ *   or null if the local catalog is not configured
  * @param {Object} params - Search parameters
  * @param {number} params.ra - Right Ascension of the search center (degrees)
  * @param {number} params.dec - Declination of the search center (degrees)
@@ -15,15 +18,16 @@ import { CatalogObject } from "../models/solve.model.js";
  * @param {number} [params.maxMagnitude=10] - Faintest magnitude to include
  * @param {string[]} [params.types=[]] - Object type codes to additionally include
  * @param {Object} params.log - Fastify-compatible structured logger
- * @returns {CatalogObject[]} Matching celestial objects
- * @throws {CatalogError} If the DAO is not provided
+ * @returns {CatalogObject[]} Matching celestial objects, or an empty array if the
+ *   local catalog is unavailable
  */
 export function findObjectsInRadius(
   localCatalogDao,
   { ra, dec, radiusDeg, maxMagnitude = 10, types = [], log },
 ) {
   if (!localCatalogDao) {
-    throw new CatalogError("local", "Local catalog database is not available.");
+    log.info("Local catalog DAO not configured — skipping local catalog query.");
+    return [];
   }
 
   const cosDec = Math.cos((dec * Math.PI) / 180.0);
