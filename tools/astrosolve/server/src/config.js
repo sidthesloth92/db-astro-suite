@@ -1,6 +1,6 @@
 import path from "path";
 import { fileURLToPath } from "url";
-import { parsePositiveInteger } from "./utils/config.util.js";
+import { parsePositiveInteger } from "./utils/app.util.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
