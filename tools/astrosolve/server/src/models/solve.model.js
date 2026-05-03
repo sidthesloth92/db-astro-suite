@@ -41,7 +41,18 @@ export class CatalogObject {
    * @param {string} [commonName] - Human-readable common name if available
    * @param {number | null} [sizeArcmin] - Angular size in arcminutes if known
    */
-  constructor(name, type, ra, dec, magnitude, source, catalog, entryId, commonName, sizeArcmin) {
+  constructor(
+    name,
+    type,
+    ra,
+    dec,
+    magnitude,
+    source,
+    catalog,
+    entryId,
+    commonName,
+    sizeArcmin,
+  ) {
     this.name = name;
     this.type = type;
     this.ra = ra;
@@ -70,4 +81,3 @@ export class SolveResult {
     this.warnings = warnings;
   }
 }
-
