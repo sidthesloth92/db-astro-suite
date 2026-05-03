@@ -1,8 +1,6 @@
 import { CatalogError } from "../errors.js";
 import { LocalCatalogDao } from "../dao/local-catalog.dao.js";
-
-/** @typedef {import('../dao/local-catalog.dao.js').LocalCatalogDao} LocalCatalogDao */
-/** @typedef {import('../models/solve.model.js').CatalogObject} CatalogObject */
+import { CatalogObject } from "../models/solve.model.js";
 
 /**
  * Finds celestial objects within a given radius of the given coordinates using a

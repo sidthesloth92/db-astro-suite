@@ -4,8 +4,8 @@ import rateLimit from "@fastify/rate-limit";
 import multipart from "@fastify/multipart";
 import config from "./config.js";
 import { initDatabases, openLocalCatalogDb } from "./db-init.js";
-import { SqliteAccessKeyDao } from "./dao/access-key.dao.js";
-import { SqliteLocalCatalogDao } from "./dao/local-catalog.dao.js";
+import { SqliteAccessKeyDao } from "./dao/sqlite-access-key.dao.js";
+import { SqliteLocalCatalogDao } from "./dao/sqlite-local-catalog.dao.js";
 import solveRoute from "./routes/solve.route.js";
 
 const fastify = Fastify({ logger: true });

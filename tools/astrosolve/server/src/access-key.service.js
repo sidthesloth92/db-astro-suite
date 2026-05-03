@@ -1,8 +1,6 @@
 import crypto from "crypto";
-import { SqliteAccessKeyDao } from "./dao/access-key.dao.js";
-
-/** @typedef {import('./dao/access-key.dao.js').AccessKeyDao} AccessKeyDao */
-/** @typedef {import('./errors.js').AccessKeyError} AccessKeyError */
+import { AccessKeyDao } from "./dao/access-key.dao.js";
+import { AccessKeyError } from "./errors.js";
 
 /**
  * Hashes a plain-text key with SHA-256.
@@ -73,6 +71,3 @@ export function validateKey(dao, plainKey) {
 export function incrementUseCount(dao, id) {
   dao.incrementKeyUseCount(id);
 }
-
-// Re-export SqliteAccessKeyDao for callers that need to construct one
-export { SqliteAccessKeyDao };

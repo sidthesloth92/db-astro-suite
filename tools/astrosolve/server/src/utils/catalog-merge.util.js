@@ -1,5 +1,4 @@
-/** @typedef {import('../models/solve.model.js').CatalogObject} CatalogObject */
-
+import { CatalogObject } from "../models/solve.model.js";
 import {
   STAR_TYPES,
   CATALOG_PRIORITY,

@@ -9,8 +9,8 @@ import config from "./config.js";
  * The returned `accessKeysDb` connection is intended to remain open for the
  * lifetime of the server process. Callers must not close it manually.
  *
- * @param {import('pino').Logger} log - Fastify-compatible structured logger
- * @returns {{ accessKeysDb: import('better-sqlite3').Database }}
+ * @param {object} log - Fastify-compatible structured logger
+ * @returns {{ accessKeysDb: Database }}
  */
 export function initDatabases(log) {
   fs.mkdirSync(config.uploadsDir, { recursive: true });
@@ -51,7 +51,7 @@ export function initDatabases(log) {
  * Throws a `CatalogError` if the database file does not exist — callers should
  * catch this and treat the local catalog as unavailable rather than crashing.
  *
- * @returns {import('better-sqlite3').Database}
+ * @returns {Database}
  * @throws {Error} If the database file is missing or cannot be opened
  */
 export function openLocalCatalogDb() {

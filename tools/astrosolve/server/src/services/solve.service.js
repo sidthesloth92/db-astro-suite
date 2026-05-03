@@ -2,9 +2,8 @@ import { solveWithAstrometry } from "./astrometry.service.js";
 import { querySimbad } from "./simbad.service.js";
 import { queryLocalCatalog } from "./local-catalog.service.js";
 import { mergeObjects } from "../utils/catalog-merge.util.js";
-
-/** @typedef {import('../dao/local-catalog.dao.js').LocalCatalogDao} LocalCatalogDao */
-/** @typedef {import('../models/solve.model.js').SolveResult} SolveResult */
+import { LocalCatalogDao } from "../dao/local-catalog.dao.js";
+import { SolveResult } from "../models/solve.model.js";
 
 /**
  * Orchestrates the full plate-solve pipeline: astrometry → catalog queries → merge.

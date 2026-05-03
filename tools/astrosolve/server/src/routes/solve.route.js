@@ -5,9 +5,8 @@ import { SolveError } from "../errors.js";
 import { parseMultipartRequest } from "../services/upload.service.js";
 import { processSolveRequest } from "../services/solve.service.js";
 import { solveAuthHook } from "../hooks/solve-auth.hook.js";
-
-/** @typedef {import('../dao/access-key.dao.js').AccessKeyDao} AccessKeyDao */
-/** @typedef {import('../dao/local-catalog.dao.js').LocalCatalogDao} LocalCatalogDao */
+import { AccessKeyDao } from "../dao/access-key.dao.js";
+import { LocalCatalogDao } from "../dao/local-catalog.dao.js";
 
 // Concurrency queue to protect backend execution.
 const solveQueue = new PQueue({ concurrency: config.queueConcurrency });

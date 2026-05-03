@@ -1,6 +1,5 @@
 import { validateKey, incrementUseCount } from "../access-key.service.js";
-
-/** @typedef {import('../dao/access-key.dao.js').AccessKeyDao} AccessKeyDao */
+import { AccessKeyDao } from "../dao/access-key.dao.js";
 
 /**
  * Returns a Fastify preHandler that validates the x-access-key header
