@@ -3,11 +3,26 @@ import cors from "@fastify/cors";
 import rateLimit from "@fastify/rate-limit";
 import multipart from "@fastify/multipart";
 import config from "./config.js";
-import { initDatabases } from "./db-init.js";
-
+import { initDatabases, openLocalCatalogDb } from "./db-init.js";
+import solveRoute from "./routes/solve.route.js";
 
 const fastify = Fastify({ logger: true });
-initDatabases(fastify.log);
+
+const { accessKeysDb } = initDatabases(fastify.log);
+
+let localCatalogDb = null;
+try {
+  localCatalogDb = openLocalCatalogDb();
+  fastify.log.info(
+    { path: config.localCatalogDbPath },
+    "Local catalog DB opened",
+  );
+} catch (err) {
+  fastify.log.warn(
+    { err, path: config.localCatalogDbPath },
+    "Local catalog DB not available — catalog queries will be skipped. Run 'npm run init-db' first.",
+  );
+}
 
 // Register Rate Limiting
 fastify.register(rateLimit, {
@@ -29,9 +44,8 @@ fastify.register(multipart, {
   },
 });
 
-// Register routes
-import solveRoute from "./routes/solve.route.js";
-fastify.register(solveRoute);
+// Register routes — pass open DB connections via plugin options (DI via Fastify plugin opts)
+fastify.register(solveRoute, { accessKeysDb, localCatalogDb });
 
 // Health check route
 fastify.get("/", async (request, reply) => {

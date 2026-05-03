@@ -1,4 +1,11 @@
+import path from "path";
+import { fileURLToPath } from "url";
 import { parsePositiveInteger } from "./utils/config.util.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+/** Absolute path to the top-level data directory (one level above `src/`). */
+const DATA_DIR = path.join(__dirname, "../data");
 
 /**
  * Centralised, validated configuration object.
@@ -28,13 +35,19 @@ const config = Object.freeze({
   ),
 
   /** Maximum queued jobs before returning 503. */
-  queueMaxSize: parsePositiveInteger(
-    process.env.ASTROSOLVE_QUEUE_MAX_SIZE,
-    10,
-  ),
+  queueMaxSize: parsePositiveInteger(process.env.ASTROSOLVE_QUEUE_MAX_SIZE, 10),
 
   /** When true, POST /api/v1/solve requires a valid x-access-key header. */
   solveApiKeyRequired: process.env.SOLVE_API_KEY_REQUIRED === "true",
+
+  /** Absolute path to the uploads directory for incoming images. */
+  uploadsDir: path.join(DATA_DIR, "uploads"),
+
+  /** Absolute path to the access-keys SQLite database. */
+  accessKeysDbPath: path.join(DATA_DIR, "astrosolve.sqlite"),
+
+  /** Absolute path to the local celestial catalog SQLite database. */
+  localCatalogDbPath: path.join(DATA_DIR, "local-catalog/celestial.sqlite"),
 });
 
 export default config;

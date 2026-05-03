@@ -47,3 +47,15 @@ export class CatalogError extends Error {
     this.source = source;
   }
 }
+
+/**
+ * Thrown when an access key operation fails — e.g. username already exists,
+ * key not found, or a database error during key validation.
+ */
+export class AccessKeyError extends Error {
+  /** @param {string} message */
+  constructor(message) {
+    super(message);
+    this.name = "AccessKeyError";
+  }
+}

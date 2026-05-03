@@ -5,7 +5,7 @@ import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { AccessKeyError } from './models/access-key.error';
 import { AstrosolveError } from './models/astrosolve.error';
-import { AstroSolveResponse } from './models/astrosolve.response';
+import { AstroSolveResponse, SolveData } from './models/astrosolve.response';
 
 @Injectable({
   providedIn: 'root',
@@ -30,6 +30,7 @@ export class AstrosolveService {
 
   /**
    * Upload an image to the local Astrosolve API for fast plate solving.
+   * Maps the raw API response to the `SolveData` domain model before returning.
    *
    * @param file The background image file (must be >= 1080x1080)
    * @param hints The hints required/optional for Astrometry.net to solve the image
@@ -40,7 +41,7 @@ export class AstrosolveService {
       types?: string[];
     },
     onProgress?: (msg: string) => void,
-  ): Promise<AstroSolveResponse> {
+  ): Promise<SolveData> {
     onProgress?.('Preparing upload for plate solving...');
 
     const formData = new FormData();
@@ -54,17 +55,15 @@ export class AstrosolveService {
     onProgress?.('Astrometry.net is solving your image...');
 
     const accessKey = this.storage.getItem(this.ACCESS_KEY_STORAGE_KEY);
-    const headers = new HttpHeaders(
-      accessKey ? { 'x-access-key': accessKey } : {},
-    );
+    const headers = new HttpHeaders(accessKey ? { 'x-access-key': accessKey } : {});
 
     try {
-      const result = await firstValueFrom(
+      const response = await firstValueFrom(
         this.http.post<AstroSolveResponse>(`${this.baseUrl}/solve`, formData, { headers }),
       );
 
       onProgress?.('Solve successful! Identifying objects...');
-      return result;
+      return response.details;
     } catch (error: unknown) {
       if (error instanceof HttpErrorResponse && error.status === 401) {
         this.clearAccessKey();

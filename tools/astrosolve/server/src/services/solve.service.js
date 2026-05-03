@@ -1,17 +1,23 @@
 import { solveWithAstrometry } from "./astrometry.service.js";
 import { querySimbad } from "./simbad.service.js";
 import { queryLocalCatalog } from "./local-catalog.service.js";
-import { mergeObjects, STAR_TYPES } from "./merge.service.js";
+import { mergeObjects } from "../utils/catalog-merge.util.js";
 
 /**
  * Orchestrates the full plate-solve pipeline: astrometry → catalog queries → merge.
  *
  * @param {string} filePath - Absolute path to the saved image file
  * @param {Object} hints - Solving hints extracted from the request
+ * @param {import('better-sqlite3').Database | null} localCatalogDb - Open catalog DB, or null if unavailable
  * @param {Object} log - Fastify-compatible logger (request.log)
- * @returns {Promise<{metadata: Object, objects: Array, warnings: string[]}>} Merged solve result
+ * @returns {Promise<import('../models/solve.model.js').SolveResult>} Merged solve result
  */
-export async function processSolveRequest(filePath, hints, log) {
+export async function processSolveRequest(
+  filePath,
+  hints,
+  localCatalogDb,
+  log,
+) {
   const warnings = [];
 
   // Step 1: Plate Solve using local Astrometry.net
@@ -26,7 +32,7 @@ export async function processSolveRequest(filePath, hints, log) {
     // Local DB Query (Extremely fast, <10ms)
     Promise.resolve()
       .then(() =>
-        queryLocalCatalog({
+        queryLocalCatalog(localCatalogDb, {
           ra: solveResult.ra,
           dec: solveResult.dec,
           radiusDeg: radius,

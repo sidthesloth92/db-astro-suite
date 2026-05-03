@@ -1,13 +1,20 @@
-import crypto from 'crypto';
-import { AccessKeyError } from './access-key.error.js';
+import crypto from "crypto";
+import {
+  insertAccessKey,
+  deactivateAccessKey,
+  listAccessKeys,
+  findActiveKeyByHash,
+  incrementKeyUseCount,
+} from "./dao/access-key.dao.js";
 
 /**
  * Hashes a plain-text key with SHA-256.
+ *
  * @param {string} plainKey
- * @returns {string} hex digest
+ * @returns {string} Hex digest
  */
 function hashKey(plainKey) {
-  return crypto.createHash('sha256').update(plainKey).digest('hex');
+  return crypto.createHash("sha256").update(plainKey).digest("hex");
 }
 
 /**
@@ -16,23 +23,12 @@ function hashKey(plainKey) {
  * @param {import('better-sqlite3').Database} db
  * @param {string} username
  * @returns {string} The generated plain-text key (only time it is ever visible)
- * @throws {AccessKeyError} If username already exists or insert fails
+ * @throws {import('./errors.js').AccessKeyError} If username already exists or insert fails
  */
 export function createKey(db, username) {
-  const plainKey = crypto.randomBytes(32).toString('hex');
+  const plainKey = crypto.randomBytes(32).toString("hex");
   const keyHash = hashKey(plainKey);
-
-  try {
-    db.prepare(
-      'INSERT INTO solve_api_access_keys (username, key_hash) VALUES (?, ?)',
-    ).run(username, keyHash);
-  } catch (err) {
-    if (err.message?.includes('UNIQUE constraint failed')) {
-      throw new AccessKeyError(`Username already exists: ${username}`);
-    }
-    throw new AccessKeyError(`Failed to create key for "${username}": ${err.message}`);
-  }
-
+  insertAccessKey(db, username, keyHash);
   return plainKey;
 }
 
@@ -41,28 +37,20 @@ export function createKey(db, username) {
  *
  * @param {import('better-sqlite3').Database} db
  * @param {string} username
- * @throws {AccessKeyError} If username is not found
+ * @throws {import('./errors.js').AccessKeyError} If username is not found
  */
 export function removeKey(db, username) {
-  const result = db
-    .prepare('UPDATE solve_api_access_keys SET active = 0 WHERE username = ?')
-    .run(username);
-
-  if (result.changes === 0) {
-    throw new AccessKeyError(`User not found: ${username}`);
-  }
+  deactivateAccessKey(db, username);
 }
 
 /**
  * Returns all key records without hashes.
  *
  * @param {import('better-sqlite3').Database} db
- * @returns {{ username: string, created_at: string, active: number }[]}
+ * @returns {{ username: string, created_at: string, active: number, use_count: number }[]}
  */
 export function listKeys(db) {
-  return db
-    .prepare('SELECT username, created_at, active, use_count FROM solve_api_access_keys')
-    .all();
+  return listAccessKeys(db);
 }
 
 /**
@@ -76,12 +64,7 @@ export function listKeys(db) {
  */
 export function validateKey(db, plainKey) {
   if (!plainKey) return null;
-
-  const keyHash = hashKey(plainKey);
-  const row = db
-    .prepare('SELECT id FROM solve_api_access_keys WHERE key_hash = ? AND active = 1')
-    .get(keyHash);
-  return row?.id ?? null;
+  return findActiveKeyByHash(db, hashKey(plainKey));
 }
 
 /**
@@ -91,7 +74,5 @@ export function validateKey(db, plainKey) {
  * @param {number} id
  */
 export function incrementUseCount(db, id) {
-  db.prepare(
-    'UPDATE solve_api_access_keys SET use_count = use_count + 1 WHERE id = ?',
-  ).run(id);
+  incrementKeyUseCount(db, id);
 }

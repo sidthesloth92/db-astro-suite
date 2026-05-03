@@ -1,28 +1,24 @@
-/**
- * Set of SIMBAD/local object types that represent stars (as opposed to DSOs).
- */
-export const STAR_TYPES = new Set([
-  "*", "**", "V*", "Ce*", "RR*", "LP*", "Mi*", "WR*", "C*", "Be*", "HB*", "WD*", "No*", "SN*",
-  "Star",
-]);
+import {
+  STAR_TYPES,
+  CATALOG_PRIORITY,
+  MATCH_DEG,
+} from "../catalog.constants.js";
 
 /**
- * Catalog accuracy priority for local star sources (higher = more accurate).
- */
-const CATALOG_PRIORITY = { Named: 4, HIP: 3, TYC: 2 };
-
-/** 30 arcseconds in degrees — spatial match threshold for deduplication. */
-const MATCH_DEG = 30 / 3600;
-
-/**
- * Merges and deduplicates objects from the local catalog and SIMBAD.
+ * Merges and deduplicates celestial objects from the local catalog and SIMBAD.
  *
- * @param {Array} localObjects - Objects from the local SQLite catalog
- * @param {Array} simbadObjects - Objects from the SIMBAD TAP service
- * @returns {Array} Deduplicated and merged list of celestial objects
+ * Strategy:
+ * - Stars: local catalog wins by catalog priority (Named > HIP > TYC). SIMBAD stars
+ *   refine position for name-matched or spatially-nearby local entries, or add new ones.
+ * - DSOs: local always wins; SIMBAD adds only objects not already present within the
+ *   spatial match threshold.
+ *
+ * @param {import('../models/solve.model.js').CatalogObject[]} localObjects - Objects from the local SQLite catalog
+ * @param {import('../models/solve.model.js').CatalogObject[]} simbadObjects - Objects from the SIMBAD TAP service
+ * @returns {import('../models/solve.model.js').CatalogObject[]} Deduplicated and merged list of celestial objects
  */
 export function mergeObjects(localObjects, simbadObjects) {
-  // Build best-per-name map from local stars (HIP beats HD when both present)
+  // Build best-per-name map from local stars (Named beats HIP/TYC when both present)
   const localStarsByName = new Map();
   for (const obj of localObjects.filter((o) => STAR_TYPES.has(o.type))) {
     const key = obj.name.toLowerCase();

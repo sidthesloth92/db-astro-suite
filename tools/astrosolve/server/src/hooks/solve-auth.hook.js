@@ -1,11 +1,10 @@
-import crypto from "crypto";
 import { validateKey, incrementUseCount } from "../access-key.service.js";
 
 /**
  * Returns a Fastify preHandler that validates the x-access-key header
  * against the access-keys database.
  *
- * @param {object} config - Application config object
+ * @param {object} config - Application config object (kept for forward-compatibility)
  * @param {import('better-sqlite3').Database} db - Open better-sqlite3 database instance
  * @returns {(request: import('fastify').FastifyRequest, reply: import('fastify').FastifyReply) => Promise<void>}
  */
@@ -23,7 +22,6 @@ export function solveAuthHook(config, db) {
       });
     }
 
-    const keyHash = crypto.createHash("sha256").update(key).digest("hex");
     let keyId = null;
     try {
       keyId = validateKey(db, key);
@@ -40,10 +38,7 @@ export function solveAuthHook(config, db) {
     }
 
     if (keyId == null) {
-      request.log.warn(
-        { keyHashPrefix: keyHash.slice(0, 12) + "..." },
-        "access-key preHandler: key not found or inactive",
-      );
+      request.log.warn("access-key preHandler: key not found or inactive");
       return reply.code(401).send({
         code: "UNAUTHORIZED",
         message: "Invalid or missing access key",
@@ -53,7 +48,10 @@ export function solveAuthHook(config, db) {
 
     try {
       incrementUseCount(db, keyId);
-      request.log.debug({ keyId }, "access-key preHandler: use_count incremented");
+      request.log.debug(
+        { keyId },
+        "access-key preHandler: use_count incremented",
+      );
     } catch (err) {
       request.log.error(
         { err },
@@ -61,9 +59,6 @@ export function solveAuthHook(config, db) {
       );
     }
 
-    request.log.info(
-      { keyHashPrefix: keyHash.slice(0, 12) + "..." },
-      "access-key preHandler: key validated OK",
-    );
+    request.log.info({ keyId }, "access-key preHandler: key validated OK");
   };
 }
