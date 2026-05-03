@@ -1,6 +1,6 @@
 import { solveWithAstrometry } from "./astrometry.service.js";
 import { querySimbad } from "./simbad.service.js";
-import { queryLocalCatalog } from "./local-catalog.service.js";
+import { findObjectsInRadius } from "./local-catalog.service.js";
 import { mergeObjects } from "../utils/catalog-merge.util.js";
 import { LocalCatalogDao } from "../dao/local-catalog.dao.js";
 import { SolveResult } from "../models/solve.model.js";
@@ -34,7 +34,7 @@ export async function processSolveRequest(
     // Local DB Query (Extremely fast, <10ms)
     Promise.resolve()
       .then(() =>
-        queryLocalCatalog(localCatalogDao, {
+        findObjectsInRadius(localCatalogDao, {
           ra: solveResult.ra,
           dec: solveResult.dec,
           radiusDeg: radius,

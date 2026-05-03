@@ -18,7 +18,7 @@ import { CatalogObject } from "../models/solve.model.js";
  * @returns {CatalogObject[]} Matching celestial objects
  * @throws {CatalogError} If the DAO is not provided
  */
-export function queryLocalCatalog(
+export function findObjectsInRadius(
   localCatalogDao,
   { ra, dec, radiusDeg, maxMagnitude = 10, types = [], log },
 ) {
