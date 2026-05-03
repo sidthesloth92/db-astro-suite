@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { ANALYTICS_SERVICE_TOKEN } from '@db-astro-suite/ui';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -27,6 +28,8 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestroy {
+  private analyticsService = inject(ANALYTICS_SERVICE_TOKEN);
+  
   aspectRatio = input<'3:4' | '4:5' | 'auto'>('4:5');
   backgroundImage = input<string | null>(null);
   fillMode = input<'cover' | 'contain' | 'fill'>('cover');
@@ -207,6 +210,13 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     try {
+      // Track card export initiation
+      try {
+        this.analyticsService.trackCardExportInitiated('jpg');
+      } catch (e) {
+        console.error('Analytics tracking error:', e);
+      }
+      
       console.log('--- Export Start (Modern Screenshot) ---');
       const { domToJpeg } = await import('modern-screenshot');
       const element = this.cardElement.nativeElement;
@@ -283,7 +293,21 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
           document.body.removeChild(link);
         }
       }, 500);
+      
+      // Track successful export
+      try {
+        const dataUrlSize = Math.ceil(dataUrl.length / 1024); // Convert to KB
+        this.analyticsService.trackCardExportSuccess('jpg', dataUrlSize, 0);
+      } catch (e) {
+        console.error('Analytics tracking error:', e);
+      }
     } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      try {
+        this.analyticsService.trackCardExportFailed(errorMsg);
+      } catch (e) {
+        console.error('Analytics tracking error:', e);
+      }
       console.error('Export failed:', error);
       alert('Failed to generate image. Please check the console.');
     } finally {

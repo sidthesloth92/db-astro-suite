@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { SliderComponent } from '@db-astro-suite/ui';
+import { SliderComponent, ANALYTICS_SERVICE_TOKEN } from '@db-astro-suite/ui';
 import { AnnotationStyle } from '../../models/annotation-settings.models';
 import { ImageAnnotation } from '../../models/annotation.models';
 import { CardDataService } from '../../services/card-data.service';
@@ -314,6 +314,7 @@ import { CardDataService } from '../../services/card-data.service';
 })
 export class AnnotationDetailComponent {
   private dataService = inject(CardDataService);
+  private analyticsService = inject(ANALYTICS_SERVICE_TOKEN);
 
   isEditingLabel = signal(false);
   editLabelValue = signal('');
@@ -327,6 +328,13 @@ export class AnnotationDetailComponent {
   saveLabel() {
     const val = this.editLabelValue().trim();
     const ann = this.annotation();
+    
+    try {
+      this.analyticsService.trackButtonClicked('edit_annotation', 'annotation');
+    } catch (e) {
+      console.error('Analytics tracking error:', e);
+    }
+    
     this.updateStyle({ customLabel: val && val !== ann?.label ? val : undefined });
     this.isEditingLabel.set(false);
   }

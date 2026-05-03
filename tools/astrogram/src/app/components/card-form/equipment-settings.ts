@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { SelectComponent, NeonButtonComponent } from '@db-astro-suite/ui';
 import { CardDataService } from '../../services/card-data.service';
 import { PresetService } from '../../services/preset.service';
+import { ANALYTICS_SERVICE_TOKEN } from '@db-astro-suite/ui';
 
 @Component({
   selector: 'dba-ag-equipment-settings',
@@ -132,6 +133,7 @@ import { PresetService } from '../../services/preset.service';
   `
 })
 export class EquipmentSettingsComponent implements OnInit {
+  private analyticsService = inject(ANALYTICS_SERVICE_TOKEN);
   dataService = inject(CardDataService);
   presetService = inject(PresetService);
   cardData = this.dataService.cardData;
@@ -172,6 +174,14 @@ export class EquipmentSettingsComponent implements OnInit {
   startSavePreset() { this.isSavingPreset = true; this.newPresetName = ''; this.isDeletingPreset = false; }
   confirmSavePreset() {
     if (!this.newPresetName.trim()) return;
+    
+    try {
+      this.analyticsService.trackButtonClicked('save_preset', 'equipment');
+      this.analyticsService.trackSettingChanged('equipment_preset', this.newPresetName.trim());
+    } catch (e) {
+      console.error('Analytics tracking error:', e);
+    }
+    
     this.presetService.saveEquipmentPreset(this.newPresetName.trim(), this.cardData().equipment);
     this.loadPresets();
     this.selectedPresetName = this.newPresetName.trim();
@@ -182,6 +192,13 @@ export class EquipmentSettingsComponent implements OnInit {
   startDeletePreset() { if (!this.selectedPresetName) return; this.isDeletingPreset = true; this.isSavingPreset = false; }
   confirmDeletePreset() {
     if (!this.selectedPresetName) return;
+    
+    try {
+      this.analyticsService.trackButtonClicked('delete_preset', 'equipment');
+    } catch (e) {
+      console.error('Analytics tracking error:', e);
+    }
+    
     this.presetService.deleteEquipmentPreset(this.selectedPresetName);
     this.loadPresets();
     this.selectedPresetName = '';

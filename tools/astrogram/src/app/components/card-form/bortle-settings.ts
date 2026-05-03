@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardDataService } from '../../services/card-data.service';
+import { ANALYTICS_SERVICE_TOKEN } from '@db-astro-suite/ui';
 
 @Component({
   selector: 'dba-ag-bortle-settings',
@@ -30,10 +31,16 @@ import { CardDataService } from '../../services/card-data.service';
   `
 })
 export class BortleSettingsComponent {
+  private analyticsService = inject(ANALYTICS_SERVICE_TOKEN);
   dataService = inject(CardDataService);
   cardData = this.dataService.cardData;
 
   updateBortle(n: number) {
+    try {
+      this.analyticsService.trackSettingChanged('bortle_scale', n);
+    } catch (e) {
+      console.error('Analytics tracking error:', e);
+    }
     this.dataService.updateData({ bortleScale: n });
   }
 }
