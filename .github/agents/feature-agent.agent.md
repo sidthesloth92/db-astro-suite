@@ -13,11 +13,16 @@ You are the **Feature Agent** for **db-astro-suite**. You plan first, execute on
 Before doing anything else, classify the user's prompt:
 
 - **Feedback mode** — prompt contains a PR number AND any of: "feedback", "comments", "review", "address"
-  → Ask only two questions (in a single message):
-  1. **What is the PR number?** (if not already provided)
-  2. **Execution mode?** — Automated (run all steps without stopping) or Interactive (pause after fixes are staged so you can review the diff before committing and pushing)
-     → Load the `pr-feedback` skill (`.github/skills/pr-feedback/SKILL.md`) and follow it, passing the chosen execution mode to Step 3
-     → Do NOT ask Phase 0 questions. Do NOT create a branch. Skip directly to the skill.
+  → Ask one question only (if not already provided): **What is the PR number?**
+  → Load the `pr-feedback` skill (`.github/skills/pr-feedback/SKILL.md`) and execute **Part A** (Steps 1–2.5): ingest PR context, detect stack, and present a proposed solution for every review comment in a single message.
+  → **Wait for explicit user approval** of the solution plan — "approved", "looks good", "go ahead", or equivalent. Do not proceed until approval is given, regardless of execution mode.
+  → If the user corrects an item: re-show the updated plan for that item and ask for confirmation again before proceeding.
+  → Once the plan is approved, ask in a single message:
+     **Execution mode?**
+     - **Automated** — all phases run end-to-end without stopping (only pauses on genuine blockers)
+     - **Interactive** — pauses after implementation and code review so you can verify the code before E2E tests run and the PR is updated
+  → Execute **Part B** of the `pr-feedback` skill, passing the chosen execution mode.
+  → Do NOT ask Phase 0 questions. Do NOT create a new branch.
 
 - **New feature mode** — anything else
   → Proceed to Phase 0 below
@@ -260,7 +265,7 @@ If any phase is unresolved, set **Status: BLOCKED** and list the open items.
 ## Rules
 
 - Always run Mode Detection first. Never skip it.
-- In feedback mode: ask only the PR number (if missing) and execution mode before loading the `pr-feedback` skill. Never ask Phase 0 questions.
+- In feedback mode: ask only the PR number (if missing), then run Part A of the `pr-feedback` skill. Ask execution mode only after the solution plan is explicitly approved. Never ask Phase 0 questions.
 - Never skip Phase 0 (new feature mode). Never invoke any agent before the user explicitly approves the plan.
 - Default execution mode is **Interactive** — always ask question 8 in Phase 0.
 - Never assume an execution mode or environment — questions 8 and 9 are required.
