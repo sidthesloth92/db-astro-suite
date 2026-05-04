@@ -5,6 +5,10 @@ import helmet from "@fastify/helmet";
 import rateLimit from "@fastify/rate-limit";
 import multipart from "@fastify/multipart";
 import config from "./config.js";
+import {
+  SOLVE_RATE_LIMIT,
+  HEALTH_RATE_LIMIT,
+} from "./constants/rate-limit.constants.js";
 import { SqliteAccessKeyDao } from "./dao/sqlite-access-key.dao.js";
 import { SqliteLocalCatalogDao } from "./dao/sqlite-local-catalog.dao.js";
 import solveRoute from "./routes/solve.route.js";
@@ -39,10 +43,7 @@ try {
 // Register Rate Limiting — applied globally with per-IP key based on real client IP.
 // When behind Cloudflare (trustProxy: true), Fastify resolves the real IP from
 // X-Forwarded-For, so rate limits are per actual client rather than the proxy.
-fastify.register(rateLimit, {
-  max: config.rateLimitMax,
-  timeWindow: config.rateLimitWindow,
-});
+fastify.register(rateLimit, SOLVE_RATE_LIMIT);
 
 // Security headers — applied before any route handlers.
 fastify.register(helmet);
@@ -71,14 +72,11 @@ fastify.get(
   "/",
   {
     config: {
-      rateLimit: {
-        max: config.healthRateLimitMax,
-        timeWindow: "1 minute",
-      },
+      rateLimit: HEALTH_RATE_LIMIT,
     },
   },
   async (request, reply) => {
-    return { status: "Astrosolve API is running" };
+    return { code: "OK", message: "Astrosolve API is running", details: {} };
   },
 );
 

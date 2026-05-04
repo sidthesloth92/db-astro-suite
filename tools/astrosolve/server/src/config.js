@@ -90,6 +90,13 @@ const config = Object.freeze({
   ),
 
   /**
+   * Rate-limit time window for the health check endpoint (GET /).
+   * Defaults to "1 minute". Configure via ASTROSOLVE_HEALTH_RATE_LIMIT_WINDOW.
+   */
+  healthRateLimitWindow:
+    process.env.ASTROSOLVE_HEALTH_RATE_LIMIT_WINDOW ?? "1 minute",
+
+  /**
    * Absolute path to the uploads directory for incoming images.
    */
   uploadsDir: path.join(DATA_DIR, "uploads"),
