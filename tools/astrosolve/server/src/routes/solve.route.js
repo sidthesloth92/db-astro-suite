@@ -11,7 +11,6 @@ import { LocalCatalogDao } from "../dao/local-catalog.dao.js";
 // Concurrency queue to protect backend execution.
 const solveQueue = new PQueue({ concurrency: config.queueConcurrency });
 
-
 /**
  * Fastify route plugin — registers the POST /api/v1/solve endpoint.
  * Receives DAO instances via plugin opts (dependency injection).
@@ -75,11 +74,13 @@ export default async function (fastify, opts) {
 
       request.log.info("Sending reply...");
       return reply.send({
-        status: "success",
+        code: "SOLVE_SUCCESS",
         message: "Plate solve completed successfully.",
-        metadata: result.metadata,
-        objects: result.objects,
-        ...(result.warnings?.length ? { warnings: result.warnings } : {}),
+        details: {
+          metadata: result.metadata,
+          objects: result.objects,
+          ...(result.warnings?.length ? { warnings: result.warnings } : {}),
+        },
       });
     } catch (e) {
       if (e instanceof SolveError) {
