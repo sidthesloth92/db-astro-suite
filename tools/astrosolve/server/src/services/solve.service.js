@@ -13,10 +13,6 @@ import { CatalogError } from "../models/errors.model.js";
  * @param {Object} hints - Solving hints extracted from the request
  * @param {LocalCatalogDao | null} localCatalogDao - DAO for the local catalog
  * @param {Object} log - Fastify-compatible logger (request.log)
- * @param {Object} [_deps] - Optional injected collaborators (for testing only)
- * @param {typeof solveWithAstrometry} [_deps.solveWithAstrometryFn]
- * @param {typeof querySimbad} [_deps.querySimbadFn]
- * @param {typeof findObjectsInRadius} [_deps.findObjectsInRadiusFn]
  * @returns {Promise<SolveResult>} Merged solve result
  */
 export async function processSolveRequest(
@@ -24,16 +20,11 @@ export async function processSolveRequest(
   hints,
   localCatalogDao,
   log,
-  {
-    solveWithAstrometryFn = solveWithAstrometry,
-    querySimbadFn = querySimbad,
-    findObjectsInRadiusFn = findObjectsInRadius,
-  } = {},
 ) {
   const warnings = [];
 
   // Step 1: Plate Solve using local Astrometry.net
-  const solveResult = await solveWithAstrometryFn(filePath, hints, log);
+  const solveResult = await solveWithAstrometry(filePath, hints, log);
 
   // Step 2: Hybrid Search (Local + SIMBAD)
   // We search within a 2-degree radius (typical wide field crop)
@@ -42,7 +33,7 @@ export async function processSolveRequest(
   // Fire both queries in parallel
   const [localObjects, simbadObjects] = await Promise.all([
     // Local DB Query (Extremely fast, <10ms)
-    findObjectsInRadiusFn(localCatalogDao, {
+    findObjectsInRadius(localCatalogDao, {
       ra: solveResult.ra,
       dec: solveResult.dec,
       radiusDeg: radius,
@@ -56,7 +47,7 @@ export async function processSolveRequest(
     }),
 
     // SIMBAD Query (Slower, network dependent)
-    querySimbadFn(
+    querySimbad(
       solveResult.ra,
       solveResult.dec,
       radius,
@@ -82,7 +73,7 @@ export async function processSolveRequest(
       solveResult.ra,
       solveResult.dec,
       solveResult.scale,
-      solveResult.wcsData,  // astrometry DTO uses wcsData; SolveMetadata.wcs is the public field
+      solveResult.wcsData, // astrometry DTO uses wcsData; SolveMetadata.wcs is the public field
       radius,
     ),
     objects,
