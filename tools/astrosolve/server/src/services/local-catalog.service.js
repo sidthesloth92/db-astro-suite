@@ -1,105 +1,81 @@
-import Database from "better-sqlite3";
-import path from "path";
-import { fileURLToPath } from "url";
-import { CatalogError } from "../errors.js";
+import { LocalCatalogDao } from "../dao/local-catalog.dao.js";
+import { CatalogObject } from "../models/solve.model.js";
+import { CatalogError } from "../models/errors.model.js";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-// The Database is located in the top-level data directory, two levels up from src/services/
-const DB_PATH = path.join(
-  __dirname,
-  "../../data/local-catalog/celestial.sqlite",
-);
+/** Regex used to normalise OpenNGC compact names (e.g. NGC2023 → NGC 2023, IC0434 → IC 434). */
+const NAME_NORMALISE_RE = /^(NGC|IC)0*(\d+)$/;
 
 /**
- * Initialize connection to the celestial SQLite database.
- * This is done lazily or at module load; we log errors but don't crash
- * until a query is actually attempted.
- */
-let db;
-let dbInitError = null;
-try {
-  db = new Database(DB_PATH, { readonly: true, fileMustExist: true });
-} catch (err) {
-  dbInitError = new CatalogError(
-    "local",
-    "Local catalog database is not available. Run 'npm run init-db' first.",
-  );
-  dbInitError.message += ` Checked path: ${DB_PATH}`;
-  dbInitError.cause = err;
-}
-
-/**
- * Finds celestial objects within a given radius using a conical search.
- * This function uses a fast bounding-box filter followed by a spherical distance check.
+ * Finds celestial objects within a given radius of the given coordinates using a
+ * two-step conical search: a fast bounding-box SQL pre-filter followed by an
+ * accurate spherical distance check.
  *
- * @param {Object} params - Search parameters { ra, dec, radiusDeg, maxMagnitude, types, log }
- * @returns {Array} List of matching celestial objects
+ * When `localCatalogDao` is `null` (local catalog not configured), returns an
+ * empty array gracefully so the caller can fall back to remote catalog data.
+ *
+ * @param {LocalCatalogDao | null} localCatalogDao - DAO instance for the local catalog,
+ *   or null if the local catalog is not configured
+ * @param {Object} params - Search parameters
+ * @param {number} params.ra - Right Ascension of the search center (degrees)
+ * @param {number} params.dec - Declination of the search center (degrees)
+ * @param {number} params.radiusDeg - Search radius in degrees
+ * @param {number} [params.maxMagnitude=10] - Faintest magnitude to include
+ * @param {string[]} [params.types=[]] - Object type codes to additionally include
+ * @param {Object} params.log - Fastify-compatible structured logger
+ * @returns {Promise<CatalogObject[]>} Matching celestial objects, or an empty array if the
+ *   local catalog is unavailable
  */
-export function queryLocalCatalog({
-  ra,
-  dec,
-  radiusDeg,
-  maxMagnitude = 10,
-  types = [],
-  log,
-}) {
-  if (!db) {
-    if (log && dbInitError) log.error({ err: dbInitError }, "Database connection failed");
-    throw dbInitError ?? new CatalogError("local", "Local catalog database is not available.");
+export async function findObjectsInRadius(
+  localCatalogDao,
+  { ra, dec, radiusDeg, maxMagnitude = 10, types = [], log },
+) {
+  if (!localCatalogDao) {
+    log.info("Local catalog DAO not configured — skipping local catalog query.");
+    return [];
   }
 
   const cosDec = Math.cos((dec * Math.PI) / 180.0);
 
-  // 1. Calculate bounding box for fast initial filter
+  // Calculate bounding box for fast initial filter
   const raDelta = radiusDeg / Math.max(0.01, cosDec);
   const minRA = ra - raDelta;
   const maxRA = ra + raDelta;
   const minDec = dec - radiusDeg;
   const maxDec = dec + radiusDeg;
 
-  // 2. Build Query with Dynamic Types
-  let sql = `
-    SELECT catalog, entryId, name, commonName, type, ra, dec, magnitude, sizeArcmin
-    FROM objects
-    WHERE (ra BETWEEN ? AND ?)
-      AND (dec BETWEEN ? AND ?)
-      AND (magnitude <= ? OR catalog = 'NGC/IC' OR catalog = 'Sh2' OR catalog = 'ACO')
-  `;
+  const candidates = localCatalogDao.queryObjectsByBoundingBox({
+    minRA,
+    maxRA,
+    minDec,
+    maxDec,
+    maxMagnitude,
+    types,
+  });
 
-  const queryParams = [minRA, maxRA, minDec, maxDec, maxMagnitude];
-
-  if (types && types.length > 0) {
-    const placeholders = types.map(() => "?").join(",");
-    sql += ` AND (type IN (${placeholders}) OR catalog IN (${placeholders}))`;
-    queryParams.push(...types, ...types);
-  }
-
-  const query = db.prepare(sql);
-
-  // 3. Execute bounding-box query
-  const candidates = query.all(...queryParams);
-
-  // 4. Refine with accurate spherical distance check (Conical)
-  const results = candidates
+  // Refine with accurate spherical distance check (conical)
+  return candidates
     .filter((obj) => {
       const dRA = (obj.ra - ra) * cosDec;
       const dDec = obj.dec - dec;
-      const distSq = dRA * dRA + dDec * dDec;
-      return distSq <= radiusDeg * radiusDeg;
+      return dRA * dRA + dDec * dDec <= radiusDeg * radiusDeg;
     })
     .map((obj) => {
-      // Clean OpenNGC syntax like IC0434 -> IC 434 and NGC2023 -> NGC 2023
+      // Normalise OpenNGC syntax: IC0434 → IC 434, NGC2023 → NGC 2023
       let cleanName = obj.name;
-      if (cleanName && cleanName.match(/^(NGC|IC)0*(\d+)$/)) {
-        cleanName = cleanName.replace(/^(NGC|IC)0*(\d+)$/, "$1 $2");
+      if (cleanName && NAME_NORMALISE_RE.test(cleanName)) {
+        cleanName = cleanName.replace(NAME_NORMALISE_RE, "$1 $2");
       }
-      return {
-        ...obj,
-        name: cleanName,
-        source: "local",
-      };
+      return new CatalogObject(
+        cleanName,
+        obj.type,
+        obj.ra,
+        obj.dec,
+        obj.magnitude ?? null,
+        "local",
+        obj.catalog,
+        obj.entryId,
+        obj.commonName,
+        obj.sizeArcmin ?? null,
+      );
     });
-
-  return results;
 }

@@ -27,10 +27,13 @@ docker build -t astrosolve .
 
 ### 3. Run the server with mounted local data
 
+For local development without access keys, set `SOLVE_API_KEY_REQUIRED=false` explicitly.
+
 ```bash
 cd tools/astrosolve/server
 docker run --rm -p 3000:3000 \
   --name astrosolve \
+  -e SOLVE_API_KEY_REQUIRED=false \
   -e ASTROSOLVE_ORIGIN=http://localhost:4200 \
   -v $(pwd)/data/astrometry:/usr/src/app/data/astrometry:ro \
   -v $(pwd)/data/local-catalog:/usr/src/app/data/local-catalog \

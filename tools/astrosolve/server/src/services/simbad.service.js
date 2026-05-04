@@ -1,5 +1,6 @@
 import axios from "axios";
-import { CatalogError } from "../errors.js";
+import { CatalogObject } from "../models/solve.model.js";
+import { CatalogError } from "../models/errors.model.js";
 
 /**
  * Queries the SIMBAD TAP service to find DSOs within a given radius using an ADQL command.
@@ -7,7 +8,9 @@ import { CatalogError } from "../errors.js";
  * @param {number} ra - Right Ascension of the image center (degrees)
  * @param {number} dec - Declination of the image center (degrees)
  * @param {number} radiusDeg - Search radius in degrees
- * @param {number} minMagnitude - Brightest magnitude constraint (lower is brighter)
+ * @param {number} minMagnitude - Reserved for future magnitude filtering; not currently applied
+ *   (SIMBAD TAP magnitude filtering requires a JOIN on the flux table — accepted for API
+ *   compatibility with the local catalog path but has no effect on SIMBAD results)
  * @returns {Promise<Array>} List of recognized celestial objects
  */
 export async function querySimbad(ra, dec, radiusDeg, minMagnitude = 13.5) {
@@ -43,14 +46,21 @@ export async function querySimbad(ra, dec, radiusDeg, minMagnitude = 13.5) {
     );
 
     if (response.data && response.data.data) {
-      return response.data.data.map((row) => ({
-        name: row[0],
-        type: row[1],
-        ra: row[2],
-        dec: row[3],
-        magnitude: null,
-        source: "simbad",
-      }));
+      return response.data.data.map(
+        (row) =>
+          new CatalogObject(
+            row[0],
+            row[1],
+            parseFloat(row[2]),
+            parseFloat(row[3]),
+            null,
+            "simbad",
+            undefined,
+            undefined,
+            undefined,
+            null,
+          ),
+      );
     }
 
     return [];

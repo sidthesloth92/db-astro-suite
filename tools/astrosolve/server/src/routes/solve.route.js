@@ -1,46 +1,44 @@
 import PQueue from "p-queue";
 import fs from "fs/promises";
-import path from "path";
-import { fileURLToPath } from "url";
-import Database from "better-sqlite3";
 import config from "../config.js";
-import { SolveError } from "../errors.js";
+import { SolveError } from "../models/errors.model.js";
 import { parseMultipartRequest } from "../services/upload.service.js";
 import { processSolveRequest } from "../services/solve.service.js";
 import { solveAuthHook } from "../hooks/solve-auth.hook.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const DATA_DIR = path.join(__dirname, "../../data");
-const UPLOADS_DIR = path.join(DATA_DIR, "uploads");
-const ACCESS_KEYS_DB_PATH = path.join(DATA_DIR, "astrosolve.sqlite");
+import { AccessKeyDao } from "../dao/access-key.dao.js";
+import { LocalCatalogDao } from "../dao/local-catalog.dao.js";
 
 // Concurrency queue to protect backend execution.
 const solveQueue = new PQueue({ concurrency: config.queueConcurrency });
 
+
 /**
  * Fastify route plugin — registers the POST /api/v1/solve endpoint.
+ * Receives DAO instances via plugin opts (dependency injection).
  * Handles request parsing, queue management, and response mapping only.
  * All business logic is delegated to the solve service.
+ *
+ * @param fastify - Fastify instance
+ * @param {{ accessKeyDao: AccessKeyDao, localCatalogDao: LocalCatalogDao }} opts
  */
-export default async function (fastify) {
-  await fs.mkdir(UPLOADS_DIR, { recursive: true });
+export default async function (fastify, opts) {
+  const { accessKeyDao, localCatalogDao } = opts;
 
-  let accessKeyDb = null;
-  if (config.solveApiKeyRequired) {
-    accessKeyDb = new Database(ACCESS_KEYS_DB_PATH);
-  }
+  await fs.mkdir(config.uploadsDir, { recursive: true });
 
   const routeOptions = {};
 
   if (config.solveApiKeyRequired) {
-    routeOptions.preHandler = solveAuthHook(config, accessKeyDb);
+    routeOptions.preHandler = solveAuthHook(config, accessKeyDao);
   }
 
   fastify.post("/api/v1/solve", routeOptions, async (request, reply) => {
     try {
       fastify.log.info("Parsing multipart request...");
-      const { filePath, hints } = await parseMultipartRequest(request, UPLOADS_DIR);
+      const { filePath, hints } = await parseMultipartRequest(
+        request,
+        config.uploadsDir,
+      );
       fastify.log.info(`Multipart parsed, starting queue for ${filePath}`);
 
       if (solveQueue.size + solveQueue.pending >= config.queueMaxSize) {
@@ -55,7 +53,12 @@ export default async function (fastify) {
       const result = await solveQueue.add(async () => {
         try {
           request.log.info("Queue executing processSolveRequest...");
-          const res = await processSolveRequest(filePath, hints, request.log);
+          const res = await processSolveRequest(
+            filePath,
+            hints,
+            localCatalogDao,
+            request.log,
+          );
           request.log.info("processSolveRequest completed.");
           return res;
         } finally {
@@ -73,6 +76,7 @@ export default async function (fastify) {
       request.log.info("Sending reply...");
       return reply.send({
         status: "success",
+        message: "Plate solve completed successfully.",
         metadata: result.metadata,
         objects: result.objects,
         ...(result.warnings?.length ? { warnings: result.warnings } : {}),

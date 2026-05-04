@@ -1,13 +1,39 @@
+import fs from "fs";
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import rateLimit from "@fastify/rate-limit";
 import multipart from "@fastify/multipart";
 import config from "./config.js";
-import { initDatabases } from "./db-init.js";
-
+import { SqliteAccessKeyDao } from "./dao/sqlite-access-key.dao.js";
+import { SqliteLocalCatalogDao } from "./dao/sqlite-local-catalog.dao.js";
+import solveRoute from "./routes/solve.route.js";
 
 const fastify = Fastify({ logger: true });
-initDatabases(fastify.log);
+
+// Ensure the uploads directory exists before any file handling begins.
+fs.mkdirSync(config.uploadsDir, { recursive: true });
+
+// Each DAO owns its own database connection and initialization.
+const accessKeyDao = SqliteAccessKeyDao.create();
+fastify.log.info(
+  { path: config.accessKeysDbPath },
+  "Access-keys DB initialised",
+);
+
+let localCatalogDao;
+try {
+  localCatalogDao = SqliteLocalCatalogDao.create();
+  fastify.log.info(
+    { path: config.localCatalogDbPath },
+    "Local catalog DB opened",
+  );
+} catch (err) {
+  fastify.log.error(
+    { err, path: config.localCatalogDbPath },
+    "Local catalog DB failed to open — run 'npm run init-db' first. Aborting.",
+  );
+  process.exit(1);
+}
 
 // Register Rate Limiting
 fastify.register(rateLimit, {
@@ -29,9 +55,8 @@ fastify.register(multipart, {
   },
 });
 
-// Register routes
-import solveRoute from "./routes/solve.route.js";
-fastify.register(solveRoute);
+// Register routes — pass DAO instances via plugin options (DI via Fastify plugin opts)
+fastify.register(solveRoute, { accessKeyDao, localCatalogDao });
 
 // Health check route
 fastify.get("/", async (request, reply) => {
