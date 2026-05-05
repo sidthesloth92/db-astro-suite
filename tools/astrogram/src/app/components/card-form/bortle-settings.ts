@@ -1,12 +1,13 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardDataService } from '../../services/card-data.service';
-import { ANALYTICS_SERVICE_TOKEN } from '@db-astro-suite/ui';
+import { AnalyticsService } from '@db-astro-suite/ui';
 
 @Component({
   selector: 'dba-ag-bortle-settings',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="form-container">
       <div class="bortle-control">
@@ -31,16 +32,12 @@ import { ANALYTICS_SERVICE_TOKEN } from '@db-astro-suite/ui';
   `
 })
 export class BortleSettingsComponent {
-  private analyticsService = inject(ANALYTICS_SERVICE_TOKEN);
-  dataService = inject(CardDataService);
-  cardData = this.dataService.cardData;
+  private readonly analyticsService = inject(AnalyticsService);
+  private readonly dataService = inject(CardDataService);
+  readonly cardData = this.dataService.cardData;
 
   updateBortle(n: number) {
-    try {
-      this.analyticsService.trackSettingChanged('bortle_scale', n);
-    } catch (e) {
-      console.error('Analytics tracking error:', e);
-    }
+    this.analyticsService.trackSettingChanged('bortle_scale', n);
     this.dataService.updateData({ bortleScale: n });
   }
 }

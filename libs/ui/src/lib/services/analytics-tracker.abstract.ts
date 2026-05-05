@@ -1,24 +1,12 @@
 /**
- * Abstract contract for analytics event tracking.
- * Implementations should handle platform-specific tracking (e.g., GA4, Mixpanel).
- *
- * Dependency Inversion: Components and services depend on this abstraction,
- * not on concrete implementations like GoogleAnalyticsTracker.
+ * Core analytics abstraction for tracking custom events.
+ * Consumers depend on this abstraction; concrete implementations (e.g., GA4) are provided at the app level.
  */
 export abstract class AnalyticsTracker {
   /**
-   * Track a successful image generation event.
-   *
-   * @param userId - The unique identifier of the user who generated the image
-   * @param toolsUsed - Comma-separated string of tools/models used (e.g., "astrosolve, wcs-projection")
+   * Track a custom analytics event.
+   * @param name The event name in snake_case (e.g., 'image_generation')
+   * @param params Optional event parameters
    */
-  abstract trackImageGeneration(userId: string, toolsUsed: string): void;
-
-  /**
-   * Track a successful video generation event.
-   *
-   * @param userId - The unique identifier of the user who generated the video
-   * @param format - The format of the generated video (e.g., "mp4", "webm", or aspect ratio like "9:16")
-   */
-  abstract trackVideoGeneration(userId: string, format: string): void;
+  abstract trackEvent(name: string, params?: Record<string, unknown>): void;
 }

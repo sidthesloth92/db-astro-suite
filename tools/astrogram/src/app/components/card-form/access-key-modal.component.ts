@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { InputComponent } from '@db-astro-suite/ui';
-import { ANALYTICS_SERVICE_TOKEN, AnalyticsService } from '@db-astro-suite/ui';
+import { AnalyticsService } from '@db-astro-suite/ui';
 import { inject } from '@angular/core';
 
 /**
@@ -23,7 +23,7 @@ import { inject } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccessKeyModalComponent {
-  private analyticsService = inject(ANALYTICS_SERVICE_TOKEN);
+  private analyticsService = inject(AnalyticsService);
   
   /** Whether to show an invalid-key error message to the user. */
   showError = input(false);
@@ -48,18 +48,10 @@ export class AccessKeyModalComponent {
   onSubmit(): void {
     const key = this.keyValue().trim();
     if (key) {
-      try {
-        this.analyticsService.trackAccessKeySubmitted(true);
-      } catch (e) {
-        console.error('Analytics tracking error:', e);
-      }
+      this.analyticsService.trackAccessKeySubmitted(true);
       this.submitted.emit(key);
     } else {
-      try {
-        this.analyticsService.trackAccessKeySubmitted(false);
-      } catch (e) {
-        console.error('Analytics tracking error:', e);
-      }
+      this.analyticsService.trackAccessKeySubmitted(false);
     }
   }
 

@@ -1,12 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { AnalyticsService } from './analytics.service';
-
-type GtagFunction = (
-  command: string,
-  action: string,
-  params?: Record<string, unknown>
-) => void;
+import { GtagFunction } from './models/gtag.model';
 
 /**
  * Google Analytics 4 (GA4) implementation of {@link AnalyticsService}.
@@ -16,7 +11,7 @@ type GtagFunction = (
  * All errors from gtag are caught and logged — tracking failures never propagate to callers.
  *
  * To switch analytics providers, create a new class implementing {@link AnalyticsService}
- * and update the `ANALYTICS_SERVICE_TOKEN` provider in each app's `app.config.ts`.
+ * and update the `AnalyticsService` provider in each app's `app.config.ts`.
  */
 @Injectable()
 export class GoogleAnalyticsService implements AnalyticsService {
@@ -41,12 +36,11 @@ export class GoogleAnalyticsService implements AnalyticsService {
     try {
       const gtag = this.getGtag();
       if (!gtag) {
-        console.warn(`[Analytics] gtag unavailable; event '${eventName}' not sent.`);
         return;
       }
       gtag('event', eventName, params);
-    } catch (error) {
-      console.error(`[Analytics] Failed to send event '${eventName}':`, error);
+    } catch {
+      // Tracking failures must never propagate to callers
     }
   }
 

@@ -1,15 +1,17 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SelectComponent, NeonButtonComponent } from '@db-astro-suite/ui';
 import { CardDataService } from '../../services/card-data.service';
 import { PresetService } from '../../services/preset.service';
-import { ANALYTICS_SERVICE_TOKEN } from '@db-astro-suite/ui';
+import { AnalyticsService } from '@db-astro-suite/ui';
+import { EquipmentItem } from '../../models/card-data';
 
 @Component({
   selector: 'dba-ag-equipment-settings',
   standalone: true,
   imports: [CommonModule, FormsModule, SelectComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="form-container">
       <!-- Preset Toolbar -->
@@ -133,7 +135,7 @@ import { ANALYTICS_SERVICE_TOKEN } from '@db-astro-suite/ui';
   `
 })
 export class EquipmentSettingsComponent implements OnInit {
-  private analyticsService = inject(ANALYTICS_SERVICE_TOKEN);
+  private readonly analyticsService = inject(AnalyticsService);
   dataService = inject(CardDataService);
   presetService = inject(PresetService);
   cardData = this.dataService.cardData;
@@ -175,12 +177,8 @@ export class EquipmentSettingsComponent implements OnInit {
   confirmSavePreset() {
     if (!this.newPresetName.trim()) return;
     
-    try {
-      this.analyticsService.trackButtonClicked('save_preset', 'equipment');
-      this.analyticsService.trackSettingChanged('equipment_preset', this.newPresetName.trim());
-    } catch (e) {
-      console.error('Analytics tracking error:', e);
-    }
+    this.analyticsService.trackButtonClicked('save_preset', 'equipment');
+    this.analyticsService.trackSettingChanged('equipment_preset', this.newPresetName.trim());
     
     this.presetService.saveEquipmentPreset(this.newPresetName.trim(), this.cardData().equipment);
     this.loadPresets();
@@ -193,11 +191,7 @@ export class EquipmentSettingsComponent implements OnInit {
   confirmDeletePreset() {
     if (!this.selectedPresetName) return;
     
-    try {
-      this.analyticsService.trackButtonClicked('delete_preset', 'equipment');
-    } catch (e) {
-      console.error('Analytics tracking error:', e);
-    }
+    this.analyticsService.trackButtonClicked('delete_preset', 'equipment');
     
     this.presetService.deleteEquipmentPreset(this.selectedPresetName);
     this.loadPresets();
@@ -206,9 +200,9 @@ export class EquipmentSettingsComponent implements OnInit {
   }
   cancelDeletePreset() { this.isDeletingPreset = false; }
 
-  updateEquipment(index: number, field: string, value: any) {
+  updateEquipment(index: number, field: keyof EquipmentItem, value: string): void {
     this.dataService.mutateData((data) => {
-      (data.equipment[index] as any)[field] = value;
+      data.equipment[index] = { ...data.equipment[index], [field]: value };
     });
   }
 

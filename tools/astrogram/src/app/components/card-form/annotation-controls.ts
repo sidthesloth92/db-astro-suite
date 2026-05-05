@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import {
   ApplicationRef,
   ChangeDetectionStrategy,
@@ -21,7 +21,8 @@ import { AstrosolveService } from '../../services/astrosolve.service';
 import { CardDataService } from '../../services/card-data.service';
 import { AccessKeyError } from '../../services/models/access-key.error';
 import { WcsService } from '../../services/wcs.service';
-import { ANALYTICS_SERVICE_TOKEN } from '@db-astro-suite/ui';
+import { AnalyticsService } from '@db-astro-suite/ui';
+import { ASTROGRAM_USER_ID, PLATE_SOLVE_ERROR_ACCESS_KEY } from '../../constants/analytics.constants';
 import { AccessKeyModalComponent } from './access-key-modal.component';
 import { AnnotationDetailComponent } from './annotation-detail';
 import { AnnotationSettingsComponent } from './annotation-settings';
@@ -240,8 +241,9 @@ import { AnnotationSettingsComponent } from './annotation-settings';
   encapsulation: ViewEncapsulation.None,
 })
 export class AnnotationControlsComponent implements OnDestroy {
+  private readonly document = inject(DOCUMENT);
   dataService = inject(CardDataService);
-  analyticsService = inject(ANALYTICS_SERVICE_TOKEN);
+  private readonly analyticsService = inject(AnalyticsService);
 
   mapData = this.dataService.stellarMapData;
   isSolving = signal(false);
@@ -253,12 +255,8 @@ export class AnnotationControlsComponent implements OnDestroy {
 
   private openAccessKeyModal(showError: boolean): void {
     // Track access key modal opening
-    try {
-      const reason: 'first_time' | 'missing' | 'expired' = showError ? 'missing' : 'first_time';
-      this.analyticsService.trackAccessKeyModalOpened(reason);
-    } catch (e) {
-      console.error('Analytics tracking error:', e);
-    }
+    const reason: 'first_time' | 'missing' | 'expired' = showError ? 'missing' : 'first_time';
+    this.analyticsService.trackAccessKeyModalOpened(reason);
     
     if (this.modalRef) {
       this.modalRef.setInput('showError', showError);
@@ -278,7 +276,7 @@ export class AnnotationControlsComponent implements OnDestroy {
       this.onAccessKeyCancel();
     });
     this.appRef.attachView(ref.hostView);
-    document.body.appendChild(ref.location.nativeElement);
+    this.document.body.appendChild(ref.location.nativeElement);
     ref.changeDetectorRef.detectChanges();
     this.modalRef = ref;
   }
@@ -380,11 +378,7 @@ export class AnnotationControlsComponent implements OnDestroy {
     }
 
     // Track plate solve initiation
-    try {
-      this.analyticsService.trackPlateSolveInitiated(file.size, false);
-    } catch (e) {
-      console.error('Analytics tracking error:', e);
-    }
+    this.analyticsService.trackPlateSolveInitiated(file.size, false);
 
     this.isSolving.set(true);
     this.mapData.update((d) => ({ ...d, isSolving: true }));
@@ -462,24 +456,16 @@ export class AnnotationControlsComponent implements OnDestroy {
 
       // Track plate solve event
       const toolsUsed = `plate-solve,wcs-projection,${annotations.length}-objects`;
-      this.analyticsService.trackImageGeneration('astrogram-user', toolsUsed);
+      this.analyticsService.trackImageGeneration(ASTROGRAM_USER_ID, toolsUsed);
     } catch (err: unknown) {
       if (err instanceof AccessKeyError) {
-        try {
-          this.analyticsService.trackPlateSolveFailed('access_key_error');
-        } catch (e) {
-          console.error('Analytics tracking error:', e);
-        }
+        this.analyticsService.trackPlateSolveFailed(PLATE_SOLVE_ERROR_ACCESS_KEY);
         this.solveStatus.set('');
         this.openAccessKeyModal(true);
         return;
       }
       const message = err instanceof Error ? err.message : 'Unknown error occurred';
-      try {
-        this.analyticsService.trackPlateSolveFailed(message);
-      } catch (e) {
-        console.error('Analytics tracking error:', e);
-      }
+      this.analyticsService.trackPlateSolveFailed(message);
       this.solveStatus.set(`Error: ${message}`);
     } finally {
       this.isSolving.set(false);

@@ -1,4 +1,4 @@
-import { computed, Injectable, signal, WritableSignal } from '@angular/core';
+import { computed, inject, Injectable, signal, WritableSignal } from '@angular/core';
 import {
   ASPECT_RATIOS,
   AspectRatioKey,
@@ -8,6 +8,7 @@ import {
 import { ShootingStar } from '../models/shooting-star.model';
 import { ControlKey, RecordingState } from '../models/simulation.model';
 import { Star } from '../models/star.model';
+import { AnalyticsService } from '@db-astro-suite/ui';
 
 /** Frame rate for video recording (frames per second) */
 const FRAME_RATE = 60;
@@ -57,7 +58,7 @@ const NUM_SHOOTING_STARS = 10;
   providedIn: 'root',
 })
 export class SimulationService {
-  private analyticsService = inject(ANALYTICS_SERVICE_TOKEN);
+  private analyticsService = inject(AnalyticsService);
 
   // ==================== Control Signals ====================
 
@@ -268,7 +269,6 @@ export class SimulationService {
 
     // Handle load failure gracefully
     image.onerror = () => {
-      console.error('Failed to load default galaxy image.');
       this.isLoadingDefaultImage.set(false);
       // Still show 'Ready' so user can upload their own image
       this.loadingProgress.set('Ready');
@@ -316,7 +316,6 @@ export class SimulationService {
       };
 
       image.onerror = () => {
-        console.error('Failed to load user image.');
         this.loadingProgress.set('Error loading image');
       };
 
@@ -440,7 +439,8 @@ export class SimulationService {
 
     try {
       // Capture the canvas as a media stream
-      const stream = (canvas as any).captureStream(FRAME_RATE);
+      // captureStream() is not in the TypeScript lib.dom.d.ts typings (non-standard API); cast required
+      const stream = (canvas as any).captureStream(FRAME_RATE); // eslint-disable-line @typescript-eslint/no-explicit-any
 
       // Detect the best supported video format
       const mimeType = this.getSupportedMimeType();
@@ -462,7 +462,6 @@ export class SimulationService {
       this.recordingTimeout = setTimeout(() => this.stopRecording(), MAX_RECORDING_SECONDS * 1000);
     } catch (e) {
       // Handle initialization errors (e.g., browser permission denied)
-      console.error('Error starting recording:', e);
       this.recordingState.set('idle');
     }
   }

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ANALYTICS_SERVICE_TOKEN } from '@db-astro-suite/ui';
+import { AnalyticsService } from '@db-astro-suite/ui';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -28,7 +28,7 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestroy {
-  private analyticsService = inject(ANALYTICS_SERVICE_TOKEN);
+  private analyticsService = inject(AnalyticsService);
   
   aspectRatio = input<'3:4' | '4:5' | 'auto'>('4:5');
   backgroundImage = input<string | null>(null);
@@ -211,13 +211,8 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
 
     try {
       // Track card export initiation
-      try {
-        this.analyticsService.trackCardExportInitiated('jpg');
-      } catch (e) {
-        console.error('Analytics tracking error:', e);
-      }
+      this.analyticsService.trackCardExportInitiated('jpg');
       
-      console.log('--- Export Start (Modern Screenshot) ---');
       const { domToJpeg } = await import('modern-screenshot');
       const element = this.cardElement.nativeElement;
 
@@ -236,8 +231,6 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
         }),
       );
 
-      console.log('DOM ready for capture:', filename);
-
       const targetDim =
         this.aspectRatio() === '3:4'
           ? { width: 1080, height: 1440 }
@@ -249,10 +242,6 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
 
       // Calculate scale to reach target resolution (e.g. 1080px wide)
       const captureScale = targetDim.width / naturalWidth;
-
-      console.log(
-        `Natural size: ${naturalWidth}x${naturalHeight}, target: ${targetDim.width}x${targetDim.height}, scale: ${captureScale.toFixed(2)}`,
-      );
 
       // On mobile, the parent post-container has a CSS scale() transform applied.
       const postContainer = element.closest('.post-container') as HTMLElement | null;
@@ -278,8 +267,6 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
         }
       }
 
-      console.log('Image generated. Triggering download...');
-
       const link = document.createElement('a');
       link.style.display = 'none';
       link.href = dataUrl;
@@ -295,24 +282,14 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
       }, 500);
       
       // Track successful export
-      try {
-        const dataUrlSize = Math.ceil(dataUrl.length / 1024); // Convert to KB
-        this.analyticsService.trackCardExportSuccess('jpg', dataUrlSize, 0);
-      } catch (e) {
-        console.error('Analytics tracking error:', e);
-      }
+      const dataUrlSize = Math.ceil(dataUrl.length / 1024); // Convert to KB
+      this.analyticsService.trackCardExportSuccess('jpg', dataUrlSize, 0);
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';
-      try {
-        this.analyticsService.trackCardExportFailed(errorMsg);
-      } catch (e) {
-        console.error('Analytics tracking error:', e);
-      }
-      console.error('Export failed:', error);
+      this.analyticsService.trackCardExportFailed(errorMsg);
       alert('Failed to generate image. Please check the console.');
     } finally {
       this.isExporting.set(false);
-      console.log('--- Export Process Ready ---');
     }
   }
 }

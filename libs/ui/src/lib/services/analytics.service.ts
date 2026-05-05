@@ -1,8 +1,6 @@
-import { InjectionToken } from "@angular/core";
-
 /**
  * Abstract analytics service defining the contract for tracking user events.
- * Implement this class and provide it via `ANALYTICS_SERVICE_TOKEN` to swap
+ * Implement this class and provide it as the DI token directly to swap
  * analytics backends (GA4, Mixpanel, etc.) without changing consumers.
  */
 export abstract class AnalyticsService {
@@ -193,10 +191,4 @@ export abstract class AnalyticsService {
   ): void;
 }
 
-/**
- * Injection token for `AnalyticsService`.
- * Provide with `useClass: GoogleAnalyticsService` (or another implementation) in `app.config.ts`.
- */
-export const ANALYTICS_SERVICE_TOKEN = new InjectionToken<AnalyticsService>(
-  "AnalyticsService",
-);
+

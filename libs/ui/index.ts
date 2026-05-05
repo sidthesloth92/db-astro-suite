@@ -10,6 +10,8 @@ export * from "./src/lib/input/input.component";
 export * from "./src/lib/neon-button/neon-button.component";
 export * from "./src/lib/select/select.component";
 export * from "./src/lib/services/analytics.service";
+export * from "./src/lib/services/analytics-tracker.abstract";
+export * from "./src/lib/services/models/gtag.model";
 export * from "./src/lib/services/google-analytics.service";
 export * from "./src/lib/services/local-storage.service";
 export * from "./src/lib/services/storage.service";

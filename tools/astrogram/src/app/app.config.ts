@@ -5,12 +5,11 @@ import {
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import {
-  ANALYTICS_SERVICE_TOKEN,
+  AnalyticsService,
   GoogleAnalyticsService,
   LocalStorageService,
   STORAGE_SERVICE_TOKEN,
 } from '@db-astro-suite/ui';
-
 import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
@@ -19,6 +18,6 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     { provide: STORAGE_SERVICE_TOKEN, useClass: LocalStorageService },
-    { provide: ANALYTICS_SERVICE_TOKEN, useClass: GoogleAnalyticsService },
+    { provide: AnalyticsService, useClass: GoogleAnalyticsService },
   ],
 };
