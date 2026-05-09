@@ -41,7 +41,14 @@
   }
 
   <!-- Absolute Layer for Annotations mapping identically to the background image dimensions -->
-  <div class="annotations-layer" fullBleed (click)="deselectAll()">
+  <div
+    class="annotations-layer"
+    fullBleed
+    [class.is-dragging]="isDragging()"
+    (mousemove)="onLayerMousemove($event)"
+    (mouseup)="onLayerMouseup($event)"
+    (mouseleave)="onLayerMouseup($event)"
+  >
     @for (ann of visibleAnnotations(); track ann.id) {
       <div
         class="annotation-marker"
@@ -50,7 +57,7 @@
         [style.top.%]="ann.yPercent"
         [ngStyle]="markerStyle(ann)"
         [attr.data-annotation-id]="ann.id"
-        (click)="onAnnotationClick($event)"
+        (mousedown)="onMarkerMousedown(ann, $event)"
         [title]="ann.label"
       >
         @if (effectiveShowLabel(ann)) {

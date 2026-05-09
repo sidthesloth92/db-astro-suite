@@ -99,6 +99,18 @@ export class CardDataService {
     }));
   }
 
+  /** Immutably repositions an annotation, clamping both axes to [0, 100]. */
+  updateAnnotationPosition(id: string, xPercent: number, yPercent: number) {
+    const clamped = {
+      xPercent: Math.min(100, Math.max(0, xPercent)),
+      yPercent: Math.min(100, Math.max(0, yPercent)),
+    };
+    this.stellarMapData.update((d) => ({
+      ...d,
+      annotations: d.annotations.map((ann) => (ann.id === id ? { ...ann, ...clamped } : ann)),
+    }));
+  }
+
   clearAnnotationStyleField(id: string, field: keyof AnnotationStyle) {
     this.stellarMapData.update((d) => ({
       ...d,

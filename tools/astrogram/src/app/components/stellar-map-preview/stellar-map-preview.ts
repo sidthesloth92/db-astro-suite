@@ -1,5 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, ViewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { ConstellationLoaderComponent } from '@db-astro-suite/ui';
 import { ImageAnnotation } from '../../models/annotation.models';
 import { CardDataService } from '../../services/card-data.service';
@@ -25,13 +33,16 @@ import { AnnotationControlsComponent } from '../card-form/annotation-controls';
         /* pointer-events auto so markers are clickable; background click deselects */
         pointer-events: auto;
       }
+      .annotations-layer.is-dragging {
+        cursor: grabbing;
+      }
       .annotation-marker {
         position: absolute;
         transform: translate(-50%, -50%);
         border-style: solid;
         border-radius: 50%;
         transition: all 0.25s ease;
-        cursor: pointer;
+        cursor: grab;
         pointer-events: auto;
       }
       .annotation-marker.selected {
@@ -253,6 +264,13 @@ export class StellarMapPreviewComponent {
   mapData = this.dataService.stellarMapData;
   selectedAnnotationId = this.dataService.selectedAnnotationId;
 
+  private readonly el = inject(ElementRef);
+  private readonly _dragId = signal<string | null>(null);
+  private readonly _dragStartMouse = signal<{ x: number; y: number } | null>(null);
+  private readonly _dragStartPercent = signal<{ x: number; y: number } | null>(null);
+  /** True while an annotation drag is in progress. Drives `is-dragging` CSS on the layer. */
+  readonly isDragging = computed(() => this._dragId() !== null);
+
   @ViewChild('controls') controlsComponent!: AnnotationControlsComponent;
 
   clearAll() {
@@ -302,6 +320,45 @@ export class StellarMapPreviewComponent {
 
   deselectAll() {
     this.dataService.selectAnnotation(null);
+  }
+
+  /** Records drag-start state on mousedown; selection is deferred until mouseup. */
+  onMarkerMousedown(ann: ImageAnnotation, event: MouseEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this._dragId.set(ann.id);
+    this._dragStartMouse.set({ x: event.clientX, y: event.clientY });
+    this._dragStartPercent.set({ x: ann.xPercent, y: ann.yPercent });
+  }
+
+  /** Repositions the active annotation to follow the pointer while dragging. */
+  onLayerMousemove(event: MouseEvent) {
+    const dragId = this._dragId();
+    if (!dragId) return;
+    const layer = this.el.nativeElement.querySelector('.annotations-layer') as HTMLElement | null;
+    if (!layer) return;
+    const rect = layer.getBoundingClientRect();
+    const xPercent = ((event.clientX - rect.left) / rect.width) * 100;
+    const yPercent = ((event.clientY - rect.top) / rect.height) * 100;
+    this.dataService.updateAnnotationPosition(dragId, xPercent, yPercent);
+  }
+
+  /** Ends a drag; fires selection toggle if the pointer barely moved (i.e. a click). */
+  onLayerMouseup(event: MouseEvent) {
+    const dragId = this._dragId();
+    if (dragId) {
+      const startMouse = this._dragStartMouse();
+      if (startMouse) {
+        const dx = event.clientX - startMouse.x;
+        const dy = event.clientY - startMouse.y;
+        if (Math.sqrt(dx * dx + dy * dy) < 3) {
+          this.onAnnotationClick(event);
+        }
+      }
+    }
+    this._dragId.set(null);
+    this._dragStartMouse.set(null);
+    this._dragStartPercent.set(null);
   }
 
   addCenterAnnotation() {
@@ -551,5 +608,4 @@ export class StellarMapPreviewComponent {
       return show;
     });
   });
-
 }
