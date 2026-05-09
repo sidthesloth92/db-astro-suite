@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { DecimalPipe, NgClass, NgStyle } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -6,8 +6,9 @@ import {
   ElementRef,
   inject,
   signal,
-  ViewChild,
+  viewChild,
 } from '@angular/core';
+import { findHitAnnotationId } from '../../utils/annotation-hit-test.util';
 import { ConstellationLoaderComponent } from '@db-astro-suite/ui';
 import { ImageAnnotation } from '../../models/annotation.models';
 import { CardDataService } from '../../services/card-data.service';
@@ -18,7 +19,9 @@ import { AnnotationControlsComponent } from '../card-form/annotation-controls';
   selector: 'dba-ag-stellar-map-preview',
   standalone: true,
   imports: [
-    CommonModule,
+    NgClass,
+    NgStyle,
+    DecimalPipe,
     BaseCardPreviewComponent,
     AnnotationControlsComponent,
     ConstellationLoaderComponent,
@@ -260,23 +263,20 @@ import { AnnotationControlsComponent } from '../card-form/annotation-controls';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StellarMapPreviewComponent {
-  dataService = inject(CardDataService);
+  private readonly dataService = inject(CardDataService);
   mapData = this.dataService.stellarMapData;
   selectedAnnotationId = this.dataService.selectedAnnotationId;
 
-  private readonly el = inject(ElementRef);
   private readonly _dragId = signal<string | null>(null);
   private readonly _dragStartMouse = signal<{ x: number; y: number } | null>(null);
-  private readonly _dragStartPercent = signal<{ x: number; y: number } | null>(null);
   /** True while an annotation drag is in progress. Drives `is-dragging` CSS on the layer. */
   readonly isDragging = computed(() => this._dragId() !== null);
 
-  @ViewChild('controls') controlsComponent!: AnnotationControlsComponent;
+  private readonly controlsComponent = viewChild.required<AnnotationControlsComponent>('controls');
+  private readonly annotationsLayerRef = viewChild.required<ElementRef>('annotationsLayer');
 
   clearAll() {
-    if (this.controlsComponent) {
-      this.controlsComponent.resetMap();
-    }
+    this.controlsComponent().resetMap();
   }
 
   /**
@@ -291,29 +291,12 @@ export class StellarMapPreviewComponent {
    */
   onAnnotationClick(event: MouseEvent) {
     event.stopPropagation();
-    const HIT_TOLERANCE = 10; // px on either side of the border
-
-    const allElements = document.elementsFromPoint(event.clientX, event.clientY);
-    for (const el of allElements) {
-      if (!(el instanceof HTMLElement)) continue;
-      if (!el.classList.contains('annotation-marker')) continue;
-
-      const rect = el.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      const dist = Math.sqrt((event.clientX - cx) ** 2 + (event.clientY - cy) ** 2);
-      const radius = rect.width / 2;
-
-      if (Math.abs(dist - radius) <= HIT_TOLERANCE) {
-        const id = el.dataset['annotationId'];
-        if (id) {
-          const current = this.dataService.selectedAnnotationId();
-          this.dataService.selectAnnotation(current === id ? null : id);
-          return;
-        }
-      }
+    const hitId = findHitAnnotationId(event, 10);
+    if (hitId) {
+      const current = this.dataService.selectedAnnotationId();
+      this.dataService.selectAnnotation(current === hitId ? null : hitId);
+      return;
     }
-
     // No ring was hit — treat as background click and deselect
     this.dataService.selectAnnotation(null);
   }
@@ -328,16 +311,13 @@ export class StellarMapPreviewComponent {
     event.stopPropagation();
     this._dragId.set(ann.id);
     this._dragStartMouse.set({ x: event.clientX, y: event.clientY });
-    this._dragStartPercent.set({ x: ann.xPercent, y: ann.yPercent });
   }
 
   /** Repositions the active annotation to follow the pointer while dragging. */
   onLayerMousemove(event: MouseEvent) {
     const dragId = this._dragId();
     if (!dragId) return;
-    const layer = this.el.nativeElement.querySelector('.annotations-layer') as HTMLElement | null;
-    if (!layer) return;
-    const rect = layer.getBoundingClientRect();
+    const rect = this.annotationsLayerRef().nativeElement.getBoundingClientRect();
     const xPercent = ((event.clientX - rect.left) / rect.width) * 100;
     const yPercent = ((event.clientY - rect.top) / rect.height) * 100;
     this.dataService.updateAnnotationPosition(dragId, xPercent, yPercent);
@@ -358,7 +338,6 @@ export class StellarMapPreviewComponent {
     }
     this._dragId.set(null);
     this._dragStartMouse.set(null);
-    this._dragStartPercent.set(null);
   }
 
   addCenterAnnotation() {
