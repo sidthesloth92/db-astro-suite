@@ -119,6 +119,7 @@ export class CardDataService {
         const { [field]: _removed, ...rest } = ann.style;
         return {
           ...ann,
+          // safe: all AnnotationStyle fields are optional; a partial spread always satisfies the interface
           style: Object.keys(rest).length > 0 ? (rest as AnnotationStyle) : undefined,
         };
       }),

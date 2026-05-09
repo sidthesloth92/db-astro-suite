@@ -264,8 +264,8 @@ import { AnnotationControlsComponent } from '../card-form/annotation-controls';
 })
 export class StellarMapPreviewComponent {
   private readonly dataService = inject(CardDataService);
-  mapData = this.dataService.stellarMapData;
-  selectedAnnotationId = this.dataService.selectedAnnotationId;
+  readonly mapData = this.dataService.stellarMapData;
+  readonly selectedAnnotationId = this.dataService.selectedAnnotationId;
 
   private readonly _dragId = signal<string | null>(null);
   private readonly _dragStartMouse = signal<{ x: number; y: number } | null>(null);
@@ -517,7 +517,7 @@ export class StellarMapPreviewComponent {
   ]);
   private static readonly QUASAR_TYPES = new Set(['QSO', 'BLA']);
 
-  visibleAnnotations = computed(() => {
+  readonly visibleAnnotations = computed(() => {
     const f = this.mapData().filters;
     const T = StellarMapPreviewComponent;
 
