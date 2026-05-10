@@ -61,6 +61,42 @@ const config = Object.freeze({
   solveApiKeyRequired: process.env.SOLVE_API_KEY_REQUIRED !== "false",
 
   /**
+   * When true, Fastify trusts X-Forwarded-For headers from the upstream
+   * proxy (e.g. Cloudflare). This is required so that rate limiting uses
+   * the real client IP rather than the proxy IP.
+   * Set ASTROSOLVE_TRUST_PROXY=true in production when behind Cloudflare.
+   */
+  trustProxy: process.env.ASTROSOLVE_TRUST_PROXY === "true",
+
+  /**
+   * Maximum number of requests per IP per rate-limit window for the solve
+   * endpoint. Defaults to 5. Configure via ASTROSOLVE_RATE_LIMIT_MAX.
+   */
+  rateLimitMax: parsePositiveInteger(process.env.ASTROSOLVE_RATE_LIMIT_MAX, 5),
+
+  /**
+   * Rate-limit time window for the solve endpoint (e.g. "1 minute", "30 seconds").
+   * Defaults to "1 minute". Configure via ASTROSOLVE_RATE_LIMIT_WINDOW.
+   */
+  rateLimitWindow: process.env.ASTROSOLVE_RATE_LIMIT_WINDOW ?? "1 minute",
+
+  /**
+   * Maximum number of requests per IP per minute allowed on the health check
+   * endpoint (GET /). Defaults to 30. Configure via ASTROSOLVE_HEALTH_RATE_LIMIT_MAX.
+   */
+  healthRateLimitMax: parsePositiveInteger(
+    process.env.ASTROSOLVE_HEALTH_RATE_LIMIT_MAX,
+    30,
+  ),
+
+  /**
+   * Rate-limit time window for the health check endpoint (GET /).
+   * Defaults to "1 minute". Configure via ASTROSOLVE_HEALTH_RATE_LIMIT_WINDOW.
+   */
+  healthRateLimitWindow:
+    process.env.ASTROSOLVE_HEALTH_RATE_LIMIT_WINDOW ?? "1 minute",
+
+  /**
    * Absolute path to the uploads directory for incoming images.
    */
   uploadsDir: path.join(DATA_DIR, "uploads"),
