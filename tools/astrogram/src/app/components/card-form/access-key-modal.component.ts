@@ -7,6 +7,8 @@ import {
   signal,
 } from '@angular/core';
 import { InputComponent } from '@db-astro-suite/ui';
+import { AnalyticsService } from '@db-astro-suite/ui';
+import { inject } from '@angular/core';
 
 /**
  * Modal dialog that prompts the user to enter an Astrosolve access key.
@@ -21,6 +23,8 @@ import { InputComponent } from '@db-astro-suite/ui';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccessKeyModalComponent {
+  private analyticsService = inject(AnalyticsService);
+  
   /** Whether to show an invalid-key error message to the user. */
   showError = input(false);
 
@@ -44,7 +48,10 @@ export class AccessKeyModalComponent {
   onSubmit(): void {
     const key = this.keyValue().trim();
     if (key) {
+      this.analyticsService.trackAccessKeySubmitted(true);
       this.submitted.emit(key);
+    } else {
+      this.analyticsService.trackAccessKeySubmitted(false);
     }
   }
 

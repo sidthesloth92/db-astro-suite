@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import {
   ApplicationRef,
   ChangeDetectionStrategy,
@@ -19,11 +19,13 @@ import { ImageAnnotation } from '../../models/annotation.models';
 import { StellarMapData } from '../../models/card-data';
 import { AstrosolveService } from '../../services/astrosolve.service';
 import { CardDataService } from '../../services/card-data.service';
+import { AccessKeyError } from '../../services/models/access-key.error';
 import { WcsService } from '../../services/wcs.service';
+import { AnalyticsService } from '@db-astro-suite/ui';
+import { ASTROGRAM_USER_ID, PLATE_SOLVE_ERROR_ACCESS_KEY } from '../../constants/analytics.constants';
+import { AccessKeyModalComponent } from './access-key-modal.component';
 import { AnnotationDetailComponent } from './annotation-detail';
 import { AnnotationSettingsComponent } from './annotation-settings';
-import { AccessKeyModalComponent } from './access-key-modal.component';
-import { AccessKeyError } from '../../services/models/access-key.error';
 @Component({
   selector: 'dba-ag-annotation-controls',
   standalone: true,
@@ -239,7 +241,9 @@ import { AccessKeyError } from '../../services/models/access-key.error';
   encapsulation: ViewEncapsulation.None,
 })
 export class AnnotationControlsComponent implements OnDestroy {
+  private readonly document = inject(DOCUMENT);
   dataService = inject(CardDataService);
+  private readonly analyticsService = inject(AnalyticsService);
 
   mapData = this.dataService.stellarMapData;
   isSolving = signal(false);
@@ -250,6 +254,10 @@ export class AnnotationControlsComponent implements OnDestroy {
   private modalRef: ComponentRef<AccessKeyModalComponent> | null = null;
 
   private openAccessKeyModal(showError: boolean): void {
+    // Track access key modal opening
+    const reason: 'first_time' | 'missing' | 'expired' = showError ? 'missing' : 'first_time';
+    this.analyticsService.trackAccessKeyModalOpened(reason);
+    
     if (this.modalRef) {
       this.modalRef.setInput('showError', showError);
       this.modalRef.changeDetectorRef.detectChanges();
@@ -268,7 +276,7 @@ export class AnnotationControlsComponent implements OnDestroy {
       this.onAccessKeyCancel();
     });
     this.appRef.attachView(ref.hostView);
-    document.body.appendChild(ref.location.nativeElement);
+    this.document.body.appendChild(ref.location.nativeElement);
     ref.changeDetectorRef.detectChanges();
     this.modalRef = ref;
   }
@@ -369,6 +377,9 @@ export class AnnotationControlsComponent implements OnDestroy {
       return;
     }
 
+    // Track plate solve initiation
+    this.analyticsService.trackPlateSolveInitiated(file.size, false);
+
     this.isSolving.set(true);
     this.mapData.update((d) => ({ ...d, isSolving: true }));
     this.solveStatus.set('Starting plate solve...');
@@ -442,13 +453,19 @@ export class AnnotationControlsComponent implements OnDestroy {
       }));
 
       this.solveStatus.set(`Success! Identified ${annotations.length} objects.`);
+
+      // Track plate solve event
+      const toolsUsed = `plate-solve,wcs-projection,${annotations.length}-objects`;
+      this.analyticsService.trackImageGeneration(ASTROGRAM_USER_ID, toolsUsed);
     } catch (err: unknown) {
       if (err instanceof AccessKeyError) {
+        this.analyticsService.trackPlateSolveFailed(PLATE_SOLVE_ERROR_ACCESS_KEY);
         this.solveStatus.set('');
         this.openAccessKeyModal(true);
         return;
       }
       const message = err instanceof Error ? err.message : 'Unknown error occurred';
+      this.analyticsService.trackPlateSolveFailed(message);
       this.solveStatus.set(`Error: ${message}`);
     } finally {
       this.isSolving.set(false);
