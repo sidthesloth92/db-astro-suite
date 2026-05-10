@@ -269,6 +269,7 @@ export class SimulationService {
 
     // Handle load failure gracefully
     image.onerror = () => {
+      console.error('Failed to load default galaxy image.');
       this.isLoadingDefaultImage.set(false);
       // Still show 'Ready' so user can upload their own image
       this.loadingProgress.set('Ready');
@@ -316,6 +317,7 @@ export class SimulationService {
       };
 
       image.onerror = () => {
+        console.error('Failed to load user image.');
         this.loadingProgress.set('Error loading image');
       };
 
@@ -461,6 +463,7 @@ export class SimulationService {
       // Set up auto-stop at max duration
       this.recordingTimeout = setTimeout(() => this.stopRecording(), MAX_RECORDING_SECONDS * 1000);
     } catch (e) {
+      console.error('Error starting recording:', e);
       // Handle initialization errors (e.g., browser permission denied)
       this.recordingState.set('idle');
     }

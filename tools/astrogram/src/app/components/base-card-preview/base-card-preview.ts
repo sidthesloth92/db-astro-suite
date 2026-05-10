@@ -212,7 +212,7 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
     try {
       // Track card export initiation
       this.analyticsService.trackCardExportInitiated('jpg');
-      
+      console.log('--- Export Start (Modern Screenshot) ---');
       const { domToJpeg } = await import('modern-screenshot');
       const element = this.cardElement.nativeElement;
 
@@ -242,6 +242,9 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
 
       // Calculate scale to reach target resolution (e.g. 1080px wide)
       const captureScale = targetDim.width / naturalWidth;
+      console.log(
+        `Natural size: ${naturalWidth}x${naturalHeight}, target: ${targetDim.width}x${targetDim.height}, scale: ${captureScale.toFixed(2)}`,
+      );
 
       // On mobile, the parent post-container has a CSS scale() transform applied.
       const postContainer = element.closest('.post-container') as HTMLElement | null;
@@ -260,6 +263,7 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
           quality: 0.95,
           backgroundColor: '#000000',
         });
+        console.log('DOM ready for capture:', filename);
       } finally {
         if (postContainer) {
           postContainer.style.transform = originalTransform;
@@ -267,6 +271,7 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
         }
       }
 
+      console.log('Image generated. Triggering download...');
       const link = document.createElement('a');
       link.style.display = 'none';
       link.href = dataUrl;
@@ -287,9 +292,11 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';
       this.analyticsService.trackCardExportFailed(errorMsg);
+      console.error('Export failed:', error);
       alert('Failed to generate image. Please check the console.');
     } finally {
       this.isExporting.set(false);
+      console.log('--- Export Process Ready ---');
     }
   }
 }
