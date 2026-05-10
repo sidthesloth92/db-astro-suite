@@ -1,7 +1,7 @@
-import { Injectable, inject } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
-import { AnalyticsService } from './analytics.service';
-import { GtagFunction } from './models/gtag.model';
+import { DOCUMENT } from "@angular/common";
+import { Injectable, inject } from "@angular/core";
+import { AnalyticsService } from "./analytics.service";
+import { GtagFunction } from "./models/gtag.model";
 
 /**
  * Google Analytics 4 (GA4) implementation of {@link AnalyticsService}.
@@ -27,7 +27,7 @@ export class GoogleAnalyticsService implements AnalyticsService {
       return undefined;
     }
     const possibleGtag = (win as unknown as { gtag?: unknown }).gtag;
-    return typeof possibleGtag === 'function'
+    return typeof possibleGtag === "function"
       ? (possibleGtag as GtagFunction)
       : undefined;
   }
@@ -45,7 +45,7 @@ export class GoogleAnalyticsService implements AnalyticsService {
       if (!gtag) {
         return;
       }
-      gtag('event', eventName, params);
+      gtag("event", eventName, params);
     } catch {
       // Tracking failures must never propagate to callers
     }
@@ -58,7 +58,10 @@ export class GoogleAnalyticsService implements AnalyticsService {
    * @param toolsUsed - A string describing the tools applied during generation.
    */
   trackImageGeneration(userId: string, toolsUsed: string): void {
-    this.trackEvent('image_generation', { user_id: userId, tools_used: toolsUsed });
+    this.trackEvent("astrogram_astrosolve_success", {
+      user_id: userId,
+      tools_used: toolsUsed,
+    });
   }
 
   /**
@@ -68,7 +71,7 @@ export class GoogleAnalyticsService implements AnalyticsService {
    * @param format - The output format of the generated video.
    */
   trackVideoGeneration(userId: string, format: string): void {
-    this.trackEvent('video_generation', { user_id: userId, format });
+    this.trackEvent("starwizz_video_generation", { user_id: userId, format });
   }
 
   /**
@@ -78,7 +81,10 @@ export class GoogleAnalyticsService implements AnalyticsService {
    * @param hasHints - Whether the user provided coordinate hints to aid solving.
    */
   trackPlateSolveInitiated(fileSize: number, hasHints: boolean): void {
-    this.trackEvent('plate_solve_initiated', { file_size: fileSize, has_hints: hasHints });
+    this.trackEvent("astrogram_plate_solve_initiated", {
+      file_size: fileSize,
+      has_hints: hasHints,
+    });
   }
 
   /**
@@ -87,7 +93,9 @@ export class GoogleAnalyticsService implements AnalyticsService {
    * @param errorReason - A short description of why the plate solve failed.
    */
   trackPlateSolveFailed(errorReason: string): void {
-    this.trackEvent('plate_solve_failed', { error_reason: errorReason });
+    this.trackEvent("astrogram_plate_solve_failed", {
+      error_reason: errorReason,
+    });
   }
 
   /**
@@ -97,8 +105,12 @@ export class GoogleAnalyticsService implements AnalyticsService {
    * @param responseTimeMs - The round-trip response time in milliseconds.
    * @param statusCode - The HTTP status code returned by the backend.
    */
-  trackAstrosolveBackendCall(endpoint: string, responseTimeMs: number, statusCode: number): void {
-    this.trackEvent('astrosolve_backend_call', {
+  trackAstrosolveBackendCall(
+    endpoint: string,
+    responseTimeMs: number,
+    statusCode: number,
+  ): void {
+    this.trackEvent("astrogram_astrosolve_backend_call", {
       endpoint,
       response_time_ms: responseTimeMs,
       status_code: statusCode,
@@ -111,7 +123,7 @@ export class GoogleAnalyticsService implements AnalyticsService {
    * @param format - The file format chosen for the export (e.g., `'jpg'`).
    */
   trackCardExportInitiated(format: string): void {
-    this.trackEvent('card_export_initiated', { format });
+    this.trackEvent("astrogram_card_export_initiated", { format });
   }
 
   /**
@@ -121,8 +133,12 @@ export class GoogleAnalyticsService implements AnalyticsService {
    * @param fileSizeKb - The size of the exported file in kilobytes.
    * @param timeToGenerateMs - The time taken to generate the export in milliseconds.
    */
-  trackCardExportSuccess(format: string, fileSizeKb: number, timeToGenerateMs: number): void {
-    this.trackEvent('card_export_success', {
+  trackCardExportSuccess(
+    format: string,
+    fileSizeKb: number,
+    timeToGenerateMs: number,
+  ): void {
+    this.trackEvent("astrogram_card_export_success", {
       format,
       file_size_kb: fileSizeKb,
       time_to_generate_ms: timeToGenerateMs,
@@ -135,7 +151,9 @@ export class GoogleAnalyticsService implements AnalyticsService {
    * @param errorReason - A short description of why the export failed.
    */
   trackCardExportFailed(errorReason: string): void {
-    this.trackEvent('card_export_failed', { error_reason: errorReason });
+    this.trackEvent("astrogram_card_export_failed", {
+      error_reason: errorReason,
+    });
   }
 
   /**
@@ -143,8 +161,10 @@ export class GoogleAnalyticsService implements AnalyticsService {
    *
    * @param reason - The reason the modal was opened: first visit, missing key, or expired key.
    */
-  trackAccessKeyModalOpened(reason: 'first_time' | 'missing' | 'expired'): void {
-    this.trackEvent('access_key_modal_opened', { reason });
+  trackAccessKeyModalOpened(
+    reason: "first_time" | "missing" | "expired",
+  ): void {
+    this.trackEvent("astrogram_access_key_modal_opened", { reason });
   }
 
   /**
@@ -153,7 +173,7 @@ export class GoogleAnalyticsService implements AnalyticsService {
    * @param success - `true` if the submitted key was accepted; `false` otherwise.
    */
   trackAccessKeySubmitted(success: boolean): void {
-    this.trackEvent('access_key_submitted', { success });
+    this.trackEvent("astrogram_access_key_submitted", { success });
   }
 
   /**
@@ -163,7 +183,10 @@ export class GoogleAnalyticsService implements AnalyticsService {
    * @param section - The UI section or page area where the button resides.
    */
   trackButtonClicked(buttonId: string, section: string): void {
-    this.trackEvent('button_clicked', { button_id: buttonId, section });
+    this.trackEvent("astrogram_button_clicked", {
+      button_id: buttonId,
+      section,
+    });
   }
 
   /**
@@ -173,7 +196,10 @@ export class GoogleAnalyticsService implements AnalyticsService {
    * @param newValue - The new value applied to the setting.
    */
   trackSettingChanged(settingName: string, newValue: unknown): void {
-    this.trackEvent('setting_changed', { setting_name: settingName, new_value: String(newValue) });
+    this.trackEvent("astrogram_setting_changed", {
+      setting_name: settingName,
+      new_value: String(newValue),
+    });
   }
 
   /**
@@ -183,7 +209,10 @@ export class GoogleAnalyticsService implements AnalyticsService {
    * @param canvasHeight - The height of the canvas in pixels.
    */
   trackRecordingStarted(canvasWidth: number, canvasHeight: number): void {
-    this.trackEvent('recording_started', { canvas_width: canvasWidth, canvas_height: canvasHeight });
+    this.trackEvent("starwizz_recording_started", {
+      canvas_width: canvasWidth,
+      canvas_height: canvasHeight,
+    });
   }
 
   /**
@@ -193,7 +222,10 @@ export class GoogleAnalyticsService implements AnalyticsService {
    * @param frameCount - Total number of frames captured during the recording.
    */
   trackRecordingStopped(durationSeconds: number, frameCount: number): void {
-    this.trackEvent('recording_stopped', { duration_seconds: durationSeconds, frame_count: frameCount });
+    this.trackEvent("starwizz_recording_stopped", {
+      duration_seconds: durationSeconds,
+      frame_count: frameCount,
+    });
   }
 
   /**
@@ -202,14 +234,16 @@ export class GoogleAnalyticsService implements AnalyticsService {
    * @param durationSoFarSeconds - The elapsed recording duration in seconds at the point of pause.
    */
   trackRecordingPaused(durationSoFarSeconds: number): void {
-    this.trackEvent('recording_paused', { duration_so_far_seconds: durationSoFarSeconds });
+    this.trackEvent("starwizz_recording_paused", {
+      duration_so_far_seconds: durationSoFarSeconds,
+    });
   }
 
   /**
    * Tracks when a paused recording session is resumed by the user.
    */
   trackRecordingResumed(): void {
-    this.trackEvent('recording_resumed');
+    this.trackEvent("starwizz_recording_resumed");
   }
 
   /**
@@ -218,7 +252,7 @@ export class GoogleAnalyticsService implements AnalyticsService {
    * @param format - The file format chosen for the video export.
    */
   trackVideoExportInitiated(format: string): void {
-    this.trackEvent('video_export_initiated', { format });
+    this.trackEvent("starwizz_video_export_initiated", { format });
   }
 
   /**
@@ -228,8 +262,12 @@ export class GoogleAnalyticsService implements AnalyticsService {
    * @param fileSizeMb - The size of the exported video file in megabytes.
    * @param durationSeconds - The duration of the exported video in seconds.
    */
-  trackVideoExportSuccess(format: string, fileSizeMb: number, durationSeconds: number): void {
-    this.trackEvent('video_export_success', {
+  trackVideoExportSuccess(
+    format: string,
+    fileSizeMb: number,
+    durationSeconds: number,
+  ): void {
+    this.trackEvent("starwizz_video_export_success", {
       format,
       file_size_mb: fileSizeMb,
       duration_seconds: durationSeconds,
@@ -242,7 +280,9 @@ export class GoogleAnalyticsService implements AnalyticsService {
    * @param errorReason - A short description of why the video export failed.
    */
   trackVideoExportFailed(errorReason: string): void {
-    this.trackEvent('video_export_failed', { error_reason: errorReason });
+    this.trackEvent("starwizz_video_export_failed", {
+      error_reason: errorReason,
+    });
   }
 
   /**
@@ -251,7 +291,7 @@ export class GoogleAnalyticsService implements AnalyticsService {
    * @param buttonName - The name or label of the control button that was clicked.
    */
   trackControlClicked(buttonName: string): void {
-    this.trackEvent('control_clicked', { button_name: buttonName });
+    this.trackEvent("starwizz_control_clicked", { button_name: buttonName });
   }
 
   /**
@@ -261,7 +301,10 @@ export class GoogleAnalyticsService implements AnalyticsService {
    * @param newValue - The new value assigned to the parameter.
    */
   trackParameterChanged(paramName: string, newValue: unknown): void {
-    this.trackEvent('parameter_changed', { param_name: paramName, new_value: String(newValue) });
+    this.trackEvent("starwizz_parameter_changed", {
+      param_name: paramName,
+      new_value: String(newValue),
+    });
   }
 
   /**
@@ -270,7 +313,7 @@ export class GoogleAnalyticsService implements AnalyticsService {
    * @param errorReason - A short description of why the recording failed.
    */
   trackRecordingFailed(errorReason: string): void {
-    this.trackEvent('recording_failed', { error_reason: errorReason });
+    this.trackEvent("starwizz_recording_failed", { error_reason: errorReason });
   }
 
   /**
@@ -280,6 +323,9 @@ export class GoogleAnalyticsService implements AnalyticsService {
    * @param fallbackFormat - The fallback MIME type or format that was selected instead.
    */
   trackMimeTypeUnsupported(browserType: string, fallbackFormat: string): void {
-    this.trackEvent('mime_type_unsupported', { browser_type: browserType, fallback_format: fallbackFormat });
+    this.trackEvent("starwizz_mime_type_unsupported", {
+      browser_type: browserType,
+      fallback_format: fallbackFormat,
+    });
   }
 }
