@@ -1,11 +1,13 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardDataService } from '../../services/card-data.service';
+import { AnalyticsService } from '@db-astro-suite/ui';
 
 @Component({
   selector: 'dba-ag-bortle-settings',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="form-container">
       <div class="bortle-control">
@@ -30,10 +32,12 @@ import { CardDataService } from '../../services/card-data.service';
   `
 })
 export class BortleSettingsComponent {
-  dataService = inject(CardDataService);
-  cardData = this.dataService.cardData;
+  private readonly analyticsService = inject(AnalyticsService);
+  private readonly dataService = inject(CardDataService);
+  readonly cardData = this.dataService.cardData;
 
   updateBortle(n: number) {
+    this.analyticsService.trackSettingChanged('bortle_scale', n);
     this.dataService.updateData({ bortleScale: n });
   }
 }
