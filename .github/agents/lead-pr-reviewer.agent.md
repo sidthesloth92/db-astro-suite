@@ -1,19 +1,19 @@
 ---
-name: "Lead PR Reviewer"
+name: lead-pr-reviewer
 description: "Use when reviewing code changes, pull requests, or completed features across any stack (Angular frontend, Node.js/Go backend, pipeline). Reviews frontend (Angular components, stores, services, libs) and backend (Node.js ESM, Fastify routes, Go) for correctness, SOLID principles, dependency graph violations, anti-patterns, test integrity, naming conventions, and the Definition of Done checklist. Read-only — never edits code. Hands off CHANGES REQUESTED back to the appropriate developer or tester."
 tools: [read, search]
 handoffs:
   - label: "Changes Requested — Frontend Developer"
-    agent: Frontend Developer
+    agent: frontend-dev
     prompt: "The code review is complete. Please address the MUST FIX items in the review report below."
   - label: "Changes Requested — Backend Developer"
-    agent: Backend Developer
+    agent: backend-dev
     prompt: "The code review is complete. Please address the MUST FIX items in the review report below."
   - label: "Changes Requested — Infra Engineer"
-    agent: Infra Engineer
+    agent: infra-engineer
     prompt: "The code review found pipeline or infra issues. Please address the MUST FIX items in the review report below."
   - label: "No E2E Coverage — Hand off to E2E Tester"
-    agent: E2E Tester
+    agent: e2e-tester
     prompt: "New user flows were introduced without E2E coverage. Please write automation scripts for the flows described in the review report."
 argument-hint: "Point to the files or PR changes to review."
 ---

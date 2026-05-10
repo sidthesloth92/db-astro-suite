@@ -1,7 +1,7 @@
 ---
 name: pr-feedback
-description: "Workflow for addressing human review comments on an existing GitHub PR. Use when feature-agent is invoked in feedback mode (e.g. 'PR #42 has feedback to address'). Covers ingesting PR context and comments via gh CLI, routing to developer agents, committing fixes to the existing branch, replying to comment threads, and updating the PR description with a feedback round summary."
-argument-hint: "Provide the PR number."
+description: "Workflow for addressing human review comments on an existing GitHub PR. Split into Part A (ingest and solution planning — runs before user approves the plan) and Part B (implementation, code review, E2E, and PR update — runs after approval with execution mode known). Covers ingesting PR context via gh CLI, routing fixes to developer agents, running lead-pr-reviewer and e2e-tester, committing fixes to the existing branch, replying to comment threads, and updating the PR description."
+argument-hint: "Provide the PR number and execution mode (Automated or Interactive)."
 ---
 
 # PR Feedback Workflow
@@ -10,9 +10,13 @@ argument-hint: "Provide the PR number."
 
 - A human has reviewed an open PR and left review comments on GitHub
 - `feature-agent` was invoked with a prompt like "PR #42 has feedback to address"
-- You need to route those comments to the correct developer agents and signal completion back to the reviewer
+- Part A runs immediately after the PR number is known; Part B runs after the user approves the solution plan
 
-## Procedure
+---
+
+## Part A — Ingest and Plan
+
+> Run this before user approval. Do not invoke any developer agent during Part A.
 
 ### Step 1 — Ingest PR Context
 
@@ -47,7 +51,7 @@ From this output extract:
 | `.github/workflows/**`, `**/Dockerfile`                        | Infra        | `infra-engineer`             |
 | Mixed                                                          | Multiple     | route to each relevant agent |
 
-### Step 2.5 — Propose Solutions and Wait for Approval
+### Step 2.5 — Propose Solutions (end of Part A)
 
 Before invoking any developer agent, produce a solution proposal for every review comment and present them all in a single message:
 
@@ -59,7 +63,7 @@ Before invoking any developer agent, produce a solution proposal for every revie
 **Comment 1** (by <author>, on `<file>:<line>`):
 > <quoted comment text>
 
-**Proposed fix**: <one-paragraph description — specific enough to redirect: which file, what changes, why this approach>
+**Proposed fix**: <one-paragraph description — specific enough to act on: which file, what changes, why this approach>
 
 ---
 
@@ -73,11 +77,26 @@ Before invoking any developer agent, produce a solution proposal for every revie
 Does this plan look right? Reply 'approved' to proceed, correct any item inline, or tell me to skip a comment entirely.
 ```
 
-**Do not invoke any developer agent until the user explicitly approves (or adjusts) this plan.**
+**This is the end of Part A.** Return control to `feature-agent`, which will wait for explicit user approval and then ask for execution mode before starting Part B.
 
 If the user corrects an item: update the proposed fix for that comment, re-show only the corrected entry, and ask for final confirmation before proceeding.
 
-> This step applies in both Interactive and Automated mode — the user should always have a chance to redirect the approach before any code is written.
+---
+
+## Part B — Implementation, Review, E2E, and PR Update
+
+> Execution mode (Automated or Interactive) is passed in by `feature-agent` before Part B begins. All steps below apply the chosen mode.
+
+### Step 2.7 — Switch to the PR Branch
+
+Before any files are written, ensure you are on the correct branch:
+
+```sh
+git checkout <branch-name>   # branch-name extracted from gh pr view in Step 1
+git pull origin <branch-name>
+```
+
+If `git checkout` fails (e.g. uncommitted local changes), pause and report the conflict to the user before proceeding.
 
 ### Step 3 — Hand Off to Developer Agent(s)
 
@@ -91,37 +110,85 @@ Invoke the correct agent(s) with this context package:
 If multiple stacks are involved, route to each agent in this order:
 `backend-dev` → `frontend-dev` → `infra-engineer`
 
-### Step 3.5 — Stage, Checkpoint, Commit, Push
+### Step 3.5 — Code Review
 
-Once all developer agents have confirmed their files are written:
+Invoke `lead-pr-reviewer` with:
 
-1. Run `git add -A` to stage all changes
+- All files changed during Step 3
+- The feature description and approved fix plan for context
 
-**Interactive mode**: pause and show:
+Capture the verdict:
+
+- **APPROVED** → proceed to Step 4
+- **CHANGES REQUESTED** → invoke the same agent(s) from Step 3 with the reviewer's full MUST FIX list → re-invoke `lead-pr-reviewer`
+  - **APPROVED on re-review** → proceed to Step 4
+  - **CHANGES REQUESTED (second time)** → pause, list the outstanding blockers, and ask the user how to proceed. Never loop more than twice without human input.
+
+### Step 4 — Post-Implementation Checkpoint / Commit
+
+Once all developer agents and the review cycle are complete:
+
+1. Run `git add -A` to stage all changes (developer fixes + any review fixes)
+
+**Interactive mode** — pause and show:
 
 ```
-## Feedback Fixes Ready — Review Before Committing
+## Implementation Complete — Review Before Committing
 
 **PR**: #<number>
 **Comments addressed**: <count>
 **Files changed:**
 - <file> — <fix applied>
 
+**Code review**: APPROVED (after <N> cycle(s))
+
 Changes are staged but NOT committed or pushed. Run `git diff --staged` to review.
-Reply 'continue' to commit and push, or describe anything to adjust first.
+Reply 'continue' to commit and proceed to E2E tests, or describe anything to adjust first.
 ```
 
-If the user provides feedback: run `git restore --staged .`, re-invoke the relevant agent(s), re-stage, and re-show this checkpoint.
+If the user provides feedback: run `git restore --staged .`, re-invoke the relevant agent(s) with the feedback, re-stage, and re-show this checkpoint.
+
 On 'continue':
 
 2. `git commit -m "fix: address PR #<number> review feedback"`
+
+**Automated mode**: commit immediately after the review cycle completes, without pausing.
+
+### Step 5 — E2E Testing
+
+Invoke `e2e-tester` with:
+
+- The feature description
+- All files changed in Step 3
+- The user flows introduced or modified by the addressed comments
+
+### Step 6 — Pre-Push Gate / Commit and Push
+
+1. Run `git add -A` to stage all E2E changes
+
+**Interactive mode** — pause and show:
+
+```
+## E2E Complete — Final Gate Before Push
+
+**PR**: #<number>
+**Tests written/updated**: <list>
+**Bugs found**: <list or "none">
+
+E2E changes are staged but NOT committed or pushed. Run `git diff --staged` to review.
+Reply 'continue' to commit, push, and update the PR — or describe anything to fix first.
+```
+
+On 'continue':
+
+2. `git commit -m "test: add/update e2e coverage for PR #<number> feedback"`
 3. `git push` (to the existing remote branch)
 
-**Automated mode**: commit and push immediately without pausing.
+**Automated mode**: commit E2E changes and push immediately without pausing.
 
-### Step 4 — Reply to Each Comment Thread
+### Step 7 — Reply to Each Comment Thread
 
-After the developer agent confirms fixes are committed, for each addressed comment:
+After pushing, for each addressed comment:
 
 ```sh
 gh pr comment <pr-number> --body "Addressed in <commit-sha>: <one-line explanation of what was changed>"
@@ -129,7 +196,7 @@ gh pr comment <pr-number> --body "Addressed in <commit-sha>: <one-line explanati
 
 One reply per comment thread. Keep the explanation concise — it helps the reviewer navigate directly to the fix.
 
-### Step 5 — Update the PR Description
+### Step 8 — Update the PR Description
 
 Append a feedback round section to the existing PR description. **Never replace the full body.**
 
@@ -157,7 +224,7 @@ gh pr edit <pr-number> --body "<existing body>
 **Status**: Ready for re-review"
 ```
 
-### Step 6 — Done Signal
+### Step 9 — Done Signal
 
 Report to the user:
 
@@ -166,11 +233,15 @@ Report to the user:
 - Confirm the PR description was updated
 - Remind the user to resolve the threads on GitHub manually
 
+---
+
 ## Rules
 
 - **Never create a new branch** — all fixes commit to the existing feature branch
-- **In Interactive mode: never commit or push until the user confirms at the Step 3.5 checkpoint**
-- **Never invoke `lead-pr-reviewer`** — the human is the reviewer in this flow
+- **Part A ends at Step 2.5** — do not invoke any developer agent before `feature-agent` receives user approval and passes execution mode
+- **`lead-pr-reviewer` must approve before E2E tests run** — never invoke `e2e-tester` before Step 3.5 is complete
+- **Max 2 review cycles** (Step 3.5) before pausing and asking the user how to proceed
+- **Interactive mode: never commit or push until the user confirms** at Step 4 (implementation checkpoint) and Step 6 (pre-push gate)
 - **Never replace the full PR description** — only append the `## Feedback Round N` section
 - **One reply per comment thread** — do not batch multiple fixes into one comment
 - Max 1 feedback round per invocation — if the user wants another round, they invoke `feature-agent` again with the PR number

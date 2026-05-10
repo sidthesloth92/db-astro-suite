@@ -34,9 +34,9 @@ Each agent's `argument-hint` in the panel describes what to provide.
 2. Produces a written plan — you approve before anything runs
 3. If using **Local** mode: Creates the feature branch in your workspace.
 4. If using **Copilot CLI** mode: You click 'Continue in Copilot CLI' to hand off execution to a background worktree.
-3. Creates the feature branch
-4. Invokes developer agent(s) → reviewer → fix cycle (max 2) → E2E tester → PR creation
-5. Delivers a Done Report with PR URL
+5. Creates the feature branch
+6. Invokes developer agent(s) → reviewer → fix cycle (max 2) → E2E tester → PR creation
+7. Delivers a Done Report with PR URL
 
 #### Execution Modes
 
@@ -79,14 +79,14 @@ The agent asks two questions upfront: the PR number (if not already in your prom
 
 ## Agent Roster
 
-| Agent                | Purpose                                                      | Invoke directly when…                                 |
-| -------------------- | ------------------------------------------------------------ | ----------------------------------------------------- |
-| `feature-agent`      | Orchestrates new features and PR feedback                    | You want a full pipeline, not just one step           |
-| `frontend-dev`       | Angular v17+ implementation (hub, astrogram, starwizz, libs) | You want to implement a frontend-only change yourself |
-| `backend-dev`        | Node.js ESM / Fastify and Go implementation                  | You want to implement a backend-only change yourself  |
-| `infra-engineer`     | CI/CD pipelines, Dockerfile, deploy scripts                  | You need pipeline changes only                        |
-| `lead-code-reviewer` | Read-only staff-level code review                            | You want a review without running the full pipeline   |
-| `e2e-tester`         | Playwright E2E — authoring and bug classification            | You need tests written or a failure investigated      |
+| Agent              | Purpose                                                      | Invoke directly when…                                 |
+| ------------------ | ------------------------------------------------------------ | ----------------------------------------------------- |
+| `feature-agent`    | Orchestrates new features and PR feedback                    | You want a full pipeline, not just one step           |
+| `frontend-dev`     | Angular v17+ implementation (hub, astrogram, starwizz, libs) | You want to implement a frontend-only change yourself |
+| `backend-dev`      | Node.js ESM / Fastify and Go implementation                  | You want to implement a backend-only change yourself  |
+| `infra-engineer`   | CI/CD pipelines, Dockerfile, deploy scripts                  | You need pipeline changes only                        |
+| `lead-pr-reviewer` | Read-only staff-level code review                            | You want a review without running the full pipeline   |
+| `e2e-tester`       | Playwright E2E — authoring and bug classification            | You need tests written or a failure investigated      |
 
 ---
 
@@ -94,15 +94,15 @@ The agent asks two questions upfront: the PR number (if not already in your prom
 
 Each agent loads one or more **skills** at the start of a task. Skills live in `.github/skills/` and contain the detailed procedures, templates, and rule catalogues. Agents are lightweight — skills are where all the domain knowledge lives.
 
-| Skill                 | Loaded by            | What it defines                                                                  |
-| --------------------- | -------------------- | -------------------------------------------------------------------------------- |
-| `angular-component`   | `frontend-dev`       | Angular component/store/service workflow, signals, OnPush, testing               |
-| `backend-api`         | `backend-dev`        | Node.js ESM route/service/model workflow, Go feature workflow, error pattern     |
-| `pipeline-ops`        | `infra-engineer`     | CI/CD audit checklist, Dockerfile rules, deploy verification                     |
-| `playwright-e2e`      | `e2e-tester`         | POM pattern, locator rules, visual regression, bug classification                |
-| `pr-review-checklist` | `lead-code-reviewer` | SOLID, anti-patterns, naming conventions, test integrity, DoD checklist          |
-| `create-pr`           | `feature-agent`      | Branch push, structured PR description template, `gh pr create`                  |
-| `pr-feedback`         | `feature-agent`      | Ingest PR comments, route to agents, stage/checkpoint/commit/push, reply threads |
+| Skill                 | Loaded by          | What it defines                                                                  |
+| --------------------- | ------------------ | -------------------------------------------------------------------------------- |
+| `angular-component`   | `frontend-dev`     | Angular component/store/service workflow, signals, OnPush, testing               |
+| `backend-api`         | `backend-dev`      | Node.js ESM route/service/model workflow, Go feature workflow, error pattern     |
+| `pipeline-ops`        | `infra-engineer`   | CI/CD audit checklist, Dockerfile rules, deploy verification                     |
+| `playwright-e2e`      | `e2e-tester`       | POM pattern, locator rules, visual regression, bug classification                |
+| `pr-review-checklist` | `lead-pr-reviewer` | SOLID, anti-patterns, naming conventions, test integrity, DoD checklist          |
+| `create-pr`           | `feature-agent`    | Branch push, structured PR description template, `gh pr create`                  |
+| `pr-feedback`         | `feature-agent`    | Ingest PR comments, route to agents, stage/checkpoint/commit/push, reply threads |
 
 Skills are passive instruction files — agents load them via `read_file` when needed. You never invoke a skill directly.
 
@@ -111,5 +111,6 @@ Skills are passive instruction files — agents load them via `read_file` when n
 ## Prerequisites
 
 - `git` configured with remote `origin` pointing to this repository
+- `gh` CLI authenticated (`gh auth login`) — used for PR creation, reading review comments, and replying to comment threads
 - VS Code with the GitHub Copilot Chat extension (agent mode enabled)
 - GitHub account connected in VS Code (used by the GitHub PR extension tools for PR creation)

@@ -13,7 +13,7 @@ applyTo: "tools/astrosolve/**"
 ## Error Handling
 
 - Throw domain-specific error subclasses (e.g. `class AstrometryError extends Error`) from services. Never throw a plain `new Error('...')` — it forces fragile string-matching at the catch site.
-- Domain error classes live in a dedicated `errors.js` module — never defined inline in route or service files.
+- Domain error classes live in a dedicated `errors.model.js` module inside the `models/` folder — never defined inline in route or service files.
 - Never use bare `catch {}` — always catch specific exception types or re-throw.
 - Never swallow errors silently. Either re-raise, log, or convert to a typed error response.
 
@@ -30,6 +30,7 @@ applyTo: "tools/astrosolve/**"
 
 - One primary class or responsibility per module. If a module does more than one thing, split it.
 - JSDoc docstrings on all exported functions and classes.
+- **No inline JSDoc `import()` expressions** — Never use `{import('module').Type}` inline in JSDoc `@param` or `@returns` tags. Declare `@typedef` imports at the top of the file and reference the alias.
 
 ## File Naming Conventions
 
@@ -37,7 +38,7 @@ applyTo: "tools/astrosolve/**"
 | ------------------------------ | ----------------------- |
 | Services (business logic)      | `*.service.js`          |
 | Routes / controllers           | `*.route.js`            |
-| Domain error classes           | `errors.js`             |
+| Domain error classes           | `errors.model.js`       |
 | Config / startup               | `*.config.js`           |
 | Utility functions              | `*.util.js`             |
 | Domain / DTO models            | `*.model.js`            |

@@ -1,17 +1,26 @@
 import { solveWithAstrometry } from "./astrometry.service.js";
 import { querySimbad } from "./simbad.service.js";
-import { queryLocalCatalog } from "./local-catalog.service.js";
-import { mergeObjects, STAR_TYPES } from "./merge.service.js";
+import { findObjectsInRadius } from "./local-catalog.service.js";
+import { mergeObjects } from "../utils/catalog-merge.util.js";
+import { LocalCatalogDao } from "../dao/local-catalog.dao.js";
+import { SolveResult, SolveMetadata } from "../models/solve.model.js";
+import { CatalogError } from "../models/errors.model.js";
 
 /**
  * Orchestrates the full plate-solve pipeline: astrometry → catalog queries → merge.
  *
  * @param {string} filePath - Absolute path to the saved image file
  * @param {Object} hints - Solving hints extracted from the request
+ * @param {LocalCatalogDao | null} localCatalogDao - DAO for the local catalog
  * @param {Object} log - Fastify-compatible logger (request.log)
- * @returns {Promise<{metadata: Object, objects: Array, warnings: string[]}>} Merged solve result
+ * @returns {Promise<SolveResult>} Merged solve result
  */
-export async function processSolveRequest(filePath, hints, log) {
+export async function processSolveRequest(
+  filePath,
+  hints,
+  localCatalogDao,
+  log,
+) {
   const warnings = [];
 
   // Step 1: Plate Solve using local Astrometry.net
@@ -24,21 +33,18 @@ export async function processSolveRequest(filePath, hints, log) {
   // Fire both queries in parallel
   const [localObjects, simbadObjects] = await Promise.all([
     // Local DB Query (Extremely fast, <10ms)
-    Promise.resolve()
-      .then(() =>
-        queryLocalCatalog({
-          ra: solveResult.ra,
-          dec: solveResult.dec,
-          radiusDeg: radius,
-          maxMagnitude: hints.min_magnitude,
-          types: hints.types,
-          log,
-        }),
-      )
-      .catch((err) => {
-        log.error({ err }, "Local catalog query failed");
-        return [];
-      }),
+    findObjectsInRadius(localCatalogDao, {
+      ra: solveResult.ra,
+      dec: solveResult.dec,
+      radiusDeg: radius,
+      maxMagnitude: hints.min_magnitude,
+      types: hints.types,
+      log,
+    }).catch((err) => {
+      if (!(err instanceof CatalogError)) throw err;
+      log.error({ err }, "Local catalog query failed");
+      return [];
+    }),
 
     // SIMBAD Query (Slower, network dependent)
     querySimbad(
@@ -47,6 +53,7 @@ export async function processSolveRequest(filePath, hints, log) {
       radius,
       hints.min_magnitude,
     ).catch((err) => {
+      if (!(err instanceof CatalogError)) throw err;
       log.warn(
         { err },
         "SIMBAD query failed; falling back to local catalog only",
@@ -61,15 +68,15 @@ export async function processSolveRequest(filePath, hints, log) {
   // Step 3: Deduplication & Merging
   const objects = mergeObjects(localObjects, simbadObjects);
 
-  return {
-    metadata: {
-      ra: solveResult.ra,
-      dec: solveResult.dec,
-      scale: solveResult.scale,
-      wcs: solveResult.wcsData,
-      radius_searched: radius,
-    },
+  return new SolveResult(
+    new SolveMetadata(
+      solveResult.ra,
+      solveResult.dec,
+      solveResult.scale,
+      solveResult.wcsData, // astrometry DTO uses wcsData; SolveMetadata.wcs is the public field
+      radius,
+    ),
     objects,
     warnings,
-  };
+  );
 }
