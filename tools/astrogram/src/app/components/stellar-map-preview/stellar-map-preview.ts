@@ -350,6 +350,12 @@ export class StellarMapPreviewComponent {
     }
   }
 
+
+  /** Cancels an active drag when the pointer leaves the layer. Never deselects. */
+  onLayerMouseleave() {
+    this._dragId.set(null);
+    this._dragStartMouse.set(null);
+  }
   addCenterAnnotation() {
     const d = this.mapData();
     // Default radius = 12.5% of the smaller image dimension (→ ~25% diameter).

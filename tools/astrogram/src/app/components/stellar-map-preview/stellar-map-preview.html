@@ -48,7 +48,7 @@
     [class.is-dragging]="isDragging()"
     (mousemove)="onLayerMousemove($event)"
     (mouseup)="onLayerMouseup($event)"
-    (mouseleave)="onLayerMouseup($event)"
+    (mouseleave)="onLayerMouseleave()"
   >
     @for (ann of visibleAnnotations(); track ann.id) {
       <div
