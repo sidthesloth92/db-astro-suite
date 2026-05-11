@@ -76,24 +76,25 @@
         @if (ann.magnitude !== undefined) {
           <span class="object-badge">mag {{ ann.magnitude | number: '1.1-1' }}</span>
         }
-        @if (hasAnyStyleOverride()) {
-          <button class="action-icon-btn reset" (click)="resetStyle()" title="Reset to settings when opened">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              width="14"
-              height="14"
-            >
-              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-              <path d="M3 3v5h5"></path>
-            </svg>
-          </button>
-        }
-        <button class="action-icon-btn delete" (click)="remove()" title="Remove annotation">
+        <div class="meta-actions">
+          @if (hasAnyStyleOverride()) {
+            <button class="action-icon-btn reset" (click)="resetStyle()" title="Reset to settings when opened">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                width="14"
+                height="14"
+              >
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                <path d="M3 3v5h5"></path>
+              </svg>
+            </button>
+          }
+          <button class="action-icon-btn delete" (click)="remove()" title="Remove annotation">
           <svg
             viewBox="0 0 24 24"
             fill="none"
@@ -110,7 +111,8 @@
             <path d="M14 11v6"></path>
             <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
           </svg>
-        </button>
+          </button>
+        </div>
       </div>
     </div>
 

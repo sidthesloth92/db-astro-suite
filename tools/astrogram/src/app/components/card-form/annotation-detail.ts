@@ -141,7 +141,6 @@ import { CardDataService } from '../../services/card-data.service';
       .action-icon-btn.reset {
         color: rgba(255, 200, 50, 0.8);
         border-color: rgba(255, 200, 50, 0.3);
-        margin-left: auto;
       }
       .action-icon-btn.reset:hover {
         background: rgba(255, 200, 50, 0.12);
