@@ -127,10 +127,17 @@ import { CardDataService } from '../../services/card-data.service';
         color: #ff4444;
         box-shadow: 0 0 10px rgba(255, 68, 68, 0.3);
       }
+      .meta-actions {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 0.4rem;
+        margin-left: auto;
+        flex-shrink: 0;
+      }
       .action-icon-btn.delete {
         color: rgba(255, 100, 100, 0.8);
         border-color: rgba(255, 100, 100, 0.3);
-        margin-left: auto;
       }
       .action-icon-btn.delete:hover {
         background: rgba(255, 68, 68, 0.15);
