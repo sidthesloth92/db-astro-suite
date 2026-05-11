@@ -1,14 +1,17 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SelectComponent, NeonButtonComponent } from '@db-astro-suite/ui';
 import { CardDataService } from '../../services/card-data.service';
 import { PresetService } from '../../services/preset.service';
+import { AnalyticsService } from '@db-astro-suite/ui';
+import { EquipmentItem } from '../../models/card-data';
 
 @Component({
   selector: 'dba-ag-equipment-settings',
   standalone: true,
   imports: [CommonModule, FormsModule, SelectComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="form-container">
       <!-- Preset Toolbar -->
@@ -132,6 +135,7 @@ import { PresetService } from '../../services/preset.service';
   `
 })
 export class EquipmentSettingsComponent implements OnInit {
+  private readonly analyticsService = inject(AnalyticsService);
   dataService = inject(CardDataService);
   presetService = inject(PresetService);
   cardData = this.dataService.cardData;
@@ -172,6 +176,10 @@ export class EquipmentSettingsComponent implements OnInit {
   startSavePreset() { this.isSavingPreset = true; this.newPresetName = ''; this.isDeletingPreset = false; }
   confirmSavePreset() {
     if (!this.newPresetName.trim()) return;
+    
+    this.analyticsService.trackButtonClicked('save_preset', 'equipment');
+    this.analyticsService.trackSettingChanged('equipment_preset', this.newPresetName.trim());
+    
     this.presetService.saveEquipmentPreset(this.newPresetName.trim(), this.cardData().equipment);
     this.loadPresets();
     this.selectedPresetName = this.newPresetName.trim();
@@ -182,6 +190,9 @@ export class EquipmentSettingsComponent implements OnInit {
   startDeletePreset() { if (!this.selectedPresetName) return; this.isDeletingPreset = true; this.isSavingPreset = false; }
   confirmDeletePreset() {
     if (!this.selectedPresetName) return;
+    
+    this.analyticsService.trackButtonClicked('delete_preset', 'equipment');
+    
     this.presetService.deleteEquipmentPreset(this.selectedPresetName);
     this.loadPresets();
     this.selectedPresetName = '';
@@ -189,9 +200,9 @@ export class EquipmentSettingsComponent implements OnInit {
   }
   cancelDeletePreset() { this.isDeletingPreset = false; }
 
-  updateEquipment(index: number, field: string, value: any) {
+  updateEquipment(index: number, field: keyof EquipmentItem, value: string): void {
     this.dataService.mutateData((data) => {
-      (data.equipment[index] as any)[field] = value;
+      data.equipment[index] = { ...data.equipment[index], [field]: value };
     });
   }
 

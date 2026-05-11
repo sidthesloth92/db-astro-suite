@@ -1,14 +1,19 @@
 import fs from "fs";
 import Fastify from "fastify";
 import cors from "@fastify/cors";
+import helmet from "@fastify/helmet";
 import rateLimit from "@fastify/rate-limit";
 import multipart from "@fastify/multipart";
 import config from "./config.js";
+import {
+  SOLVE_RATE_LIMIT,
+  HEALTH_RATE_LIMIT,
+} from "./constants/rate-limit.constants.js";
 import { SqliteAccessKeyDao } from "./dao/sqlite-access-key.dao.js";
 import { SqliteLocalCatalogDao } from "./dao/sqlite-local-catalog.dao.js";
 import solveRoute from "./routes/solve.route.js";
 
-const fastify = Fastify({ logger: true });
+const fastify = Fastify({ logger: true, trustProxy: config.trustProxy });
 
 // Ensure the uploads directory exists before any file handling begins.
 fs.mkdirSync(config.uploadsDir, { recursive: true });
@@ -35,11 +40,13 @@ try {
   process.exit(1);
 }
 
-// Register Rate Limiting
-fastify.register(rateLimit, {
-  max: 5,
-  timeWindow: "1 minute",
-});
+// Register Rate Limiting — applied globally with per-IP key based on real client IP.
+// When behind Cloudflare (trustProxy: true), Fastify resolves the real IP from
+// X-Forwarded-For, so rate limits are per actual client rather than the proxy.
+fastify.register(rateLimit, SOLVE_RATE_LIMIT);
+
+// Security headers — applied before any route handlers.
+fastify.register(helmet);
 
 // Register CORS
 // Set ASTROSOLVE_ORIGIN env var to restrict to a specific origin in production (e.g. https://yourapp.com)
@@ -58,10 +65,20 @@ fastify.register(multipart, {
 // Register routes — pass DAO instances via plugin options (DI via Fastify plugin opts)
 fastify.register(solveRoute, { accessKeyDao, localCatalogDao });
 
-// Health check route
-fastify.get("/", async (request, reply) => {
-  return { status: "Astrosolve API is running" };
-});
+// Health check route — rate-limited separately at a higher threshold than
+// the solve endpoint so monitoring/uptime probes are not blocked, while
+// still protecting against abuse.
+fastify.get(
+  "/",
+  {
+    config: {
+      rateLimit: HEALTH_RATE_LIMIT,
+    },
+  },
+  async (request, reply) => {
+    return { code: "OK", message: "Astrosolve API is running", details: {} };
+  },
+);
 
 const start = async () => {
   try {

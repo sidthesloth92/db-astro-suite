@@ -29,6 +29,9 @@ temp-*/
 *.sqlite-shm
 *.sqlite-wal
 
+# Live secrets/user data — never commit
+data/access-keys.sqlite
+
 # Backups and local config
 .env
 *.bak
