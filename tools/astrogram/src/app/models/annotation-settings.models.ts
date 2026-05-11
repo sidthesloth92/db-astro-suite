@@ -71,7 +71,7 @@ export const DEFAULT_GLOBAL_ANNOTATION_SETTINGS: GlobalAnnotationSettings = {
   thickness: 2,
   circleOpacity: 0.85,
   labelColor: '#00f3ff',
-  fontSize: 0.65,
+  fontSize: 1,
   labelOpacity: 0.85,
   fontFamily: 'monospace',
   showMagnitude: false,

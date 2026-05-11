@@ -49,4 +49,61 @@ export class StellarMapPage {
       .first();
     await fileInput.setInputFiles(absolutePath);
   }
+
+  /**
+   * The "+" add annotation button visible after image upload.
+   * The button has no visible text label — it is SVG-only and exposes its
+   * accessible name through the `title` attribute ("Add annotation").
+   */
+  getAddAnnotationButton(): Locator {
+    return this.page.getByRole("button", { name: "Add annotation" });
+  }
+
+  /**
+   * All rendered annotation marker circles inside the annotations layer.
+   * No semantic locator is available: these are bare <div> elements that carry
+   * no ARIA role, no visible text, and no `data-testid`. The CSS class
+   * `.annotation-marker` is the stable identifier provided by the component
+   * author and is the only reliable targeting strategy.
+   */
+  getAnnotationMarkers(): Locator {
+    return this.page.locator(".annotation-marker");
+  }
+
+  /** The first annotation marker in the preview. */
+  getFirstAnnotationMarker(): Locator {
+    return this.getAnnotationMarkers().first();
+  }
+
+  /**
+   * Adds a custom annotation by clicking the "+" button and waits for the
+   * first marker to become visible in the preview.
+   */
+  async addCustomAnnotation(): Promise<void> {
+    await this.getAddAnnotationButton().click();
+    await this.getFirstAnnotationMarker().waitFor({ state: "visible" });
+  }
+
+  /**
+   * Drags the given annotation marker by `dx` pixels on X and `dy` pixels on Y.
+   * Uses the low-level `page.mouse` API to control the delta precisely — this
+   * allows the component's 3 px threshold to distinguish a drag from a click.
+   */
+  async dragAnnotationBy(
+    marker: Locator,
+    dx: number,
+    dy: number,
+  ): Promise<void> {
+    await marker.waitFor({ state: "visible" });
+    const box = await marker.boundingBox();
+    if (!box) {
+      throw new Error("Annotation marker has no bounding box — cannot drag");
+    }
+    const cx = box.x + box.width / 2;
+    const cy = box.y + box.height / 2;
+    await this.page.mouse.move(cx, cy);
+    await this.page.mouse.down();
+    await this.page.mouse.move(cx + dx, cy + dy, { steps: 10 });
+    await this.page.mouse.up();
+  }
 }
