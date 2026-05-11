@@ -19,7 +19,7 @@
             d="M15 19l-7-7 7-7"
           />
         </svg>
-        Back to Controls
+        Back to Global Controls
       </button>
       <dba-ag-annotation-detail></dba-ag-annotation-detail>
     </div>
@@ -49,7 +49,7 @@
     @if (mapData().annotations && mapData().annotations.length > 0) {
       <dba-ui-accordion>
         <!-- ── SECTION 1: Annotation Filters ──────────────────────── -->
-        <dba-ui-accordion-item title="📍 Annotation Filters" [expanded]="true">
+        <dba-ui-accordion-item title="📍 Annotation Filters" [(expanded)]="filtersExpanded">
           <div class="filter-toggles">
             <!-- Stars -->
             <div class="filter-group">
@@ -209,7 +209,7 @@
         </dba-ui-accordion-item>
 
         <!-- ── SECTION 2: Annotation Settings (global) ────────────── -->
-        <dba-ui-accordion-item title="🎨 Annotation Settings">
+        <dba-ui-accordion-item title="🎨 Annotation Settings" [(expanded)]="settingsExpanded">
           <dba-ag-annotation-settings></dba-ag-annotation-settings>
         </dba-ui-accordion-item>
       </dba-ui-accordion>

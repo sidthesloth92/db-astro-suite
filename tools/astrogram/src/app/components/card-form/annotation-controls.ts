@@ -248,6 +248,10 @@ export class AnnotationControlsComponent implements OnDestroy {
   mapData = this.dataService.stellarMapData;
   isSolving = signal(false);
   solveStatus = signal('');
+  /** Tracks accordion open state for Annotation Filters; defaults open. */
+  readonly filtersExpanded = signal(true);
+  /** Tracks accordion open state for Annotation Settings; defaults open. */
+  readonly settingsExpanded = signal(true);
 
   private readonly appRef = inject(ApplicationRef);
   private readonly envInjector = inject(EnvironmentInjector);

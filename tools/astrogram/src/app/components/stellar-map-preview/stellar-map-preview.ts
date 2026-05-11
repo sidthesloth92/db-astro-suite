@@ -1,5 +1,14 @@
-import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, ViewChild } from '@angular/core';
+import { DecimalPipe, NgClass, NgStyle } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  ElementRef,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
+import { findHitAnnotationId } from '../../utils/annotation-hit-test.util';
 import { ConstellationLoaderComponent } from '@db-astro-suite/ui';
 import { ImageAnnotation } from '../../models/annotation.models';
 import { CardDataService } from '../../services/card-data.service';
@@ -10,7 +19,9 @@ import { AnnotationControlsComponent } from '../card-form/annotation-controls';
   selector: 'dba-ag-stellar-map-preview',
   standalone: true,
   imports: [
-    CommonModule,
+    NgClass,
+    NgStyle,
+    DecimalPipe,
     BaseCardPreviewComponent,
     AnnotationControlsComponent,
     ConstellationLoaderComponent,
@@ -25,6 +36,9 @@ import { AnnotationControlsComponent } from '../card-form/annotation-controls';
         /* pointer-events auto so markers are clickable; background click deselects */
         pointer-events: auto;
       }
+      .annotations-layer.is-dragging {
+        cursor: grabbing;
+      }
       .annotation-marker {
         position: absolute;
         transform: translate(-50%, -50%);
@@ -38,6 +52,7 @@ import { AnnotationControlsComponent } from '../card-form/annotation-controls';
         outline: 2px solid rgba(255, 255, 255, 0.9);
         outline-offset: 3px;
         filter: brightness(1.4) drop-shadow(0 0 6px white);
+        cursor: grab;
       }
       .annotation-label {
         position: absolute;
@@ -249,16 +264,20 @@ import { AnnotationControlsComponent } from '../card-form/annotation-controls';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StellarMapPreviewComponent {
-  dataService = inject(CardDataService);
-  mapData = this.dataService.stellarMapData;
-  selectedAnnotationId = this.dataService.selectedAnnotationId;
+  private readonly dataService = inject(CardDataService);
+  readonly mapData = this.dataService.stellarMapData;
+  readonly selectedAnnotationId = this.dataService.selectedAnnotationId;
 
-  @ViewChild('controls') controlsComponent!: AnnotationControlsComponent;
+  private readonly _dragId = signal<string | null>(null);
+  private readonly _dragStartMouse = signal<{ x: number; y: number } | null>(null);
+  /** True while an annotation drag is in progress. Drives `is-dragging` CSS on the layer. */
+  readonly isDragging = computed(() => this._dragId() !== null);
+
+  private readonly controlsComponent = viewChild.required<AnnotationControlsComponent>('controls');
+  private readonly annotationsLayerRef = viewChild.required<ElementRef>('annotationsLayer');
 
   clearAll() {
-    if (this.controlsComponent) {
-      this.controlsComponent.resetMap();
-    }
+    this.controlsComponent().resetMap();
   }
 
   /**
@@ -273,29 +292,12 @@ export class StellarMapPreviewComponent {
    */
   onAnnotationClick(event: MouseEvent) {
     event.stopPropagation();
-    const HIT_TOLERANCE = 10; // px on either side of the border
-
-    const allElements = document.elementsFromPoint(event.clientX, event.clientY);
-    for (const el of allElements) {
-      if (!(el instanceof HTMLElement)) continue;
-      if (!el.classList.contains('annotation-marker')) continue;
-
-      const rect = el.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      const dist = Math.sqrt((event.clientX - cx) ** 2 + (event.clientY - cy) ** 2);
-      const radius = rect.width / 2;
-
-      if (Math.abs(dist - radius) <= HIT_TOLERANCE) {
-        const id = el.dataset['annotationId'];
-        if (id) {
-          const current = this.dataService.selectedAnnotationId();
-          this.dataService.selectAnnotation(current === id ? null : id);
-          return;
-        }
-      }
+    const hitId = findHitAnnotationId(event, 10);
+    if (hitId) {
+      const current = this.dataService.selectedAnnotationId();
+      this.dataService.selectAnnotation(current === hitId ? null : hitId);
+      return;
     }
-
     // No ring was hit — treat as background click and deselect
     this.dataService.selectAnnotation(null);
   }
@@ -304,6 +306,56 @@ export class StellarMapPreviewComponent {
     this.dataService.selectAnnotation(null);
   }
 
+  /** Records drag-start state on mousedown; selection is deferred until mouseup. */
+  onMarkerMousedown(ann: ImageAnnotation, event: MouseEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (this.dataService.selectedAnnotationId() !== ann.id) {
+      this.dataService.selectAnnotation(ann.id);
+      return;
+    }
+    this._dragId.set(ann.id);
+    this._dragStartMouse.set({ x: event.clientX, y: event.clientY });
+  }
+
+  /** Repositions the active annotation to follow the pointer while dragging. */
+  onLayerMousemove(event: MouseEvent) {
+    const dragId = this._dragId();
+    if (!dragId) return;
+    const rect = this.annotationsLayerRef().nativeElement.getBoundingClientRect();
+    const xPercent = ((event.clientX - rect.left) / rect.width) * 100;
+    const yPercent = ((event.clientY - rect.top) / rect.height) * 100;
+    this.dataService.updateAnnotationPosition(dragId, xPercent, yPercent);
+  }
+
+  /** Ends a drag; fires selection toggle if the pointer barely moved (i.e. a click). */
+  onLayerMouseup(event: MouseEvent) {
+    const dragId = this._dragId();
+    if (dragId) {
+      const startMouse = this._dragStartMouse();
+      if (startMouse) {
+        const dx = event.clientX - startMouse.x;
+        const dy = event.clientY - startMouse.y;
+        if (Math.sqrt(dx * dx + dy * dy) < 3) {
+          this.onAnnotationClick(event);
+        }
+      }
+      this._dragId.set(null);
+      this._dragStartMouse.set(null);
+    } else {
+      // Only deselect when mouseup came from the layer background, not from a marker bubbling up.
+      if (!(event.target as HTMLElement).closest('.annotation-marker')) {
+        this.dataService.selectAnnotation(null);
+      }
+    }
+  }
+
+
+  /** Cancels an active drag when the pointer leaves the layer. Never deselects. */
+  onLayerMouseleave() {
+    this._dragId.set(null);
+    this._dragStartMouse.set(null);
+  }
   addCenterAnnotation() {
     const d = this.mapData();
     // Default radius = 12.5% of the smaller image dimension (→ ~25% diameter).
@@ -481,7 +533,7 @@ export class StellarMapPreviewComponent {
   ]);
   private static readonly QUASAR_TYPES = new Set(['QSO', 'BLA']);
 
-  visibleAnnotations = computed(() => {
+  readonly visibleAnnotations = computed(() => {
     const f = this.mapData().filters;
     const T = StellarMapPreviewComponent;
 
@@ -551,5 +603,4 @@ export class StellarMapPreviewComponent {
       return show;
     });
   });
-
 }
