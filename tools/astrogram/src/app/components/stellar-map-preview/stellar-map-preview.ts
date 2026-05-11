@@ -309,6 +309,10 @@ export class StellarMapPreviewComponent {
   onMarkerMousedown(ann: ImageAnnotation, event: MouseEvent) {
     event.preventDefault();
     event.stopPropagation();
+    if (this.dataService.selectedAnnotationId() !== ann.id) {
+      this.dataService.selectAnnotation(ann.id);
+      return;
+    }
     this._dragId.set(ann.id);
     this._dragStartMouse.set({ x: event.clientX, y: event.clientY });
   }
@@ -335,9 +339,12 @@ export class StellarMapPreviewComponent {
           this.onAnnotationClick(event);
         }
       }
+      this._dragId.set(null);
+      this._dragStartMouse.set(null);
+    } else {
+      // Plain background click — no drag was in progress
+      this.dataService.selectAnnotation(null);
     }
-    this._dragId.set(null);
-    this._dragStartMouse.set(null);
   }
 
   addCenterAnnotation() {
