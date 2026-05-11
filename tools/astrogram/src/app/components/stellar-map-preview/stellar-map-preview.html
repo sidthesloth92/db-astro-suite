@@ -66,7 +66,7 @@
             class="annotation-label"
             [ngClass]="getLabelPosition(ann.xPercent, ann.yPercent)"
             [ngStyle]="labelStyle(ann)"
-            (click)="directSelect(ann.id, $event)"
+            (mousedown)="onMarkerMousedown(ann, $event)"
             >{{ effectiveLabel(ann) }}
             @if (effectiveShowMagnitude(ann) && ann.magnitude !== undefined) {
               <span style="display: block; font-size: 0.85em; opacity: 0.8">{{
