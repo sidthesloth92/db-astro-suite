@@ -134,6 +134,15 @@ export class CardDataService {
     }));
   }
 
+  resetAnnotationStyle(id: string, snapshot: AnnotationStyle | undefined) {
+    this.stellarMapData.update((d) => ({
+      ...d,
+      annotations: d.annotations.map((ann) =>
+        ann.id === id ? { ...ann, style: snapshot ? { ...snapshot } : undefined } : ann,
+      ),
+    }));
+  }
+
   addAnnotation(ann: ImageAnnotation) {
     this.stellarMapData.update((d) => ({ ...d, annotations: [...d.annotations, ann] }));
     this.selectedAnnotationId.set(ann.id);
