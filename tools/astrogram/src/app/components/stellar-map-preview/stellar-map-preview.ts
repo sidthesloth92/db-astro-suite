@@ -45,13 +45,14 @@ import { AnnotationControlsComponent } from '../card-form/annotation-controls';
         border-style: solid;
         border-radius: 50%;
         transition: all 0.25s ease;
-        cursor: grab;
+        cursor: pointer;
         pointer-events: auto;
       }
       .annotation-marker.selected {
         outline: 2px solid rgba(255, 255, 255, 0.9);
         outline-offset: 3px;
         filter: brightness(1.4) drop-shadow(0 0 6px white);
+        cursor: grab;
       }
       .annotation-label {
         position: absolute;
@@ -342,8 +343,10 @@ export class StellarMapPreviewComponent {
       this._dragId.set(null);
       this._dragStartMouse.set(null);
     } else {
-      // Plain background click — no drag was in progress
-      this.dataService.selectAnnotation(null);
+      // Only deselect when mouseup came from the layer background, not from a marker bubbling up.
+      if (!(event.target as HTMLElement).closest('.annotation-marker')) {
+        this.dataService.selectAnnotation(null);
+      }
     }
   }
 
