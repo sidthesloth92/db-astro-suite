@@ -6,19 +6,19 @@ A headless Node.js microservice that uses Astrometry.net for plate solving.
 
 All configuration is supplied via environment variables. The table below documents every supported variable, its default value, and its effect.
 
-| Variable | Default | Description |
-|---|---|---|
-| `ASTROSOLVE_PORT` | `3000` | API server port |
-| `ASTROSOLVE_HOST` | `0.0.0.0` | API server host (use `0.0.0.0` in Docker) |
-| `ASTROSOLVE_ORIGIN` | _(none — CORS blocked)_ | Allowed CORS origin(s). Comma-separate multiple. Use `localhost` to allow all (dev only). |
-| `ASTROSOLVE_QUEUE_CONCURRENCY` | `2` | Max concurrent plate-solve jobs |
-| `ASTROSOLVE_QUEUE_MAX_SIZE` | `10` | Max queued jobs before returning 503 |
-| `SOLVE_API_KEY_REQUIRED` | `true` | Set to `false` to disable access-key auth |
-| `ASTROSOLVE_TRUST_PROXY` | `false` | Set to `true` when behind Cloudflare so rate limiting uses the real client IP |
-| `ASTROSOLVE_RATE_LIMIT_MAX` | `5` | Max requests per IP per window (solve endpoint) |
-| `ASTROSOLVE_RATE_LIMIT_WINDOW` | `1 minute` | Rate-limit time window (e.g. `30 seconds`, `1 minute`) |
-| `ASTROSOLVE_HEALTH_RATE_LIMIT_MAX` | `30` | Max requests per IP per minute on the health check (`GET /`) |
-| `ASTROSOLVE_HEALTH_RATE_LIMIT_WINDOW` | `1 minute` | Rate-limit time window for the health check endpoint |
+| Variable                              | Default                 | Description                                                                               |
+| ------------------------------------- | ----------------------- | ----------------------------------------------------------------------------------------- |
+| `ASTROSOLVE_PORT`                     | `3000`                  | API server port                                                                           |
+| `ASTROSOLVE_HOST`                     | `0.0.0.0`               | API server host (use `0.0.0.0` in Docker)                                                 |
+| `ASTROSOLVE_ORIGIN`                   | _(none — CORS blocked)_ | Allowed CORS origin(s). Comma-separate multiple. Use `localhost` to allow all (dev only). |
+| `ASTROSOLVE_QUEUE_CONCURRENCY`        | `2`                     | Max concurrent plate-solve jobs                                                           |
+| `ASTROSOLVE_QUEUE_MAX_SIZE`           | `10`                    | Max queued jobs before returning 503                                                      |
+| `SOLVE_API_KEY_REQUIRED`              | `true`                  | Set to `false` to disable access-key auth                                                 |
+| `ASTROSOLVE_TRUST_PROXY`              | `false`                 | Set to `true` when behind Cloudflare so rate limiting uses the real client IP             |
+| `ASTROSOLVE_RATE_LIMIT_MAX`           | `5`                     | Max requests per IP per window (solve endpoint)                                           |
+| `ASTROSOLVE_RATE_LIMIT_WINDOW`        | `1 minute`              | Rate-limit time window (e.g. `30 seconds`, `1 minute`)                                    |
+| `ASTROSOLVE_HEALTH_RATE_LIMIT_MAX`    | `30`                    | Max requests per IP per minute on the health check (`GET /`)                              |
+| `ASTROSOLVE_HEALTH_RATE_LIMIT_WINDOW` | `1 minute`              | Rate-limit time window for the health check endpoint                                      |
 
 ## Local Development
 
@@ -83,12 +83,14 @@ cat tools/astrosolve/server/scripts/deploy/deploy.md
 The deployment scripts are:
 
 ```bash
-tools/astrosolve/server/scripts/deploy/server_init.sh
-tools/astrosolve/server/scripts/deploy/server_update.sh
-tools/astrosolve/server/scripts/deploy/server_deploy.sh
+tools/astrosolve/server/scripts/deploy/1_server_init.sh  # one-time server bootstrap
+tools/astrosolve/server/scripts/deploy/2_deploy.sh       # pull image tag and start containers
+tools/astrosolve/server/scripts/deploy/3_restart.sh      # restart without pulling a new image
+tools/astrosolve/server/scripts/deploy/4_stop.sh         # gracefully stop containers
+tools/astrosolve/server/scripts/deploy/5_teardown.sh     # DESTRUCTIVE — wipe everything
 ```
 
-Use `server_init.sh` for one-time server bootstrap, and use `server_deploy.sh <release-version>` for rollouts and rollbacks.
+Use `1_server_init.sh` for one-time server bootstrap. It installs Docker, creates the deploy user, writes config, and downloads astrometry index files. Use `2_deploy.sh <release-version>` for rollouts and rollbacks.
 
 ## Managing Access Keys
 

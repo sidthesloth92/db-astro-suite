@@ -165,6 +165,24 @@ mkdir -p "$TARGET_DIR/scripts"
 chown -R "$DEPLOY_USER:$DEPLOY_USER" "$TARGET_DIR"
 
 # =============================================================================
+# STEP 4b: SEED ASTROMETRY INDEX FILES
+# =============================================================================
+
+echo ""
+echo "--- Astrometry Index Files ---"
+
+# -----------------------------------------------------------------------------
+# Download the Astrometry.net index files needed by solve-field.
+# init-astrometry-db.sh is idempotent — it skips files already present, so
+# re-running server init on an existing server is safe.
+# The script lives two levels up in scripts/data/ relative to this file.
+# -----------------------------------------------------------------------------
+bash "$SCRIPT_DIR/init-astrometry-db.sh" "$TARGET_DIR/data/astrometry"
+
+# Re-apply ownership so the deploy user owns the downloaded index files.
+chown -R "$DEPLOY_USER:$DEPLOY_USER" "$TARGET_DIR/data/astrometry"
+
+# =============================================================================
 # STEP 5: WRITE RUNTIME CONFIGURATION
 # =============================================================================
 
@@ -263,7 +281,6 @@ echo "  SERVER INIT COMPLETE"
 echo "=========================================="
 echo ""
 echo "Next steps:"
-echo "  1. Copy astrometry index files to $TARGET_DIR/data/astrometry"
-echo "  2. Point Cloudflare DNS (A record) to this server's IP"
-echo "  3. Deploy: sudo -u $DEPLOY_USER $TARGET_DIR/scripts/2_deploy.sh <tag>"
+echo "  1. Point Cloudflare DNS (A record) to this server's IP"
+echo "  2. Deploy: sudo -u $DEPLOY_USER $TARGET_DIR/scripts/2_deploy.sh <tag>"
 echo ""

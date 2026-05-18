@@ -2,6 +2,8 @@
 
 This runbook sets up the production Astrosolve backend on a Hetzner Ubuntu server.
 
+> To dry-run the scripts locally in a VM before touching the real server, see [local-test.md](local-test.md).
+
 Production design:
 
 - GitHub Pages hosts the frontend
@@ -55,6 +57,7 @@ scp \
   tools/astrosolve/server/scripts/deploy/3_restart.sh \
   tools/astrosolve/server/scripts/deploy/4_stop.sh \
   tools/astrosolve/server/scripts/deploy/5_teardown.sh \
+  tools/astrosolve/server/scripts/data/init-astrometry-db.sh \
   root@$SERVER_IP:/root/astrosolve-deploy/
 ```
 
@@ -86,6 +89,7 @@ This does the following:
 - creates `/opt/astrosolve` with subdirectories: `data/astrometry`, `data/uploads`, `scripts`
 - writes `/opt/astrosolve/.env` with your runtime configuration
 - generates `/opt/astrosolve/compose.yaml` (via `1b_init_compose.sh`)
+- **downloads Astrometry.net index files** into `/opt/astrosolve/data/astrometry` (via `init-astrometry-db.sh`) — takes 15–30 min on first run; subsequent runs skip files already present
 - installs `2_deploy.sh`, `3_restart.sh`, and `4_stop.sh` into `/opt/astrosolve/scripts`
 - validates the Compose file with a dry-run
 
@@ -104,35 +108,19 @@ docker --version
 docker compose version
 ```
 
-## 5. Copy Or Download The Astrometry Index Files
+## 5. Update Astrometry Index Files
 
-These files must stay on the server and must not be copied into the image.
+Index files are downloaded automatically during `1_server_init.sh`. You only need this section if you want to add a new index family later or reseed after data loss.
 
-### Option A: Copy pre-downloaded indexes from your Mac
-
-From your Mac:
+SSH into the server as the deploy user, then:
 
 ```bash
-scp -r /path/to/local/astrometry/* $DEPLOY_USER@$SERVER_IP:/opt/astrosolve/data/astrometry/
-```
-
-### Option B: Copy the downloader script and run it on the server
-
-From your Mac:
-
-```bash
-scp tools/astrosolve/server/scripts/data/init-astrometry-db.sh \
-  $DEPLOY_USER@$SERVER_IP:/opt/astrosolve/scripts/init-astrometry-db.sh
-```
-
-On the server:
-
-```bash
-chmod +x /opt/astrosolve/scripts/init-astrometry-db.sh
 bash /opt/astrosolve/scripts/init-astrometry-db.sh /opt/astrosolve/data/astrometry
 ```
 
-Verify indexes:
+The script is idempotent — it skips files that already exist.
+
+Verify:
 
 ```bash
 ls -lh /opt/astrosolve/data/astrometry | head
@@ -284,91 +272,7 @@ This permanently deletes:
 
 **Back up any data you need before running this.**
 
-## 15. Verify Locally With Multipass (Ubuntu VM)
-
-Use [Multipass](https://multipass.run) to spin up a lightweight Ubuntu VM on your Mac and dry-run the scripts before touching the real server. Multipass creates real Ubuntu VMs with no nested-Docker complexity.
-
-### Install Multipass
-
-```bash
-brew install --cask multipass
-```
-
-### Launch A VM
-
-```bash
-multipass launch --name astrosolve-test --cpus 2 --memory 2G --disk 20G
-```
-
-### Transfer Scripts Into The VM
-
-From your Mac, at the repo root:
-
-```bash
-multipass exec astrosolve-test -- mkdir -p /home/ubuntu/astrosolve-deploy
-multipass transfer \
-  tools/astrosolve/server/scripts/deploy/1_server_init.sh \
-  tools/astrosolve/server/scripts/deploy/1a_init_docker.sh \
-  tools/astrosolve/server/scripts/deploy/1b_init_compose.sh \
-  tools/astrosolve/server/scripts/deploy/2_deploy.sh \
-  tools/astrosolve/server/scripts/deploy/3_restart.sh \
-  tools/astrosolve/server/scripts/deploy/4_stop.sh \
-  tools/astrosolve/server/scripts/deploy/5_teardown.sh \
-  astrosolve-test:/home/ubuntu/astrosolve-deploy/
-```
-
-### Run Init Inside The VM
-
-```bash
-multipass shell astrosolve-test
-
-# Inside the VM:
-sudo bash
-chmod +x /home/ubuntu/astrosolve-deploy/*.sh
-API_DOMAIN="api.test.local" \
-UI_ORIGIN="http://localhost" \
-GHCR_IMAGE="ghcr.io/YOUR_GITHUB_OWNER/db-astro-suite-astrosolve" \
-DEPLOY_USER="deploy" \
-/home/ubuntu/astrosolve-deploy/1_server_init.sh
-```
-
-Verify the output — all steps should complete without errors. Confirm key artifacts were written:
-
-```bash
-cat /opt/astrosolve/.env
-cat /opt/astrosolve/compose.yaml
-id deploy
-ls /opt/astrosolve/scripts/
-```
-
-### Test Deploy
-
-The deploy step requires a real image in GHCR. Provide your credentials:
-
-```bash
-GHCR_USERNAME="YOUR_GITHUB_OWNER" \
-GHCR_TOKEN="YOUR_GITHUB_PAT" \
-/opt/astrosolve/scripts/2_deploy.sh <image-tag>
-```
-
-### Test Restart And Stop
-
-```bash
-/opt/astrosolve/scripts/3_restart.sh
-/opt/astrosolve/scripts/4_stop.sh
-```
-
-### Clean Up The VM
-
-When done, from your Mac:
-
-```bash
-multipass stop astrosolve-test
-multipass delete astrosolve-test
-multipass purge
-```
-
-## 16. Operational Rules
+## 15. Operational Rules
 
 - Do not store astrometry indexes in the production image
 - Do commit `data/local-catalog/celestial.sqlite` when you intentionally update the local catalog

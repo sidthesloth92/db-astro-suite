@@ -134,8 +134,14 @@ docker compose --env-file "$tmp_env" -f "$COMPOSE_FILE" down || true
 # If the pull fails (e.g., bad tag, network error), the script stops here
 # instead of starting containers with a stale image.
 # -----------------------------------------------------------------------------
-echo "==> Pulling image: ${GHCR_IMAGE}:${IMAGE_TAG}"
-docker pull "${GHCR_IMAGE}:${IMAGE_TAG}"
+# SKIP_PULL=1 is set by local-test.sh when the image is pre-loaded via
+# 'docker save | docker load', bypassing the need for a remote registry.
+if [ -z "${SKIP_PULL:-}" ]; then
+  echo "==> Pulling image: ${GHCR_IMAGE}:${IMAGE_TAG}"
+  docker pull "${GHCR_IMAGE}:${IMAGE_TAG}"
+else
+  echo "==> Skipping pull (SKIP_PULL set) — using pre-loaded image ${GHCR_IMAGE}:${IMAGE_TAG}"
+fi
 
 # -----------------------------------------------------------------------------
 # Step 9: Start the containers in detached mode.

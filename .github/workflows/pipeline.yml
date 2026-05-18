@@ -195,4 +195,4 @@ jobs:
         # config or export it before calling server_deploy.sh.
         run: |
           ssh "${{ secrets.HETZNER_USER }}@${{ secrets.HETZNER_HOST }}" \
-            "GHCR_USERNAME='${{ github.repository_owner }}' GHCR_TOKEN='${{ github.token }}' /opt/astrosolve/scripts/server_deploy.sh '${{ needs.build-backend-image.outputs.image_tag }}'"
+            "GHCR_USERNAME='${{ github.repository_owner }}' GHCR_TOKEN='${{ github.token }}' /opt/astrosolve/scripts/2_deploy.sh '${{ needs.build-backend-image.outputs.image_tag }}'"
