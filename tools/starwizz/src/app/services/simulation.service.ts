@@ -1,8 +1,14 @@
-import { Injectable, signal, WritableSignal, computed } from '@angular/core';
-import { RecordingState, ControlKey } from '../models/simulation.model';
-import { CONTROLS, ASPECT_RATIOS, AspectRatioKey, DEFAULT_GALAXY_URL } from '../constants/simulation.constant';
-import { Star } from '../models/star.model';
+import { computed, inject, Injectable, signal, WritableSignal } from '@angular/core';
+import {
+  ASPECT_RATIOS,
+  AspectRatioKey,
+  CONTROLS,
+  DEFAULT_GALAXY_URL,
+} from '../constants/simulation.constant';
 import { ShootingStar } from '../models/shooting-star.model';
+import { ControlKey, RecordingState } from '../models/simulation.model';
+import { Star } from '../models/star.model';
+import { AnalyticsService } from '@db-astro-suite/ui';
 
 /** Frame rate for video recording (frames per second) */
 const FRAME_RATE = 60;
@@ -52,6 +58,8 @@ const NUM_SHOOTING_STARS = 10;
   providedIn: 'root',
 })
 export class SimulationService {
+  private analyticsService = inject(AnalyticsService);
+
   // ==================== Control Signals ====================
 
   /**
@@ -433,7 +441,8 @@ export class SimulationService {
 
     try {
       // Capture the canvas as a media stream
-      const stream = (canvas as any).captureStream(FRAME_RATE);
+      // captureStream() is not in the TypeScript lib.dom.d.ts typings (non-standard API); cast required
+      const stream = (canvas as any).captureStream(FRAME_RATE); // eslint-disable-line @typescript-eslint/no-explicit-any
 
       // Detect the best supported video format
       const mimeType = this.getSupportedMimeType();
@@ -454,8 +463,8 @@ export class SimulationService {
       // Set up auto-stop at max duration
       this.recordingTimeout = setTimeout(() => this.stopRecording(), MAX_RECORDING_SECONDS * 1000);
     } catch (e) {
-      // Handle initialization errors (e.g., browser permission denied)
       console.error('Error starting recording:', e);
+      // Handle initialization errors (e.g., browser permission denied)
       this.recordingState.set('idle');
     }
   }
@@ -548,6 +557,10 @@ export class SimulationService {
     URL.revokeObjectURL(url);
     this.recordingState.set('idle');
     this.mediaRecorder = null;
+
+    // Track video generation event
+    const videoFormat = extension.substring(1); // Remove leading dot
+    this.analyticsService.trackVideoGeneration('starwizz-user', videoFormat);
   }
 
   /**

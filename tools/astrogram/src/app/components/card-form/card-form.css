@@ -5,6 +5,56 @@
   padding: 0.25rem 0 0.5rem 0;
 }
 
+/* Tabs */
+.dba-tabs-header {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 0px;
+  margin-bottom: 0.5rem;
+}
+
+.dba-tab-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  padding: 0.5rem 1rem;
+  font-family: var(--db-font-display);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.dba-tab-btn:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.dba-tab-btn.active {
+  color: var(--neon-pink);
+  font-weight: bold;
+}
+
+.dba-tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--neon-pink);
+  box-shadow: 0 0 8px var(--neon-pink);
+}
+
+.stellar-map-container {
+  display: flex;
+  flex-direction: column;
+}
+
+
 .description-input {
   font-family: var(--db-font-body);
   line-height: 1.4;

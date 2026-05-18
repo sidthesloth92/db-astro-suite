@@ -1,0 +1,70 @@
+import axios from "axios";
+import { CatalogObject } from "../models/solve.model.js";
+import { CatalogError } from "../models/errors.model.js";
+
+/**
+ * Queries the SIMBAD TAP service to find DSOs within a given radius using an ADQL command.
+ *
+ * @param {number} ra - Right Ascension of the image center (degrees)
+ * @param {number} dec - Declination of the image center (degrees)
+ * @param {number} radiusDeg - Search radius in degrees
+ * @param {number} minMagnitude - Reserved for future magnitude filtering; not currently applied
+ *   (SIMBAD TAP magnitude filtering requires a JOIN on the flux table — accepted for API
+ *   compatibility with the local catalog path but has no effect on SIMBAD results)
+ * @returns {Promise<Array>} List of recognized celestial objects
+ */
+export async function querySimbad(ra, dec, radiusDeg, minMagnitude = 13.5) {
+  // Query for basic data, filtering to Galaxies (G), Quasars (QSO), Planetary Nebulae (PN), HII regions, and Stars
+  // We use TOP 400 to ensure a rich star field without overwhelming the UI
+  const adqlQuery = `
+    SELECT TOP 500 basic.MAIN_ID, basic.OTYPE, basic.RA, basic.DEC
+    FROM basic
+    WHERE CONTAINS(POINT('ICRS', basic.RA, basic.DEC), CIRCLE('ICRS', ${ra}, ${dec}, ${radiusDeg})) = 1
+    AND basic.OTYPE IN (
+      '*', '**', 'V*', 'Ce*', 'RR*', 'LP*', 'Mi*', 'WR*', 'C*', 'Be*', 'HB*', 'WD*', 'No*', 'SN*',
+      'G', 'GiP', 'GiG', 'GiC', 'BClG', 'Sy1', 'Sy2', 'Sy*', 'AGN', 'LINER', 'EmG',
+      'QSO', 'Bla',
+      'OpC', 'GlC', 'Cl*', 'As*',
+      'PN',
+      'HII', 'RNe', 'MoC', 'DNe', 'SNR', 'EmO', 'bub',
+      'ClG'
+    )
+  `;
+
+  try {
+    const response = await axios.get(
+      "http://simbad.u-strasbg.fr/simbad/sim-tap/sync",
+      {
+        timeout: 10_000,
+        params: {
+          request: "doQuery",
+          lang: "adql",
+          format: "json",
+          query: adqlQuery,
+        },
+      },
+    );
+
+    if (response.data && response.data.data) {
+      return response.data.data.map(
+        (row) =>
+          new CatalogObject(
+            row[0],
+            row[1],
+            parseFloat(row[2]),
+            parseFloat(row[3]),
+            null,
+            "simbad",
+            undefined,
+            undefined,
+            undefined,
+            null,
+          ),
+      );
+    }
+
+    return [];
+  } catch (err) {
+    throw new CatalogError("simbad", `SIMBAD TAP query failed: ${err.message}`);
+  }
+}

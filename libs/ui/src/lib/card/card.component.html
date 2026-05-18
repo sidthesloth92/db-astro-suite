@@ -3,7 +3,17 @@
     <div class="card__header">
       <div class="card__title-row">
         @if (logoSrc()) {
-          <img [src]="logoSrc()" class="card__logo" alt="" />
+          @if (!logoLoaded()) {
+            <dba-ui-constellation-loader [size]="32" />
+          }
+          <img
+            [src]="logoSrc()"
+            class="card__logo"
+            [class.card__logo--hidden]="!logoLoaded()"
+            alt=""
+            (load)="onLogoLoad()"
+            (error)="onLogoError()"
+          />
         }
         <h3 class="card__title">{{ title() }}</h3>
       </div>

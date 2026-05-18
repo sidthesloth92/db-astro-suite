@@ -1,0 +1,36 @@
+/* In fill mode the host stretches to fill its parent block flow */
+:host(.fill) {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.constellation-loader {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+
+/* In fill mode use block flow so overflow:hidden clips the canvas (position:absolute escapes overflow clipping) */
+.constellation-loader.fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* CSS controls display size in fill mode — no inline px from JS */
+.constellation-loader.fill canvas {
+  width: 100%;
+  height: 100%;
+}
+
+canvas {
+  display: block;
+  flex-shrink: 0;
+  max-width: none;
+  max-height: none;
+}

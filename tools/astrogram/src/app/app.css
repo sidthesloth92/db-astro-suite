@@ -76,8 +76,8 @@
   display: flex;
   flex-direction: row;
   align-items: center; /* Centered as before */
-  justify-content: center;
-  gap: 1rem;
+  justify-content: center; /* Balanced workspace */
+  gap: 1.5rem; /* Reduced gap to bring panels together */
   width: 100%;
   padding: 0.25rem;
   overflow: hidden;
@@ -89,6 +89,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start; /* Ensure scrolling starts from top */
+  flex: 0 1 auto; /* Bring together with config panel */
+  min-width: 0;
   height: auto;
   max-height: 100%;
   padding: 1rem 0.5rem;
@@ -102,14 +104,25 @@
   width: 100%;
   max-width: 452px; /* 3:4 card width + borders */
   margin-bottom: 2rem;
-  transition: max-width 0.3s ease;
+  /* Removed janky max-width transition that caused control panel sliding */
 }
 
 .post-wrap.aspect-4-5 {
   max-width: 482px; /* 4:5 card width + borders */
 }
 
-dba-ag-card-preview, 
+.post-wrap.aspect-auto {
+  max-width: 100%;
+  min-width: 482px;
+  width: auto;
+  flex: 0 1 auto;
+  overflow: hidden;
+  position: relative;
+}
+
+dba-ag-card-preview,
+dba-ag-stellar-map-preview,
+dba-ag-base-card-preview,
 dba-ag-caption-section {
   display: block;
   width: 100%;
@@ -117,7 +130,8 @@ dba-ag-caption-section {
 
 /* Config Panel - Scrollable, glass effect */
 .config-panel {
-  display: block;
+  display: flex;
+  flex-direction: column;
   flex: 0 0 380px;
   width: 380px;
   max-height: calc(100vh - 100px);
@@ -125,6 +139,46 @@ dba-ag-caption-section {
   padding: 1rem;
   border-radius: 0.75rem;
   margin-right: 0.5rem;
+}
+
+/* Mode Switcher */
+.app-mode-switcher {
+  display: flex;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--db-radius-md);
+  padding: 0.25rem;
+  margin-bottom: 1rem;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.mode-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  padding: 0.5rem;
+  font-family: var(--db-font-display);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mode-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.mode-btn.active {
+  background: rgba(255, 45, 149, 0.15);
+  color: var(--neon-pink);
+  border: 1px solid rgba(255, 45, 149, 0.3);
+  box-shadow: inset 0 0 10px rgba(255, 45, 149, 0.1);
 }
 
 /* Mobile: Stack vertically */
