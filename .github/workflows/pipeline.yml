@@ -169,7 +169,7 @@ jobs:
             ${{ steps.image.outputs.name }}:${{ steps.meta.outputs.tag }}
 
   deploy-backend:
-    name: Deploy Backend To Hetzner
+    name: Deploy Backend
     needs: build-backend-image
     if: |
       always() &&
@@ -182,17 +182,17 @@ jobs:
       - name: Start SSH agent
         uses: webfactory/ssh-agent@v0.9.0
         with:
-          ssh-private-key: ${{ secrets.HETZNER_SSH_KEY }}
+          ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
 
-      - name: Trust Hetzner host key
+      - name: Trust server host key
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -H "${{ secrets.HETZNER_HOST }}" >> ~/.ssh/known_hosts
+          ssh-keyscan -H "${{ secrets.DEPLOY_HOST }}" >> ~/.ssh/known_hosts
 
       - name: Deploy backend
         # ACCESS_KEY_REQUIRED is not passed here — it is managed on the server
         # via the deploy script environment. Set it in the server's compose/run
         # config or export it before calling server_deploy.sh.
         run: |
-          ssh "${{ secrets.HETZNER_USER }}@${{ secrets.HETZNER_HOST }}" \
-            "GHCR_USERNAME='${{ github.repository_owner }}' GHCR_TOKEN='${{ github.token }}' /opt/astrosolve/scripts/server_deploy.sh '${{ needs.build-backend-image.outputs.image_tag }}'"
+          ssh "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
+            "GHCR_USERNAME='${{ github.repository_owner }}' GHCR_TOKEN='${{ github.token }}' /opt/astrosolve/scripts/2_deploy.sh '${{ needs.build-backend-image.outputs.image_tag }}'"
