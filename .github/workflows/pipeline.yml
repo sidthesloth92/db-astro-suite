@@ -7,6 +7,12 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Image tag to build and deploy (e.g. 1.0.0)'
+        required: true
+        default: 'manual'
 
 permissions:
   contents: write
@@ -126,9 +132,10 @@ jobs:
     name: Build Backend Image
     if: |
       always() &&
-      github.event_name == 'push' &&
+      (github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' &&
       github.ref == 'refs/heads/main' &&
-      startsWith(github.event.head_commit.message, 'chore(main): release')
+      startsWith(github.event.head_commit.message, 'chore(main): release')))
     runs-on: ubuntu-latest
     outputs:
       image_name: ${{ steps.image.outputs.name }}
@@ -141,16 +148,20 @@ jobs:
         id: image
         run: echo "name=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/db-astro-suite-astrosolve" >> "$GITHUB_OUTPUT"
 
-      - name: Compute image tag from release version
+      - name: Compute image tag
         id: meta
         run: |
-          version=$(python3 - <<'PY'
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "tag=${{ github.event.inputs.image_tag }}" >> "$GITHUB_OUTPUT"
+          else
+            version=$(python3 - <<'PY'
           import json
           with open('package.json', 'r', encoding='utf-8') as package_file:
               print(json.load(package_file)['version'])
           PY
-          )
-          echo "tag=${version}" >> "$GITHUB_OUTPUT"
+            )
+            echo "tag=${version}" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Log in to GHCR
         uses: docker/login-action@v3
@@ -174,9 +185,10 @@ jobs:
     if: |
       always() &&
       needs.build-backend-image.result == 'success' &&
-      github.event_name == 'push' &&
+      (github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' &&
       github.ref == 'refs/heads/main' &&
-      startsWith(github.event.head_commit.message, 'chore(main): release')
+      startsWith(github.event.head_commit.message, 'chore(main): release')))
     runs-on: ubuntu-latest
     steps:
       - name: Start SSH agent
