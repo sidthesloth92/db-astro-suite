@@ -63,7 +63,7 @@ docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" down || true
 # from the .env file. '-d' runs containers in the background.
 # -----------------------------------------------------------------------------
 echo "==> Starting containers"
-docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d
+docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d --pull never
 
 # -----------------------------------------------------------------------------
 # Step 5: Print status to confirm the restart succeeded.

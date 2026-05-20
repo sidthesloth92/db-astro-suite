@@ -73,6 +73,7 @@ services:
     volumes:
       - $TARGET_DIR/data/astrometry:/usr/src/app/data/astrometry:ro
       - $TARGET_DIR/data/uploads:/usr/src/app/data/uploads
+      - $TARGET_DIR/data/astrosolve.sqlite:/usr/src/app/data/astrosolve.sqlite
 EOF
 
 # -----------------------------------------------------------------------------

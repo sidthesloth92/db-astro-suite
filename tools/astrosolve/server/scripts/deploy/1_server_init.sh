@@ -16,14 +16,14 @@
 #
 # Usage (on the remote server as root):
 #   API_DOMAIN="api.example.com" \
-#   UI_ORIGIN="https://example.com" \
+#   ASTROSOLVE_ORIGIN="https://example.com" \
 #   GHCR_IMAGE="ghcr.io/owner/repo" \
 #   ./server_init.sh
 #
 # Required environment variables:
-#   API_DOMAIN  — The domain name for the API (e.g., api.example.com)
-#   UI_ORIGIN   — The frontend URL for CORS (e.g., https://example.com)
-#   GHCR_IMAGE  — The GitHub Container Registry image path
+#   API_DOMAIN         — The domain name for the API (e.g., api.example.com)
+#   ASTROSOLVE_ORIGIN  — The frontend URL for CORS (e.g., https://example.com)
+#   GHCR_IMAGE         — The GitHub Container Registry image path
 #
 # Optional environment variables:
 #   DEPLOY_USER — Non-root user for running the app (default: deploy)
@@ -62,7 +62,7 @@ TARGET_DIR="${APP_DIR:-/opt/astrosolve}"
 # -----------------------------------------------------------------------------
 : "${DEPLOY_USER:=deploy}"
 : "${API_DOMAIN:?Set API_DOMAIN, e.g. api.example.com}"
-: "${UI_ORIGIN:?Set UI_ORIGIN, e.g. https://example.com}"
+: "${ASTROSOLVE_ORIGIN:?Set ASTROSOLVE_ORIGIN, e.g. https://example.com}"
 : "${GHCR_IMAGE:?Set GHCR_IMAGE, e.g. ghcr.io/owner/db-astro-suite-astrosolve}"
 
 # -----------------------------------------------------------------------------
@@ -160,6 +160,8 @@ echo "==> Creating application directories"
 mkdir -p "$TARGET_DIR/data/astrometry"
 mkdir -p "$TARGET_DIR/data/uploads"
 mkdir -p "$TARGET_DIR/scripts"
+# Pre-create the keys database file so Docker mounts it as a file, not a directory.
+touch "$TARGET_DIR/data/astrosolve.sqlite"
 
 # Set ownership of the entire directory tree to the deploy user.
 chown -R "$DEPLOY_USER:$DEPLOY_USER" "$TARGET_DIR"
@@ -192,14 +194,11 @@ echo "--- Configuration ---"
 # -----------------------------------------------------------------------------
 # Write the .env file loaded by Docker Compose at runtime.
 # Variables in this file:
-#   API_DOMAIN — Used for reference (not consumed by compose directly).
-#   UI_ORIGIN — The frontend domain, used for CORS configuration.
-#   GHCR_IMAGE — The Docker image path in GitHub Container Registry.
-#   IMAGE_TAG — The image version tag. Set to 'manual' as a placeholder;
+#   API_DOMAIN        — Used for reference (not consumed by compose directly).
+#   ASTROSOLVE_ORIGIN — The frontend URL for CORS configuration.
+#   GHCR_IMAGE        — The Docker image path in GitHub Container Registry.
+#   IMAGE_TAG         — The image version tag. Set to 'manual' as a placeholder;
 #     deploy.sh overrides this with the actual tag at deploy time.
-#   ASTROSOLVE_ORIGIN — The CORS origin passed to the Express server.
-#     This tells the server which frontend domain is allowed to make
-#     cross-origin requests.
 #
 # The heredoc (<<EOF) writes multiple lines to the file. Variables are
 # expanded by the shell (e.g., $API_DOMAIN becomes the actual value).
@@ -207,10 +206,9 @@ echo "--- Configuration ---"
 echo "==> Writing .env file"
 cat > "$TARGET_DIR/.env" <<EOF
 API_DOMAIN=$API_DOMAIN
-UI_ORIGIN=$UI_ORIGIN
+ASTROSOLVE_ORIGIN=$ASTROSOLVE_ORIGIN
 GHCR_IMAGE=$GHCR_IMAGE
 IMAGE_TAG=manual
-ASTROSOLVE_ORIGIN=$UI_ORIGIN
 EOF
 
 chown "$DEPLOY_USER:$DEPLOY_USER" "$TARGET_DIR/.env"

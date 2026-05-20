@@ -69,50 +69,17 @@ if [ ! -f "$COMPOSE_FILE" ]; then
 fi
 
 # -----------------------------------------------------------------------------
-# Step 4: Create a temporary .env file with the overridden IMAGE_TAG.
-# We copy the base .env to a temp file and override only IMAGE_TAG so that
-# the original .env stays clean and reusable across releases. This means
-# each deploy is self-contained and doesn't mutate persistent config.
-# -----------------------------------------------------------------------------
-tmp_env="$(mktemp)"
-
-# Cleanup function removes the temp file when the script exits (success or failure).
-cleanup() {
-  rm -f "$tmp_env"
-}
-
-# 'trap' registers cleanup() to run on EXIT, ensuring no temp files are leaked
-# even if the script crashes or is interrupted with Ctrl+C.
-trap cleanup EXIT
-
-# Copy the base config to our temporary file.
-cp "$ENV_FILE" "$tmp_env"
-
-# Override the IMAGE_TAG in the temp file. If it exists, use sed to replace it
-# in-place. If it doesn't exist, append it as a new line.
-if grep -q '^IMAGE_TAG=' "$tmp_env"; then
-  sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=$IMAGE_TAG/" "$tmp_env"
-else
-  echo "IMAGE_TAG=$IMAGE_TAG" >> "$tmp_env"
-fi
-
-# -----------------------------------------------------------------------------
-# Step 5: Export environment variables.
-# 'set -a' enables auto-export: every variable assignment after this point
-# is automatically exported to child processes (i.e., docker commands).
-# 'set +a' disables auto-export after sourcing.
-# The '.' (dot) command sources the temp .env file into the current shell.
+# Step 4: Source existing .env to get GHCR_IMAGE and other runtime vars.
+# IMAGE_TAG is not yet updated — we source the current state first.
 # -----------------------------------------------------------------------------
 set -a
-. "$tmp_env"
+. "$ENV_FILE"
 set +a
 
 # -----------------------------------------------------------------------------
-# Step 6: Authenticate with GitHub Container Registry (GHCR) if credentials
+# Step 5: Authenticate with GitHub Container Registry (GHCR) if credentials
 # are provided. CI pipelines pass these via environment variables. Manual
 # operators who have already run 'docker login ghcr.io' can skip this.
-# The ':-' syntax provides a default empty string if the variable is unset,
-# preventing the 'set -u' strict mode from failing.
 # -----------------------------------------------------------------------------
 if [ -n "${GHCR_USERNAME:-}" ] && [ -n "${GHCR_TOKEN:-}" ]; then
   echo "==> Authenticating with GHCR"
@@ -120,22 +87,10 @@ if [ -n "${GHCR_USERNAME:-}" ] && [ -n "${GHCR_TOKEN:-}" ]; then
 fi
 
 # -----------------------------------------------------------------------------
-# Step 7: Stop any currently running containers.
-# 'docker compose down' gracefully stops and removes containers, networks.
-# The '|| true' ensures the script continues even if no containers are running
-# (which would cause 'down' to return a non-zero exit code on some versions).
+# Step 6: Pull the image before touching anything on the server.
+# If the pull fails (bad tag, network error, auth issue) the script stops here
+# and the currently running container is left untouched.
 # -----------------------------------------------------------------------------
-echo "==> Stopping running containers"
-docker compose --env-file "$tmp_env" -f "$COMPOSE_FILE" down || true
-
-# -----------------------------------------------------------------------------
-# Step 8: Pull the exact Docker image requested by the caller.
-# This is done before 'docker compose up' to ensure we have the image locally.
-# If the pull fails (e.g., bad tag, network error), the script stops here
-# instead of starting containers with a stale image.
-# -----------------------------------------------------------------------------
-# SKIP_PULL=1 is set by local-test.sh when the image is pre-loaded via
-# 'docker save | docker load', bypassing the need for a remote registry.
 if [ -z "${SKIP_PULL:-}" ]; then
   echo "==> Pulling image: ${GHCR_IMAGE}:${IMAGE_TAG}"
   docker pull "${GHCR_IMAGE}:${IMAGE_TAG}"
@@ -144,12 +99,29 @@ else
 fi
 
 # -----------------------------------------------------------------------------
+# Step 7: Stop any currently running containers.
+# Only reached if the pull succeeded.
+# -----------------------------------------------------------------------------
+echo "==> Stopping running containers"
+docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" down || true
+
+# -----------------------------------------------------------------------------
+# Step 8: Persist the new IMAGE_TAG to .env so 3_restart.sh uses the correct
+# tag without needing arguments. Only written after a successful pull.
+# -----------------------------------------------------------------------------
+if grep -q '^IMAGE_TAG=' "$ENV_FILE"; then
+  sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=$IMAGE_TAG/" "$ENV_FILE"
+else
+  echo "IMAGE_TAG=$IMAGE_TAG" >> "$ENV_FILE"
+fi
+
+# -----------------------------------------------------------------------------
 # Step 9: Start the containers in detached mode.
 # '-d' runs containers in the background. Docker Compose reads the compose
 # file and the .env to configure the service.
 # -----------------------------------------------------------------------------
 echo "==> Starting containers"
-docker compose --env-file "$tmp_env" -f "$COMPOSE_FILE" up -d
+docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d
 
 # -----------------------------------------------------------------------------
 # Step 10: Clean up old, unused Docker images to reclaim disk space.
@@ -168,4 +140,4 @@ echo ""
 echo "==> Deployment complete: ${GHCR_IMAGE}:${IMAGE_TAG}"
 echo ""
 echo "Running containers:"
-docker compose --env-file "$tmp_env" -f "$COMPOSE_FILE" ps
+docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" ps

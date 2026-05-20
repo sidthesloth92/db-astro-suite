@@ -41,7 +41,7 @@ export SSH_KEY="~/.ssh/db_astro_suite"
 export DEPLOY_USER="deploy"
 export APP_DIR="/opt/astrosolve"
 export API_DOMAIN="api.dbastrosuite.com"
-export UI_ORIGIN="https://dbastrosuite.com"
+export ASTROSOLVE_ORIGIN="https://dbastrosuite.com"
 export GHCR_IMAGE="ghcr.io/sidthesloth92/db-astro-suite-astrosolve"
 ```
 
@@ -79,7 +79,7 @@ From your Mac. The variables exported in Step 0 expand on your Mac before being 
 ssh -i $SSH_KEY root@$SERVER_IP \
   "chmod +x /root/astrosolve-deploy/*.sh && \
    API_DOMAIN='$API_DOMAIN' \
-   UI_ORIGIN='$UI_ORIGIN' \
+   ASTROSOLVE_ORIGIN='$ASTROSOLVE_ORIGIN' \
    GHCR_IMAGE='$GHCR_IMAGE' \
    DEPLOY_USER='$DEPLOY_USER' \
    APP_DIR='$APP_DIR' \

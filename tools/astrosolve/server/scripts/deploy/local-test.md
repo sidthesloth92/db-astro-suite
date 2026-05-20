@@ -27,14 +27,14 @@ Open OrbStack once to complete its initial setup, then return to the terminal.
 
 All variables have defaults. Override only what you need:
 
-| Variable        | Default                 | Description                             |
-| --------------- | ----------------------- | --------------------------------------- |
-| `VM_NAME`       | `astrosolve-test`       | OrbStack VM name                        |
-| `IMAGE_TAG`     | `astrosolve-image`      | Docker image tag                        |
-| `REGISTRY_PORT` | `5000`                  | Local registry port on your Mac         |
-| `API_DOMAIN`    | `api.test.local`        | Label only — does not need to resolve   |
-| `UI_ORIGIN`     | `http://localhost:4201` | CORS allowed origin (match your dev UI) |
-| `DEPLOY_USER`   | `deploy`                | Non-root deploy user created in the VM  |
+| Variable            | Default                 | Description                             |
+| ------------------- | ----------------------- | --------------------------------------- |
+| `VM_NAME`           | `astrosolve-test`       | OrbStack VM name                        |
+| `IMAGE_TAG`         | `astrosolve-image`      | Docker image tag                        |
+| `REGISTRY_PORT`     | `5000`                  | Local registry port on your Mac         |
+| `API_DOMAIN`        | `api.test.local`        | Label only — does not need to resolve   |
+| `ASTROSOLVE_ORIGIN` | `http://localhost:4201` | CORS allowed origin (match your dev UI) |
+| `DEPLOY_USER`       | `deploy`                | Non-root deploy user created in the VM  |
 
 ## Run
 
@@ -47,7 +47,7 @@ bash tools/astrosolve/server/scripts/deploy/local-test.sh
 To override a variable:
 
 ```bash
-UI_ORIGIN="http://localhost:4201" bash tools/astrosolve/server/scripts/deploy/local-test.sh
+ASTROSOLVE_ORIGIN="http://localhost:4201" bash tools/astrosolve/server/scripts/deploy/local-test.sh
 ```
 
 The script:
@@ -80,7 +80,7 @@ Set the variables you will pass to the scripts:
 
 ```bash
 export API_DOMAIN="api.test.local"   # not used for routing — just a label written into .env
-export UI_ORIGIN="http://localhost:4201"
+export ASTROSOLVE_ORIGIN="http://localhost:4201"
 export DEPLOY_USER="deploy"
 ```
 
@@ -155,7 +155,7 @@ orb shell -m astrosolve-test -u root
 # Inside the VM:
 chmod +x /root/astrosolve-deploy/*.sh
 API_DOMAIN="$API_DOMAIN" \
-UI_ORIGIN="$UI_ORIGIN" \
+ASTROSOLVE_ORIGIN="$ASTROSOLVE_ORIGIN" \
 GHCR_IMAGE="$GHCR_IMAGE" \
 DEPLOY_USER="$DEPLOY_USER" \
 /root/astrosolve-deploy/1_server_init.sh

@@ -19,7 +19,7 @@
 #   REGISTRY_PORT  Port for the local registry      (default: 5000)
 #   IMAGE_TAG      Tag used for the local image     (default: astrosolve-image)
 #   API_DOMAIN     Domain passed to init script     (default: api.test.local)
-#   UI_ORIGIN      CORS origin passed to init       (default: http://localhost:4201)
+#   ASTROSOLVE_ORIGIN  CORS origin passed to init       (default: http://localhost:4201)
 #   DEPLOY_USER    Non-root deploy user             (default: deploy)
 # =============================================================================
 
@@ -37,8 +37,8 @@ LOCAL_IMAGE="astrosolve"
 GHCR_IMAGE="astrosolve"
 
 DEPLOY_DIR="/root/astrosolve-deploy"
-API_DOMAIN="${API_DOMAIN:-api.test.local}"      # label only — does not need to resolve
-UI_ORIGIN="${UI_ORIGIN:-http://localhost:4201}"
+API_DOMAIN="${API_DOMAIN:-api.test.local}"
+ASTROSOLVE_ORIGIN="${ASTROSOLVE_ORIGIN:-http://localhost:4201}"
 DEPLOY_USER="${DEPLOY_USER:-deploy}"
 
 # ── Step 1: Build backend Docker image ────────────────────────────────────────
@@ -80,7 +80,7 @@ echo "==> [4/7] Running server bootstrap inside VM..."
 orb run -m "$VM_NAME" sudo bash -c "
   chmod +x ${DEPLOY_DIR}/*.sh
   API_DOMAIN='${API_DOMAIN}' \
-  UI_ORIGIN='${UI_ORIGIN}' \
+  ASTROSOLVE_ORIGIN='${ASTROSOLVE_ORIGIN}' \
   GHCR_IMAGE='${GHCR_IMAGE}' \
   DEPLOY_USER='${DEPLOY_USER}' \
   ${DEPLOY_DIR}/1_server_init.sh
