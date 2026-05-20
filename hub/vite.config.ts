@@ -22,7 +22,7 @@ export default defineConfig(({ mode }) => ({
           '/about',
           '/dossier/starwizz',
           '/dossier/astrogram',
-          '/dossier/file-grouper',
+          '/dossier/sortronomy',
         ],
       },
       nitro: {

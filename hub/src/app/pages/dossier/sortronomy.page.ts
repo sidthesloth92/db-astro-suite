@@ -6,7 +6,7 @@ import { CardComponent } from '@db-astro-suite/ui';
 import { FooterComponent } from '../../../../../libs/ui/src/lib/footer/footer.component';
 
 @Component({
-  selector: 'dba-hub-file-grouper-dossier',
+  selector: 'dba-hub-sortronomy-dossier',
   standalone: true,
   imports: [RouterLink, CardComponent, FooterComponent, CommonModule],
   template: `
@@ -20,16 +20,16 @@ import { FooterComponent } from '../../../../../libs/ui/src/lib/footer/footer.co
           <a routerLink="/" class="back-link">
             <span class="arrow">←</span> RETURN TO HUB
           </a>
-          <div class="mission-id">Module: File Grouper</div>
+          <div class="mission-id">Module: Sortronomy</div>
         </nav>
 
         <header class="dossier-header">
           <div>
-            <h1 class="db-neon-text">FILE GROUPER</h1>
-            <p class="tagline">DATASET ORGANIZATION UTILITY</p>
+            <h1 class="db-neon-text">SORTRONOMY</h1>
+            <p class="tagline">FITS ORGANIZATION WIZARD</p>
           </div>
           <a
-            href="https://github.com/sidthesloth92/db-astro-suite/tree/main/tools/file-grouper"
+            href="https://github.com/sidthesloth92/db-astro-suite/tree/main/tools/sortronomy"
             target="_blank"
             class="launch-btn"
           >
@@ -41,41 +41,60 @@ import { FooterComponent } from '../../../../../libs/ui/src/lib/footer/footer.co
           <section class="briefing">
             <dba-ui-card title="Overview">
               <p>
-                File Grouper is a platform-agnostic Go utility designed to solve
-                the chaos of unstructured astrophotography datasets.
-                Specifically optimized for ASIAIR and similar capture systems,
-                it automates the tedious task of sorting thousands of frames
-                into a logical hierarchy.
+                Sortronomy is a single-binary Go wizard that organizes
+                astrophotography FITS files by camera, target, date, and
+                filter — read straight from the FITS headers. No Python.
+                No filename guesswork. No remembering flags.
               </p>
               <p>
-                A clean dataset is the foundation of high-quality processing.
-                File Grouper ensures your data is ready for calibration and
-                stacking before you even open your processing software.
+                Because it reads headers instead of filenames, the same tool
+                works for ASIAIR, N.I.N.A., SharpCap, Ekos / KStars, SGP,
+                Voyager, and APT with zero configuration. Drop a folder of
+                raw frames in, get back a clean tree ready for calibration
+                and stacking.
               </p>
             </dba-ui-card>
 
-            <dba-ui-card title="Features" class="specs-card">
+            <dba-ui-card title="Capabilities" class="specs-card">
               <ul class="specs-list">
                 <li>
-                  <strong>SENSOR CLASSIFICATION</strong>
+                  <strong>HEADER-FIRST PARSING</strong>
                   <span
-                    >Automatically group and organize images based on the camera
-                    model and sensor type detected in metadata.</span
+                    >Reads IMAGETYP, OBJECT, INSTRUME, FILTER, DATE-OBS, and
+                    FOCALLEN straight from each file. Works across capture
+                    programs without configuration.</span
                   >
                 </li>
                 <li>
-                  <strong>TEMPORAL SORTING</strong>
+                  <strong>SESSION-AWARE DATES</strong>
                   <span
-                    >Efficiently group entire imaging sessions by precise dates,
-                    keeping multi-night project data separate.</span
+                    >Captures at or after 18:00 roll into the next day's
+                    folder so a full imaging night stays together.</span
                   >
                 </li>
                 <li>
-                  <strong>OBJECT TARGETING</strong>
+                  <strong>CAMERA NORMALIZATION</strong>
                   <span
-                    >Classify and folder frames by celestial object names,
-                    separating your 'M42' from your 'Rosette' data
-                    instantly.</span
+                    >"ZWO ASI2600MM Pro" and "ASI2600MM-Pro" fold to the
+                    same canonical label, so the same rig doesn't fork your
+                    tree across capture programs.</span
+                  >
+                </li>
+                <li>
+                  <strong>OSC FILTER TAGGING</strong>
+                  <span
+                    >For one-shot-color cameras (or relabeling a mono
+                    filter slot), opt in to tag a filter — Sortronomy
+                    appends the filter to each filename and writes the
+                    FILTER keyword + comment back into the FITS header.</span
+                  >
+                </li>
+                <li>
+                  <strong>MASTER FLATS RENAMER</strong>
+                  <span
+                    >Bonus menu item: copy master flats into a clean output
+                    folder, named by the substring after the last
+                    underscore.</span
                   >
                 </li>
               </ul>
@@ -85,22 +104,40 @@ import { FooterComponent } from '../../../../../libs/ui/src/lib/footer/footer.co
           <section class="intelligence">
             <dba-ui-card title="Setup & Usage">
               <div class="protocol-step">
-                <span class="step-label">INSTALLATION</span>
+                <span class="step-label">INSTALL (macOS / Linux)</span>
                 <pre
                   class="code-block"
-                ><code>go install github.com/sidthesloth92/db-astro-suite/tools/file-grouper&#64;latest</code></pre>
+                ><code>brew install --cask sidthesloth92/tap/sortronomy</code></pre>
+              </div>
+              <div class="protocol-step">
+                <span class="step-label">INSTALL (Windows)</span>
+                <pre
+                  class="code-block"
+                ><code>scoop bucket add sidthesloth92 https://github.com/sidthesloth92/scoop-bucket
+scoop install sortronomy</code></pre>
+              </div>
+              <div class="protocol-step">
+                <span class="step-label">INSTALL (Go users)</span>
+                <pre
+                  class="code-block"
+                ><code>go install github.com/sidthesloth92/db-astro-suite/tools/sortronomy&#64;latest</code></pre>
               </div>
               <div class="protocol-step">
                 <span class="step-label">EXECUTION</span>
                 <pre
                   class="code-block"
-                ><code>file-grouper --organize-asiair ./raw-data</code></pre>
+                ><code>sortronomy</code></pre>
+                <p class="protocol-note">
+                  No flags to remember. Launching Sortronomy drops you into
+                  an interactive wizard that walks you through organizing
+                  images or renaming master flats.
+                </p>
               </div>
 
               <div class="media-placeholder screenshot-placeholder">
                 <div class="placeholder-icon">terminal</div>
                 <div class="placeholder-text">
-                  CLI EXECUTION DIAGRAM PENDING
+                  WIZARD SCREENSHOT PENDING
                 </div>
                 <div class="placeholder-subtext">
                   User to provide terminal output screenshot
@@ -318,6 +355,14 @@ import { FooterComponent } from '../../../../../libs/ui/src/lib/footer/footer.co
         overflow-x: auto;
       }
 
+      .protocol-note {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 13px;
+        line-height: 1.6;
+        margin-top: 0.75rem;
+        margin-bottom: 0;
+      }
+
       .media-placeholder {
         background: rgba(255, 255, 255, 0.03);
         border: 1px dashed rgba(255, 255, 255, 0.1);
@@ -417,7 +462,7 @@ import { FooterComponent } from '../../../../../libs/ui/src/lib/footer/footer.co
     `,
   ],
 })
-export default class FileGrouperPageComponent {
+export default class SortronomyPageComponent {
   constructor() {
     const doc = inject(DOCUMENT);
     let link: HTMLLinkElement | null = doc.querySelector(
@@ -428,30 +473,30 @@ export default class FileGrouperPageComponent {
       link.setAttribute('rel', 'canonical');
       doc.head.appendChild(link);
     }
-    link.setAttribute('href', 'https://dbastrosuite.com/dossier/file-grouper');
+    link.setAttribute('href', 'https://dbastrosuite.com/dossier/sortronomy');
   }
 }
 
 export const routeMeta: RouteMeta = {
-  title: 'File Grouper Dossier - Dataset Organization Utility',
+  title: 'Sortronomy Dossier - FITS Organization Wizard',
   meta: [
     {
       name: 'description',
       content:
-        'A high-performance Go utility for automatically organizing astrophotography datasets by camera, date, and object.',
+        'Sortronomy is a single-binary Go wizard that organizes astrophotography FITS files by camera, target, date, and filter — read straight from headers. Works with ASIAIR, N.I.N.A., SharpCap, Ekos, SGP, Voyager, and APT.',
     },
     {
       property: 'og:title',
-      content: 'File Grouper - Organize Your Space Data',
+      content: 'Sortronomy - Organize Your FITS Files in Seconds',
     },
     {
       property: 'og:description',
       content:
-        'Automate the tedious task of sorting thousands of frames into a logical hierarchy for cleaner processing.',
+        'A header-first, single-binary wizard for organizing astrophotography FITS files. Works for any capture program. No Python required.',
     },
     {
       property: 'og:url',
-      content: 'https://dbastrosuite.com/dossier/file-grouper',
+      content: 'https://dbastrosuite.com/dossier/sortronomy',
     },
     {
       name: 'twitter:card',
@@ -459,12 +504,12 @@ export const routeMeta: RouteMeta = {
     },
     {
       name: 'twitter:title',
-      content: 'File Grouper - Organize Your Space Data',
+      content: 'Sortronomy - Organize Your FITS Files in Seconds',
     },
     {
       name: 'twitter:description',
       content:
-        'A high-performance Go utility for automatically organizing astrophotography datasets by camera, date, and object.',
+        'A header-first, single-binary wizard for organizing astrophotography FITS files. Works for any capture program. No Python required.',
     },
   ],
 };

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "packages": {
+    ".": {
+      "release-type": "node",
+      "component": "db-astro-suite"
+    },
+    "tools/sortronomy": {
+      "release-type": "go",
+      "component": "sortronomy",
+      "tag-separator": "-",
+      "include-component-in-tag": true
+    }
+  },
+  "separate-pull-requests": false
+}

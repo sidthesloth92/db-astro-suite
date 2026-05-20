@@ -16,7 +16,7 @@ A professional, organizational-style monorepo containing a suite of Astro-based 
 ├── services/           # Backend services (Python)
 │   └── (coming soon)
 └── tools/              # Multi-language CLI tools
-    └── astro-gen-go/   # Platform-agnostic script generator (Go)
+    └── sortronomy/   # Platform-agnostic script generator (Go)
 ```
 
 ---
@@ -61,7 +61,7 @@ pnpm --filter @db-astro-suite/starwizz start
 #### Run the Go Script Generator
 
 ```bash
-cd tools/astro-gen-go
+cd tools/sortronomy
 go run main.go [script-name]
 ```
 

@@ -37,12 +37,13 @@ import { FooterComponent } from '../../../../libs/ui/src/lib/footer/footer.compo
             A COLLECTION OF ASTRO TOOLS TO GO FROM SENSOR TO SOCIAL
           </p>
           <div class="hero__description" id="suite-description">
-            A professional collection of social-media focused astrophotography
-            tools built to get your space photos off your hard drive and onto
-            social media as cool, shareable videos and posts. Seamlessly
-            transform your captures into cinematic starfield animations with
-            Starwizz or professional Instagram exposure cards with Astrogram.
-            Spend less time processing data and more time capturing the cosmos.
+            A professional collection of astrophotography tools built to get
+            your space photos off your hard drive and onto social media as cool,
+            shareable videos and posts. Organize raw frames straight from FITS
+            headers with Sortronomy, transform your captures into cinematic
+            starfield animations with Starwizz, or generate professional
+            Instagram exposure cards with Astrogram. Spend less time wrangling
+            data and more time capturing the cosmos.
           </div>
         </header>
 
@@ -100,19 +101,27 @@ import { FooterComponent } from '../../../../libs/ui/src/lib/footer/footer.compo
               </dba-ui-card>
             </div>
 
-            <div class="mission-card mission-card--disabled">
+            <div class="mission-card" [routerLink]="['/dossier/sortronomy']">
               <dba-ui-card
-                title="FILE GROUPER"
-                subtitle="CLI Utility"
-                [clickable]="false"
+                title="SORTRONOMY"
+                subtitle="FITS Organization Wizard"
+                [clickable]="true"
               >
-                <div class="mission-status mission-status--progress">
-                  IN PROGRESS
-                </div>
+                <div class="mission-status">READY</div>
                 <p>
-                  A high-performance Go script to automatically group and
-                  organize ASIAIR image datasets by camera, date, and object.
+                  A single-binary Go wizard that organizes FITS files by camera,
+                  target, date, and filter — read straight from headers. Works
+                  for ASIAIR, N.I.N.A., SharpCap, Ekos, SGP, Voyager, and APT.
                 </p>
+                <a
+                  [routerLink]="['/dossier/sortronomy']"
+                  class="launch-cta"
+                  (click)="$event.stopPropagation()"
+                  aria-label="Learn more about Sortronomy"
+                >
+                  <span class="launch-text">LEARN MORE</span>
+                  <span class="launch-arrow">→</span>
+                </a>
               </dba-ui-card>
             </div>
           </div>
