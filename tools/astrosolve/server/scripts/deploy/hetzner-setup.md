@@ -149,26 +149,34 @@ Once the server is running and you have its IP:
 
 ---
 
-## Phase 5 — Add GitHub Actions Secrets
+## Phase 5 — Add GitHub Actions Secrets And Variables
 
-Required for automated deploys on PR merge.
+Required for automated deploys on PR merge or `workflow_dispatch`.
 
 1. Go to your GitHub repository → **Settings → Secrets and variables → Actions**
-2. Add these repository secrets:
 
-| Secret name       | Value                                                              |
-| ----------------- | ------------------------------------------------------------------ |
-| `DEPLOY_HOST`    | Your server's Public IPv4 (`SERVER_IP`)                       |
-| `DEPLOY_USER`    | `deploy`                                                      |
-| `DEPLOY_SSH_KEY` | Contents of `~/.ssh/db_astro_suite` (the **private** key)     |
+**Secrets tab** — add these:
 
-To print the private key for copying:
+| Secret name      | Value                                                           |
+| ---------------- | --------------------------------------------------------------- |
+| `DEPLOY_HOST`    | Your server's Public IPv4 (`SERVER_IP`)                         |
+| `DEPLOY_USER`    | `deploy` (or whatever you set as `DEPLOY_USER`)                 |
+| `DEPLOY_SSH_KEY` | Contents of `~/.ssh/db_astro_suite_ci` (the CI **private** key) |
+
+To print the CI private key for copying:
 
 ```bash
-cat ~/.ssh/hertzner_db_astro_suite
+cat ~/.ssh/db_astro_suite_ci
 ```
 
 Copy the entire output including the `-----BEGIN...` and `-----END...` lines.
+
+**Variables tab** — add these:
+
+| Variable name       | Value                      |
+| ------------------- | -------------------------- |
+| `APP_DIR`           | `/opt/astrosolve`          |
+| `ASTROSOLVE_ORIGIN` | `https://dbastrosuite.com` |
 
 ---
 
@@ -178,17 +186,18 @@ Use this to track your progress end-to-end:
 
 - [ ] Hetzner project created
 - [ ] SSH key pair generated on your Mac
-- [ ] SSH public key added to Hetzner
+- [ ] CI SSH key pair generated (no passphrase) for GitHub Actions
+- [ ] SSH public keys added to Hetzner
 - [ ] Server created (Ubuntu 24.04, CX22 or larger)
 - [ ] Server IP noted as `SERVER_IP`
 - [ ] (Optional) Firewall created and assigned
 - [ ] SSH access verified (`ssh root@$SERVER_IP`)
-- [ ] Deploy scripts copied to server
+- [ ] Init scripts copied to server
 - [ ] `1_server_init.sh` completed (Docker, user, astrometry indexes)
 - [ ] Deploy user SSH access verified
-- [ ] SQLite catalog generated locally
 - [ ] Cloudflare A record created and proxied
 - [ ] Cloudflare SSL set to Full (strict)
-- [ ] Release PR merged and pipeline succeeded
+- [ ] GitHub Actions secrets added (`DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_SSH_KEY`)
+- [ ] GitHub Actions variables added (`APP_DIR`, `ASTROSOLVE_ORIGIN`)
+- [ ] First deploy triggered via workflow_dispatch and succeeded
 - [ ] API smoke test passed (`curl https://api.dbastrosuite.com/`)
-- [ ] GitHub Actions secrets added

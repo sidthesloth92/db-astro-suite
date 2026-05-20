@@ -202,9 +202,22 @@ jobs:
           ssh-keyscan -H "${{ secrets.DEPLOY_HOST }}" >> ~/.ssh/known_hosts
 
       - name: Deploy backend
-        # ACCESS_KEY_REQUIRED is not passed here — it is managed on the server
-        # via the deploy script environment. Set it in the server's compose/run
-        # config or export it before calling server_deploy.sh.
         run: |
-          ssh "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
-            "GHCR_USERNAME='${{ github.repository_owner }}' GHCR_TOKEN='${{ github.token }}' /opt/astrosolve/scripts/2_deploy.sh '${{ needs.build-backend-image.outputs.image_tag }}'"
+          IMAGE="${{ needs.build-backend-image.outputs.image_name }}:${{ needs.build-backend-image.outputs.image_tag }}"
+          ssh "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" << ENDSSH
+            echo "${{ github.token }}" | docker login ghcr.io -u "${{ github.repository_owner }}" --password-stdin
+            docker pull ${IMAGE}
+            docker stop astrosolve || true
+            docker rm astrosolve || true
+            docker run -d \
+              --name astrosolve \
+              --restart unless-stopped \
+              -p 80:3000 \
+              -v ${{ vars.APP_DIR }}/data/astrometry:/usr/src/app/data/astrometry:ro \
+              -v ${{ vars.APP_DIR }}/data/uploads:/usr/src/app/data/uploads \
+              -v ${{ vars.APP_DIR }}/data/astrosolve.sqlite:/usr/src/app/data/astrosolve.sqlite \
+              -e ASTROSOLVE_ORIGIN="${{ vars.ASTROSOLVE_ORIGIN }}" \
+              -e NODE_ENV=production \
+              -e TRUST_PROXY=true \
+              ${IMAGE}
+          ENDSSH

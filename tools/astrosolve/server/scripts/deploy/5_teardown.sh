@@ -5,8 +5,9 @@
 # =============================================================================
 # Removes everything installed by 1_server_init.sh, returning the server to its
 # original clean state. This is a DESTRUCTIVE operation that:
-#   - Stops and removes all Docker containers, images, and volumes
-#   - Deletes the /opt/astrosolve directory and all data within it
+#   - Stops and removes the astrosolve Docker container
+#   - Removes all Docker images and build cache
+#   - Deletes the APP_DIR directory and all data within it
 #   - Removes the deploy user and their home directory
 #   - Uninstalls Docker and its dependencies
 #   - Removes Docker's apt repository and GPG key
@@ -16,8 +17,8 @@
 #
 # Prerequisites: Must be run as root.
 #
-# WARNING: This will permanently delete all Astrosolve data including
-# astrometry indexes and uploaded images. Back up any data you need first.
+# WARNING: This permanently deletes all data including astrometry indexes,
+# uploaded images, and the access keys database. Back up any data first.
 # =============================================================================
 
 # sets bash to run in strict mode so that any error fails the script.
@@ -72,12 +73,8 @@ fi
 # -----------------------------------------------------------------------------
 echo ""
 echo "==> Stopping Docker containers"
-if command -v docker &>/dev/null && [ -f "$TARGET_DIR/compose.yaml" ]; then
-  # Stop compose services if .env and compose exist.
-  if [ -f "$TARGET_DIR/.env" ]; then
-    docker compose --env-file "$TARGET_DIR/.env" -f "$TARGET_DIR/compose.yaml" down -v || true
-  fi
-fi
+docker stop astrosolve || true
+docker rm astrosolve || true
 
 # -----------------------------------------------------------------------------
 # Step 4: Remove ALL Docker data.
