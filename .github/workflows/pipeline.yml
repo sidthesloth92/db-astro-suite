@@ -209,6 +209,8 @@ jobs:
             docker pull ${IMAGE}
             docker stop astrosolve || true
             docker rm astrosolve || true
+            docker ps -q --filter publish=80 | xargs -r docker stop
+            docker ps -aq --filter publish=80 | xargs -r docker rm
             docker run -d \
               --name astrosolve \
               --restart unless-stopped \
