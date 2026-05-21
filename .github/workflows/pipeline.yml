@@ -10,9 +10,9 @@ on:
   workflow_dispatch:
     inputs:
       image_tag:
-        description: "Image tag to build and deploy (e.g. 1.0.0)"
+        description: 'Image tag to build and deploy (e.g. 1.0.0)'
         required: true
-        default: "manual"
+        default: 'manual'
 
 permissions:
   contents: write
