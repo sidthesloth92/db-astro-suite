@@ -5,16 +5,16 @@
 
 ### Features
 
-* add diagnostic probe for GITHUB_TOKEN release creation access ([2372025](https://github.com/sidthesloth92/db-astro-suite/commit/2372025cc2dfc60df769f9208bcd2e986ee42c3f))
-* add runbook for RELEASE_PLEASE_TOKEN and preflight check in pipeline ([2be2e28](https://github.com/sidthesloth92/db-astro-suite/commit/2be2e287650e4a28ef93450f18ff511295d840eb))
-* add wait for CSS transition in addCustomAnnotation method ([1507f88](https://github.com/sidthesloth92/db-astro-suite/commit/1507f88bc5db0edd711c254cd9fb6a4a3c22994a))
-* Added releasae please PAT ([4f4d041](https://github.com/sidthesloth92/db-astro-suite/commit/4f4d0418dcde8bf0310bd66d89a948f58de2546e))
-* **deploy:** add remote deployment scripts and documentation ([#26](https://github.com/sidthesloth92/db-astro-suite/issues/26)) ([b8f98a6](https://github.com/sidthesloth92/db-astro-suite/commit/b8f98a65fddbd7b28c8987ae89509cf9fa73ddc5))
-* pin release-please-action to v4.4.0 to avoid regression issues ([23d2014](https://github.com/sidthesloth92/db-astro-suite/commit/23d20146788e578ceb90962213bdf0204c56b880))
-* remove preflight check for RELEASE_PLEASE_TOKEN in pipeline ([8be826e](https://github.com/sidthesloth92/db-astro-suite/commit/8be826ed3acd28cedd3daeec3858efa14ac34150))
-* Removed releases ([afd9e07](https://github.com/sidthesloth92/db-astro-suite/commit/afd9e07bbe1a3f836a8ed6778b316ba44f0ab2fc))
-* update .gitignore to include runtime databases and remove sensitive files ([ffe7d6a](https://github.com/sidthesloth92/db-astro-suite/commit/ffe7d6ad547768f817e863e6174638e2baf9e1a5))
-* update drag behavior and selection logic in StellarMapPreviewComponent ([a8b1004](https://github.com/sidthesloth92/db-astro-suite/commit/a8b1004492016190227d5b477a788dc7fc3b448d))
+* **astrogram:** add Stellar Map mode — overlay plate-solved annotations on astrophotography images ([#17](https://github.com/sidthesloth92/db-astro-suite/pull/17))
+* **astrogram:** support single-gesture click-and-drag to reposition custom annotation markers ([a8b1004](https://github.com/sidthesloth92/db-astro-suite/commit/a8b1004492016190227d5b477a788dc7fc3b448d), [1507f88](https://github.com/sidthesloth92/db-astro-suite/commit/1507f88bc5db0edd711c254cd9fb6a4a3c22994a))
+* **astrosolve:** add headless plate-solving microservice (Astrometry.net + SIMBAD + OpenNGC) with access-key auth and rate limiting
+* **deploy:** add remote deployment scripts and runbook for the Astrosolve backend ([#26](https://github.com/sidthesloth92/db-astro-suite/pull/26))
+
+
+### Build & Tooling
+
+* gitignore runtime SQLite databases (access keys, uploads) — local catalog remains tracked and baked into the image ([ffe7d6a](https://github.com/sidthesloth92/db-astro-suite/commit/ffe7d6ad547768f817e863e6174638e2baf9e1a5))
+* harden release-please pipeline: pin action to a known-working SHA, switch to classic PAT to work around a GITHUB_TOKEN cap on the create-release endpoint ([#28](https://github.com/sidthesloth92/db-astro-suite/pull/28))
 
 ## [1.13.1](https://github.com/sidthesloth92/db-astro-suite/compare/v1.13.0...v1.13.1) (2026-03-14)
 
