@@ -31,7 +31,6 @@ All variables have defaults. Override only what you need:
 | ------------------- | ----------------------- | --------------------------------------- |
 | `VM_NAME`           | `astrosolve-test`       | OrbStack VM name                        |
 | `IMAGE_TAG`         | `test`                  | Docker image tag                        |
-| `API_DOMAIN`        | `api.test.local`        | Label only — does not need to resolve   |
 | `ASTROSOLVE_ORIGIN` | `http://localhost:4201` | CORS allowed origin (match your dev UI) |
 | `DEPLOY_USER`       | `deploy`                | Non-root deploy user created in the VM  |
 | `APP_DIR`           | `/opt/astrosolve`       | Application data directory              |

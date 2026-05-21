@@ -77,9 +77,28 @@ pnpm --filter @db-astro-suite/ui build
 
 ## 📦 Deployment
 
-The suite is designed to be deployed to **GitHub Pages** using a sub-path strategy:
+The suite deploys two independently hosted pieces on every release PR merge:
 
-- **Root**: `.../db-astro-suite/` (Hub)
-- **Starwizz**: `.../db-astro-suite/starwizz/`
+- **Frontend** — built and deployed to **GitHub Pages** via the `release-deploy` pipeline
+- **Backend (Astrosolve)** — Docker image built and pushed to GHCR, then deployed to a **Hetzner VPS** via SSH
 
-Deployment is handled via a unified GitHub Action (see Implementation Plan for details).
+### Server Setup (one-time)
+
+Before the first deploy, the Hetzner server must be bootstrapped manually. See:
+
+- [`tools/astrosolve/server/scripts/deploy/hetzner-setup.md`](tools/astrosolve/server/scripts/deploy/hetzner-setup.md) — Hetzner Cloud Console setup and GitHub Actions secrets
+- [`tools/astrosolve/server/scripts/deploy/deploy.md`](tools/astrosolve/server/scripts/deploy/deploy.md) — full deploy runbook
+
+### Ongoing Deploys
+
+Merging a release PR triggers the pipeline automatically. Manual deploys can also be triggered via **Actions → test-release-deploy → Run workflow**.
+
+### Local Testing
+
+To dry-run the deploy scripts against a local VM before touching production:
+
+```bash
+bash tools/astrosolve/server/scripts/deploy/local-test.sh
+```
+
+See [`tools/astrosolve/server/scripts/deploy/local-test.md`](tools/astrosolve/server/scripts/deploy/local-test.md) for details.

@@ -18,13 +18,13 @@ Production design:
 
 ## Script Reference
 
-| Script             | When to run       | As     | Description                                                         |
-| ------------------ | ----------------- | ------ | ------------------------------------------------------------------- |
-| `1_server_init.sh` | Once (setup)      | root   | Bootstrap: Docker, deploy user, data directories, astrometry files  |
-| `1a_init_docker.sh`| Called by init    | —      | Docker Engine install helper (sourced by `1_server_init.sh`)        |
-| `3_restart.sh`     | On-demand         | deploy | Restart the container without pulling a new image                   |
-| `4_stop.sh`        | On-demand         | deploy | Gracefully stop the container (data preserved)                      |
-| `5_teardown.sh`    | Decommission only | root   | **DESTRUCTIVE** — removes everything, returns server to clean state |
+| Script              | When to run       | As     | Description                                                         |
+| ------------------- | ----------------- | ------ | ------------------------------------------------------------------- |
+| `1_server_init.sh`  | Once (setup)      | root   | Bootstrap: Docker, deploy user, data directories, astrometry files  |
+| `1a_init_docker.sh` | Called by init    | —      | Docker Engine install helper (sourced by `1_server_init.sh`)        |
+| `3_restart.sh`      | On-demand         | deploy | Restart the container without pulling a new image                   |
+| `4_stop.sh`         | On-demand         | deploy | Gracefully stop the container (data preserved)                      |
+| `5_teardown.sh`     | Decommission only | root   | **DESTRUCTIVE** — removes everything, returns server to clean state |
 
 ---
 
@@ -108,23 +108,17 @@ Go to your GitHub repository → **Settings → Secrets and variables → Action
 
 **Secrets tab:**
 
-| Secret name      | Value                                              |
-| ---------------- | -------------------------------------------------- |
-| `DEPLOY_HOST`    | Your server's public IP                            |
-| `DEPLOY_USER`    | The deploy username (e.g. `deploy`)                |
-| `DEPLOY_SSH_KEY` | Contents of your CI private key (no passphrase)    |
+| Secret name      | Value                                           |
+| ---------------- | ----------------------------------------------- |
+| `DEPLOY_HOST`    | Your server's public IP                         |
+| `DEPLOY_USER`    | The deploy username (e.g. `deploy`)             |
+| `DEPLOY_SSH_KEY` | Contents of your CI private key (no passphrase) |
 
 To print the private key:
+
 ```bash
 cat ~/.ssh/db_astro_suite_ci
 ```
-
-**Variables tab:**
-
-| Variable name       | Value                          |
-| ------------------- | ------------------------------ |
-| `APP_DIR`           | `/opt/astrosolve`              |
-| `ASTROSOLVE_ORIGIN` | `https://dbastrosuite.com`     |
 
 ## 7. Trigger The First Deploy
 
@@ -133,6 +127,7 @@ Go to your GitHub repository → **Actions → test-release-deploy → Run workf
 Enter an image tag (e.g. `1.0.0`) and click **Run workflow**.
 
 The pipeline will:
+
 1. Build the backend Docker image and push it to GHCR
 2. SSH into the server and run `docker run` with all config injected
 

@@ -117,13 +117,11 @@ As a quick reference, here is what each phase of that runbook does:
 | **2**          | SSH into the server as root                                                                                 |
 | **3**          | Run `1_server_init.sh` — installs Docker, creates the deploy user, downloads astrometry indexes (15–30 min) |
 | **4**          | Reconnect as the `deploy` user to verify Docker works                                                       |
-| **5**          | (Optional) Reseed astrometry indexes if you add new index families                                          |
-| **6**          | Generate the SQLite catalog locally on your Mac                                                             |
-| **7**          | Configure Cloudflare DNS (see Phase 4 below)                                                                |
-| **8**          | Merge the release PR — pipeline deploys both frontend and backend                                           |
-| **9**          | Smoke test the API endpoint                                                                                 |
-| **10**         | Verify disk headroom                                                                                        |
-| **11**         | Add GitHub Actions secrets                                                                                  |
+| **5**          | Configure Cloudflare DNS (see Phase 4 below)                                                                |
+| **6**          | Add GitHub Actions secrets                                                                                  |
+| **7**          | Trigger the first deploy via workflow_dispatch                                                              |
+| **8**          | Smoke test the API endpoint                                                                                 |
+| **9**          | Verify data directories and disk headroom                                                                   |
 
 ---
 
@@ -171,13 +169,6 @@ cat ~/.ssh/db_astro_suite_ci
 
 Copy the entire output including the `-----BEGIN...` and `-----END...` lines.
 
-**Variables tab** — add these:
-
-| Variable name       | Value                      |
-| ------------------- | -------------------------- |
-| `APP_DIR`           | `/opt/astrosolve`          |
-| `ASTROSOLVE_ORIGIN` | `https://dbastrosuite.com` |
-
 ---
 
 ## Summary Checklist
@@ -198,6 +189,5 @@ Use this to track your progress end-to-end:
 - [ ] Cloudflare A record created and proxied
 - [ ] Cloudflare SSL set to Full (strict)
 - [ ] GitHub Actions secrets added (`DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_SSH_KEY`)
-- [ ] GitHub Actions variables added (`APP_DIR`, `ASTROSOLVE_ORIGIN`)
 - [ ] First deploy triggered via workflow_dispatch and succeeded
 - [ ] API smoke test passed (`curl https://api.dbastrosuite.com/`)

@@ -17,7 +17,6 @@
 # Override variables:
 #   VM_NAME            Name of the OrbStack VM         (default: astrosolve-test)
 #   IMAGE_TAG          Tag used for the local image     (default: test)
-#   API_DOMAIN         Domain label only                (default: api.test.local)
 #   ASTROSOLVE_ORIGIN  CORS origin                      (default: http://localhost:4201)
 #   DEPLOY_USER        Non-root deploy user             (default: deploy)
 #   APP_DIR            Application data directory       (default: /opt/astrosolve)
