@@ -85,27 +85,37 @@ describe('StellarMapPreviewComponent drag state machine', () => {
       .compileComponents();
   });
 
-  it('should select annotation without starting drag on first click of unselected annotation', () => {
+  it('should start drag on mousedown regardless of prior selection state', () => {
     const fixture = TestBed.createComponent(StellarMapPreviewComponent);
     const component = fixture.componentInstance;
     fixture.detectChanges();
 
-    // selectedAnnotationId is null — first click selects, does not start drag
+    // selectedAnnotationId is null — mousedown now starts drag immediately without pre-selecting
     const ann = makeAnnotation('test-select');
     const mouseEvent = new MouseEvent('mousedown', { clientX: 100, clientY: 100 });
     component.onMarkerMousedown(ann, mouseEvent);
 
-    expect(mockDataService.selectAnnotation).toHaveBeenCalledWith('test-select');
-    expect(component.isDragging()).toBeFalse();
+    expect(component.isDragging()).toBeTrue();
+    expect(mockDataService.selectAnnotation).not.toHaveBeenCalled();
   });
 
-  it('should set isDragging to true after onMarkerMousedown on an already-selected annotation', () => {
+  it('should select annotation on mouseup when delta < 3 and annotation was unselected', () => {
     const fixture = TestBed.createComponent(StellarMapPreviewComponent);
     const component = fixture.componentInstance;
     fixture.detectChanges();
 
-    // Pre-select the annotation — only a second mousedown on the selected annotation starts a drag
-    mockDataService.selectedAnnotationId.set('test-1');
+    const ann = makeAnnotation('test-click-select');
+    component.onMarkerMousedown(ann, new MouseEvent('mousedown', { clientX: 100, clientY: 100 }));
+    component.onLayerMouseup(new MouseEvent('mouseup', { clientX: 101, clientY: 100 }));
+
+    expect(mockDataService.selectAnnotation).toHaveBeenCalledWith('test-click-select');
+    expect(component.isDragging()).toBeFalse();
+  });
+
+  it('should set isDragging to true after onMarkerMousedown', () => {
+    const fixture = TestBed.createComponent(StellarMapPreviewComponent);
+    const component = fixture.componentInstance;
+    fixture.detectChanges();
 
     const mouseEvent = new MouseEvent('mousedown', { clientX: 100, clientY: 100 });
     component.onMarkerMousedown(makeAnnotation('test-1'), mouseEvent);
@@ -117,9 +127,6 @@ describe('StellarMapPreviewComponent drag state machine', () => {
     const fixture = TestBed.createComponent(StellarMapPreviewComponent);
     const component = fixture.componentInstance;
     fixture.detectChanges();
-
-    // Pre-select so drag starts on mousedown
-    mockDataService.selectedAnnotationId.set('test-2');
 
     const downEvent = new MouseEvent('mousedown', { clientX: 100, clientY: 100 });
     component.onMarkerMousedown(makeAnnotation('test-2'), downEvent);
@@ -136,9 +143,6 @@ describe('StellarMapPreviewComponent drag state machine', () => {
     const fixture = TestBed.createComponent(StellarMapPreviewComponent);
     const component = fixture.componentInstance;
     fixture.detectChanges();
-
-    // Pre-select so drag starts on mousedown
-    mockDataService.selectedAnnotationId.set('test-3');
 
     const downEvent = new MouseEvent('mousedown', { clientX: 100, clientY: 100 });
     component.onMarkerMousedown(makeAnnotation('test-3'), downEvent);

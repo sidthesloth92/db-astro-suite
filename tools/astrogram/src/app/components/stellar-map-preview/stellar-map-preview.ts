@@ -39,13 +39,16 @@ import { AnnotationControlsComponent } from '../card-form/annotation-controls';
       .annotations-layer.is-dragging {
         cursor: grabbing;
       }
+      .annotations-layer.is-dragging .annotation-marker {
+        cursor: grabbing;
+      }
       .annotation-marker {
         position: absolute;
         transform: translate(-50%, -50%);
         border-style: solid;
         border-radius: 50%;
         transition: all 0.25s ease;
-        cursor: pointer;
+        cursor: grab;
         pointer-events: auto;
       }
       .annotation-marker.selected {
@@ -306,14 +309,10 @@ export class StellarMapPreviewComponent {
     this.dataService.selectAnnotation(null);
   }
 
-  /** Records drag-start state on mousedown; selection is deferred until mouseup. */
+  /** Records drag-start state on mousedown; selection is resolved on mouseup. */
   onMarkerMousedown(ann: ImageAnnotation, event: MouseEvent) {
     event.preventDefault();
     event.stopPropagation();
-    if (this.dataService.selectedAnnotationId() !== ann.id) {
-      this.dataService.selectAnnotation(ann.id);
-      return;
-    }
     this._dragId.set(ann.id);
     this._dragStartMouse.set({ x: event.clientX, y: event.clientY });
   }
@@ -328,7 +327,7 @@ export class StellarMapPreviewComponent {
     this.dataService.updateAnnotationPosition(dragId, xPercent, yPercent);
   }
 
-  /** Ends a drag; fires selection toggle if the pointer barely moved (i.e. a click). */
+  /** Ends a drag; toggles selection if the pointer barely moved (i.e. a click). */
   onLayerMouseup(event: MouseEvent) {
     const dragId = this._dragId();
     if (dragId) {
@@ -337,7 +336,10 @@ export class StellarMapPreviewComponent {
         const dx = event.clientX - startMouse.x;
         const dy = event.clientY - startMouse.y;
         if (Math.sqrt(dx * dx + dy * dy) < 3) {
-          this.onAnnotationClick(event);
+          const current = this.dataService.selectedAnnotationId();
+          this.dataService.selectAnnotation(current === dragId ? null : dragId);
+        } else {
+          this.dataService.selectAnnotation(dragId);
         }
       }
       this._dragId.set(null);
