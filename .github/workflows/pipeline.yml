@@ -75,16 +75,72 @@ jobs:
     needs: verify
     # Only run on main pushes THAT ARE NOT release merges
     if: |
-      always() && 
-      needs.verify.result == 'success' && 
-      github.event_name == 'push' && 
-      github.ref == 'refs/heads/main' && 
+      always() &&
+      needs.verify.result == 'success' &&
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' &&
       !startsWith(github.event.head_commit.message, 'chore(main): release')
     runs-on: ubuntu-latest
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
     steps:
-      - uses: googleapis/release-please-action@v4
+      # Probe RELEASE_PLEASE_TOKEN before invoking the action so a missing
+      # or under-scoped PAT fails here with a clear, actionable message
+      # instead of as an opaque "Not Found" deep inside release-please.
+      # See .github/RELEASE_PLEASE_PAT.md for required PAT permissions.
+      - name: Preflight RELEASE_PLEASE_TOKEN
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${GH_TOKEN:-}" ]; then
+            echo "::error::RELEASE_PLEASE_TOKEN secret is empty or unset."
+            echo "::error::See .github/RELEASE_PLEASE_PAT.md to create and store the PAT."
+            exit 1
+          fi
+
+          PROBE_TAG="release-please-preflight-${{ github.run_id }}"
+          BODY="{\"tag_name\":\"$PROBE_TAG\",\"name\":\"release-please preflight (auto-deleted)\",\"draft\":true}"
+
+          HTTP_CODE=$(curl -sS -o /tmp/probe.json -w "%{http_code}" \
+            -X POST \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/${{ github.repository }}/releases" \
+            -d "$BODY")
+
+          case "$HTTP_CODE" in
+            201)
+              RELEASE_ID=$(jq -r '.id' /tmp/probe.json)
+              curl -sS -o /dev/null -X DELETE \
+                -H "Authorization: Bearer $GH_TOKEN" \
+                -H "Accept: application/vnd.github+json" \
+                "https://api.github.com/repos/${{ github.repository }}/releases/$RELEASE_ID" || \
+                echo "::warning::Probe release $RELEASE_ID created but could not be deleted — remove it manually."
+              echo "✓ RELEASE_PLEASE_TOKEN has permission to create releases."
+              ;;
+            401)
+              echo "::error::RELEASE_PLEASE_TOKEN is invalid or expired (HTTP 401)."
+              echo "::error::Regenerate the PAT per .github/RELEASE_PLEASE_PAT.md."
+              exit 1
+              ;;
+            403|404)
+              echo "::error::RELEASE_PLEASE_TOKEN cannot create releases (HTTP $HTTP_CODE)."
+              echo "::error::Most likely cause: PAT missing 'Contents: Read and write'."
+              echo "::error::See .github/RELEASE_PLEASE_PAT.md for the exact PAT setup."
+              cat /tmp/probe.json
+              exit 1
+              ;;
+            *)
+              echo "::error::Unexpected response from GitHub releases API (HTTP $HTTP_CODE)."
+              cat /tmp/probe.json
+              exit 1
+              ;;
+          esac
+
+      - uses: googleapis/release-please-action@5c625bfb5d1ff62eadeeb3772007f7f66fdcf071 # v4.4.1
         id: release
         with:
           release-type: node
