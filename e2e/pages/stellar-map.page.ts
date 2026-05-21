@@ -105,5 +105,8 @@ export class StellarMapPage {
     await this.page.mouse.down();
     await this.page.mouse.move(cx + dx, cy + dy, { steps: 10 });
     await this.page.mouse.up();
+    // Allow the 0.25s CSS position transition on .annotation-marker to settle
+    // before the caller reads boundingBox().
+    await this.page.waitForTimeout(300);
   }
 }
