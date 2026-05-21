@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.14.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.13.1...v1.14.0) (2026-05-21)
+
+
+### Features
+
+* **astrogram:** add Stellar Map mode — overlay plate-solved annotations on astrophotography images ([#17](https://github.com/sidthesloth92/db-astro-suite/pull/17))
+* **astrogram:** support single-gesture click-and-drag to reposition custom annotation markers ([a8b1004](https://github.com/sidthesloth92/db-astro-suite/commit/a8b1004492016190227d5b477a788dc7fc3b448d), [1507f88](https://github.com/sidthesloth92/db-astro-suite/commit/1507f88bc5db0edd711c254cd9fb6a4a3c22994a))
+* **astrosolve:** add headless plate-solving microservice (Astrometry.net + SIMBAD + OpenNGC) with access-key auth and rate limiting
+* **deploy:** add remote deployment scripts and runbook for the Astrosolve backend ([#26](https://github.com/sidthesloth92/db-astro-suite/pull/26))
+
+
+### Build & Tooling
+
+* gitignore runtime SQLite databases (access keys, uploads) — local catalog remains tracked and baked into the image ([ffe7d6a](https://github.com/sidthesloth92/db-astro-suite/commit/ffe7d6ad547768f817e863e6174638e2baf9e1a5))
+* harden release-please pipeline: pin action to a known-working SHA, switch to classic PAT to work around a GITHUB_TOKEN cap on the create-release endpoint ([#28](https://github.com/sidthesloth92/db-astro-suite/pull/28))
+
 ## [1.13.1](https://github.com/sidthesloth92/db-astro-suite/compare/v1.13.0...v1.13.1) (2026-03-14)
 
 
