@@ -1,6 +1,6 @@
 ---
 name: pipeline-ops
-description: "Step-by-step verification workflow for CI/CD pipeline changes in db-astro-suite. Use when: auditing GitHub Actions YAML, modifying deploy jobs, updating the Dockerfile, investigating why a deploy did or did not trigger, changing release-please config, or adding a new pipeline job. Covers trigger conditions, job dependencies, secret handling, Docker/GHCR config, and Hetzner SSH deploy verification."
+description: "Step-by-step verification workflow for CI/CD pipeline changes in db-astro-suite. Use when: auditing GitHub Actions YAML, modifying deploy jobs, updating the Dockerfile, investigating why a deploy did or did not trigger, changing release-please config, or adding a new pipeline job. Covers trigger conditions, job dependencies, secret handling, Docker/GHCR config, and VPS SSH deploy verification."
 argument-hint: "Describe the pipeline issue or infra config change to verify."
 ---
 
@@ -37,7 +37,7 @@ Trigger: push to main  OR  pull_request to main
     │     version sourced from package.json via python3
     │
     └─ deploy-backend (needs: build-backend-image)
-        → SSH to Hetzner
+        → SSH to VPS
           runs /opt/astrosolve/scripts/server_deploy.sh <version>
 ```
 
@@ -80,12 +80,12 @@ Release merge guard pattern: `startsWith(github.event.head_commit.message, 'chor
 
 Scan all `${{ ... }}` expressions. Every sensitive value must be a secret reference:
 
-| Value                   | Expected reference                      |
-| ----------------------- | --------------------------------------- |
-| Hetzner SSH private key | `${{ secrets.HETZNER_SSH_KEY }}`        |
-| Hetzner host            | `${{ secrets.HETZNER_HOST }}`           |
-| Hetzner user            | `${{ secrets.HETZNER_USER }}`           |
-| GHCR token              | `${{ github.token }}` (automatic, safe) |
+| Value           | Expected reference                      |
+| --------------- | --------------------------------------- |
+| SSH private key | `${{ secrets.DEPLOY_SSH_KEY }}`         |
+| VPS host        | `${{ secrets.DEPLOY_HOST }}`            |
+| VPS user        | `${{ secrets.DEPLOY_USER }}`            |
+| GHCR token      | `${{ github.token }}` (automatic, safe) |
 
 **MUST FIX**: any hardcoded IP address, hostname, username, password, or token in YAML.
 
@@ -114,17 +114,17 @@ Check:
 - [ ] Version not hardcoded — always from `package.json`
 - [ ] `docker/login-action` authenticates to `ghcr.io` before push
 
-### Step 6 — Hetzner SSH Deploy Verification
+### Step 6 — VPS SSH Deploy Verification
 
 ```yaml
 - uses: webfactory/ssh-agent@v0.9.0
   with:
-    ssh-private-key: ${{ secrets.HETZNER_SSH_KEY }}
+    ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
 
-- run: ssh-keyscan -H "${{ secrets.HETZNER_HOST }}" >> ~/.ssh/known_hosts
+- run: ssh-keyscan -H "${{ secrets.DEPLOY_HOST }}" >> ~/.ssh/known_hosts
 
 - run: |
-    ssh "${{ secrets.HETZNER_USER }}@${{ secrets.HETZNER_HOST }}" \
+    ssh "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" \
       "GHCR_USERNAME='...' GHCR_TOKEN='...' /opt/astrosolve/scripts/server_deploy.sh '<version>'"
 ```
 
