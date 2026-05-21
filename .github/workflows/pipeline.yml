@@ -20,7 +20,6 @@ permissions:
   pages: write
   id-token: write
   packages: write
-  releases: write
 
 concurrency:
   group: "pages"
