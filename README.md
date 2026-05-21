@@ -80,13 +80,13 @@ pnpm --filter @db-astro-suite/ui build
 The suite deploys two independently hosted pieces on every release PR merge:
 
 - **Frontend** — built and deployed to **GitHub Pages** via the `release-deploy` pipeline
-- **Backend (Astrosolve)** — Docker image built and pushed to GHCR, then deployed to a **Hetzner VPS** via SSH
+- **Backend (Astrosolve)** — Docker image built and pushed to GHCR, then deployed to a **VPS** via SSH
 
 ### Server Setup (one-time)
 
-Before the first deploy, the Hetzner server must be bootstrapped manually. See:
+Before the first deploy, the VPS must be bootstrapped manually. See:
 
-- [`tools/astrosolve/server/scripts/deploy/hetzner-setup.md`](tools/astrosolve/server/scripts/deploy/hetzner-setup.md) — Hetzner Cloud Console setup and GitHub Actions secrets
+- [`tools/astrosolve/server/scripts/deploy/hetzner-setup.md`](tools/astrosolve/server/scripts/deploy/hetzner-setup.md) — VPS setup and GitHub Actions secrets
 - [`tools/astrosolve/server/scripts/deploy/deploy.md`](tools/astrosolve/server/scripts/deploy/deploy.md) — full deploy runbook
 
 ### Ongoing Deploys

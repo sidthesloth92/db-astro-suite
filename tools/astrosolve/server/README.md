@@ -74,7 +74,7 @@ Production keeps heavy runtime data on the server, not in the image:
 - `celestial.sqlite` is included from `data/local-catalog` in the image
 - uploads are mounted from persistent host storage
 
-Use the deploy runbook for the one-time Hetzner setup:
+Use the deploy runbook for the one-time VPS setup:
 
 ```bash
 cat tools/astrosolve/server/scripts/deploy/deploy.md
