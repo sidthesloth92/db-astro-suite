@@ -25,3 +25,7 @@ bin/
 
 # Astrometry binary index files
 *.fits
+
+# Runtime databases — contain secrets or mutable state, never commit
+tools/astrosolve/server/data/astrosolve.sqlite
+tools/astrosolve/server/data/access-keys.sqlite
