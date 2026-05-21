@@ -93,49 +93,18 @@ jobs:
       # because verify has already run on every commit being released, and
       # the release PR only edits CHANGELOG.md and package.json.
       #
-      # TEMP DIAGNOSTIC: probe whether GITHUB_TOKEN can hit the create-release
-      # endpoint at all. If this passes but release-please still fails, the
-      # issue is in release-please's specific call (e.g., GraphQL, or referencing
-      # a deleted branch). If this fails, the token itself lacks access.
-      - name: Probe create-release with GITHUB_TOKEN
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          PROBE_TAG="probe-${{ github.run_id }}"
-          BODY="{\"tag_name\":\"$PROBE_TAG\",\"target_commitish\":\"29ce3b822498a5fe641cadaa96345a8c124aa87a\",\"name\":\"probe\",\"draft\":true}"
-
-          echo "--- POST /releases with GITHUB_TOKEN ---"
-          HTTP_CODE=$(curl -sS -o /tmp/probe.json -w "%{http_code}" \
-            -X POST \
-            -H "Authorization: Bearer $GH_TOKEN" \
-            -H "Accept: application/vnd.github+json" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            "https://api.github.com/repos/${{ github.repository }}/releases" \
-            -d "$BODY")
-
-          echo "HTTP $HTTP_CODE"
-          cat /tmp/probe.json
-          echo ""
-
-          if [ "$HTTP_CODE" = "201" ]; then
-            RELEASE_ID=$(jq -r '.id' /tmp/probe.json)
-            curl -sS -o /dev/null -X DELETE \
-              -H "Authorization: Bearer $GH_TOKEN" \
-              -H "Accept: application/vnd.github+json" \
-              "https://api.github.com/repos/${{ github.repository }}/releases/$RELEASE_ID"
-            echo "✓ GITHUB_TOKEN CAN create releases. Issue is release-please-specific."
-          else
-            echo "✗ GITHUB_TOKEN CANNOT create releases. Issue is at token/repo level."
-            exit 1
-          fi
-
-      # Pinned to v4.4.0 (release-please core 17.1.3) — same SHA that
-      # successfully released v1.0.0 through v1.13.0.
+      # Uses a classic PAT with full `repo` scope. GITHUB_TOKEN gets silently
+      # capped on the create-release endpoint on this repo (returns 403
+      # "Resource not accessible by integration" despite the job header showing
+      # Contents: write). Classic PATs bypass that cap. Do NOT use a
+      # fine-grained PAT here — those hit a separate "Resource not accessible
+      # by personal access token" error on release creation, even with
+      # Contents: Read and write set.
       - uses: googleapis/release-please-action@16a9c90856f42705d54a6fda1823352bdc62cf38 # v4.4.0
         id: release
         with:
           release-type: node
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
 
   deploy:
     name: Deploy to GitHub Pages
