@@ -41,6 +41,7 @@ export class AstrosolveService {
       types?: string[];
     },
     onProgress?: (msg: string) => void,
+    accessKey?: string,
   ): Promise<AstroSolveResponse> {
     onProgress?.('Preparing upload for plate solving...');
 
@@ -54,8 +55,8 @@ export class AstrosolveService {
 
     onProgress?.('Astrometry.net is solving your image...');
 
-    const accessKey = this.storage.getItem(this.ACCESS_KEY_STORAGE_KEY);
-    const headers = new HttpHeaders(accessKey ? { 'x-access-key': accessKey } : {});
+    const keyToUse = accessKey ?? this.storage.getItem(this.ACCESS_KEY_STORAGE_KEY);
+    const headers = new HttpHeaders(keyToUse ? { 'x-access-key': keyToUse } : {});
 
     try {
       const response = await firstValueFrom(
@@ -66,7 +67,6 @@ export class AstrosolveService {
       return response.details;
     } catch (error: unknown) {
       if (error instanceof HttpErrorResponse && error.status === 401) {
-        this.clearAccessKey();
         throw new AccessKeyError();
       }
       const httpError = error instanceof HttpErrorResponse ? error : null;

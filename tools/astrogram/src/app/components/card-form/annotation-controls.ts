@@ -369,14 +369,14 @@ export class AnnotationControlsComponent implements OnDestroy {
   astrosolveService = inject(AstrosolveService);
   wcsService = inject(WcsService);
 
-  async triggerPlateSolve() {
+  async triggerPlateSolve(pendingKey?: string) {
     const file = this.mapData().rawFile;
     if (!file) {
       this.solveStatus.set('Error: No image uploaded.');
       return;
     }
 
-    if (!this.astrosolveService.hasAccessKey()) {
+    if (!pendingKey && !this.astrosolveService.hasAccessKey()) {
       this.openAccessKeyModal(false);
       return;
     }
@@ -392,9 +392,19 @@ export class AnnotationControlsComponent implements OnDestroy {
       // Fetch everything — filtering is done client-side
       const hints = {};
 
-      const result = await this.astrosolveService.solveImage(file, hints, (msg) => {
-        this.solveStatus.set(msg);
-      });
+      const result = await this.astrosolveService.solveImage(
+        file,
+        hints,
+        (msg) => {
+          this.solveStatus.set(msg);
+        },
+        pendingKey,
+      );
+
+      // Persist the newly-submitted key now that the API accepted it.
+      if (pendingKey) {
+        this.astrosolveService.saveAccessKey(pendingKey);
+      }
 
       // Initialize the WCS projection engine with the actual input image dimensions
       const nW = this.mapData().naturalWidth || 1080;
@@ -463,10 +473,18 @@ export class AnnotationControlsComponent implements OnDestroy {
       this.analyticsService.trackImageGeneration(ASTROGRAM_USER_ID, toolsUsed);
     } catch (err: unknown) {
       if (err instanceof AccessKeyError) {
+        // Key was rejected — discard it (whether it came from storage or from
+        // the modal submission) so the user is prompted to enter a new one.
+        this.astrosolveService.clearAccessKey();
         this.analyticsService.trackPlateSolveFailed(PLATE_SOLVE_ERROR_ACCESS_KEY);
         this.solveStatus.set('');
         this.openAccessKeyModal(true);
         return;
+      }
+      // Non-401 failure: the key wasn't rejected by the server, so persist it
+      // for subsequent attempts.
+      if (pendingKey) {
+        this.astrosolveService.saveAccessKey(pendingKey);
       }
       const message = err instanceof Error ? err.message : 'Unknown error occurred';
       this.analyticsService.trackPlateSolveFailed(message);
@@ -482,8 +500,8 @@ export class AnnotationControlsComponent implements OnDestroy {
   }
 
   onAccessKeySubmit(key: string): void {
-    this.astrosolveService.saveAccessKey(key);
-    this.triggerPlateSolve();
+    // Don't persist yet — let triggerPlateSolve decide based on the API's response.
+    this.triggerPlateSolve(key);
   }
 
   onAccessKeyCancel(): void {

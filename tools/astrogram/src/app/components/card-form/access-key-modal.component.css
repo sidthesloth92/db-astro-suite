@@ -108,3 +108,40 @@
   opacity: 0.4;
   cursor: not-allowed;
 }
+
+.modal-btn--instagram {
+  background: var(--db-glass-bg);
+  border: 1px solid var(--db-color-neon-pink);
+  color: var(--db-color-neon-pink);
+  width: 100%;
+  padding: 0.85rem 1.25rem;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+
+.modal-btn--instagram:hover {
+  background: var(--db-glass-border);
+  box-shadow: 0 0 20px var(--db-color-neon-pink);
+}
+
+.modal-link {
+  background: transparent;
+  border: none;
+  color: var(--db-color-text-muted);
+  font-family: var(--db-form-font-mono, monospace);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.25rem;
+  cursor: pointer;
+  align-self: center;
+  transition: color 0.2s ease;
+}
+
+.modal-link:hover {
+  color: var(--db-color-neon-pink);
+}
+
+.modal-footer--single {
+  justify-content: center;
+}

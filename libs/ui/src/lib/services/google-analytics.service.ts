@@ -177,6 +177,13 @@ export class GoogleAnalyticsService implements AnalyticsService {
   }
 
   /**
+   * Tracks a click on the "DM on Instagram" CTA in the access-key modal.
+   */
+  trackInstagramCtaClicked(): void {
+    this.trackEvent("astrogram_instagram_cta_clicked");
+  }
+
+  /**
    * Tracks a button click interaction.
    *
    * @param buttonId - A unique identifier for the button that was clicked.

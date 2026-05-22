@@ -91,6 +91,11 @@ export abstract class AnalyticsService {
   abstract trackAccessKeySubmitted(success: boolean): void;
 
   /**
+   * Track click on the "DM on Instagram" CTA in the access-key modal.
+   */
+  abstract trackInstagramCtaClicked(): void;
+
+  /**
    * Track button click in Astrogram.
    * @param buttonId Identifier of the button (e.g., 'save_preset', 'delete_preset', 'edit_annotation')
    * @param section UI section containing the button (e.g., 'equipment', 'annotation')
