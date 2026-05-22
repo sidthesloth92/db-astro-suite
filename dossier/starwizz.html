@@ -1,0 +1,705 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="utf-8">
+    <title>Starwizz - Cinematic Starfield Generator</title>
+    <base href="/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="Dinesh Balaji Venkataraj">
+    <meta name="description" content="Starwizz is a high-fidelity browser-based tool for creating immersive 4K starfield animations and cinematic space backgrounds — no install required.">
+    <meta name="keywords" content="astrophotography tools, starwizz, astrogram, space tools, starfield generator, exposure card, dinesh balaji venkataraj">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="DB Astro Suite">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:url" content="https://dbastrosuite.com/dossier/starwizz">
+    <meta property="og:title" content="Starwizz - Cinematic Starfield Generator">
+    <meta property="og:description" content="Starwizz is a high-fidelity browser-based tool for creating immersive 4K starfield animations and cinematic space backgrounds — no install required.">
+    <meta property="og:image" content="https://dbastrosuite.com/starwizz/assets/img/preview.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="DB Astro Suite - Professional Astrophotography Tools">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://dbastrosuite.com/">
+    <meta name="twitter:title" content="Starwizz - Cinematic Starfield Generator">
+    <meta name="twitter:description" content="Starwizz is a high-fidelity browser-based tool for creating immersive 4K starfield animations and cinematic space backgrounds — no install required.">
+    <meta name="twitter:image" content="https://dbastrosuite.com/starwizz/assets/img/preview.png">
+    <meta name="twitter:image:alt" content="DB Astro Suite - Professional Astrophotography Tools">
+    <meta name="twitter:creator" content="@sidthesloth92">
+    <meta name="twitter:site" content="@sidthesloth92">
+
+    <link rel="canonical" href="https://dbastrosuite.com/dossier/starwizz">
+    <link rel="sitemap" type="application/xml" href="sitemap.xml">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+    <!-- Google tag (gtag.js) -->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-SBXMGWP56E"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+
+      gtag("config", "G-SBXMGWP56E");
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "DB Astro Suite",
+        "url": "https://dbastrosuite.com/",
+        "applicationCategory": "PhotographyApplication",
+        "operatingSystem": "Any",
+        "browserRequirements": "Requires a modern web browser with JavaScript enabled",
+        "description": "A free, professional collection of social-media focused astrophotography tools. Go from sensor to social with Starwizz (4K starfield generator) and Astrogram (exposure card generator with plate solving).",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "author": {
+          "@type": "Person",
+          "name": "Dinesh Balaji Venkataraj",
+          "sameAs": [
+            "https://twitter.com/sidthesloth92",
+            "https://www.instagram.com/astrowithdb"
+          ]
+        },
+        "screenshot": "https://dbastrosuite.com/assets/img/og-dbastrosuite.png",
+        "hasPart": [
+          {
+            "@type": "WebApplication",
+            "name": "Starwizz",
+            "url": "https://dbastrosuite.com/starwizz/",
+            "description": "4K Starfield & Galaxy Animation Generator. Create cinematic starfield videos with customizable star density, velocity, rotation, and shooting stars.",
+            "applicationCategory": "MultimediaApplication"
+          },
+          {
+            "@type": "WebApplication",
+            "name": "Astrogram",
+            "url": "https://dbastrosuite.com/astrogram/",
+            "description": "Professional Exposure Card Generator for astrophotographers. Create Instagram-ready cards with filter integration times, gear, Bortle scale, and plate-solved WCS annotation overlays.",
+            "applicationCategory": "PhotographyApplication"
+          }
+        ]
+      }
+    </script>
+    <script type="module" crossorigin="" src="/assets/index-D-j5sRSr.js"></script>
+    <link rel="stylesheet" crossorigin="" href="/assets/index-BE2udhKg.css">
+  <style>.dossier-container[_ngcontent-ng-c2706083378] {
+        position: relative;
+        min-height: 100vh;
+        background: #05070a;
+        color: white;
+        font-family: var(--db-font-body, 'Rajdhani', sans-serif);
+        padding: 2rem;
+      }
+
+      
+
+      .stars-overlay[_ngcontent-ng-c2706083378] {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        background-image:
+          radial-gradient(1px 1px at 20px 30px, #eee, rgba(0, 0, 0, 0)),
+          radial-gradient(1px 1px at 40px 70px, #fff, rgba(0, 0, 0, 0)),
+          radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0, 0, 0, 0));
+        background-repeat: repeat;
+        background-size: 200px 200px;
+        opacity: 0.2;
+      }
+
+      .scanlines[_ngcontent-ng-c2706083378] {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 100;
+        pointer-events: none;
+        background:
+          linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
+          linear-gradient(
+            90deg,
+            rgba(255, 0, 0, 0.03),
+            rgba(0, 255, 0, 0.01),
+            rgba(0, 0, 255, 0.03)
+          );
+        background-size:
+          100% 3px,
+          2px 100%;
+        opacity: 0.4;
+      }
+
+      .content[_ngcontent-ng-c2706083378] {
+        position: relative;
+        z-index: 2;
+        max-width: 1100px;
+        margin: 0 auto;
+        animation: _ngcontent-ng-c2706083378_dossier-entry 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+      }
+
+      @keyframes _ngcontent-ng-c2706083378_dossier-entry {
+        0% {
+          opacity: 0;
+          transform: scale(0.98);
+          filter: blur(10px);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+          filter: blur(0);
+        }
+      }
+
+      .top-nav[_ngcontent-ng-c2706083378] {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 3rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 1rem;
+      }
+
+      .back-link[_ngcontent-ng-c2706083378] {
+        color: rgba(255, 255, 255, 0.6);
+        text-decoration: none;
+        font-family: var(--db-font-mono, monospace);
+        font-size: 12px;
+        letter-spacing: 0.2em;
+        transition: color 0.3s;
+      }
+
+      .back-link[_ngcontent-ng-c2706083378]:hover {
+        color: var(--db-color-neon-pink);
+      }
+
+      .mission-id[_ngcontent-ng-c2706083378] {
+        font-family: var(--db-font-mono, monospace);
+        font-size: 10px;
+        color: var(--db-color-neon-pink);
+        opacity: 0.7;
+      }
+
+      .dossier-header[_ngcontent-ng-c2706083378] {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 4rem;
+        gap: 2rem;
+      }
+
+      .header-logo-container[_ngcontent-ng-c2706083378] {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+      }
+
+      .dossier-logo[_ngcontent-ng-c2706083378] {
+        width: 5rem;
+        height: 5rem;
+        object-fit: contain;
+      }
+
+      .dossier-header[_ngcontent-ng-c2706083378]   h1[_ngcontent-ng-c2706083378] {
+        font-size: 4rem;
+        margin: 0;
+        letter-spacing: 0.2em;
+        font-weight: 900;
+        color: var(--db-color-neon-pink);
+      }
+
+        dba-ui-card .card__title {
+        color: var(--db-color-neon-pink);
+        text-shadow: 0 0 8px rgba(255, 45, 149, 0.35);
+      }
+
+      [_nghost-ng-c2706083378] {
+        --card-title-color: var(--db-color-neon-pink);
+      }
+
+      .tagline[_ngcontent-ng-c2706083378] {
+        font-family: var(--db-font-mono, monospace);
+        font-size: 14px;
+        letter-spacing: 0.5em;
+        color: #00f3ff;
+        margin-top: 0.5rem;
+        text-transform: uppercase;
+      }
+
+      .overview-section[_ngcontent-ng-c2706083378] {
+        margin-bottom: 2rem;
+      }
+
+      .overview-section[_ngcontent-ng-c2706083378]   p[_ngcontent-ng-c2706083378] {
+        color: rgba(255, 255, 255, 0.8);
+        line-height: 1.8;
+        font-size: 16px;
+        margin-bottom: 1.5rem;
+      }
+
+      .features-section[_ngcontent-ng-c2706083378] {
+        margin-bottom: 2rem;
+      }
+
+      .features-grid[_ngcontent-ng-c2706083378] {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+      }
+
+      .feature-item[_ngcontent-ng-c2706083378] {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 1.25rem;
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.02);
+        transition: border-color 0.3s;
+      }
+
+      .feature-item[_ngcontent-ng-c2706083378]:hover {
+        border-color: rgba(255, 45, 149, 0.4);
+      }
+
+      .feature-icon[_ngcontent-ng-c2706083378] {
+        font-size: 1.75rem;
+        line-height: 1;
+        margin-bottom: 0.25rem;
+      }
+
+      .feature-item[_ngcontent-ng-c2706083378]   strong[_ngcontent-ng-c2706083378] {
+        display: block;
+        color: var(--db-color-neon-pink);
+        font-family: var(--db-font-display, sans-serif);
+        font-size: 11px;
+        letter-spacing: 0.1em;
+      }
+
+      .feature-item[_ngcontent-ng-c2706083378]   span[_ngcontent-ng-c2706083378] {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.6);
+        line-height: 1.6;
+      }
+
+      .bottom-grid[_ngcontent-ng-c2706083378] {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 4rem;
+      }
+
+      .how-it-works-section[_ngcontent-ng-c2706083378], 
+   .demo-section[_ngcontent-ng-c2706083378] {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .subsection-title[_ngcontent-ng-c2706083378] {
+        font-family: var(--db-font-display, sans-serif);
+        font-size: 12px;
+        letter-spacing: 0.15em;
+        color: var(--db-color-neon-pink);
+        text-transform: uppercase;
+        margin: 1.5rem 0 0.75rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 1px solid rgba(255, 45, 149, 0.3);
+      }
+
+      .specs-list[_ngcontent-ng-c2706083378] {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .specs-list[_ngcontent-ng-c2706083378]   li[_ngcontent-ng-c2706083378] {
+        margin-bottom: 1.5rem;
+        border-left: 2px solid var(--db-color-neon-pink);
+        padding-left: 1rem;
+      }
+
+      .specs-list[_ngcontent-ng-c2706083378]   strong[_ngcontent-ng-c2706083378] {
+        display: block;
+        color: var(--db-color-neon-pink);
+        font-family: var(--db-font-display, sans-serif);
+        font-size: 12px;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.25rem;
+      }
+
+      .specs-list[_ngcontent-ng-c2706083378]   span[_ngcontent-ng-c2706083378] {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      .steps-list[_ngcontent-ng-c2706083378] {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        counter-reset: steps;
+      }
+
+      .steps-list[_ngcontent-ng-c2706083378]   li[_ngcontent-ng-c2706083378] {
+        margin-bottom: 1.5rem;
+        border-left: 2px solid #00f3ff;
+        padding-left: 1rem;
+        counter-increment: steps;
+      }
+
+      .steps-list[_ngcontent-ng-c2706083378]   strong[_ngcontent-ng-c2706083378] {
+        display: block;
+        color: #00f3ff;
+        font-family: var(--db-font-display, sans-serif);
+        font-size: 12px;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.25rem;
+      }
+
+      .steps-list[_ngcontent-ng-c2706083378]   span[_ngcontent-ng-c2706083378] {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      .media-placeholder[_ngcontent-ng-c2706083378] {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px dashed rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 3rem;
+        text-align: center;
+        margin-bottom: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .placeholder-icon[_ngcontent-ng-c2706083378] {
+        font-size: 2rem;
+        color: var(--db-color-neon-pink);
+        margin-bottom: 1rem;
+        opacity: 0.5;
+      }
+
+      .demo-image-container[_ngcontent-ng-c2706083378] {
+        width: 100%;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 45, 149, 0.2);
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+      }
+
+      .demo-image[_ngcontent-ng-c2706083378] {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      .placeholder-text[_ngcontent-ng-c2706083378] {
+        font-family: var(--db-font-display, sans-serif);
+        font-size: 12px;
+        letter-spacing: 0.1em;
+        color: white;
+        margin-bottom: 0.5rem;
+      }
+
+      .placeholder-subtext[_ngcontent-ng-c2706083378] {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.4);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .dossier-footer[_ngcontent-ng-c2706083378] {
+        text-align: center;
+      }
+
+      .launch-btn[_ngcontent-ng-c2706083378] {
+        display: inline-block;
+        padding: 1.25rem 4rem;
+        background: transparent;
+        border: 1px solid var(--db-color-neon-pink);
+        color: var(--db-color-neon-pink);
+        font-family: var(--db-font-display, sans-serif);
+        font-size: 14px;
+        letter-spacing: 0.3em;
+        text-decoration: none;
+        transition: all 0.3s;
+        box-shadow: 0 0 20px rgba(255, 45, 149, 0.1);
+      }
+
+      .launch-btn[_ngcontent-ng-c2706083378]:hover {
+        background: var(--db-color-neon-pink);
+        color: white;
+        box-shadow: 0 0 40px rgba(255, 45, 149, 0.4);
+        transform: translateY(-2px);
+      }
+
+      @media (max-width: 900px) {
+        .bottom-grid[_ngcontent-ng-c2706083378] {
+          grid-template-columns: 1fr;
+        }
+        .features-grid[_ngcontent-ng-c2706083378] {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .dossier-header[_ngcontent-ng-c2706083378]   h1[_ngcontent-ng-c2706083378] {
+          font-size: 3rem;
+        }
+      }
+
+      @media (max-width: 600px) {
+        .features-grid[_ngcontent-ng-c2706083378] {
+          grid-template-columns: 1fr;
+        }
+        .dossier-header[_ngcontent-ng-c2706083378] {
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+        }
+        .header-logo-container[_ngcontent-ng-c2706083378] {
+          flex-direction: column;
+          text-align: center;
+          gap: 1rem;
+        }
+        .dossier-header[_ngcontent-ng-c2706083378]   h1[_ngcontent-ng-c2706083378] {
+          font-size: clamp(2rem, 10vw, 2.5rem);
+          letter-spacing: 0.1em;
+        }
+        .tagline[_ngcontent-ng-c2706083378] {
+          letter-spacing: 0.2rem;
+          font-size: 12px;
+        }
+        .top-nav[_ngcontent-ng-c2706083378] {
+          flex-direction: column;
+          gap: 1rem;
+          align-items: flex-start;
+        }
+        .launch-btn[_ngcontent-ng-c2706083378] {
+          width: 100%;
+          text-align: center;
+          padding: 1rem 2rem;
+          font-size: 12px;
+        }
+      }</style><style>.card[_ngcontent-ng-c1476525400] {
+  background: var(--db-glass-bg, rgba(10, 15, 25, 0.7));
+  backdrop-filter: var(--db-glass-blur, blur(0x));
+  -webkit-backdrop-filter: var(--db-glass-blur, blur(0px));
+  border: 1px solid var(--db-glass-border, rgba(255, 45, 149, 0.2));
+  box-shadow: var(--db-shadow-glass, 0 8px 32px 0 rgba(0, 0, 0, 0.8));
+  border-radius: var(--db-radius-lg, 0.75rem);
+  padding: var(--db-spacing-lg, 1.5rem);
+  transition: all var(--db-transition-normal, 250ms ease);
+}
+
+.card--clickable[_ngcontent-ng-c1476525400] {
+  cursor: pointer;
+}
+
+.card--clickable[_ngcontent-ng-c1476525400]:hover {
+  transform: translateY(-4px);
+  border-color: var(--db-color-neon-pink, #ff2d95);
+}
+
+.card__header[_ngcontent-ng-c1476525400] {
+  margin-bottom: var(--db-spacing-md, 1rem);
+}
+
+.card__title-row[_ngcontent-ng-c1476525400] {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.card__logo[_ngcontent-ng-c1476525400] {
+  width: 2rem;
+  height: 2rem;
+  object-fit: contain;
+}
+
+.card__logo--hidden[_ngcontent-ng-c1476525400] {
+  display: none;
+}
+
+.card__title[_ngcontent-ng-c1476525400] {
+  font-family: var(--db-font-display, "Orbitron", sans-serif);
+  font-size: 1.25rem;
+  margin: 0;
+  color: var(--card-title-color, var(--db-color-text-primary, #e0e0e0));
+}
+
+.card__subtitle[_ngcontent-ng-c1476525400] {
+  font-family: var(--db-font-body, "Rajdhani", sans-serif);
+  font-size: 0.875rem;
+  margin: 0.25rem 0 0 0;
+  color: var(--db-color-text-muted, #94a3b8);
+}
+
+.card__content[_ngcontent-ng-c1476525400] {
+  color: var(--db-color-text-primary, #e0e0e0);
+}</style><style>.footer[_ngcontent-ng-c3199371385] {
+        width: 100%;
+        background: rgba(5, 7, 10, 0.8);
+        backdrop-filter: blur(10px);
+        border-top: 1px solid rgba(255, 45, 149, 0.2);
+        padding: 3rem 2rem 1.5rem;
+        margin-top: 4rem;
+        font-family: var(--db-font-mono, "Fira Code", monospace);
+      }
+
+      .footer-content[_ngcontent-ng-c3199371385] {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr auto;
+        gap: 3rem;
+        margin-bottom: 3rem;
+      }
+
+      .brand[_ngcontent-ng-c3199371385] {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-weight: 700;
+        font-size: 14px;
+        letter-spacing: 0.2em;
+        color: white;
+        margin-bottom: 0.5rem;
+      }
+
+      .brand-dot[_ngcontent-ng-c3199371385] {
+        width: 8px;
+        height: 8px;
+        background: var(--db-color-neon-pink, #ff2d95);
+        border-radius: 50%;
+        box-shadow: 0 0 10px var(--db-color-neon-pink, #ff2d95);
+      }
+
+      .tagline[_ngcontent-ng-c3199371385] {
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.4);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .status[_ngcontent-ng-c3199371385] {
+        display: flex;
+        gap: 3rem;
+        justify-content: center;
+      }
+
+      .status-item[_ngcontent-ng-c3199371385] {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+
+      .status-item[_ngcontent-ng-c3199371385]   .label[_ngcontent-ng-c3199371385] {
+        font-size: 9px;
+        color: rgba(255, 255, 255, 0.3);
+        letter-spacing: 0.1em;
+      }
+
+      .status-item[_ngcontent-ng-c3199371385]   .value[_ngcontent-ng-c3199371385] {
+        font-size: 11px;
+        color: var(--db-color-neon-cyan, #00f3ff);
+        letter-spacing: 0.1em;
+      }
+
+      .footer-links[_ngcontent-ng-c3199371385] {
+        display: flex;
+        gap: 2rem;
+        align-items: flex-start;
+      }
+
+      .footer-link[_ngcontent-ng-c3199371385] {
+        color: rgba(255, 255, 255, 0.6);
+        text-decoration: none;
+        font-size: 11px;
+        letter-spacing: 0.2em;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .footer-link[_ngcontent-ng-c3199371385]:hover {
+        color: var(--db-color-neon-pink, #ff2d95);
+        text-shadow: 0 0 8px rgba(255, 45, 149, 0.4);
+      }
+
+      .footer-bottom[_ngcontent-ng-c3199371385] {
+        max-width: 1200px;
+        margin: 0 auto;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        padding-top: 1.5rem;
+        display: flex;
+        justify-content: center;
+        color: rgba(255, 255, 255, 0.4);
+        font-size: 10px;
+        letter-spacing: 0.2em;
+      }
+
+      @media (max-width: 900px) {
+        .footer-content[_ngcontent-ng-c3199371385] {
+          grid-template-columns: 1fr;
+          gap: 2rem;
+          text-align: center;
+        }
+        .brand[_ngcontent-ng-c3199371385] {
+          justify-content: center;
+        }
+        .status[_ngcontent-ng-c3199371385] {
+          justify-content: center;
+        }
+        .footer-links[_ngcontent-ng-c3199371385] {
+          justify-content: center;
+        }
+        .footer-bottom[_ngcontent-ng-c3199371385] {
+          padding-top: 1.5rem;
+          text-align: center;
+        }
+      }</style></head>
+  <body><!--nghm-->
+    <dba-hub-root ng-version="21.1.2" ngh="3" ng-server-context="ssr-analog"><router-outlet></router-outlet><dba-hub-starwizz-dossier _nghost-ng-c2706083378="" ngh="2"><div _ngcontent-ng-c2706083378="" class="dossier-container"><div _ngcontent-ng-c2706083378="" class="stars-overlay"></div><div _ngcontent-ng-c2706083378="" class="nebula-overlay"></div><div _ngcontent-ng-c2706083378="" class="scanlines"></div><div _ngcontent-ng-c2706083378="" class="content"><nav _ngcontent-ng-c2706083378="" class="top-nav"><a _ngcontent-ng-c2706083378="" routerlink="/" class="back-link" href="/" jsaction="click:;"><span _ngcontent-ng-c2706083378="" class="arrow">←</span> RETURN TO HUB </a><div _ngcontent-ng-c2706083378="" class="mission-id">Module: StarWizz</div></nav><header _ngcontent-ng-c2706083378="" class="dossier-header"><div _ngcontent-ng-c2706083378="" class="header-logo-container"><img _ngcontent-ng-c2706083378="" src="assets/img/sw.png" alt="Starwizz Logo" class="dossier-logo"><div _ngcontent-ng-c2706083378=""><h1 _ngcontent-ng-c2706083378="" class="db-neon-text">STARWIZZ</h1><p _ngcontent-ng-c2706083378="" class="tagline">CINEMATIC STARFIELD GENERATOR</p></div></div><a _ngcontent-ng-c2706083378="" href="/starwizz/" target="_self" class="launch-btn"> Launch Tool </a></header><section _ngcontent-ng-c2706083378="" class="overview-section"><dba-ui-card _ngcontent-ng-c2706083378="" title="Overview" _nghost-ng-c1476525400="" ngh="0"><div _ngcontent-ng-c1476525400="" class="card"><div _ngcontent-ng-c1476525400="" class="card__header"><div _ngcontent-ng-c1476525400="" class="card__title-row"><!----><h3 _ngcontent-ng-c1476525400="" class="card__title">Overview</h3></div><!----></div><!----><div _ngcontent-ng-c1476525400="" class="card__content"><p _ngcontent-ng-c2706083378=""> Starwizz is a browser-based 4K starfield and galaxy animation generator. Set your parameters, hit record, and download a cinematic space background in minutes — no software to install, no account required. </p><h4 _ngcontent-ng-c2706083378="" class="subsection-title">The Problem It Solves</h4><p _ngcontent-ng-c2706083378=""> Creating a cinematic space background used to require 3D software, stock footage subscriptions, or a graphics team. For astrophotographers, content creators, and educators working alone, none of those options are quick or free. Starwizz removes every barrier — no installation, no subscription, no render queue. </p><p _ngcontent-ng-c2706083378=""> Open it in a browser, dial in your simulation parameters, and record a perfectly looped 4K starfield video in minutes. The output is professional-grade and suited for YouTube intros, Instagram Reels, presentation backdrops, and virtual meeting backgrounds. </p></div></div></dba-ui-card></section><section _ngcontent-ng-c2706083378="" class="features-section"><dba-ui-card _ngcontent-ng-c2706083378="" title="Features" _nghost-ng-c1476525400="" ngh="0"><div _ngcontent-ng-c1476525400="" class="card"><div _ngcontent-ng-c1476525400="" class="card__header"><div _ngcontent-ng-c1476525400="" class="card__title-row"><!----><h3 _ngcontent-ng-c1476525400="" class="card__title">Features</h3></div><!----></div><!----><div _ngcontent-ng-c1476525400="" class="card__content"><div _ngcontent-ng-c2706083378="" class="features-grid"><div _ngcontent-ng-c2706083378="" class="feature-item"><div _ngcontent-ng-c2706083378="" class="feature-icon">⭐</div><strong _ngcontent-ng-c2706083378="">POPULATION CONTROL</strong><span _ngcontent-ng-c2706083378="">Modify the density and number of stars to simulate different galactic sectors.</span></div><div _ngcontent-ng-c2706083378="" class="feature-item"><div _ngcontent-ng-c2706083378="" class="feature-icon">🚀</div><strong _ngcontent-ng-c2706083378="">VELOCITY VECTORS</strong><span _ngcontent-ng-c2706083378="">Adjust travel speed to transition from a slow gentle drift to full high-warp effects.</span></div><div _ngcontent-ng-c2706083378="" class="feature-item"><div _ngcontent-ng-c2706083378="" class="feature-icon">🌀</div><strong _ngcontent-ng-c2706083378="">ROTATIONAL DYNAMICS</strong><span _ngcontent-ng-c2706083378="">Fine-tune camera rotation to create chaotic orbits or smooth stable traversals.</span></div></div></div></div></dba-ui-card></section><div _ngcontent-ng-c2706083378="" class="bottom-grid"><section _ngcontent-ng-c2706083378="" class="how-it-works-section"><dba-ui-card _ngcontent-ng-c2706083378="" title="How It Works" _nghost-ng-c1476525400="" ngh="0"><div _ngcontent-ng-c1476525400="" class="card"><div _ngcontent-ng-c1476525400="" class="card__header"><div _ngcontent-ng-c1476525400="" class="card__title-row"><!----><h3 _ngcontent-ng-c1476525400="" class="card__title">How It Works</h3></div><!----></div><!----><div _ngcontent-ng-c1476525400="" class="card__content"><ol _ngcontent-ng-c2706083378="" class="steps-list"><li _ngcontent-ng-c2706083378=""><strong _ngcontent-ng-c2706083378="">CHOOSE A SCENE TYPE</strong><span _ngcontent-ng-c2706083378="">Select a pure deep-space starfield or a galaxy background with dynamic nebula cloud overlays.</span></li><li _ngcontent-ng-c2706083378=""><strong _ngcontent-ng-c2706083378="">SET YOUR PARAMETERS</strong><span _ngcontent-ng-c2706083378="">Use the real-time HUD to adjust star density, travel velocity, rotation speed, zoom factor, and shooting star frequency.</span></li><li _ngcontent-ng-c2706083378=""><strong _ngcontent-ng-c2706083378="">PREVIEW LIVE</strong><span _ngcontent-ng-c2706083378="">The Canvas-based renderer updates immediately — what you see in the browser is exactly what will be recorded.</span></li><li _ngcontent-ng-c2706083378=""><strong _ngcontent-ng-c2706083378="">RECORD AT 4K</strong><span _ngcontent-ng-c2706083378="">Hit Record and Starwizz captures the animation at full 4K resolution directly in the browser using the MediaRecorder API — no plugins required.</span></li><li _ngcontent-ng-c2706083378=""><strong _ngcontent-ng-c2706083378="">DOWNLOAD AND USE</strong><span _ngcontent-ng-c2706083378="">Save the video file and drop it straight into your video editor, presentation software, or upload it directly to social media.</span></li></ol></div></div></dba-ui-card></section><section _ngcontent-ng-c2706083378="" class="demo-section"><dba-ui-card _ngcontent-ng-c2706083378="" title="Demo" _nghost-ng-c1476525400="" ngh="0"><div _ngcontent-ng-c1476525400="" class="card"><div _ngcontent-ng-c1476525400="" class="card__header"><div _ngcontent-ng-c1476525400="" class="card__title-row"><!----><h3 _ngcontent-ng-c1476525400="" class="card__title">Demo</h3></div><!----></div><!----><div _ngcontent-ng-c1476525400="" class="card__content"><div _ngcontent-ng-c2706083378="" class="demo-image-container"><img _ngcontent-ng-c2706083378="" src="assets/img/sw_demo.gif" alt="Starwizz Demo" class="demo-image"></div></div></div></dba-ui-card></section></div><footer _ngcontent-ng-c2706083378="" class="dossier-footer"></footer><dba-ui-footer _ngcontent-ng-c2706083378="" _nghost-ng-c3199371385="" ngh="1"><footer _ngcontent-ng-c3199371385="" class="footer"><div _ngcontent-ng-c3199371385="" class="footer-content"><div _ngcontent-ng-c3199371385="" class="footer-section"><div _ngcontent-ng-c3199371385="" class="brand"><span _ngcontent-ng-c3199371385="" class="brand-dot"></span> DB ASTRO SUITE // v1.14.0 </div><p _ngcontent-ng-c3199371385="" class="tagline"> A COLLECTION OF ASTRO TOOLS TO GO FROM SENSOR TO SOCIAL </p></div><div _ngcontent-ng-c3199371385="" class="footer-section status"><div _ngcontent-ng-c3199371385="" class="status-item"><span _ngcontent-ng-c3199371385="" class="label">COORDINATES</span><span _ngcontent-ng-c3199371385="" class="value">32.8140° N, 96.9489° W // IRVING, TX</span></div></div><div _ngcontent-ng-c3199371385="" class="footer-links"><a _ngcontent-ng-c3199371385="" href="https://github.com/sidthesloth92/db-astro-suite" target="_blank" class="footer-link">GITHUB</a><a _ngcontent-ng-c3199371385="" href="https://dineshbalajiv.com" target="_blank" class="footer-link">ABOUT ME</a></div></div><div _ngcontent-ng-c3199371385="" class="footer-bottom"><div _ngcontent-ng-c3199371385="" class="copyright">© 2026 DB ASTRO. ALL RIGHTS RESERVED.</div></div></footer></dba-ui-footer></div></div></dba-hub-starwizz-dossier><!----></dba-hub-root>
+    <noscript>
+      <main style="
+          font-family: sans-serif;
+          max-width: 800px;
+          margin: 2rem auto;
+          padding: 1rem;
+        ">
+        <h1>DB Astro Suite — Professional Astrophotography Tools</h1>
+        <p>
+          DB Astro Suite is a free collection of social-media focused
+          astrophotography tools. Go from sensor to social — transform your raw
+          captures into cinematic starfield animations or professional Instagram
+          exposure cards.
+        </p>
+        <h2>Tools</h2>
+        <ul>
+          <li>
+            <a href="/starwizz/">Starwizz</a> — 4K cinematic starfield &amp;
+            galaxy animation generator
+          </li>
+          <li>
+            <a href="/astrogram/">Astrogram</a> — Professional exposure card
+            generator with plate solving
+          </li>
+        </ul>
+        <p>
+          <a href="https://dbastrosuite.com/">DB Astro Suite</a>
+          &nbsp;|&nbsp;
+          <a href="https://github.com/sidthesloth92/db-astro-suite">GitHub Repository</a>
+        </p>
+      </main>
+    </noscript>
+    <script type="text/javascript" id="ng-event-dispatch-contract">(()=>{function p(t,n,r,o,e,i,f,m){return{eventType:t,event:n,targetElement:r,eic:o,timeStamp:e,eia:i,eirp:f,eiack:m}}function u(t){let n=[],r=e=>{n.push(e)};return{c:t,q:n,et:[],etc:[],d:r,h:e=>{r(p(e.type,e,e.target,t,Date.now()))}}}function s(t,n,r){for(let o=0;o<n.length;o++){let e=n[o];(r?t.etc:t.et).push(e),t.c.addEventListener(e,t.h,r)}}function c(t,n,r,o,e=window){let i=u(t);e._ejsas||(e._ejsas={}),e._ejsas[n]=i,s(i,r),s(i,o,!0)}window.__jsaction_bootstrap=c;})();
+</script><script>window.__jsaction_bootstrap(document.body,"ng",["click"],[]);</script>
+  
+
+<script id="ng-state" type="application/json">{"__nghData__":[{"t":{"1":"t0"},"c":{"1":[{"i":"t0","r":1,"t":{"2":"t1","5":"t3"},"c":{"2":[],"5":[]}}]}},{},{"n":{"24":"23f2n2f","34":"33f2n2f","59":"58f2n2f","87":"86f2n2f"}},{"c":{"0":[{"i":"c2706083378","r":1}]}}]}</script></body></html>
