@@ -76,12 +76,17 @@ function createAstrometryCommand(filePath, hints) {
   // Blind solve mode restricted to downloaded indices (index 19 reaches ~34 degrees)
   const scaleParams = `--scale-units degwidth --scale-low 0.1 --scale-high 34.0`;
 
-  // Location hints — coerce to Number before interpolation to prevent shell injection
+  // Location hints — only applied when both ra_hint and dec_hint are explicitly
+  // provided. Guard against null/undefined before coercing to Number, because
+  // Number(null) === 0 and Number.isFinite(0) === true would otherwise pin
+  // solve-field to a 5° radius around RA=0, Dec=0 for every blind solve.
   let posParams = "";
-  const raNum = Number(hints.ra_hint);
-  const decNum = Number(hints.dec_hint);
-  if (Number.isFinite(raNum) && Number.isFinite(decNum)) {
-    posParams = `--ra ${raNum} --dec ${decNum} --radius 5`;
+  if (hints.ra_hint != null && hints.dec_hint != null) {
+    const raNum = Number(hints.ra_hint);
+    const decNum = Number(hints.dec_hint);
+    if (Number.isFinite(raNum) && Number.isFinite(decNum)) {
+      posParams = `--ra ${raNum} --dec ${decNum} --radius 5`;
+    }
   }
 
   return `${baseCommand} ${wcsOut} ${scaleParams} ${posParams}`;

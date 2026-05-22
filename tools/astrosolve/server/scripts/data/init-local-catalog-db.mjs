@@ -393,14 +393,16 @@ async function seed() {
     console.log("Downloading IAU WGSN named stars from SIMBAD TAP...");
     let namedStarCount = 0;
     try {
+      // SIMBAD's ADQL parser rejects qualified column names (e.g. `f.flux`) in
+      // ORDER BY, so we alias the flux column and order by the alias.
       const adql = [
-        "SELECT i.id, b.ra, b.dec, f.flux",
+        "SELECT i.id, b.ra, b.dec, f.flux AS vflux",
         "FROM ident AS i",
         "JOIN basic AS b ON b.oid = i.oidref",
-        "JOIN flux AS f ON f.oid = b.oid AND f.filter = 'V'",
+        "JOIN flux AS f ON f.oidref = b.oid AND f.filter = 'V'",
         "WHERE i.id LIKE 'NAME %'",
         "AND f.flux < 7.5",
-        "ORDER BY f.flux",
+        "ORDER BY vflux",
       ].join(" ");
 
       const simbadRes = await axios.get(
