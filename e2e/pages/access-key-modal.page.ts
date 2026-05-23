@@ -18,9 +18,15 @@ import { Locator, Page } from "@playwright/test";
 export class AccessKeyModalPage {
   constructor(private readonly page: Page) {}
 
-  /** Dialog container — present regardless of which view is showing. */
+  /**
+   * Dialog container — present regardless of which view is showing.
+   * Resolved via ARIA `role="dialog"` rendered by the modal component; the
+   * heading inside the dialog changes per view ("WANNA TRY IT OUT?" vs
+   * "ENTER ACCESS KEY"), so we anchor on the dialog role itself rather
+   * than an accessible name.
+   */
   getModal(): Locator {
-    return this.page.locator(".modal-dialog");
+    return this.page.getByRole("dialog");
   }
 
   /** Heading shown in the default CTA view. */
@@ -36,9 +42,13 @@ export class AccessKeyModalPage {
   /**
    * The access key input rendered by <dba-ui-input label="Access Key">.
    * Only present in the key-entry view.
+   *
+   * Uses `{ exact: true }` because the dialog itself is labelled
+   * "🔑 ENTER ACCESS KEY" (via aria-labelledby), so a substring match on
+   * "Access Key" would resolve both the dialog and the input.
    */
   getInput(): Locator {
-    return this.page.getByLabel("Access Key");
+    return this.page.getByLabel("Access Key", { exact: true });
   }
 
   getSubmitButton(): Locator {
