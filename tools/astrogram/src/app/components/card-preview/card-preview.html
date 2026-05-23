@@ -35,7 +35,7 @@
         TOTAL <strong>{{ totalIntegration() }}</strong>
       </span>
     </div>
-    <div class="pn-ring-row">
+    <div class="pn-ring-row" data-testid="integration-rings">
       @for (filter of enabledFilters(); track filter.name) {
         <dba-ui-progress-ring
           [value]="filterHours(filter)"

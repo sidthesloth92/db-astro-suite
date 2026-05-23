@@ -11,14 +11,22 @@ test.describe("Astrogram Logic & Functional Tests", () => {
   }) => {
     await page.getByRole("button", { name: "Capture" }).first().click();
     await page.getByRole("button", { name: /Add custom filter/i }).click();
-    // The newly added custom row exposes editable name + frames inputs.
-    const nameInput = page.getByLabel("Filter name").last();
-    const framesInput = page.getByLabel("Frames").last();
+    // Each filter row gets a name-scoped frames label (e.g. "Ha frames",
+    // "Custom frames"). The newly added custom row is named "Custom" until
+    // the user renames it, so this locator auto-waits for that specific row
+    // to render before Playwright fires `fill`. Using the generic "Frames"
+    // label with `.last()` is racy: between the click that adds the row and
+    // the next action, Angular may not yet have flushed CD, so `.last()`
+    // resolves to the previous final row's input.
+    const framesInput = page.getByLabel("Custom frames", { exact: true });
+    const nameInput = page.getByLabel("Filter name");
     await framesInput.fill("10");
     await nameInput.fill("CUSTOM-HA");
     await nameInput.blur();
-    // The matching label appears inside the card-preview progress ring grid.
-    await expect(page.getByText("CUSTOM-HA")).toBeVisible();
+    // Scope to the integration ring grid — the caption block also now
+    // mentions "CUSTOM-HA" so a page-wide getByText would be ambiguous.
+    const ringRow = page.getByTestId("integration-rings");
+    await expect(ringRow.getByText("CUSTOM-HA")).toBeVisible();
   });
 
   test("Accent colour change reflects on the hero block border", async ({

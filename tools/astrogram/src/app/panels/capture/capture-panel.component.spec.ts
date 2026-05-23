@@ -96,4 +96,29 @@ describe('CapturePanelComponent', () => {
     fixture.componentInstance.addCustomFilter();
     expect(stub.cardData().filters.length).toBe(before + 1);
   });
+
+  it('preserves frames when the user later edits the row name (regression)', () => {
+    // Reproduces the bug where Frames=10 set on a freshly added custom
+    // row was lost as soon as the user typed into the Name input. The
+    // E2E hit this because of a Playwright locator race (the generic
+    // `Frames` aria-label resolved to the previous row before Angular
+    // rendered the new one), but at the component level we still want a
+    // guard against any future regression that would drop the value.
+    const fixture = TestBed.createComponent(CapturePanelComponent);
+    fixture.detectChanges();
+    const cmp = fixture.componentInstance;
+
+    cmp.addCustomFilter();
+    const newIndex = stub.cardData().filters.length - 1;
+
+    const framesEvent = { target: { value: '10' } } as unknown as Event;
+    cmp.setFrames(newIndex, framesEvent);
+
+    const nameEvent = { target: { value: 'CUSTOM-HA' } } as unknown as Event;
+    cmp.setName(newIndex, nameEvent);
+
+    const row = stub.cardData().filters[newIndex];
+    expect(row.frames).toBe(10);
+    expect(row.name).toBe('CUSTOM-HA');
+  });
 });

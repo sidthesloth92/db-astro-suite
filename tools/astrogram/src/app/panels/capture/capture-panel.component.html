@@ -37,7 +37,7 @@
               class="num-input"
               [value]="row.filter.frames"
               (input)="setFrames(row.index, $event)"
-              aria-label="Frames"
+              [attr.aria-label]="row.filter.name + ' frames'"
             />
             <span class="unit">FR</span>
           </div>
@@ -49,7 +49,7 @@
               class="num-input"
               [value]="row.filter.seconds"
               (input)="setSeconds(row.index, $event)"
-              aria-label="Seconds per frame"
+              [attr.aria-label]="row.filter.name + ' seconds per frame'"
             />
             <span class="unit">S</span>
           </div>
