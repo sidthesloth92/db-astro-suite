@@ -1,0 +1,9 @@
+# Angular build cache
+/.angular/cache
+
+# TypeScript compile output
+/out-tsc
+
+# Misc
+/dist
+/tmp

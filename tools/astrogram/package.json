@@ -7,7 +7,7 @@
     "build": "ng build",
     "build:prod": "ng build --configuration production --base-href /astrogram/ && pnpm postbuild",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test",
+    "test": "ng test --watch=false --browsers=ChromeHeadless",
     "postbuild": "cp dist/astrogram/browser/index.html dist/astrogram/browser/404.html"
   },
   "prettier": {
