@@ -5,6 +5,7 @@
     class="native"
     type="color"
     [value]="value()"
+    [attr.aria-label]="ariaLabel() || null"
     (input)="onPick($event)"
   />
 </label>

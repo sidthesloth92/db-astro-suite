@@ -29,6 +29,8 @@ export class MicroInputComponent {
   placeholder = input<string>('');
   /** Native input type. Defaults to `'text'`. */
   type = input<MicroInputType>('text');
+  /** Accessible label forwarded to the underlying `<input>` element. */
+  ariaLabel = input<string | undefined>(undefined);
 
   /** Emits the new string value on every keystroke. */
   valueChange = output<string>();

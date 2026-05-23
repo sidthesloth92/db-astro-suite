@@ -27,12 +27,14 @@
     <dba-ui-inspector-field label="Accent">
       <dba-ui-color-swatch-input
         [value]="cardData().accentColor"
+        ariaLabel="Accent colour"
         (valueChange)="setAccentColor($event)"
       />
     </dba-ui-inspector-field>
     <dba-ui-inspector-field label="Secondary">
       <dba-ui-color-swatch-input
         [value]="cardData().secondaryAccentColor"
+        ariaLabel="Secondary accent colour"
         (valueChange)="setSecondaryColor($event)"
       />
     </dba-ui-inspector-field>

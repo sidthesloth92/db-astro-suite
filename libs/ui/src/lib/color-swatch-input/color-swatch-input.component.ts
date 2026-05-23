@@ -16,6 +16,8 @@ import { ChangeDetectionStrategy, Component, computed, input, output } from '@an
 export class ColorSwatchInputComponent {
   /** Current hex colour value (e.g. `"#FF2D95"`). */
   value = input<string>('#000000');
+  /** Accessible label forwarded to the native `<input type="color">`. */
+  ariaLabel = input<string | undefined>(undefined);
 
   /** Emits the new hex colour when the user picks a different value. */
   valueChange = output<string>();

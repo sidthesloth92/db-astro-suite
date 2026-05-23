@@ -6,6 +6,7 @@
         [value]="cardData().title"
         (valueChange)="update('title', $event)"
         placeholder="e.g., Rosette Nebula"
+        ariaLabel="Object name"
       />
     </dba-ui-inspector-field>
     <dba-ui-inspector-field label="Hashtags">
@@ -61,6 +62,7 @@
         [value]="cardData().description ?? ''"
         (input)="onDescriptionChange($event)"
         placeholder="Short on-card description..."
+        aria-label="On-image caption"
       ></textarea>
     </div>
   </dba-ui-inspector-section>
@@ -78,6 +80,7 @@
         [value]="cardData().caption ?? ''"
         (input)="onCaptionChange($event)"
         placeholder="Long-form caption..."
+        aria-label="Long-form caption"
       ></textarea>
     </div>
   </dba-ui-inspector-section>

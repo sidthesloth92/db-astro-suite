@@ -3,9 +3,9 @@ import { expect, test } from "@playwright/test";
 test.describe("Astrogram Layout & Interactivity Visual Tests", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("http://localhost:4201/astrogram/");
-    await expect(page.locator("dba-ag-card-preview").first()).toBeVisible();
-    // Wait for the inspector panel host to render — confirms the new shell mounted.
-    await expect(page.locator("dba-ag-inspector-panel-host")).toBeVisible();
+    // Desktop shell carries a stable testid sentinel — confirms the new
+    // shell mounted before snapshot.
+    await expect(page.getByTestId("desktop-shell")).toBeVisible();
   });
 
   test("Default card form visual test", async ({ page }) => {
@@ -20,8 +20,7 @@ test.describe("Astrogram Layout & Interactivity Visual Tests", () => {
     await page.getByRole("button", { name: "Style" }).first().click();
     // Pick the 4:5 format row.
     await page
-      .locator(".format-row")
-      .filter({ hasText: "Old Instagram Post" })
+      .getByRole("button", { name: /Old Instagram Post/i })
       .click();
     await page.waitForTimeout(500);
     await expect(page).toHaveScreenshot("astrogram-app-aspect-ratio.png", {
