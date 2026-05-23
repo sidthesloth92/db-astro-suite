@@ -28,9 +28,9 @@ concurrency:
 jobs:
   verify:
     name: Build & Verify
-    # Run on PRs, OR on pushes to main THAT ARE NOT release merges
+    # Run on PRs (except release-please PRs), OR on pushes to main THAT ARE NOT release merges
     if: |
-      github.event_name == 'pull_request' ||
+      (github.event_name == 'pull_request' && !startsWith(github.head_ref, 'release-please--')) ||
       (github.event_name == 'push' && github.ref == 'refs/heads/main' && !startsWith(github.event.head_commit.message, 'chore(main): release') && !startsWith(github.event.head_commit.message, 'feat(main): release'))
     runs-on: ubuntu-latest
     steps:
@@ -85,15 +85,6 @@ jobs:
     outputs:
       release_created: ${{ steps.release.outputs.release_created }}
     steps:
-      # Uses the default GITHUB_TOKEN, which gets `contents: write` and
-      # `pull-requests: write` from the workflow-level permissions block.
-      # Do NOT pass a fine-grained PAT here — fine-grained PATs hit a known
-      # "Resource not accessible" error on the create-release endpoint, even
-      # with Contents: Read and write set. Tradeoff: the release PR opened
-      # by GITHUB_TOKEN does not trigger the `verify` job; that's acceptable
-      # because verify has already run on every commit being released, and
-      # the release PR only edits CHANGELOG.md and package.json.
-      #
       # Uses a classic PAT with full `repo` scope. GITHUB_TOKEN gets silently
       # capped on the create-release endpoint on this repo (returns 403
       # "Resource not accessible by integration" despite the job header showing
