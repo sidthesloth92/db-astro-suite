@@ -220,6 +220,25 @@ import { AnnotationControlsComponent } from '../card-form/annotation-controls';
         letter-spacing: 0.05em;
         opacity: 0.8;
       }
+      .upload-limits-hint {
+        font-family: var(--db-form-font-mono, monospace);
+        font-size: 0.6rem;
+        margin-top: 0.5rem;
+        color: #ffffff;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        text-align: center;
+        max-width: 260px;
+      }
+      .upload-error-text {
+        margin-top: 0.75rem;
+        max-width: 260px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: #ff6b6b;
+        text-align: center;
+        letter-spacing: 0.04em;
+      }
       .clear-btn {
         width: 36px;
         height: 36px;

@@ -252,10 +252,32 @@ export class AnnotationControlsComponent implements OnDestroy {
   readonly filtersExpanded = signal(true);
   /** Tracks accordion open state for Annotation Settings; defaults open. */
   readonly settingsExpanded = signal(true);
+  /** Human-readable summary of upload limits (e.g. "JPG/PNG · max 10 MB · 1000×1000 to 8000×8000"). Populated on init from the server's /api/v1/limits endpoint. */
+  readonly uploadLimitsHint = signal('');
+  /** Pre-upload validation error message — surfaced beneath the upload card when the picked file is rejected. Cleared on next valid pick. */
+  readonly uploadError = signal('');
 
   private readonly appRef = inject(ApplicationRef);
   private readonly envInjector = inject(EnvironmentInjector);
   private modalRef: ComponentRef<AccessKeyModalComponent> | null = null;
+  astrosolveService = inject(AstrosolveService);
+  wcsService = inject(WcsService);
+
+  constructor() {
+    // Fire-and-forget: populate the upload-limits hint as soon as the
+    // panel mounts. If the network call fails, the service falls back to
+    // baked-in defaults so the hint never stays empty.
+    this.astrosolveService
+      .loadLimits()
+      .then((limits) => {
+        this.uploadLimitsHint.set(
+          this.astrosolveService.formatLimitsHint(limits),
+        );
+      })
+      .catch(() => {
+        // Already handled inside the service — nothing to do here.
+      });
+  }
 
   private openAccessKeyModal(showError: boolean): void {
     // Track access key modal opening
@@ -341,33 +363,45 @@ export class AnnotationControlsComponent implements OnDestroy {
     }));
   }
 
-  onImageUpload(event: Event) {
+  async onImageUpload(event: Event) {
     const input = event.target as HTMLInputElement;
-    if (input.files && input.files[0]) {
-      const file = input.files[0];
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
+    if (!input.files || !input.files[0]) return;
+    const file = input.files[0];
 
-        // Use a temporary image to detect natural dimensions for the WCS engine
-        const img = new Image();
-        img.onload = () => {
-          this.mapData.update((d) => ({
-            ...d,
-            backgroundImage: result,
-            rawFile: file,
-            naturalWidth: img.naturalWidth,
-            naturalHeight: img.naturalHeight,
-          }));
-        };
-        img.src = result;
-      };
-      reader.readAsDataURL(file);
+    // Server-mirroring validation so the user finds out about a bad file
+    // *before* the bytes travel. A soft warning still allows the upload
+    // and is surfaced via solveStatus so it lives in the same channel as
+    // other progress messages.
+    const validation = await this.astrosolveService.validateForUpload(file);
+    if (!validation.ok) {
+      this.uploadError.set(validation.reason);
+      // Clear the input so picking the same file again retriggers `change`.
+      input.value = '';
+      return;
     }
-  }
+    this.uploadError.set('');
+    if (validation.softWarning) {
+      this.solveStatus.set(validation.softWarning);
+    }
 
-  astrosolveService = inject(AstrosolveService);
-  wcsService = inject(WcsService);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = e.target?.result as string;
+      // Use a temporary image to detect natural dimensions for the WCS engine
+      const img = new Image();
+      img.onload = () => {
+        this.mapData.update((d) => ({
+          ...d,
+          backgroundImage: result,
+          rawFile: file,
+          naturalWidth: img.naturalWidth,
+          naturalHeight: img.naturalHeight,
+        }));
+      };
+      img.src = result;
+    };
+    reader.readAsDataURL(file);
+  }
 
   async triggerPlateSolve(pendingKey?: string) {
     const file = this.mapData().rawFile;

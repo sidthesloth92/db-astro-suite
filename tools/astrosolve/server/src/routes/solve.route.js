@@ -1,6 +1,7 @@
 import PQueue from "p-queue";
 import fs from "fs/promises";
 import config from "../config.js";
+import { SOLVE_KEY_RATE_LIMIT } from "../constants/rate-limit.constants.js";
 import { SolveError, AstrometryError } from "../models/errors.model.js";
 import {
   SolveSuccessResponse,
@@ -40,7 +41,13 @@ export default async function (fastify, opts) {
   fastify.addHook("onRequest", initSolveAnalytics);
   fastify.addHook("onResponse", recordSolveAnalytics(solveEventDao));
 
-  const routeOptions = {};
+  // Stack a per-access-key rate-limit on top of the global per-IP one
+  // (SOLVE_RATE_LIMIT in index.js). The global limit catches sustained
+  // abuse from one IP; this one catches a single key bouncing across IPs
+  // (NAT, mobile carriers, VPN rotation). Whichever fires first wins.
+  const routeOptions = {
+    config: { rateLimit: SOLVE_KEY_RATE_LIMIT },
+  };
 
   if (config.solveApiKeyRequired) {
     routeOptions.preHandler = solveAuthHook(config, accessKeyDao);

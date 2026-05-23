@@ -113,6 +113,12 @@
           </svg>
           <div class="upload-title">Upload Target</div>
           <div class="upload-help-text">UPLOAD AN IMAGE TO BEGIN PLATE SOLVING</div>
+          @if (controls.uploadLimitsHint()) {
+            <div class="upload-limits-hint">{{ controls.uploadLimitsHint() }}</div>
+          }
+          @if (controls.uploadError()) {
+            <div class="upload-error-text">{{ controls.uploadError() }}</div>
+          }
         </div>
       </div>
     </div>
