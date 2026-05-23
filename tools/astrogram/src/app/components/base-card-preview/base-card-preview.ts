@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { AnalyticsService } from '@db-astro-suite/ui';
 import {
   AfterViewInit,
@@ -29,7 +28,7 @@ const EXPORT_FORMAT_MAP = {
 @Component({
   selector: 'dba-ag-base-card-preview',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './base-card-preview.html',
   styleUrls: ['./base-card-preview.css'],

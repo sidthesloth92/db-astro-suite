@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, model } from '@angular/core';
+import { CloseIconComponent } from '../icons/close.icon.component';
 
 /**
  * Floating, semi-transparent backdrop-blurred bottom sheet for the
@@ -13,6 +14,7 @@ import { ChangeDetectionStrategy, Component, input, model } from '@angular/core'
 @Component({
   selector: 'dba-ui-floating-sheet',
   standalone: true,
+  imports: [CloseIconComponent],
   templateUrl: './floating-sheet.component.html',
   styleUrls: ['./floating-sheet.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,

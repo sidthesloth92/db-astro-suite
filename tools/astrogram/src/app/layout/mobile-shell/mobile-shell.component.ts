@@ -8,8 +8,12 @@ import {
   PaletteIconComponent,
   TargetIconComponent,
   TelescopeIconComponent,
-  type BottomNavItem,
 } from '@db-astro-suite/ui';
+import type {
+  MobileInfographicId,
+  MobileNavItem,
+  MobileStellarId,
+} from '../inspector-section.types';
 import { CaptionSectionComponent } from '../../components/caption-section/caption-section';
 import { CardPreviewComponent } from '../../components/card-preview/card-preview';
 import { StellarMapPreviewComponent } from '../../components/stellar-map-preview/stellar-map-preview';
@@ -22,11 +26,6 @@ import { ObjectInfoPanelComponent } from '../../panels/object-info/object-info-p
 import { StylePanelComponent } from '../../panels/style/style-panel.component';
 import { CardDataService } from '../../services/card-data.service';
 import { AstrogramTopBarComponent } from '../astrogram-top-bar/astrogram-top-bar.component';
-
-/** Infographic-mode mobile section id. */
-type MobileInfographicId = 'object' | 'capture' | 'equipment' | 'style';
-/** Stellar-mode mobile section id. */
-type MobileStellarId = 'filters' | 'style' | 'selected';
 
 /**
  * Mobile shell layout: compact top bar, full-bleed preview, and a
@@ -76,7 +75,7 @@ export class MobileShellComponent {
   readonly sheetExpanded = signal<boolean>(true);
 
   /** Bottom-nav items for infographic mode. */
-  readonly infographicItems: readonly BottomNavItem[] = [
+  readonly infographicItems: ReadonlyArray<MobileNavItem<MobileInfographicId>> = [
     { id: 'object', label: 'Info', iconName: 'image' },
     { id: 'capture', label: 'Capture', iconName: 'aperture' },
     { id: 'equipment', label: 'Gear', iconName: 'telescope' },
@@ -84,7 +83,7 @@ export class MobileShellComponent {
   ];
 
   /** Bottom-nav items for stellar mode. */
-  readonly stellarItems: readonly BottomNavItem[] = [
+  readonly stellarItems: ReadonlyArray<MobileNavItem<MobileStellarId>> = [
     { id: 'filters', label: 'Filters', iconName: 'filter' },
     { id: 'style', label: 'Style', iconName: 'palette' },
     { id: 'selected', label: 'Item', iconName: 'target' },

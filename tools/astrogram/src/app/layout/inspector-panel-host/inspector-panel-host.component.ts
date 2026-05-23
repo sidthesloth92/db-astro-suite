@@ -19,11 +19,13 @@ import { EquipmentPanelComponent } from '../../panels/equipment/equipment-panel.
 import { ExportPanelComponent } from '../../panels/export/export-panel.component';
 import { ObjectInfoPanelComponent } from '../../panels/object-info/object-info-panel.component';
 import { StylePanelComponent } from '../../panels/style/style-panel.component';
+import type {
+  InfographicSectionId,
+  StellarSectionId,
+} from '../inspector-section.types';
 
-/** Inspector section id for infographic mode. */
-export type InfographicSectionId = 'object' | 'capture' | 'equipment' | 'style' | 'export';
-/** Inspector section id for stellar map mode. */
-export type StellarSectionId = 'filters' | 'style' | 'selected';
+// Re-export so existing importers (other shells, specs) continue to work.
+export type { InfographicSectionId, StellarSectionId };
 
 /**
  * Right-side inspector host. Renders the icon rail derived from the

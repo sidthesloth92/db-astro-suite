@@ -1,10 +1,9 @@
 import { Component, Input, HostBinding } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'dba-ag-bortle-scale',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './bortle-scale.html',
   styleUrl: './bortle-scale.css',
 })

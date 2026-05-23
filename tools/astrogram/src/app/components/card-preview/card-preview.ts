@@ -1,5 +1,4 @@
 import { Component, ChangeDetectionStrategy, inject, computed, viewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { DataRowComponent, ProgressRingComponent } from '@db-astro-suite/ui';
 import {
   FilterExposure,
@@ -21,7 +20,6 @@ import { BaseCardPreviewComponent } from '../base-card-preview/base-card-preview
   selector: 'dba-ag-card-preview',
   standalone: true,
   imports: [
-    CommonModule,
     BaseCardPreviewComponent,
     ProgressRingComponent,
     DataRowComponent,
