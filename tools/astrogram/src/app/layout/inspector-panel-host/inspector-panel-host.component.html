@@ -1,0 +1,109 @@
+<div class="host">
+  @if (mode() === 'infographic') {
+    <dba-ui-icon-rail side="left">
+      <dba-ui-icon-rail-item
+        id="object"
+        label="Object info"
+        short="Info"
+        [active]="infographicSection() === 'object'"
+        side="left"
+        (selected)="selectInfographic($event)"
+      >
+        <dba-ui-icon-image [size]="17" />
+      </dba-ui-icon-rail-item>
+      <dba-ui-icon-rail-item
+        id="capture"
+        label="Capture"
+        short="Cap"
+        [active]="infographicSection() === 'capture'"
+        side="left"
+        (selected)="selectInfographic($event)"
+      >
+        <dba-ui-icon-aperture [size]="17" />
+      </dba-ui-icon-rail-item>
+      <dba-ui-icon-rail-item
+        id="equipment"
+        label="Equipment"
+        short="Gear"
+        [active]="infographicSection() === 'equipment'"
+        side="left"
+        (selected)="selectInfographic($event)"
+      >
+        <dba-ui-icon-telescope [size]="17" />
+      </dba-ui-icon-rail-item>
+      <hr class="divider" aria-hidden="true" />
+      <dba-ui-icon-rail-item
+        id="style"
+        label="Style"
+        short="Style"
+        [active]="infographicSection() === 'style'"
+        side="left"
+        (selected)="selectInfographic($event)"
+      >
+        <dba-ui-icon-palette [size]="17" />
+      </dba-ui-icon-rail-item>
+      <dba-ui-icon-rail-item
+        id="export"
+        label="Export"
+        short="Out"
+        [active]="infographicSection() === 'export'"
+        side="left"
+        (selected)="selectInfographic($event)"
+      >
+        <dba-ui-icon-download [size]="17" />
+      </dba-ui-icon-rail-item>
+    </dba-ui-icon-rail>
+
+    <div class="panel">
+      @switch (infographicSection()) {
+        @case ('object') { <dba-ag-object-info-panel /> }
+        @case ('capture') { <dba-ag-capture-panel /> }
+        @case ('equipment') { <dba-ag-equipment-panel /> }
+        @case ('style') { <dba-ag-style-panel /> }
+        @case ('export') { <dba-ag-export-panel /> }
+      }
+    </div>
+  } @else {
+    <dba-ui-icon-rail side="left">
+      <dba-ui-icon-rail-item
+        id="filters"
+        label="Annotation filters"
+        short="Filt"
+        [active]="stellarSection() === 'filters'"
+        side="left"
+        (selected)="selectStellar($event)"
+      >
+        <dba-ui-icon-filter [size]="17" />
+      </dba-ui-icon-rail-item>
+      <dba-ui-icon-rail-item
+        id="style"
+        label="Annotation style"
+        short="Style"
+        [active]="stellarSection() === 'style'"
+        side="left"
+        (selected)="selectStellar($event)"
+      >
+        <dba-ui-icon-palette [size]="17" />
+      </dba-ui-icon-rail-item>
+      <hr class="divider" aria-hidden="true" />
+      <dba-ui-icon-rail-item
+        id="selected"
+        label="Selected annotation"
+        short="Item"
+        [active]="stellarSection() === 'selected'"
+        side="left"
+        (selected)="selectStellar($event)"
+      >
+        <dba-ui-icon-target [size]="17" />
+      </dba-ui-icon-rail-item>
+    </dba-ui-icon-rail>
+
+    <div class="panel">
+      @switch (stellarSection()) {
+        @case ('filters') { <dba-ag-annotation-filters-panel /> }
+        @case ('style') { <dba-ag-annotation-style-panel /> }
+        @case ('selected') { <dba-ag-annotation-selected-panel /> }
+      }
+    </div>
+  }
+</div>

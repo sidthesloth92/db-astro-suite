@@ -1,0 +1,58 @@
+<div class="mobile">
+  <dba-ag-top-bar [isCompact]="true" (exportClicked)="exportCurrent()" />
+
+  <main class="preview-area">
+    @if (activeMode() === 'infographic') {
+      <dba-ag-card-preview />
+      <dba-ag-caption-section />
+    } @else {
+      <dba-ag-stellar-map-preview />
+    }
+  </main>
+
+  <dba-ui-floating-sheet [(expanded)]="sheetExpanded" [title]="sheetTitle()" [maxHeightPercent]="70">
+    @if (activeMode() === 'infographic') {
+      @switch (infographicSection()) {
+        @case ('object') { <dba-ag-object-info-panel /> }
+        @case ('capture') { <dba-ag-capture-panel /> }
+        @case ('equipment') { <dba-ag-equipment-panel /> }
+        @case ('style') { <dba-ag-style-panel /> }
+      }
+    } @else {
+      @switch (stellarSection()) {
+        @case ('filters') { <dba-ag-annotation-filters-panel /> }
+        @case ('style') { <dba-ag-annotation-style-panel /> }
+        @case ('selected') { <dba-ag-annotation-selected-panel /> }
+      }
+    }
+
+    <ng-template #navIcon let-item>
+      @switch (item.iconName) {
+        @case ('image') { <dba-ui-icon-image [size]="18" /> }
+        @case ('aperture') { <dba-ui-icon-aperture [size]="18" /> }
+        @case ('telescope') { <dba-ui-icon-telescope [size]="18" /> }
+        @case ('palette') { <dba-ui-icon-palette [size]="18" /> }
+        @case ('filter') { <dba-ui-icon-filter [size]="18" /> }
+        @case ('target') { <dba-ui-icon-target [size]="18" /> }
+      }
+    </ng-template>
+
+    <ng-container slot="nav">
+      @if (activeMode() === 'infographic') {
+        <dba-ui-bottom-nav
+          [items]="infographicItems"
+          [activeId]="infographicSection()"
+          [iconTemplate]="navIcon"
+          (activate)="onInfographicActivate($event)"
+        />
+      } @else {
+        <dba-ui-bottom-nav
+          [items]="stellarItems"
+          [activeId]="stellarSection()"
+          [iconTemplate]="navIcon"
+          (activate)="onStellarActivate($event)"
+        />
+      }
+    </ng-container>
+  </dba-ui-floating-sheet>
+</div>

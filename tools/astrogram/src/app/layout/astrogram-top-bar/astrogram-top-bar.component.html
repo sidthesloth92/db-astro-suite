@@ -1,0 +1,31 @@
+<dba-ui-top-bar [class.is-compact]="isCompact()">
+  <div slot="brand" class="brand">
+    <div class="brand-avatar" aria-hidden="true"></div>
+    <div class="brand-word">astrogram</div>
+  </div>
+
+  <ng-template #tabIcon let-opt>
+    @switch (opt.id) {
+      @case ('infographic') {
+        <dba-ui-icon-layout [size]="12" />
+      }
+      @case ('stellar') {
+        <dba-ui-icon-sparkles [size]="12" />
+      }
+    }
+  </ng-template>
+
+  <dba-ui-segmented-tabs
+    slot="tabs"
+    [options]="tabOptions()"
+    [value]="activeTabId()"
+    [size]="isCompact() ? 'sm' : 'md'"
+    [iconTemplate]="tabIcon"
+    (valueChange)="onTabChange($event)"
+  />
+
+  <button slot="actions" type="button" class="export-btn" (click)="onExportClick()">
+    <dba-ui-icon-download [size]="13" />
+    <span>Export</span>
+  </button>
+</dba-ui-top-bar>
