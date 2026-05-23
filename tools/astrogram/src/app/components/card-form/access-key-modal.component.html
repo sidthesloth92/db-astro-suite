@@ -1,8 +1,14 @@
 <div class="modal-backdrop" (click)="onCancel()">
-  <div class="modal-dialog" (click)="$event.stopPropagation()">
+  <div
+    class="modal-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="access-key-modal-title"
+    (click)="$event.stopPropagation()"
+  >
     @if (view() === 'cta') {
       <div class="modal-header">
-        <h2 class="modal-title">🔑 WANNA TRY IT OUT?</h2>
+        <h2 id="access-key-modal-title" class="modal-title">🔑 WANNA TRY IT OUT?</h2>
       </div>
 
       <div class="modal-body">
@@ -30,7 +36,7 @@
       </div>
     } @else {
       <div class="modal-header">
-        <h2 class="modal-title">🔑 ENTER ACCESS KEY</h2>
+        <h2 id="access-key-modal-title" class="modal-title">🔑 ENTER ACCESS KEY</h2>
       </div>
 
       <div class="modal-body">

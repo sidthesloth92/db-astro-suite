@@ -46,8 +46,10 @@ export class GoogleAnalyticsService implements AnalyticsService {
         return;
       }
       gtag("event", eventName, params);
-    } catch {
-      // Tracking failures must never propagate to callers
+    } catch (err) {
+      // Tracking failures must never propagate to callers, but are logged
+      // at warn level so they surface in browser diagnostics.
+      console.warn("[gtag]", err);
     }
   }
 

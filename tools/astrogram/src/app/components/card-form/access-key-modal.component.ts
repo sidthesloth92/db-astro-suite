@@ -25,12 +25,12 @@ const INSTAGRAM_URL = 'https://instagram.com/astrowithdb';
   standalone: true,
   imports: [InputComponent],
   templateUrl: './access-key-modal.component.html',
-  styleUrls: ['./access-key-modal.component.css'],
+  styleUrl: './access-key-modal.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccessKeyModalComponent {
-  private analyticsService = inject(AnalyticsService);
-  private document = inject(DOCUMENT);
+  private readonly analyticsService = inject(AnalyticsService);
+  private readonly document = inject(DOCUMENT);
 
   /** Whether to show an invalid-key error message to the user. */
   showError = input(false);

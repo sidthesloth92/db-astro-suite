@@ -3,10 +3,16 @@ import { Injectable, inject } from '@angular/core';
 import { STORAGE_SERVICE_TOKEN } from '@db-astro-suite/ui';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { ACCESS_KEY_STORAGE_KEY } from './astrosolve.constants';
 import { AccessKeyError } from './models/access-key.error';
 import { AstrosolveError } from './models/astrosolve.error';
 import { AstroSolveApiResponse, AstroSolveResponse } from './models/astrosolve.response';
 
+/**
+ * Client for the Astrosolve plate-solving backend. Persists the user's
+ * access key to browser storage (via the injected storage service) and
+ * attaches it as the `x-access-key` header on outgoing solve requests.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -14,18 +20,20 @@ export class AstrosolveService {
   private readonly http = inject(HttpClient);
   private readonly storage = inject(STORAGE_SERVICE_TOKEN);
   private readonly baseUrl = `${environment.apiBaseUrl}/api/v1`;
-  private readonly ACCESS_KEY_STORAGE_KEY = 'astrosolve_access_key';
 
+  /** True when an access key is currently persisted in browser storage. */
   hasAccessKey(): boolean {
-    return this.storage.getItem(this.ACCESS_KEY_STORAGE_KEY) !== null;
+    return this.storage.getItem(ACCESS_KEY_STORAGE_KEY) !== null;
   }
 
+  /** Persists the supplied access key to browser storage. */
   saveAccessKey(key: string): void {
-    this.storage.setItem(this.ACCESS_KEY_STORAGE_KEY, key);
+    this.storage.setItem(ACCESS_KEY_STORAGE_KEY, key);
   }
 
+  /** Removes any persisted access key from browser storage. */
   clearAccessKey(): void {
-    this.storage.removeItem(this.ACCESS_KEY_STORAGE_KEY);
+    this.storage.removeItem(ACCESS_KEY_STORAGE_KEY);
   }
 
   /**
@@ -55,7 +63,7 @@ export class AstrosolveService {
 
     onProgress?.('Astrometry.net is solving your image...');
 
-    const keyToUse = accessKey ?? this.storage.getItem(this.ACCESS_KEY_STORAGE_KEY);
+    const keyToUse = accessKey ?? this.storage.getItem(ACCESS_KEY_STORAGE_KEY);
     const headers = new HttpHeaders(keyToUse ? { 'x-access-key': keyToUse } : {});
 
     try {
