@@ -2,12 +2,11 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
-  PLATFORM_ID,
+  afterNextRender,
   inject,
   input,
   signal,
 } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
 import { IconButtonComponent } from '../icon-button/icon-button.component';
 import { GithubIconComponent } from '../icons/github.icon.component';
 
@@ -50,16 +49,20 @@ export class HeaderComponent {
   /** Whether the viewport is currently below the mobile breakpoint. */
   readonly isMobile = signal<boolean>(false);
 
-  private readonly platformId = inject(PLATFORM_ID);
   private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
-    if (!isPlatformBrowser(this.platformId)) {
-      return;
-    }
-    const update = (): void => this.isMobile.set(window.innerWidth < MOBILE_BREAKPOINT_PX);
-    update();
-    window.addEventListener('resize', update);
-    this.destroyRef.onDestroy(() => window.removeEventListener('resize', update));
+    // `afterNextRender` only runs in the browser, so no platform guard is
+    // needed. The listener is torn down via `DestroyRef.onDestroy` to keep
+    // the component leak-free.
+    afterNextRender(() => {
+      const update = (): void =>
+        this.isMobile.set(window.innerWidth < MOBILE_BREAKPOINT_PX);
+      update();
+      window.addEventListener('resize', update);
+      this.destroyRef.onDestroy(() =>
+        window.removeEventListener('resize', update),
+      );
+    });
   }
 }
