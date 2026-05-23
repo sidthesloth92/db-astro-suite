@@ -1,0 +1,45 @@
+:host {
+  display: inline-flex;
+}
+
+.icon-button {
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: 1px solid var(--db-color-border);
+  border-radius: 8px;
+  color: var(--db-color-text-dim);
+  cursor: pointer;
+  padding: 0;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
+}
+
+.icon-button:hover:not(:disabled) {
+  color: var(--db-color-text-primary);
+  border-color: var(--db-color-border-strong);
+}
+
+.icon-button:focus-visible {
+  outline: 2px solid var(--db-color-cyan);
+  outline-offset: 2px;
+}
+
+.icon-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.icon-button.is-active[data-accent="pink"] {
+  color: var(--db-color-neon-pink);
+  border-color: var(--db-color-border-active);
+  background: var(--db-color-pink-soft);
+}
+
+.icon-button.is-active[data-accent="cyan"] {
+  color: var(--db-color-cyan);
+  border-color: var(--db-color-cyan);
+  background: var(--db-color-cyan-soft);
+}

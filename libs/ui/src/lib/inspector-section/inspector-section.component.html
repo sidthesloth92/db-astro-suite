@@ -1,0 +1,19 @@
+<section class="section" [class.is-compact]="compact()">
+  <header class="head">
+    <div class="chip">
+      <ng-content select="[slot=icon]" />
+    </div>
+    <div class="meta">
+      <div class="title">{{ title() }}</div>
+      @if (sub(); as s) {
+        <div class="sub">{{ s }}</div>
+      }
+    </div>
+    <div class="action">
+      <ng-content select="[slot=action]" />
+    </div>
+  </header>
+  <div class="body">
+    <ng-content />
+  </div>
+</section>

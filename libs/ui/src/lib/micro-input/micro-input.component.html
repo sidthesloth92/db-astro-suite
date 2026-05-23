@@ -1,0 +1,16 @@
+<div class="wrap">
+  @if (prefix(); as p) {
+    <span class="prefix">{{ p }}</span>
+  }
+  <input
+    class="field"
+    [class.is-mono]="mono()"
+    [type]="type()"
+    [value]="value()"
+    [placeholder]="placeholder()"
+    (input)="onInput($event)"
+  />
+  @if (suffix(); as s) {
+    <span class="suffix">{{ s }}</span>
+  }
+</div>

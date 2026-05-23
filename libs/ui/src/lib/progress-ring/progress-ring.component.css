@@ -1,0 +1,43 @@
+:host {
+  display: inline-flex;
+}
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.ring {
+  position: relative;
+}
+
+.track {
+  fill: none;
+  stroke: var(--db-color-border-strong);
+  stroke-width: 3;
+}
+
+.arc {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 250ms ease;
+}
+
+.center {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font: 600 12px/1 var(--db-font-ui);
+  color: var(--db-color-text-primary);
+}
+
+.label {
+  font: 600 10px/1 var(--db-font-mono-code);
+  letter-spacing: 0.12em;
+  color: var(--db-color-text-dim);
+  text-transform: uppercase;
+}

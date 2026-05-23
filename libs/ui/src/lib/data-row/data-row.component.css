@@ -1,0 +1,47 @@
+:host {
+  display: block;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.row[data-accent="pink"] .icon {
+  color: var(--db-color-neon-pink);
+}
+
+.row[data-accent="cyan"] .icon {
+  color: var(--db-color-cyan);
+}
+
+.text {
+  flex: 1;
+  min-width: 0;
+}
+
+.label {
+  font: 500 9px/1 var(--db-font-mono-code);
+  letter-spacing: 0.12em;
+  color: var(--db-color-text-faint);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.value {
+  font: 400 12.5px/1.2 var(--db-font-ui);
+  color: var(--db-color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

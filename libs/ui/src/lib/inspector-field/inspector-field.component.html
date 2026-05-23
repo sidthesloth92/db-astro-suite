@@ -1,0 +1,11 @@
+<div class="field" [attr.data-density]="density()">
+  <div class="label-cell">
+    <div class="label">{{ label() }}</div>
+    @if (sub(); as s) {
+      <div class="sub">{{ s }}</div>
+    }
+  </div>
+  <div class="control-cell">
+    <ng-content />
+  </div>
+</div>

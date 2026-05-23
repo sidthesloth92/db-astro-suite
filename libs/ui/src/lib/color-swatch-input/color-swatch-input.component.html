@@ -1,0 +1,10 @@
+<label class="row">
+  <span class="swatch" [style.background]="value()"></span>
+  <span class="hex">{{ displayValue() }}</span>
+  <input
+    class="native"
+    type="color"
+    [value]="value()"
+    (input)="onPick($event)"
+  />
+</label>
