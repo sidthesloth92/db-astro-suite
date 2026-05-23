@@ -49,6 +49,12 @@ export class CardDataService {
 
   readonly activeMode = signal<'infographic' | 'stellar-map'>('infographic');
 
+  /**
+   * Requested export format. Drives `BaseCardPreviewComponent.exportCard()` —
+   * defaults to `'jpeg'` to preserve historical behaviour.
+   */
+  readonly exportFormat = signal<'jpeg' | 'png' | 'webp'>('jpeg');
+
   readonly stellarMapData = signal<StellarMapData>({
     backgroundImage: null,
     rawFile: null,

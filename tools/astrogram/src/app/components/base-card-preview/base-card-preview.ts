@@ -17,6 +17,14 @@ import {
   signal,
   ViewChild,
 } from '@angular/core';
+import { CardDataService } from '../../services/card-data.service';
+
+/** File extension + MIME info per exportable format. */
+const EXPORT_FORMAT_MAP = {
+  jpeg: { ext: 'jpg', mime: 'image/jpeg' as const },
+  png: { ext: 'png', mime: 'image/png' as const },
+  webp: { ext: 'webp', mime: 'image/webp' as const },
+} as const;
 
 @Component({
   selector: 'dba-ag-base-card-preview',
@@ -29,6 +37,7 @@ import {
 })
 export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestroy {
   private analyticsService = inject(AnalyticsService);
+  private readonly cardDataService = inject(CardDataService);
   
   aspectRatio = input<'3:4' | '4:5' | 'auto'>('4:5');
   backgroundImage = input<string | null>(null);
@@ -213,14 +222,17 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
       event.stopPropagation();
     }
 
+    const format = this.cardDataService.exportFormat();
+    const fmtInfo = EXPORT_FORMAT_MAP[format];
+
     try {
       // Track card export initiation
-      this.analyticsService.trackCardExportInitiated('jpg');
+      this.analyticsService.trackCardExportInitiated(fmtInfo.ext);
       console.log('--- Export Start (Modern Screenshot) ---');
-      const { domToJpeg } = await import('modern-screenshot');
+      const screenshot = await import('modern-screenshot');
       const element = this.cardElement.nativeElement;
 
-      const filename = `${this.exportFilename() || 'astrogram'}.jpg`;
+      const filename = `${this.exportFilename() || 'astrogram'}.${fmtInfo.ext}`;
 
       // Wait for fonts and all images to be truly ready
       await document.fonts.ready;
@@ -262,11 +274,18 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
 
       let dataUrl: string;
       try {
-        dataUrl = await domToJpeg(element, {
+        const opts = {
           scale: captureScale,
           quality: 0.95,
           backgroundColor: '#000000',
-        });
+        };
+        if (format === 'png') {
+          dataUrl = await screenshot.domToPng(element, opts);
+        } else if (format === 'webp') {
+          dataUrl = await screenshot.domToWebp(element, opts);
+        } else {
+          dataUrl = await screenshot.domToJpeg(element, opts);
+        }
         console.log('DOM ready for capture:', filename);
       } finally {
         if (postContainer) {
@@ -292,7 +311,7 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
       
       // Track successful export
       const dataUrlSize = Math.ceil(dataUrl.length / 1024); // Convert to KB
-      this.analyticsService.trackCardExportSuccess('jpg', dataUrlSize, 0);
+      this.analyticsService.trackCardExportSuccess(fmtInfo.ext, dataUrlSize, 0);
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';
       this.analyticsService.trackCardExportFailed(errorMsg);

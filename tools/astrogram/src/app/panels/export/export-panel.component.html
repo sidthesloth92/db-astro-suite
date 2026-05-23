@@ -34,12 +34,16 @@
         <button
           type="button"
           class="share-btn"
-          [class.is-active]="shareTarget() === target.id"
-          (click)="selectShareTarget(target.id)"
+          [disabled]="target.disabled"
+          [attr.title]="target.disabled ? 'No web intent — export and paste manually' : null"
+          (click)="selectShareTarget(target)"
         >
           {{ target.label }}
         </button>
       }
     </div>
+    @if (linkCopied()) {
+      <p class="share-status" role="status">Link copied to clipboard</p>
+    }
   </dba-ui-inspector-section>
 </div>

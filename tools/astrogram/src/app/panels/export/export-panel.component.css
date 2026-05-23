@@ -131,8 +131,19 @@
   cursor: pointer;
 }
 
-.share-btn.is-active,
-.share-btn:hover {
+.share-btn:not([disabled]):hover {
   border-color: var(--db-color-border-strong);
-  color: #fff;
+  color: var(--db-color-text-primary);
+}
+
+.share-btn[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.share-status {
+  margin: 4px 18px 14px;
+  font-family: var(--db-font-mono-code);
+  font-size: 10px;
+  color: var(--db-color-text-dim);
 }
