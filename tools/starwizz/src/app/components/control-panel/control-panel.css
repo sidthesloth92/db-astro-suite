@@ -42,10 +42,10 @@
 
 .panel-title {
   margin: 0;
-  font-family: var(--db-font-display);
-  font-weight: 700;
-  font-size: 16px;
-  letter-spacing: 0.12em;
+  font-family: var(--db-font-ui);
+  font-weight: 400;
+  font-size: 14px;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--db-color-neon-pink);
   text-shadow: 0 0 10px color-mix(in srgb, var(--db-color-neon-pink) 30%, transparent);
@@ -110,16 +110,14 @@
 
 .panel-actions {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 8px;
 }
 
 .panel-actions dba-ui-text-button {
-  width: 100%;
-}
-
-.panel-actions dba-ui-text-button button {
-  width: 100%;
+  flex: 1;
+  min-width: 0;
+  display: flex;
 }
 
 .record-row {

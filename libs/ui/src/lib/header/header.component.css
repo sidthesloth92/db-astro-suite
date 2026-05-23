@@ -6,7 +6,7 @@
   display: flex;
   align-items: center;
   height: 64px;
-  padding: 0 24px 0 36px;
+  padding: 0 24px 0 100px;
   background: var(--db-color-surface);
   border-bottom: 1px solid var(--db-color-border);
   gap: 14px;
@@ -41,13 +41,14 @@
 }
 
 .brand-title {
-  font-family: var(--db-font-ui);
-  font-weight: 100;
-  font-size: 24px;
+  font-family: var(--db-font-display);
+  font-weight: 700;
+  font-size: 22px;
   line-height: 1;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.06em;
   color: var(--db-color-neon-pink);
-  text-shadow: 0 0 12px color-mix(in srgb, var(--db-color-neon-pink) 35%, transparent);
+  text-shadow: 0 0 12px
+    color-mix(in srgb, var(--db-color-neon-pink) 35%, transparent);
   text-transform: uppercase;
   white-space: nowrap;
 }
@@ -55,12 +56,11 @@
 .brand-version {
   display: inline-flex;
   align-items: center;
-  padding: 3px 8px;
-  border: 1px solid color-mix(in srgb, var(--db-color-neon-pink) 50%, transparent);
+  padding: 2px 5px;
   background: var(--db-color-pink-soft);
   color: var(--db-color-neon-pink);
-  font-family: var(--db-font-mono-code);
-  font-size: 11px;
+  font-family: var(--db-font-ui);
+  font-size: 10px;
   font-weight: 500;
   line-height: 1;
   letter-spacing: 0.04em;
@@ -112,7 +112,9 @@
 
 .github-link:hover {
   transform: scale(1.1);
-  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--db-color-neon-pink) 50%, transparent));
+  filter: drop-shadow(
+    0 0 8px color-mix(in srgb, var(--db-color-neon-pink) 50%, transparent)
+  );
 }
 
 .github-link:focus-visible {
@@ -146,8 +148,8 @@
   }
 
   .brand-version {
-    padding: 2px 6px;
-    font-size: 10px;
+    padding: 1px 4px;
+    font-size: 9px;
   }
 
   .actions {
