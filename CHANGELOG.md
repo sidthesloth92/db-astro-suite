@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.15.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.14.0...v1.15.0) (2026-05-23)
+
+
+### Features
+
+* **claude:** add Claude Code config mirroring .github/ Copilot setup ([#30](https://github.com/sidthesloth92/db-astro-suite/issues/30)) ([5265700](https://github.com/sidthesloth92/db-astro-suite/commit/5265700cc4dd5ebfb2d642cfd6103cf85221978f))
+
 ## [1.14.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.13.1...v1.14.0) (2026-05-21)
 
 
