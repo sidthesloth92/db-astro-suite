@@ -8,13 +8,26 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import {
+  IconButtonComponent,
+  PillBadgeComponent,
+  PlusIconComponent,
+  TargetIconComponent,
+} from '@db-astro-suite/ui';
 import { findHitAnnotationId } from '../../utils/annotation-hit-test.util';
-import { ConstellationLoaderComponent } from '@db-astro-suite/ui';
 import { ImageAnnotation } from '../../models/annotation.models';
+import { StellarUploadPanelComponent } from '../../panels/stellar-upload/stellar-upload-panel.component';
 import { CardDataService } from '../../services/card-data.service';
 import { BaseCardPreviewComponent } from '../base-card-preview/base-card-preview';
-import { AnnotationControlsComponent } from '../card-form/annotation-controls';
 
+/**
+ * Stellar-map preview surface. Wraps `BaseCardPreviewComponent` and
+ * owns the canvas-level interactions (drag, hit-test, annotation
+ * rendering). Upload / Solve flow is delegated to
+ * `StellarUploadPanelComponent`, projected as an overlay when no image
+ * is loaded. Adds a floating top toolbar (Add / Select / object count
+ * pill) on top of the preview when an image is present.
+ */
 @Component({
   selector: 'dba-ag-stellar-map-preview',
   standalone: true,
@@ -23,266 +36,14 @@ import { AnnotationControlsComponent } from '../card-form/annotation-controls';
     NgStyle,
     DecimalPipe,
     BaseCardPreviewComponent,
-    AnnotationControlsComponent,
-    ConstellationLoaderComponent,
+    StellarUploadPanelComponent,
+    IconButtonComponent,
+    PillBadgeComponent,
+    PlusIconComponent,
+    TargetIconComponent,
   ],
   templateUrl: './stellar-map-preview.html',
-  styles: [
-    `
-      .annotations-layer {
-        position: absolute;
-        inset: 0;
-        z-index: 10;
-        /* pointer-events auto so markers are clickable; background click deselects */
-        pointer-events: auto;
-      }
-      .annotations-layer.is-dragging {
-        cursor: grabbing;
-      }
-      .annotations-layer.is-dragging .annotation-marker {
-        cursor: grabbing;
-      }
-      .annotation-marker {
-        position: absolute;
-        transform: translate(-50%, -50%);
-        border-style: solid;
-        border-radius: 50%;
-        transition: all 0.25s ease;
-        cursor: grab;
-        pointer-events: auto;
-      }
-      .annotation-marker.selected {
-        outline: 2px solid rgba(255, 255, 255, 0.9);
-        outline-offset: 3px;
-        filter: brightness(1.4) drop-shadow(0 0 6px white);
-        cursor: grab;
-      }
-      .annotation-label {
-        position: absolute;
-        top: calc(100% + 6px);
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(0, 0, 0, 0.6);
-        padding: 2px 6px;
-        border-radius: 4px;
-        font-weight: bold;
-        white-space: nowrap;
-        text-align: center;
-        text-transform: uppercase;
-        text-shadow: 0 1px 3px rgba(0, 0, 0, 1);
-        cursor: pointer;
-      }
-      .annotation-label.label-top {
-        top: auto;
-        bottom: calc(100% + 6px);
-        left: 50%;
-        transform: translateX(-50%);
-      }
-      .annotation-label.label-right {
-        top: 50%;
-        left: calc(100% + 6px);
-        transform: translateY(-50%);
-      }
-      .annotation-label.label-left {
-        top: 50%;
-        left: auto;
-        right: calc(100% + 6px);
-        transform: translateY(-50%);
-      }
-      .solve-loader-overlay {
-        position: absolute;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.45);
-        backdrop-filter: blur(4px);
-        z-index: 20;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        color: #00f3ff;
-        overflow: hidden;
-        clip-path: inset(0);
-      }
-      .solve-loader-canvas {
-        position: relative;
-        width: 180px;
-        height: 180px;
-        margin-bottom: 2rem;
-        overflow: hidden;
-        pointer-events: none;
-      }
-      .solve-loader-text {
-        position: relative;
-        z-index: 1;
-        max-width: 14rem;
-        text-align: center;
-        font-family: var(--db-form-font-mono, monospace);
-        font-weight: bold;
-        font-size: 0.78rem;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        animation: pulse 1.5s ease-in-out infinite;
-      }
-      @keyframes pulse {
-        0%,
-        100% {
-          opacity: 0.6;
-        }
-        50% {
-          opacity: 1;
-        }
-      }
-      .upload-overlay {
-        position: absolute;
-        inset: 0;
-        z-index: 20;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        pointer-events: auto;
-      }
-      .upload-card-inner {
-        position: relative;
-        width: 100%;
-        max-width: 340px;
-        aspect-ratio: 1;
-        padding: 2rem;
-        background: rgba(10, 15, 25, 0.2);
-        border: 2px dashed rgba(255, 45, 149, 0.2);
-        border-radius: var(--db-radius-lg);
-        overflow: hidden;
-        isolation: isolate;
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        backdrop-filter: blur(4px);
-      }
-      .upload-card-loader {
-        position: absolute;
-        inset: 0;
-        border-radius: inherit;
-        overflow: hidden;
-        pointer-events: none;
-      }
-      .upload-card-loader::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(
-          180deg,
-          rgba(8, 12, 22, 0.45) 0%,
-          rgba(8, 12, 22, 0.1) 40%,
-          rgba(8, 12, 22, 0.4) 100%
-        );
-      }
-      .upload-card-content {
-        position: relative;
-        z-index: 1;
-        display: flex;
-        height: 100%;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 1.25rem;
-      }
-      .upload-card-inner:hover {
-        border-color: var(--neon-pink);
-        background: rgba(255, 45, 149, 0.08);
-        box-shadow: 0 0 40px rgba(255, 45, 149, 0.15);
-        transform: translateY(-2px);
-      }
-      .upload-icon {
-        width: 48px;
-        height: 48px;
-        color: var(--neon-pink);
-        filter: drop-shadow(0 0 8px rgba(255, 45, 149, 0.4));
-      }
-      .upload-title {
-        font-weight: 800;
-        font-size: 1.1rem;
-        letter-spacing: 0.15em;
-        text-transform: uppercase;
-        color: white;
-      }
-      .upload-subtitle {
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--neon-pink);
-        opacity: 0.7;
-      }
-      .upload-help-text {
-        color: var(--neon-pink);
-        font-size: 0.8rem;
-        margin-top: 0.75rem;
-        max-width: 220px;
-        text-align: center;
-        font-weight: 600;
-        letter-spacing: 0.05em;
-        opacity: 0.8;
-      }
-      .upload-limits-hint {
-        font-family: var(--db-form-font-mono, monospace);
-        font-size: 0.6rem;
-        margin-top: 0.5rem;
-        color: #ffffff;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        text-align: center;
-        max-width: 260px;
-      }
-      .upload-error-text {
-        margin-top: 0.75rem;
-        max-width: 260px;
-        font-size: 0.72rem;
-        font-weight: 600;
-        color: #ff6b6b;
-        text-align: center;
-        letter-spacing: 0.04em;
-      }
-      .clear-btn {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        background: rgba(255, 45, 149, 0.08);
-        border: 1px solid rgba(255, 45, 149, 0.4);
-        color: var(--neon-pink);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      }
-      .clear-btn:hover {
-        background: rgba(255, 45, 149, 0.2);
-        border-color: var(--neon-pink);
-        box-shadow: 0 0 15px rgba(255, 45, 149, 0.4);
-        color: white;
-        transform: scale(1.1);
-      }
-      .add-annotation-btn {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        background: rgba(0, 243, 255, 0.08);
-        border: 1px solid rgba(0, 243, 255, 0.4);
-        color: #00f3ff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      }
-      .add-annotation-btn:hover {
-        background: rgba(0, 243, 255, 0.2);
-        border-color: #00f3ff;
-        box-shadow: 0 0 15px rgba(0, 243, 255, 0.4);
-        color: white;
-        transform: scale(1.1);
-      }
-    `,
-  ],
+  styleUrls: ['./stellar-map-preview.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StellarMapPreviewComponent {
@@ -292,27 +53,35 @@ export class StellarMapPreviewComponent {
 
   private readonly _dragId = signal<string | null>(null);
   private readonly _dragStartMouse = signal<{ x: number; y: number } | null>(null);
-  /** True while an annotation drag is in progress. Drives `is-dragging` CSS on the layer. */
+  /** True while an annotation drag is in progress. */
   readonly isDragging = computed(() => this._dragId() !== null);
+  /** True when the in-canvas "Select" tool is active (visual-only today). */
+  readonly isSelectToolActive = signal(false);
 
-  private readonly controlsComponent = viewChild.required<AnnotationControlsComponent>('controls');
+  private readonly base = viewChild.required<BaseCardPreviewComponent>('base');
+  private readonly uploadPanel = viewChild.required<StellarUploadPanelComponent>('upload');
   private readonly annotationsLayerRef = viewChild.required<ElementRef>('annotationsLayer');
 
-  clearAll() {
-    this.controlsComponent().resetMap();
+  /** Triggers the underlying export pipeline. */
+  exportCard(): void {
+    this.base().exportCard();
   }
 
-  /**
-   * Click handler shared by every annotation marker AND the layer background.
-   *
-   * Uses document.elementsFromPoint() to collect ALL stacked elements at the
-   * click coordinate — including those hidden behind the topmost marker div.
-   * Each annotation-marker candidate is ring-hit-tested: we only consider a
-   * hit if the click lands within HIT_TOLERANCE px of the circle's border.
-   * This lets the user click the ring of a small circle even when it is
-   * fully inside the interior of a larger circle.
-   */
-  onAnnotationClick(event: MouseEvent) {
+  /** Number of currently-visible annotations (drives the toolbar pill). */
+  readonly visibleCount = computed(() => this.visibleAnnotations().length);
+
+  /** Resets the map document via the upload panel (single source of truth). */
+  clearAll(): void {
+    this.uploadPanel().resetMap();
+  }
+
+  /** Toggles the visual-only Select tool. */
+  toggleSelectTool(): void {
+    this.isSelectToolActive.update((v) => !v);
+  }
+
+  /** Click handler shared by annotation markers and the layer background. */
+  onAnnotationClick(event: MouseEvent): void {
     event.stopPropagation();
     const hitId = findHitAnnotationId(event, 10);
     if (hitId) {
@@ -320,34 +89,36 @@ export class StellarMapPreviewComponent {
       this.dataService.selectAnnotation(current === hitId ? null : hitId);
       return;
     }
-    // No ring was hit — treat as background click and deselect
     this.dataService.selectAnnotation(null);
   }
 
-  deselectAll() {
+  /** Deselect everything. */
+  deselectAll(): void {
     this.dataService.selectAnnotation(null);
   }
 
-  /** Records drag-start state on mousedown; selection is resolved on mouseup. */
-  onMarkerMousedown(ann: ImageAnnotation, event: MouseEvent) {
+  /** Records drag-start state on mousedown. */
+  onMarkerMousedown(ann: ImageAnnotation, event: MouseEvent): void {
     event.preventDefault();
     event.stopPropagation();
     this._dragId.set(ann.id);
     this._dragStartMouse.set({ x: event.clientX, y: event.clientY });
   }
 
-  /** Repositions the active annotation to follow the pointer while dragging. */
-  onLayerMousemove(event: MouseEvent) {
+  /** Repositions the active annotation while dragging. */
+  onLayerMousemove(event: MouseEvent): void {
     const dragId = this._dragId();
-    if (!dragId) return;
+    if (!dragId) {
+      return;
+    }
     const rect = this.annotationsLayerRef().nativeElement.getBoundingClientRect();
     const xPercent = ((event.clientX - rect.left) / rect.width) * 100;
     const yPercent = ((event.clientY - rect.top) / rect.height) * 100;
     this.dataService.updateAnnotationPosition(dragId, xPercent, yPercent);
   }
 
-  /** Ends a drag; toggles selection if the pointer barely moved (i.e. a click). */
-  onLayerMouseup(event: MouseEvent) {
+  /** Ends a drag and resolves selection. */
+  onLayerMouseup(event: MouseEvent): void {
     const dragId = this._dragId();
     if (dragId) {
       const startMouse = this._dragStartMouse();
@@ -364,23 +135,22 @@ export class StellarMapPreviewComponent {
       this._dragId.set(null);
       this._dragStartMouse.set(null);
     } else {
-      // Only deselect when mouseup came from the layer background, not from a marker bubbling up.
-      if (!(event.target as HTMLElement).closest('.annotation-marker')) {
+      const target = event.target as HTMLElement | null;
+      if (!target?.closest?.('.annotation-marker')) {
         this.dataService.selectAnnotation(null);
       }
     }
   }
 
-
-  /** Cancels an active drag when the pointer leaves the layer. Never deselects. */
-  onLayerMouseleave() {
+  /** Cancels a drag when the pointer leaves the layer (never deselects). */
+  onLayerMouseleave(): void {
     this._dragId.set(null);
     this._dragStartMouse.set(null);
   }
-  addCenterAnnotation() {
+
+  /** Adds a new custom annotation at the centre of the canvas. */
+  addCenterAnnotation(): void {
     const d = this.mapData();
-    // Default radius = 12.5% of the smaller image dimension (→ ~25% diameter).
-    // Falls back to 80px if image dimensions aren't recorded yet.
     const radiusDb =
       d.naturalWidth && d.naturalHeight
         ? Math.round(Math.min(d.naturalWidth, d.naturalHeight) * 0.125)
@@ -397,16 +167,12 @@ export class StellarMapPreviewComponent {
     this.dataService.addAnnotation(ann);
   }
 
-  /** Direct select bypassing ring-hit-test — used when clicking a label. */
-  directSelect(id: string, event: MouseEvent) {
+  /** Direct selection bypassing the ring hit-test (used by label clicks). */
+  directSelect(id: string, event: MouseEvent): void {
     event.stopPropagation();
     const current = this.dataService.selectedAnnotationId();
     this.dataService.selectAnnotation(current === id ? null : id);
   }
-
-  // ── Effective style helpers ──────────────────────────────────────
-  // Called per annotation during render. Safe with OnPush because
-  // they only run when the signal-driven change detection triggers.
 
   markerStyle(ann: ImageAnnotation): Record<string, string> {
     const g = this.mapData().globalAnnotationSettings;
@@ -449,109 +215,45 @@ export class StellarMapPreviewComponent {
 
   effectiveShowMagnitude(ann: ImageAnnotation): boolean {
     const override = ann.style?.showMagnitude;
-    if (override !== undefined) return override;
+    if (override !== undefined) {
+      return override;
+    }
     return this.mapData().globalAnnotationSettings.showMagnitude ?? false;
   }
 
   getLabelPosition(xPercent: number, yPercent: number): string {
-    if (yPercent > 90) return 'label-top';
-    if (xPercent < 10) return 'label-right';
-    if (xPercent > 90) return 'label-left';
+    if (yPercent > 90) {
+      return 'label-top';
+    }
+    if (xPercent < 10) {
+      return 'label-right';
+    }
+    if (xPercent > 90) {
+      return 'label-left';
+    }
     return '';
   }
 
   // ── Type lookup sets (OpenNGC codes + SIMBAD OTYPEs, all uppercase) ────────
   private static readonly STAR_TYPES = new Set([
-    // OpenNGC
-    'STAR',
-    '*',
-    '**',
-    '*ASS',
-    // SIMBAD
-    'V*',
-    'CE*',
-    'RR*',
-    'LP*',
-    'MI*',
-    'SR*',
-    'NO*',
-    'SN*',
-    'WR*',
-    'C*',
-    'BE*',
-    'HB*',
-    'WD*',
-    'N*',
-    'TT*',
-    'AE*',
-    'HS*',
-    'S*',
-    'SG*',
-    'S*R',
-    'S*B',
-    'S*Y',
-    'EM*',
-    'OR*',
+    'STAR', '*', '**', '*ASS',
+    'V*', 'CE*', 'RR*', 'LP*', 'MI*', 'SR*', 'NO*', 'SN*', 'WR*', 'C*',
+    'BE*', 'HB*', 'WD*', 'N*', 'TT*', 'AE*', 'HS*', 'S*', 'SG*', 'S*R',
+    'S*B', 'S*Y', 'EM*', 'OR*',
   ]);
   private static readonly GALAXY_TYPES = new Set([
-    // OpenNGC
-    'G',
-    'GPAIR',
-    'GTRPL',
-    'GGROUP',
-    // SIMBAD
-    'GX',
-    'GIP',
-    'GIG',
-    'GIC',
-    'BCLG',
-    'SY*',
-    'SY1',
-    'SY2',
-    'AGN',
-    'LINER',
-    'EMG',
+    'G', 'GPAIR', 'GTRPL', 'GGROUP',
+    'GX', 'GIP', 'GIG', 'GIC', 'BCLG', 'SY*', 'SY1', 'SY2', 'AGN', 'LINER', 'EMG',
   ]);
   private static readonly OPEN_CLUSTER_TYPES = new Set([
-    // OpenNGC
-    'OCL',
-    'CL+N',
-    // SIMBAD
-    'OPC',
-    'CL*',
-    'AS*',
-    'OAS',
+    'OCL', 'CL+N', 'OPC', 'CL*', 'AS*', 'OAS',
   ]);
-  private static readonly GLOB_CLUSTER_TYPES = new Set([
-    // OpenNGC
-    'GCL',
-    // SIMBAD
-    'GLC',
-  ]);
+  private static readonly GLOB_CLUSTER_TYPES = new Set(['GCL', 'GLC']);
   private static readonly NEBULA_TYPES = new Set([
-    // OpenNGC
-    'HII',
-    'EMN',
-    'NEB',
-    'RFN',
-    'DARKNEB',
-    'SNR',
-    'NOVA',
-    // SIMBAD
-    'RNE',
-    'MOC',
-    'DNE',
-    'SNR',
-    'EMO',
-    'BUB',
-    'HH',
+    'HII', 'EMN', 'NEB', 'RFN', 'DARKNEB', 'SNR', 'NOVA',
+    'RNE', 'MOC', 'DNE', 'EMO', 'BUB', 'HH',
   ]);
-  private static readonly GALAXY_CLUSTER_TYPES = new Set([
-    // OpenNGC / local ACO
-    'GCLUS',
-    // SIMBAD
-    'CLG',
-  ]);
+  private static readonly GALAXY_CLUSTER_TYPES = new Set(['GCLUS', 'CLG']);
   private static readonly QUASAR_TYPES = new Set(['QSO', 'BLA']);
 
   readonly visibleAnnotations = computed(() => {
@@ -559,8 +261,9 @@ export class StellarMapPreviewComponent {
     const T = StellarMapPreviewComponent;
 
     return this.mapData().annotations.filter((ann) => {
-      // User-placed custom annotations are always visible
-      if (ann.source === 'custom') return ann.visible;
+      if (ann.source === 'custom') {
+        return ann.visible;
+      }
 
       const type = (ann.type ?? '').toUpperCase();
       const catalog = (ann.catalog ?? '').toUpperCase();
@@ -568,7 +271,6 @@ export class StellarMapPreviewComponent {
       const label = (ann.label ?? '').toUpperCase();
       const mag = ann.magnitude ?? Infinity;
 
-      // ── Stars ────────────────────────────────────────────────────
       if (T.STAR_TYPES.has(type)) {
         const isHD = catalog === 'HD' || name.startsWith('HD ') || label.startsWith('HD ');
         const namedMatch =
@@ -577,10 +279,8 @@ export class StellarMapPreviewComponent {
         return namedMatch || hdMatch;
       }
 
-      // ── DSOs: accumulate OR across all matching groups ───────────
       let show = false;
 
-      // Catalog-level
       if (catalog === 'M' || type === 'M') show ||= f.showMessier;
       if (catalog === 'C' || type === 'C') show ||= f.showCaldwell;
       if (catalog === 'SH2') show ||= f.showSharpless;
@@ -589,11 +289,9 @@ export class StellarMapPreviewComponent {
         show ||= f.showNGC;
       if (name.startsWith('IC') || (catalog === 'NGC/IC' && name.startsWith('IC')))
         show ||= f.showIC;
-      // Also handle SIMBAD names like 'M 13', 'NGC 6205'
       if (!name.startsWith('NGC') && label.startsWith('NGC')) show ||= f.showNGC;
       if (!name.startsWith('IC') && label.startsWith('IC')) show ||= f.showIC;
 
-      // Object-type checks
       if (T.GALAXY_TYPES.has(type)) show ||= f.showGalaxies;
       if (T.OPEN_CLUSTER_TYPES.has(type)) show ||= f.showOpenClusters;
       if (T.GLOB_CLUSTER_TYPES.has(type)) show ||= f.showGlobularClusters;
@@ -602,8 +300,6 @@ export class StellarMapPreviewComponent {
       if (T.GALAXY_CLUSTER_TYPES.has(type)) show ||= f.showAbellClusters;
       if (T.QUASAR_TYPES.has(type)) show ||= f.showQuasars;
 
-      // ── Final fallback: unknown / Dup / Other / NonEx types ──────
-      // Use catalog or name prefix so nothing silently disappears
       if (!show) {
         if (catalog === 'NGC/IC' || name.startsWith('NGC') || label.startsWith('NGC'))
           show = f.showNGC;
@@ -616,9 +312,6 @@ export class StellarMapPreviewComponent {
         else if (catalog === 'ACO') show = f.showAbellClusters;
         else if (catalog === 'HD' || name.startsWith('HD '))
           show = f.showHDStars && mag <= f.maxStarMagnitude;
-        // Unrecognised SIMBAD objects (e.g. [SSA2010], [CBB2017], BCLMP) are obscure
-        // research catalog entries with no value for astrophotography annotation.
-        // They remain hidden unless they match a real filter above.
       }
 
       return show;

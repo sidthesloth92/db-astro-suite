@@ -1,21 +1,22 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { AnalyticsService } from '@db-astro-suite/ui';
 import { DEFAULT_GLOBAL_ANNOTATION_SETTINGS } from '../../models/annotation-settings.models';
 import { ImageAnnotation } from '../../models/annotation.models';
 import { StellarMapData } from '../../models/card-data';
+import { AstrosolveService } from '../../services/astrosolve.service';
 import { CardDataService } from '../../services/card-data.service';
+import { WcsService } from '../../services/wcs.service';
 import { StellarMapPreviewComponent } from './stellar-map-preview';
 
-/** Minimal stub so viewChild.required('controls') resolves during tests. */
+/** Minimal stub for the upload panel so viewChild.required('upload') resolves. */
 @Component({
-  selector: 'dba-ag-annotation-controls',
+  selector: 'dba-ag-stellar-upload-panel',
   template: '',
-  exportAs: 'dbaAnnotationControls',
   standalone: true,
 })
-class AnnotationControlsStub {
+class StellarUploadPanelStub {
   resetMap = jasmine.createSpy('resetMap');
-  fileInput = { nativeElement: { click: jasmine.createSpy('click') } };
 }
 
 const MINIMAL_MAP_DATA: StellarMapData = {
@@ -53,6 +54,17 @@ const makeAnnotation = (id: string): ImageAnnotation => ({
   source: 'custom',
 });
 
+function makeAnalyticsStub(): Record<string, jasmine.Spy> {
+  return new Proxy({} as Record<string, jasmine.Spy>, {
+    get(target, prop: string) {
+      if (!target[prop]) {
+        target[prop] = jasmine.createSpy(prop);
+      }
+      return target[prop];
+    },
+  });
+}
+
 describe('StellarMapPreviewComponent drag state machine', () => {
   let mockDataService: {
     stellarMapData: ReturnType<typeof signal<StellarMapData>>;
@@ -72,14 +84,19 @@ describe('StellarMapPreviewComponent drag state machine', () => {
     };
 
     await TestBed.configureTestingModule({
-      providers: [{ provide: CardDataService, useValue: mockDataService }],
+      providers: [
+        { provide: CardDataService, useValue: mockDataService },
+        { provide: AstrosolveService, useValue: {} },
+        { provide: WcsService, useValue: {} },
+        { provide: AnalyticsService, useValue: makeAnalyticsStub() },
+      ],
     })
       .overrideComponent(StellarMapPreviewComponent, {
         set: {
-          imports: [AnnotationControlsStub],
+          imports: [StellarUploadPanelStub],
           template:
             '<div #annotationsLayer></div>' +
-            '<dba-ag-annotation-controls #controls="dbaAnnotationControls"></dba-ag-annotation-controls>',
+            '<dba-ag-stellar-upload-panel #upload></dba-ag-stellar-upload-panel>',
         },
       })
       .compileComponents();
@@ -90,7 +107,6 @@ describe('StellarMapPreviewComponent drag state machine', () => {
     const component = fixture.componentInstance;
     fixture.detectChanges();
 
-    // selectedAnnotationId is null — mousedown now starts drag immediately without pre-selecting
     const ann = makeAnnotation('test-select');
     const mouseEvent = new MouseEvent('mousedown', { clientX: 100, clientY: 100 });
     component.onMarkerMousedown(ann, mouseEvent);
@@ -132,7 +148,6 @@ describe('StellarMapPreviewComponent drag state machine', () => {
     component.onMarkerMousedown(makeAnnotation('test-2'), downEvent);
     expect(component.isDragging()).toBeTrue();
 
-    // delta of ~1px — below the 3px click threshold
     const upEvent = new MouseEvent('mouseup', { clientX: 101, clientY: 100 });
     component.onLayerMouseup(upEvent);
 
@@ -148,7 +163,6 @@ describe('StellarMapPreviewComponent drag state machine', () => {
     component.onMarkerMousedown(makeAnnotation('test-3'), downEvent);
     expect(component.isDragging()).toBeTrue();
 
-    // delta of ~14px — above the 3px click threshold
     const upEvent = new MouseEvent('mouseup', { clientX: 110, clientY: 110 });
     component.onLayerMouseup(upEvent);
 
