@@ -7,7 +7,6 @@ import {
   input,
   signal,
 } from '@angular/core';
-import { IconButtonComponent } from '../icon-button/icon-button.component';
 import { IconComponent } from '../icon/icon.component';
 import { githubIcon } from '../icons/github.icon';
 
@@ -26,7 +25,7 @@ const MOBILE_BREAKPOINT_PX = 768;
 @Component({
   selector: 'dba-ui-header',
   standalone: true,
-  imports: [IconButtonComponent, IconComponent],
+  imports: [IconComponent],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

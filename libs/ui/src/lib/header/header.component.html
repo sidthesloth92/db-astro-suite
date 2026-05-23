@@ -8,13 +8,12 @@
       <img class="brand-logo" [src]="logoSrc()" [alt]="title() + ' Logo'" />
     }
     <div class="brand-text">
-      <div class="brand-title-row">
-        <span class="brand-title">{{ title() }}</span>
-        @if (version()) {
-          <span class="brand-version">v{{ version() }}</span>
-        }
-      </div>
+      <span class="brand-title">{{ title() }}</span>
+      @if (version()) {
+        <span class="brand-version">v{{ version() }}</span>
+      }
       @if (tagline() && !isMobile()) {
+        <span class="brand-separator" aria-hidden="true"></span>
         <span class="brand-tagline">{{ tagline() }}</span>
       }
     </div>
@@ -25,15 +24,6 @@
   </div>
 
   <div class="actions">
-    <a
-      class="about-link"
-      [href]="aboutLink()"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      {{ isMobile() ? 'About' : 'About me' }}
-    </a>
-
     @if (githubLink()) {
       <a
         class="github-link"
@@ -41,10 +31,9 @@
         target="_blank"
         rel="noopener noreferrer"
         aria-label="View source on GitHub"
+        title="View source on GitHub"
       >
-        <dba-ui-icon-button title="View source on GitHub" [size]="32" accent="pink">
-          <dba-ui-icon [def]="githubIcon" [size]="14" />
-        </dba-ui-icon-button>
+        <dba-ui-icon [def]="githubIcon" [size]="18" />
       </a>
     }
   </div>
