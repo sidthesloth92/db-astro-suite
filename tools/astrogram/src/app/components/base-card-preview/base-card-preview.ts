@@ -38,6 +38,7 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
 
   accentColor = input<string>('#ff2d95');
   accentColorRgb = input<string>('255, 45, 149');
+  secondaryAccentColor = input<string>('#00E5FF');
   cardOpacity = input<number>(0.85);
 
   @HostBinding('style.--scale-factor') get scale() {
@@ -85,6 +86,9 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
   }
   @HostBinding('style.--accent-color-rgb') get _accentColorRgb() {
     return this.accentColorRgb();
+  }
+  @HostBinding('style.--secondary-accent-color') get _secondaryAccentColor() {
+    return this.secondaryAccentColor();
   }
   @HostBinding('style.--card-opacity') get _cardOpacity() {
     return this.cardOpacity();

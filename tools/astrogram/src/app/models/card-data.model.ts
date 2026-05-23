@@ -63,6 +63,8 @@ export interface CardData {
   // Appearance
   accentColor: string;
   accentColorRgb?: string; // e.g. "255, 45, 149"
+  /** Secondary accent (e.g. cyan OIII ring, "cyan" integration pills). */
+  secondaryAccentColor: string;
   cardOpacity: number; // 0 to 1
   backgroundImage: string | null;
   aspectRatio: '3:4' | '4:5' | 'auto';

@@ -62,6 +62,18 @@ export class CardPreviewComponent {
     return calculateTotalSeconds(filter) / 3600;
   }
 
+  /**
+   * Resolves the ring colour: OIII pulls from the secondary accent so
+   * the design's cyan treatment flows through the redesigned style
+   * panel. Other filters keep their own per-filter colour.
+   */
+  ringColor(filter: FilterExposure): string {
+    if (filter.name.toUpperCase().includes('OIII')) {
+      return this.cardData().secondaryAccentColor || filter.color;
+    }
+    return filter.color;
+  }
+
   /** Filter integration formatted as a readable string for the ring centre. */
   filterCenterText(filter: FilterExposure): string {
     return formatDuration(calculateTotalSeconds(filter));

@@ -68,11 +68,9 @@ export class StylePanelComponent {
     this.dataService.updateData({ accentColor: hex, accentColorRgb: rgb });
   }
 
-  /** Patches the secondary accent colour — wires to the same accent slot today. */
+  /** Patches the secondary accent colour (drives the cyan OIII ring / pills). */
   setSecondaryColor(hex: string): void {
-    // The current `CardData` model has a single accent colour; the secondary
-    // swatch is an alias for the same slot until a dedicated field lands.
-    this.setAccentColor(hex);
+    this.dataService.updateData({ secondaryAccentColor: hex });
   }
 
   /** Patches the card opacity (slider emits 0–100). */

@@ -39,6 +39,7 @@ export class CardDataService {
     focalLength: null,
     accentColor: '#ff2d95',
     accentColorRgb: '255, 45, 149',
+    secondaryAccentColor: '#00E5FF',
     cardOpacity: 0.6,
     backgroundImage: 'assets/img/rosette.jpg',
     aspectRatio: '3:4',

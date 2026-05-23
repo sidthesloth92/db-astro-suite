@@ -6,6 +6,7 @@
   [exportFilename]="cardData().title"
   [accentColor]="cardData().accentColor || '#ff2d95'"
   [accentColorRgb]="cardData().accentColorRgb || '255, 45, 149'"
+  [secondaryAccentColor]="cardData().secondaryAccentColor || '#00E5FF'"
   [cardOpacity]="cardData().cardOpacity"
 >
   <!-- Pink Nebula header avatar + handle -->
@@ -39,7 +40,7 @@
         <dba-ui-progress-ring
           [value]="filterHours(filter)"
           [total]="totalIntegrationHours()"
-          [color]="filter.color"
+          [color]="ringColor(filter)"
           [label]="filter.name"
           [centerText]="filterCenterText(filter)"
           [size]="72"

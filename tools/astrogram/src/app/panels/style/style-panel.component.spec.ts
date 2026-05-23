@@ -17,6 +17,7 @@ const seed = (): CardData => ({
   pixelSize: 3.76,
   focalLength: null,
   accentColor: '#ff2d95',
+  secondaryAccentColor: '#00E5FF',
   cardOpacity: 0.6,
   backgroundImage: null,
   aspectRatio: '3:4',
@@ -47,6 +48,15 @@ describe('StylePanelComponent', () => {
     fixture.componentInstance.setAccentColor('#00FF00');
     expect(stub.cardData().accentColor).toBe('#00FF00');
     expect(stub.cardData().accentColorRgb).toBe('0, 255, 0');
+  });
+
+  it('writes the secondary accent colour without touching the primary', () => {
+    const fixture = TestBed.createComponent(StylePanelComponent);
+    fixture.detectChanges();
+    const before = stub.cardData().accentColor;
+    fixture.componentInstance.setSecondaryColor('#123456');
+    expect(stub.cardData().secondaryAccentColor).toBe('#123456');
+    expect(stub.cardData().accentColor).toBe(before);
   });
 
   it('clamps opacity to 0–100 and stores as 0–1', () => {

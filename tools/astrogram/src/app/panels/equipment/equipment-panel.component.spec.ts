@@ -21,6 +21,7 @@ const seed = (): CardData => ({
   pixelSize: 3.76,
   focalLength: null,
   accentColor: '#ff2d95',
+  secondaryAccentColor: '#00E5FF',
   cardOpacity: 0.6,
   backgroundImage: null,
   aspectRatio: '3:4',
