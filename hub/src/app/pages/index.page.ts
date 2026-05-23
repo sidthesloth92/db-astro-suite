@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   AnalyticsService,
+  BlackHoleLoaderComponent,
   CardComponent,
   ChevronRightIconComponent,
   FooterComponent,
@@ -23,6 +24,7 @@ import type { HubTool } from './hub-tool.types';
   standalone: true,
   imports: [
     RouterLink,
+    BlackHoleLoaderComponent,
     CardComponent,
     FooterComponent,
     StarryBackgroundComponent,
