@@ -1,11 +1,9 @@
 /* Pink Nebula card layout — rendered inside BaseCardPreviewComponent. */
 
 .pn-hero {
-  margin: 12px 12px 0;
-  padding: 16px 16px 14px;
+  margin: 12px 6px 0;
+  padding: 16px 8px 14px;
   border-radius: 10px;
-  border: 1px solid color-mix(in srgb, var(--accent-color, var(--db-color-neon-pink)) 40%, transparent);
-  box-shadow: 0 0 18px var(--db-color-pink-soft) inset;
   background:
     radial-gradient(ellipse 80% 60% at 30% 50%, rgba(255, 80, 130, 0.18), transparent 70%),
     radial-gradient(ellipse 60% 40% at 80% 80%, rgba(120, 40, 180, 0.2), transparent 70%),
@@ -45,8 +43,8 @@
 }
 
 .pn-integration {
-  margin: 10px 12px;
-  padding: 12px 14px;
+  margin: 10px 6px;
+  padding: 12px 8px;
   background: radial-gradient(ellipse at 50% 50%, rgba(80, 30, 80, 0.4), rgba(10, 10, 15, 0.6));
   border-radius: 10px;
   border: 1px solid var(--db-color-border);
@@ -91,10 +89,10 @@
 }
 
 .pn-two-col {
-  margin: 0 12px 12px;
+  margin: 0 6px 12px;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 8px;
 }
 
 .pn-col {
@@ -104,7 +102,7 @@
 .pn-equipment,
 .pn-software,
 .pn-bortle {
-  padding: 12px;
+  padding: 10px 8px;
   background: rgba(8, 10, 16, 0.7);
   border: 1px solid var(--db-color-border);
   border-radius: 10px;
@@ -127,7 +125,7 @@
 }
 
 .pn-bortle {
-  padding: 10px 12px;
+  padding: 8px;
 }
 
 .pn-icon {
