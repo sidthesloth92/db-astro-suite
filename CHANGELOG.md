@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.15.0...v1.16.0) (2026-05-23)
+
+
+### Features
+
+* solve_events analytics + Hub funnel + access-key dialog ([#33](https://github.com/sidthesloth92/db-astro-suite/issues/33)) ([ed81e74](https://github.com/sidthesloth92/db-astro-suite/commit/ed81e74b9f9fa9619772691446384333356912b4))
+
 ## [1.15.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.14.0...v1.15.0) (2026-05-23)
 
 
