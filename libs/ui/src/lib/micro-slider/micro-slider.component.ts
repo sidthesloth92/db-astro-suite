@@ -24,6 +24,12 @@ export class MicroSliderComponent {
   step = input<number>(1);
   /** Optional unit suffix shown in the readout (e.g. "%", "px"). */
   suffix = input<string | undefined>(undefined);
+  /**
+   * When `false`, the numeric readout above the track is hidden — useful for
+   * consumers that render the value alongside their own label row to save
+   * vertical space. Defaults to `true`.
+   */
+  showReadout = input<boolean>(true);
 
   /** Emits the new numeric value as the user drags. */
   valueChange = output<number>();

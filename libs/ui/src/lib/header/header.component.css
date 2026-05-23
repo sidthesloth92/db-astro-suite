@@ -41,11 +41,11 @@
 }
 
 .brand-title {
-  font-family: var(--db-font-display);
-  font-weight: 700;
-  font-size: 22px;
+  font-family: var(--db-font-ui);
+  font-weight: 100;
+  font-size: 24px;
   line-height: 1;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.16em;
   color: var(--db-color-neon-pink);
   text-shadow: 0 0 12px color-mix(in srgb, var(--db-color-neon-pink) 35%, transparent);
   text-transform: uppercase;

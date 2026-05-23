@@ -32,12 +32,14 @@
         >
           <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
         </span>
+        <span class="row-value">{{ formatControlValue(control) }}</span>
       </div>
       <dba-ui-micro-slider
         [value]="getControlValue(control)"
         [min]="controlConfig[control].min"
         [max]="controlConfig[control].max"
         [step]="controlConfig[control].step"
+        [showReadout]="false"
         (valueChange)="updateControlValue(control, $event)"
       ></dba-ui-micro-slider>
     </div>

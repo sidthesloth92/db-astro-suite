@@ -93,6 +93,13 @@ export class ControlPanel {
     return this.simService.getControlValue(control);
   }
 
+  /** Formatted value rendered alongside the slider label, respecting per-control precision. */
+  formatControlValue(control: ControlKey): string {
+    const value = this.simService.getControlValue(control);
+    const precision = this.controlConfig[control].precision ?? 0;
+    return value.toFixed(precision);
+  }
+
   /**
    * Toggles the recording state machine. Byte-identical to the previous
    * implementation — do not modify without smoke-testing record + download.

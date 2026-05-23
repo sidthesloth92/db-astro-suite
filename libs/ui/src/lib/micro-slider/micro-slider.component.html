@@ -1,4 +1,7 @@
-<div class="row">
+<div class="wrap">
+  @if (showReadout()) {
+    <div class="readout">{{ value() }}{{ suffix() ?? '' }}</div>
+  }
   <div class="track-wrap">
     <div class="track">
       <div class="fill" [style.width.%]="percent()"></div>
@@ -14,5 +17,4 @@
       (input)="onInput($event)"
     />
   </div>
-  <div class="readout">{{ value() }}{{ suffix() ?? '' }}</div>
 </div>

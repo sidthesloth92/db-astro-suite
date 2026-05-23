@@ -74,9 +74,16 @@
   gap: 6px;
 }
 
+.row-value {
+  margin-left: auto;
+  font: 500 11px/1 var(--db-font-mono-code);
+  color: var(--db-color-text-primary);
+}
+
 .row-label {
-  font-family: var(--db-font-mono-code);
-  font-size: 10px;
+  font-family: var(--db-font-ui);
+  font-size: 11px;
+  font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--db-color-text-dim);
