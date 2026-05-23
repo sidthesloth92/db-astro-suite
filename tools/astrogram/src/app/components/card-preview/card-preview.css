@@ -1,38 +1,7 @@
 /* Pink Nebula card layout — rendered inside BaseCardPreviewComponent. */
 
-.pn-header {
-  padding: 12px 14px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.pn-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  /* Mirrors `--db-gradient-astrogram-avatar` but threaded through the
-     dynamic `--accent-color` so this avatar tracks the card's accent. */
-  background: radial-gradient(
-    circle at 30% 30%,
-    var(--db-color-avatar-warm),
-    var(--accent-color, var(--db-color-neon-pink)) 70%,
-    var(--db-color-avatar-deep)
-  );
-  flex-shrink: 0;
-}
-
-.pn-handle {
-  flex: 1;
-  font-family: var(--db-font-ui);
-  font-weight: 400;
-  font-size: 12px;
-  color: var(--db-color-text-primary);
-  line-height: 1;
-}
-
 .pn-hero {
-  margin: 0 12px;
+  margin: 12px 12px 0;
   padding: 16px 16px 14px;
   border-radius: 10px;
   border: 1px solid color-mix(in srgb, var(--accent-color, var(--db-color-neon-pink)) 40%, transparent);
@@ -46,11 +15,11 @@
 
 .pn-title {
   margin: 0;
-  font-family: var(--db-font-display-major);
-  font-weight: 400;
-  font-size: 17px;
-  line-height: 1.15;
-  letter-spacing: 0.02em;
+  font-family: var(--db-font-ui);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
   color: var(--accent-color, var(--db-color-neon-pink));
 }
 
@@ -91,10 +60,11 @@
 }
 
 .pn-integration-kicker {
-  font-family: var(--db-font-display-major);
-  font-weight: 400;
-  font-size: 11px;
-  letter-spacing: 0.08em;
+  font-family: var(--db-font-ui);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   color: var(--accent-color, var(--db-color-neon-pink));
 }
 
@@ -142,10 +112,11 @@
 
 .pn-col-kicker {
   margin-bottom: 8px;
-  font-family: var(--db-font-display-major);
-  font-weight: 400;
-  font-size: 10px;
-  letter-spacing: 0.08em;
+  font-family: var(--db-font-ui);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   color: var(--accent-color, var(--db-color-neon-pink));
 }
 
