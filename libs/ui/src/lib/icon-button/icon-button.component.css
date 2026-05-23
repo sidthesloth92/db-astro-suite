@@ -11,15 +11,27 @@
   color: var(--db-color-text-dim);
   cursor: pointer;
   padding: 0;
-  transition:
-    background 150ms ease,
-    border-color 150ms ease,
-    color 150ms ease;
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .icon-button:hover:not(:disabled) {
   color: var(--db-color-text-primary);
   border-color: var(--db-color-border-strong);
+  transform: scale(1.1);
+}
+
+.icon-button[data-accent="pink"]:hover:not(:disabled) {
+  color: var(--db-color-neon-pink);
+  border-color: var(--db-color-border-active);
+  background: var(--db-color-pink-soft);
+  box-shadow: 0 0 15px var(--db-color-pink-soft);
+}
+
+.icon-button[data-accent="cyan"]:hover:not(:disabled) {
+  color: var(--db-color-cyan);
+  border-color: var(--db-color-cyan);
+  background: var(--db-color-cyan-soft);
+  box-shadow: 0 0 15px var(--db-color-cyan-soft);
 }
 
 .icon-button:focus-visible {

@@ -61,7 +61,9 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
       if (natW > 0) return `${natW}px`;
       return this.backgroundImage() ? 'auto' : '480px';
     }
-    return `${this.aspectRatio() === '3:4' ? 450 : 480}px`;
+    // Both 3:4 and 4:5 render at 480 px so the surrounding context bar +
+    // caption section align flush with the card chrome on either side.
+    return '480px';
   }
   @HostBinding('style.--img-height') get imgHeight() {
     const natH = this.naturalImageHeight();
@@ -74,8 +76,7 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
       if (natW > 0) return `${natW * scale}px`;
       return `${480 * scale}px`;
     }
-    const baseW = this.aspectRatio() === '3:4' ? 450 : 480;
-    return `${baseW * scale}px`;
+    return `${480 * scale}px`;
   }
   @HostBinding('style.--post-width') get postWidth() {
     if (this.aspectRatio() === 'auto') {
