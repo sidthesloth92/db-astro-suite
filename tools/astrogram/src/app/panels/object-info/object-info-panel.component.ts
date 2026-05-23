@@ -56,6 +56,8 @@ export class ObjectInfoPanelComponent {
 
   /** Patches a single field on the card document. */
   update<K extends keyof CardData>(field: K, value: CardData[K]): void {
+    // Keyed assignment cannot be inferred to Partial<CardData> by TS; cast is
+    // safe because K is constrained to keyof CardData.
     this.dataService.updateData({ [field]: value } as Partial<CardData>);
   }
 

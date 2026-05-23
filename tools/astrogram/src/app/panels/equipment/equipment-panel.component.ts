@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import {
   AnalyticsService,
   CheckIconComponent,
@@ -43,7 +43,7 @@ interface PresetRow {
   styleUrls: ['./equipment-panel.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EquipmentPanelComponent implements OnInit {
+export class EquipmentPanelComponent {
   private readonly dataService = inject(CardDataService);
   private readonly presetService = inject(PresetService);
   private readonly analyticsService = inject(AnalyticsService);
@@ -68,12 +68,6 @@ export class EquipmentPanelComponent implements OnInit {
       active: name === selected,
     }));
   });
-
-  /** Loads presets initially so `presetRows` has data on first render. */
-  ngOnInit(): void {
-    // Triggers the computed to re-evaluate against the freshly loaded store.
-    this.selectedPresetName.set('');
-  }
 
   /** Activates a preset by name, copying its equipment into the card document. */
   activatePreset(name: string): void {
