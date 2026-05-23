@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import {
   AnalyticsService,
+  IconComponent,
   InspectorFieldComponent,
   InspectorSectionComponent,
   MicroSliderComponent,
-  TargetIconComponent,
-  TrashIconComponent,
+  targetIcon,
+  trashIcon,
 } from '@db-astro-suite/ui';
 import type { AnnotationStyle } from '../../models/annotation-settings.models';
 import type { ImageAnnotation } from '../../models/annotation.models';
@@ -24,8 +25,7 @@ import { CardDataService } from '../../services/card-data.service';
     InspectorSectionComponent,
     InspectorFieldComponent,
     MicroSliderComponent,
-    TargetIconComponent,
-    TrashIconComponent,
+    IconComponent,
   ],
   templateUrl: './annotation-selected-panel.component.html',
   styleUrls: ['./annotation-selected-panel.component.css'],
@@ -34,6 +34,11 @@ import { CardDataService } from '../../services/card-data.service';
 export class AnnotationSelectedPanelComponent {
   private readonly dataService = inject(CardDataService);
   private readonly analyticsService = inject(AnalyticsService);
+
+  /** Target glyph rendered in the selected-card pill and section title. */
+  protected readonly targetIcon = targetIcon;
+  /** Trash glyph rendered on the delete button. */
+  protected readonly trashIcon = trashIcon;
 
   /** Currently-selected annotation, or null when none is selected. */
   readonly annotation = computed<ImageAnnotation | null>(() => {

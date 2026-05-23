@@ -1,12 +1,13 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import {
   ColorSwatchInputComponent,
-  CropIconComponent,
-  ImageIconComponent,
+  IconComponent,
   InspectorFieldComponent,
   InspectorSectionComponent,
   MicroSliderComponent,
-  PaletteIconComponent,
+  cropIcon,
+  imageIcon,
+  paletteIcon,
 } from '@db-astro-suite/ui';
 import { CardData } from '../../models/card-data.model';
 import { CardDataService } from '../../services/card-data.service';
@@ -33,9 +34,7 @@ interface FormatOption {
     InspectorFieldComponent,
     ColorSwatchInputComponent,
     MicroSliderComponent,
-    CropIconComponent,
-    PaletteIconComponent,
-    ImageIconComponent,
+    IconComponent,
   ],
   templateUrl: './style-panel.component.html',
   styleUrls: ['./style-panel.component.css'],
@@ -46,6 +45,11 @@ export class StylePanelComponent {
 
   /** Current card document. */
   readonly cardData = this.dataService.cardData;
+
+  /** Glyphs rendered next to each section title. */
+  protected readonly cropIcon = cropIcon;
+  protected readonly paletteIcon = paletteIcon;
+  protected readonly imageIcon = imageIcon;
 
   /** Supported card formats (only those the export pipeline accepts). */
   readonly formatOptions: readonly FormatOption[] = [

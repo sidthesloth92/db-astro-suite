@@ -8,9 +8,9 @@
       (clicked)="copyToClipboard()"
     >
       @if (copied()) {
-        <dba-ui-icon-check [size]="14" />
+        <dba-ui-icon [def]="checkIcon" [size]="14" />
       } @else {
-        <dba-ui-icon-copy [size]="14" />
+        <dba-ui-icon [def]="copyIcon" [size]="14" />
       }
     </dba-ui-icon-button>
   </header>

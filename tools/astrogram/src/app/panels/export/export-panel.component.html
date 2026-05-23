@@ -1,6 +1,6 @@
 <div class="panel-root">
   <dba-ui-inspector-section title="Export options">
-    <dba-ui-icon-download slot="icon" [size]="14" />
+    <dba-ui-icon slot="icon" [def]="downloadIcon" [size]="14" />
     <div class="format-list">
       @for (opt of formats; track opt.id) {
         <button
@@ -19,7 +19,7 @@
     </div>
     <div class="cta-wrap">
       <button type="button" class="cta-btn" (click)="triggerExport()">
-        <dba-ui-icon-download [size]="13" />
+        <dba-ui-icon [def]="downloadIcon" [size]="13" />
         <span>Export now</span>
       </button>
     </div>
@@ -28,7 +28,7 @@
   <hr class="divider" aria-hidden="true" />
 
   <dba-ui-inspector-section title="Share to">
-    <dba-ui-icon-share slot="icon" [size]="14" />
+    <dba-ui-icon slot="icon" [def]="shareIcon" [size]="14" />
     <div class="share-grid">
       @for (target of shareTargets; track target.id) {
         <button

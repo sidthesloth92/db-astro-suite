@@ -5,11 +5,12 @@ import {
   AnalyticsService,
   BlackHoleLoaderComponent,
   CardComponent,
-  ChevronRightIconComponent,
   FooterComponent,
+  IconComponent,
   PillBadgeComponent,
   StarryBackgroundComponent,
   TextButtonComponent,
+  chevronRightIcon,
 } from '@db-astro-suite/ui';
 import type { HubTool } from './hub-tool.types';
 
@@ -30,7 +31,7 @@ import type { HubTool } from './hub-tool.types';
     StarryBackgroundComponent,
     PillBadgeComponent,
     TextButtonComponent,
-    ChevronRightIconComponent,
+    IconComponent,
   ],
   templateUrl: './index.page.html',
   styleUrl: './index.page.css',
@@ -38,6 +39,9 @@ import type { HubTool } from './hub-tool.types';
 })
 export default class HomePageComponent {
   private readonly analytics = inject(AnalyticsService);
+
+  /** Chevron-right glyph rendered as the trailing icon on each Learn more CTA. */
+  protected readonly chevronRightIcon = chevronRightIcon;
 
   /** Fires the hub tool card click analytics event. */
   onCardClick(tool: HubTool): void {

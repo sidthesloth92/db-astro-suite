@@ -10,10 +10,10 @@
   <ng-template #tabIcon let-opt>
     @switch (opt.id) {
       @case ('infographic') {
-        <dba-ui-icon-layout [size]="12" />
+        <dba-ui-icon [def]="layoutIcon" [size]="12" />
       }
       @case ('stellar') {
-        <dba-ui-icon-sparkles [size]="12" />
+        <dba-ui-icon [def]="sparklesIcon" [size]="12" />
       }
     }
   </ng-template>

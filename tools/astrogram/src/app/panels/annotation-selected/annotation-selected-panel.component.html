@@ -2,19 +2,19 @@
   @if (annotation(); as ann) {
     <div class="selected-card">
       <div class="icon-pill" aria-hidden="true">
-        <dba-ui-icon-target [size]="16" />
+        <dba-ui-icon [def]="targetIcon" [size]="16" />
       </div>
       <div class="meta">
         <div class="kicker">Selected</div>
         <div class="title">{{ effectiveLabel() || ann.label }}</div>
       </div>
       <button type="button" class="trash" aria-label="Delete annotation" (click)="removeAnnotation()">
-        <dba-ui-icon-trash [size]="13" />
+        <dba-ui-icon [def]="trashIcon" [size]="13" />
       </button>
     </div>
 
     <dba-ui-inspector-section title="Properties" sub="Override global style" [compact]="true">
-      <dba-ui-icon-target slot="icon" [size]="14" />
+      <dba-ui-icon slot="icon" [def]="targetIcon" [size]="14" />
       <dba-ui-inspector-field label="Label">
         <input
           class="label-input"

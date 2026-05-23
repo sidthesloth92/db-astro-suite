@@ -5,11 +5,12 @@ import { RouterLink } from '@angular/router';
 import {
   AnalyticsService,
   CardComponent,
-  ChevronLeftIconComponent,
-  ChevronRightIconComponent,
   FooterComponent,
+  IconComponent,
   StarryBackgroundComponent,
   TextButtonComponent,
+  chevronLeftIcon,
+  chevronRightIcon,
 } from '@db-astro-suite/ui';
 import { ASTROGRAM_LAUNCH_URL } from './dossier.constants';
 
@@ -27,8 +28,7 @@ import { ASTROGRAM_LAUNCH_URL } from './dossier.constants';
     FooterComponent,
     StarryBackgroundComponent,
     TextButtonComponent,
-    ChevronLeftIconComponent,
-    ChevronRightIconComponent,
+    IconComponent,
   ],
   templateUrl: './astrogram.page.html',
   styleUrl: './astrogram.page.css',
@@ -37,6 +37,11 @@ import { ASTROGRAM_LAUNCH_URL } from './dossier.constants';
 export default class AstroGramPage {
   /** Public launch target — bound from the template as the anchor `href`. */
   protected readonly launchUrl = ASTROGRAM_LAUNCH_URL;
+
+  /** Chevron-left glyph used inside the "RETURN TO HUB" back link. */
+  protected readonly chevronLeftIcon = chevronLeftIcon;
+  /** Chevron-right glyph used as the trailing icon on the Launch Tool CTA. */
+  protected readonly chevronRightIcon = chevronRightIcon;
 
   private readonly analytics = inject(AnalyticsService);
   private readonly document = inject(DOCUMENT);

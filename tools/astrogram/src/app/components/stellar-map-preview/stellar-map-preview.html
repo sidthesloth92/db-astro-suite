@@ -16,7 +16,7 @@
         [size]="28"
         (clicked)="addCenterAnnotation()"
       >
-        <dba-ui-icon-plus [size]="13" />
+        <dba-ui-icon [def]="plusIcon" [size]="13" />
       </dba-ui-icon-button>
       <!--
         TODO(stellar-select-tool): the Select tool affordance from the
@@ -31,7 +31,7 @@
         [active]="isSelectToolActive()"
         (clicked)="toggleSelectTool()"
       >
-        <dba-ui-icon-target [size]="13" />
+        <dba-ui-icon [def]="targetIcon" [size]="13" />
       </dba-ui-icon-button>
       <span class="toolbar-divider" aria-hidden="true"></span>
       <dba-ui-pill-badge tone="cyan">{{ visibleCount() }} OBJECTS</dba-ui-pill-badge>

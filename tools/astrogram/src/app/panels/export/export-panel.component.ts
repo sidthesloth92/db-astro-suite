@@ -2,9 +2,10 @@ import { DOCUMENT } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, output, signal } from '@angular/core';
 import {
   AnalyticsService,
-  DownloadIconComponent,
+  IconComponent,
   InspectorSectionComponent,
-  ShareIconComponent,
+  downloadIcon,
+  shareIcon,
 } from '@db-astro-suite/ui';
 import { CardDataService } from '../../services/card-data.service';
 
@@ -31,7 +32,7 @@ interface ShareTarget {
 @Component({
   selector: 'dba-ag-export-panel',
   standalone: true,
-  imports: [InspectorSectionComponent, DownloadIconComponent, ShareIconComponent],
+  imports: [InspectorSectionComponent, IconComponent],
   templateUrl: './export-panel.component.html',
   styleUrls: ['./export-panel.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -43,6 +44,11 @@ export class ExportPanelComponent {
 
   /** Emitted when the user clicks the in-panel Export CTA. The parent shell triggers the actual export. */
   readonly exportRequested = output<void>();
+
+  /** Download glyph (section title + Export CTA). */
+  protected readonly downloadIcon = downloadIcon;
+  /** Share glyph used in the Share-to section title. */
+  protected readonly shareIcon = shareIcon;
 
   /** Current format choice mirrored from `CardDataService.exportFormat`. */
   readonly format = computed(() => this.cardDataService.exportFormat());

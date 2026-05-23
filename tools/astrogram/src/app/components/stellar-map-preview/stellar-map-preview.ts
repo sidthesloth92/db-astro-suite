@@ -10,9 +10,10 @@ import {
 } from '@angular/core';
 import {
   IconButtonComponent,
+  IconComponent,
   PillBadgeComponent,
-  PlusIconComponent,
-  TargetIconComponent,
+  plusIcon,
+  targetIcon,
 } from '@db-astro-suite/ui';
 import { findHitAnnotationId } from '../../utils/annotation-hit-test.util';
 import { ImageAnnotation } from '../../models/annotation.models';
@@ -38,9 +39,8 @@ import { BaseCardPreviewComponent } from '../base-card-preview/base-card-preview
     BaseCardPreviewComponent,
     StellarUploadPanelComponent,
     IconButtonComponent,
+    IconComponent,
     PillBadgeComponent,
-    PlusIconComponent,
-    TargetIconComponent,
   ],
   templateUrl: './stellar-map-preview.html',
   styleUrls: ['./stellar-map-preview.css'],
@@ -50,6 +50,11 @@ export class StellarMapPreviewComponent {
   private readonly dataService = inject(CardDataService);
   readonly mapData = this.dataService.stellarMapData;
   readonly selectedAnnotationId = this.dataService.selectedAnnotationId;
+
+  /** Plus glyph used on the Add annotation FAB. */
+  protected readonly plusIcon = plusIcon;
+  /** Target glyph used on the Select-tool toggle. */
+  protected readonly targetIcon = targetIcon;
 
   private readonly _dragId = signal<string | null>(null);
   private readonly _dragStartMouse = signal<{ x: number; y: number } | null>(null);

@@ -1,12 +1,13 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import {
   ColorSwatchInputComponent,
+  IconComponent,
   InspectorFieldComponent,
   InspectorSectionComponent,
   MicroSliderComponent,
   SwitchComponent,
-  TagIconComponent,
-  TargetIconComponent,
+  tagIcon,
+  targetIcon,
 } from '@db-astro-suite/ui';
 import type { GlobalAnnotationSettings } from '../../models/annotation-settings.models';
 import { CardDataService } from '../../services/card-data.service';
@@ -25,8 +26,7 @@ import { CardDataService } from '../../services/card-data.service';
     ColorSwatchInputComponent,
     MicroSliderComponent,
     SwitchComponent,
-    TargetIconComponent,
-    TagIconComponent,
+    IconComponent,
   ],
   templateUrl: './annotation-style-panel.component.html',
   styleUrls: ['./annotation-style-panel.component.css'],
@@ -37,6 +37,10 @@ export class AnnotationStylePanelComponent {
 
   /** Current global annotation settings. */
   readonly settings = computed(() => this.dataService.stellarMapData().globalAnnotationSettings);
+
+  /** Glyphs rendered next to the Circle and Label section titles. */
+  protected readonly targetIcon = targetIcon;
+  protected readonly tagIcon = tagIcon;
 
   /** Circle opacity as 0–100 for the slider readout. */
   readonly circleOpacityPercent = computed(() => Math.round(this.settings().circleOpacity * 100));

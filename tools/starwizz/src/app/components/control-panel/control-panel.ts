@@ -1,12 +1,13 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import {
   IconButtonComponent,
+  IconComponent,
   MicroSliderComponent,
-  RotateCcwIconComponent,
   SelectComponent,
   SwitchComponent,
   TextButtonComponent,
-  UploadIconComponent,
+  rotateCcwIcon,
+  uploadIcon,
   type SelectOption,
 } from '@db-astro-suite/ui';
 import { ASPECT_RATIOS, AspectRatioKey, CONTROLS } from '../../constants/simulation.constant';
@@ -29,8 +30,7 @@ import { SimulationService } from '../../services/simulation.service';
     SwitchComponent,
     TextButtonComponent,
     IconButtonComponent,
-    UploadIconComponent,
-    RotateCcwIconComponent,
+    IconComponent,
   ],
   templateUrl: './control-panel.html',
   styleUrl: './control-panel.css',
@@ -39,6 +39,11 @@ import { SimulationService } from '../../services/simulation.service';
 export class ControlPanel {
   /** Shared simulation state + recording state machine. */
   protected readonly simService = inject(SimulationService);
+
+  /** Upload glyph rendered on the upload icon-button. */
+  protected readonly uploadIcon = uploadIcon;
+  /** Rotate-ccw glyph rendered as leading icon on the reset buttons. */
+  protected readonly rotateCcwIcon = rotateCcwIcon;
 
   /** Slider control metadata (label, min/max/step/precision, etc.). */
   readonly controlConfig = CONTROLS;

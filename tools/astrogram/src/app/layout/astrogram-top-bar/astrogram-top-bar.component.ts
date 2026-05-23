@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import {
   HeaderComponent,
-  LayoutIconComponent,
+  IconComponent,
   SegmentedTabsComponent,
-  SparklesIconComponent,
+  layoutIcon,
+  sparklesIcon,
   type SegmentedTabOption,
 } from '@db-astro-suite/ui';
 import packageJson from '../../../../package.json';
@@ -31,12 +32,7 @@ export type AstrogramTopBarMode = 'infographic' | 'stellar-map';
 @Component({
   selector: 'dba-ag-top-bar',
   standalone: true,
-  imports: [
-    HeaderComponent,
-    SegmentedTabsComponent,
-    LayoutIconComponent,
-    SparklesIconComponent,
-  ],
+  imports: [HeaderComponent, SegmentedTabsComponent, IconComponent],
   templateUrl: './astrogram-top-bar.component.html',
   styleUrl: './astrogram-top-bar.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -62,6 +58,11 @@ export class AstrogramTopBarComponent {
   readonly githubLink = ASTROGRAM_GITHUB_HREF;
   /** External "About me" link rendered next to the GitHub icon. */
   readonly aboutLink = ASTROGRAM_ABOUT_HREF;
+
+  /** Layout glyph used by the Infographic tab. */
+  protected readonly layoutIcon = layoutIcon;
+  /** Sparkles glyph used by the Stellar Map tab. */
+  protected readonly sparklesIcon = sparklesIcon;
 
   /** Active tab id derived from the shared `CardDataService.activeMode` signal. */
   readonly activeTabId = computed<AstrogramTabId>(() =>

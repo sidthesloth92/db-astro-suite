@@ -1,14 +1,15 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import {
-  ApertureIconComponent,
-  DownloadIconComponent,
-  FilterIconComponent,
+  IconComponent,
   IconRailComponent,
   IconRailItemComponent,
-  ImageIconComponent,
-  PaletteIconComponent,
-  TargetIconComponent,
-  TelescopeIconComponent,
+  apertureIcon,
+  downloadIcon,
+  filterIcon,
+  imageIcon,
+  paletteIcon,
+  targetIcon,
+  telescopeIcon,
 } from '@db-astro-suite/ui';
 import { CardDataService } from '../../services/card-data.service';
 import { AnnotationFiltersPanelComponent } from '../../panels/annotation-filters/annotation-filters-panel.component';
@@ -38,15 +39,9 @@ export type { InfographicSectionId, StellarSectionId };
   selector: 'dba-ag-inspector-panel-host',
   standalone: true,
   imports: [
+    IconComponent,
     IconRailComponent,
     IconRailItemComponent,
-    ImageIconComponent,
-    ApertureIconComponent,
-    TelescopeIconComponent,
-    PaletteIconComponent,
-    DownloadIconComponent,
-    FilterIconComponent,
-    TargetIconComponent,
     ObjectInfoPanelComponent,
     CapturePanelComponent,
     EquipmentPanelComponent,
@@ -70,6 +65,15 @@ export class InspectorPanelHostComponent {
 
   /** Mode signal mirrored for templates. */
   readonly mode = computed(() => this.dataService.activeMode());
+
+  /** Glyphs surfaced on the rail in infographic + stellar modes. */
+  protected readonly imageIcon = imageIcon;
+  protected readonly apertureIcon = apertureIcon;
+  protected readonly telescopeIcon = telescopeIcon;
+  protected readonly paletteIcon = paletteIcon;
+  protected readonly downloadIcon = downloadIcon;
+  protected readonly filterIcon = filterIcon;
+  protected readonly targetIcon = targetIcon;
 
   /** Picks an infographic section by id. */
   selectInfographic(id: string): void {

@@ -2,7 +2,7 @@
   <div class="content">
     <nav class="top-nav">
       <a routerLink="/" class="back-link">
-        <dba-ui-icon-chevron-left [size]="12" />
+        <dba-ui-icon [def]="chevronLeftIcon" [size]="12" />
         <span>RETURN TO HUB</span>
       </a>
       <div class="mission-id">Module: StarWizz</div>
@@ -27,7 +27,7 @@
         [href]="launchUrl"
         (clicked)="onLaunch()"
       >
-        <dba-ui-icon-chevron-right slot="trailing" [size]="14" />
+        <dba-ui-icon slot="trailing" [def]="chevronRightIcon" [size]="14" />
       </dba-ui-text-button>
     </header>
 

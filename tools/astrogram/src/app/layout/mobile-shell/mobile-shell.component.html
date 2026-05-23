@@ -28,12 +28,12 @@
 
     <ng-template #navIcon let-item>
       @switch (item.iconName) {
-        @case ('image') { <dba-ui-icon-image [size]="18" /> }
-        @case ('aperture') { <dba-ui-icon-aperture [size]="18" /> }
-        @case ('telescope') { <dba-ui-icon-telescope [size]="18" /> }
-        @case ('palette') { <dba-ui-icon-palette [size]="18" /> }
-        @case ('filter') { <dba-ui-icon-filter [size]="18" /> }
-        @case ('target') { <dba-ui-icon-target [size]="18" /> }
+        @case ('image') { <dba-ui-icon [def]="imageIcon" [size]="18" /> }
+        @case ('aperture') { <dba-ui-icon [def]="apertureIcon" [size]="18" /> }
+        @case ('telescope') { <dba-ui-icon [def]="telescopeIcon" [size]="18" /> }
+        @case ('palette') { <dba-ui-icon [def]="paletteIcon" [size]="18" /> }
+        @case ('filter') { <dba-ui-icon [def]="filterIcon" [size]="18" /> }
+        @case ('target') { <dba-ui-icon [def]="targetIcon" [size]="18" /> }
       }
     </ng-template>
 

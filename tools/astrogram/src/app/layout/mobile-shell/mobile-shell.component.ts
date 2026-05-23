@@ -1,13 +1,14 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import {
-  ApertureIconComponent,
   BottomNavComponent,
-  FilterIconComponent,
   FloatingSheetComponent,
-  ImageIconComponent,
-  PaletteIconComponent,
-  TargetIconComponent,
-  TelescopeIconComponent,
+  IconComponent,
+  apertureIcon,
+  filterIcon,
+  imageIcon,
+  paletteIcon,
+  targetIcon,
+  telescopeIcon,
 } from '@db-astro-suite/ui';
 import type {
   MobileInfographicId,
@@ -49,12 +50,7 @@ import { AstrogramTopBarComponent } from '../astrogram-top-bar/astrogram-top-bar
     AnnotationFiltersPanelComponent,
     AnnotationStylePanelComponent,
     AnnotationSelectedPanelComponent,
-    ImageIconComponent,
-    ApertureIconComponent,
-    TelescopeIconComponent,
-    PaletteIconComponent,
-    FilterIconComponent,
-    TargetIconComponent,
+    IconComponent,
   ],
   templateUrl: './mobile-shell.component.html',
   styleUrls: ['./mobile-shell.component.css'],
@@ -62,6 +58,14 @@ import { AstrogramTopBarComponent } from '../astrogram-top-bar/astrogram-top-bar
 })
 export class MobileShellComponent {
   private readonly dataService = inject(CardDataService);
+
+  /** Glyphs surfaced via the bottom-nav `navIcon` template switch. */
+  protected readonly imageIcon = imageIcon;
+  protected readonly apertureIcon = apertureIcon;
+  protected readonly telescopeIcon = telescopeIcon;
+  protected readonly paletteIcon = paletteIcon;
+  protected readonly filterIcon = filterIcon;
+  protected readonly targetIcon = targetIcon;
 
   /** Active top-level mode mirrored from the shared signal. */
   readonly activeMode = computed(() => this.dataService.activeMode());

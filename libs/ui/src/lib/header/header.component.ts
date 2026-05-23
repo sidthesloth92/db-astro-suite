@@ -8,7 +8,8 @@ import {
   signal,
 } from '@angular/core';
 import { IconButtonComponent } from '../icon-button/icon-button.component';
-import { GithubIconComponent } from '../icons/github.icon.component';
+import { IconComponent } from '../icon/icon.component';
+import { githubIcon } from '../icons/github.icon';
 
 /** Mobile breakpoint, in px, below which the header switches to its compact layout. */
 const MOBILE_BREAKPOINT_PX = 768;
@@ -25,7 +26,7 @@ const MOBILE_BREAKPOINT_PX = 768;
 @Component({
   selector: 'dba-ui-header',
   standalone: true,
-  imports: [IconButtonComponent, GithubIconComponent],
+  imports: [IconButtonComponent, IconComponent],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -48,6 +49,9 @@ export class HeaderComponent {
 
   /** Whether the viewport is currently below the mobile breakpoint. */
   readonly isMobile = signal<boolean>(false);
+
+  /** GitHub glyph used by the optional GitHub icon button. */
+  protected readonly githubIcon = githubIcon;
 
   private readonly destroyRef = inject(DestroyRef);
 

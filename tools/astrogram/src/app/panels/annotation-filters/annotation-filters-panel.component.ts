@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import {
-  CheckIconComponent,
-  GlobeIconComponent,
+  IconComponent,
   InspectorSectionComponent,
-  LayersIconComponent,
   MicroSliderComponent,
-  StarsIconComponent,
+  checkIcon,
+  globeIcon,
+  layersIcon,
+  starsIcon,
 } from '@db-astro-suite/ui';
 import type { AnnotationFilters } from '../../models/card-data.model';
 import { CardDataService } from '../../services/card-data.service';
@@ -22,14 +23,7 @@ type BooleanFilterKey = Exclude<keyof AnnotationFilters, 'maxStarMagnitude'>;
 @Component({
   selector: 'dba-ag-annotation-filters-panel',
   standalone: true,
-  imports: [
-    InspectorSectionComponent,
-    MicroSliderComponent,
-    StarsIconComponent,
-    LayersIconComponent,
-    GlobeIconComponent,
-    CheckIconComponent,
-  ],
+  imports: [InspectorSectionComponent, MicroSliderComponent, IconComponent],
   templateUrl: './annotation-filters-panel.component.html',
   styleUrls: ['./annotation-filters-panel.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,6 +33,12 @@ export class AnnotationFiltersPanelComponent {
 
   /** Reactive view of the stellar-map document. */
   readonly mapData = this.dataService.stellarMapData;
+
+  /** Glyphs surfaced in section titles + check tiles. */
+  protected readonly checkIcon = checkIcon;
+  protected readonly globeIcon = globeIcon;
+  protected readonly layersIcon = layersIcon;
+  protected readonly starsIcon = starsIcon;
 
   /** Current filter state used by the template. */
   readonly filters = computed(() => this.mapData().filters);

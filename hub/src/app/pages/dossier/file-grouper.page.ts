@@ -5,11 +5,12 @@ import { RouterLink } from '@angular/router';
 import {
   AnalyticsService,
   CardComponent,
-  ChevronLeftIconComponent,
-  ChevronRightIconComponent,
   FooterComponent,
+  IconComponent,
   StarryBackgroundComponent,
   TextButtonComponent,
+  chevronLeftIcon,
+  chevronRightIcon,
 } from '@db-astro-suite/ui';
 import { FILE_GROUPER_REPO_URL } from './dossier.constants';
 
@@ -27,8 +28,7 @@ import { FILE_GROUPER_REPO_URL } from './dossier.constants';
     FooterComponent,
     StarryBackgroundComponent,
     TextButtonComponent,
-    ChevronLeftIconComponent,
-    ChevronRightIconComponent,
+    IconComponent,
   ],
   templateUrl: './file-grouper.page.html',
   styleUrl: './file-grouper.page.css',
@@ -37,6 +37,11 @@ import { FILE_GROUPER_REPO_URL } from './dossier.constants';
 export default class FileGrouperPageComponent {
   /** External GitHub repo URL — bound from the template as the anchor `href`. */
   protected readonly repoUrl = FILE_GROUPER_REPO_URL;
+
+  /** Chevron-left glyph used inside the "RETURN TO HUB" back link. */
+  protected readonly chevronLeftIcon = chevronLeftIcon;
+  /** Chevron-right glyph used as the trailing icon on the Access Repository CTA. */
+  protected readonly chevronRightIcon = chevronRightIcon;
 
   private readonly analytics = inject(AnalyticsService);
   private readonly document = inject(DOCUMENT);

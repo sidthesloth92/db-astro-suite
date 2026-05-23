@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, input, model } from '@angular/core';
-import { CloseIconComponent } from '../icons/close.icon.component';
+import { IconComponent } from '../icon/icon.component';
+import { closeIcon } from '../icons/close.icon';
 
 /**
  * Floating, semi-transparent backdrop-blurred bottom sheet for the
@@ -14,7 +15,7 @@ import { CloseIconComponent } from '../icons/close.icon.component';
 @Component({
   selector: 'dba-ui-floating-sheet',
   standalone: true,
-  imports: [CloseIconComponent],
+  imports: [IconComponent],
   templateUrl: './floating-sheet.component.html',
   styleUrls: ['./floating-sheet.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -26,6 +27,9 @@ export class FloatingSheetComponent {
   title = input<string>('');
   /** Cap on the sheet's expanded height, as a percentage of the viewport. */
   maxHeightPercent = input<number>(70);
+
+  /** Close glyph used by the collapse button in the sheet header. */
+  protected readonly closeIcon = closeIcon;
 
   /** Collapses the sheet (called by the X button). */
   collapse(): void {

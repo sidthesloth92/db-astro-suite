@@ -1,9 +1,9 @@
 <div class="panel-root">
   <dba-ui-inspector-section title="Rig presets" sub="Load a saved equipment set">
-    <dba-ui-icon-layers slot="icon" [size]="14" />
+    <dba-ui-icon slot="icon" [def]="layersIcon" [size]="14" />
     @if (!isSavingPreset()) {
       <button slot="action" type="button" class="action-btn" (click)="startSavePreset()">
-        <dba-ui-icon-plus [size]="11" /> <span>New</span>
+        <dba-ui-icon [def]="plusIcon" [size]="11" /> <span>New</span>
       </button>
     }
 
@@ -34,7 +34,7 @@
             (click)="activatePreset(preset.name)"
           >
             <span class="preset-check" [class.is-on]="preset.active">
-              @if (preset.active) { <dba-ui-icon-check [size]="10" /> }
+              @if (preset.active) { <dba-ui-icon [def]="checkIcon" [size]="10" /> }
             </span>
             <span class="preset-meta">
               <span class="preset-name">{{ preset.name }}</span>
@@ -49,7 +49,7 @@
   <hr class="divider" aria-hidden="true" />
 
   <dba-ui-inspector-section title="Equipment" sub="Hardware">
-    <dba-ui-icon-telescope slot="icon" [size]="14" />
+    <dba-ui-icon slot="icon" [def]="telescopeIcon" [size]="14" />
     @for (item of cardData().equipment; track $index; let i = $index) {
       <dba-ui-inspector-field [label]="item.label">
         <dba-ui-micro-input
@@ -63,7 +63,7 @@
   <hr class="divider" aria-hidden="true" />
 
   <dba-ui-inspector-section title="Software" sub="Capture & processing pipeline">
-    <dba-ui-icon-cpu slot="icon" [size]="14" />
+    <dba-ui-icon slot="icon" [def]="cpuIcon" [size]="14" />
     @for (item of cardData().software; track $index; let i = $index) {
       <dba-ui-inspector-field [label]="item.label">
         <dba-ui-micro-input

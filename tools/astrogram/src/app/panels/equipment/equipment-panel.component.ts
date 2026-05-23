@@ -1,14 +1,15 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import {
   AnalyticsService,
-  CheckIconComponent,
-  CpuIconComponent,
+  IconComponent,
   InspectorFieldComponent,
   InspectorSectionComponent,
-  LayersIconComponent,
   MicroInputComponent,
-  PlusIconComponent,
-  TelescopeIconComponent,
+  checkIcon,
+  cpuIcon,
+  layersIcon,
+  plusIcon,
+  telescopeIcon,
 } from '@db-astro-suite/ui';
 import { EquipmentItem, SoftwareItem } from '../../models/card-data.model';
 import { CardDataService } from '../../services/card-data.service';
@@ -33,11 +34,7 @@ interface PresetRow {
     InspectorSectionComponent,
     InspectorFieldComponent,
     MicroInputComponent,
-    CheckIconComponent,
-    LayersIconComponent,
-    PlusIconComponent,
-    TelescopeIconComponent,
-    CpuIconComponent,
+    IconComponent,
   ],
   templateUrl: './equipment-panel.component.html',
   styleUrls: ['./equipment-panel.component.css'],
@@ -50,6 +47,13 @@ export class EquipmentPanelComponent {
 
   /** Current card document. */
   readonly cardData = this.dataService.cardData;
+
+  /** Glyphs rendered next to section titles + inside the preset rows / New button. */
+  protected readonly checkIcon = checkIcon;
+  protected readonly cpuIcon = cpuIcon;
+  protected readonly layersIcon = layersIcon;
+  protected readonly plusIcon = plusIcon;
+  protected readonly telescopeIcon = telescopeIcon;
 
   /** Local UI signal: name of the preset currently selected (empty = none). */
   readonly selectedPresetName = signal<string>('');

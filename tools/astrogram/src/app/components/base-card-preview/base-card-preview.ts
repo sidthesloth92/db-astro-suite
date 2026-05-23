@@ -1,4 +1,4 @@
-import { AnalyticsService, DownloadIconComponent, IconButtonComponent } from '@db-astro-suite/ui';
+import { AnalyticsService, IconButtonComponent, IconComponent, downloadIcon } from '@db-astro-suite/ui';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -28,7 +28,7 @@ const EXPORT_FORMAT_MAP = {
 @Component({
   selector: 'dba-ag-base-card-preview',
   standalone: true,
-  imports: [IconButtonComponent, DownloadIconComponent],
+  imports: [IconButtonComponent, IconComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './base-card-preview.html',
   styleUrls: ['./base-card-preview.css'],
@@ -106,6 +106,9 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
   @ViewChild('cardWrapper') cardWrapper!: ElementRef;
   @ViewChild('cardElement') cardElement!: ElementRef;
   @ViewChild('postContainer') postContainerRef!: ElementRef;
+
+  /** Download glyph used by the export FAB. */
+  protected readonly downloadIcon = downloadIcon;
 
   isExporting = signal(false);
   scaleFactor = signal(1);

@@ -1,13 +1,14 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import {
-  CommentIconComponent,
-  EditIconComponent,
+  IconComponent,
   InspectorFieldComponent,
   InspectorSectionComponent,
-  MapPinIconComponent,
   MicroInputComponent,
-  SearchIconComponent,
-  TagIconComponent,
+  commentIcon,
+  editIcon,
+  mapPinIcon,
+  searchIcon,
+  tagIcon,
 } from '@db-astro-suite/ui';
 import { CardData } from '../../models/card-data.model';
 import { AstroInfoService } from '../../services/astro-info.service';
@@ -25,11 +26,7 @@ import { CardDataService } from '../../services/card-data.service';
     InspectorSectionComponent,
     InspectorFieldComponent,
     MicroInputComponent,
-    TagIconComponent,
-    MapPinIconComponent,
-    CommentIconComponent,
-    EditIconComponent,
-    SearchIconComponent,
+    IconComponent,
   ],
   templateUrl: './object-info-panel.component.html',
   styleUrls: ['./object-info-panel.component.css'],
@@ -41,6 +38,13 @@ export class ObjectInfoPanelComponent {
 
   /** Current card document — read-only for the template. */
   readonly cardData = this.dataService.cardData;
+
+  /** Glyphs rendered next to each section title and on the Wiki action. */
+  protected readonly tagIcon = tagIcon;
+  protected readonly mapPinIcon = mapPinIcon;
+  protected readonly commentIcon = commentIcon;
+  protected readonly editIcon = editIcon;
+  protected readonly searchIcon = searchIcon;
 
   /** True while a Wiki fetch is in flight. */
   readonly isFetching = signal(false);

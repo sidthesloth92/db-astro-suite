@@ -13,7 +13,7 @@
         [size]="36"
         (clicked)="uploadInputEl.click()"
       >
-        <dba-ui-icon-upload [size]="16" />
+        <dba-ui-icon [def]="uploadIcon" [size]="16" />
       </dba-ui-icon-button>
       <span class="upload-hint">Choose a background image</span>
     </div>
@@ -54,7 +54,7 @@
       [disabled]="!simService.isImageLoaded() || simService.recordingState() !== 'idle'"
       (clicked)="restartAnimation()"
     >
-      <dba-ui-icon-rotate-ccw slot="leading" [size]="12" />
+      <dba-ui-icon slot="leading" [def]="rotateCcwIcon" [size]="12" />
     </dba-ui-text-button>
     <dba-ui-text-button
       label="Reset Params"
@@ -63,7 +63,7 @@
       [disabled]="simService.recordingState() !== 'idle'"
       (clicked)="resetParams()"
     >
-      <dba-ui-icon-rotate-ccw slot="leading" [size]="12" />
+      <dba-ui-icon slot="leading" [def]="rotateCcwIcon" [size]="12" />
     </dba-ui-text-button>
   </div>
 

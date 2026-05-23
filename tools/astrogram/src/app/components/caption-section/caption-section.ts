@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import {
-  CheckIconComponent,
-  CopyIconComponent,
   IconButtonComponent,
+  IconComponent,
+  checkIcon,
+  copyIcon,
 } from '@db-astro-suite/ui';
 import {
   calculateTotalIntegration,
@@ -21,7 +22,7 @@ import { CardDataService } from '../../services/card-data.service';
 @Component({
   selector: 'dba-ag-caption-section',
   standalone: true,
-  imports: [IconButtonComponent, CopyIconComponent, CheckIconComponent],
+  imports: [IconButtonComponent, IconComponent],
   templateUrl: './caption-section.html',
   styleUrls: ['./caption-section.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -33,6 +34,11 @@ export class CaptionSectionComponent {
   readonly cardData = this.dataService.cardData;
   /** True for the brief window after a successful copy. */
   readonly copied = signal(false);
+
+  /** Copy glyph shown on the action button by default. */
+  protected readonly copyIcon = copyIcon;
+  /** Check glyph shown briefly after a successful copy. */
+  protected readonly checkIcon = checkIcon;
 
   /** Caption text appended to the clipboard on copy. */
   readonly formattedCaption = computed(() => generateInstagramCaption(this.cardData()));

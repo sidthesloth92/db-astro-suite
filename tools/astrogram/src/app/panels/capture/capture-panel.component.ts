@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import {
   AnalyticsService,
-  FilterIconComponent,
+  IconComponent,
   InspectorSectionComponent,
-  MountainIconComponent,
   PillBadgeComponent,
   SwitchComponent,
+  filterIcon,
+  mountainIcon,
 } from '@db-astro-suite/ui';
 import {
   calculateTotalIntegration,
@@ -25,13 +26,7 @@ import { ASTROGRAM_CUSTOM_FILTER_COLOR } from '../../constants/colors.constants'
 @Component({
   selector: 'dba-ag-capture-panel',
   standalone: true,
-  imports: [
-    InspectorSectionComponent,
-    SwitchComponent,
-    PillBadgeComponent,
-    FilterIconComponent,
-    MountainIconComponent,
-  ],
+  imports: [InspectorSectionComponent, SwitchComponent, PillBadgeComponent, IconComponent],
   templateUrl: './capture-panel.component.html',
   styleUrls: ['./capture-panel.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -42,6 +37,11 @@ export class CapturePanelComponent {
 
   /** Current card document. */
   readonly cardData = this.dataService.cardData;
+
+  /** Filter glyph rendered next to the Filter Integration section title. */
+  protected readonly filterIcon = filterIcon;
+  /** Mountain glyph rendered next to the Bortle Scale section title. */
+  protected readonly mountainIcon = mountainIcon;
 
   /** Formatted total integration string (e.g. "10h 20m"). */
   readonly totalIntegration = computed(() =>
