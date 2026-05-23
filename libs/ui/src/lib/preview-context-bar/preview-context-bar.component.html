@@ -1,0 +1,16 @@
+<div class="bar">
+  <div class="dim">{{ dimensions() }}</div>
+  <div class="spacer"></div>
+  <div class="zoom" role="radiogroup" aria-label="Zoom level">
+    @for (z of zoomLevels(); track z) {
+      <button
+        type="button"
+        role="radio"
+        class="zoom-btn"
+        [class.is-active]="z === currentZoom()"
+        [attr.aria-checked]="z === currentZoom()"
+        (click)="onPickZoom(z)"
+      >{{ z }}%</button>
+    }
+  </div>
+</div>

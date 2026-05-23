@@ -1,0 +1,20 @@
+<button
+  type="button"
+  class="item"
+  [class.is-active]="active()"
+  [attr.data-side]="side()"
+  [attr.title]="label() || null"
+  [attr.aria-label]="label() || null"
+  [attr.aria-pressed]="active()"
+  (click)="onClick()"
+>
+  @if (active()) {
+    <span class="bar" aria-hidden="true"></span>
+  }
+  <span class="glyph">
+    <ng-content />
+  </span>
+  @if (short()) {
+    <span class="short">{{ short() }}</span>
+  }
+</button>
