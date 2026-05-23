@@ -1,0 +1,40 @@
+name: pr-title
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+    branches:
+      - main
+
+permissions:
+  pull-requests: read
+
+jobs:
+  lint:
+    name: Validate PR title is conventional
+    runs-on: ubuntu-latest
+    steps:
+      # Ensures squash-merged PR titles are valid conventional commits so
+      # release-please can parse them. Without this, a non-conventional
+      # title (e.g. "Manual update X") lands on main and breaks the
+      # release-please workflow until the label state is repaired by hand.
+      - uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50 # v6.1.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            build
+            chore
+            ci
+            docs
+            feat
+            fix
+            perf
+            refactor
+            revert
+            style
+            test
+          requireScope: false
+          subjectPattern: ^(?![A-Z]).+$
+          subjectPatternError: |
+            The subject "{subject}" must start with a lowercase letter.
