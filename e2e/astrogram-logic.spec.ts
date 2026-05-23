@@ -25,7 +25,10 @@ test.describe("Astrogram Logic & Functional Tests", () => {
     page,
   }) => {
     await page.getByRole("button", { name: "Style" }).first().click();
-    const accentInput = page.getByLabel("Accent colour");
+    // Disambiguate from the sibling "Secondary accent colour" input that
+    // was added alongside the primary swatch — exact match locks onto
+    // the primary accent.
+    const accentInput = page.getByLabel("Accent colour", { exact: true });
     await accentInput.evaluate((el: HTMLInputElement) => {
       el.value = "#00ff00";
       el.dispatchEvent(new Event("input", { bubbles: true }));
@@ -33,11 +36,15 @@ test.describe("Astrogram Logic & Functional Tests", () => {
     });
     // Border is driven off the accent colour custom property — read
     // the computed style off the hero section, identified by testid.
+    // Chromium can return either legacy `rgb(0, 255, 0)` or the modern
+    // `color(srgb 0 1 0 / 0.4)` notation depending on the version — the
+    // assertion tolerates both by checking the green channel is the
+    // dominant component (max value in either format).
     const hero = page.getByTestId("card-hero");
     const borderColor = await hero.evaluate(
       (el) => getComputedStyle(el).borderColor,
     );
-    expect(borderColor).toContain("255");
+    expect(borderColor).toMatch(/(?:rgb\([^)]*255[^)]*\))|(?:srgb\s+0\s+1\s+0)/);
   });
 
   test("Download button stays enabled after click", async ({ page }) => {
