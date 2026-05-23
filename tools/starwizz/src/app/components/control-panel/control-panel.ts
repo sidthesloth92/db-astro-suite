@@ -1,48 +1,93 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { SliderComponent, SelectComponent, CheckboxComponent, SelectOption } from '@db-astro-suite/ui';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import {
+  IconButtonComponent,
+  MicroSliderComponent,
+  RotateCcwIconComponent,
+  SelectComponent,
+  SwitchComponent,
+  TextButtonComponent,
+  UploadIconComponent,
+  type SelectOption,
+} from '@db-astro-suite/ui';
+import { ASPECT_RATIOS, AspectRatioKey, CONTROLS } from '../../constants/simulation.constant';
+import { ControlKey } from '../../models/simulation.model';
 import { SimulationService } from '../../services/simulation.service';
-import { CONTROLS, ASPECT_RATIOS, AspectRatioKey } from '../../constants/simulation.constant';
-import { ControlMetadata, ControlKey } from '../../models/simulation.model';
 
+/**
+ * Starwizz control panel — sliders, aspect-ratio selector, animation
+ * controls, and the recording trigger. All recording wiring (state
+ * machine in `SimulationService`, including `toggleRecording`) is
+ * preserved byte-identical from the previous implementation; only
+ * the chrome is migrated to the Direction B Polished primitive family.
+ */
 @Component({
   selector: 'dba-sw-control-panel',
   standalone: true,
-  imports: [CommonModule, SliderComponent, SelectComponent, CheckboxComponent],
+  imports: [
+    MicroSliderComponent,
+    SelectComponent,
+    SwitchComponent,
+    TextButtonComponent,
+    IconButtonComponent,
+    UploadIconComponent,
+    RotateCcwIconComponent,
+  ],
   templateUrl: './control-panel.html',
   styleUrl: './control-panel.css',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ControlPanel {
-  public controlConfig = CONTROLS;
-  public controlNames = Object.keys(CONTROLS) as ControlKey[];
-  public aspectRatios = ASPECT_RATIOS;
-  public ratioKeys = Object.keys(ASPECT_RATIOS) as AspectRatioKey[];
-  public ratioOptions: SelectOption[] = this.ratioKeys.map(key => ({
-    label: ASPECT_RATIOS[key].label,
-    value: key
-  }));
+  /** Shared simulation state + recording state machine. */
+  protected readonly simService = inject(SimulationService);
 
-  constructor(public simService: SimulationService) {}
+  /** Slider control metadata (label, min/max/step/precision, etc.). */
+  readonly controlConfig = CONTROLS;
+  /** Stable list of control keys in render order. */
+  readonly controlNames = Object.keys(CONTROLS) as ControlKey[];
+  /** Aspect ratio descriptors keyed by AspectRatioKey. */
+  readonly aspectRatios = ASPECT_RATIOS;
+  /** Aspect ratio keys mapped to <dba-ui-select> options. */
+  readonly ratioOptions: readonly SelectOption[] = (
+    Object.keys(ASPECT_RATIOS) as AspectRatioKey[]
+  ).map((key) => ({ label: ASPECT_RATIOS[key].label, value: key }));
 
-  updateAspectRatio(value: string | number | boolean) {
+  /** Label rendered inside the record button — varies with recording state. */
+  readonly buttonText = computed<string>(() => {
+    const state = this.simService.recordingState();
+    const duration = this.simService.recordingDuration();
+    if (state === 'recording') return `Recording... (${duration}s)`;
+    if (state === 'processing') return 'Processing...';
+    return 'Start Recording (Max 30s)';
+  });
+
+  /** True when the record button is disabled (no image, mid-processing). */
+  readonly isRecordDisabled = computed<boolean>(
+    () => this.simService.recordingState() === 'processing' || !this.simService.isImageLoaded(),
+  );
+
+  /** Current recording state mirrored as a data-attribute-friendly signal. */
+  readonly recordingState = computed(() => this.simService.recordingState());
+
+  /** Updates the aspect ratio after a select change. */
+  updateAspectRatio(value: string | number | boolean): void {
     this.simService.currentAspectRatio.set(value as AspectRatioKey);
   }
 
-  updateControl(control: ControlKey, event: Event) {
-    const value = parseFloat((event.target as HTMLInputElement).value);
+  /** Forwards a slider change to the simulation service. */
+  updateControlValue(control: ControlKey, value: number): void {
     this.simService.updateControl(control, value);
   }
 
-  updateControlValue(control: ControlKey, value: number) {
-    this.simService.updateControl(control, value);
-  }
-
+  /** Reads the current value of a slider control. */
   getControlValue(control: ControlKey): number {
     return this.simService.getControlValue(control);
   }
 
-  toggleRecording() {
+  /**
+   * Toggles the recording state machine. Byte-identical to the previous
+   * implementation — do not modify without smoke-testing record + download.
+   */
+  toggleRecording(): void {
     const currentState = this.simService.recordingState();
     if (currentState === 'idle') {
       if (this.simService.recordFromBeginning()) {
@@ -57,34 +102,21 @@ export class ControlPanel {
     }
   }
 
-  toggleFromBeginning(event: Event) {
-    const checked = (event.target as HTMLInputElement).checked;
-    this.simService.recordFromBeginning.set(checked);
-  }
-
-  restartAnimation() {
+  /** Restarts the animation without entering a recording session. */
+  restartAnimation(): void {
     this.simService.restartAnimationRequested.set(true);
   }
 
-  resetParams() {
+  /** Restores all sliders to their default values. */
+  resetParams(): void {
     this.simService.resetControlsToDefaults();
   }
 
-  get buttonText(): string {
-    const state = this.simService.recordingState();
-    const duration = this.simService.recordingDuration();
-    if (state === 'recording') return `Recording... (${duration}s)`;
-    if (state === 'processing') return 'Processing...';
-    return 'Start Recording (Max 30s)';
-  }
-
-  get buttonClass(): string {
-    const state = this.simService.recordingState();
-    const isImageLoaded = this.simService.isImageLoaded();
-    
-    if (!isImageLoaded) return 'record-button grayscale opacity-40 cursor-not-allowed';
-    if (state === 'recording') return 'record-button bg-red-600 animate-pulse';
-    if (state === 'processing') return 'record-button bg-gray-600 cursor-not-allowed opacity-50';
-    return 'record-button bg-neon-pink/10 hover:bg-neon-pink/20';
+  /**
+   * Forwards a file selection from the upload icon-button to the simulation
+   * service. Wired identically to the previous overlay implementation.
+   */
+  onUploadInput(event: Event): void {
+    this.simService.handleImageUpload(event);
   }
 }
