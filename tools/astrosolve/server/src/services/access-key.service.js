@@ -64,7 +64,7 @@ export function rotateKey(dao, username) {
  * Returns all key records without hashes.
  *
  * @param {AccessKeyDao} dao
- * @returns {{ username: string, created_at: string, active: number, use_count: number }[]}
+ * @returns {{ id: number, username: string, created_at: string, active: number, use_count: number }[]}
  */
 export function listKeys(dao) {
   return dao.listAccessKeys();

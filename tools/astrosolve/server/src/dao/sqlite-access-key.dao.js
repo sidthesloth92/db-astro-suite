@@ -107,12 +107,12 @@ export class SqliteAccessKeyDao extends SqliteBaseDao {
   }
 
   /**
-   * @returns {{ username: string, created_at: string, active: number, use_count: number }[]}
+   * @returns {{ id: number, username: string, created_at: string, active: number, use_count: number }[]}
    */
   listAccessKeys() {
     return this.db
       .prepare(
-        "SELECT username, created_at, active, use_count FROM solve_api_access_keys",
+        "SELECT id, username, created_at, active, use_count FROM solve_api_access_keys",
       )
       .all();
   }

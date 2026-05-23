@@ -119,3 +119,21 @@
 - Raw API DTOs: `[Name]Dto` — `RawExposureDto`
 - Domain models: plain noun, no suffix — `Exposure`, `StarfieldConfig`
 - Response interfaces for services go in a `models/` subfolder adjacent to the service file, named `<domain>.response.ts`. Error classes go in the same `models/` subfolder, named `<domain>.error.ts`. Interface names use PascalCase with no abbreviations (e.g. `AstroSolveResponse` not `AstrosolveSolveResponse`).
+
+## File Layout — Models, Constants, Utilities (no exceptions)
+
+**Service files contain code only.** No `interface`, `type`, `enum`, `const` (other than `@Injectable` decorators / `inject(...)` field initialisers), or top-level helper function may be declared inside a `*.service.ts`. Same for `*.component.ts`, `*.route.ts`, and `*.hook.ts`. Always pre-flight check this before saving a service edit.
+
+| What you're tempted to add inline    | Where it actually belongs                              |
+| ------------------------------------- | ------------------------------------------------------ |
+| `interface UploadLimits { ... }`      | `models/upload-limits.model.ts` adjacent to the service |
+| `type ValidationKind = 'a' \| 'b'`   | same model file (or `<domain>.types.ts` if standalone) |
+| `enum SolveOutcome { ... }`           | `<domain>.enum.ts`                                     |
+| `const SOFT_SIZE_RATIO = 0.8`         | `<domain>.constants.ts` adjacent to the service        |
+| `const FALLBACK_LIMITS = { ... }`     | same constants file                                    |
+| `function readImageDimensions(...)`   | `src/app/utils/<name>.util.ts`                         |
+| Env-driven values (`apiBaseUrl` etc.) | `environments/environment.ts` / `*.config.ts`          |
+
+Apply this even for "one-off" additions. The first inline type or constant in a service file is what every future inline addition cites as precedent.
+
+**Self-check before saving a service/component/route file:** does it declare any `interface`, `type`, `enum`, top-level `const`, or non-method `function`? If yes, move it.

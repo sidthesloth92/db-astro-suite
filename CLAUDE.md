@@ -112,9 +112,10 @@ Every discrete concern lives in its own file. Apply across Angular, Node/TypeScr
 | Config / startup                 | `*.config.ts` / `*.config.js`              |
 | Utility functions                | `*.util.ts` / `*.util.js`                  |
 
-- Never co-locate model classes, constants, or enums inside service, component, or route files.
+- **Never co-locate model classes, interfaces, types, constants, enums, or top-level helper functions inside `*.service.*`, `*.component.*`, `*.route.*`, or `*.hook.*` files.** Even a single inline `interface` or `const` in a service file is a violation — the first one becomes precedent for the next ten. Before saving a service/component/route edit, scan for any top-level `interface`, `type`, `enum`, `const`, or `function` declaration and move it to the correct file from the table above. Helper functions used by one service go in `src/app/utils/<name>.util.ts` (Angular) or `<name>.util.ts` adjacent to the consumer (Node).
 - One concept per file — a model file holds one primary model (and closely related sub-types only).
 - Barrel files (`index.ts`) re-export at the package boundary; they do not define types themselves.
+- For env-driven values use the app's config file (`environments/environment.ts` in Angular, `*.config.ts` in Node). Plain compile-time constants go in `*.constants.ts`.
 
 ---
 
@@ -174,7 +175,7 @@ When code changes, first determine whether the **behaviour changed intentionally
 - Mutable shared state stored in components
 - Hardcoded hex/color values outside `/libs/theme`
 - Mutating objects or arrays in place — always produce new values
-- Defining models, constants, or enums inline inside service or component files
+- Defining models, interfaces, types, constants, enums, or top-level helper functions inline inside service / component / route / hook files (move them to `*.model.ts`, `*.types.ts`, `*.constants.ts`, `*.enum.ts`, or `*.util.ts` per the File Naming Conventions table)
 - Fat interfaces that bundle unrelated methods — split by consumer need (ISP)
 - Instantiating dependencies inside a class instead of injecting them (DIP violation)
 
@@ -194,6 +195,7 @@ Every change — regardless of size — must satisfy all of the following:
 - [ ] PR description explains _what_ changed and _why_
 - [ ] No forbidden dependency directions introduced
 - [ ] No HTTP in components; no business logic in `/libs/ui`
+- [ ] No inline `interface`, `type`, `enum`, top-level `const`, or non-method `function` in any `*.service.*`, `*.component.*`, `*.route.*`, or `*.hook.*` file — moved to `*.model.ts`, `*.types.ts`, `*.constants.ts`, `*.enum.ts`, `*.config.ts`, or `*.util.ts` per the File Naming Conventions table
 
 ---
 

@@ -60,7 +60,12 @@ try {
 // Register Rate Limiting — applied globally with per-IP key based on real client IP.
 // When behind Cloudflare (trustProxy: true), Fastify resolves the real IP from
 // X-Forwarded-For, so rate limits are per actual client rather than the proxy.
-fastify.register(rateLimit, SOLVE_RATE_LIMIT);
+//
+// MUST be `await`-ed: without the await, the plugin queues for later
+// initialisation, but the onRequest hooks it installs miss the routes
+// registered below — so the server reports 200 instead of 429 even past
+// the configured cap. With await, the hooks attach before routes do.
+await fastify.register(rateLimit, SOLVE_RATE_LIMIT);
 
 // Security headers — applied before any route handlers.
 fastify.register(helmet);
@@ -72,10 +77,11 @@ fastify.register(cors, {
   methods: ["GET", "POST"],
 });
 
-// Configure Multipart for file uploads immediately saving to disk
+// Configure Multipart for file uploads immediately saving to disk.
+// Size limit is config-driven so ops can tune it via ASTROSOLVE_UPLOAD_MAX_BYTES.
 fastify.register(multipart, {
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit
+    fileSize: config.uploadMaxBytes,
   },
 });
 
@@ -95,6 +101,24 @@ fastify.get(
   async (request, reply) => {
     return { code: "OK", message: "Astrosolve API is running", details: {} };
   },
+);
+
+// Public upload limits — clients fetch this on load to prevalidate files
+// and render an accurate UI hint. Rate-limited under HEALTH_RATE_LIMIT
+// because the payload is small and the client caches it for the session.
+fastify.get(
+  "/api/v1/limits",
+  {
+    config: {
+      rateLimit: HEALTH_RATE_LIMIT,
+    },
+  },
+  async () => ({
+    maxBytes: config.uploadMaxBytes,
+    minDimension: config.uploadMinDimension,
+    maxDimension: config.uploadMaxDimension,
+    allowedExtensions: config.uploadAllowedExtensions,
+  }),
 );
 
 const start = async () => {
