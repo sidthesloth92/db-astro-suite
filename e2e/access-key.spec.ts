@@ -55,6 +55,9 @@ test.describe("Access Key Modal", () => {
     await triggerModal();
     await expect(accessKeyModalPage.getModal()).toBeVisible();
 
+    // The modal opens in the CTA view by default; switch to the key-entry
+    // view before interacting with the input + submit button.
+    await accessKeyModalPage.switchToKeyEntry();
     await accessKeyModalPage.typeKey(testKey);
     await accessKeyModalPage.submit();
 
@@ -74,7 +77,7 @@ test.describe("Access Key Modal", () => {
     await triggerModal();
     await expect(accessKeyModalPage.getModal()).toBeVisible();
 
-    await accessKeyModalPage.cancel();
+    await accessKeyModalPage.close();
 
     await expect(accessKeyModalPage.getModal()).not.toBeVisible();
 
@@ -119,6 +122,9 @@ test.describe("Access Key Modal", () => {
     await triggerModal();
     await expect(accessKeyModalPage.getModal()).toBeVisible();
 
+    // Switch from the default CTA view to the key-entry view, where the
+    // input and SUBMIT button actually live.
+    await accessKeyModalPage.switchToKeyEntry();
     await expect(accessKeyModalPage.getSubmitButton()).toBeDisabled();
 
     await accessKeyModalPage.typeKey("a");
