@@ -1,0 +1,12 @@
+<button
+  type="button"
+  class="text-button"
+  [attr.data-variant]="variant()"
+  [attr.data-size]="size()"
+  [disabled]="disabled()"
+  (click)="onClick()"
+>
+  <ng-content select="[slot=leading]" />
+  <span class="label">{{ label() }}</span>
+  <ng-content select="[slot=trailing]" />
+</button>

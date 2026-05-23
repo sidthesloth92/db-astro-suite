@@ -1,26 +1,34 @@
-import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import type { SelectOption } from './select.model';
 
-export interface SelectOption {
-  label: string;
-  value: string | number | boolean;
-}
-
+/**
+ * Native `<select>` wrapper styled to match the Direction B Polished tokens.
+ * Exposes a typed option list, optional label, and emits the chosen value
+ * via `valueChange`. The `noBox` flag drops the bordered container chrome
+ * for inline / dense layouts.
+ */
 @Component({
   selector: 'dba-ui-select',
   standalone: true,
   templateUrl: './select.component.html',
-  styleUrls: ['./select.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrl: './select.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SelectComponent {
+  /** Optional label rendered above the select. */
   label = input<string>('');
+  /** Currently selected value. */
   value = input<string | number | boolean>('');
-  options = input<SelectOption[]>([]);
+  /** Available options to render. */
+  options = input<readonly SelectOption[]>([]);
+  /** When true, drops the bordered container chrome. */
   noBox = input<boolean>(false);
-  
+
+  /** Emits the new selected value as a string (native `<select>` behaviour). */
   valueChange = output<string | number | boolean>();
 
-  onChange(event: Event) {
+  /** Internal change handler — forwards the value off the native `<select>`. */
+  onChange(event: Event): void {
     const select = event.target as HTMLSelectElement;
     this.valueChange.emit(select.value);
   }

@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 
 /** Native HTML input types supported by `MicroInputComponent`. */
-export type MicroInputType = 'text' | 'number';
+export type MicroInputType = 'text' | 'number' | 'password';
 
 /**
  * Slim inspector-panel input. Mirrors the `InputP` primitive from the

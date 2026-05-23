@@ -1,12 +1,12 @@
-<div class="db-form-group boxed-select-container" [class.no-box]="noBox()">
+<div class="boxed-select-container" [class.no-box]="noBox()">
   @if (label()) {
-    <label class="db-form-label">{{ label() }}</label>
+    <label class="label">{{ label() }}</label>
   }
   <div class="select-wrapper">
     <select
+      class="field"
       [value]="value()"
       (change)="onChange($event)"
-      class="db-form-select-themed"
     >
       @for (opt of options(); track opt.value) {
         <option [value]="opt.value">

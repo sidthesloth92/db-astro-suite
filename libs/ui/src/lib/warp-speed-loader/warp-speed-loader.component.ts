@@ -11,6 +11,12 @@ import {
   input,
 } from "@angular/core";
 
+/**
+ * Canvas-based warp-speed loader animation.
+ *
+ * @deprecated Replaced by the Direction B Polished component family.
+ * Slated for removal in a follow-up cleanup PR.
+ */
 @Component({
   selector: "dba-ui-warp-speed-loader",
   standalone: true,
