@@ -3,55 +3,51 @@ import { expect, test } from "@playwright/test";
 test.describe("Astrogram Logic & Functional Tests", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("http://localhost:4201/astrogram/");
-    await expect(page.locator(".form-container").first()).toBeVisible();
+    await expect(page.locator("dba-ag-card-preview").first()).toBeVisible();
+    await expect(page.locator("dba-ag-inspector-panel-host")).toBeVisible();
   });
 
-  test("Filter name is editable for custom filters and updates preview", async ({
+  test("Custom filter added in Capture panel appears on the card", async ({
     page,
   }) => {
+    await page.getByRole("button", { name: "Capture" }).first().click();
     await page
-      .locator(".accordion-header")
-      .filter({ hasText: "Integration" })
+      .locator("button.add-btn")
+      .filter({ hasText: "Add custom filter" })
       .click();
-    await page.waitForTimeout(600);
-    await page
-      .locator("button.subtle-add-btn")
-      .filter({ hasText: "Add Custom Filter" })
-      .click();
-    await page.waitForTimeout(100);
-    const filterInput = page.locator("input.filter-name-input-ag").first();
-    await expect(filterInput).toBeVisible();
-    const framesInput = page
-      .locator(".filter-inputs input[type='number']")
-      .nth(-2);
+    // The newly added custom row exposes a text input for its name; standard
+    // rows display the name as a static label.
+    const nameInput = page.locator("input.name-input").last();
+    const framesInput = page.locator("input.num-input").nth(-2);
     await framesInput.fill("10");
-    const lastFilterLabel = page
-      .locator(".filter-rings dba-ag-filter-ring .filter-label")
+    await nameInput.fill("CUSTOM-HA");
+    await nameInput.blur();
+    const ringLabel = page
+      .locator("dba-ag-card-preview dba-ui-progress-ring .label")
       .last();
-    await filterInput.click();
-    await filterInput.fill("CUSTOM-HA");
-    await filterInput.press("Enter");
-    await expect(lastFilterLabel).toHaveText("CUSTOM-HA");
+    await expect(ringLabel).toHaveText("CUSTOM-HA");
   });
 
-  test("Accent color applies to output card section borders", async ({
+  test("Accent colour change reflects on the hero block border", async ({
     page,
   }) => {
-    await page
-      .locator(".accordion-header")
-      .filter({ hasText: "Card Settings" })
-      .click();
-    await page.waitForTimeout(600);
-    const accentPicker = page.locator("input[type='color']").first();
-    await accentPicker.fill("#00ff00");
-    const cardSection = page.locator(".card-section").first();
-    const borderColor = await cardSection.evaluate(
+    await page.getByRole("button", { name: "Style" }).first().click();
+    const accentInput = page
+      .locator("dba-ui-color-swatch-input input[type='color']")
+      .first();
+    await accentInput.evaluate((el: HTMLInputElement) => {
+      el.value = "#00ff00";
+      el.dispatchEvent(new Event("input", { bubbles: true }));
+      el.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    const hero = page.locator("dba-ag-card-preview .pn-hero").first();
+    const borderColor = await hero.evaluate(
       (el) => getComputedStyle(el).borderColor,
     );
     expect(borderColor).toContain("255");
   });
 
-  test("Download button re-enables after export", async ({ page }) => {
+  test("Download button stays enabled after click", async ({ page }) => {
     const downloadBtn = page.locator("button.download-fab");
     await expect(downloadBtn).toBeEnabled();
     await downloadBtn.click();
@@ -59,44 +55,23 @@ test.describe("Astrogram Logic & Functional Tests", () => {
     await expect(downloadBtn).toBeEnabled();
   });
 
-  test("Mobile export resolution verification", async ({ page }) => {
+  test("Mobile shell renders the floating sheet at narrow widths", async ({
+    page,
+  }) => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.reload();
-    const downloadBtn = page.locator("button.download-fab");
-    await expect(downloadBtn).toBeVisible();
-    await expect(downloadBtn).toBeEnabled();
+    await expect(page.locator("dba-ag-mobile-shell")).toBeVisible();
+    await expect(page.locator("dba-ui-floating-sheet")).toBeVisible();
   });
 
-  test("DSO description fetch from Wikipedia works", async ({ page }) => {
-    await page
-      .locator(".accordion-header")
-      .filter({ hasText: "Image Details" })
-      .click();
-    await page.waitForTimeout(600);
-
-    const searchInput = page.locator("#dso-search-input");
-    const findBtn = page
-      .locator("button.fetch-btn")
-      .filter({ hasText: "Find" });
-    // Target the caption textarea specifically (the Find button populates the caption field)
-    const captionTextarea = page.locator(
-      'textarea[placeholder="Detailed caption for social media..."]',
-    );
-
-    const defaultCaption =
-      "The first ever nebula that I shot was the Rosette. I still remember looking at the first frame as it came through in disbelief, as to how to the naked eye I couldn't see anything but it was just right there hidden among the stars.";
-
-    // Clear and fill correctly
-    await searchInput.fill("Andromeda Galaxy");
-    await findBtn.click();
-
-    // Wait for the caption to change from its default value
-    await expect(captionTextarea).not.toHaveValue(defaultCaption, {
-      timeout: 15000,
-    });
-
+  test("Wiki fetch populates the long-form caption", async ({ page }) => {
+    await page.getByRole("button", { name: "Object info" }).first().click();
+    const nameInput = page.locator("dba-ui-micro-input input").first();
+    await nameInput.fill("Andromeda Galaxy");
+    await page.getByRole("button", { name: /Wiki/i }).click();
+    const captionTextarea = page.locator("textarea.text-area").last();
+    await expect(captionTextarea).not.toHaveValue("", { timeout: 15000 });
     const value = await captionTextarea.inputValue();
-    console.log("Fetched Caption:", value);
     expect(value.toLowerCase()).toContain("andromeda");
   });
 });

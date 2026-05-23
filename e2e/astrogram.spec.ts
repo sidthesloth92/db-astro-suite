@@ -3,66 +3,49 @@ import { expect, test } from "@playwright/test";
 test.describe("Astrogram Layout & Interactivity Visual Tests", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("http://localhost:4201/astrogram/");
-    await expect(page.locator(".form-container").first()).toBeVisible();
     await expect(page.locator("dba-ag-card-preview").first()).toBeVisible();
+    // Wait for the inspector panel host to render — confirms the new shell mounted.
+    await expect(page.locator("dba-ag-inspector-panel-host")).toBeVisible();
   });
 
   test("Default card form visual test", async ({ page }) => {
-    // Snapshot the entire viewport initially
     await expect(page).toHaveScreenshot("astrogram-app-default.png", {
       timeout: 15000,
       fullPage: true,
     });
   });
 
-  test("Card Settings interaction and Aspect Ratio test", async ({ page }) => {
-    // Expand Card Settings
+  test("Style panel + format change visual test", async ({ page }) => {
+    // Open the Style panel via the inspector rail.
+    await page.getByRole("button", { name: "Style" }).first().click();
+    // Pick the 4:5 format row.
     await page
-      .locator(".accordion-header")
-      .filter({ hasText: "Card Settings" })
+      .locator(".format-row")
+      .filter({ hasText: "Old Instagram Post" })
       .click();
-
-    // Wait for the CSS transition grid-template-rows animation to settle
-    await page.waitForTimeout(600);
-
-    // Change aspect ratio to 4:5 to test state and reactivity
-    await page.locator("select").first().selectOption("4:5");
-
-    // Slight delay for UI to settle
     await page.waitForTimeout(500);
-
     await expect(page).toHaveScreenshot("astrogram-app-aspect-ratio.png", {
       timeout: 15000,
       fullPage: true,
     });
   });
 
-  const accordionsToTest = [
-    { title: "⚙️ Card Settings", filename: "card-settings" },
-    { title: "📸 Image Details", filename: "image-details" },
-    { title: "⏱️ Integration", filename: "integration" },
-    { title: "🔭 Equipment", filename: "equipment" },
-    { title: "💻 Software", filename: "software" },
-    { title: "🏙️ Bortle Scale", filename: "bortle-scale" },
+  // The legacy accordion layout has been replaced by the icon-rail inspector.
+  // Each entry maps a rail item label to the snapshot filename used in CI.
+  const panelsToTest = [
+    { railLabel: "Object info", filename: "object" },
+    { railLabel: "Capture", filename: "capture" },
+    { railLabel: "Equipment", filename: "equipment" },
+    { railLabel: "Style", filename: "style" },
+    { railLabel: "Export", filename: "export" },
   ];
 
-  for (const accordion of accordionsToTest) {
-    test(`Expand ${accordion.filename} accordion visual test`, async ({
-      page,
-    }) => {
-      // Find the accordion button and click it to expand
-      // We use filter({ hasText }) instead of getByRole({ name }) because emoji characters
-      // can sometimes fail to match strictly across macOS/Linux rendering differences in headless mode.
-      await page
-        .locator(".accordion-header")
-        .filter({ hasText: accordion.title })
-        .click();
-
-      // Wait for the CSS transition grid-template-rows animation to settle
-      await page.waitForTimeout(600);
-
+  for (const panel of panelsToTest) {
+    test(`Open ${panel.filename} panel visual test`, async ({ page }) => {
+      await page.getByRole("button", { name: panel.railLabel }).first().click();
+      await page.waitForTimeout(400);
       await expect(page).toHaveScreenshot(
-        `astrogram-app-expanded-${accordion.filename}.png`,
+        `astrogram-app-expanded-${panel.filename}.png`,
         {
           timeout: 15000,
           fullPage: true,

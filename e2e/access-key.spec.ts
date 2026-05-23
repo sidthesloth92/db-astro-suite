@@ -65,8 +65,8 @@ test.describe("Access Key Modal", () => {
     // Persistence happens asynchronously inside the solve catch path
     // (the modal closes optimistically when SUBMIT is emitted, then the
     // 503 mock round-trips, then the non-AccessKeyError branch in
-    // annotation-controls.ts persists pendingKey). Poll up to the default
-    // expect timeout so we don't race that async path.
+    // stellar-upload-panel.component.ts persists pendingKey). Poll up
+    // to the default expect timeout so we don't race that async path.
     await expect
       .poll(() =>
         page.evaluate(
