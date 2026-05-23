@@ -92,9 +92,10 @@ describe('IconComponent', () => {
 
   it('should render the icon body via sanitized innerHTML', () => {
     const fixture = host();
-    const svg = fixture.nativeElement.querySelector('svg') as SVGElement;
+    const iconHost = fixture.nativeElement.querySelector('dba-ui-icon') as HTMLElement;
     // The body string contains a single <path d="M12 3v12" /> drawable.
-    expect(svg.innerHTML).toContain('M12 3v12');
+    expect(iconHost.innerHTML).toContain('M12 3v12');
+    const svg = iconHost.querySelector('svg') as SVGElement;
     expect(svg.querySelectorAll('path').length).toBeGreaterThan(0);
   });
 

@@ -10,6 +10,12 @@ import { IconDefinition } from './icon-definition';
  * Replaces the per-icon component set — there is one component for the
  * SVG chrome (viewBox / stroke / linecap / linejoin / sizing) and many
  * tiny data files for the glyphs themselves.
+ *
+ * Implementation note: the entire `<svg>` (chrome + body) is built as a
+ * single trusted HTML string and bound via `[innerHTML]` on the host
+ * `<dba-ui-icon>` element. This avoids setting `innerHTML` directly on
+ * an SVG element — AnalogJS / Angular SSR does not implement that path
+ * (it surfaces as `NotYetImplemented` at pre-render time).
  */
 @Component({
   selector: 'dba-ui-icon',
@@ -17,7 +23,7 @@ import { IconDefinition } from './icon-definition';
   templateUrl: './icon.component.html',
   styleUrl: './icon.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { 'aria-hidden': 'true' },
+  host: { 'aria-hidden': 'true', '[innerHTML]': 'safeSvg()' },
 })
 export class IconComponent {
   private readonly sanitizer = inject(DomSanitizer);
@@ -29,10 +35,22 @@ export class IconComponent {
   /** Stroke width, in user units, for any line elements in the icon. Defaults to 1.5. */
   strokeWidth = input<number>(1.5);
 
-  // Trusted HTML — body originates from in-repo source code, never user input.
-  protected readonly safeBody = computed(() =>
-    this.sanitizer.bypassSecurityTrustHtml(this.def().body),
-  );
-  protected readonly viewBox = computed(() => this.def().viewBox ?? '0 0 24 24');
-  protected readonly fill = computed(() => this.def().fill ?? 'none');
+  /**
+   * Trusted full-SVG markup. Safe because the `body` of every
+   * IconDefinition originates from in-repo source code (never user
+   * input), and every numeric attribute is locally produced from typed
+   * `number` inputs.
+   */
+  protected readonly safeSvg = computed(() => {
+    const def = this.def();
+    const viewBox = def.viewBox ?? '0 0 24 24';
+    const fill = def.fill ?? 'none';
+    const size = this.size();
+    const strokeWidth = this.strokeWidth();
+    const svg =
+      `<svg width="${size}" height="${size}" viewBox="${viewBox}" fill="${fill}" ` +
+      `stroke="currentColor" stroke-width="${strokeWidth}" ` +
+      `stroke-linecap="round" stroke-linejoin="round">${def.body}</svg>`;
+    return this.sanitizer.bypassSecurityTrustHtml(svg);
+  });
 }
