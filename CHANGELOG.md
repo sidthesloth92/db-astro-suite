@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.1](https://github.com/sidthesloth92/db-astro-suite/compare/v1.16.0...v1.16.1) (2026-05-23)
+
+
+### Bug Fixes
+
+* surface upload limits and validation from [#35](https://github.com/sidthesloth92/db-astro-suite/issues/35) ([#36](https://github.com/sidthesloth92/db-astro-suite/issues/36)) ([02ba024](https://github.com/sidthesloth92/db-astro-suite/commit/02ba0243c674576bc281931fd45a4c082f2e819c))
+
 ## [1.16.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.15.0...v1.16.0) (2026-05-23)
 
 
