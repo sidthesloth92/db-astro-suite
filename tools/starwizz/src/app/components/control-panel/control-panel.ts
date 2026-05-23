@@ -1,13 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import {
-  IconButtonComponent,
   IconComponent,
   MicroSliderComponent,
   SelectComponent,
   SwitchComponent,
   TextButtonComponent,
+  circleHelpIcon,
   rotateCcwIcon,
-  uploadIcon,
   type SelectOption,
 } from '@db-astro-suite/ui';
 import { ASPECT_RATIOS, AspectRatioKey, CONTROLS } from '../../constants/simulation.constant';
@@ -29,7 +28,6 @@ import { SimulationService } from '../../services/simulation.service';
     SelectComponent,
     SwitchComponent,
     TextButtonComponent,
-    IconButtonComponent,
     IconComponent,
   ],
   templateUrl: './control-panel.html',
@@ -40,10 +38,17 @@ export class ControlPanel {
   /** Shared simulation state + recording state machine. */
   protected readonly simService = inject(SimulationService);
 
-  /** Upload glyph rendered on the upload icon-button. */
-  protected readonly uploadIcon = uploadIcon;
   /** Rotate-ccw glyph rendered as leading icon on the reset buttons. */
   protected readonly rotateCcwIcon = rotateCcwIcon;
+  /** Circle-help glyph rendered next to each control as the tooltip affordance. */
+  protected readonly circleHelpIcon = circleHelpIcon;
+
+  /** Tooltip text shown on the help icon next to the aspect-ratio selector. */
+  protected readonly aspectRatioHelp =
+    'Output dimensions for the recorded video. 9:16 vertical is best for stories and reels; 16:9 horizontal is best for YouTube.';
+  /** Tooltip text shown on the help icon next to the "From beginning" switch. */
+  protected readonly fromBeginningHelp =
+    'When enabled, the animation resets to its initial position (zoom = 1.0, rotation = 0) before recording starts.';
 
   /** Slider control metadata (label, min/max/step/precision, etc.). */
   readonly controlConfig = CONTROLS;
@@ -115,13 +120,5 @@ export class ControlPanel {
   /** Restores all sliders to their default values. */
   resetParams(): void {
     this.simService.resetControlsToDefaults();
-  }
-
-  /**
-   * Forwards a file selection from the upload icon-button to the simulation
-   * service. Wired identically to the previous overlay implementation.
-   */
-  onUploadInput(event: Event): void {
-    this.simService.handleImageUpload(event);
   }
 }

@@ -36,13 +36,14 @@
 .dot {
   position: absolute;
   top: 50%;
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background: var(--db-color-neon-pink);
   transform: translate(-50%, -50%);
-  box-shadow: 0 0 0 4px var(--db-color-pink-soft);
+  box-shadow: 0 0 0 3px var(--db-color-pink-soft);
   pointer-events: none;
+  transition: box-shadow 150ms ease;
 }
 
 /* The native range input lays over the visual track and stays invisible
@@ -65,7 +66,7 @@
 .track-wrap:focus-within .dot {
   box-shadow:
     0 0 0 4px var(--db-color-pink-soft),
-    0 0 0 6px var(--db-color-cyan);
+    0 0 0 5px color-mix(in srgb, var(--db-color-neon-pink) 40%, transparent);
 }
 
 .readout {

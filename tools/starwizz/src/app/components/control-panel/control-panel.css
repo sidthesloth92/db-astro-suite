@@ -1,5 +1,6 @@
 :host {
-  display: block;
+  display: flex;
+  align-items: center;
   flex: 0 0 360px;
   width: 360px;
   max-height: calc(100vh - 80px);
@@ -9,6 +10,7 @@
 
 @media (max-width: 768px) {
   :host {
+    display: block;
     flex: 0 0 auto;
     width: 100%;
     max-width: none;
@@ -19,13 +21,14 @@
 }
 
 .control-panel {
+  width: 100%;
   background: var(--db-color-surface);
   border: 1px solid var(--db-color-border);
   border-radius: 12px;
-  padding: 18px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
   color: var(--db-color-text-primary);
   font-family: var(--db-font-ui);
 }
@@ -33,31 +36,41 @@
 .panel-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding-bottom: 10px;
+  padding-bottom: 12px;
   border-bottom: 1px solid var(--db-color-border);
 }
 
 .panel-title {
-  font-family: var(--db-font-display-major);
-  font-size: 14px;
-  font-weight: 400;
-  letter-spacing: 0.06em;
   margin: 0;
-  color: var(--db-color-text-primary);
-  text-transform: lowercase;
+  font-family: var(--db-font-display);
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--db-color-neon-pink);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--db-color-neon-pink) 30%, transparent);
 }
 
-.panel-status {
-  font-family: var(--db-font-mono-code);
-  font-size: 10px;
-  letter-spacing: 0.16em;
-  color: var(--db-color-cyan);
-}
-
-.panel-row {
+.aspect-row,
+.slider-row {
   display: flex;
   flex-direction: column;
+  gap: 6px;
+}
+
+.aspect-row {
+  flex-direction: row;
+  align-items: end;
+  gap: 8px;
+}
+
+.aspect-row dba-ui-select {
+  flex: 1;
+}
+
+.slider-label-row {
+  display: flex;
+  align-items: center;
   gap: 6px;
 }
 
@@ -69,31 +82,33 @@
   color: var(--db-color-text-dim);
 }
 
-.upload-cluster {
-  display: flex;
+.help-icon {
+  display: inline-flex;
   align-items: center;
-  gap: 12px;
-}
-
-.upload-hint {
-  font-family: var(--db-font-ui);
-  font-size: 11px;
+  justify-content: center;
   color: var(--db-color-text-faint);
+  cursor: help;
+  transition: color 150ms ease;
 }
 
-.slider-row {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.help-icon:hover,
+.help-icon:focus-visible {
+  color: var(--db-color-cyan);
+  outline: none;
+}
+
+.aspect-row .help-icon {
+  padding-bottom: 8px;
 }
 
 .panel-actions {
   display: flex;
+  flex-direction: column;
   gap: 8px;
 }
 
 .panel-actions dba-ui-text-button {
-  flex: 1;
+  width: 100%;
 }
 
 .panel-actions dba-ui-text-button button {
@@ -104,7 +119,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding-top: 6px;
+  padding-top: 8px;
   border-top: 1px solid var(--db-color-border);
 }
 
@@ -178,16 +193,4 @@
   font-family: var(--db-font-ui);
   font-size: 11px;
   color: var(--db-color-text-dim);
-}
-
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
 }

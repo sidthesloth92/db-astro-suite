@@ -1,41 +1,38 @@
 <section class="control-panel" aria-label="Starwizz simulation controls">
   <header class="panel-header">
     <h2 class="panel-title">System Controls</h2>
-    <span class="panel-status">STATUS: ACTIVE</span>
   </header>
 
-  <div class="panel-row">
-    <span class="row-label">Background Image</span>
-    <div class="upload-cluster">
-      <dba-ui-icon-button
-        title="Upload background image"
-        accent="pink"
-        [size]="36"
-        (clicked)="uploadInputEl.click()"
-      >
-        <dba-ui-icon [def]="uploadIcon" [size]="16" />
-      </dba-ui-icon-button>
-      <span class="upload-hint">Choose a background image</span>
-    </div>
-    <input
-      #uploadInputEl
-      type="file"
-      class="sr-only"
-      accept="image/*"
-      (change)="onUploadInput($event)"
-    />
+  <div class="aspect-row">
+    <dba-ui-select
+      label="Aspect Ratio"
+      [value]="simService.currentAspectRatio()"
+      [options]="ratioOptions"
+      (valueChange)="updateAspectRatio($event)"
+    ></dba-ui-select>
+    <span
+      class="help-icon"
+      tabindex="0"
+      [attr.title]="aspectRatioHelp"
+      [attr.aria-label]="aspectRatioHelp"
+    >
+      <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
+    </span>
   </div>
-
-  <dba-ui-select
-    label="Aspect Ratio"
-    [value]="simService.currentAspectRatio()"
-    [options]="ratioOptions"
-    (valueChange)="updateAspectRatio($event)"
-  ></dba-ui-select>
 
   @for (control of controlNames; track control) {
     <div class="slider-row">
-      <label class="row-label">{{ controlConfig[control].label }}</label>
+      <div class="slider-label-row">
+        <label class="row-label">{{ controlConfig[control].label }}</label>
+        <span
+          class="help-icon"
+          tabindex="0"
+          [attr.title]="controlConfig[control].description"
+          [attr.aria-label]="controlConfig[control].description"
+        >
+          <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
+        </span>
+      </div>
       <dba-ui-micro-slider
         [value]="getControlValue(control)"
         [min]="controlConfig[control].min"
@@ -87,6 +84,14 @@
         (checkedChange)="simService.recordFromBeginning.set($event)"
       ></dba-ui-switch>
       <span class="record-aux-label">From beginning</span>
+      <span
+        class="help-icon"
+        tabindex="0"
+        [attr.title]="fromBeginningHelp"
+        [attr.aria-label]="fromBeginningHelp"
+      >
+        <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
+      </span>
     </div>
   </div>
 </section>

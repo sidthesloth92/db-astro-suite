@@ -63,6 +63,7 @@ export * from "./lib/icons/check.icon";
 export * from "./lib/icons/chevron-left.icon";
 export * from "./lib/icons/chevron-right.icon";
 export * from "./lib/icons/chevron.icon";
+export * from "./lib/icons/circle-help.icon";
 export * from "./lib/icons/clock.icon";
 export * from "./lib/icons/close.icon";
 export * from "./lib/icons/comment.icon";

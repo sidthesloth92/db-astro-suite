@@ -6,7 +6,7 @@
   display: flex;
   align-items: center;
   height: 64px;
-  padding: 0 24px;
+  padding: 0 24px 0 36px;
   background: var(--db-color-surface);
   border-bottom: 1px solid var(--db-color-border);
   gap: 14px;
@@ -35,7 +35,7 @@
 
 .brand-text {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 12px;
   min-width: 0;
 }
@@ -48,6 +48,7 @@
   letter-spacing: 0.06em;
   color: var(--db-color-neon-pink);
   text-shadow: 0 0 12px color-mix(in srgb, var(--db-color-neon-pink) 35%, transparent);
+  text-transform: uppercase;
   white-space: nowrap;
 }
 
