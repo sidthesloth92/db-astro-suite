@@ -17,10 +17,18 @@ export type IconButtonAccent = 'pink' | 'cyan';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IconButtonComponent {
-  /** Whether the button is in its "active"/pressed state. */
+  /** Whether the button is in its "active"/pressed state (e.g. currently selected tool). */
   active = input<boolean>(false);
-  /** Accent colour applied when active. Defaults to `'pink'`. */
-  accent = input<IconButtonAccent>('pink');
+  /**
+   * Whether the button is in its "success" state — green confirmation paint,
+   * regardless of `accent`. Use for transient post-action feedback like
+   * "copied!" on a clipboard button. Separate from `active` so a button can
+   * signal "currently selected" (active, accent-coloured) and "just succeeded"
+   * (success, green) independently.
+   */
+  success = input<boolean>(false);
+  /** Accent colour applied on hover and when `active`. Defaults to `'cyan'`. */
+  accent = input<IconButtonAccent>('cyan');
   /** Edge length, in CSS pixels, of the button square. Defaults to 36. */
   size = input<number>(36);
   /** Accessible / tooltip title for the button. */

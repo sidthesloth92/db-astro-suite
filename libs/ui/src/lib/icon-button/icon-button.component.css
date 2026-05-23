@@ -55,3 +55,17 @@
   border-color: var(--db-color-cyan);
   background: var(--db-color-cyan-soft);
 }
+
+/*
+ * Success state — paints green regardless of accent. Used for transient
+ * post-action feedback (e.g. "copied!" on a clipboard button). Listed
+ * after the hover + active rules so it wins the cascade on conflicts.
+ */
+.icon-button.is-success,
+.icon-button.is-success:hover:not(:disabled) {
+  color: var(--db-color-green);
+  border-color: var(--db-color-green);
+  background: var(--db-color-green-soft);
+  box-shadow: 0 0 15px var(--db-color-green-soft);
+  transform: none;
+}

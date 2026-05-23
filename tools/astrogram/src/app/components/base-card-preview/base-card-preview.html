@@ -7,27 +7,14 @@
     </div>
     <div class="header-actions">
       <ng-content select="[headerAction]"></ng-content>
-      <button
-        class="download-fab"
-        (click)="exportCard($event)"
-        [disabled]="isExporting()"
+      <dba-ui-icon-button
         title="Download card"
-        aria-label="Download card"
+        [size]="36"
+        [disabled]="isExporting()"
+        (clicked)="exportCard()"
       >
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="w-5 h-5"
-        >
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path>
-          <polyline points="7 10 12 15 17 10"></polyline>
-          <line x1="12" y1="15" x2="12" y2="3"></line>
-        </svg>
-      </button>
+        <dba-ui-icon-download [size]="18" />
+      </dba-ui-icon-button>
     </div>
   </div>
 

@@ -1,4 +1,4 @@
-import { AnalyticsService } from '@db-astro-suite/ui';
+import { AnalyticsService, DownloadIconComponent, IconButtonComponent } from '@db-astro-suite/ui';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -28,7 +28,7 @@ const EXPORT_FORMAT_MAP = {
 @Component({
   selector: 'dba-ag-base-card-preview',
   standalone: true,
-  imports: [],
+  imports: [IconButtonComponent, DownloadIconComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './base-card-preview.html',
   styleUrls: ['./base-card-preview.css'],
