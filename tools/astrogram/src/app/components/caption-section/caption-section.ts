@@ -10,7 +10,7 @@ import {
   formatDuration,
   generateInstagramCaption,
   type FilterExposure,
-} from '../../models/card-data';
+} from '../../models/card-data.model';
 import { CardDataService } from '../../services/card-data.service';
 
 /**

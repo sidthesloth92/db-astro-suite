@@ -10,7 +10,7 @@ import {
   PlusIconComponent,
   TelescopeIconComponent,
 } from '@db-astro-suite/ui';
-import { EquipmentItem, SoftwareItem } from '../../models/card-data';
+import { EquipmentItem, SoftwareItem } from '../../models/card-data.model';
 import { CardDataService } from '../../services/card-data.service';
 import { PresetService } from '../../services/preset.service';
 

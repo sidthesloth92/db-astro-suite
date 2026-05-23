@@ -7,7 +7,7 @@ import {
   MicroSliderComponent,
   StarsIconComponent,
 } from '@db-astro-suite/ui';
-import type { AnnotationFilters } from '../../models/card-data';
+import type { AnnotationFilters } from '../../models/card-data.model';
 import { CardDataService } from '../../services/card-data.service';
 
 /** Filter keys that are simple booleans (i.e. checkbox-driven). */

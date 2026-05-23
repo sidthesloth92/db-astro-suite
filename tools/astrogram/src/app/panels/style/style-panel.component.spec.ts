@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import type { CardData } from '../../models/card-data';
-import { DEFAULT_FILTERS } from '../../models/card-data';
+import type { CardData } from '../../models/card-data.model';
+import { DEFAULT_FILTERS } from '../../models/card-data.model';
 import { CardDataService } from '../../services/card-data.service';
 import { StylePanelComponent } from './style-panel.component';
 

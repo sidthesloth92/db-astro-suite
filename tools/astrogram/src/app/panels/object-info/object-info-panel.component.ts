@@ -9,7 +9,7 @@ import {
   SearchIconComponent,
   TagIconComponent,
 } from '@db-astro-suite/ui';
-import { CardData } from '../../models/card-data';
+import { CardData } from '../../models/card-data.model';
 import { AstroInfoService } from '../../services/astro-info.service';
 import { CardDataService } from '../../services/card-data.service';
 

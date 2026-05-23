@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import type { CardData } from '../../models/card-data';
-import { DEFAULT_FILTERS, DEFAULT_GLOBAL_ANNOTATION_SETTINGS } from '../../models/card-data';
+import type { CardData } from '../../models/card-data.model';
+import { DEFAULT_FILTERS, DEFAULT_GLOBAL_ANNOTATION_SETTINGS } from '../../models/card-data.model';
 import { AstroInfoService } from '../../services/astro-info.service';
 import { CardDataService } from '../../services/card-data.service';
 import { ObjectInfoPanelComponent } from './object-info-panel.component';

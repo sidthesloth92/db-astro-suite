@@ -11,7 +11,7 @@ import {
   calculateTotalIntegration,
   FilterExposure,
   formatDuration,
-} from '../../models/card-data';
+} from '../../models/card-data.model';
 import { CardDataService } from '../../services/card-data.service';
 
 /**

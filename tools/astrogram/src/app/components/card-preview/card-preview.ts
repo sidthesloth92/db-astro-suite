@@ -6,7 +6,7 @@ import {
   calculateTotalSeconds,
   formatDuration,
   calculateTotalIntegration,
-} from '../../models/card-data';
+} from '../../models/card-data.model';
 import { BortleScaleComponent } from '../bortle-scale/bortle-scale';
 import { CardDataService } from '../../services/card-data.service';
 import { BaseCardPreviewComponent } from '../base-card-preview/base-card-preview';

@@ -6,7 +6,7 @@ import {
   DEFAULT_FILTERS,
   DEFAULT_GLOBAL_ANNOTATION_SETTINGS,
   StellarMapData,
-} from '../models/card-data';
+} from '../models/card-data.model';
 
 @Injectable({
   providedIn: 'root',

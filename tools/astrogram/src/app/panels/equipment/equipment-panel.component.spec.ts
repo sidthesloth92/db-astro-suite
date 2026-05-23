@@ -1,8 +1,8 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { AnalyticsService } from '@db-astro-suite/ui';
-import type { CardData } from '../../models/card-data';
-import { DEFAULT_FILTERS } from '../../models/card-data';
+import type { CardData } from '../../models/card-data.model';
+import { DEFAULT_FILTERS } from '../../models/card-data.model';
 import { CardDataService } from '../../services/card-data.service';
 import { PresetService } from '../../services/preset.service';
 import { EquipmentPanelComponent } from './equipment-panel.component';

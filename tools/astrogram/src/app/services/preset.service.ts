@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { EquipmentItem } from '../models/card-data';
+import { EquipmentItem } from '../models/card-data.model';
 
 export interface EquipmentPresets {
   [name: string]: EquipmentItem[];

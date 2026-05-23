@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { AnalyticsService } from '@db-astro-suite/ui';
 import { DEFAULT_GLOBAL_ANNOTATION_SETTINGS } from '../../models/annotation-settings.models';
 import { ImageAnnotation } from '../../models/annotation.models';
-import { StellarMapData } from '../../models/card-data';
+import { StellarMapData } from '../../models/card-data.model';
 import { AstrosolveService } from '../../services/astrosolve.service';
 import { CardDataService } from '../../services/card-data.service';
 import { WcsService } from '../../services/wcs.service';

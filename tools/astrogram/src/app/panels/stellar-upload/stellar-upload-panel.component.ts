@@ -23,7 +23,7 @@ import {
 } from '../../constants/analytics.constants';
 import { AccessKeyModalComponent } from '../../components/access-key-modal/access-key-modal.component';
 import type { ImageAnnotation } from '../../models/annotation.models';
-import type { StellarMapData } from '../../models/card-data';
+import type { StellarMapData } from '../../models/card-data.model';
 import { AstrosolveService } from '../../services/astrosolve.service';
 import { CardDataService } from '../../services/card-data.service';
 import { AccessKeyError } from '../../services/models/access-key.error';

@@ -8,7 +8,7 @@ import {
   MicroSliderComponent,
   PaletteIconComponent,
 } from '@db-astro-suite/ui';
-import { CardData } from '../../models/card-data';
+import { CardData } from '../../models/card-data.model';
 import { CardDataService } from '../../services/card-data.service';
 
 interface FormatOption {
