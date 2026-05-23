@@ -174,6 +174,11 @@ export class StellarMapPreviewComponent {
     this.dataService.selectAnnotation(current === id ? null : id);
   }
 
+  // TODO(stellar-annotation-color-mix): the `66` / `4d` alpha-hex suffixes
+  // below assume the bound colour is a 6-character hex string. The cleaner
+  // approach is `color-mix(in srgb, <color> 40%, transparent)`, but that
+  // requires the colour to come in as a CSS token rather than a hex
+  // literal — pre-existing pattern carried into this PR untouched.
   markerStyle(ann: ImageAnnotation): Record<string, string> {
     const g = this.mapData().globalAnnotationSettings;
     const s = ann.style ?? {};
