@@ -35,6 +35,9 @@ import { FILE_GROUPER_REPO_URL } from './dossier.constants';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class FileGrouperPageComponent {
+  /** External GitHub repo URL — bound from the template as the anchor `href`. */
+  protected readonly repoUrl = FILE_GROUPER_REPO_URL;
+
   private readonly analytics = inject(AnalyticsService);
   private readonly document = inject(DOCUMENT);
 

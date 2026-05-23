@@ -1,7 +1,6 @@
 import { RouteMeta } from '@analogjs/router';
 import { DOCUMENT } from '@angular/common';
 import { ChangeDetectionStrategy, Component, afterNextRender, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { StarryBackgroundComponent, TextButtonComponent } from '@db-astro-suite/ui';
 
 /**
@@ -12,7 +11,7 @@ import { StarryBackgroundComponent, TextButtonComponent } from '@db-astro-suite/
 @Component({
   selector: 'dba-hub-about-page',
   standalone: true,
-  imports: [RouterLink, StarryBackgroundComponent, TextButtonComponent],
+  imports: [StarryBackgroundComponent, TextButtonComponent],
   templateUrl: './about.page.html',
   styleUrl: './about.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

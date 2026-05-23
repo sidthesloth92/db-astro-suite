@@ -60,9 +60,3 @@
 .about__nav {
   text-align: center;
 }
-
-.back-link {
-  display: inline-flex;
-  text-decoration: none;
-  color: inherit;
-}

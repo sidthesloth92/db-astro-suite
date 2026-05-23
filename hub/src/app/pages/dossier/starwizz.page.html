@@ -20,11 +20,15 @@
           <p class="tagline">CINEMATIC STARFIELD GENERATOR</p>
         </div>
       </div>
-      <a href="/starwizz/" target="_self" class="launch-link" (click)="onLaunch()">
-        <dba-ui-text-button label="Launch Tool" variant="primary" size="md">
-          <dba-ui-icon-chevron-right slot="trailing" [size]="14" />
-        </dba-ui-text-button>
-      </a>
+      <dba-ui-text-button
+        label="Launch Tool"
+        variant="primary"
+        size="md"
+        [href]="launchUrl"
+        (clicked)="onLaunch()"
+      >
+        <dba-ui-icon-chevron-right slot="trailing" [size]="14" />
+      </dba-ui-text-button>
     </header>
 
     <section class="overview-section">

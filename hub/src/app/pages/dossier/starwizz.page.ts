@@ -35,6 +35,9 @@ import { STARWIZZ_LAUNCH_URL } from './dossier.constants';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class StarwizzPage {
+  /** Public launch target — bound from the template as the anchor `href`. */
+  protected readonly launchUrl = STARWIZZ_LAUNCH_URL;
+
   private readonly analytics = inject(AnalyticsService);
   private readonly document = inject(DOCUMENT);
 

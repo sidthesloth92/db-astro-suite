@@ -41,16 +41,16 @@
               Generate high-fidelity starfield videos with surgical control
               over star count, velocity, and rotation parameters.
             </p>
-            <a
+            <dba-ui-text-button
+              label="Learn more"
+              variant="secondary"
+              size="sm"
               [routerLink]="['/dossier/starwizz']"
-              class="launch-link"
-              (click)="onLearnMoreClick($event, 'starwizz')"
+              (clicked)="onLearnMoreClick($event, 'starwizz')"
               aria-label="Learn more about Starwizz"
             >
-              <dba-ui-text-button label="Learn more" variant="secondary" size="sm">
-                <dba-ui-icon-chevron-right slot="trailing" [size]="12" />
-              </dba-ui-text-button>
-            </a>
+              <dba-ui-icon-chevron-right slot="trailing" [size]="12" />
+            </dba-ui-text-button>
           </dba-ui-card>
         </div>
 
@@ -74,16 +74,16 @@
               exposure details, from target and integration time to equipment,
               filters, and Bortle scale. All in one clean, shareable image.
             </p>
-            <a
+            <dba-ui-text-button
+              label="Learn more"
+              variant="secondary"
+              size="sm"
               [routerLink]="['/dossier/astrogram']"
-              class="launch-link"
-              (click)="onLearnMoreClick($event, 'astrogram')"
+              (clicked)="onLearnMoreClick($event, 'astrogram')"
               aria-label="Learn more about Astrogram"
             >
-              <dba-ui-text-button label="Learn more" variant="secondary" size="sm">
-                <dba-ui-icon-chevron-right slot="trailing" [size]="12" />
-              </dba-ui-text-button>
-            </a>
+              <dba-ui-icon-chevron-right slot="trailing" [size]="12" />
+            </dba-ui-text-button>
           </dba-ui-card>
         </div>
 

@@ -139,12 +139,6 @@
   overflow: hidden;
 }
 
-.launch-link {
-  display: inline-flex;
-  text-decoration: none;
-  color: inherit;
-}
-
 .mission-card:hover {
   transform: translateY(-4px);
 }

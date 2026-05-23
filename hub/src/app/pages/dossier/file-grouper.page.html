@@ -13,17 +13,15 @@
         <h1>file grouper</h1>
         <p class="tagline">DATASET ORGANIZATION UTILITY</p>
       </div>
-      <a
-        href="https://github.com/sidthesloth92/db-astro-suite/tree/main/tools/file-grouper"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="launch-link"
-        (click)="onLaunch()"
+      <dba-ui-text-button
+        label="Access Repository"
+        variant="primary"
+        size="md"
+        [href]="repoUrl"
+        (clicked)="onLaunch()"
       >
-        <dba-ui-text-button label="Access Repository" variant="primary" size="md">
-          <dba-ui-icon-chevron-right slot="trailing" [size]="14" />
-        </dba-ui-text-button>
-      </a>
+        <dba-ui-icon-chevron-right slot="trailing" [size]="14" />
+      </dba-ui-text-button>
     </header>
 
     <div class="dossier-grid">

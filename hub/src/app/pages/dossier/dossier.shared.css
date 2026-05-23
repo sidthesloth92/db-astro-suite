@@ -101,11 +101,6 @@
   text-transform: uppercase;
 }
 
-.launch-link {
-  display: inline-flex;
-  text-decoration: none;
-}
-
 .overview-section,
 .features-section {
   margin-bottom: 1.5rem;

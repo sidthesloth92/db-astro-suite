@@ -42,7 +42,12 @@ export default class HomePageComponent {
     this.analytics.trackHubToolCardClicked(tool, 'card');
   }
 
-  /** Fires the hub "learn more" link analytics event and lets the link propagate. */
+  /**
+   * Fires the hub "learn more" link analytics event. The `event` is used
+   * to stop propagation so the parent mission-card's click handler /
+   * `[routerLink]` does not fire as well (otherwise we double-track the
+   * card click + double-trigger navigation).
+   */
   onLearnMoreClick(event: Event, tool: HubTool): void {
     event.stopPropagation();
     this.analytics.trackHubToolCardClicked(tool, 'learn_more');
