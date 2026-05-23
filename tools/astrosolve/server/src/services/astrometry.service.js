@@ -124,8 +124,16 @@ async function executeAstrometryAndGetWcsData(command, wcsFilePath, log) {
     const wcsData = await fs.readFile(wcsFilePath, "utf8");
     return { wcsData, stdout: capturedStdout, durationMs };
   } catch (readErr) {
+    // Preserve whatever solver telemetry we can extract from stdout — even
+    // a failed solve usually reports duration and source count, which is
+    // exactly the signal an admin dashboard needs to triage failures.
+    const partialStats = {
+      duration_ms: durationMs,
+      ...parseSolveFieldStdout(capturedStdout),
+    };
     throw new AstrometryError(
       "Astrometry.net failed to plate-solve the image. The image might not contain enough stars or match the downloaded index files.",
+      partialStats,
     );
   }
 }
@@ -164,10 +172,13 @@ function parseAstrometryWcs(wcsData) {
 
 /**
  * Extracts auxiliary solve metrics from solve-field's stdout. All fields are
- * optional — missing matches return null for that field.
+ * optional — missing matches return null for that field. Pre-solve metrics
+ * like `sources_found` are present even when the solve eventually fails,
+ * which is why this helper is also called from the failure path.
  *
  * @param {string} stdout
  * @returns {{
+ *   sources_found: number | null,
  *   field_width_arcmin: number | null,
  *   field_height_arcmin: number | null,
  *   field_rotation_deg: number | null,
@@ -179,6 +190,7 @@ function parseAstrometryWcs(wcsData) {
 export function parseSolveFieldStdout(stdout) {
   if (!stdout) {
     return {
+      sources_found: null,
       field_width_arcmin: null,
       field_height_arcmin: null,
       field_rotation_deg: null,
@@ -187,6 +199,8 @@ export function parseSolveFieldStdout(stdout) {
       index_used: null,
     };
   }
+  // "simplexy: found 973 sources." — present on both success and failure.
+  const sourcesMatch = stdout.match(/simplexy:\s*found\s+([0-9]+)\s+sources/);
   // "Field size: 46.0677 x 57.5913 arcminutes"
   const sizeMatch = stdout.match(
     /Field size:\s*([0-9.eE+-]+)\s*x\s*([0-9.eE+-]+)\s*arcminutes/,
@@ -203,6 +217,7 @@ export function parseSolveFieldStdout(stdout) {
   const indexMatch = stdout.match(/solved with index\s+(\S+?)\.fits/);
 
   return {
+    sources_found: sourcesMatch ? parseInt(sourcesMatch[1], 10) : null,
     field_width_arcmin: sizeMatch ? parseFloat(sizeMatch[1]) : null,
     field_height_arcmin: sizeMatch ? parseFloat(sizeMatch[2]) : null,
     field_rotation_deg: rotMatch ? parseFloat(rotMatch[1]) : null,

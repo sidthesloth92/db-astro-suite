@@ -46,6 +46,7 @@ export const SOLVE_EVENT_COLUMNS = Object.freeze([
   "solve_log_odds",
   "solve_index_used",
   "solve_duration_ms",
+  "solve_sources_found",
   "local_catalog_count",
   "simbad_count",
   "simbad_available",

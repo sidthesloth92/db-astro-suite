@@ -33,6 +33,7 @@ const CREATE_TABLE_SQL = `
     solve_log_odds                REAL,
     solve_index_used              TEXT,
     solve_duration_ms             INTEGER,
+    solve_sources_found           INTEGER,
     local_catalog_count           INTEGER,
     simbad_count                  INTEGER,
     simbad_available              INTEGER,
@@ -65,6 +66,17 @@ export class SqliteSolveEventDao extends SqliteBaseDao {
   constructor(db) {
     super(db);
     db.exec(CREATE_TABLE_SQL);
+    // Idempotent migrations for tables created before a column was added.
+    // Catch and ignore "duplicate column" so re-runs are no-ops.
+    for (const ddl of [
+      "ALTER TABLE solve_events ADD COLUMN solve_sources_found INTEGER",
+    ]) {
+      try {
+        db.exec(ddl);
+      } catch (err) {
+        if (!err.message?.includes("duplicate column name")) throw err;
+      }
+    }
     this.#insertStmt = db.prepare(INSERT_SQL);
   }
 

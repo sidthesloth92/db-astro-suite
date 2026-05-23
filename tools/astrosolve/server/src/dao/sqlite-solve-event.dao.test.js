@@ -43,6 +43,7 @@ test("insert + listRecent round-trips a fully populated row", () => {
     solve_log_odds: 93.52,
     solve_index_used: "index-4109.fits",
     solve_duration_ms: 25800,
+    solve_sources_found: 973,
     local_catalog_count: 3,
     simbad_count: 5,
     simbad_available: 1,
@@ -59,6 +60,7 @@ test("insert + listRecent round-trips a fully populated row", () => {
   assert.equal(row.file_size_bytes, 196965);
   assert.equal(row.image_width_px, 1080);
   assert.equal(row.solve_match_count, 11);
+  assert.equal(row.solve_sources_found, 973);
   assert.equal(row.solve_index_used, "index-4109.fits");
   assert.equal(row.objects_returned, 7);
   assert.equal(row.outcome, "success");

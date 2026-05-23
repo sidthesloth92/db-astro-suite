@@ -85,6 +85,7 @@ export async function parseMultipartRequest(request, uploadsDir) {
     );
 
     if (stats.size === 0) {
+      await fs.unlink(filePath).catch(() => {});
       throw new SolveError(400, "Uploaded file is 0 bytes. Stream was empty.");
     }
 
@@ -112,9 +113,13 @@ export async function parseMultipartRequest(request, uploadsDir) {
     }
     await fs.unlink(filePath).catch(() => {});
     request.log.error(err, "Failed to parse image dimensions");
+    // Preserve the underlying cause in the SolveError message so it ends up
+    // in solve_events.error_message for debugging — otherwise every corrupt-
+    // file failure looks identical in analytics.
+    const cause = err instanceof Error ? err.message : String(err);
     throw new SolveError(
       400,
-      "Uploaded image file appears to be corrupted or in an unsupported format.",
+      `Uploaded image file appears to be corrupted or in an unsupported format: ${cause}`,
     );
   }
 }

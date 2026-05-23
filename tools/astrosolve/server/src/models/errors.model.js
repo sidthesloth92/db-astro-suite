@@ -39,13 +39,20 @@ export class SolveError extends AppError {
  * Thrown when the Astrometry.net plate-solving process fails.
  * This covers CLI execution failures, missing WCS output, or
  * unparsable WCS data.
+ *
+ * Carries an optional `solveStats` payload — partial telemetry parsed
+ * from solve-field's stdout before it gave up (duration, source count,
+ * scale guess, etc). Lets analytics record *why* a solve failed instead
+ * of just *that* it failed.
  */
 export class AstrometryError extends AppError {
   /**
    * @param {string} message
+   * @param {Object} [solveStats] - Partial solver telemetry extracted from stdout
    */
-  constructor(message) {
+  constructor(message, solveStats) {
     super(message);
+    this.solveStats = solveStats ?? null;
   }
 }
 

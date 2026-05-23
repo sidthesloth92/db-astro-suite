@@ -120,6 +120,7 @@ export default async function (fastify, opts) {
       a.solve_log_odds = result.solveStats?.log_odds ?? null;
       a.solve_index_used = result.solveStats?.index_used ?? null;
       a.solve_duration_ms = result.solveStats?.duration_ms ?? null;
+      a.solve_sources_found = result.solveStats?.sources_found ?? null;
       a.local_catalog_count = result.catalogStats?.local_count ?? null;
       a.simbad_count = result.catalogStats?.simbad_count ?? null;
       a.simbad_available =
@@ -168,6 +169,20 @@ export default async function (fastify, opts) {
         a.outcome = SolveEventOutcome.SOLVE_FAILED;
         a.response_code = "SOLVE_FAILED";
         a.error_message = e.message;
+        // Partial solver telemetry — emitted by solve-field before it gave up.
+        // Lets the admin dashboard distinguish "image too sparse" from "lots
+        // of stars but no catalog match" without having to dig through logs.
+        const ps = e.solveStats;
+        if (ps) {
+          a.solve_duration_ms = ps.duration_ms ?? null;
+          a.solve_sources_found = ps.sources_found ?? null;
+          a.solve_field_width_arcmin = ps.field_width_arcmin ?? null;
+          a.solve_field_height_arcmin = ps.field_height_arcmin ?? null;
+          a.solve_field_rotation_deg = ps.field_rotation_deg ?? null;
+          a.solve_match_count = ps.match_count ?? null;
+          a.solve_log_odds = ps.log_odds ?? null;
+          a.solve_index_used = ps.index_used ?? null;
+        }
         return reply.code(500).send({
           code: "SOLVE_FAILED",
           message: "Internal processing error during astrometry solving.",
