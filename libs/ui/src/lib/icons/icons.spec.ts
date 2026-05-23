@@ -1,4 +1,4 @@
-import { Component, signal, Type } from '@angular/core';
+import { Component, Type } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ApertureIconComponent } from './aperture.icon.component';
 import { ChevronRightIconComponent } from './chevron-right.icon.component';
@@ -7,10 +7,6 @@ import { DownloadIconComponent } from './download.icon.component';
 import { LayersIconComponent } from './layers.icon.component';
 import { MountainIconComponent } from './mountain.icon.component';
 import { StarsIconComponent } from './stars.icon.component';
-
-interface IconLike {
-  size: ReturnType<typeof signal<number>>;
-}
 
 /**
  * Sanity check across a representative subset of the icon set:
@@ -27,7 +23,7 @@ class HostDownloadComponent {}
 
 describe('Icon components', () => {
   function setupStandalone<T>(type: Type<T>): ComponentFixture<T> {
-    TestBed.configureTestingModule({ imports: [type as unknown as Type<unknown>] });
+    TestBed.configureTestingModule({ imports: [type] });
     const fixture = TestBed.createComponent(type);
     fixture.detectChanges();
     return fixture;
@@ -58,10 +54,12 @@ describe('Icon components', () => {
     expect(svg.getAttribute('height')).toBe('32');
   });
 
-  const solidIcons: { name: string; type: Type<IconLike> }[] = [
-    { name: 'Mountain', type: MountainIconComponent as unknown as Type<IconLike> },
-    { name: 'Stars', type: StarsIconComponent as unknown as Type<IconLike> },
-    { name: 'Layers', type: LayersIconComponent as unknown as Type<IconLike> },
+  // Each entry is a plain `Type<unknown>` — the spec only ever queries
+  // rendered SVG attributes, never the component instance.
+  const solidIcons: { name: string; type: Type<unknown> }[] = [
+    { name: 'Mountain', type: MountainIconComponent },
+    { name: 'Stars', type: StarsIconComponent },
+    { name: 'Layers', type: LayersIconComponent },
   ];
 
   for (const { name, type } of solidIcons) {
