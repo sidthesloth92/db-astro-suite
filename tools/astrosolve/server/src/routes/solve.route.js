@@ -13,6 +13,10 @@ import { SolveEventOutcome } from "../models/solve-event.model.js";
 import { AccessKeyDao } from "../dao/access-key.dao.js";
 import { LocalCatalogDao } from "../dao/local-catalog.dao.js";
 import { SolveEventDao } from "../dao/solve-event.dao.js";
+import {
+  classifyType,
+  OBJECT_BUCKETS,
+} from "../utils/object-classifier.util.js";
 
 // Concurrency queue to protect backend execution.
 const solveQueue = new PQueue({ concurrency: config.queueConcurrency });
@@ -130,6 +134,36 @@ export default async function (fastify, opts) {
             ? 1
             : 0;
       a.objects_returned = result.objects.length;
+
+      // Per-type and per-source breakdown of the *post-merge*, *post-dedup*
+      // object list — the same array we're about to send to the client.
+      // Used by the admin dashboard to slice "what kind of objects do
+      // users actually see?" without joining the response payload.
+      const typeTally = Object.fromEntries(OBJECT_BUCKETS.map((b) => [b, 0]));
+      let fromLocal = 0;
+      let fromSimbad = 0;
+      for (const obj of result.objects) {
+        typeTally[classifyType(obj.type)] += 1;
+        if (obj.source === "local") fromLocal += 1;
+        else if (obj.source === "simbad") fromSimbad += 1;
+      }
+      a.objects_returned_stars = typeTally.stars;
+      a.objects_returned_galaxies = typeTally.galaxies;
+      a.objects_returned_nebulae = typeTally.nebulae;
+      a.objects_returned_clusters = typeTally.clusters;
+      a.objects_returned_other = typeTally.other;
+      a.objects_returned_from_local = fromLocal;
+      a.objects_returned_from_simbad = fromSimbad;
+
+      // Fold per-subsystem diagnostics — populated for every subsystem
+      // that ran, even on the happy path. The hook serialises to JSON
+      // and writes to `solve_events.diagnostics`.
+      if (result.diagnostics) {
+        for (const [key, value] of Object.entries(result.diagnostics)) {
+          if (value != null) a.diagnostics[key] = value;
+        }
+      }
+
       a.outcome = SolveEventOutcome.SUCCESS;
       a.response_code = "SOLVE_SUCCESS";
 
@@ -182,6 +216,12 @@ export default async function (fastify, opts) {
           a.solve_match_count = ps.match_count ?? null;
           a.solve_log_odds = ps.log_odds ?? null;
           a.solve_index_used = ps.index_used ?? null;
+        }
+        // Free-form failure context (command, exit code, signal, stdout
+        // tail, etc.) goes into the JSON diagnostics blob. Future-me
+        // should be able to triage from the row alone.
+        if (e.diagnostics) {
+          a.diagnostics.astrometry = e.diagnostics;
         }
         return reply.code(500).send({
           code: "SOLVE_FAILED",

@@ -7,13 +7,53 @@ import { SolveResult, SolveMetadata } from "../models/solve.model.js";
 import { CatalogError } from "../models/errors.model.js";
 
 /**
+ * Wraps a catalog query so it always produces a `diagnostics` payload —
+ * `{status: "ok", elapsed_ms, row_count, ...context}` on success, the
+ * `err.details` payload on failure. Errors that aren't `CatalogError`
+ * propagate (they indicate a programming bug, not a third-party fault).
+ *
+ * @template T
+ * @param {string} source - Subsystem name ('simbad' | 'local_catalog')
+ * @param {() => Promise<T[]>} fn - The catalog call to time
+ * @param {Object} contextOnSuccess - Extra fields to merge into the
+ *   success diagnostics (request URL, query params, etc.)
+ * @returns {Promise<{objects: T[], diagnostics: Object}>}
+ */
+async function timedCatalog(source, fn, contextOnSuccess) {
+  const startedAt = Date.now();
+  try {
+    const objects = await fn();
+    return {
+      objects,
+      diagnostics: {
+        status: "ok",
+        elapsed_ms: Date.now() - startedAt,
+        row_count: objects.length,
+        ...contextOnSuccess,
+      },
+    };
+  } catch (err) {
+    if (!(err instanceof CatalogError)) throw err;
+    return {
+      objects: [],
+      diagnostics: err.details ?? {
+        status: "error",
+        elapsed_ms: Date.now() - startedAt,
+        error_message: err.message,
+      },
+      error: err,
+    };
+  }
+}
+
+/**
  * Orchestrates the full plate-solve pipeline: astrometry → catalog queries → merge.
  *
  * @param {string} filePath - Absolute path to the saved image file
  * @param {Object} hints - Solving hints extracted from the request
  * @param {LocalCatalogDao | null} localCatalogDao - DAO for the local catalog
  * @param {Object} log - Fastify-compatible logger (request.log)
- * @returns {Promise<SolveResult & { solveStats: Object, catalogStats: Object }>}
+ * @returns {Promise<SolveResult & { solveStats: Object, catalogStats: Object, diagnostics: Object }>}
  */
 export async function processSolveRequest(
   filePath,
@@ -24,48 +64,70 @@ export async function processSolveRequest(
   const warnings = [];
 
   // Step 1: Plate Solve using local Astrometry.net
+  // On failure this throws AstrometryError, which the route handler
+  // unpacks. On success it carries its own diagnostics payload.
   const solveResult = await solveWithAstrometry(filePath, hints, log);
 
   // Step 2: Hybrid Search (Local + SIMBAD)
   // We search within a 2-degree radius (typical wide field crop)
   const radius = 2.0;
-  let simbadAvailable = true;
 
-  // Fire both queries in parallel
-  const [localObjects, simbadObjects] = await Promise.all([
-    // Local DB Query (Extremely fast, <10ms)
-    findObjectsInRadius(localCatalogDao, {
-      ra: solveResult.ra,
-      dec: solveResult.dec,
-      radiusDeg: radius,
-      maxMagnitude: hints.min_magnitude,
-      types: hints.types,
-      log,
-    }).catch((err) => {
-      if (!(err instanceof CatalogError)) throw err;
-      log.error({ err }, "Local catalog query failed");
-      return [];
-    }),
-
-    // SIMBAD Query (Slower, network dependent)
-    querySimbad(
-      solveResult.ra,
-      solveResult.dec,
-      radius,
-      hints.min_magnitude,
-    ).catch((err) => {
-      if (!(err instanceof CatalogError)) throw err;
-      log.warn(
-        { err },
-        "SIMBAD query failed; falling back to local catalog only",
-      );
-      warnings.push(
-        "Catalog service (SIMBAD) was unavailable; displayed objects may be incomplete.",
-      );
-      simbadAvailable = false;
-      return [];
-    }),
+  // Fire both queries in parallel — each is wrapped so we always get a
+  // diagnostics payload regardless of outcome. Lets us record per-subsystem
+  // timings on the happy path too, useful for audience/system insight.
+  const [localResult, simbadResult] = await Promise.all([
+    timedCatalog(
+      "local_catalog",
+      () =>
+        findObjectsInRadius(localCatalogDao, {
+          ra: solveResult.ra,
+          dec: solveResult.dec,
+          radiusDeg: radius,
+          maxMagnitude: hints.min_magnitude,
+          types: hints.types,
+          log,
+        }),
+      {
+        params: {
+          ra: solveResult.ra,
+          dec: solveResult.dec,
+          radiusDeg: radius,
+          maxMagnitude: hints.min_magnitude,
+          types: hints.types,
+        },
+      },
+    ),
+    timedCatalog(
+      "simbad",
+      () =>
+        querySimbad(
+          solveResult.ra,
+          solveResult.dec,
+          radius,
+          hints.min_magnitude,
+        ),
+      {
+        request_url: "http://simbad.u-strasbg.fr/simbad/sim-tap/sync",
+      },
+    ),
   ]);
+
+  if (localResult.error) {
+    log.error({ err: localResult.error }, "Local catalog query failed");
+  }
+  if (simbadResult.error) {
+    log.warn(
+      { err: simbadResult.error },
+      "SIMBAD query failed; falling back to local catalog only",
+    );
+    warnings.push(
+      "Catalog service (SIMBAD) was unavailable; displayed objects may be incomplete.",
+    );
+  }
+
+  const localObjects = localResult.objects;
+  const simbadObjects = simbadResult.objects;
+  const simbadAvailable = !simbadResult.error;
 
   // Step 3: Deduplication & Merging
   const objects = mergeObjects(localObjects, simbadObjects);
@@ -90,6 +152,14 @@ export async function processSolveRequest(
     local_count: localObjects.length,
     simbad_count: simbadObjects.length,
     simbad_available: simbadAvailable,
+  };
+  // Per-subsystem diagnostics — populated for both success and failure
+  // paths so every solve_events row carries a comparable breakdown.
+  // The route handler folds this into request.analytics.diagnostics.
+  result.diagnostics = {
+    astrometry: solveResult.diagnostics ?? null,
+    simbad: simbadResult.diagnostics,
+    local_catalog: localResult.diagnostics,
   };
 
   return result;

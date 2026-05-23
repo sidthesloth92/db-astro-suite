@@ -51,5 +51,13 @@ export const SOLVE_EVENT_COLUMNS = Object.freeze([
   "simbad_count",
   "simbad_available",
   "objects_returned",
+  "objects_returned_stars",
+  "objects_returned_galaxies",
+  "objects_returned_nebulae",
+  "objects_returned_clusters",
+  "objects_returned_other",
+  "objects_returned_from_local",
+  "objects_returned_from_simbad",
   "total_duration_ms",
+  "diagnostics",
 ]);

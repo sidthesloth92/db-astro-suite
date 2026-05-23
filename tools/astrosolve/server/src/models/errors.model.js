@@ -40,34 +40,49 @@ export class SolveError extends AppError {
  * This covers CLI execution failures, missing WCS output, or
  * unparsable WCS data.
  *
- * Carries an optional `solveStats` payload — partial telemetry parsed
- * from solve-field's stdout before it gave up (duration, source count,
- * scale guess, etc). Lets analytics record *why* a solve failed instead
- * of just *that* it failed.
+ * Carries two optional payloads:
+ * - `solveStats`: structured telemetry parsed from solve-field's stdout
+ *   (duration, source count, scale guess) — copied into dedicated
+ *   `solve_*` columns by the analytics hook.
+ * - `diagnostics`: free-form context (command, exit code, signal,
+ *   stdout/stderr tails, wcs-file existence, parse error) — JSON-encoded
+ *   into the `solve_events.diagnostics` blob so a row alone is enough
+ *   to reproduce / debug a failure later.
  */
 export class AstrometryError extends AppError {
   /**
    * @param {string} message
    * @param {Object} [solveStats] - Partial solver telemetry extracted from stdout
+   * @param {Object} [diagnostics] - Free-form failure context for the analytics blob
    */
-  constructor(message, solveStats) {
+  constructor(message, solveStats, diagnostics) {
     super(message);
     this.solveStats = solveStats ?? null;
+    this.diagnostics = diagnostics ?? null;
   }
 }
 
 /**
  * Thrown when a catalog query (local SQLite or SIMBAD TAP) fails.
  * Carries an optional `source` field to distinguish which catalog errored.
+ *
+ * Optional `details` payload carries source-specific failure context:
+ * - SIMBAD: HTTP status, axios error code, request URL, ADQL, response
+ *   body tail.
+ * - Local: DAO error class, error message, query params.
+ * The route handler folds this into `request.analytics.diagnostics` for
+ * the `solve_events` JSON blob.
  */
 export class CatalogError extends AppError {
   /**
    * @param {string} source - The catalog that failed ('local' | 'simbad')
    * @param {string} message
+   * @param {Object} [details] - Source-specific failure context
    */
-  constructor(source, message) {
+  constructor(source, message, details) {
     super(message);
     this.source = source;
+    this.details = details ?? null;
   }
 }
 

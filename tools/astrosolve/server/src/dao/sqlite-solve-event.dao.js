@@ -38,7 +38,15 @@ const CREATE_TABLE_SQL = `
     simbad_count                  INTEGER,
     simbad_available              INTEGER,
     objects_returned              INTEGER,
-    total_duration_ms             INTEGER NOT NULL
+    objects_returned_stars        INTEGER,
+    objects_returned_galaxies     INTEGER,
+    objects_returned_nebulae      INTEGER,
+    objects_returned_clusters     INTEGER,
+    objects_returned_other        INTEGER,
+    objects_returned_from_local   INTEGER,
+    objects_returned_from_simbad  INTEGER,
+    total_duration_ms             INTEGER NOT NULL,
+    diagnostics                   TEXT
   );
   CREATE INDEX IF NOT EXISTS idx_solve_events_created_at ON solve_events(created_at);
   CREATE INDEX IF NOT EXISTS idx_solve_events_key_id     ON solve_events(key_id);
@@ -70,6 +78,14 @@ export class SqliteSolveEventDao extends SqliteBaseDao {
     // Catch and ignore "duplicate column" so re-runs are no-ops.
     for (const ddl of [
       "ALTER TABLE solve_events ADD COLUMN solve_sources_found INTEGER",
+      "ALTER TABLE solve_events ADD COLUMN objects_returned_stars INTEGER",
+      "ALTER TABLE solve_events ADD COLUMN objects_returned_galaxies INTEGER",
+      "ALTER TABLE solve_events ADD COLUMN objects_returned_nebulae INTEGER",
+      "ALTER TABLE solve_events ADD COLUMN objects_returned_clusters INTEGER",
+      "ALTER TABLE solve_events ADD COLUMN objects_returned_other INTEGER",
+      "ALTER TABLE solve_events ADD COLUMN objects_returned_from_local INTEGER",
+      "ALTER TABLE solve_events ADD COLUMN objects_returned_from_simbad INTEGER",
+      "ALTER TABLE solve_events ADD COLUMN diagnostics TEXT",
     ]) {
       try {
         db.exec(ddl);

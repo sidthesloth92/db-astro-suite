@@ -664,31 +664,3 @@ async function seed() {
 }
 
 seed();
-
-// ---------------------------------------------------------------------------
-// Access-keys database — initialised alongside the catalog DB so that a single
-// `npm run init-local-catalog-db` call sets up all SQLite databases.
-// ---------------------------------------------------------------------------
-(function initAccessKeysDb() {
-  const accessKeysDbPath = path.join(
-    __dirname,
-    "../../data/access-keys.sqlite",
-  );
-
-  if (!fs.existsSync(path.dirname(accessKeysDbPath))) {
-    fs.mkdirSync(path.dirname(accessKeysDbPath), { recursive: true });
-  }
-
-  const accessKeysDb = sqlite3(accessKeysDbPath);
-  accessKeysDb.exec(`
-    CREATE TABLE IF NOT EXISTS solve_api_access_keys (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      username TEXT NOT NULL UNIQUE,
-      key_hash TEXT NOT NULL,
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      active INTEGER NOT NULL DEFAULT 1
-    );
-  `);
-  accessKeysDb.close();
-  console.log("Access-keys database initialised at", accessKeysDbPath);
-})();

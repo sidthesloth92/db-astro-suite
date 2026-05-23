@@ -3,6 +3,7 @@ import { promisify } from "util";
 import fs from "fs/promises";
 import path from "path";
 import { AstrometryError } from "../models/errors.model.js";
+import { tail } from "../utils/diagnostics.util.js";
 
 const execAsync = promisify(exec);
 
@@ -21,23 +22,71 @@ export async function solveWithAstrometry(filePath, hints, log) {
   const dirName = path.dirname(filePath);
   const wcsFilePath = path.join(dirName, `${baseName}.wcs`);
 
+  const command = createAstrometryCommand(filePath, hints);
   try {
-    const command = createAstrometryCommand(filePath, hints);
     log.info({ command }, "Executing astrometry solve-field");
-    const { wcsData, stdout, durationMs } =
+    const { wcsData, stdout, stderr, durationMs, execError, wcsReadError } =
       await executeAstrometryAndGetWcsData(command, wcsFilePath, log);
-    const alignmentInfo = parseAstrometryWcs(wcsData);
+
     const solveStats = {
       duration_ms: durationMs,
       ...parseSolveFieldStdout(stdout),
     };
-
-    return {
-      status: "success",
-      wcsData: wcsData,
-      solveStats,
-      ...alignmentInfo,
+    const baseDiagnostics = {
+      command,
+      exit_code: execError?.code ?? null,
+      signal: execError?.signal ?? null,
+      killed: execError?.killed ?? false,
+      stdout_tail: tail(stdout),
+      stderr_tail: tail(stderr),
+      elapsed_ms: durationMs,
     };
+
+    if (!wcsData) {
+      // solve-field produced no .wcs file — terminal failure.
+      throw new AstrometryError(
+        "Astrometry.net failed to plate-solve the image. The image might not contain enough stars or match the downloaded index files.",
+        solveStats,
+        {
+          ...baseDiagnostics,
+          wcs_file_existed: false,
+          wcs_parse_error: null,
+          wcs_read_error: wcsReadError?.message ?? null,
+        },
+      );
+    }
+
+    try {
+      const alignmentInfo = parseAstrometryWcs(wcsData);
+      return {
+        status: "success",
+        wcsData,
+        solveStats,
+        // Success-path diagnostics — mirrors the failure-path shape so
+        // every solve_events row has comparable subsystem context. Lets
+        // the dashboard ask "what command line / runtime / output produced
+        // a successful solve?" without joining the request payload.
+        diagnostics: {
+          ...baseDiagnostics,
+          status: "ok",
+          wcs_file_existed: true,
+        },
+        ...alignmentInfo,
+      };
+    } catch (parseErr) {
+      // .wcs exists but its contents are unparsable — separate signal
+      // from "solve-field gave up" in the dashboard.
+      throw new AstrometryError(
+        parseErr.message,
+        solveStats,
+        {
+          ...baseDiagnostics,
+          wcs_file_existed: true,
+          wcs_parse_error: parseErr.message,
+          wcs_read_error: null,
+        },
+      );
+    }
   } finally {
     // Astrometry.net creates many intermediate files (*.axy, *.corr, *.match, etc).
     // The easiest cleanup is simply matching the basename in the folder.
@@ -95,47 +144,62 @@ function createAstrometryCommand(filePath, hints) {
 }
 
 /**
- * Executes the solve-field command and reads the resulting .wcs file.
+ * Executes the solve-field command and attempts to read the resulting .wcs
+ * file. Returns the raw materials needed to decide success vs. failure and
+ * to build a diagnostics payload — never throws on solver-level problems
+ * (those are signalled by `wcsData === null`). The caller (`solveWithAstrometry`)
+ * is the only place that throws `AstrometryError`.
  *
  * @param {string} command - The shell command to execute
  * @param {string} wcsFilePath - Expected path of the output .wcs file
  * @param {Object} log - Fastify-compatible logger
- * @returns {Promise<{ wcsData: string, stdout: string, durationMs: number }>}
+ * @returns {Promise<{
+ *   wcsData: string | null,
+ *   stdout: string,
+ *   stderr: string,
+ *   durationMs: number,
+ *   execError: (Error & { code?: number, signal?: string, killed?: boolean, stdout?: string, stderr?: string }) | null,
+ *   wcsReadError: Error | null,
+ * }>}
  */
 async function executeAstrometryAndGetWcsData(command, wcsFilePath, log) {
   const startedAt = Date.now();
   let capturedStdout = "";
+  let capturedStderr = "";
+  let execError = null;
   try {
     const { stdout, stderr } = await execAsync(command, { timeout: 300_000 });
     capturedStdout = stdout || "";
+    capturedStderr = stderr || "";
     if (stdout) log.info({ stdout }, "solve-field stdout");
     if (stderr) log.warn({ stderr }, "solve-field stderr");
-  } catch (execError) {
-    capturedStdout = execError.stdout ?? "";
+  } catch (err) {
+    execError = err;
+    capturedStdout = err.stdout ?? "";
+    capturedStderr = err.stderr ?? "";
     log.error(
-      { err: execError, stdout: execError.stdout, stderr: execError.stderr },
+      { err, stdout: err.stdout, stderr: err.stderr },
       "solve-field process failed; checking for .wcs output anyway",
     );
   }
   const durationMs = Date.now() - startedAt;
 
-  // The true test of success is whether the .wcs file was generated.
+  let wcsData = null;
+  let wcsReadError = null;
   try {
-    const wcsData = await fs.readFile(wcsFilePath, "utf8");
-    return { wcsData, stdout: capturedStdout, durationMs };
+    wcsData = await fs.readFile(wcsFilePath, "utf8");
   } catch (readErr) {
-    // Preserve whatever solver telemetry we can extract from stdout — even
-    // a failed solve usually reports duration and source count, which is
-    // exactly the signal an admin dashboard needs to triage failures.
-    const partialStats = {
-      duration_ms: durationMs,
-      ...parseSolveFieldStdout(capturedStdout),
-    };
-    throw new AstrometryError(
-      "Astrometry.net failed to plate-solve the image. The image might not contain enough stars or match the downloaded index files.",
-      partialStats,
-    );
+    wcsReadError = readErr;
   }
+
+  return {
+    wcsData,
+    stdout: capturedStdout,
+    stderr: capturedStderr,
+    durationMs,
+    execError,
+    wcsReadError,
+  };
 }
 
 /**

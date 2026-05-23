@@ -20,6 +20,15 @@ function baseEvent(overrides = {}) {
 
 test("insert + listRecent round-trips a fully populated row", () => {
   const dao = newDao();
+  const diagnostics = JSON.stringify({
+    simbad: {
+      status: "http_error",
+      http_status: 400,
+      error_message: "Incorrect ADQL query",
+      adql: "SELECT TOP 500 ...",
+      elapsed_ms: 1240,
+    },
+  });
   const event = baseEvent({
     key_id: 7,
     client_ip: "1.2.3.4",
@@ -48,6 +57,14 @@ test("insert + listRecent round-trips a fully populated row", () => {
     simbad_count: 5,
     simbad_available: 1,
     objects_returned: 7,
+    objects_returned_stars: 3,
+    objects_returned_galaxies: 2,
+    objects_returned_nebulae: 1,
+    objects_returned_clusters: 1,
+    objects_returned_other: 0,
+    objects_returned_from_local: 3,
+    objects_returned_from_simbad: 4,
+    diagnostics,
   });
   dao.insertEvent(event);
 
@@ -66,6 +83,44 @@ test("insert + listRecent round-trips a fully populated row", () => {
   assert.equal(row.outcome, "success");
   assert.ok(row.id > 0);
   assert.ok(typeof row.created_at === "string" && row.created_at.length > 0);
+
+  // New breakdown columns round-trip verbatim.
+  assert.equal(row.objects_returned_stars, 3);
+  assert.equal(row.objects_returned_galaxies, 2);
+  assert.equal(row.objects_returned_nebulae, 1);
+  assert.equal(row.objects_returned_clusters, 1);
+  assert.equal(row.objects_returned_other, 0);
+  assert.equal(row.objects_returned_from_local, 3);
+  assert.equal(row.objects_returned_from_simbad, 4);
+
+  // Invariant: per-type and per-source buckets each sum to objects_returned.
+  const byType =
+    row.objects_returned_stars +
+    row.objects_returned_galaxies +
+    row.objects_returned_nebulae +
+    row.objects_returned_clusters +
+    row.objects_returned_other;
+  const bySource =
+    row.objects_returned_from_local + row.objects_returned_from_simbad;
+  assert.equal(byType, row.objects_returned);
+  assert.equal(bySource, row.objects_returned);
+
+  // Diagnostics blob round-trips byte-for-byte and parses as JSON.
+  assert.equal(row.diagnostics, diagnostics);
+  const parsed = JSON.parse(row.diagnostics);
+  assert.equal(parsed.simbad.http_status, 400);
+});
+
+test("constructor is idempotent against a pre-existing DB", () => {
+  // Simulate the production migration path: a DB created by an older
+  // version of the schema gets reopened by the new code. The ALTER TABLE
+  // migrations must skip already-present columns rather than throwing.
+  const db = new Database(":memory:");
+  // First open creates the table with the full current schema.
+  // eslint-disable-next-line no-new
+  new SqliteSolveEventDao(db);
+  // Second open should be a no-op for the migrations — no throw means pass.
+  assert.doesNotThrow(() => new SqliteSolveEventDao(db));
 });
 
 test("insert stores NULL for unspecified columns", () => {

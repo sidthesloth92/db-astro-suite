@@ -47,12 +47,21 @@ docker build -t astrosolve .
 
 For local development without access keys, set `SOLVE_API_KEY_REQUIRED=false` explicitly.
 
+The `astrosolve.sqlite` file holds both access keys and the `solve_events`
+analytics table. It must be bind-mounted so its contents survive container
+restarts. Docker creates a directory (not a file) at the bind target if the
+host path doesn't exist, so create the empty file once before the first run:
+
 ```bash
 cd tools/astrosolve/server
+mkdir -p data
+touch data/astrosolve.sqlite
+
 docker run --rm -p 3000:3000 \
   --name astrosolve \
   -e SOLVE_API_KEY_REQUIRED=false \
   -e ASTROSOLVE_ORIGIN=http://localhost:4200 \
+  -v $(pwd)/data/astrosolve.sqlite:/usr/src/app/data/astrosolve.sqlite \
   -v $(pwd)/data/astrometry:/usr/src/app/data/astrometry:ro \
   -v $(pwd)/data/local-catalog:/usr/src/app/data/local-catalog \
   -v $(pwd)/data/uploads:/usr/src/app/data/uploads \
