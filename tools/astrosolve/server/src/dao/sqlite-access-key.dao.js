@@ -87,6 +87,24 @@ export class SqliteAccessKeyDao extends SqliteBaseDao {
   }
 
   /**
+   * @param {string} username
+   * @param {string} newKeyHash
+   * @returns {void}
+   * @throws {AccessKeyError}
+   */
+  rotateAccessKey(username, newKeyHash) {
+    const result = this.db
+      .prepare(
+        "UPDATE solve_api_access_keys SET key_hash = ? WHERE username = ?",
+      )
+      .run(newKeyHash, username);
+
+    if (result.changes === 0) {
+      throw new AccessKeyError(`User not found: ${username}`);
+    }
+  }
+
+  /**
    * @returns {{ username: string, created_at: string, active: number, use_count: number }[]}
    */
   listAccessKeys() {
