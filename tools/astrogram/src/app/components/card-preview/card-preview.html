@@ -1,4 +1,5 @@
 <dba-ag-base-card-preview
+  #base
   [aspectRatio]="cardData().aspectRatio"
   [backgroundImage]="cardData().backgroundImage"
   [author]="cardData().author"
@@ -7,125 +8,73 @@
   [accentColorRgb]="cardData().accentColorRgb || '255, 45, 149'"
   [cardOpacity]="cardData().cardOpacity"
 >
-  <!-- Title Section -->
-  <section class="card-section title-section">
-    <h1 class="card-title font-display">{{ cardData().title }}</h1>
-    <div class="card-meta">
-      <span class="meta-item">
-        <svg
-          class="icon"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-          <line x1="16" y1="2" x2="16" y2="6"></line>
-          <line x1="8" y1="2" x2="8" y2="6"></line>
-          <line x1="3" y1="10" x2="21" y2="10"></line>
-        </svg>
-        {{ formattedDate() }}
-      </span>
-      <span class="meta-item">
-        <svg
-          class="icon"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-          <circle cx="12" cy="10" r="3"></circle>
-        </svg>
-        {{ cardData().location }}
-      </span>
-      <span class="meta-item">
-        <svg
-          class="icon author-link-icon"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-          <circle cx="12" cy="7" r="4"></circle>
-        </svg>
-        {{ cardData().author }}
-      </span>
+  <!-- Pink Nebula header avatar + handle -->
+  <header class="pn-header">
+    <div class="pn-avatar" aria-hidden="true"></div>
+    <div class="pn-handle">{{ cardData().author }}</div>
+  </header>
+
+  <!-- Hero block -->
+  <section class="pn-hero">
+    <h1 class="pn-title">{{ cardData().title }}</h1>
+    <div class="pn-meta">
+      <span>📅 {{ formattedDate() }}</span>
+      <span>📍 {{ cardData().location }}</span>
     </div>
     @if (cardData().description; as desc) {
-      <div class="card-description">
-        {{ desc.length > 300 ? (desc | slice: 0 : 300) + '...' : desc }}
-      </div>
+      <p class="pn-description">{{ desc }}</p>
     }
   </section>
 
-  <!-- Integration Section -->
-  <section class="card-section integration-section">
-    <div class="section-header-row">
-      <h2 class="section-header">INTEGRATION</h2>
-      <div class="integration-total">
-        <span class="integration-label">TOTAL</span>
-        <span class="integration-time">{{ totalIntegration() }}</span>
-      </div>
+  <!-- Integration rings -->
+  <section class="pn-integration">
+    <div class="pn-integration-head">
+      <span class="pn-integration-kicker">integration</span>
+      <span class="pn-integration-total">
+        TOTAL <strong>{{ totalIntegration() }}</strong>
+      </span>
     </div>
-
-    <div class="filter-rings">
+    <div class="pn-ring-row">
       @for (filter of enabledFilters(); track filter.name) {
-        <dba-ag-filter-ring
-          [name]="filter.name"
+        <dba-ui-progress-ring
+          [value]="filterHours(filter)"
+          [total]="totalIntegrationHours()"
           [color]="filter.color"
-          [duration]="getFilterDuration(filter)"
-          [progress]="getFilterProgress(filter)"
-        ></dba-ag-filter-ring>
+          [label]="filter.name"
+          [centerText]="filterCenterText(filter)"
+          [size]="72"
+          [radius]="28"
+        />
       }
     </div>
   </section>
 
-  <!-- Main Footer Columns -->
-  <div class="two-column">
-    <section class="card-section col-55">
-      <h2 class="section-header">EQUIPMENT</h2>
-      <ul class="item-list">
-        @for (item of cardData().equipment; track $index) {
-          <li class="info-pair">
-            <span class="item-icon">{{ item.icon }}</span>
-            <div class="pair-content">
-              <span class="pair-label">{{ item.label }}</span>
-              <span class="pair-value">{{ item.value }}</span>
-            </div>
-          </li>
-        }
-      </ul>
+  <!-- Equipment + Software + Bortle grid -->
+  <div class="pn-two-col">
+    <section class="pn-col pn-equipment">
+      <div class="pn-col-kicker">equipment</div>
+      @for (item of cardData().equipment; track $index) {
+        <dba-ui-data-row [label]="item.label" [value]="item.value">
+          <span class="pn-icon" slot="icon" aria-hidden="true">{{ item.icon }}</span>
+        </dba-ui-data-row>
+      }
     </section>
-
-    <div class="col-45 vertical-stack">
-      <section class="card-section">
-        <h2 class="section-header">SOFTWARE</h2>
-        <ul class="item-list">
-          @for (item of cardData().software; track $index) {
-            <li class="info-pair">
-              <span class="item-icon">{{ item.icon }}</span>
-              <div class="pair-content">
-                <span class="pair-label">{{ item.label }}</span>
-                <span class="pair-value">{{ item.name }}</span>
-              </div>
-            </li>
-          }
-        </ul>
+    <div class="pn-col pn-stack">
+      <section class="pn-software">
+        <div class="pn-col-kicker">software</div>
+        @for (item of cardData().software; track $index) {
+          <dba-ui-data-row [label]="item.label" [value]="item.name">
+            <span class="pn-icon" slot="icon" aria-hidden="true">{{ item.icon }}</span>
+          </dba-ui-data-row>
+        }
       </section>
-      <section class="card-section compact-section">
+      <section class="pn-bortle">
+        <div class="pn-col-kicker">bortle {{ cardData().bortleScale }}</div>
         <dba-ag-bortle-scale
           [value]="cardData().bortleScale"
           [accentColor]="cardData().accentColor"
           [compact]="true"
-        ></dba-ag-bortle-scale>
+        />
       </section>
     </div>
   </div>

@@ -1,294 +1,163 @@
-/* card-preview.css now only contains inner content styling */
+/* Pink Nebula card layout — rendered inside BaseCardPreviewComponent. */
 
-
-/* Content */
-.card-content {
-  position: relative;
-  z-index: 1;
-  height: 100%;
+.pn-header {
+  padding: 12px 14px;
   display: flex;
-  flex-direction: column;
-  justify-content: space-between; /* More stable than space-evenly for html2canvas */
-  padding: 0.75rem 1rem; /* Balanced padding */
+  align-items: center;
+  gap: 10px;
 }
 
-/* Sections */
-.card-section {
-  background: rgba(20, 20, 20, var(--card-opacity, 0.85)); /* Dynamic opacity */
-  border: 1px solid rgba(var(--accent-color-rgb, 255, 45, 149), 0.4);
-  border-radius: 6px;
-  padding: 8px;
-  margin-bottom: 0.25rem;
+.pn-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 30% 30%,
+    #ffc36b,
+    var(--accent-color, var(--db-color-neon-pink)) 70%,
+    #6b1a48
+  );
+  flex-shrink: 0;
 }
 
-.section-header {
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  color: var(--accent-color, #ff2d95);
-  margin-bottom: 0.5rem;
+.pn-handle {
+  flex: 1;
+  font-family: var(--db-font-ui);
+  font-weight: 400;
+  font-size: 12px;
+  color: #fff;
+  line-height: 1;
 }
 
-.section-header-row {
+.pn-hero {
+  margin: 0 12px;
+  padding: 16px 16px 14px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--accent-color, var(--db-color-neon-pink)) 40%, transparent);
+  box-shadow: 0 0 18px var(--db-color-pink-soft) inset;
+  background:
+    radial-gradient(ellipse 80% 60% at 30% 50%, rgba(255, 80, 130, 0.18), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(120, 40, 180, 0.2), transparent 70%),
+    #06070b;
+  text-align: center;
+}
+
+.pn-title {
+  margin: 0;
+  font-family: var(--db-font-display-major);
+  font-weight: 400;
+  font-size: 17px;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+  color: var(--accent-color, var(--db-color-neon-pink));
+}
+
+.pn-meta {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 10px;
+  font-family: var(--db-font-mono-code);
+  font-weight: 400;
+  font-size: 9px;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.pn-description {
+  margin: 10px 0 0;
+  font-family: var(--db-font-ui);
+  font-weight: 400;
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.pn-integration {
+  margin: 10px 12px;
+  padding: 12px 14px;
+  background: radial-gradient(ellipse at 50% 50%, rgba(80, 30, 80, 0.4), rgba(10, 10, 15, 0.6));
+  border-radius: 10px;
+  border: 1px solid var(--db-color-border);
+}
+
+.pn-integration-head {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  margin-bottom: 0.5rem;
+  margin-bottom: 10px;
 }
 
-.section-header-row .section-header {
-  margin-bottom: 0;
+.pn-integration-kicker {
+  font-family: var(--db-font-display-major);
+  font-weight: 400;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--accent-color, var(--db-color-neon-pink));
 }
 
-/* Title Section */
-.title-section {
-  text-align: center;
-  padding: 0.75rem;
+.pn-integration-total {
+  font-family: var(--db-font-mono-code);
+  font-weight: 400;
+  font-size: 11px;
+  color: var(--db-color-text-dim);
 }
 
-.card-title {
-  font-size: 1.4rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  line-height: 1.1;
-  color: var(--accent-color, #ff2d95); /* Changed to pink */
-}
-
-.card-meta {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.7);
-  flex-wrap: wrap;
-}
-
-.card-description {
-  margin-top: 0.5rem;
-  font-size: 14px; /* Increased for better legibility */
-  line-height: 1.4;
-  color: rgba(255, 255, 255, 0.85);
-  margin-left: auto;
-  margin-right: auto;
-  padding-bottom: 0.25rem; /* Prevent clipping */
-}
-
-.meta-item {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  white-space: nowrap;
-}
-
-/* Inline SVG Icons */
-.icon {
-  width: 0.75rem;
-  height: 0.75rem;
-  flex-shrink: 0;
-  vertical-align: middle;
-  position: relative;
-  top: -1px; /* Subtle lift for better alignment with text */
-}
-
-/* Integration */
-.integration-total {
-  display: flex;
-  align-items: baseline;
-  gap: 0.375rem;
-}
-
-.integration-time {
-  font-family: var(--db-font-display);
-  font-size: 1rem; /* Scaled down for header row */
-  font-weight: 700;
-  line-height: 1;
-  color: white;
-  letter-spacing: 0.05em;
-}
-
-.integration-label {
-  font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.5);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
-.filter-rings {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-  margin-bottom: 0;
-}
-
-/* Two Column Layout */
-.two-column {
-  display: flex;
-  gap: 0.25rem;
-  align-items: stretch; /* Force equal height for both columns */
-  width: 100%;
-}
-
-.col-55 {
-  width: 55%;
-  min-width: 0;
-  margin-bottom: 0 !important; /* Remove any push-up from card-section defaults */
-}
-
-.col-45 {
-  width: 45%;
-  min-width: 0;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 0.25rem;
-  margin-bottom: 0 !important;
-}
-
-/* Sidebar Stack */
-.vertical-stack {
-  flex-grow: 1;
-}
-
-/* Make Software section grow to push Bortle Scale to the bottom */
-.col-45.vertical-stack > section:first-of-type {
-  flex: 1 !important;
-  margin-bottom: 0 !important;
-}
-
-/* Vertical stack alignment */
-.vertical-stack .card-section {
-  margin-bottom: 0 !important;
-}
-
-/* Item Lists - Vertical layout top-to-bottom */
-.item-list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  padding: 0;
-}
-
-.item-list li {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.75rem;
-  text-align: left;
-  width: 100%;
-  margin-bottom: 0.25rem; /* Explicit margin instead of gap */
-}
-
-.item-icon {
-  font-size: 1.1rem;
-  width: 1.5rem; /* Increased slightly for better emoji support */
-  display: flex;
-  justify-content: center;
-  flex-shrink: 0;
-  /* Ensure emojis render with proper system fonts */
-  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif;
-}
-
-.item-text {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 0.8rem;
-  white-space: nowrap;
-  vertical-align: middle;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex: 1;
-  max-width: none;
-}
-
-/* Information Pair (Stacked Label/Value) */
-.info-pair {
-  display: flex !important;
-  flex-direction: row;
-  align-items: flex-start !important; /* Align icon to top of stack */
-  gap: 0.625rem;
-  margin-bottom: 0.5rem !important;
-}
-
-.pair-content {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  flex: 1;
-  min-width: 0;
-}
-
-.pair-label {
-  font-size: 0.6rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--accent-color, #ff2d95);
-  opacity: 0.6;
-  font-weight: 700;
-}
-
-.pair-value {
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.95);
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Bottom Row: Bortle + Author side by side */
-.bottom-row {
-  display: flex;
-  gap: 0.375rem;
-}
-
-.bottom-row .card-section {
-  flex: 1;
-  min-width: 0;
-}
-
-/* Author (Header) */
-.author-link-icon {
-  color: var(--accent-color, #ff2d95);
-}
-
-/* Controls Below Card */
-.card-controls {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.aspect-info {
-  display: flex;
-  gap: 0.5rem;
-  font-size: 0.625rem;
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.aspect-label {
+.pn-integration-total strong {
+  color: #fff;
+  font-size: 13px;
   font-weight: 600;
-  color: var(--accent-color, #ff2d95);
+  margin-left: 4px;
 }
 
-/* Export Button */
-.export-btn {
-  padding: 0.5rem 1.25rem;
-  background: var(--accent-color, #ff2d95);
-  color: white;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-size: 0.75rem;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 0 15px rgba(var(--accent-color-rgb, 255, 45, 149), 0.3);
+.pn-ring-row {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
-.export-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 0 25px rgba(var(--accent-color-rgb, 255, 45, 149), 0.5);
+.pn-two-col {
+  margin: 0 12px 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.pn-col {
+  min-width: 0;
+}
+
+.pn-equipment,
+.pn-software,
+.pn-bortle {
+  padding: 12px;
+  background: rgba(8, 10, 16, 0.7);
+  border: 1px solid var(--db-color-border);
+  border-radius: 10px;
+}
+
+.pn-col-kicker {
+  margin-bottom: 8px;
+  font-family: var(--db-font-display-major);
+  font-weight: 400;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--accent-color, var(--db-color-neon-pink));
+}
+
+.pn-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pn-bortle {
+  padding: 10px 12px;
+}
+
+.pn-icon {
+  font-size: 14px;
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', sans-serif;
 }
