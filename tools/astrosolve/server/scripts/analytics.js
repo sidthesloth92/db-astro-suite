@@ -5,6 +5,7 @@
 // whose entire purpose is to print to stdout / stderr.
 import fs from "fs";
 import { SqliteSolveEventDao } from "../src/dao/sqlite-solve-event.dao.js";
+import { SqliteAccessKeyDao } from "../src/dao/sqlite-access-key.dao.js";
 import {
   summarize,
   byUser,
@@ -13,6 +14,7 @@ import {
   recentFailures,
   eventsInLastDays,
 } from "../src/services/solve-event.service.js";
+import { listKeys } from "../src/services/access-key.service.js";
 
 const USAGE = `Usage: node scripts/analytics.js <command> [options]
 
@@ -57,6 +59,12 @@ const [, , command, ...rest] = process.argv;
 const flags = parseFlags(rest);
 
 const dao = SqliteSolveEventDao.create();
+const accessKeyDao = SqliteAccessKeyDao.create();
+
+const usernameByKeyId = new Map(
+  listKeys(accessKeyDao).map((k) => [k.id, k.username]),
+);
+const userLabel = (keyId) => usernameByKeyId.get(keyId) ?? "—";
 
 try {
   switch (command) {
@@ -76,19 +84,20 @@ try {
       console.log(`  file size:            mean ${fmtBytes(s.fileSizeBytes.mean)}  p50 ${fmtBytes(s.fileSizeBytes.p50)}  p95 ${fmtBytes(s.fileSizeBytes.p95)}`);
       console.log(`  top users:`);
       for (const u of s.topUsers) {
-        console.log(`    key_id=${u.keyId}\t${u.count} req`);
+        console.log(`    key_id=${u.keyId}\t${userLabel(u.keyId)}\t${u.count} req`);
       }
       break;
     }
     case "recent": {
       const limit = flags.limit ?? 20;
       const rows = recentEvents(dao, limit);
-      console.log("created_at\tkey_id\toutcome\thttp\ttotal_ms\tsolve_ms\tfile_size");
+      console.log("created_at\tkey_id\tuser\toutcome\thttp\ttotal_ms\tsolve_ms\tfile_size");
       for (const r of rows) {
         console.log(
           [
             r.created_at,
             r.key_id ?? "—",
+            userLabel(r.key_id),
             r.outcome,
             r.http_status,
             r.total_duration_ms,
@@ -104,11 +113,13 @@ try {
       const rows = eventsInLastDays(dao, days);
       const grouped = byUser(rows);
       console.log(`Per-user — last ${days} day(s)`);
-      console.log("key_id\ttotal\tsuccess_rate\tmean_solve_ms\tmean_file_size");
+      console.log("key_id\tuser\ttotal\tsuccess_rate\tmean_solve_ms\tmean_file_size");
       for (const u of grouped) {
+        const keyIdNum = Number(u.keyId);
         console.log(
           [
             u.keyId,
+            Number.isFinite(keyIdNum) ? userLabel(keyIdNum) : "—",
             u.total,
             fmtPct(u.successRate),
             fmtMs(u.meanSolveDurationMs),
@@ -121,12 +132,13 @@ try {
     case "failures": {
       const limit = flags.limit ?? 20;
       const rows = recentFailures(dao, limit);
-      console.log("created_at\tkey_id\toutcome\thttp\terror_message");
+      console.log("created_at\tkey_id\tuser\toutcome\thttp\terror_message");
       for (const r of rows) {
         console.log(
           [
             r.created_at,
             r.key_id ?? "—",
+            userLabel(r.key_id),
             r.outcome,
             r.http_status,
             r.error_message ?? "",
@@ -183,4 +195,5 @@ try {
   process.exit(1);
 } finally {
   dao.close();
+  accessKeyDao.close();
 }

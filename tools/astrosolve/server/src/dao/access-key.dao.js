@@ -46,7 +46,7 @@ export class AccessKeyDao {
   /**
    * Returns all key records (without hashes).
    *
-   * @returns {{ username: string, created_at: string, active: number, use_count: number }[]}
+   * @returns {{ id: number, username: string, created_at: string, active: number, use_count: number }[]}
    */
   listAccessKeys() {
     throw new Error("Not implemented");
