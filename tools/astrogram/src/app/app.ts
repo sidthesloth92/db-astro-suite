@@ -1,33 +1,24 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import packageJson from '../../../../package.json';
-import { CaptionSectionComponent } from './components/caption-section/caption-section';
-import { AnnotationControlsComponent } from './components/card-form/annotation-controls';
-import { CardFormComponent } from './components/card-form/card-form';
-import { CardPreviewComponent } from './components/card-preview/card-preview';
-import { StellarMapPreviewComponent } from './components/stellar-map-preview/stellar-map-preview';
-import { CardDataService } from './services/card-data.service';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { BreakpointService, StarryBackgroundComponent } from '@db-astro-suite/ui';
+import { DesktopShellComponent } from './layout/desktop-shell/desktop-shell.component';
+import { MobileShellComponent } from './layout/mobile-shell/mobile-shell.component';
 
-import { HeaderComponent } from '@db-astro-suite/ui';
-
+/**
+ * Root astrogram page. Picks the appropriate shell (desktop or mobile)
+ * based on the current viewport width and renders it inside the shared
+ * starry background. Everything else lives in the shells.
+ */
 @Component({
   selector: 'dba-ag-root',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    CardFormComponent,
-    AnnotationControlsComponent,
-    CardPreviewComponent,
-    StellarMapPreviewComponent,
-    CaptionSectionComponent,
-    HeaderComponent,
-  ],
+  imports: [StarryBackgroundComponent, DesktopShellComponent, MobileShellComponent],
   templateUrl: './app.html',
   styleUrl: './app.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class App {
-  dataService = inject(CardDataService);
-  appVersion = packageJson.version || '1.0.0';
+  private readonly breakpoint = inject(BreakpointService);
+
+  /** True when the viewport is below `MOBILE_BREAKPOINT_PX`. */
+  readonly isMobile = this.breakpoint.isMobile;
 }
