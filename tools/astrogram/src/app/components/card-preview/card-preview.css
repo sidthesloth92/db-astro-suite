@@ -27,7 +27,7 @@
   font-family: var(--db-font-ui);
   font-weight: 400;
   font-size: 12px;
-  color: #fff;
+  color: var(--db-color-text-primary);
   line-height: 1;
 }
 
@@ -40,7 +40,7 @@
   background:
     radial-gradient(ellipse 80% 60% at 30% 50%, rgba(255, 80, 130, 0.18), transparent 70%),
     radial-gradient(ellipse 60% 40% at 80% 80%, rgba(120, 40, 180, 0.2), transparent 70%),
-    #06070b;
+    var(--db-color-surface-bg);
   text-align: center;
 }
 
@@ -106,7 +106,7 @@
 }
 
 .pn-integration-total strong {
-  color: #fff;
+  color: var(--db-color-text-primary);
   font-size: 13px;
   font-weight: 600;
   margin-left: 4px;

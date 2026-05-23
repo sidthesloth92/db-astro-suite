@@ -34,7 +34,7 @@
 
 .caption-handle {
   font-weight: 600;
-  color: #fff;
+  color: var(--db-color-text-primary);
   letter-spacing: 0.01em;
   margin-right: 6px;
 }
@@ -55,7 +55,7 @@
 
 .block-label {
   font-weight: 600;
-  color: #fff;
+  color: var(--db-color-text-primary);
   letter-spacing: 0.01em;
 }
 
