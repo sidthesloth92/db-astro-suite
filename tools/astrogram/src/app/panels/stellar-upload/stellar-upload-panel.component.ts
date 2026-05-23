@@ -4,14 +4,16 @@ import {
   ChangeDetectionStrategy,
   Component,
   ComponentRef,
+  DestroyRef,
   ElementRef,
   EnvironmentInjector,
   OnDestroy,
-  ViewChild,
+  OnInit,
   computed,
   createComponent,
   inject,
   signal,
+  viewChild,
 } from '@angular/core';
 import {
   AnalyticsService,
@@ -43,7 +45,7 @@ import { WcsService } from '../../services/wcs.service';
   styleUrls: ['./stellar-upload-panel.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class StellarUploadPanelComponent implements OnDestroy {
+export class StellarUploadPanelComponent implements OnInit, OnDestroy {
   private readonly document = inject(DOCUMENT);
   private readonly appRef = inject(ApplicationRef);
   private readonly envInjector = inject(EnvironmentInjector);
@@ -51,6 +53,7 @@ export class StellarUploadPanelComponent implements OnDestroy {
   private readonly astrosolveService = inject(AstrosolveService);
   private readonly wcsService = inject(WcsService);
   private readonly analyticsService = inject(AnalyticsService);
+  private readonly destroyRef = inject(DestroyRef);
 
   /** Reactive stellar-map document. */
   readonly mapData = this.dataService.stellarMapData;
@@ -63,22 +66,26 @@ export class StellarUploadPanelComponent implements OnDestroy {
   readonly uploadError = signal('');
   /** Compact "JPG/PNG · max 10 MB" hint pulled from /api/v1/limits. */
   readonly uploadLimitsHint = signal('');
+  /** Surfaced when limits fail to load — rendered as a subtle hint. */
+  readonly loadLimitsError = signal('');
   /** Mirror flag — true while the upload card should be shown. */
   readonly isEmpty = computed(() => this.mapData().backgroundImage === null);
 
   private modalRef: ComponentRef<AccessKeyModalComponent> | null = null;
 
   /** Hidden file input — clicked programmatically when the upload card is tapped. */
-  @ViewChild('fileInput', { static: false }) fileInput!: ElementRef<HTMLInputElement>;
+  private readonly fileInput = viewChild<ElementRef<HTMLInputElement>>('fileInput');
 
-  constructor() {
+  ngOnInit(): void {
     this.astrosolveService
       .loadLimits()
       .then((limits) => {
         this.uploadLimitsHint.set(this.astrosolveService.formatLimitsHint(limits));
       })
       .catch(() => {
-        // Service already falls back to baked-in defaults — nothing to do.
+        // Service already falls back to baked-in defaults; surface a subtle
+        // hint so failures are observable in the UI rather than silenced.
+        this.loadLimitsError.set('Could not load latest solve limits — using defaults.');
       });
   }
 
@@ -88,7 +95,7 @@ export class StellarUploadPanelComponent implements OnDestroy {
 
   /** Opens the OS file picker by forwarding to the hidden input. */
   pickFile(): void {
-    this.fileInput?.nativeElement.click();
+    this.fileInput()?.nativeElement.click();
   }
 
   /** Reads the picked file, validates it, then loads it into the stellar map document. */
@@ -230,7 +237,8 @@ export class StellarUploadPanelComponent implements OnDestroy {
       this.isSolving.set(false);
       this.dataService.stellarMapData.update((d) => ({ ...d, isSolving: false }));
       if (!this.solveStatus().startsWith('Error')) {
-        setTimeout(() => this.solveStatus.set(''), 5000);
+        const handle = setTimeout(() => this.solveStatus.set(''), 5000);
+        this.destroyRef.onDestroy(() => clearTimeout(handle));
       }
     }
   }
@@ -247,8 +255,9 @@ export class StellarUploadPanelComponent implements OnDestroy {
       naturalHeight: undefined,
     }));
     this.solveStatus.set('');
-    if (this.fileInput?.nativeElement) {
-      this.fileInput.nativeElement.value = '';
+    const input = this.fileInput()?.nativeElement;
+    if (input) {
+      input.value = '';
     }
   }
 

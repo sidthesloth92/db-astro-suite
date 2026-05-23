@@ -26,6 +26,9 @@
       @if (uploadLimitsHint(); as hint) {
         <div class="upload-limits">{{ hint }}</div>
       }
+      @if (loadLimitsError(); as err) {
+        <div class="upload-limits">{{ err }}</div>
+      }
       @if (uploadError(); as err) {
         <div class="upload-error">{{ err }}</div>
       }

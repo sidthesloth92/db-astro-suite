@@ -99,6 +99,15 @@ describe('StellarUploadPanelComponent', () => {
     expect(solveBtn).toBeTruthy();
   });
 
+  it('surfaces a UI hint when loadLimits rejects', async () => {
+    solveStub.loadLimits.and.rejectWith(new Error('network'));
+    const fixture = TestBed.createComponent(StellarUploadPanelComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(fixture.componentInstance.loadLimitsError()).toContain('Could not load');
+  });
+
   it('resets the map document on resetMap()', () => {
     dataStub.stellarMapData.update((d) => ({
       ...d,
