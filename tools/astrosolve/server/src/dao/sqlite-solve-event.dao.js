@@ -1,6 +1,7 @@
 import Database from "better-sqlite3";
 import config from "../config.js";
 import { SqliteBaseDao } from "./sqlite-base.dao.js";
+import { idempotentAlter } from "./sqlite-migration.util.js";
 import { SOLVE_EVENT_COLUMNS } from "../models/solve-event.model.js";
 
 const CREATE_TABLE_SQL = `
@@ -75,7 +76,7 @@ export class SqliteSolveEventDao extends SqliteBaseDao {
     super(db);
     db.exec(CREATE_TABLE_SQL);
     // Idempotent migrations for tables created before a column was added.
-    // Catch and ignore "duplicate column" so re-runs are no-ops.
+    // Each ALTER is a no-op if the column already exists.
     for (const ddl of [
       "ALTER TABLE solve_events ADD COLUMN solve_sources_found INTEGER",
       "ALTER TABLE solve_events ADD COLUMN objects_returned_stars INTEGER",
@@ -87,11 +88,7 @@ export class SqliteSolveEventDao extends SqliteBaseDao {
       "ALTER TABLE solve_events ADD COLUMN objects_returned_from_simbad INTEGER",
       "ALTER TABLE solve_events ADD COLUMN diagnostics TEXT",
     ]) {
-      try {
-        db.exec(ddl);
-      } catch (err) {
-        if (!err.message?.includes("duplicate column name")) throw err;
-      }
+      idempotentAlter(db, ddl);
     }
     this.#insertStmt = db.prepare(INSERT_SQL);
   }

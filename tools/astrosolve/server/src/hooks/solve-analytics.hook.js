@@ -1,6 +1,7 @@
 import {
   recordEvent,
   outcomeFromStatus,
+  responseCodeFromStatus,
 } from "../services/solve-event.service.js";
 import { SOLVE_EVENT_COLUMNS } from "../models/solve-event.model.js";
 import { SolveEventDao } from "../dao/solve-event.dao.js";
@@ -49,7 +50,7 @@ export function recordSolveAnalytics(solveEventDao) {
     const event = {
       ...pickColumns(a),
       http_status: httpStatus,
-      response_code: a.response_code ?? inferResponseCode(httpStatus),
+      response_code: a.response_code ?? responseCodeFromStatus(httpStatus),
       outcome: a.outcome ?? outcomeFromStatus(httpStatus),
       total_duration_ms: Date.now() - a.startedAt,
       diagnostics,
@@ -66,12 +67,4 @@ function pickColumns(accumulator) {
     if (accumulator[col] !== undefined) out[col] = accumulator[col];
   }
   return out;
-}
-
-function inferResponseCode(status) {
-  if (status >= 200 && status < 300) return "SOLVE_SUCCESS";
-  if (status === 401) return "UNAUTHORIZED";
-  if (status === 503) return "SERVER_BUSY";
-  if (status >= 400 && status < 500) return "VALIDATION_ERROR";
-  return "SOLVE_FAILED";
 }

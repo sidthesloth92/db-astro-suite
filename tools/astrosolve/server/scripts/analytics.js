@@ -1,3 +1,8 @@
+// This is a CLI script. Operator-facing output uses `console.log` /
+// `console.error` deliberately — the no-console rule in
+// `.claude/rules/node.md` applies to server / library code that should
+// route through Fastify's structured logger, not to one-shot CLI tools
+// whose entire purpose is to print to stdout / stderr.
 import fs from "fs";
 import { SqliteSolveEventDao } from "../src/dao/sqlite-solve-event.dao.js";
 import {

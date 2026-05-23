@@ -2,6 +2,10 @@ import { solveWithAstrometry } from "./astrometry.service.js";
 import { querySimbad } from "./simbad.service.js";
 import { findObjectsInRadius } from "./local-catalog.service.js";
 import { mergeObjects } from "../utils/catalog-merge.util.js";
+import {
+  classifyType,
+  OBJECT_BUCKETS,
+} from "../utils/object-classifier.util.js";
 import { LocalCatalogDao } from "../dao/local-catalog.dao.js";
 import { SolveResult, SolveMetadata } from "../models/solve.model.js";
 import { CatalogError } from "../models/errors.model.js";
@@ -17,7 +21,9 @@ import { CatalogError } from "../models/errors.model.js";
  * @param {() => Promise<T[]>} fn - The catalog call to time
  * @param {Object} contextOnSuccess - Extra fields to merge into the
  *   success diagnostics (request URL, query params, etc.)
- * @returns {Promise<{objects: T[], diagnostics: Object}>}
+ * @returns {Promise<{objects: T[], diagnostics: Object, error?: CatalogError}>}
+ *   On a `CatalogError` failure, `error` is populated and `objects` is empty.
+ *   On success, `error` is absent.
  */
 async function timedCatalog(source, fn, contextOnSuccess) {
   const startedAt = Date.now();
@@ -47,13 +53,42 @@ async function timedCatalog(source, fn, contextOnSuccess) {
 }
 
 /**
+ * Computes the per-type and per-source breakdown of a merged object list.
+ * Pure helper — no I/O, no mutation of the input array. Returned shape is
+ * stable: every bucket in OBJECT_BUCKETS is always present (zero-valued
+ * when no objects of that type were returned).
+ *
+ * @param {Array<{type: string, source: string}>} objects
+ * @returns {{stars: number, galaxies: number, nebulae: number, clusters: number, other: number, fromLocal: number, fromSimbad: number}}
+ */
+function buildObjectBreakdown(objects) {
+  const typeTally = Object.fromEntries(OBJECT_BUCKETS.map((b) => [b, 0]));
+  let fromLocal = 0;
+  let fromSimbad = 0;
+  for (const obj of objects) {
+    typeTally[classifyType(obj.type)] += 1;
+    if (obj.source === "local") fromLocal += 1;
+    else if (obj.source === "simbad") fromSimbad += 1;
+  }
+  return {
+    stars: typeTally.stars,
+    galaxies: typeTally.galaxies,
+    nebulae: typeTally.nebulae,
+    clusters: typeTally.clusters,
+    other: typeTally.other,
+    fromLocal,
+    fromSimbad,
+  };
+}
+
+/**
  * Orchestrates the full plate-solve pipeline: astrometry → catalog queries → merge.
  *
  * @param {string} filePath - Absolute path to the saved image file
  * @param {Object} hints - Solving hints extracted from the request
  * @param {LocalCatalogDao | null} localCatalogDao - DAO for the local catalog
  * @param {Object} log - Fastify-compatible logger (request.log)
- * @returns {Promise<SolveResult & { solveStats: Object, catalogStats: Object, diagnostics: Object }>}
+ * @returns {Promise<SolveResult & { solveStats: Object, catalogStats: Object, diagnostics: Object, objectBreakdown: Object }>}
  */
 export async function processSolveRequest(
   filePath,
@@ -161,6 +196,10 @@ export async function processSolveRequest(
     simbad: simbadResult.diagnostics,
     local_catalog: localResult.diagnostics,
   };
+  // Per-type and per-source tally of the *post-merge*, *post-dedup* object
+  // list. Computed here (not in the route handler) so the route stays
+  // routing-only and analytics consumers get a stable shape.
+  result.objectBreakdown = buildObjectBreakdown(objects);
 
   return result;
 }

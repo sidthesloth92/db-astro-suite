@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   outcomeFromStatus,
+  responseCodeFromStatus,
   summarize,
   byUser,
   queueSaturationStats,
@@ -16,6 +17,16 @@ test("outcomeFromStatus maps status codes to outcomes", () => {
   assert.equal(outcomeFromStatus(400), SolveEventOutcome.VALIDATION_ERROR);
   assert.equal(outcomeFromStatus(404), SolveEventOutcome.VALIDATION_ERROR);
   assert.equal(outcomeFromStatus(500), SolveEventOutcome.INTERNAL_ERROR);
+});
+
+test("responseCodeFromStatus maps status codes to API response codes", () => {
+  assert.equal(responseCodeFromStatus(200), "SOLVE_SUCCESS");
+  assert.equal(responseCodeFromStatus(204), "SOLVE_SUCCESS");
+  assert.equal(responseCodeFromStatus(401), "UNAUTHORIZED");
+  assert.equal(responseCodeFromStatus(503), "SERVER_BUSY");
+  assert.equal(responseCodeFromStatus(400), "VALIDATION_ERROR");
+  assert.equal(responseCodeFromStatus(404), "VALIDATION_ERROR");
+  assert.equal(responseCodeFromStatus(500), "SOLVE_FAILED");
 });
 
 test("summarize computes totals, success rate, percentiles, and top users", () => {

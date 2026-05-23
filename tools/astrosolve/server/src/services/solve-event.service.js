@@ -34,6 +34,23 @@ export function outcomeFromStatus(statusCode) {
 }
 
 /**
+ * Maps a final HTTP status code to a fallback API response code. Used as a
+ * safety net in the analytics hook for paths that did not explicitly set
+ * `response_code`. Mirrors {@link outcomeFromStatus} so the two columns
+ * stay in sync without two divergent switch ladders.
+ *
+ * @param {number} statusCode
+ * @returns {string} one of the API contract `code` values
+ */
+export function responseCodeFromStatus(statusCode) {
+  if (statusCode >= 200 && statusCode < 300) return "SOLVE_SUCCESS";
+  if (statusCode === 401) return "UNAUTHORIZED";
+  if (statusCode === 503) return "SERVER_BUSY";
+  if (statusCode >= 400 && statusCode < 500) return "VALIDATION_ERROR";
+  return "SOLVE_FAILED";
+}
+
+/**
  * Percentile helper. Returns null for an empty array.
  *
  * @param {number[]} sorted - Numbers sorted ascending

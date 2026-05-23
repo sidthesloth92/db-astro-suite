@@ -2,6 +2,10 @@ import PQueue from "p-queue";
 import fs from "fs/promises";
 import config from "../config.js";
 import { SolveError, AstrometryError } from "../models/errors.model.js";
+import {
+  SolveSuccessResponse,
+  SolveErrorResponse,
+} from "../models/solve-response.model.js";
 import { parseMultipartRequest } from "../services/upload.service.js";
 import { processSolveRequest } from "../services/solve.service.js";
 import { solveAuthHook } from "../hooks/solve-auth.hook.js";
@@ -13,10 +17,6 @@ import { SolveEventOutcome } from "../models/solve-event.model.js";
 import { AccessKeyDao } from "../dao/access-key.dao.js";
 import { LocalCatalogDao } from "../dao/local-catalog.dao.js";
 import { SolveEventDao } from "../dao/solve-event.dao.js";
-import {
-  classifyType,
-  OBJECT_BUCKETS,
-} from "../utils/object-classifier.util.js";
 
 // Concurrency queue to protect backend execution.
 const solveQueue = new PQueue({ concurrency: config.queueConcurrency });
@@ -59,7 +59,7 @@ export default async function (fastify, opts) {
       );
     }
     try {
-      fastify.log.info("Parsing multipart request...");
+      request.log.info("Parsing multipart request...");
       const upload = await parseMultipartRequest(request, config.uploadsDir);
       a.file_size_bytes = upload.fileSizeBytes;
       a.image_width_px = upload.imageWidthPx;
@@ -69,7 +69,7 @@ export default async function (fastify, opts) {
       a.dec_hint_deg = upload.hints.dec_hint ?? null;
 
       const { filePath, hints } = upload;
-      fastify.log.info(`Multipart parsed, starting queue for ${filePath}`);
+      request.log.info(`Multipart parsed, starting queue for ${filePath}`);
 
       a.queue_depth_on_enqueue = solveQueue.size + solveQueue.pending;
       if (a.queue_depth_on_enqueue >= config.queueMaxSize) {
@@ -77,11 +77,14 @@ export default async function (fastify, opts) {
         a.outcome = SolveEventOutcome.QUEUE_FULL;
         a.response_code = "SERVER_BUSY";
         a.error_message = "Solver queue is full.";
-        return reply.code(503).send({
-          code: "SERVER_BUSY",
-          message: "Solver queue is full. Please retry in a minute.",
-          details: {},
-        });
+        return reply
+          .code(503)
+          .send(
+            new SolveErrorResponse(
+              "SERVER_BUSY",
+              "Solver queue is full. Please retry in a minute.",
+            ),
+          );
       }
 
       const enqueuedAt = Date.now();
@@ -135,68 +138,57 @@ export default async function (fastify, opts) {
             : 0;
       a.objects_returned = result.objects.length;
 
-      // Per-type and per-source breakdown of the *post-merge*, *post-dedup*
-      // object list — the same array we're about to send to the client.
-      // Used by the admin dashboard to slice "what kind of objects do
-      // users actually see?" without joining the response payload.
-      const typeTally = Object.fromEntries(OBJECT_BUCKETS.map((b) => [b, 0]));
-      let fromLocal = 0;
-      let fromSimbad = 0;
-      for (const obj of result.objects) {
-        typeTally[classifyType(obj.type)] += 1;
-        if (obj.source === "local") fromLocal += 1;
-        else if (obj.source === "simbad") fromSimbad += 1;
-      }
-      a.objects_returned_stars = typeTally.stars;
-      a.objects_returned_galaxies = typeTally.galaxies;
-      a.objects_returned_nebulae = typeTally.nebulae;
-      a.objects_returned_clusters = typeTally.clusters;
-      a.objects_returned_other = typeTally.other;
-      a.objects_returned_from_local = fromLocal;
-      a.objects_returned_from_simbad = fromSimbad;
+      // Per-type and per-source breakdown is computed by the service so
+      // the route stays routing-only. See solve.service.buildObjectBreakdown.
+      const breakdown = result.objectBreakdown;
+      a.objects_returned_stars = breakdown.stars;
+      a.objects_returned_galaxies = breakdown.galaxies;
+      a.objects_returned_nebulae = breakdown.nebulae;
+      a.objects_returned_clusters = breakdown.clusters;
+      a.objects_returned_other = breakdown.other;
+      a.objects_returned_from_local = breakdown.fromLocal;
+      a.objects_returned_from_simbad = breakdown.fromSimbad;
 
       // Fold per-subsystem diagnostics — populated for every subsystem
       // that ran, even on the happy path. The hook serialises to JSON
       // and writes to `solve_events.diagnostics`.
       if (result.diagnostics) {
+        const mergedDiagnostics = { ...a.diagnostics };
         for (const [key, value] of Object.entries(result.diagnostics)) {
-          if (value != null) a.diagnostics[key] = value;
+          if (value != null) mergedDiagnostics[key] = value;
         }
+        a.diagnostics = mergedDiagnostics;
       }
 
       a.outcome = SolveEventOutcome.SUCCESS;
       a.response_code = "SOLVE_SUCCESS";
 
       request.log.info("Sending reply...");
-      return reply.send({
-        code: "SOLVE_SUCCESS",
-        message: "Plate solve completed successfully.",
-        details: {
-          metadata: result.metadata,
-          objects: result.objects,
-          ...(result.warnings?.length ? { warnings: result.warnings } : {}),
-        },
-      });
+      return reply.send(
+        new SolveSuccessResponse(
+          result.metadata,
+          result.objects,
+          result.warnings,
+        ),
+      );
     } catch (e) {
       // Always log the error first so a downstream analytics bookkeeping
       // failure can never swallow the original cause.
       if (e instanceof SolveError) {
         request.log.warn({ err: e }, "Solve request rejected (validation)");
       } else if (e instanceof AstrometryError) {
-        fastify.log.error({ err: e }, "Astrometry plate-solve failed");
+        request.log.error({ err: e }, "Astrometry plate-solve failed");
       } else {
-        fastify.log.error({ err: e }, "Unhandled error in /api/v1/solve");
+        request.log.error({ err: e }, "Unhandled error in /api/v1/solve");
       }
 
       if (e instanceof SolveError) {
         a.outcome = SolveEventOutcome.VALIDATION_ERROR;
         a.response_code = "VALIDATION_ERROR";
         a.error_message = e.message;
-        return reply.code(e.statusCode).send({
-          code: "VALIDATION_ERROR",
-          message: e.message,
-          details: {},
-        });
+        return reply
+          .code(e.statusCode)
+          .send(new SolveErrorResponse("VALIDATION_ERROR", e.message));
       }
 
       if (e instanceof AstrometryError) {
@@ -221,23 +213,29 @@ export default async function (fastify, opts) {
         // tail, etc.) goes into the JSON diagnostics blob. Future-me
         // should be able to triage from the row alone.
         if (e.diagnostics) {
-          a.diagnostics.astrometry = e.diagnostics;
+          a.diagnostics = { ...a.diagnostics, astrometry: e.diagnostics };
         }
-        return reply.code(500).send({
-          code: "SOLVE_FAILED",
-          message: "Internal processing error during astrometry solving.",
-          details: {},
-        });
+        return reply
+          .code(500)
+          .send(
+            new SolveErrorResponse(
+              "SOLVE_FAILED",
+              "Internal processing error during astrometry solving.",
+            ),
+          );
       }
 
       a.outcome = SolveEventOutcome.INTERNAL_ERROR;
       a.response_code = "SOLVE_FAILED";
       a.error_message = e?.message ?? String(e);
-      return reply.code(500).send({
-        code: "SOLVE_FAILED",
-        message: "Internal processing error during astrometry solving.",
-        details: {},
-      });
+      return reply
+        .code(500)
+        .send(
+          new SolveErrorResponse(
+            "SOLVE_FAILED",
+            "Internal processing error during astrometry solving.",
+          ),
+        );
     }
   });
 }

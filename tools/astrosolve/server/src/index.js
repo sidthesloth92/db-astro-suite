@@ -19,7 +19,10 @@ import solveRoute from "./routes/solve.route.js";
 // 4 KB buffer waiting for the next request — critical when running inside a
 // container where `docker logs` only sees what has actually been flushed.
 const fastify = Fastify({
-  loggerInstance: pino({ level: "info" }, pino.destination({ sync: true })),
+  loggerInstance: pino(
+    { level: config.logLevel },
+    pino.destination({ sync: true }),
+  ),
   trustProxy: config.trustProxy,
 });
 
