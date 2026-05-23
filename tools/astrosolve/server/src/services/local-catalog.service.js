@@ -43,14 +43,34 @@ export async function findObjectsInRadius(
   const minDec = dec - radiusDeg;
   const maxDec = dec + radiusDeg;
 
-  const candidates = localCatalogDao.queryObjectsByBoundingBox({
+  const queryParams = {
     minRA,
     maxRA,
     minDec,
     maxDec,
     maxMagnitude,
     types,
-  });
+  };
+
+  let candidates;
+  try {
+    candidates = localCatalogDao.queryObjectsByBoundingBox(queryParams);
+  } catch (err) {
+    // Wrap DAO errors in CatalogError with rich detail so analytics can
+    // record exactly why the local catalog returned nothing (missing
+    // column after a bad migration, locked DB, etc.) without leaving the
+    // operator to grep logs.
+    throw new CatalogError(
+      "local",
+      `Local catalog query failed: ${err.message}`,
+      {
+        status: "error",
+        error_class: err.constructor?.name ?? "Error",
+        error_message: err.message,
+        params: { ra, dec, radiusDeg, maxMagnitude, types },
+      },
+    );
+  }
 
   // Refine with accurate spherical distance check (conical)
   return candidates

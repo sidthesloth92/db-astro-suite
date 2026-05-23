@@ -1,5 +1,6 @@
 import fs from "fs";
 import Fastify from "fastify";
+import pino from "pino";
 import cors from "@fastify/cors";
 import helmet from "@fastify/helmet";
 import rateLimit from "@fastify/rate-limit";
@@ -11,9 +12,19 @@ import {
 } from "./constants/rate-limit.constants.js";
 import { SqliteAccessKeyDao } from "./dao/sqlite-access-key.dao.js";
 import { SqliteLocalCatalogDao } from "./dao/sqlite-local-catalog.dao.js";
+import { SqliteSolveEventDao } from "./dao/sqlite-solve-event.dao.js";
 import solveRoute from "./routes/solve.route.js";
 
-const fastify = Fastify({ logger: true, trustProxy: config.trustProxy });
+// Sync destination so logs are written immediately and never sit in pino's
+// 4 KB buffer waiting for the next request — critical when running inside a
+// container where `docker logs` only sees what has actually been flushed.
+const fastify = Fastify({
+  loggerInstance: pino(
+    { level: config.logLevel },
+    pino.destination({ sync: true }),
+  ),
+  trustProxy: config.trustProxy,
+});
 
 // Ensure the uploads directory exists before any file handling begins.
 fs.mkdirSync(config.uploadsDir, { recursive: true });
@@ -23,6 +34,12 @@ const accessKeyDao = SqliteAccessKeyDao.create();
 fastify.log.info(
   { path: config.accessKeysDbPath },
   "Access-keys DB initialised",
+);
+
+const solveEventDao = SqliteSolveEventDao.create();
+fastify.log.info(
+  { path: config.accessKeysDbPath },
+  "Solve-events table initialised",
 );
 
 let localCatalogDao;
@@ -63,7 +80,7 @@ fastify.register(multipart, {
 });
 
 // Register routes — pass DAO instances via plugin options (DI via Fastify plugin opts)
-fastify.register(solveRoute, { accessKeyDao, localCatalogDao });
+fastify.register(solveRoute, { accessKeyDao, localCatalogDao, solveEventDao });
 
 // Health check route — rate-limited separately at a higher threshold than
 // the solve endpoint so monitoring/uptime probes are not blocked, while

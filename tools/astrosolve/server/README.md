@@ -47,12 +47,21 @@ docker build -t astrosolve .
 
 For local development without access keys, set `SOLVE_API_KEY_REQUIRED=false` explicitly.
 
+The `astrosolve.sqlite` file holds both access keys and the `solve_events`
+analytics table. It must be bind-mounted so its contents survive container
+restarts. Docker creates a directory (not a file) at the bind target if the
+host path doesn't exist, so create the empty file once before the first run:
+
 ```bash
 cd tools/astrosolve/server
+mkdir -p data
+touch data/astrosolve.sqlite
+
 docker run --rm -p 3000:3000 \
   --name astrosolve \
   -e SOLVE_API_KEY_REQUIRED=false \
   -e ASTROSOLVE_ORIGIN=http://localhost:4200 \
+  -v $(pwd)/data/astrosolve.sqlite:/usr/src/app/data/astrosolve.sqlite \
   -v $(pwd)/data/astrometry:/usr/src/app/data/astrometry:ro \
   -v $(pwd)/data/local-catalog:/usr/src/app/data/local-catalog \
   -v $(pwd)/data/uploads:/usr/src/app/data/uploads \
@@ -119,13 +128,18 @@ SSH into the server, then use `docker exec` to run the key-management script ins
 # Add a key for a user (prints the plain key once — store it securely)
 docker exec -it astrosolve node scripts/manage-keys.js add <username>
 
+# Rotate a user's key — invalidates the previous key and prints a new one
+docker exec -it astrosolve node scripts/manage-keys.js rotate <username>
+
 # Deactivate a user's key
 docker exec -it astrosolve node scripts/manage-keys.js remove <username>
 
-# List all keys and their status
+# List all keys and their status (does NOT print the plain keys — by design)
 docker exec -it astrosolve node scripts/manage-keys.js list
 ```
 
-> **Note:** The plain key is shown **once** when added. It cannot be recovered — store it securely before closing the terminal.
+> **Note:** The plain key is shown **once** when added or rotated. Only its SHA-256 hash is stored, so it cannot be recovered later from the database. Store it securely before closing the terminal.
 
-> **Note:** `remove` deactivates the key (marks it inactive in the database). The row is retained for audit purposes. The user will no longer be able to submit solve requests.
+> **Why `list` doesn't show the keys:** the database stores only the SHA-256 hash of each key, not the plain key. This is the same design as password storage — even a leaked DB cannot give an attacker working API keys. If a user has lost their key, use `rotate <username>` to issue them a fresh one without losing their analytics history.
+
+> **Note:** `remove` deactivates the key (marks it inactive in the database). The row is retained for audit purposes. The user will no longer be able to submit solve requests. Use `rotate` instead if you want them to keep using the service with a new credential.

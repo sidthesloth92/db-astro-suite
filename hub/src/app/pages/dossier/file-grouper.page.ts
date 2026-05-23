@@ -2,7 +2,10 @@ import { RouteMeta } from '@analogjs/router';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CardComponent } from '@db-astro-suite/ui';
+import { AnalyticsService, CardComponent } from '@db-astro-suite/ui';
+
+const FILE_GROUPER_REPO_URL =
+  'https://github.com/sidthesloth92/db-astro-suite/tree/main/tools/file-grouper';
 import { FooterComponent } from '../../../../../libs/ui/src/lib/footer/footer.component';
 
 @Component({
@@ -32,6 +35,7 @@ import { FooterComponent } from '../../../../../libs/ui/src/lib/footer/footer.co
             href="https://github.com/sidthesloth92/db-astro-suite/tree/main/tools/file-grouper"
             target="_blank"
             class="launch-btn"
+            (click)="onLaunch()"
           >
             ACCESS REPOSITORY
           </a>
@@ -418,6 +422,8 @@ import { FooterComponent } from '../../../../../libs/ui/src/lib/footer/footer.co
   ],
 })
 export default class FileGrouperPageComponent {
+  private readonly analytics = inject(AnalyticsService);
+
   constructor() {
     const doc = inject(DOCUMENT);
     let link: HTMLLinkElement | null = doc.querySelector(
@@ -429,6 +435,13 @@ export default class FileGrouperPageComponent {
       doc.head.appendChild(link);
     }
     link.setAttribute('href', 'https://dbastrosuite.com/dossier/file-grouper');
+  }
+
+  onLaunch(): void {
+    this.analytics.trackHubLaunchToolClicked(
+      'file-grouper',
+      FILE_GROUPER_REPO_URL,
+    );
   }
 }
 

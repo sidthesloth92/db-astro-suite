@@ -1,9 +1,15 @@
 import { RouteMeta } from '@analogjs/router';
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { BlackHoleLoaderComponent, CardComponent } from '@db-astro-suite/ui';
+import {
+  AnalyticsService,
+  BlackHoleLoaderComponent,
+  CardComponent,
+} from '@db-astro-suite/ui';
 import { FooterComponent } from '../../../../libs/ui/src/lib/footer/footer.component';
+
+type HubTool = 'starwizz' | 'astrogram' | 'file-grouper';
 
 @Component({
   selector: 'dba-hub-home-page',
@@ -49,7 +55,11 @@ import { FooterComponent } from '../../../../libs/ui/src/lib/footer/footer.compo
         <section class="tools" aria-labelledby="tools-title">
           <h2 id="tools-title" class="sr-only">Available Astro Tools</h2>
           <div class="tools__grid">
-            <div class="mission-card" [routerLink]="['/dossier/starwizz']">
+            <div
+              class="mission-card"
+              [routerLink]="['/dossier/starwizz']"
+              (click)="onCardClick('starwizz')"
+            >
               <dba-ui-card
                 title="STARWIZZ"
                 subtitle="Starfield Generator"
@@ -64,7 +74,7 @@ import { FooterComponent } from '../../../../libs/ui/src/lib/footer/footer.compo
                 <a
                   [routerLink]="['/dossier/starwizz']"
                   class="launch-cta"
-                  (click)="$event.stopPropagation()"
+                  (click)="onLearnMoreClick($event, 'starwizz')"
                   aria-label="Learn more about Starwizz"
                 >
                   <span class="launch-text">LEARN MORE</span>
@@ -73,7 +83,11 @@ import { FooterComponent } from '../../../../libs/ui/src/lib/footer/footer.compo
               </dba-ui-card>
             </div>
 
-            <div class="mission-card" [routerLink]="['/dossier/astrogram']">
+            <div
+              class="mission-card"
+              [routerLink]="['/dossier/astrogram']"
+              (click)="onCardClick('astrogram')"
+            >
               <dba-ui-card
                 title="ASTROGRAM"
                 subtitle="Professional Exposure Cards. Instantly."
@@ -91,7 +105,7 @@ import { FooterComponent } from '../../../../libs/ui/src/lib/footer/footer.compo
                 <a
                   [routerLink]="['/dossier/astrogram']"
                   class="launch-cta"
-                  (click)="$event.stopPropagation()"
+                  (click)="onLearnMoreClick($event, 'astrogram')"
                   aria-label="Learn more about Astrogram"
                 >
                   <span class="launch-text">LEARN MORE</span>
@@ -453,7 +467,15 @@ import { FooterComponent } from '../../../../libs/ui/src/lib/footer/footer.compo
 
       @media (max-width: 768px) {
         .hub-container {
-          padding: 2rem 1rem;
+          padding: 1rem 1rem 2rem;
+        }
+        .hero {
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          margin-top: 0;
+          margin-bottom: 4rem;
         }
         .hero__title {
           font-size: 2rem;
@@ -477,7 +499,18 @@ import { FooterComponent } from '../../../../libs/ui/src/lib/footer/footer.compo
     `,
   ],
 })
-export default class HomePageComponent {}
+export default class HomePageComponent {
+  private readonly analytics = inject(AnalyticsService);
+
+  onCardClick(tool: HubTool): void {
+    this.analytics.trackHubToolCardClicked(tool, 'card');
+  }
+
+  onLearnMoreClick(event: Event, tool: HubTool): void {
+    event.stopPropagation();
+    this.analytics.trackHubToolCardClicked(tool, 'learn_more');
+  }
+}
 
 export const routeMeta: RouteMeta = {
   title: 'DB Astro Suite - Professional Astrophotography Tools',

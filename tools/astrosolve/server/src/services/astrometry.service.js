@@ -3,6 +3,7 @@ import { promisify } from "util";
 import fs from "fs/promises";
 import path from "path";
 import { AstrometryError } from "../models/errors.model.js";
+import { tail } from "../utils/diagnostics.util.js";
 
 const execAsync = promisify(exec);
 
@@ -13,7 +14,7 @@ const execAsync = promisify(exec);
  * @param {string} filePath - Absolute path to the uploaded image in the uploads directory
  * @param {Object} hints - Solving hints { pixel_size, focal_length, ra_hint, dec_hint }
  * @param {Object} log - Fastify-compatible logger (request.log)
- * @returns {Promise<Object>} Solved WCS Metadata { ra, dec, scale, status }
+ * @returns {Promise<Object>} Solved WCS Metadata { ra, dec, scale, status, wcsData, solveStats }
  */
 export async function solveWithAstrometry(filePath, hints, log) {
   const fileExt = path.extname(filePath);
@@ -21,21 +22,71 @@ export async function solveWithAstrometry(filePath, hints, log) {
   const dirName = path.dirname(filePath);
   const wcsFilePath = path.join(dirName, `${baseName}.wcs`);
 
+  const command = createAstrometryCommand(filePath, hints);
   try {
-    const command = createAstrometryCommand(filePath, hints);
     log.info({ command }, "Executing astrometry solve-field");
-    const wcsData = await executeAstrometryAndGetWcsData(
-      command,
-      wcsFilePath,
-      log,
-    );
-    const alignmentInfo = parseAstrometryWcs(wcsData);
+    const { wcsData, stdout, stderr, durationMs, execError, wcsReadError } =
+      await executeAstrometryAndGetWcsData(command, wcsFilePath, log);
 
-    return {
-      status: "success",
-      wcsData: wcsData,
-      ...alignmentInfo,
+    const solveStats = {
+      duration_ms: durationMs,
+      ...parseSolveFieldStdout(stdout),
     };
+    const baseDiagnostics = {
+      command,
+      exit_code: execError?.code ?? null,
+      signal: execError?.signal ?? null,
+      killed: execError?.killed ?? false,
+      stdout_tail: tail(stdout),
+      stderr_tail: tail(stderr),
+      elapsed_ms: durationMs,
+    };
+
+    if (!wcsData) {
+      // solve-field produced no .wcs file — terminal failure.
+      throw new AstrometryError(
+        "Astrometry.net failed to plate-solve the image. The image might not contain enough stars or match the downloaded index files.",
+        solveStats,
+        {
+          ...baseDiagnostics,
+          wcs_file_existed: false,
+          wcs_parse_error: null,
+          wcs_read_error: wcsReadError?.message ?? null,
+        },
+      );
+    }
+
+    try {
+      const alignmentInfo = parseAstrometryWcs(wcsData);
+      return {
+        status: "success",
+        wcsData,
+        solveStats,
+        // Success-path diagnostics — mirrors the failure-path shape so
+        // every solve_events row has comparable subsystem context. Lets
+        // the dashboard ask "what command line / runtime / output produced
+        // a successful solve?" without joining the request payload.
+        diagnostics: {
+          ...baseDiagnostics,
+          status: "ok",
+          wcs_file_existed: true,
+        },
+        ...alignmentInfo,
+      };
+    } catch (parseErr) {
+      // .wcs exists but its contents are unparsable — separate signal
+      // from "solve-field gave up" in the dashboard.
+      throw new AstrometryError(
+        parseErr.message,
+        solveStats,
+        {
+          ...baseDiagnostics,
+          wcs_file_existed: true,
+          wcs_parse_error: parseErr.message,
+          wcs_read_error: null,
+        },
+      );
+    }
   } finally {
     // Astrometry.net creates many intermediate files (*.axy, *.corr, *.match, etc).
     // The easiest cleanup is simply matching the basename in the folder.
@@ -76,45 +127,79 @@ function createAstrometryCommand(filePath, hints) {
   // Blind solve mode restricted to downloaded indices (index 19 reaches ~34 degrees)
   const scaleParams = `--scale-units degwidth --scale-low 0.1 --scale-high 34.0`;
 
-  // Location hints — coerce to Number before interpolation to prevent shell injection
+  // Location hints — only applied when both ra_hint and dec_hint are explicitly
+  // provided. Guard against null/undefined before coercing to Number, because
+  // Number(null) === 0 and Number.isFinite(0) === true would otherwise pin
+  // solve-field to a 5° radius around RA=0, Dec=0 for every blind solve.
   let posParams = "";
-  const raNum = Number(hints.ra_hint);
-  const decNum = Number(hints.dec_hint);
-  if (Number.isFinite(raNum) && Number.isFinite(decNum)) {
-    posParams = `--ra ${raNum} --dec ${decNum} --radius 5`;
+  if (hints.ra_hint != null && hints.dec_hint != null) {
+    const raNum = Number(hints.ra_hint);
+    const decNum = Number(hints.dec_hint);
+    if (Number.isFinite(raNum) && Number.isFinite(decNum)) {
+      posParams = `--ra ${raNum} --dec ${decNum} --radius 5`;
+    }
   }
 
   return `${baseCommand} ${wcsOut} ${scaleParams} ${posParams}`;
 }
 
 /**
- * Executes the solve-field command and reads the resulting .wcs file.
+ * Executes the solve-field command and attempts to read the resulting .wcs
+ * file. Returns the raw materials needed to decide success vs. failure and
+ * to build a diagnostics payload — never throws on solver-level problems
+ * (those are signalled by `wcsData === null`). The caller (`solveWithAstrometry`)
+ * is the only place that throws `AstrometryError`.
  *
  * @param {string} command - The shell command to execute
  * @param {string} wcsFilePath - Expected path of the output .wcs file
  * @param {Object} log - Fastify-compatible logger
- * @returns {Promise<string>} Raw WCS file contents
+ * @returns {Promise<{
+ *   wcsData: string | null,
+ *   stdout: string,
+ *   stderr: string,
+ *   durationMs: number,
+ *   execError: (Error & { code?: number, signal?: string, killed?: boolean, stdout?: string, stderr?: string }) | null,
+ *   wcsReadError: Error | null,
+ * }>}
  */
 async function executeAstrometryAndGetWcsData(command, wcsFilePath, log) {
+  const startedAt = Date.now();
+  let capturedStdout = "";
+  let capturedStderr = "";
+  let execError = null;
   try {
     const { stdout, stderr } = await execAsync(command, { timeout: 300_000 });
+    capturedStdout = stdout || "";
+    capturedStderr = stderr || "";
     if (stdout) log.info({ stdout }, "solve-field stdout");
     if (stderr) log.warn({ stderr }, "solve-field stderr");
-  } catch (execError) {
+  } catch (err) {
+    execError = err;
+    capturedStdout = err.stdout ?? "";
+    capturedStderr = err.stderr ?? "";
     log.error(
-      { err: execError, stdout: execError.stdout, stderr: execError.stderr },
+      { err, stdout: err.stdout, stderr: err.stderr },
       "solve-field process failed; checking for .wcs output anyway",
     );
   }
+  const durationMs = Date.now() - startedAt;
 
-  // The true test of success is whether the .wcs file was generated.
+  let wcsData = null;
+  let wcsReadError = null;
   try {
-    return await fs.readFile(wcsFilePath, "utf8");
+    wcsData = await fs.readFile(wcsFilePath, "utf8");
   } catch (readErr) {
-    throw new AstrometryError(
-      "Astrometry.net failed to plate-solve the image. The image might not contain enough stars or match the downloaded index files.",
-    );
+    wcsReadError = readErr;
   }
+
+  return {
+    wcsData,
+    stdout: capturedStdout,
+    stderr: capturedStderr,
+    durationMs,
+    execError,
+    wcsReadError,
+  };
 }
 
 /**
@@ -147,4 +232,61 @@ function parseAstrometryWcs(wcsData) {
   }
 
   return { ra, dec, scale };
+}
+
+/**
+ * Extracts auxiliary solve metrics from solve-field's stdout. All fields are
+ * optional — missing matches return null for that field. Pre-solve metrics
+ * like `sources_found` are present even when the solve eventually fails,
+ * which is why this helper is also called from the failure path.
+ *
+ * @param {string} stdout
+ * @returns {{
+ *   sources_found: number | null,
+ *   field_width_arcmin: number | null,
+ *   field_height_arcmin: number | null,
+ *   field_rotation_deg: number | null,
+ *   log_odds: number | null,
+ *   match_count: number | null,
+ *   index_used: string | null,
+ * }}
+ */
+export function parseSolveFieldStdout(stdout) {
+  if (!stdout) {
+    return {
+      sources_found: null,
+      field_width_arcmin: null,
+      field_height_arcmin: null,
+      field_rotation_deg: null,
+      log_odds: null,
+      match_count: null,
+      index_used: null,
+    };
+  }
+  // "simplexy: found 973 sources." — present on both success and failure.
+  const sourcesMatch = stdout.match(/simplexy:\s*found\s+([0-9]+)\s+sources/);
+  // "Field size: 46.0677 x 57.5913 arcminutes"
+  const sizeMatch = stdout.match(
+    /Field size:\s*([0-9.eE+-]+)\s*x\s*([0-9.eE+-]+)\s*arcminutes/,
+  );
+  // "Field rotation angle: up is 20.8236 degrees E of N"
+  const rotMatch = stdout.match(
+    /Field rotation angle:\s*up is\s*([0-9.eE+-]+)\s*degrees/,
+  );
+  // "log-odds ratio 93.5234 (4.13723e+40), 11 match, 0 conflict, 9 distractors, 15 index."
+  const oddsMatch = stdout.match(
+    /log-odds ratio\s+([0-9.eE+-]+).*?,\s*([0-9]+)\s+match/,
+  );
+  // "Field 1: solved with index index-4109.fits."
+  const indexMatch = stdout.match(/solved with index\s+(\S+?)\.fits/);
+
+  return {
+    sources_found: sourcesMatch ? parseInt(sourcesMatch[1], 10) : null,
+    field_width_arcmin: sizeMatch ? parseFloat(sizeMatch[1]) : null,
+    field_height_arcmin: sizeMatch ? parseFloat(sizeMatch[2]) : null,
+    field_rotation_deg: rotMatch ? parseFloat(rotMatch[1]) : null,
+    log_odds: oddsMatch ? parseFloat(oddsMatch[1]) : null,
+    match_count: oddsMatch ? parseInt(oddsMatch[2], 10) : null,
+    index_used: indexMatch ? indexMatch[1] : null,
+  };
 }

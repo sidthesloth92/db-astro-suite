@@ -393,14 +393,16 @@ async function seed() {
     console.log("Downloading IAU WGSN named stars from SIMBAD TAP...");
     let namedStarCount = 0;
     try {
+      // SIMBAD's ADQL parser rejects qualified column names (e.g. `f.flux`) in
+      // ORDER BY, so we alias the flux column and order by the alias.
       const adql = [
-        "SELECT i.id, b.ra, b.dec, f.flux",
+        "SELECT i.id, b.ra, b.dec, f.flux AS vflux",
         "FROM ident AS i",
         "JOIN basic AS b ON b.oid = i.oidref",
-        "JOIN flux AS f ON f.oid = b.oid AND f.filter = 'V'",
+        "JOIN flux AS f ON f.oidref = b.oid AND f.filter = 'V'",
         "WHERE i.id LIKE 'NAME %'",
         "AND f.flux < 7.5",
-        "ORDER BY f.flux",
+        "ORDER BY vflux",
       ].join(" ");
 
       const simbadRes = await axios.get(
@@ -662,31 +664,3 @@ async function seed() {
 }
 
 seed();
-
-// ---------------------------------------------------------------------------
-// Access-keys database — initialised alongside the catalog DB so that a single
-// `npm run init-local-catalog-db` call sets up all SQLite databases.
-// ---------------------------------------------------------------------------
-(function initAccessKeysDb() {
-  const accessKeysDbPath = path.join(
-    __dirname,
-    "../../data/access-keys.sqlite",
-  );
-
-  if (!fs.existsSync(path.dirname(accessKeysDbPath))) {
-    fs.mkdirSync(path.dirname(accessKeysDbPath), { recursive: true });
-  }
-
-  const accessKeysDb = sqlite3(accessKeysDbPath);
-  accessKeysDb.exec(`
-    CREATE TABLE IF NOT EXISTS solve_api_access_keys (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      username TEXT NOT NULL UNIQUE,
-      key_hash TEXT NOT NULL,
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      active INTEGER NOT NULL DEFAULT 1
-    );
-  `);
-  accessKeysDb.close();
-  console.log("Access-keys database initialised at", accessKeysDbPath);
-})();

@@ -97,6 +97,12 @@ const config = Object.freeze({
     process.env.ASTROSOLVE_HEALTH_RATE_LIMIT_WINDOW ?? "1 minute",
 
   /**
+   * Pino log level. Valid values: 'trace', 'debug', 'info', 'warn', 'error',
+   * 'fatal', 'silent'. Defaults to 'info'. Configure via ASTROSOLVE_LOG_LEVEL.
+   */
+  logLevel: process.env.ASTROSOLVE_LOG_LEVEL ?? "info",
+
+  /**
    * Absolute path to the uploads directory for incoming images.
    */
   uploadsDir: path.join(DATA_DIR, "uploads"),

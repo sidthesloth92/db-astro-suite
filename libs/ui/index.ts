@@ -13,6 +13,7 @@ export * from "./src/lib/services/analytics.service";
 export * from "./src/lib/services/analytics-tracker.abstract";
 export * from "./src/lib/services/models/gtag.model";
 export * from "./src/lib/services/google-analytics.service";
+export * from "./src/lib/services/route-analytics.tracker";
 export * from "./src/lib/services/local-storage.service";
 export * from "./src/lib/services/storage.service";
 export * from "./src/lib/slider/slider.component";

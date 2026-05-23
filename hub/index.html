@@ -78,7 +78,8 @@
       }
       gtag("js", new Date());
 
-      gtag("config", "G-SBXMGWP56E");
+      // page_view is fired manually by RouteAnalyticsTracker on every router NavigationEnd
+      gtag("config", "G-SBXMGWP56E", { send_page_view: false });
     </script>
     <script type="application/ld+json">
       {

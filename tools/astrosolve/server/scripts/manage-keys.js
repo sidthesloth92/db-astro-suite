@@ -1,7 +1,13 @@
+// This is a CLI script. Operator-facing output uses `console.log` /
+// `console.error` deliberately — the no-console rule in
+// `.claude/rules/node.md` applies to server / library code that should
+// route through Fastify's structured logger, not to one-shot CLI tools
+// whose entire purpose is to print to stdout / stderr.
 import { SqliteAccessKeyDao } from "../src/dao/sqlite-access-key.dao.js";
 import {
   createKey,
   removeKey,
+  rotateKey,
   listKeys,
 } from "../src/services/access-key.service.js";
 import { AccessKeyError } from "../src/models/errors.model.js";
@@ -31,6 +37,20 @@ try {
       console.log(`Key deactivated for "${username}".`);
       break;
     }
+    case "rotate": {
+      if (!username) {
+        console.error("Usage: node scripts/manage-keys.js rotate <username>");
+        process.exit(1);
+      }
+      const key = rotateKey(accessKeyDao, username);
+      console.log(`Key rotated for "${username}":`);
+      console.log(key);
+      console.log("");
+      console.log(
+        "The previous key is now invalid. Store this new key securely — it cannot be recovered.",
+      );
+      break;
+    }
     case "list": {
       const keys = listKeys(accessKeyDao);
       if (keys.length === 0) {
@@ -47,7 +67,7 @@ try {
     }
     default:
       console.error(
-        "Usage: node scripts/manage-keys.js <add|remove|list> [username]",
+        "Usage: node scripts/manage-keys.js <add|remove|rotate|list> [username]",
       );
       process.exit(1);
   }

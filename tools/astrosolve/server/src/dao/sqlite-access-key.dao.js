@@ -1,6 +1,7 @@
 import Database from "better-sqlite3";
 import config from "../config.js";
 import { SqliteBaseDao } from "./sqlite-base.dao.js";
+import { idempotentAlter } from "./sqlite-migration.util.js";
 import { AccessKeyError } from "../models/errors.model.js";
 
 /**
@@ -36,15 +37,10 @@ export class SqliteAccessKeyDao extends SqliteBaseDao {
         use_count INTEGER NOT NULL DEFAULT 0
       )
     `);
-    try {
-      db.exec(
-        "ALTER TABLE solve_api_access_keys ADD COLUMN use_count INTEGER NOT NULL DEFAULT 0",
-      );
-    } catch (err) {
-      if (!err.message?.includes("duplicate column name")) {
-        throw err;
-      }
-    }
+    idempotentAlter(
+      db,
+      "ALTER TABLE solve_api_access_keys ADD COLUMN use_count INTEGER NOT NULL DEFAULT 0",
+    );
     return new SqliteAccessKeyDao(db);
   }
 
@@ -62,7 +58,13 @@ export class SqliteAccessKeyDao extends SqliteBaseDao {
         )
         .run(username, keyHash);
     } catch (err) {
-      if (err.message?.includes("UNIQUE constraint failed")) {
+      // better-sqlite3 exposes a stable `code` for UNIQUE-constraint
+      // violations; the message-match is kept only as a defensive fallback
+      // in case the library ever changes the code string.
+      if (
+        err.code === "SQLITE_CONSTRAINT_UNIQUE" ||
+        err.message?.includes("UNIQUE constraint failed")
+      ) {
         throw new AccessKeyError(`Username already exists: ${username}`);
       }
       throw new AccessKeyError(
@@ -80,6 +82,24 @@ export class SqliteAccessKeyDao extends SqliteBaseDao {
     const result = this.db
       .prepare("UPDATE solve_api_access_keys SET active = 0 WHERE username = ?")
       .run(username);
+
+    if (result.changes === 0) {
+      throw new AccessKeyError(`User not found: ${username}`);
+    }
+  }
+
+  /**
+   * @param {string} username
+   * @param {string} newKeyHash
+   * @returns {void}
+   * @throws {AccessKeyError}
+   */
+  rotateAccessKey(username, newKeyHash) {
+    const result = this.db
+      .prepare(
+        "UPDATE solve_api_access_keys SET key_hash = ? WHERE username = ?",
+      )
+      .run(newKeyHash, username);
 
     if (result.changes === 0) {
       throw new AccessKeyError(`User not found: ${username}`);
