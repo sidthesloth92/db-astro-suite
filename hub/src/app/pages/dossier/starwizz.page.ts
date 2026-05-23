@@ -2,7 +2,9 @@ import { RouteMeta } from '@analogjs/router';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CardComponent } from '@db-astro-suite/ui';
+import { AnalyticsService, CardComponent } from '@db-astro-suite/ui';
+
+const STARWIZZ_LAUNCH_URL = '/starwizz/';
 import { FooterComponent } from '../../../../../libs/ui/src/lib/footer/footer.component';
 
 @Component({
@@ -35,7 +37,12 @@ import { FooterComponent } from '../../../../../libs/ui/src/lib/footer/footer.co
               <p class="tagline">CINEMATIC STARFIELD GENERATOR</p>
             </div>
           </div>
-          <a href="/starwizz/" target="_self" class="launch-btn">
+          <a
+            href="/starwizz/"
+            target="_self"
+            class="launch-btn"
+            (click)="onLaunch()"
+          >
             Launch Tool
           </a>
         </header>
@@ -569,6 +576,8 @@ import { FooterComponent } from '../../../../../libs/ui/src/lib/footer/footer.co
   ],
 })
 export default class StarwizzPage {
+  private readonly analytics = inject(AnalyticsService);
+
   constructor() {
     const doc = inject(DOCUMENT);
     let link: HTMLLinkElement | null = doc.querySelector(
@@ -580,6 +589,10 @@ export default class StarwizzPage {
       doc.head.appendChild(link);
     }
     link.setAttribute('href', 'https://dbastrosuite.com/dossier/starwizz');
+  }
+
+  onLaunch(): void {
+    this.analytics.trackHubLaunchToolClicked('starwizz', STARWIZZ_LAUNCH_URL);
   }
 }
 

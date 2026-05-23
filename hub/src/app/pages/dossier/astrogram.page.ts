@@ -2,8 +2,10 @@ import { RouteMeta } from '@analogjs/router';
 import { CommonModule, DOCUMENT } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CardComponent } from '@db-astro-suite/ui';
+import { AnalyticsService, CardComponent } from '@db-astro-suite/ui';
 import { FooterComponent } from '../../../../../libs/ui/src/lib/footer/footer.component';
+
+const ASTROGRAM_LAUNCH_URL = '/astrogram/';
 
 @Component({
   selector: 'dba-hub-astrogram-dossier',
@@ -35,7 +37,12 @@ import { FooterComponent } from '../../../../../libs/ui/src/lib/footer/footer.co
               <p class="tagline">Professional Exposure Cards. Instantly.</p>
             </div>
           </div>
-          <a href="/astrogram/" target="_self" class="launch-btn">
+          <a
+            href="/astrogram/"
+            target="_self"
+            class="launch-btn"
+            (click)="onLaunch()"
+          >
             Launch Tool
           </a>
         </header>
@@ -615,6 +622,8 @@ import { FooterComponent } from '../../../../../libs/ui/src/lib/footer/footer.co
   ],
 })
 export default class AstroGramPage {
+  private readonly analytics = inject(AnalyticsService);
+
   constructor() {
     const doc = inject(DOCUMENT);
     let link: HTMLLinkElement | null = doc.querySelector(
@@ -626,6 +635,10 @@ export default class AstroGramPage {
       doc.head.appendChild(link);
     }
     link.setAttribute('href', 'https://dbastrosuite.com/dossier/astrogram');
+  }
+
+  onLaunch(): void {
+    this.analytics.trackHubLaunchToolClicked('astrogram', ASTROGRAM_LAUNCH_URL);
   }
 }
 

@@ -17,6 +17,7 @@ export * from "./lib/select/select.component";
 export * from "./lib/services/analytics-tracker.abstract";
 export * from "./lib/services/analytics.service";
 export * from "./lib/services/google-analytics.service";
+export * from "./lib/services/route-analytics.tracker";
 export * from "./lib/services/local-storage.service";
 export * from "./lib/services/models/gtag.model";
 export * from "./lib/services/storage.service";
