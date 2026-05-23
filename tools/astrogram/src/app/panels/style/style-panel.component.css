@@ -78,7 +78,7 @@
 }
 
 .format-row.is-active .format-label {
-  color: #fff;
+  color: var(--db-color-text-primary);
 }
 
 .format-dims {
@@ -163,6 +163,6 @@
 
 .replace-btn:hover,
 .remove-btn:hover {
-  color: #fff;
+  color: var(--db-color-text-primary);
   border-color: var(--db-color-border-strong);
 }

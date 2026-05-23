@@ -42,7 +42,7 @@
   border: 1.5px solid var(--db-color-border-strong);
   display: inline-grid;
   place-items: center;
-  color: #fff;
+  color: var(--db-color-text-primary);
   flex-shrink: 0;
 }
 
@@ -84,7 +84,7 @@
   font-family: var(--db-font-mono-code);
   font-weight: 600;
   font-size: 11px;
-  color: #fff;
+  color: var(--db-color-text-primary);
 }
 
 .mag-legend {

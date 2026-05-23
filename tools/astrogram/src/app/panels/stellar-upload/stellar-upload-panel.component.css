@@ -57,7 +57,7 @@
   font-size: 1.1rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #fff;
+  color: var(--db-color-text-primary);
 }
 
 .upload-help {
@@ -82,7 +82,7 @@
   font-family: var(--db-font-ui);
   font-size: 0.72rem;
   font-weight: 600;
-  color: #ff6b6b;
+  color: var(--db-color-text-error);
   max-width: 260px;
 }
 

@@ -19,12 +19,7 @@
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  background: radial-gradient(
-    circle at 30% 30%,
-    #ffc36b,
-    var(--db-color-neon-pink) 70%,
-    #6b1a48
-  );
+  background: var(--db-gradient-astrogram-avatar);
   flex-shrink: 0;
 }
 
@@ -39,7 +34,7 @@
   font-size: 14px;
   line-height: 1;
   letter-spacing: 0.06em;
-  color: #fff;
+  color: var(--db-color-text-primary);
 }
 
 .is-compact .brand-word {
@@ -54,7 +49,7 @@
   border-radius: 7px;
   background: var(--db-color-neon-pink);
   border: none;
-  color: #fff;
+  color: var(--db-color-text-primary);
   font-family: var(--db-font-ui);
   font-weight: 600;
   font-size: 11.5px;

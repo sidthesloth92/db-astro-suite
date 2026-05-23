@@ -11,11 +11,13 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
+  /* Mirrors `--db-gradient-astrogram-avatar` but threaded through the
+     dynamic `--accent-color` so this avatar tracks the card's accent. */
   background: radial-gradient(
     circle at 30% 30%,
-    #ffc36b,
+    var(--db-color-avatar-warm),
     var(--accent-color, var(--db-color-neon-pink)) 70%,
-    #6b1a48
+    var(--db-color-avatar-deep)
   );
   flex-shrink: 0;
 }

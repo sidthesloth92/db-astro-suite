@@ -17,16 +17,17 @@
   inset: 0;
   pointer-events: none;
   /* Three layered radial gradients — small white pinpoints at random
-     positions. No animation; cheap and SSR-safe. */
+     positions. No animation; cheap and SSR-safe. All eight stops share
+     `--db-color-star` (RGB tuple); per-stop alpha modulates brightness. */
   background-image:
-    radial-gradient(1px 1px at 23% 17%, rgba(255, 255, 255, 0.85) 50%, transparent 51%),
-    radial-gradient(1px 1px at 71% 42%, rgba(255, 255, 255, 0.70) 50%, transparent 51%),
-    radial-gradient(1px 1px at 12% 88%, rgba(255, 255, 255, 0.75) 50%, transparent 51%),
-    radial-gradient(1px 1px at 84% 73%, rgba(255, 255, 255, 0.60) 50%, transparent 51%),
-    radial-gradient(1px 1px at 45% 31%, rgba(255, 255, 255, 0.50) 50%, transparent 51%),
-    radial-gradient(1px 1px at 58% 91%, rgba(255, 255, 255, 0.65) 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 36% 58%, rgba(255, 255, 255, 0.55) 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 92% 21%, rgba(255, 255, 255, 0.50) 50%, transparent 51%);
+    radial-gradient(1px 1px at 23% 17%, rgba(var(--db-color-star), 0.85) 50%, transparent 51%),
+    radial-gradient(1px 1px at 71% 42%, rgba(var(--db-color-star), 0.70) 50%, transparent 51%),
+    radial-gradient(1px 1px at 12% 88%, rgba(var(--db-color-star), 0.75) 50%, transparent 51%),
+    radial-gradient(1px 1px at 84% 73%, rgba(var(--db-color-star), 0.60) 50%, transparent 51%),
+    radial-gradient(1px 1px at 45% 31%, rgba(var(--db-color-star), 0.50) 50%, transparent 51%),
+    radial-gradient(1px 1px at 58% 91%, rgba(var(--db-color-star), 0.65) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 36% 58%, rgba(var(--db-color-star), 0.55) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 92% 21%, rgba(var(--db-color-star), 0.50) 50%, transparent 51%);
   background-size: 320px 320px;
   background-repeat: repeat;
   opacity: 0.55;

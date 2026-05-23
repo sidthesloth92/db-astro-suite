@@ -62,7 +62,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--db-color-switch-knob);
 }
 
 .format-meta {
@@ -75,7 +75,7 @@
   font-family: var(--db-font-ui);
   font-weight: 500;
   font-size: 12px;
-  color: #fff;
+  color: var(--db-color-text-primary);
 }
 
 .format-note {
@@ -98,7 +98,7 @@
   border-radius: 7px;
   background: var(--db-color-neon-pink);
   border: none;
-  color: #fff;
+  color: var(--db-color-text-primary);
   font-family: var(--db-font-ui);
   font-weight: 600;
   font-size: 12px;

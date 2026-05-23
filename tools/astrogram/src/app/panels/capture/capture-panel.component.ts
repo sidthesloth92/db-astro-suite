@@ -13,6 +13,8 @@ import {
   formatDuration,
 } from '../../models/card-data.model';
 import { CardDataService } from '../../services/card-data.service';
+import { BORTLE_GRADIENT_STOPS } from './bortle.constants';
+import { ASTROGRAM_CUSTOM_FILTER_COLOR } from '../../constants/colors.constants';
 
 /**
  * Inspector panel for per-filter integration and Bortle scale. Replaces
@@ -53,22 +55,11 @@ export class CapturePanelComponent {
   readonly bortleSteps: ReadonlyArray<number> = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
   /**
-   * Fixed colours for the 9 Bortle levels — kept here (not in tokens) because
-   * the gradient is the data, not a theme token; the *brand* colours used
-   * elsewhere bind to `var(--db-color-*)`. CSS bindings below pick a colour
-   * from this list per cell.
+   * Fixed colours for the 9 Bortle levels — kept as data (not theme
+   * tokens) because the gradient encodes the Bortle scale itself, not a
+   * brand colour. Sourced from `bortle.constants.ts`.
    */
-  readonly bortleColors: ReadonlyArray<string> = [
-    '#0a2647',
-    '#144272',
-    '#205295',
-    '#2c74b3',
-    '#5ae08a',
-    '#ffd23d',
-    '#ff8b3d',
-    '#ff6b3d',
-    '#ff2d95',
-  ];
+  readonly bortleColors: ReadonlyArray<string> = BORTLE_GRADIENT_STOPS;
 
   /** Filter rows used by the @for loop, exposed with stable indices. */
   readonly filterRows = computed(() =>
@@ -127,7 +118,7 @@ export class CapturePanelComponent {
     this.dataService.mutateData((data) => {
       data.filters.push({
         name: 'Custom',
-        color: '#ff00ff',
+        color: ASTROGRAM_CUSTOM_FILTER_COLOR,
         frames: 0,
         seconds: 0,
         enabled: true,

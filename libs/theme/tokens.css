@@ -187,6 +187,40 @@
 
   /* Breakpoints */
   --db-bp-mobile: 768px;
+
+  /* ------------------------------------------------------------------
+     Reusable surfaces / shadows for the redesigned primitives
+     ------------------------------------------------------------------ */
+
+  /** Floating-sheet glass surface. */
+  --db-color-sheet-bg: rgba(11, 14, 22, 0.72);
+  /** Floating-sheet sticky header surface (slightly more transparent). */
+  --db-color-sheet-header-bg: rgba(11, 14, 22, 0.55);
+  /** Floating-sheet drop shadow. */
+  --db-shadow-sheet: 0 -8px 30px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(0, 0, 0, 0.3);
+
+  /** Star colour used by the StarryBackground gradients. */
+  --db-color-star: 255, 255, 255;
+
+  /** Switch knob colour. */
+  --db-color-switch-knob: #ffffff;
+
+  /** Astrogram-brand avatar gradient stops (warm to deep). */
+  --db-color-avatar-warm: #ffc36b;
+  --db-color-avatar-deep: #6b1a48;
+  /** Composed gradient binding the two stops with the neon-pink mid. */
+  --db-gradient-astrogram-avatar: radial-gradient(
+    circle at 30% 30%,
+    var(--db-color-avatar-warm),
+    var(--db-color-neon-pink) 70%,
+    var(--db-color-avatar-deep)
+  );
+
+  /** Default colour for a freshly-added custom filter (data, not brand). */
+  --db-color-filter-default: #ff00ff;
+
+  /** Error text colour used in inline form / upload validations. */
+  --db-color-text-error: #ff6b6b;
 }
 
 /* ========================================
