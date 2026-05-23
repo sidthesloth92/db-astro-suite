@@ -1,0 +1,68 @@
+.about {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+  padding: 4rem 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  color: var(--db-color-text-primary);
+  font-family: var(--db-font-ui);
+}
+
+.about__header {
+  text-align: center;
+}
+
+.about__header h1 {
+  font-family: var(--db-font-display-major);
+  font-size: 2.5rem;
+  letter-spacing: 0.06em;
+  font-weight: 400;
+  color: var(--db-color-neon-pink);
+  text-transform: lowercase;
+  margin: 0;
+}
+
+.about__content {
+  background: var(--db-color-surface);
+  border: 1px solid var(--db-color-border);
+  border-radius: 12px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.about__content h2 {
+  font-family: var(--db-font-display-major);
+  font-size: 1.25rem;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  color: var(--db-color-text-primary);
+  margin: 1.25rem 0 0 0;
+  font-weight: 400;
+}
+
+.about__content h2:first-child {
+  margin-top: 0;
+}
+
+.about__content p {
+  font-family: var(--db-font-ui);
+  line-height: 1.7;
+  color: var(--db-color-text-dim);
+  margin: 0;
+}
+
+.about__nav {
+  text-align: center;
+}
+
+.back-link {
+  display: inline-flex;
+  text-decoration: none;
+  color: inherit;
+}

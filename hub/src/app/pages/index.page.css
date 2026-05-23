@@ -1,0 +1,180 @@
+:host {
+  display: block;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+.content {
+  position: relative;
+  z-index: 2;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+  animation: content-entry 1s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@keyframes content-entry {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+    filter: blur(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.hero {
+  text-align: center;
+  margin-bottom: 5rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.system-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: var(--db-color-neon-pink);
+  border-radius: 50%;
+  margin-right: 8px;
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.hero__title {
+  font-family: var(--db-font-display-major);
+  font-size: clamp(2rem, 6vw, 40px);
+  margin: 0;
+  letter-spacing: 0.06em;
+  font-weight: 400;
+  color: var(--db-color-neon-pink);
+  text-transform: lowercase;
+}
+
+.hero__subtitle {
+  color: var(--db-color-text-dim);
+  font-family: var(--db-font-mono-code);
+  font-size: 11px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.hero__description {
+  color: var(--db-color-text-dim);
+  font-family: var(--db-font-ui);
+  font-size: 15px;
+  line-height: 1.6;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  border-top: 1px solid var(--db-color-border);
+  padding-top: 1.5rem;
+}
+
+.tools {
+  margin-bottom: 4rem;
+}
+
+.tools__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+}
+
+.mission-card {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  position: relative;
+}
+
+.mission-card dba-ui-card {
+  height: 100%;
+  display: block;
+}
+
+.mission-status-slot {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  z-index: 1;
+}
+
+.mission-card--disabled {
+  opacity: 0.6;
+  filter: grayscale(0.2);
+  cursor: default;
+}
+
+.mission-card p {
+  color: var(--db-color-text-dim);
+  font-family: var(--db-font-ui);
+  line-height: 1.6;
+  font-size: 14px;
+  margin-bottom: 1.5rem;
+  min-height: 4.5rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.launch-link {
+  display: inline-flex;
+  text-decoration: none;
+  color: inherit;
+}
+
+.mission-card:hover {
+  transform: translateY(-4px);
+}
+
+@media (max-width: 768px) {
+  .content {
+    padding: 1rem 1rem 2rem;
+  }
+  .hero {
+    min-height: 100vh;
+    justify-content: center;
+    margin-top: 0;
+    margin-bottom: 4rem;
+  }
+  .hero__title {
+    font-size: 2rem;
+  }
+  .tools__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
