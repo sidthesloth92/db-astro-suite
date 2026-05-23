@@ -178,6 +178,7 @@
   /* Text scale */
   --db-color-text-dim: #8B92A6;
   --db-color-text-faint: #5A6175;
+  --db-color-text-link: #7AA7D9;
 
   /* Typography families */
   --db-font-display-major: "Major Mono Display", "JetBrains Mono", monospace;
