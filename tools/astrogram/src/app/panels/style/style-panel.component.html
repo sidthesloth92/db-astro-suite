@@ -1,0 +1,78 @@
+<div class="panel-root">
+  <dba-ui-inspector-section title="Format" sub="Card dimensions for export">
+    <dba-ui-icon-crop slot="icon" [size]="14" />
+    <div class="format-list">
+      @for (opt of formatOptions; track opt.value) {
+        <button
+          type="button"
+          class="format-row"
+          [class.is-active]="cardData().aspectRatio === opt.value"
+          (click)="setFormat(opt.value)"
+        >
+          <span class="format-thumb" [attr.data-ratio]="opt.ratio"></span>
+          <span class="format-meta">
+            <span class="format-label">{{ opt.label }}</span>
+            <span class="format-dims">{{ opt.dims }}</span>
+          </span>
+          <span class="format-ratio">{{ opt.ratio }}</span>
+        </button>
+      }
+    </div>
+  </dba-ui-inspector-section>
+
+  <hr class="divider" aria-hidden="true" />
+
+  <dba-ui-inspector-section title="Color" sub="Card accents">
+    <dba-ui-icon-palette slot="icon" [size]="14" />
+    <dba-ui-inspector-field label="Accent">
+      <dba-ui-color-swatch-input
+        [value]="cardData().accentColor"
+        (valueChange)="setAccentColor($event)"
+      />
+    </dba-ui-inspector-field>
+    <dba-ui-inspector-field label="Secondary">
+      <dba-ui-color-swatch-input
+        [value]="cardData().accentColor"
+        (valueChange)="setSecondaryColor($event)"
+      />
+    </dba-ui-inspector-field>
+    <dba-ui-inspector-field label="Card opacity">
+      <dba-ui-micro-slider
+        [value]="opacityPercent()"
+        [min]="0"
+        [max]="100"
+        [step]="5"
+        suffix="%"
+        (valueChange)="setOpacityPercent($event)"
+      />
+    </dba-ui-inspector-field>
+  </dba-ui-inspector-section>
+
+  <hr class="divider" aria-hidden="true" />
+
+  <dba-ui-inspector-section title="Background" sub="Image behind the card">
+    <dba-ui-icon-image slot="icon" [size]="14" />
+    <div class="bg-wrap">
+      <div class="bg-row">
+        <div class="bg-thumb">
+          @if (cardData().backgroundImage; as src) {
+            <img [src]="src" alt="" />
+          }
+        </div>
+        <div class="bg-meta">
+          <span class="bg-name">
+            {{ cardData().backgroundImage ? 'Current background' : 'No background image' }}
+          </span>
+          <span class="bg-sub">{{ cardData().backgroundImage ? 'Custom upload' : 'Pick an image to enable' }}</span>
+        </div>
+        <label class="replace-btn">
+          <input type="file" accept="image/*" (change)="onImageUpload($event)" hidden />
+          <span>Replace</span>
+        </label>
+        @if (cardData().backgroundImage) {
+          <button type="button" class="remove-btn" (click)="removeBackground()" aria-label="Remove background">✕</button>
+        }
+      </div>
+    </div>
+  </dba-ui-inspector-section>
+</div>

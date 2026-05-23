@@ -1,0 +1,68 @@
+<div class="panel-root">
+  <dba-ui-inspector-section title="Circle" sub="Annotation rings">
+    <dba-ui-icon-target slot="icon" [size]="14" />
+    <dba-ui-inspector-field label="Color">
+      <dba-ui-color-swatch-input
+        [value]="settings().color"
+        (valueChange)="update({ color: $event })"
+      />
+    </dba-ui-inspector-field>
+    <dba-ui-inspector-field label="Thickness">
+      <dba-ui-micro-slider
+        [value]="settings().thickness"
+        [min]="1"
+        [max]="10"
+        [step]="0.5"
+        (valueChange)="update({ thickness: $event })"
+      />
+    </dba-ui-inspector-field>
+    <dba-ui-inspector-field label="Opacity">
+      <dba-ui-micro-slider
+        [value]="circleOpacityPercent()"
+        [min]="0"
+        [max]="100"
+        [step]="5"
+        suffix="%"
+        (valueChange)="setCircleOpacity($event)"
+      />
+    </dba-ui-inspector-field>
+  </dba-ui-inspector-section>
+
+  <hr class="divider" aria-hidden="true" />
+
+  <dba-ui-inspector-section title="Label" sub="Text plates">
+    <dba-ui-icon-tag slot="icon" [size]="14" />
+    <dba-ui-inspector-field label="Color">
+      <dba-ui-color-swatch-input
+        [value]="settings().labelColor"
+        (valueChange)="update({ labelColor: $event })"
+      />
+    </dba-ui-inspector-field>
+    <dba-ui-inspector-field label="Font size">
+      <dba-ui-micro-slider
+        [value]="settings().fontSize"
+        [min]="0.4"
+        [max]="2"
+        [step]="0.05"
+        (valueChange)="update({ fontSize: $event })"
+      />
+    </dba-ui-inspector-field>
+    <dba-ui-inspector-field label="Opacity">
+      <dba-ui-micro-slider
+        [value]="labelOpacityPercent()"
+        [min]="0"
+        [max]="100"
+        [step]="5"
+        suffix="%"
+        (valueChange)="setLabelOpacity($event)"
+      />
+    </dba-ui-inspector-field>
+    <dba-ui-inspector-field label="Show mag">
+      <dba-ui-switch
+        [checked]="settings().showMagnitude"
+        ariaLabel="Show magnitude"
+        (checkedChange)="update({ showMagnitude: $event })"
+      />
+    </dba-ui-inspector-field>
+  </dba-ui-inspector-section>
+</div>

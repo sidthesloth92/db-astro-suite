@@ -1,0 +1,114 @@
+:host {
+  display: block;
+  color: var(--db-color-text-primary);
+}
+
+.panel-root {
+  display: flex;
+  flex-direction: column;
+}
+
+.selected-card {
+  margin: 16px 18px 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: var(--db-color-surface-hi);
+  border: 1px solid var(--db-color-border-strong);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.icon-pill {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: var(--db-color-cyan-soft);
+  border: 1px solid var(--db-color-cyan);
+  display: grid;
+  place-items: center;
+  color: var(--db-color-cyan);
+  flex-shrink: 0;
+}
+
+.meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.kicker {
+  font-family: var(--db-font-mono-code);
+  font-size: 9px;
+  color: var(--db-color-text-faint);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+
+.title {
+  font-family: var(--db-font-ui);
+  font-weight: 500;
+  font-size: 13px;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trash {
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  color: var(--db-color-text-faint);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  border-radius: 5px;
+}
+
+.trash:hover {
+  color: var(--db-color-neon-pink);
+  background: var(--db-color-pink-soft);
+}
+
+.label-input {
+  width: 100%;
+  padding: 7px 9px;
+  background: var(--db-color-surface-bg);
+  border: 1px solid var(--db-color-border);
+  border-radius: 6px;
+  color: var(--db-color-text-primary);
+  font-family: var(--db-font-mono-code);
+  font-weight: 500;
+  font-size: 12px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.label-input:focus {
+  border-color: var(--db-color-border-active);
+}
+
+.empty {
+  margin: 24px 18px;
+  padding: 20px 16px;
+  border-radius: 8px;
+  background: var(--db-color-surface-raised);
+  border: 1px dashed var(--db-color-border);
+  text-align: center;
+}
+
+.empty-title {
+  font-family: var(--db-font-ui);
+  font-weight: 600;
+  font-size: 13px;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.empty-sub {
+  font-family: var(--db-font-ui);
+  font-size: 11.5px;
+  color: var(--db-color-text-dim);
+}

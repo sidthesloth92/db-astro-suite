@@ -1,0 +1,45 @@
+<div class="panel-root">
+  <dba-ui-inspector-section title="Export options">
+    <dba-ui-icon-download slot="icon" [size]="14" />
+    <div class="format-list">
+      @for (opt of formats; track opt.id) {
+        <button
+          type="button"
+          class="format-row"
+          [class.is-active]="format() === opt.id"
+          (click)="selectFormat(opt.id)"
+        >
+          <span class="radio-dot" [class.is-on]="format() === opt.id"></span>
+          <span class="format-meta">
+            <span class="format-label">{{ opt.label }}</span>
+            <span class="format-note">{{ opt.note }}</span>
+          </span>
+        </button>
+      }
+    </div>
+    <div class="cta-wrap">
+      <button type="button" class="cta-btn" (click)="triggerExport()">
+        <dba-ui-icon-download [size]="13" />
+        <span>Export now</span>
+      </button>
+    </div>
+  </dba-ui-inspector-section>
+
+  <hr class="divider" aria-hidden="true" />
+
+  <dba-ui-inspector-section title="Share to">
+    <dba-ui-icon-share slot="icon" [size]="14" />
+    <div class="share-grid">
+      @for (target of shareTargets; track target.id) {
+        <button
+          type="button"
+          class="share-btn"
+          [class.is-active]="shareTarget() === target.id"
+          (click)="selectShareTarget(target.id)"
+        >
+          {{ target.label }}
+        </button>
+      }
+    </div>
+  </dba-ui-inspector-section>
+</div>

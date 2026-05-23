@@ -1,0 +1,53 @@
+<div class="panel-root">
+  @if (annotation(); as ann) {
+    <div class="selected-card">
+      <div class="icon-pill" aria-hidden="true">
+        <dba-ui-icon-target [size]="16" />
+      </div>
+      <div class="meta">
+        <div class="kicker">Selected</div>
+        <div class="title">{{ effectiveLabel() || ann.label }}</div>
+      </div>
+      <button type="button" class="trash" aria-label="Delete annotation" (click)="removeAnnotation()">
+        <dba-ui-icon-trash [size]="13" />
+      </button>
+    </div>
+
+    <dba-ui-inspector-section title="Properties" sub="Override global style" [compact]="true">
+      <dba-ui-icon-target slot="icon" [size]="14" />
+      <dba-ui-inspector-field label="Label">
+        <input
+          class="label-input"
+          type="text"
+          [value]="effectiveLabel()"
+          (input)="onLabelInput($event)"
+          aria-label="Annotation label"
+        />
+      </dba-ui-inspector-field>
+      <dba-ui-inspector-field label="Size">
+        <dba-ui-micro-slider
+          [value]="effectiveRadius()"
+          [min]="4"
+          [max]="maxRadius()"
+          [step]="1"
+          suffix="px"
+          (valueChange)="updateStyle({ radiusOverride: $event })"
+        />
+      </dba-ui-inspector-field>
+      <dba-ui-inspector-field label="Thickness">
+        <dba-ui-micro-slider
+          [value]="effectiveThickness()"
+          [min]="1"
+          [max]="10"
+          [step]="0.5"
+          (valueChange)="updateStyle({ thickness: $event })"
+        />
+      </dba-ui-inspector-field>
+    </dba-ui-inspector-section>
+  } @else {
+    <div class="empty">
+      <div class="empty-title">No annotation selected</div>
+      <div class="empty-sub">Click any annotation on the preview to edit it here.</div>
+    </div>
+  }
+</div>

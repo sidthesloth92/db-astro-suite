@@ -1,0 +1,138 @@
+:host {
+  display: block;
+  color: var(--db-color-text-primary);
+}
+
+.panel-root {
+  display: flex;
+  flex-direction: column;
+}
+
+.divider {
+  height: 1px;
+  background: var(--db-color-border);
+  border: none;
+  margin: 0 18px;
+}
+
+.format-list {
+  padding: 0 18px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.format-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: transparent;
+  border: 1px solid var(--db-color-border);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.format-row.is-active {
+  background: var(--db-color-surface-hi);
+  border-color: var(--db-color-border-strong);
+}
+
+.radio-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid var(--db-color-border-strong);
+  background: transparent;
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.radio-dot.is-on {
+  background: var(--db-color-neon-pink);
+  border-color: var(--db-color-neon-pink);
+}
+
+.radio-dot.is-on::after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.format-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.format-label {
+  font-family: var(--db-font-ui);
+  font-weight: 500;
+  font-size: 12px;
+  color: #fff;
+}
+
+.format-note {
+  font-family: var(--db-font-mono-code);
+  font-size: 10px;
+  color: var(--db-color-text-faint);
+}
+
+.cta-wrap {
+  padding: 0 18px 14px;
+}
+
+.cta-btn {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 7px;
+  background: var(--db-color-neon-pink);
+  border: none;
+  color: #fff;
+  font-family: var(--db-font-ui);
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  box-shadow:
+    0 0 0 1px var(--db-color-neon-pink),
+    0 4px 12px var(--db-color-pink-soft);
+}
+
+.cta-btn:hover {
+  filter: brightness(1.08);
+}
+
+.share-grid {
+  padding: 0 18px 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.share-btn {
+  padding: 10px;
+  border-radius: 6px;
+  background: var(--db-color-surface-bg);
+  border: 1px solid var(--db-color-border);
+  color: var(--db-color-text-primary);
+  font-family: var(--db-font-ui);
+  font-weight: 500;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.share-btn.is-active,
+.share-btn:hover {
+  border-color: var(--db-color-border-strong);
+  color: #fff;
+}

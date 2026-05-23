@@ -1,0 +1,84 @@
+<div class="panel-root">
+  <dba-ui-inspector-section title="Identification" sub="Object name & coordinates">
+    <dba-ui-icon-tag slot="icon" [size]="14" />
+    <dba-ui-inspector-field label="Name">
+      <dba-ui-micro-input
+        [value]="cardData().title"
+        (valueChange)="update('title', $event)"
+        placeholder="e.g., Rosette Nebula"
+      />
+    </dba-ui-inspector-field>
+    <dba-ui-inspector-field label="Hashtags">
+      <dba-ui-micro-input
+        [value]="hashtagsValue()"
+        (valueChange)="onHashtagsChange($event)"
+        prefix="#"
+        [mono]="true"
+        placeholder="space astrophotography"
+      />
+    </dba-ui-inspector-field>
+  </dba-ui-inspector-section>
+
+  <hr class="divider" aria-hidden="true" />
+
+  <dba-ui-inspector-section title="Capture context" sub="When & where">
+    <dba-ui-icon-map-pin slot="icon" [size]="14" />
+    <dba-ui-inspector-field label="Date">
+      <dba-ui-micro-input
+        type="text"
+        [value]="cardData().date"
+        (valueChange)="update('date', $event)"
+        placeholder="YYYY-MM-DD"
+        [mono]="true"
+      />
+    </dba-ui-inspector-field>
+    <dba-ui-inspector-field label="Location">
+      <dba-ui-micro-input
+        [value]="cardData().location"
+        (valueChange)="update('location', $event)"
+        placeholder="City, State"
+      />
+    </dba-ui-inspector-field>
+    <dba-ui-inspector-field label="Author">
+      <dba-ui-micro-input
+        [value]="authorValue()"
+        (valueChange)="onAuthorChange($event)"
+        prefix="@"
+        [mono]="true"
+        placeholder="username"
+      />
+    </dba-ui-inspector-field>
+  </dba-ui-inspector-section>
+
+  <hr class="divider" aria-hidden="true" />
+
+  <dba-ui-inspector-section title="On-image caption" sub="Short text shown on the card">
+    <dba-ui-icon-comment slot="icon" [size]="14" />
+    <div class="textarea-wrap">
+      <textarea
+        class="text-area"
+        rows="3"
+        [value]="cardData().description ?? ''"
+        (input)="onDescriptionChange($event)"
+        placeholder="Short on-card description..."
+      ></textarea>
+    </div>
+  </dba-ui-inspector-section>
+
+  <dba-ui-inspector-section title="Story" sub="Long-form caption for the post">
+    <dba-ui-icon-edit slot="icon" [size]="14" />
+    <button slot="action" type="button" class="wiki-btn" (click)="fetchWiki()" [disabled]="isFetching()">
+      <dba-ui-icon-search [size]="10" />
+      <span>{{ isFetching() ? 'Fetching...' : 'Wiki' }}</span>
+    </button>
+    <div class="textarea-wrap">
+      <textarea
+        class="text-area"
+        rows="6"
+        [value]="cardData().caption ?? ''"
+        (input)="onCaptionChange($event)"
+        placeholder="Long-form caption..."
+      ></textarea>
+    </div>
+  </dba-ui-inspector-section>
+</div>

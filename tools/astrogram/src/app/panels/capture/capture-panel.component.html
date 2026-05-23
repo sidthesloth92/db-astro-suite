@@ -1,0 +1,103 @@
+<div class="panel-root">
+  <dba-ui-inspector-section title="Filter integration" sub="Per-filter frame count and exposure">
+    <dba-ui-icon-filter slot="icon" [size]="14" />
+    <dba-ui-pill-badge slot="action" tone="cyan">{{ totalIntegration() }}</dba-ui-pill-badge>
+
+    <div class="filter-list">
+      @for (row of filterRows(); track row.index) {
+        <div class="filter-row" [class.is-off]="!row.filter.enabled">
+          <dba-ui-switch
+            [checked]="row.filter.enabled"
+            [ariaLabel]="row.filter.name + ' filter'"
+            (checkedChange)="toggleFilter(row.index)"
+          />
+          <label class="color-swatch" [style.--swatch-color]="row.filter.color">
+            <input
+              type="color"
+              [value]="row.filter.color"
+              (input)="setColor(row.index, $event)"
+              aria-label="Filter colour"
+            />
+          </label>
+          @if (isCustom(row.index, row.filter)) {
+            <input
+              type="text"
+              class="name-input"
+              [value]="row.filter.name"
+              (input)="setName(row.index, $event)"
+              aria-label="Filter name"
+            />
+          } @else {
+            <div class="name-label">{{ row.filter.name }}</div>
+          }
+          <div class="numeric">
+            <input
+              type="number"
+              min="0"
+              class="num-input"
+              [value]="row.filter.frames"
+              (input)="setFrames(row.index, $event)"
+              aria-label="Frames"
+            />
+            <span class="unit">FR</span>
+          </div>
+          <span class="x">×</span>
+          <div class="numeric">
+            <input
+              type="number"
+              min="0"
+              class="num-input"
+              [value]="row.filter.seconds"
+              (input)="setSeconds(row.index, $event)"
+              aria-label="Seconds per frame"
+            />
+            <span class="unit">S</span>
+          </div>
+          @if (isCustom(row.index, row.filter)) {
+            <button
+              type="button"
+              class="row-remove"
+              aria-label="Remove filter"
+              (click)="removeFilter(row.index)"
+            >
+              ✕
+            </button>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="add-wrap">
+      <button type="button" class="add-btn" (click)="addCustomFilter()">+ Add custom filter</button>
+    </div>
+  </dba-ui-inspector-section>
+
+  <hr class="divider" aria-hidden="true" />
+
+  <dba-ui-inspector-section title="Bortle Scale" sub="Light pollution at capture site">
+    <dba-ui-icon-mountain slot="icon" [size]="14" />
+    <dba-ui-pill-badge slot="action" tone="pink">{{ bortleClassLabel() }}</dba-ui-pill-badge>
+
+    <div class="bortle-wrap">
+      <div class="bortle-row">
+        @for (n of bortleSteps; track n) {
+          <button
+            type="button"
+            class="bortle-step"
+            [class.is-current]="cardData().bortleScale === n"
+            [class.is-active]="n <= cardData().bortleScale"
+            [style.--cell-color]="bortleColors[n - 1]"
+            (click)="setBortle(n)"
+            [attr.aria-label]="'Bortle ' + n"
+          >
+            {{ n }}
+          </button>
+        }
+      </div>
+      <div class="bortle-legend">
+        <span>Pristine sky</span>
+        <span class="pink">Inner-city sky</span>
+      </div>
+    </div>
+  </dba-ui-inspector-section>
+</div>
