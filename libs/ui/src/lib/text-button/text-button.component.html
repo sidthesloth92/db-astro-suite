@@ -1,12 +1,48 @@
-<button
-  type="button"
-  class="text-button"
-  [attr.data-variant]="variant()"
-  [attr.data-size]="size()"
-  [disabled]="disabled()"
-  (click)="onClick()"
->
-  <ng-content select="[slot=leading]" />
-  <span class="label">{{ label() }}</span>
-  <ng-content select="[slot=trailing]" />
-</button>
+@switch (renderMode()) {
+  @case ('router') {
+    <a
+      class="text-button"
+      [routerLink]="routerLink()"
+      [attr.data-variant]="variant()"
+      [attr.data-size]="size()"
+      [attr.aria-disabled]="disabled() ? 'true' : null"
+      [attr.tabindex]="disabled() ? -1 : null"
+      (click)="onClick($event)"
+    >
+      <ng-content select="[slot=leading]" />
+      <span class="label">{{ label() }}</span>
+      <ng-content select="[slot=trailing]" />
+    </a>
+  }
+  @case ('href') {
+    <a
+      class="text-button"
+      [attr.href]="href()"
+      target="_blank"
+      rel="noopener noreferrer"
+      [attr.data-variant]="variant()"
+      [attr.data-size]="size()"
+      [attr.aria-disabled]="disabled() ? 'true' : null"
+      [attr.tabindex]="disabled() ? -1 : null"
+      (click)="onClick($event)"
+    >
+      <ng-content select="[slot=leading]" />
+      <span class="label">{{ label() }}</span>
+      <ng-content select="[slot=trailing]" />
+    </a>
+  }
+  @default {
+    <button
+      type="button"
+      class="text-button"
+      [attr.data-variant]="variant()"
+      [attr.data-size]="size()"
+      [disabled]="disabled()"
+      (click)="onClick($event)"
+    >
+      <ng-content select="[slot=leading]" />
+      <span class="label">{{ label() }}</span>
+      <ng-content select="[slot=trailing]" />
+    </button>
+  }
+}
