@@ -16,10 +16,10 @@ describe('AstrogramTopBarComponent', () => {
     }).compileComponents();
   });
 
-  it('renders the brand wordmark', () => {
+  it('renders the brand wordmark from the shared header', () => {
     const fixture = TestBed.createComponent(AstrogramTopBarComponent);
     fixture.detectChanges();
-    const word = fixture.nativeElement.querySelector('.brand-word') as HTMLElement;
+    const word = fixture.nativeElement.querySelector('.brand-title') as HTMLElement;
     expect(word?.textContent).toContain('astrogram');
   });
 
@@ -53,13 +53,17 @@ describe('AstrogramTopBarComponent', () => {
     expect(stub.activeMode()).toBe('infographic');
   });
 
-  it('emits exportClicked when the Export CTA is clicked', () => {
+  it('does not render an Export CTA in the actions cluster', () => {
     const fixture = TestBed.createComponent(AstrogramTopBarComponent);
     fixture.detectChanges();
-    let fired = 0;
-    fixture.componentInstance.exportClicked.subscribe(() => fired++);
-    const btn = fixture.nativeElement.querySelector('.export-btn') as HTMLButtonElement;
-    btn.click();
-    expect(fired).toBe(1);
+    const exportBtn = fixture.nativeElement.querySelector('.export-btn');
+    expect(exportBtn).toBeNull();
+  });
+
+  it('renders a GitHub icon link with rel noopener', () => {
+    const fixture = TestBed.createComponent(AstrogramTopBarComponent);
+    fixture.detectChanges();
+    const github = fixture.nativeElement.querySelector('.github-link') as HTMLAnchorElement | null;
+    expect(github?.getAttribute('rel')).toBe('noopener noreferrer');
   });
 });

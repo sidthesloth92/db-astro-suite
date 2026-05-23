@@ -46,13 +46,16 @@
           <p class="modal-error">Invalid access key — please try again</p>
         }
 
-        <dba-ui-input
-          label="Access Key"
-          placeholder="Enter your access key..."
-          type="password"
-          [value]="keyValue()"
-          (valueChange)="onKeyChange($event)"
-        ></dba-ui-input>
+        <div class="modal-field">
+          <span class="modal-field-label">Access Key</span>
+          <dba-ui-micro-input
+            ariaLabel="Access Key"
+            placeholder="Enter your access key..."
+            type="password"
+            [value]="keyValue()"
+            (valueChange)="onKeyChange($event)"
+          ></dba-ui-micro-input>
+        </div>
       </div>
 
       <div class="modal-footer">

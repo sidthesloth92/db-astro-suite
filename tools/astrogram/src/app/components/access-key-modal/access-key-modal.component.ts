@@ -9,9 +9,8 @@ import {
   signal,
 } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
-import { AnalyticsService, InputComponent } from '@db-astro-suite/ui';
-
-const INSTAGRAM_URL = 'https://instagram.com/astrowithdb';
+import { AnalyticsService, MicroInputComponent } from '@db-astro-suite/ui';
+import { INSTAGRAM_URL } from './access-key-modal.constants';
 
 /**
  * Modal dialog that invites the user to request an Astrosolve access key
@@ -23,7 +22,7 @@ const INSTAGRAM_URL = 'https://instagram.com/astrowithdb';
 @Component({
   selector: 'dba-ag-access-key-modal',
   standalone: true,
-  imports: [InputComponent],
+  imports: [MicroInputComponent],
   templateUrl: './access-key-modal.component.html',
   styleUrl: './access-key-modal.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -44,6 +43,7 @@ export class AccessKeyModalComponent {
   /** Which view is currently shown: the invite CTA or the key-entry form. */
   readonly view = signal<'cta' | 'key'>('cta');
 
+  /** Current value of the access-key input field. */
   readonly keyValue = signal('');
 
   /** True when the key input is empty, disabling the submit button. */
@@ -75,8 +75,8 @@ export class AccessKeyModalComponent {
   }
 
   /** Syncs the bound input component's value to the local signal. */
-  onKeyChange(value: string | number): void {
-    this.keyValue.set(String(value));
+  onKeyChange(value: string): void {
+    this.keyValue.set(value);
   }
 
   /** Emits the trimmed key via `submitted` if the input is non-empty. */

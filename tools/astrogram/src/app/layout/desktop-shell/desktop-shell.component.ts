@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { PreviewContextBarComponent } from '@db-astro-suite/ui';
 import { CaptionSectionComponent } from '../../components/caption-section/caption-section';
 import { CardPreviewComponent } from '../../components/card-preview/card-preview';
@@ -9,8 +9,8 @@ import { InspectorPanelHostComponent } from '../inspector-panel-host/inspector-p
 
 /**
  * Desktop shell layout: top bar above, preview + caption in the centre,
- * and the right-side inspector host. The top bar's Export CTA forwards
- * to whichever preview is currently active.
+ * and the right-side inspector host. Export is owned by the card-preview
+ * download FAB; no top-bar export wiring lives here anymore.
  */
 @Component({
   selector: 'dba-ag-desktop-shell',
@@ -47,20 +47,4 @@ export class DesktopShellComponent {
     }
     return 'Auto source size';
   });
-
-  /** Reference to the infographic card preview (resolved by template ref). */
-  private readonly cardPreview = viewChild<CardPreviewComponent>(CardPreviewComponent);
-  /** Reference to the stellar-map preview. */
-  private readonly stellarPreview = viewChild<StellarMapPreviewComponent>(
-    StellarMapPreviewComponent,
-  );
-
-  /** Triggers the export pipeline on whichever preview is active. */
-  exportCurrent(): void {
-    if (this.activeMode() === 'infographic') {
-      this.cardPreview()?.exportCard();
-    } else {
-      this.stellarPreview()?.exportCard();
-    }
-  }
 }

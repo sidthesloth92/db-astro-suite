@@ -145,3 +145,17 @@
 .modal-footer--single {
   justify-content: center;
 }
+
+.modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.modal-field-label {
+  font-family: var(--db-font-mono-code);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--db-color-text-dim);
+}

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import {
   ApertureIconComponent,
   BottomNavComponent,
@@ -107,18 +107,6 @@ export class MobileShellComponent {
     };
     return map[this.stellarSection()];
   });
-
-  private readonly cardPreview = viewChild<CardPreviewComponent>(CardPreviewComponent);
-  private readonly stellarPreview = viewChild<StellarMapPreviewComponent>(StellarMapPreviewComponent);
-
-  /** Forwards the top-bar Export click to the active preview. */
-  exportCurrent(): void {
-    if (this.activeMode() === 'infographic') {
-      this.cardPreview()?.exportCard();
-    } else {
-      this.stellarPreview()?.exportCard();
-    }
-  }
 
   /** Handles a bottom-nav activation in infographic mode. */
   onInfographicActivate(id: string): void {
