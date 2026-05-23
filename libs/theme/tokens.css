@@ -44,6 +44,56 @@
   font-display: swap;
 }
 
+/* Direction B Polished — Outfit (UI), JetBrains Mono (mono), Major Mono Display (display) */
+@font-face {
+  font-family: "Outfit";
+  src: url("./fonts/outfit-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Outfit";
+  src: url("./fonts/outfit-500.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Outfit";
+  src: url("./fonts/outfit-600.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Outfit";
+  src: url("./fonts/outfit-700.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* JetBrains Mono — Google serves the same latin subset across weights 400/500/600. */
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("./fonts/jetbrains-mono-400.woff2") format("woff2");
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Major Mono Display";
+  src: url("./fonts/major-mono-display-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* ========================================
    CSS CUSTOM PROPERTIES (DESIGN TOKENS)
    ======================================== */
@@ -95,6 +145,47 @@
   --db-form-font-size: 0.75rem;
   --db-form-label-font-size: 0.625rem;
   --db-form-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* ========================================
+   DIRECTION B POLISHED TOKENS
+   ----------------------------------------
+   Additive token layer used by the astrogram redesign and the new
+   reusable primitives in @db-astro-suite/ui. Existing tokens above
+   are preserved for hub/starwizz and the older astrogram chrome.
+   ======================================== */
+
+:root {
+  /* Surface scale (darker than current) */
+  --db-color-surface-bg: #05060A;
+  --db-color-surface: #0B0E16;
+  --db-color-surface-raised: #11151F;
+  --db-color-surface-hi: #171C28;
+
+  /* Accents */
+  --db-color-cyan: #00E5FF;
+  --db-color-cyan-soft: rgba(0, 229, 255, 0.10);
+  --db-color-orange: #FF6B3D;
+  --db-color-green: #5AE08A;
+  --db-color-pink-soft: rgba(255, 45, 149, 0.12);
+  --db-color-pink-dim: rgba(255, 45, 149, 0.45);
+
+  /* Borders */
+  --db-color-border: rgba(255, 255, 255, 0.06);
+  --db-color-border-strong: rgba(255, 255, 255, 0.10);
+  --db-color-border-active: rgba(255, 45, 149, 0.55);
+
+  /* Text scale */
+  --db-color-text-dim: #8B92A6;
+  --db-color-text-faint: #5A6175;
+
+  /* Typography families */
+  --db-font-display-major: "Major Mono Display", "JetBrains Mono", monospace;
+  --db-font-ui: "Outfit", -apple-system, system-ui, sans-serif;
+  --db-font-mono-code: "JetBrains Mono", ui-monospace, monospace;
+
+  /* Breakpoints */
+  --db-bp-mobile: 768px;
 }
 
 /* ========================================
