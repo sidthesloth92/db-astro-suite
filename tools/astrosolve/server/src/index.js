@@ -12,6 +12,7 @@ import {
 } from "./constants/rate-limit.constants.js";
 import { SqliteAccessKeyDao } from "./dao/sqlite-access-key.dao.js";
 import { SqliteLocalCatalogDao } from "./dao/sqlite-local-catalog.dao.js";
+import { SqliteSolveEventDao } from "./dao/sqlite-solve-event.dao.js";
 import solveRoute from "./routes/solve.route.js";
 
 // Sync destination so logs are written immediately and never sit in pino's
@@ -30,6 +31,12 @@ const accessKeyDao = SqliteAccessKeyDao.create();
 fastify.log.info(
   { path: config.accessKeysDbPath },
   "Access-keys DB initialised",
+);
+
+const solveEventDao = SqliteSolveEventDao.create();
+fastify.log.info(
+  { path: config.accessKeysDbPath },
+  "Solve-events table initialised",
 );
 
 let localCatalogDao;
@@ -70,7 +77,7 @@ fastify.register(multipart, {
 });
 
 // Register routes — pass DAO instances via plugin options (DI via Fastify plugin opts)
-fastify.register(solveRoute, { accessKeyDao, localCatalogDao });
+fastify.register(solveRoute, { accessKeyDao, localCatalogDao, solveEventDao });
 
 // Health check route — rate-limited separately at a higher threshold than
 // the solve endpoint so monitoring/uptime probes are not blocked, while

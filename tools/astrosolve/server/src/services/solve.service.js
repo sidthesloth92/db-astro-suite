@@ -13,7 +13,7 @@ import { CatalogError } from "../models/errors.model.js";
  * @param {Object} hints - Solving hints extracted from the request
  * @param {LocalCatalogDao | null} localCatalogDao - DAO for the local catalog
  * @param {Object} log - Fastify-compatible logger (request.log)
- * @returns {Promise<SolveResult>} Merged solve result
+ * @returns {Promise<SolveResult & { solveStats: Object, catalogStats: Object }>}
  */
 export async function processSolveRequest(
   filePath,
@@ -29,6 +29,7 @@ export async function processSolveRequest(
   // Step 2: Hybrid Search (Local + SIMBAD)
   // We search within a 2-degree radius (typical wide field crop)
   const radius = 2.0;
+  let simbadAvailable = true;
 
   // Fire both queries in parallel
   const [localObjects, simbadObjects] = await Promise.all([
@@ -61,6 +62,7 @@ export async function processSolveRequest(
       warnings.push(
         "Catalog service (SIMBAD) was unavailable; displayed objects may be incomplete.",
       );
+      simbadAvailable = false;
       return [];
     }),
   ]);
@@ -68,7 +70,7 @@ export async function processSolveRequest(
   // Step 3: Deduplication & Merging
   const objects = mergeObjects(localObjects, simbadObjects);
 
-  return new SolveResult(
+  const result = new SolveResult(
     new SolveMetadata(
       solveResult.ra,
       solveResult.dec,
@@ -79,4 +81,16 @@ export async function processSolveRequest(
     objects,
     warnings,
   );
+
+  // Attach analytics-only fields. These are not part of the public response
+  // schema — the route reads them into request.analytics and strips them
+  // when building the JSON reply.
+  result.solveStats = solveResult.solveStats ?? null;
+  result.catalogStats = {
+    local_count: localObjects.length,
+    simbad_count: simbadObjects.length,
+    simbad_available: simbadAvailable,
+  };
+
+  return result;
 }

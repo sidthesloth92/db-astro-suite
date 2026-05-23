@@ -13,7 +13,7 @@ const execAsync = promisify(exec);
  * @param {string} filePath - Absolute path to the uploaded image in the uploads directory
  * @param {Object} hints - Solving hints { pixel_size, focal_length, ra_hint, dec_hint }
  * @param {Object} log - Fastify-compatible logger (request.log)
- * @returns {Promise<Object>} Solved WCS Metadata { ra, dec, scale, status }
+ * @returns {Promise<Object>} Solved WCS Metadata { ra, dec, scale, status, wcsData, solveStats }
  */
 export async function solveWithAstrometry(filePath, hints, log) {
   const fileExt = path.extname(filePath);
@@ -24,16 +24,18 @@ export async function solveWithAstrometry(filePath, hints, log) {
   try {
     const command = createAstrometryCommand(filePath, hints);
     log.info({ command }, "Executing astrometry solve-field");
-    const wcsData = await executeAstrometryAndGetWcsData(
-      command,
-      wcsFilePath,
-      log,
-    );
+    const { wcsData, stdout, durationMs } =
+      await executeAstrometryAndGetWcsData(command, wcsFilePath, log);
     const alignmentInfo = parseAstrometryWcs(wcsData);
+    const solveStats = {
+      duration_ms: durationMs,
+      ...parseSolveFieldStdout(stdout),
+    };
 
     return {
       status: "success",
       wcsData: wcsData,
+      solveStats,
       ...alignmentInfo,
     };
   } finally {
@@ -98,23 +100,29 @@ function createAstrometryCommand(filePath, hints) {
  * @param {string} command - The shell command to execute
  * @param {string} wcsFilePath - Expected path of the output .wcs file
  * @param {Object} log - Fastify-compatible logger
- * @returns {Promise<string>} Raw WCS file contents
+ * @returns {Promise<{ wcsData: string, stdout: string, durationMs: number }>}
  */
 async function executeAstrometryAndGetWcsData(command, wcsFilePath, log) {
+  const startedAt = Date.now();
+  let capturedStdout = "";
   try {
     const { stdout, stderr } = await execAsync(command, { timeout: 300_000 });
+    capturedStdout = stdout || "";
     if (stdout) log.info({ stdout }, "solve-field stdout");
     if (stderr) log.warn({ stderr }, "solve-field stderr");
   } catch (execError) {
+    capturedStdout = execError.stdout ?? "";
     log.error(
       { err: execError, stdout: execError.stdout, stderr: execError.stderr },
       "solve-field process failed; checking for .wcs output anyway",
     );
   }
+  const durationMs = Date.now() - startedAt;
 
   // The true test of success is whether the .wcs file was generated.
   try {
-    return await fs.readFile(wcsFilePath, "utf8");
+    const wcsData = await fs.readFile(wcsFilePath, "utf8");
+    return { wcsData, stdout: capturedStdout, durationMs };
   } catch (readErr) {
     throw new AstrometryError(
       "Astrometry.net failed to plate-solve the image. The image might not contain enough stars or match the downloaded index files.",
@@ -152,4 +160,54 @@ function parseAstrometryWcs(wcsData) {
   }
 
   return { ra, dec, scale };
+}
+
+/**
+ * Extracts auxiliary solve metrics from solve-field's stdout. All fields are
+ * optional — missing matches return null for that field.
+ *
+ * @param {string} stdout
+ * @returns {{
+ *   field_width_arcmin: number | null,
+ *   field_height_arcmin: number | null,
+ *   field_rotation_deg: number | null,
+ *   log_odds: number | null,
+ *   match_count: number | null,
+ *   index_used: string | null,
+ * }}
+ */
+export function parseSolveFieldStdout(stdout) {
+  if (!stdout) {
+    return {
+      field_width_arcmin: null,
+      field_height_arcmin: null,
+      field_rotation_deg: null,
+      log_odds: null,
+      match_count: null,
+      index_used: null,
+    };
+  }
+  // "Field size: 46.0677 x 57.5913 arcminutes"
+  const sizeMatch = stdout.match(
+    /Field size:\s*([0-9.eE+-]+)\s*x\s*([0-9.eE+-]+)\s*arcminutes/,
+  );
+  // "Field rotation angle: up is 20.8236 degrees E of N"
+  const rotMatch = stdout.match(
+    /Field rotation angle:\s*up is\s*([0-9.eE+-]+)\s*degrees/,
+  );
+  // "log-odds ratio 93.5234 (4.13723e+40), 11 match, 0 conflict, 9 distractors, 15 index."
+  const oddsMatch = stdout.match(
+    /log-odds ratio\s+([0-9.eE+-]+).*?,\s*([0-9]+)\s+match/,
+  );
+  // "Field 1: solved with index index-4109.fits."
+  const indexMatch = stdout.match(/solved with index\s+(\S+?)\.fits/);
+
+  return {
+    field_width_arcmin: sizeMatch ? parseFloat(sizeMatch[1]) : null,
+    field_height_arcmin: sizeMatch ? parseFloat(sizeMatch[2]) : null,
+    field_rotation_deg: rotMatch ? parseFloat(rotMatch[1]) : null,
+    log_odds: oddsMatch ? parseFloat(oddsMatch[1]) : null,
+    match_count: oddsMatch ? parseInt(oddsMatch[2], 10) : null,
+    index_used: indexMatch ? indexMatch[1] : null,
+  };
 }
