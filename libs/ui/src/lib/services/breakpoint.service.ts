@@ -10,10 +10,13 @@ import { isPlatformBrowser } from '@angular/common';
 
 /**
  * Width (in CSS pixels) below which the UI is considered "mobile".
+ * Set to 1080 so that all common tablet portrait widths (iPad Mini 768,
+ * iPad Air 11" 820, iPad Air 13" 1024, iPad Pro 13" 1032) collapse into
+ * the mobile shell. Tablet landscape widths (≥1180) stay on desktop.
  * Exported for consumers that need to mirror the breakpoint in templates
  * (e.g. media queries derived from this constant).
  */
-export const MOBILE_BREAKPOINT_PX = 768;
+export const MOBILE_BREAKPOINT_PX = 1080;
 
 /**
  * Reactive mobile-breakpoint service.

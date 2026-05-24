@@ -7,14 +7,19 @@ import {
   TextButtonComponent,
   circleHelpIcon,
   rotateCcwIcon,
-  type SelectOption,
+  type SelectItem,
 } from '@db-astro-suite/ui';
-import { ASPECT_RATIOS, AspectRatioKey, CONTROLS } from '../../constants/simulation.constant';
+import {
+  CONTROLS,
+  FORMATS,
+  FORMAT_GROUPS,
+  FormatKey,
+} from '../../constants/simulation.constant';
 import { ControlKey } from '../../models/simulation.model';
 import { SimulationService } from '../../services/simulation.service';
 
 /**
- * Starwizz control panel — sliders, aspect-ratio selector, animation
+ * Starwizz control panel — sliders, format selector, animation
  * controls, and the recording trigger. All recording wiring (state
  * machine in `SimulationService`, including `toggleRecording`) is
  * preserved byte-identical from the previous implementation; only
@@ -43,8 +48,8 @@ export class ControlPanel {
   /** Circle-help glyph rendered next to each control as the tooltip affordance. */
   protected readonly circleHelpIcon = circleHelpIcon;
 
-  /** Tooltip text shown on the help icon next to the aspect-ratio selector. */
-  protected readonly aspectRatioHelp =
+  /** Tooltip text shown on the help icon next to the format selector. */
+  protected readonly formatHelp =
     'Output dimensions for the recorded video. 9:16 vertical is best for stories and reels; 16:9 horizontal is best for YouTube.';
   /** Tooltip text shown on the help icon next to the "From beginning" switch. */
   protected readonly fromBeginningHelp =
@@ -54,12 +59,13 @@ export class ControlPanel {
   readonly controlConfig = CONTROLS;
   /** Stable list of control keys in render order. */
   readonly controlNames = Object.keys(CONTROLS) as ControlKey[];
-  /** Aspect ratio descriptors keyed by AspectRatioKey. */
-  readonly aspectRatios = ASPECT_RATIOS;
-  /** Aspect ratio keys mapped to <dba-ui-select> options. */
-  readonly ratioOptions: readonly SelectOption[] = (
-    Object.keys(ASPECT_RATIOS) as AspectRatioKey[]
-  ).map((key) => ({ label: ASPECT_RATIOS[key].label, value: key }));
+  /** Format descriptors keyed by FormatKey. */
+  readonly formats = FORMATS;
+  /** Format groups mapped to <dba-ui-select> optgroups. */
+  readonly formatOptions: readonly SelectItem[] = FORMAT_GROUPS.map((group) => ({
+    label: group.label,
+    options: group.keys.map((key) => ({ label: FORMATS[key].label, value: key })),
+  }));
 
   /** Label rendered inside the record button — varies with recording state. */
   readonly buttonText = computed<string>(() => {
@@ -78,9 +84,9 @@ export class ControlPanel {
   /** Current recording state mirrored as a data-attribute-friendly signal. */
   readonly recordingState = computed(() => this.simService.recordingState());
 
-  /** Updates the aspect ratio after a select change. */
-  updateAspectRatio(value: string | number | boolean): void {
-    this.simService.currentAspectRatio.set(value as AspectRatioKey);
+  /** Updates the selected format after a select change. */
+  updateFormat(value: string | number | boolean): void {
+    this.simService.currentFormat.set(value as FormatKey);
   }
 
   /** Forwards a slider change to the simulation service. */
@@ -100,23 +106,9 @@ export class ControlPanel {
     return value.toFixed(precision);
   }
 
-  /**
-   * Toggles the recording state machine. Byte-identical to the previous
-   * implementation — do not modify without smoke-testing record + download.
-   */
+  /** Delegates to {@link SimulationService.toggleRecording}. */
   toggleRecording(): void {
-    const currentState = this.simService.recordingState();
-    if (currentState === 'idle') {
-      if (this.simService.recordFromBeginning()) {
-        // Request animation reset before recording starts
-        this.simService.resetAndRecordRequested.set(true);
-      } else {
-        // Start recording from current position
-        this.simService.recordingState.set('recording');
-      }
-    } else if (currentState === 'recording') {
-      this.simService.recordingState.set('idle');
-    }
+    this.simService.toggleRecording();
   }
 
   /** Restarts the animation without entering a recording session. */

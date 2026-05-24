@@ -30,7 +30,7 @@
   z-index: 10;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1079px) {
   :host {
     height: auto;
     width: 100%;
@@ -38,9 +38,15 @@
     display: block;
   }
 
+  /*
+   * Cap the preview at the user-selected format width (set on the host
+   * as `--format-width`). On viewports narrower than the format the
+   * `min()` clamps to 100% so it goes full-bleed; on wider viewports it
+   * stops at the format width and `margin: 0 auto` centres it.
+   */
   .simulation-wrapper {
     width: 100%;
-    max-width: 100%;
+    max-width: min(100%, var(--format-width, 100%));
     height: auto;
     max-height: 90vh;
     margin: 0 auto;

@@ -31,7 +31,10 @@ const SHOOTING_STAR_SPAWN_RATE = 1.5;
   standalone: true,
   imports: [HudOverlay, LoadingOverlay, ImageUploadOverlay, ClearImageButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { '[style.--aspect-ratio]': 'aspectRatioStyle()' },
+  host: {
+    '[style.--aspect-ratio]': 'aspectRatioStyle()',
+    '[style.--format-width]': 'formatWidthStyle()',
+  },
 })
 export class Simulator implements AfterViewInit {
   /** @private Canvas template reference — available after view init. */
@@ -47,6 +50,17 @@ export class Simulator implements AfterViewInit {
   protected readonly aspectRatioStyle = computed(() => {
     const dims = this.simService.canvasDimensions();
     return `${dims.width} / ${dims.height}`;
+  });
+
+  /**
+   * CSS custom property value for the host's format width (in CSS px).
+   * Consumed by `.simulation-wrapper` as a `max-width` so the preview
+   * never inflates past the user-selected export width on viewports
+   * wider than the format itself.
+   */
+  protected readonly formatWidthStyle = computed(() => {
+    const dims = this.simService.canvasDimensions();
+    return `${dims.width}px`;
   });
 
   // Rendering State
@@ -95,7 +109,7 @@ export class Simulator implements AfterViewInit {
     }
   });
 
-  /** Effect: rebuild canvas dimensions when the aspect ratio selection changes. */
+  /** Effect: rebuild canvas dimensions when the format selection changes. */
   private readonly _dimensionsEffect = effect(() => {
     const dims = this.simService.canvasDimensions();
     if (this.ctx) {

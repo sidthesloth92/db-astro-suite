@@ -8,7 +8,7 @@
   padding-right: 4px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1079px) {
   :host {
     display: block;
     flex: 0 0 auto;
@@ -33,6 +33,35 @@
   font-family: var(--db-font-ui);
 }
 
+:host(.in-sheet) {
+  display: block;
+  width: 100%;
+  max-width: none;
+  max-height: none;
+  overflow: visible;
+  padding: 0;
+}
+
+:host(.in-sheet) .control-panel {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 14px 16px 96px;
+}
+
+:host(.in-sheet) .panel-header {
+  display: none;
+}
+
+:host(.in-sheet) .record-row > .record-button {
+  display: none;
+}
+
+:host(.in-sheet) .record-row {
+  padding-top: 4px;
+  border-top: none;
+}
+
 .panel-header {
   display: flex;
   align-items: center;
@@ -51,23 +80,14 @@
   text-shadow: 0 0 10px color-mix(in srgb, var(--db-color-neon-pink) 30%, transparent);
 }
 
-.aspect-row,
+.format-row,
 .slider-row {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.aspect-row {
-  flex-direction: row;
-  align-items: end;
-  gap: 8px;
-}
-
-.aspect-row dba-ui-select {
-  flex: 1;
-}
-
+.format-label-row,
 .slider-label-row {
   display: flex;
   align-items: center;
@@ -93,7 +113,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--db-color-text-faint);
+  color: var(--db-color-text-primary);
   cursor: help;
   transition: color 150ms ease;
 }
@@ -102,10 +122,6 @@
 .help-icon:focus-visible {
   color: var(--db-color-cyan);
   outline: none;
-}
-
-.aspect-row .help-icon {
-  padding-bottom: 8px;
 }
 
 .panel-actions {

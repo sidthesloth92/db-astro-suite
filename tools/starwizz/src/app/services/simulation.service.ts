@@ -1,9 +1,9 @@
 import { computed, inject, Injectable, signal, WritableSignal } from '@angular/core';
 import {
-  ASPECT_RATIOS,
-  AspectRatioKey,
   CONTROLS,
   DEFAULT_GALAXY_URL,
+  FORMATS,
+  FormatKey,
 } from '../constants/simulation.constant';
 import { ShootingStar } from '../models/shooting-star.model';
 import { ControlKey, RecordingState } from '../models/simulation.model';
@@ -147,21 +147,40 @@ export class SimulationService {
    */
   galaxyImage = signal<HTMLImageElement | null>(null);
 
-  // ==================== Aspect Ratio State ====================
+  // ==================== Format State ====================
 
   /**
-   * Currently selected aspect ratio for the simulation canvas.
+   * Currently selected output format for the simulation canvas.
    * Affects canvas dimensions and output video size.
    */
-  currentAspectRatio = signal<AspectRatioKey>('9:16');
+  currentFormat = signal<FormatKey>('reels');
 
   /**
-   * Computed canvas dimensions based on the selected aspect ratio.
+   * Toggles the recording state machine — idle ↔ recording. Centralised here
+   * so multiple UI surfaces (desktop control panel, mobile sheet header) can
+   * trigger recording without duplicating the logic. Byte-identical behaviour
+   * to the previous ControlPanel implementation.
+   */
+  toggleRecording(): void {
+    const currentState = this.recordingState();
+    if (currentState === 'idle') {
+      if (this.recordFromBeginning()) {
+        this.resetAndRecordRequested.set(true);
+      } else {
+        this.recordingState.set('recording');
+      }
+    } else if (currentState === 'recording') {
+      this.recordingState.set('idle');
+    }
+  }
+
+  /**
+   * Computed canvas dimensions based on the selected format.
    * Returns an object with width and height properties.
    */
   canvasDimensions = computed(() => {
-    const ratio = this.currentAspectRatio();
-    return ASPECT_RATIOS[ratio];
+    const format = this.currentFormat();
+    return FORMATS[format];
   });
 
   // ==================== Star Collection Signals ====================

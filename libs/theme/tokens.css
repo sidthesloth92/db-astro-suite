@@ -1,9 +1,11 @@
 /**
  * DB Astro Suite - Neon Theme Design Tokens
- * 
+ *
  * Import this file in any project to use the shared theme.
  * Example: @import '@db-astro-suite/theme';
  */
+
+@import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap");
 
 /* ========================================
    FONT FACES
@@ -44,7 +46,7 @@
   font-display: swap;
 }
 
-/* Direction B Polished — Outfit (UI), JetBrains Mono (mono), Major Mono Display (display) */
+/* Direction B Polished — Outfit (UI + display), Fira Code (mono) */
 @font-face {
   font-family: "Outfit";
   src: url("./fonts/outfit-100.woff2") format("woff2");
@@ -85,22 +87,7 @@
   font-display: swap;
 }
 
-/* JetBrains Mono — Google serves the same latin subset across weights 400/500/600. */
-@font-face {
-  font-family: "JetBrains Mono";
-  src: url("./fonts/jetbrains-mono-400.woff2") format("woff2");
-  font-weight: 400 600;
-  font-style: normal;
-  font-display: swap;
-}
 
-@font-face {
-  font-family: "Major Mono Display";
-  src: url("./fonts/major-mono-display-400.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
 
 /* ========================================
    CSS CUSTOM PROPERTIES (DESIGN TOKENS)
@@ -190,9 +177,9 @@
   --db-color-text-link: #7AA7D9;
 
   /* Typography families */
-  --db-font-display-major: "Major Mono Display", "JetBrains Mono", monospace;
+  --db-font-display-major: "Outfit", -apple-system, system-ui, sans-serif;
   --db-font-ui: "Outfit", -apple-system, system-ui, sans-serif;
-  --db-font-mono-code: "JetBrains Mono", ui-monospace, monospace;
+  --db-font-mono-code: "Fira Code", ui-monospace, monospace;
 
   /* Breakpoints */
   --db-bp-mobile: 768px;

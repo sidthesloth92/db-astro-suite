@@ -9,8 +9,51 @@
     aboutLink="https://dineshbalajiv.com"
   ></dba-ui-header>
 
-  <main class="sw-container">
-    <dba-sw-simulator></dba-sw-simulator>
-    <dba-sw-control-panel></dba-sw-control-panel>
-  </main>
+  @if (breakpoints.isMobile()) {
+    <main class="sw-container sw-container--mobile">
+      <dba-sw-simulator></dba-sw-simulator>
+
+      <button
+        type="button"
+        class="sw-mobile-record"
+        [attr.data-state]="simService.recordingState()"
+        [disabled]="isMobileRecordDisabled()"
+        [attr.title]="mobileRecordLabel()"
+        [attr.aria-label]="mobileRecordLabel()"
+        (click)="simService.toggleRecording()"
+      >
+        <span class="sw-mobile-record__shape" aria-hidden="true"></span>
+      </button>
+
+      @if (!sheetExpanded()) {
+        <dba-ui-icon-button
+          class="sw-mobile-fab"
+          accent="cyan"
+          [size]="40"
+          title="Open controls"
+          (clicked)="toggleSheet()"
+        >
+          <dba-ui-icon [def]="slidersIcon" [size]="18" />
+        </dba-ui-icon-button>
+      }
+
+      <dba-ui-floating-sheet
+        class="sw-mobile-sheet"
+        [class.sw-mobile-sheet--ghosted]="isAdjusting()"
+        [(expanded)]="sheetExpanded"
+        title="System Controls"
+        [maxHeightPercent]="50"
+        (pointerdown)="onAdjustStart()"
+        (pointerup)="onAdjustEnd()"
+        (pointercancel)="onAdjustEnd()"
+      >
+        <dba-sw-control-panel class="in-sheet"></dba-sw-control-panel>
+      </dba-ui-floating-sheet>
+    </main>
+  } @else {
+    <main class="sw-container">
+      <dba-sw-simulator></dba-sw-simulator>
+      <dba-sw-control-panel></dba-sw-control-panel>
+    </main>
+  }
 </div>

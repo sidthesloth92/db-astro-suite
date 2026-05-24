@@ -37,6 +37,12 @@ export class BlackHoleLoaderComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     if (!isPlatformBrowser(this.platformId)) return;
     if (this.fill()) {
+      const wrapper = this.wrapperRef.nativeElement;
+      const w = Math.round(wrapper.clientWidth);
+      const h = Math.round(wrapper.clientHeight);
+      if (w > 0 && h > 0) {
+        this.resize(w, h);
+      }
       this.resizeObserver = new ResizeObserver((entries) => {
         const entry = entries[0];
         const w = Math.round(entry.contentRect.width);
@@ -50,7 +56,7 @@ export class BlackHoleLoaderComponent implements AfterViewInit, OnDestroy {
           this.initParticles(w, h);
         }
       });
-      this.resizeObserver.observe(this.wrapperRef.nativeElement);
+      this.resizeObserver.observe(wrapper);
     } else {
       const s = this.size();
       this.resize(s, s);

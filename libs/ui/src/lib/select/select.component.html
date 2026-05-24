@@ -8,10 +8,20 @@
       [value]="value()"
       (change)="onChange($event)"
     >
-      @for (opt of options(); track opt.value) {
-        <option [value]="opt.value">
-          {{ opt.label }}
-        </option>
+      @for (item of options(); track item.label) {
+        @if (isGroup(item)) {
+          <optgroup [label]="item.label">
+            @for (opt of item.options; track opt.value) {
+              <option [value]="opt.value">
+                {{ opt.label }}
+              </option>
+            }
+          </optgroup>
+        } @else {
+          <option [value]="item.value">
+            {{ item.label }}
+          </option>
+        }
       }
     </select>
     <div class="select-arrow">▼</div>

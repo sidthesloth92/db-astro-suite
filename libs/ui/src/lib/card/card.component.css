@@ -44,12 +44,12 @@
 }
 
 .card__title {
-  font-family: var(--db-font-display-major);
+  font-family: var(--db-font-ui);
   font-size: 1rem;
   letter-spacing: 0.04em;
   margin: 0;
   color: var(--card-title-color, var(--db-color-text-primary));
-  text-transform: lowercase;
+  text-transform: uppercase;
 }
 
 .card__subtitle {

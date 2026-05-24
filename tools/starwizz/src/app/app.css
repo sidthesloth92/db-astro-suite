@@ -22,18 +22,124 @@
   overflow: hidden;
 }
 
-@media (max-width: 768px) {
-  .dba-hub-root {
-    height: auto;
-    min-height: 100vh;
-    overflow-y: auto;
-  }
-
+@media (max-width: 1079px) {
   .sw-container {
     flex-direction: column;
-    height: auto;
-    overflow: visible;
     padding: 1rem 0.5rem;
     gap: 1.5rem;
+  }
+
+  .sw-container--mobile {
+    position: relative;
+    flex-direction: column;
+    padding: 0;
+    gap: 0;
+    overflow: hidden;
+  }
+
+  .sw-mobile-record {
+    position: fixed;
+    left: 50%;
+    bottom: 16px;
+    transform: translateX(-50%);
+    z-index: 50;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    padding: 0;
+    background: rgba(11, 14, 22, 0.7);
+    border: 1px solid var(--db-color-border-strong);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    backdrop-filter: blur(18px) saturate(160%);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+    color: var(--db-color-text-primary);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: transform 200ms ease, background 200ms ease;
+  }
+
+  .sw-mobile-record:hover:not(:disabled) {
+    transform: translateX(-50%) scale(1.05);
+  }
+
+  .sw-mobile-record:focus-visible {
+    outline: 2px solid var(--db-color-cyan);
+    outline-offset: 2px;
+  }
+
+  .sw-mobile-record:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .sw-mobile-record__shape {
+    display: block;
+    width: 22px;
+    height: 22px;
+    background: var(--db-color-neon-pink);
+    border-radius: 50%;
+    box-shadow: 0 0 14px color-mix(in srgb, var(--db-color-neon-pink) 60%, transparent);
+    transition:
+      width 220ms ease,
+      height 220ms ease,
+      border-radius 220ms ease,
+      background 220ms ease,
+      box-shadow 220ms ease;
+  }
+
+  .sw-mobile-record[data-state='recording'] {
+    animation: sw-record-pulse 1.6s ease-in-out infinite;
+  }
+
+  .sw-mobile-record[data-state='recording'] .sw-mobile-record__shape {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    background: var(--db-color-orange);
+    box-shadow: 0 0 14px color-mix(in srgb, var(--db-color-orange) 70%, transparent);
+  }
+
+  .sw-mobile-record[data-state='processing'] .sw-mobile-record__shape {
+    background: var(--db-color-text-dim);
+    box-shadow: none;
+  }
+
+  /*
+   * Sliders launcher — Instagram-style pill: small circular button with a
+   * translucent dark background and a white glyph, anchored bottom-right
+   * over the live simulation so it stays legible on any frame.
+   */
+  .sw-mobile-fab {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 40;
+    --db-icon-button-color: var(--db-color-text-primary);
+    --db-icon-button-border-color: transparent;
+    --db-icon-button-background: rgba(11, 14, 22, 0.7);
+    --db-icon-button-radius: 50%;
+  }
+
+  .sw-mobile-sheet {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 20;
+    transition: opacity 180ms ease;
+  }
+
+  .sw-mobile-sheet--ghosted {
+    opacity: 0.12;
+  }
+}
+
+@keyframes sw-record-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.78;
   }
 }

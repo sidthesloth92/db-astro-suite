@@ -1,16 +1,19 @@
 <div
   class="sheet"
   [class.is-expanded]="expanded()"
-  [style.max-height.%]="expanded() ? maxHeightPercent() : null"
+  [style.max-height]="maxHeightPercent() + 'dvh'"
   role="dialog"
   [attr.aria-expanded]="expanded()"
   [attr.aria-label]="title() || null"
 >
-  @if (expanded()) {
+  <div class="body-wrapper" [attr.aria-hidden]="!expanded() || null">
     <div class="body">
       <div class="header">
         <div class="title">{{ title() }}</div>
         <div class="spacer"></div>
+        <div class="header-actions">
+          <ng-content select="[slot=header-actions]" />
+        </div>
         <button
           type="button"
           class="close"
@@ -24,7 +27,7 @@
         <ng-content />
       </div>
     </div>
-  }
+  </div>
   <div class="nav-slot">
     <ng-content select="[slot=nav]" />
   </div>

@@ -71,3 +71,11 @@ option {
   background: var(--db-color-surface);
   color: var(--db-color-text-primary);
 }
+
+optgroup {
+  background: var(--db-color-surface);
+  color: var(--db-color-text-dim);
+  font: 600 11px/1.2 var(--db-font-ui);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}

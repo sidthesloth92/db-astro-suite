@@ -9,9 +9,7 @@ import {
 } from '@angular/core';
 import { IconComponent } from '../icon/icon.component';
 import { githubIcon } from '../icons/github.icon';
-
-/** Mobile breakpoint, in px, below which the header switches to its compact layout. */
-const MOBILE_BREAKPOINT_PX = 768;
+import { MOBILE_BREAKPOINT_PX } from '../services/breakpoint.service';
 
 /**
  * Application header bar used by the suite apps (Starwizz, Astrogram, etc.).
