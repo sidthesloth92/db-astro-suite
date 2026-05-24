@@ -73,19 +73,19 @@ export class MobileShellComponent {
   readonly activeMode = computed(() => this.dataService.activeMode());
 
   /** Active mobile section for infographic mode. */
-  readonly infographicSection = signal<MobileInfographicId>('object');
+  readonly infographicSection = signal<MobileInfographicId>('layout');
   /** Active mobile section for stellar mode. */
   readonly stellarSection = signal<MobileStellarId>('filters');
 
   /** Whether the floating sheet is currently expanded. */
-  readonly sheetExpanded = signal<boolean>(true);
+  readonly sheetExpanded = signal<boolean>(false);
 
   /** Bottom-nav items for infographic mode. */
   readonly infographicItems: ReadonlyArray<MobileNavItem<MobileInfographicId>> = [
+    { id: 'layout', label: 'Layout', iconName: 'crop' },
     { id: 'object', label: 'Info', iconName: 'image' },
     { id: 'capture', label: 'Capture', iconName: 'aperture' },
     { id: 'equipment', label: 'Gear', iconName: 'telescope' },
-    { id: 'layout', label: 'Layout', iconName: 'crop' },
   ];
 
   /** Bottom-nav items for stellar mode. */
