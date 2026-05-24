@@ -3,9 +3,16 @@
  *
  * Import this file in any project to use the shared theme.
  * Example: @import '@db-astro-suite/theme';
+ *
+ * NOTE: Web fonts loaded over the network (Fira Code, Orbitron, Rajdhani)
+ * are linked from each consuming app's `index.html` rather than via CSS
+ * `@import url(...)`. The `@import` form is order-sensitive (must precede
+ * every other rule), and Tailwind v4's `@import "tailwindcss"` emits
+ * `@layer` blocks ahead of any subsequent imports — which would make
+ * a font @import here invalid and triggers a noisy bundler warning.
+ * The local `.woff2` / `.ttf` files below remain inlined here because
+ * `@font-face` has no ordering restriction.
  */
-
-@import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap");
 
 /* ========================================
    FONT FACES
