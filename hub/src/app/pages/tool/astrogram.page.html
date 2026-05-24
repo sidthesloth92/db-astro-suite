@@ -162,7 +162,7 @@
 
       <section class="demo-section">
         <dba-ui-card title="Demo">
-          <div class="demo-image-container">
+          <div class="demo-image-container" (click)="openLightbox()" role="button" tabindex="0" aria-label="Expand demo preview" (keydown.enter)="openLightbox()">
             <img
               src="assets/img/astrogram_demo.jpg"
               alt="Astrogram Demo"
@@ -175,4 +175,24 @@
 
     <dba-ui-footer></dba-ui-footer>
   </div>
+
+  @if (isLightboxOpen()) {
+    <div
+      class="demo-lightbox"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Demo preview"
+      (click)="closeLightbox()"
+      (keydown.escape)="closeLightbox()"
+      tabindex="-1"
+    >
+      <button class="demo-lightbox__close" aria-label="Close preview" (click)="closeLightbox()">&#x2715;</button>
+      <img
+        src="assets/img/astrogram_demo.jpg"
+        alt="Astrogram Demo"
+        class="demo-lightbox__image"
+        (click)="$event.stopPropagation()"
+      />
+    </div>
+  }
 </dba-ui-starry-background>

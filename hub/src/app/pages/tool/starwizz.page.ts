@@ -1,6 +1,6 @@
 import { RouteMeta } from '@analogjs/router';
 import { DOCUMENT } from '@angular/common';
-import { ChangeDetectionStrategy, Component, afterNextRender, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, afterNextRender, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   AnalyticsService,
@@ -43,6 +43,9 @@ export default class StarwizzPage {
   /** Chevron-right glyph used as the trailing icon on the Launch Tool CTA. */
   protected readonly chevronRightIcon = chevronRightIcon;
 
+  /** Whether the demo lightbox is currently open. */
+  protected readonly isLightboxOpen = signal(false);
+
   private readonly analytics = inject(AnalyticsService);
   private readonly document = inject(DOCUMENT);
 
@@ -55,6 +58,18 @@ export default class StarwizzPage {
   /** Fires the hub launch-tool analytics event. */
   onLaunch(): void {
     this.analytics.trackHubLaunchToolClicked('starwizz', STARWIZZ_LAUNCH_URL);
+  }
+
+  /** Opens the demo lightbox and locks body scroll. */
+  openLightbox(): void {
+    this.isLightboxOpen.set(true);
+    this.document.body.style.overflow = 'hidden';
+  }
+
+  /** Closes the demo lightbox and restores body scroll. */
+  closeLightbox(): void {
+    this.isLightboxOpen.set(false);
+    this.document.body.style.overflow = '';
   }
 
   /** Ensures a `<link rel="canonical">` exists pointing at the supplied URL. */
