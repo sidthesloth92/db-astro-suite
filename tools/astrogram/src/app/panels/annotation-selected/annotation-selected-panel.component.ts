@@ -7,6 +7,7 @@ import {
   InspectorSectionComponent,
   MicroSliderComponent,
   SwitchComponent,
+  rotateCcwIcon,
   tagIcon,
   targetIcon,
 } from '@db-astro-suite/ui';
@@ -48,6 +49,8 @@ export class AnnotationSelectedPanelComponent {
   protected readonly targetIcon = targetIcon;
   /** Tag glyph rendered in the Label section title. */
   protected readonly tagIcon = tagIcon;
+  /** Counter-clockwise rotate glyph rendered on the Revert button. */
+  protected readonly rotateCcwIcon = rotateCcwIcon;
 
   /** Currently-selected annotation, or null when none is selected. */
   readonly annotation = computed<ImageAnnotation | null>(() => {
@@ -139,12 +142,36 @@ export class AnnotationSelectedPanelComponent {
     () => this.annotation()?.style?.showMagnitude ?? this.globalSettings().showMagnitude,
   );
 
+  /**
+   * True when the selected annotation has any per-annotation overrides
+   * set (label, size, colour, etc.). Drives the Revert button's enabled
+   * state — there's nothing to revert when the annotation already
+   * inherits everything from the global settings.
+   */
+  readonly hasOverrides = computed(() => {
+    const style = this.annotation()?.style;
+    return !!style && Object.keys(style).length > 0;
+  });
+
   /** Patches the annotation style for the current selection. */
   updateStyle(patch: Partial<AnnotationStyle>): void {
     const id = this.dataService.selectedAnnotationId();
     if (id) {
       this.dataService.updateAnnotationStyle(id, patch);
     }
+  }
+
+  /**
+   * Clears every per-annotation override on the selection so the
+   * annotation falls back to the original label and global styling.
+   */
+  revertOverrides(): void {
+    const id = this.dataService.selectedAnnotationId();
+    if (!id) {
+      return;
+    }
+    this.analyticsService.trackButtonClicked('revert_annotation_style', 'annotation');
+    this.dataService.resetAnnotationStyle(id, undefined);
   }
 
   /** Sets the per-annotation circle opacity (slider emits 0–100, model stores 0–1). */

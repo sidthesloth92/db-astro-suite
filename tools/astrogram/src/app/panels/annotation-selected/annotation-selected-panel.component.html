@@ -2,6 +2,17 @@
   @if (annotation()) {
     <dba-ui-inspector-section title="Identity" sub="Per-annotation overrides" [compact]="true">
       <dba-ui-icon slot="icon" [def]="targetIcon" [size]="14" />
+      <button
+        slot="action"
+        type="button"
+        class="revert-btn"
+        [disabled]="!hasOverrides()"
+        title="Revert to original label & global style"
+        (click)="revertOverrides()"
+      >
+        <dba-ui-icon [def]="rotateCcwIcon" [size]="12" />
+        <span>Revert</span>
+      </button>
       <dba-ui-inspector-field label="Label">
         <input
           class="label-input"
