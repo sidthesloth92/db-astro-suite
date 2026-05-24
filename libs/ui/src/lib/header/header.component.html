@@ -10,7 +10,7 @@
     <div class="brand-text">
       <span class="brand-title">{{ title() }}</span>
       @if (version()) {
-        <span class="brand-version">v{{ version() }}</span>
+        <dba-ui-pill-badge tone="pink">v{{ version() }}</dba-ui-pill-badge>
       }
       @if (tagline() && !isMobile()) {
         <span class="brand-separator" aria-hidden="true"></span>

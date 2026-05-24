@@ -10,6 +10,7 @@ import {
 import { IconComponent } from '../icon/icon.component';
 import { githubIcon } from '../icons/github.icon';
 import { MOBILE_BREAKPOINT_PX } from '../services/breakpoint.service';
+import { PillBadgeComponent } from '../pill-badge/pill-badge.component';
 
 /**
  * Application header bar used by the suite apps (Starwizz, Astrogram, etc.).
@@ -23,7 +24,7 @@ import { MOBILE_BREAKPOINT_PX } from '../services/breakpoint.service';
 @Component({
   selector: 'dba-ui-header',
   standalone: true,
-  imports: [IconComponent],
+  imports: [IconComponent, PillBadgeComponent],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

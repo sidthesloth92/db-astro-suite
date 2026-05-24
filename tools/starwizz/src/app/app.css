@@ -32,7 +32,8 @@
   .sw-container--mobile {
     position: relative;
     flex-direction: column;
-    padding: 0;
+    justify-content: flex-start;
+    padding: 16px;
     gap: 0;
     overflow: hidden;
   }

@@ -53,19 +53,6 @@
   white-space: nowrap;
 }
 
-.brand-version {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 5px;
-  background: var(--db-color-pink-soft);
-  color: var(--db-color-neon-pink);
-  font-family: var(--db-font-ui);
-  font-size: 10px;
-  font-weight: 500;
-  line-height: 1;
-  letter-spacing: 0.04em;
-  border-radius: 4px;
-}
 
 .brand-separator {
   display: inline-block;
@@ -147,12 +134,7 @@
     display: none;
   }
 
-  .brand-version {
-    padding: 1px 4px;
-    font-size: 9px;
-  }
-
-  .actions {
+.actions {
     gap: 8px;
   }
 }
