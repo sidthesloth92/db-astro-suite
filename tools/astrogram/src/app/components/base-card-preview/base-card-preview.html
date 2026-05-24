@@ -9,14 +9,16 @@
     }
     <div class="header-actions">
       <ng-content select="[headerAction]"></ng-content>
-      <dba-ui-icon-button
-        title="Download card"
-        [size]="36"
-        [disabled]="isExporting()"
-        (clicked)="exportCard()"
-      >
-        <dba-ui-icon [def]="downloadIcon" [size]="18" />
-      </dba-ui-icon-button>
+      @if (!hideDownload()) {
+        <dba-ui-icon-button
+          title="Download card"
+          [size]="36"
+          [disabled]="isExporting()"
+          (clicked)="exportCard()"
+        >
+          <dba-ui-icon [def]="downloadIcon" [size]="18" />
+        </dba-ui-icon-button>
+      }
     </div>
   </div>
 

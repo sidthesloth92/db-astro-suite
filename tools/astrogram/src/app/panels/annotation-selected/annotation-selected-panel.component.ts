@@ -9,7 +9,6 @@ import {
   SwitchComponent,
   tagIcon,
   targetIcon,
-  trashIcon,
 } from '@db-astro-suite/ui';
 import type { AnnotationStyle } from '../../models/annotation-settings.models';
 import type { ImageAnnotation } from '../../models/annotation.models';
@@ -45,12 +44,10 @@ export class AnnotationSelectedPanelComponent {
   private readonly dataService = inject(CardDataService);
   private readonly analyticsService = inject(AnalyticsService);
 
-  /** Target glyph rendered in the selected-card pill and Circle section title. */
+  /** Target glyph rendered in the Identity + Circle section titles. */
   protected readonly targetIcon = targetIcon;
   /** Tag glyph rendered in the Label section title. */
   protected readonly tagIcon = tagIcon;
-  /** Trash glyph rendered on the delete button. */
-  protected readonly trashIcon = trashIcon;
 
   /** Currently-selected annotation, or null when none is selected. */
   readonly annotation = computed<ImageAnnotation | null>(() => {
@@ -167,13 +164,5 @@ export class AnnotationSelectedPanelComponent {
     const original = this.annotation()?.label ?? '';
     this.analyticsService.trackButtonClicked('edit_annotation', 'annotation');
     this.updateStyle({ customLabel: value && value !== original ? value : undefined });
-  }
-
-  /** Deletes the currently-selected annotation. */
-  removeAnnotation(): void {
-    const id = this.dataService.selectedAnnotationId();
-    if (id) {
-      this.dataService.removeAnnotation(id);
-    }
   }
 }

@@ -27,6 +27,13 @@ const EXPORT_FORMAT_MAP = {
   webp: { ext: 'webp', mime: 'image/webp' as const },
 } as const;
 
+/** Reduces a (w, h) pair to its lowest-terms aspect string using `_` as the separator (e.g. `4_5`, `9_16`). */
+function aspectSlug(width: number, height: number): string {
+  const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b));
+  const g = gcd(width, height) || 1;
+  return `${width / g}_${height / g}`;
+}
+
 @Component({
   selector: 'dba-ag-base-card-preview',
   standalone: true,
@@ -44,7 +51,10 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
   backgroundImage = input<string | null>(null);
   fillMode = input<'cover' | 'contain' | 'fill'>('cover');
   author = input<string>('astrophotographer');
-  exportFilename = input<string>('astrogram');
+  /** Short tag appended to the export filename to identify the exporter (e.g. `info`, `smap`). */
+  exportTag = input<string>('astrogram');
+  /** Hides the built-in Download button. Used when the host has nothing exportable yet. */
+  hideDownload = input<boolean>(false);
 
   accentColor = input<string>('#ff2d95');
   accentColorRgb = input<string>('255, 45, 149');
@@ -246,8 +256,6 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
       const screenshot = await import('modern-screenshot');
       const element = this.cardElement.nativeElement;
 
-      const filename = `${this.exportFilename() || 'astrogram'}.${fmtInfo.ext}`;
-
       // Wait for fonts and all images to be truly ready
       await document.fonts.ready;
       const images = Array.from(element.querySelectorAll('img')) as HTMLImageElement[];
@@ -262,6 +270,8 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
       );
 
       const targetDim = EXPORT_DIMENSIONS_BY_RATIO[this.aspectRatio()];
+      const tag = this.exportTag() || 'astrogram';
+      const filename = `${aspectSlug(targetDim.width, targetDim.height)}_${targetDim.width}_${targetDim.height}_${tag}.${fmtInfo.ext}`;
 
       // The card element's natural dimensions (unaffected by CSS transform on parent)
       const naturalWidth = element.offsetWidth;

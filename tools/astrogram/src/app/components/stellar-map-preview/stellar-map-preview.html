@@ -5,39 +5,37 @@
   fillMode="fill"
   [cardOpacity]="mapData().backgroundImage ? 0 : 0.85"
   [author]="''"
-  exportFilename="stellar-map"
+  exportTag="smap"
+  [hideDownload]="!mapData().backgroundImage"
 >
   @if (mapData().backgroundImage) {
     <div class="toolbar" headerAction>
-      <dba-ui-icon-button
-        accent="pink"
-        [active]="true"
-        title="Add annotation"
-        [size]="28"
-        (clicked)="addCenterAnnotation()"
-      >
-        <dba-ui-icon [def]="plusIcon" [size]="13" />
-      </dba-ui-icon-button>
-      <!--
-        TODO(stellar-select-tool): the Select tool affordance from the
-        design ships without a real implementation yet — disable it
-        for now so users don't get an inert button with no feedback.
-        Hook this up when the marquee / select-modal logic lands.
-      -->
-      <dba-ui-icon-button
-        title="Select mode — coming soon"
-        [size]="28"
-        [disabled]="true"
-        [active]="isSelectToolActive()"
-        (clicked)="toggleSelectTool()"
-      >
-        <dba-ui-icon [def]="targetIcon" [size]="13" />
-      </dba-ui-icon-button>
-      <span class="toolbar-divider" aria-hidden="true"></span>
-      <dba-ui-pill-badge tone="cyan">{{ visibleCount() }} OBJECTS</dba-ui-pill-badge>
-      <button type="button" class="clear-btn" (click)="clearAll()" title="Clear image &amp; data">
-        Clear
-      </button>
+      @if (selectedAnnotation(); as ann) {
+        <span class="selected-annotation-label" [title]="effectiveLabel(ann)">{{ effectiveLabel(ann) }}</span>
+        <dba-ui-icon-button
+          accent="cyan"
+          title="Delete annotation"
+          [size]="28"
+          (clicked)="deleteSelectedAnnotation()"
+        >
+          <dba-ui-icon [def]="trashIcon" [size]="13" />
+        </dba-ui-icon-button>
+      } @else {
+        <dba-ui-icon-button
+          accent="pink"
+          [active]="true"
+          title="Add annotation"
+          [size]="28"
+          (clicked)="addCenterAnnotation()"
+        >
+          <dba-ui-icon [def]="plusIcon" [size]="13" />
+        </dba-ui-icon-button>
+        <span class="toolbar-divider" aria-hidden="true"></span>
+        <dba-ui-pill-badge tone="cyan">{{ visibleCount() }} OBJECTS</dba-ui-pill-badge>
+        <button type="button" class="clear-btn db-hover-cyan" (click)="clearAll()" title="Clear image &amp; data">
+          Clear
+        </button>
+      }
     </div>
   }
 

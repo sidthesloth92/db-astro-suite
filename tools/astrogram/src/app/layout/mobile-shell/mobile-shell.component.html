@@ -1,6 +1,15 @@
 <div class="mobile" data-testid="mobile-shell">
   <dba-ag-top-bar [isCompact]="true" />
 
+  <div class="mode-toggle-row">
+    <dba-ui-segmented-tabs
+      [options]="modeOptions"
+      [value]="selectedModeId()"
+      size="sm"
+      (valueChange)="onModeChange($event)"
+    />
+  </div>
+
   <main class="preview-area">
     @if (activeMode() === 'infographic') {
       <dba-ag-card-preview />

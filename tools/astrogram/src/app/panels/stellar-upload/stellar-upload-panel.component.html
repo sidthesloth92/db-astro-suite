@@ -38,11 +38,11 @@
   <div class="solve-bar">
     <button
       type="button"
-      class="solve-btn"
+      class="solve-btn db-hover-pink"
       (click)="triggerPlateSolve()"
       [disabled]="!mapData().backgroundImage || isSolving()"
     >
-      {{ isSolving() ? 'ANALYZING...' : '🚀 ASTROSOLVE' }}
+      {{ isSolving() ? 'ANALYZING…' : 'ASTROSOLVE' }}
     </button>
     @if (solveStatus(); as status) {
       <div class="solve-status">{{ status }}</div>

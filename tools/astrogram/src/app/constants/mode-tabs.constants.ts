@@ -5,8 +5,8 @@ export type ModeTabId = 'infographic' | 'stellar';
 
 /** Mode-tab options rendered in the preview toolbar's segmented tabs. */
 export const MODE_TAB_OPTIONS: readonly SegmentedTabOption[] = [
-  { id: 'infographic', label: 'Info' },
-  { id: 'stellar', label: 'Stellar' },
+  { id: 'infographic', label: 'Infographics' },
+  { id: 'stellar', label: 'Stellar map' },
 ];
 
 /** Maps a tab id back to the `CardDataService.activeMode` value. */

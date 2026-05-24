@@ -2,9 +2,16 @@
   <dba-ui-inspector-section title="Rig presets" sub="Load a saved equipment set">
     <dba-ui-icon slot="icon" [def]="layersIcon" [size]="14" />
     @if (!isSavingPreset()) {
-      <button slot="action" type="button" class="action-btn" (click)="startSavePreset()">
-        <dba-ui-icon [def]="plusIcon" [size]="11" /> <span>Save current</span>
-      </button>
+      <div slot="action" class="action-group">
+        @if (hasSelectedPreset()) {
+          <button type="button" class="action-btn db-hover-pink" (click)="updateSelectedPreset()">
+            <dba-ui-icon [def]="checkIcon" [size]="11" /> <span>Update</span>
+          </button>
+        }
+        <button type="button" class="action-btn db-hover-pink" (click)="startSavePreset()">
+          <dba-ui-icon [def]="plusIcon" [size]="11" /> <span>Add new</span>
+        </button>
+      </div>
     }
 
     @if (isSavingPreset()) {
@@ -17,20 +24,20 @@
           (input)="setDraftName($event)"
           (keyup.enter)="confirmSavePreset()"
         />
-        <button type="button" class="save-confirm" (click)="confirmSavePreset()">Save</button>
-        <button type="button" class="save-cancel" (click)="cancelSavePreset()">Cancel</button>
+        <button type="button" class="save-confirm db-hover-pink" (click)="confirmSavePreset()">Save</button>
+        <button type="button" class="save-cancel db-hover-cyan" (click)="cancelSavePreset()">Cancel</button>
       </div>
     }
 
     <div class="preset-list">
       @if (presetRows().length === 0) {
-        <div class="preset-empty">No saved presets yet — hit Save current to store this rig.</div>
+        <div class="preset-empty">No saved presets yet — hit Add new to store this rig.</div>
       } @else {
         @for (preset of presetRows(); track preset.name) {
           <div class="preset-row" [class.is-active]="preset.active">
             <button
               type="button"
-              class="preset-load-btn"
+              class="preset-load-btn db-hover-cyan"
               [class.is-active]="preset.active"
               (click)="activatePreset(preset.name)"
               [attr.aria-pressed]="preset.active"
@@ -45,7 +52,7 @@
             </button>
             <button
               type="button"
-              class="preset-del-btn"
+              class="preset-del-btn db-hover-cyan"
               (click)="deletePreset(preset.name)"
               [attr.aria-label]="'Delete preset ' + preset.name"
             >
@@ -77,7 +84,7 @@
         } @else {
           <button
             type="button"
-            class="eq-label-text"
+            class="eq-label-text db-hover-cyan"
             (click)="startEditLabel('equipment', i)"
             [title]="item.label + ' — click to rename'"
           >
@@ -91,7 +98,7 @@
         />
         <button
           type="button"
-          class="row-trash"
+          class="row-trash db-hover-cyan"
           (click)="removeEquipmentRow(i)"
           aria-label="Remove row"
         >
@@ -100,7 +107,7 @@
       </div>
     }
     <div class="add-row">
-      <button type="button" class="action-btn" (click)="addEquipmentRow()">
+      <button type="button" class="action-btn db-hover-pink" (click)="addEquipmentRow()">
         <dba-ui-icon [def]="plusIcon" [size]="11" /> <span>Add item</span>
       </button>
     </div>
@@ -126,7 +133,7 @@
         } @else {
           <button
             type="button"
-            class="eq-label-text"
+            class="eq-label-text db-hover-cyan"
             (click)="startEditLabel('software', i)"
             [title]="item.label + ' — click to rename'"
           >
@@ -141,7 +148,7 @@
         />
         <button
           type="button"
-          class="row-trash"
+          class="row-trash db-hover-cyan"
           (click)="removeSoftwareRow(i)"
           aria-label="Remove row"
         >
@@ -150,7 +157,7 @@
       </div>
     }
     <div class="add-row">
-      <button type="button" class="action-btn" (click)="addSoftwareRow()">
+      <button type="button" class="action-btn db-hover-pink" (click)="addSoftwareRow()">
         <dba-ui-icon [def]="plusIcon" [size]="11" /> <span>Add item</span>
       </button>
     </div>

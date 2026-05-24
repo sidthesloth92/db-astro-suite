@@ -70,6 +70,9 @@ export class EquipmentPanelComponent {
     }));
   });
 
+  /** True when a preset is currently selected; gates the Update button. */
+  readonly hasSelectedPreset = computed(() => this.selectedPresetName() !== '');
+
   /** Activates a preset: copies its equipment AND software into the card document. */
   activatePreset(name: string): void {
     const preset = this.presetService.presets()[name];
@@ -114,6 +117,19 @@ export class EquipmentPanelComponent {
     );
     this.selectedPresetName.set(name);
     this.isSavingPreset.set(false);
+  }
+
+  /** Writes the current equipment + software back to the selected preset. */
+  updateSelectedPreset(): void {
+    const name = this.selectedPresetName();
+    if (!name) return;
+    this.analyticsService.trackButtonClicked('update_preset', 'equipment');
+    this.analyticsService.trackSettingChanged('equipment_preset', name);
+    this.presetService.savePreset(
+      name,
+      this.cardData().equipment,
+      this.cardData().software,
+    );
   }
 
   /** Sets the inline draft name from a text input event. */

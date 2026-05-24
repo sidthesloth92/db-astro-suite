@@ -3,6 +3,7 @@ import {
   BottomNavComponent,
   FloatingSheetComponent,
   IconComponent,
+  SegmentedTabsComponent,
   apertureIcon,
   cropIcon,
   filterIcon,
@@ -11,6 +12,11 @@ import {
   targetIcon,
   telescopeIcon,
 } from '@db-astro-suite/ui';
+import {
+  MODE_TAB_OPTIONS,
+  activeModeToTabId,
+  tabIdToActiveMode,
+} from '../../constants/mode-tabs.constants';
 import type {
   MobileInfographicId,
   MobileNavItem,
@@ -44,6 +50,7 @@ import { AstrogramTopBarComponent } from '../astrogram-top-bar/astrogram-top-bar
     StellarMapPreviewComponent,
     FloatingSheetComponent,
     BottomNavComponent,
+    SegmentedTabsComponent,
     ObjectInfoPanelComponent,
     CapturePanelComponent,
     EquipmentPanelComponent,
@@ -71,6 +78,17 @@ export class MobileShellComponent {
 
   /** Active top-level mode mirrored from the shared signal. */
   readonly activeMode = computed(() => this.dataService.activeMode());
+
+  /** Segmented-tab options for the Infographics / Stellar map toggle at the top. */
+  readonly modeOptions = MODE_TAB_OPTIONS;
+
+  /** Active mode mapped to the tab id consumed by `<dba-ui-segmented-tabs>`. */
+  readonly selectedModeId = computed(() => activeModeToTabId(this.dataService.activeMode()));
+
+  /** Forwards the top-bar mode-tab change into `CardDataService`. */
+  onModeChange(id: string): void {
+    this.dataService.activeMode.set(tabIdToActiveMode(id));
+  }
 
   /** Active mobile section for infographic mode. */
   readonly infographicSection = signal<MobileInfographicId>('layout');

@@ -13,7 +13,7 @@ import {
   IconComponent,
   PillBadgeComponent,
   plusIcon,
-  targetIcon,
+  trashIcon,
 } from '@db-astro-suite/ui';
 import { findHitAnnotationId } from '../../utils/annotation-hit-test.util';
 import { ImageAnnotation } from '../../models/annotation.models';
@@ -53,15 +53,27 @@ export class StellarMapPreviewComponent {
 
   /** Plus glyph used on the Add annotation FAB. */
   protected readonly plusIcon = plusIcon;
-  /** Target glyph used on the Select-tool toggle. */
-  protected readonly targetIcon = targetIcon;
+  /** Trash glyph used on the in-toolbar delete-selected button. */
+  protected readonly trashIcon = trashIcon;
+
+  /** The currently-selected annotation, or `null` when nothing is selected. */
+  readonly selectedAnnotation = computed<ImageAnnotation | null>(() => {
+    const id = this.selectedAnnotationId();
+    if (!id) return null;
+    return this.mapData().annotations.find((ann) => ann.id === id) ?? null;
+  });
+
+  /** Removes the currently-selected annotation, if any. */
+  deleteSelectedAnnotation(): void {
+    const id = this.selectedAnnotationId();
+    if (!id) return;
+    this.dataService.removeAnnotation(id);
+  }
 
   private readonly _dragId = signal<string | null>(null);
   private readonly _dragStartMouse = signal<{ x: number; y: number } | null>(null);
   /** True while an annotation drag is in progress. */
   readonly isDragging = computed(() => this._dragId() !== null);
-  /** True when the in-canvas "Select" tool is active (visual-only today). */
-  readonly isSelectToolActive = signal(false);
 
   private readonly base = viewChild.required<BaseCardPreviewComponent>('base');
   private readonly uploadPanel = viewChild.required<StellarUploadPanelComponent>('upload');
@@ -78,11 +90,6 @@ export class StellarMapPreviewComponent {
   /** Resets the map document via the upload panel (single source of truth). */
   clearAll(): void {
     this.uploadPanel().resetMap();
-  }
-
-  /** Toggles the visual-only Select tool. */
-  toggleSelectTool(): void {
-    this.isSelectToolActive.update((v) => !v);
   }
 
   /** Click handler shared by annotation markers and the layer background. */

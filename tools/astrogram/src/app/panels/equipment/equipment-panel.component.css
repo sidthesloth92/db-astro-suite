@@ -34,9 +34,10 @@
   cursor: pointer;
 }
 
-.action-btn:hover {
-  color: var(--db-color-text-primary);
-  border-color: var(--db-color-border-strong);
+.action-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .save-row {
@@ -129,10 +130,6 @@
   color: inherit;
 }
 
-.preset-load-btn:hover {
-  border-color: var(--db-color-border-strong);
-}
-
 .preset-load-btn.is-active {
   background: var(--db-color-surface-hi);
   border-color: var(--db-color-border-strong);
@@ -150,11 +147,6 @@
   cursor: pointer;
   border-radius: 4px;
   flex-shrink: 0;
-}
-
-.preset-del-btn:hover {
-  color: var(--db-color-text-dim);
-  background: var(--db-color-surface-raised);
 }
 
 .preset-check {
@@ -231,10 +223,6 @@
   width: 100%;
 }
 
-.eq-label-text:hover {
-  color: var(--db-color-text-primary);
-}
-
 .eq-label-input {
   color: var(--db-color-text-primary);
   background: var(--db-color-surface-bg);
@@ -258,11 +246,6 @@
   padding: 4px;
   border-radius: 4px;
   min-width: 0;
-}
-
-.row-trash:hover {
-  color: var(--db-color-text-dim);
-  background: var(--db-color-surface-raised);
 }
 
 .add-row {

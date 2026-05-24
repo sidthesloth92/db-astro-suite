@@ -404,3 +404,35 @@ h1, h2, h3, h4, h5, h6 {
 .font-display {
   font-family: var(--db-font-display);
 }
+
+/* ========================================
+   BUTTON HOVER UTILITIES
+   Apply `.db-hover-pink` to primary actions and `.db-hover-cyan` to
+   neutral/secondary actions on any clickable element across the suite.
+   Provides a consistent soft-glow + tint hover animation. Specificity
+   is intentionally raised via doubled class names so these utilities
+   override component-scoped `:hover` rules emitted by Angular's
+   emulated view encapsulation.
+   ======================================== */
+
+.db-hover-pink,
+.db-hover-cyan {
+  transition: color 200ms cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 200ms cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 200ms cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.db-hover-pink.db-hover-pink:hover:not(:disabled):not([disabled]) {
+  color: var(--db-color-neon-pink);
+  border-color: var(--db-color-border-active);
+  background-color: var(--db-color-pink-soft);
+  box-shadow: 0 0 15px var(--db-color-pink-soft);
+}
+
+.db-hover-cyan.db-hover-cyan:hover:not(:disabled):not([disabled]) {
+  color: var(--db-color-cyan);
+  border-color: var(--db-color-cyan);
+  background-color: var(--db-color-cyan-soft);
+  box-shadow: 0 0 15px var(--db-color-cyan-soft);
+}

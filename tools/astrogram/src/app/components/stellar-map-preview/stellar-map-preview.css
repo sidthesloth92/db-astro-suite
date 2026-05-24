@@ -117,7 +117,20 @@
   cursor: pointer;
 }
 
-.clear-btn:hover {
-  color: var(--db-color-neon-pink);
-  border-color: var(--db-color-border-active);
+.selected-annotation-label {
+  display: inline-flex;
+  align-items: center;
+  max-width: 220px;
+  padding: 0 10px;
+  height: 28px;
+  border-radius: 5px;
+  background: var(--db-color-surface-raised);
+  border: 1px solid var(--db-color-border);
+  color: var(--db-color-text-primary);
+  font-family: var(--db-font-ui);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

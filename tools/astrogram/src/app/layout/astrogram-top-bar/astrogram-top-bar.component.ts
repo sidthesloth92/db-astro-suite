@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { HeaderComponent } from '@db-astro-suite/ui';
-import packageJson from '../../../../package.json';
+import packageJson from '../../../../../../package.json';
 import {
   ASTROGRAM_ABOUT_HREF,
   ASTROGRAM_BRAND_HREF,
