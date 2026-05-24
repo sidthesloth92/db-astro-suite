@@ -54,7 +54,7 @@
       </dba-ui-icon-rail-item>
     </dba-ui-icon-rail>
 
-    <div class="panel">
+    <div class="panel" #panelScroll>
       @switch (infographicSection()) {
         @case ('layout') { <dba-ag-layout-panel /> }
         @case ('object') { <dba-ag-object-info-panel /> }
@@ -100,7 +100,7 @@
       }
     </dba-ui-icon-rail>
 
-    <div class="panel">
+    <div class="panel" #panelScroll>
       @switch (stellarSection()) {
         @case ('filters') { <dba-ag-annotation-filters-panel /> }
         @case ('style') { <dba-ag-annotation-style-panel /> }

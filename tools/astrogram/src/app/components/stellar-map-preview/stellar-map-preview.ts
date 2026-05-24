@@ -49,6 +49,7 @@ import { BaseCardPreviewComponent } from '../base-card-preview/base-card-preview
 export class StellarMapPreviewComponent {
   private readonly dataService = inject(CardDataService);
   readonly mapData = this.dataService.stellarMapData;
+  readonly cardData = this.dataService.cardData;
   readonly selectedAnnotationId = this.dataService.selectedAnnotationId;
 
   /** Plus glyph used on the Add annotation FAB. */

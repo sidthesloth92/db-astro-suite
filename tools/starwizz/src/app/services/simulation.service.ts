@@ -566,13 +566,14 @@ export class SimulationService {
     // Determine file extension based on format
     const extension = mimeType.includes('mp4') ? '.mp4' : '.webm';
 
-    // Compose filename as `<aspect>_<w>_<h>_starwizz.<ext>` so the saved file
-    // self-documents the aspect ratio and resolution it was rendered at.
+    // Compose filename as `starfield_starwizz_<aspect>_<w>_<h>.<ext>` so the
+    // saved file carries both a human-readable basename and the aspect /
+    // resolution the recording was rendered at.
     const { width, height } = this.canvasDimensions();
     const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b));
     const g = gcd(width, height) || 1;
     const aspectSlug = `${width / g}_${height / g}`;
-    const filename = `${aspectSlug}_${width}_${height}_starwizz${extension}`;
+    const filename = `starfield_starwizz_${aspectSlug}_${width}_${height}${extension}`;
 
     // Trigger download via programmatic link click
     const a = document.createElement('a');

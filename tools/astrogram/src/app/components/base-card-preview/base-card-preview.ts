@@ -34,6 +34,19 @@ function aspectSlug(width: number, height: number): string {
   return `${width / g}_${height / g}`;
 }
 
+/**
+ * Filesystem-safe slug derived from a free-form name: lower-cases, replaces
+ * any run of non `[a-z0-9]` characters with a single `-`, and trims leading
+ * and trailing dashes. Returns the fallback when the result is empty.
+ */
+function nameSlug(raw: string, fallback: string): string {
+  const cleaned = raw
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return cleaned || fallback;
+}
+
 @Component({
   selector: 'dba-ag-base-card-preview',
   standalone: true,
@@ -51,7 +64,9 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
   backgroundImage = input<string | null>(null);
   fillMode = input<'cover' | 'contain' | 'fill'>('cover');
   author = input<string>('astrophotographer');
-  /** Short tag appended to the export filename to identify the exporter (e.g. `info`, `smap`). */
+  /** Human-readable basename for the export — typically the card title. */
+  exportName = input<string>('astrogram');
+  /** Differentiator inserted between the name and the aspect/resolution suffix (e.g. `info`, `stellar-map`). */
   exportTag = input<string>('astrogram');
   /** Hides the built-in Download button. Used when the host has nothing exportable yet. */
   hideDownload = input<boolean>(false);
@@ -210,11 +225,14 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
     // Scaling strategy differs by mode
     let scale = 1;
 
-    // Use window height for better accuracy as the parent .main-container may have padding/margins
+    // Cap the on-screen card height at 80 % of the viewport so the preview
+    // (and the surrounding chrome — top bar, context bar, caption) always
+    // fits without scrolling. The exporter ignores this transform (it
+    // temporarily clears it in `exportCard`), so the downloaded image is
+    // still rendered at the full target resolution from
+    // `EXPORT_DIMENSIONS_BY_RATIO`.
     const viewportHeight = window.innerHeight;
-    const headerHeight = 80; // Adjusted for actual header height
-    const footerPadding = 40; // Small bottom margin
-    const maxAllowedHeight = (viewportHeight - headerHeight - footerPadding) * 0.95;
+    const maxAllowedHeight = viewportHeight * 0.8;
 
     if (this.aspectRatio() === 'auto') {
       // PROPORTIONAL SCALING: Maximize size based on both width AND height constraints
@@ -270,8 +288,9 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
       );
 
       const targetDim = EXPORT_DIMENSIONS_BY_RATIO[this.aspectRatio()];
+      const name = nameSlug(this.exportName(), 'astrogram');
       const tag = this.exportTag() || 'astrogram';
-      const filename = `${aspectSlug(targetDim.width, targetDim.height)}_${targetDim.width}_${targetDim.height}_${tag}.${fmtInfo.ext}`;
+      const filename = `${name}_${tag}_${aspectSlug(targetDim.width, targetDim.height)}_${targetDim.width}_${targetDim.height}.${fmtInfo.ext}`;
 
       // The card element's natural dimensions (unaffected by CSS transform on parent)
       const naturalWidth = element.offsetWidth;

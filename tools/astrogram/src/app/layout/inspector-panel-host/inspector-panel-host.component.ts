@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  computed,
+  effect,
+  inject,
+  signal,
+  viewChildren,
+} from '@angular/core';
 import {
   IconComponent,
   IconRailComponent,
@@ -88,6 +97,24 @@ export class InspectorPanelHostComponent {
       this.stellarSection.set('selected');
     } else if (!hasAny && this.stellarSection() === 'selected') {
       this.stellarSection.set('filters');
+    }
+  });
+
+  /** Scrollable panel containers — one per mode branch in the template. */
+  private readonly panelScrollEls = viewChildren<ElementRef<HTMLElement>>('panelScroll');
+
+  /**
+   * Resets the panel's scroll position whenever the user switches mode
+   * or active section. Without this, the new panel renders mid-scroll
+   * because the `.panel` container persists across section swaps.
+   */
+  private readonly resetPanelScroll = effect(() => {
+    // Subscribe to mode + both section signals so any switch triggers a reset.
+    void this.mode();
+    void this.infographicSection();
+    void this.stellarSection();
+    for (const ref of this.panelScrollEls()) {
+      ref.nativeElement.scrollTop = 0;
     }
   });
 

@@ -5,7 +5,8 @@
   fillMode="fill"
   [cardOpacity]="mapData().backgroundImage ? 0 : 0.85"
   [author]="''"
-  exportTag="smap"
+  [exportName]="cardData().title || 'stellar-map'"
+  exportTag="stellar-map"
   [hideDownload]="!mapData().backgroundImage"
 >
   @if (mapData().backgroundImage) {

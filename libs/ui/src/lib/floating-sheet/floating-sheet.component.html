@@ -7,7 +7,7 @@
   [attr.aria-label]="title() || null"
 >
   <div class="body-wrapper" [attr.aria-hidden]="!expanded() || null">
-    <div class="body">
+    <div class="body" #body>
       <div class="header">
         <div class="title">{{ title() }}</div>
         <div class="spacer"></div>
