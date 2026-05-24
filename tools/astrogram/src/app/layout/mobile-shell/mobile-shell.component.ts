@@ -6,6 +6,7 @@ import {
   SegmentedTabsComponent,
   apertureIcon,
   cropIcon,
+  downloadIcon,
   filterIcon,
   imageIcon,
   paletteIcon,
@@ -30,6 +31,7 @@ import { AnnotationSelectedPanelComponent } from '../../panels/annotation-select
 import { AnnotationStylePanelComponent } from '../../panels/annotation-style/annotation-style-panel.component';
 import { CapturePanelComponent } from '../../panels/capture/capture-panel.component';
 import { EquipmentPanelComponent } from '../../panels/equipment/equipment-panel.component';
+import { ExportPanelComponent } from '../../panels/export/export-panel.component';
 import { ObjectInfoPanelComponent } from '../../panels/object-info/object-info-panel.component';
 import { LayoutPanelComponent } from '../../panels/layout/layout-panel.component';
 import { CardDataService } from '../../services/card-data.service';
@@ -54,6 +56,7 @@ import { AstrogramTopBarComponent } from '../astrogram-top-bar/astrogram-top-bar
     ObjectInfoPanelComponent,
     CapturePanelComponent,
     EquipmentPanelComponent,
+    ExportPanelComponent,
     LayoutPanelComponent,
     AnnotationFiltersPanelComponent,
     AnnotationStylePanelComponent,
@@ -75,6 +78,7 @@ export class MobileShellComponent {
   protected readonly paletteIcon = paletteIcon;
   protected readonly filterIcon = filterIcon;
   protected readonly targetIcon = targetIcon;
+  protected readonly downloadIcon = downloadIcon;
 
   /** Active top-level mode mirrored from the shared signal. */
   readonly activeMode = computed(() => this.dataService.activeMode());
@@ -104,6 +108,7 @@ export class MobileShellComponent {
     { id: 'object', label: 'Info', iconName: 'image' },
     { id: 'capture', label: 'Capture', iconName: 'aperture' },
     { id: 'equipment', label: 'Gear', iconName: 'telescope' },
+    { id: 'export', label: 'Export', iconName: 'download' },
   ];
 
   /** Bottom-nav items for stellar mode. */
@@ -111,6 +116,7 @@ export class MobileShellComponent {
     { id: 'filters', label: 'Filters', iconName: 'filter' },
     { id: 'style', label: 'Style', iconName: 'palette' },
     { id: 'selected', label: 'Item', iconName: 'target' },
+    { id: 'export', label: 'Export', iconName: 'download' },
   ];
 
   /** Title to render in the expanded sheet, derived from the active section. */
@@ -121,6 +127,7 @@ export class MobileShellComponent {
         capture: 'Capture',
         equipment: 'Equipment',
         layout: 'Layout',
+        export: 'Export',
       };
       return map[this.infographicSection()];
     }
@@ -128,6 +135,7 @@ export class MobileShellComponent {
       filters: 'Annotation filters',
       style: 'Annotation style',
       selected: 'Selected annotation',
+      export: 'Export',
     };
     return map[this.stellarSection()];
   });
@@ -159,10 +167,16 @@ export class MobileShellComponent {
   }
 
   private isInfographicId(id: string): id is MobileInfographicId {
-    return id === 'object' || id === 'capture' || id === 'equipment' || id === 'layout';
+    return (
+      id === 'object' ||
+      id === 'capture' ||
+      id === 'equipment' ||
+      id === 'layout' ||
+      id === 'export'
+    );
   }
 
   private isStellarId(id: string): id is MobileStellarId {
-    return id === 'filters' || id === 'style' || id === 'selected';
+    return id === 'filters' || id === 'style' || id === 'selected' || id === 'export';
   }
 }

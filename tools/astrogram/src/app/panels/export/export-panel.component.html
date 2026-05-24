@@ -1,5 +1,5 @@
 <div class="panel-root">
-  <dba-ui-inspector-section title="Export options">
+  <dba-ui-inspector-section title="Export options" [hideHeader]="hideHeader()">
     <dba-ui-icon slot="icon" [def]="downloadIcon" [size]="14" />
     <div class="format-list">
       @for (opt of formats; track opt.id) {
@@ -25,25 +25,4 @@
     </div>
   </dba-ui-inspector-section>
 
-  <hr class="divider" aria-hidden="true" />
-
-  <dba-ui-inspector-section title="Share to">
-    <dba-ui-icon slot="icon" [def]="shareIcon" [size]="14" />
-    <div class="share-grid">
-      @for (target of shareTargets; track target.id) {
-        <button
-          type="button"
-          class="share-btn"
-          [disabled]="target.disabled"
-          [attr.title]="target.disabled ? 'No web intent — export and paste manually' : null"
-          (click)="selectShareTarget(target)"
-        >
-          {{ target.label }}
-        </button>
-      }
-    </div>
-    @if (linkCopied()) {
-      <p class="share-status" role="status">Link copied to clipboard</p>
-    }
-  </dba-ui-inspector-section>
 </div>

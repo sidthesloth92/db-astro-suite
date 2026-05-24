@@ -26,12 +26,14 @@
         @case ('capture') { <dba-ag-capture-panel /> }
         @case ('equipment') { <dba-ag-equipment-panel /> }
         @case ('layout') { <dba-ag-layout-panel /> }
+        @case ('export') { <dba-ag-export-panel [hideHeader]="true" /> }
       }
     } @else {
       @switch (stellarSection()) {
         @case ('filters') { <dba-ag-annotation-filters-panel /> }
         @case ('style') { <dba-ag-annotation-style-panel /> }
         @case ('selected') { <dba-ag-annotation-selected-panel /> }
+        @case ('export') { <dba-ag-export-panel [hideHeader]="true" /> }
       }
     }
 
@@ -44,6 +46,7 @@
         @case ('crop') { <dba-ui-icon [def]="cropIcon" [size]="18" /> }
         @case ('filter') { <dba-ui-icon [def]="filterIcon" [size]="18" /> }
         @case ('target') { <dba-ui-icon [def]="targetIcon" [size]="18" /> }
+        @case ('download') { <dba-ui-icon [def]="downloadIcon" [size]="18" /> }
       }
     </ng-template>
 

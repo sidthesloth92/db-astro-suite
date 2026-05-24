@@ -9,13 +9,13 @@
 export type InfographicSectionId = 'layout' | 'object' | 'capture' | 'equipment' | 'export';
 
 /** Inspector section id for stellar-map mode (desktop rail). */
-export type StellarSectionId = 'filters' | 'style' | 'selected';
+export type StellarSectionId = 'filters' | 'style' | 'selected' | 'export';
 
 /** Mobile bottom-nav section id for infographic mode. */
-export type MobileInfographicId = 'object' | 'capture' | 'equipment' | 'layout';
+export type MobileInfographicId = 'object' | 'capture' | 'equipment' | 'layout' | 'export';
 
 /** Mobile bottom-nav section id for stellar-map mode. */
-export type MobileStellarId = 'filters' | 'style' | 'selected';
+export type MobileStellarId = 'filters' | 'style' | 'selected' | 'export';
 
 /**
  * Icon keys used by the mobile bottom-nav `iconName` slot — kept as a
@@ -28,7 +28,8 @@ export type MobileNavIconId =
   | 'palette'
   | 'crop'
   | 'filter'
-  | 'target';
+  | 'target'
+  | 'download';
 
 /** Strongly typed bottom-nav item — replaces the loose string `iconName`. */
 export interface MobileNavItem<TId extends string = string> {

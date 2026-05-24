@@ -24,4 +24,6 @@ export class InspectorSectionComponent {
   sub = input<string | undefined>(undefined);
   /** When true, reduces vertical padding around the header. */
   compact = input<boolean>(false);
+  /** When true, the header (icon chip + title + action) is not rendered. */
+  hideHeader = input<boolean>(false);
 }

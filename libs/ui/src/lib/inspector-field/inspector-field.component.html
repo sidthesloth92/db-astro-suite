@@ -1,6 +1,9 @@
 <div class="field" [attr.data-density]="density()">
   <div class="label-cell">
-    <div class="label">{{ label() }}</div>
+    <div class="label-row">
+      <div class="label">{{ label() }}</div>
+      <ng-content select="[slot=label-trailing]" />
+    </div>
     @if (sub(); as s) {
       <div class="sub">{{ s }}</div>
     }

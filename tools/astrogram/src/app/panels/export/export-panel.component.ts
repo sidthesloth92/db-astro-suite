@@ -1,5 +1,5 @@
 import { DOCUMENT } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import {
   AnalyticsService,
   IconComponent,
@@ -8,6 +8,7 @@ import {
   shareIcon,
 } from '@db-astro-suite/ui';
 import { CardDataService } from '../../services/card-data.service';
+import { ExportCoordinatorService } from '../../services/export-coordinator.service';
 
 /** Format option presented in the radio list. */
 interface ExportFormatOption {
@@ -41,9 +42,10 @@ export class ExportPanelComponent {
   private readonly document = inject(DOCUMENT);
   private readonly cardDataService = inject(CardDataService);
   private readonly analyticsService = inject(AnalyticsService);
+  private readonly exportCoordinator = inject(ExportCoordinatorService);
 
-  /** Emitted when the user clicks the in-panel Export CTA. The parent shell triggers the actual export. */
-  readonly exportRequested = output<void>();
+  /** When true, hides the inspector-section header (used by the mobile shell where the sheet already shows a title). */
+  readonly hideHeader = input<boolean>(false);
 
   /** Download glyph (section title + Export CTA). */
   protected readonly downloadIcon = downloadIcon;
@@ -109,9 +111,9 @@ export class ExportPanelComponent {
     }
   }
 
-  /** Emits the export request to the parent shell. */
+  /** Triggers the active preview's export pipeline via the coordinator. */
   triggerExport(): void {
-    this.exportRequested.emit();
+    this.exportCoordinator.trigger();
   }
 
   /** Best-effort clipboard copy; surfaces success via the `linkCopied` signal. */

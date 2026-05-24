@@ -153,6 +153,25 @@ export class AnnotationSelectedPanelComponent {
     return !!style && Object.keys(style).length > 0;
   });
 
+  /**
+   * Returns a computed that flips to `true` when the named per-annotation
+   * style field is currently overridden. Used to drive the small "Use
+   * global" chip rendered next to each control's label.
+   */
+  private isOverridden<K extends keyof AnnotationStyle>(field: K) {
+    return computed(() => this.annotation()?.style?.[field] !== undefined);
+  }
+
+  readonly isLabelOverridden = this.isOverridden('customLabel');
+  readonly isSizeOverridden = this.isOverridden('radiusOverride');
+  readonly isColorOverridden = this.isOverridden('color');
+  readonly isThicknessOverridden = this.isOverridden('thickness');
+  readonly isCircleOpacityOverridden = this.isOverridden('opacity');
+  readonly isLabelColorOverridden = this.isOverridden('labelColor');
+  readonly isFontSizeOverridden = this.isOverridden('fontSize');
+  readonly isLabelOpacityOverridden = this.isOverridden('labelOpacity');
+  readonly isShowMagOverridden = this.isOverridden('showMagnitude');
+
   /** Patches the annotation style for the current selection. */
   updateStyle(patch: Partial<AnnotationStyle>): void {
     const id = this.dataService.selectedAnnotationId();
@@ -172,6 +191,19 @@ export class AnnotationSelectedPanelComponent {
     }
     this.analyticsService.trackButtonClicked('revert_annotation_style', 'annotation');
     this.dataService.resetAnnotationStyle(id, undefined);
+  }
+
+  /**
+   * Clears a single override on the selected annotation so just that
+   * control falls back to its global value. The dedicated `customLabel`
+   * field reverts to the WCS-resolved `annotation.label`.
+   */
+  clearField(field: keyof AnnotationStyle): void {
+    const id = this.dataService.selectedAnnotationId();
+    if (!id) {
+      return;
+    }
+    this.dataService.clearAnnotationStyleField(id, field);
   }
 
   /** Sets the per-annotation circle opacity (slider emits 0–100, model stores 0–1). */

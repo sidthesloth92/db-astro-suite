@@ -1,4 +1,12 @@
-import { Component, ChangeDetectionStrategy, inject, computed, viewChild } from '@angular/core';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  DestroyRef,
+  inject,
+  computed,
+  OnInit,
+  viewChild,
+} from '@angular/core';
 import { DataRowComponent, ProgressRingComponent } from '@db-astro-suite/ui';
 import {
   FilterExposure,
@@ -8,6 +16,7 @@ import {
 } from '../../models/card-data.model';
 import { BortleScaleComponent } from '../bortle-scale/bortle-scale';
 import { CardDataService } from '../../services/card-data.service';
+import { ExportCoordinatorService } from '../../services/export-coordinator.service';
 import { BaseCardPreviewComponent } from '../base-card-preview/base-card-preview';
 
 /**
@@ -29,10 +38,17 @@ import { BaseCardPreviewComponent } from '../base-card-preview/base-card-preview
   styleUrls: ['./card-preview.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CardPreviewComponent {
+export class CardPreviewComponent implements OnInit {
   readonly dataService = inject(CardDataService);
+  private readonly exportCoordinator = inject(ExportCoordinatorService);
+  private readonly destroyRef = inject(DestroyRef);
   readonly cardData = this.dataService.cardData;
   private readonly base = viewChild.required<BaseCardPreviewComponent>('base');
+
+  ngOnInit(): void {
+    const unregister = this.exportCoordinator.register(() => this.exportCard());
+    this.destroyRef.onDestroy(unregister);
+  }
 
   /** Triggers the underlying export pipeline (used by the top bar). */
   exportCard(): void {

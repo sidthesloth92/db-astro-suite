@@ -147,6 +147,6 @@ export class InspectorPanelHostComponent {
   }
 
   private isStellarSection(id: string): id is StellarSectionId {
-    return id === 'filters' || id === 'style' || id === 'selected';
+    return id === 'filters' || id === 'style' || id === 'selected' || id === 'export';
   }
 }

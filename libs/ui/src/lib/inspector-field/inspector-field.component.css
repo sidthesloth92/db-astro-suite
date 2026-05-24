@@ -14,6 +14,12 @@
   padding: 6px 18px;
 }
 
+.label-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .label {
   font: 400 11px/1.2 var(--db-font-ui);
   color: var(--db-color-text-dim);

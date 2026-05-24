@@ -98,6 +98,17 @@
           <dba-ui-icon [def]="targetIcon" [size]="17" />
         </dba-ui-icon-rail-item>
       }
+      <hr class="divider" aria-hidden="true" />
+      <dba-ui-icon-rail-item
+        id="export"
+        label="Export"
+        short="Out"
+        [active]="stellarSection() === 'export'"
+        side="left"
+        (selected)="selectStellar($event)"
+      >
+        <dba-ui-icon [def]="downloadIcon" [size]="17" />
+      </dba-ui-icon-rail-item>
     </dba-ui-icon-rail>
 
     <div class="panel" #panelScroll>
@@ -105,6 +116,7 @@
         @case ('filters') { <dba-ag-annotation-filters-panel /> }
         @case ('style') { <dba-ag-annotation-style-panel /> }
         @case ('selected') { <dba-ag-annotation-selected-panel /> }
+        @case ('export') { <dba-ag-export-panel /> }
       }
     </div>
   }

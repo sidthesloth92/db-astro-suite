@@ -3,8 +3,10 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   ElementRef,
   inject,
+  OnInit,
   signal,
   viewChild,
 } from '@angular/core';
@@ -19,6 +21,7 @@ import { findHitAnnotationId } from '../../utils/annotation-hit-test.util';
 import { ImageAnnotation } from '../../models/annotation.models';
 import { StellarUploadPanelComponent } from '../../panels/stellar-upload/stellar-upload-panel.component';
 import { CardDataService } from '../../services/card-data.service';
+import { ExportCoordinatorService } from '../../services/export-coordinator.service';
 import { BaseCardPreviewComponent } from '../base-card-preview/base-card-preview';
 
 /**
@@ -46,11 +49,18 @@ import { BaseCardPreviewComponent } from '../base-card-preview/base-card-preview
   styleUrls: ['./stellar-map-preview.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class StellarMapPreviewComponent {
+export class StellarMapPreviewComponent implements OnInit {
   private readonly dataService = inject(CardDataService);
+  private readonly exportCoordinator = inject(ExportCoordinatorService);
+  private readonly destroyRef = inject(DestroyRef);
   readonly mapData = this.dataService.stellarMapData;
   readonly cardData = this.dataService.cardData;
   readonly selectedAnnotationId = this.dataService.selectedAnnotationId;
+
+  ngOnInit(): void {
+    const unregister = this.exportCoordinator.register(() => this.exportCard());
+    this.destroyRef.onDestroy(unregister);
+  }
 
   /** Plus glyph used on the Add annotation FAB. */
   protected readonly plusIcon = plusIcon;
