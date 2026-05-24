@@ -400,9 +400,15 @@
   .tool-header h1 {
     font-size: 2rem;
   }
+  .content {
+    padding: 1.5rem 1rem;
+  }
 }
 
 @media (max-width: 600px) {
+  .mission-id {
+    display: none;
+  }
   .features-grid {
     grid-template-columns: 1fr;
   }

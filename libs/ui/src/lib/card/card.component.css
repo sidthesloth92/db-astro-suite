@@ -64,3 +64,9 @@
   font-family: var(--db-font-ui);
   flex: 1;
 }
+
+@media (max-width: 600px) {
+  .card {
+    padding: 1rem;
+  }
+}
