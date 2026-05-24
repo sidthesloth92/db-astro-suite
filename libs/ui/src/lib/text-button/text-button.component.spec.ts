@@ -80,19 +80,19 @@ describe('TextButtonComponent', () => {
   describe('routerLink render mode (internal)', () => {
     it('renders as an anchor with routerLink applied and no nested button', () => {
       const fixture = createFixture();
-      fixture.componentInstance.routerLink = ['/dossier/starwizz'];
+      fixture.componentInstance.routerLink = ['/tool/starwizz'];
       fixture.detectChanges();
       const root = fixture.nativeElement as HTMLElement;
       const anchor = root.querySelector('a.text-button') as HTMLAnchorElement | null;
       expect(anchor).not.toBeNull();
       expect(root.querySelector('button')).toBeNull();
       // Angular RouterLink resolves the href attribute on the anchor.
-      expect(anchor?.getAttribute('href')).toBe('/dossier/starwizz');
+      expect(anchor?.getAttribute('href')).toBe('/tool/starwizz');
     });
 
     it('emits clicked when the anchor is activated', () => {
       const fixture = createFixture();
-      fixture.componentInstance.routerLink = ['/dossier/starwizz'];
+      fixture.componentInstance.routerLink = ['/tool/starwizz'];
       fixture.detectChanges();
       const anchor = (fixture.nativeElement as HTMLElement).querySelector(
         'a.text-button',
@@ -103,7 +103,7 @@ describe('TextButtonComponent', () => {
 
     it('surfaces disabled state via aria-disabled (not the native attribute)', () => {
       const fixture = createFixture();
-      fixture.componentInstance.routerLink = ['/dossier/starwizz'];
+      fixture.componentInstance.routerLink = ['/tool/starwizz'];
       fixture.componentInstance.disabled = true;
       fixture.detectChanges();
       const anchor = (fixture.nativeElement as HTMLElement).querySelector(

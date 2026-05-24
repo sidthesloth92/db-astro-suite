@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, input, signal } from '@angular/core
 import { ConstellationLoaderComponent } from '../constellation-loader/constellation-loader.component';
 
 /**
- * Surface card used by the hub for tool cards and dossier sections.
+ * Surface card used by the hub for tool cards and tool sections.
  * Renders a title (with optional logo), an optional subtitle, and a
  * content projection area. Styled to the Direction B Polished tokens:
  * `--db-color-surface` background, `--db-color-border` outline, no

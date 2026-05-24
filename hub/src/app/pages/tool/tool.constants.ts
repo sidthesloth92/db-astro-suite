@@ -1,5 +1,5 @@
 /**
- * URL targets emitted to analytics when the user clicks a dossier
+ * URL targets emitted to analytics when the user clicks a tool
  * page's "Launch Tool" CTA. Kept in one place so they don't drift
  * out of sync with the actual hosted base hrefs.
  */

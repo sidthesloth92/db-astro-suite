@@ -1,28 +1,28 @@
 import { expect, test } from "@playwright/test";
 
-test.describe("Astrogram Dossier Page", () => {
+test.describe("Astrogram Tool Page", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("http://localhost:5173/dossier/astrogram");
+    await page.goto("http://localhost:5173/tool/astrogram");
     await expect(page.locator(".overview-section").first()).toBeVisible();
   });
 
-  test("Astrogram dossier visual test", async ({ page }) => {
-    await expect(page).toHaveScreenshot("astrogram-dossier.png", {
+  test("Astrogram tool visual test", async ({ page }) => {
+    await expect(page).toHaveScreenshot("astrogram-tool.png", {
       fullPage: true,
       timeout: 15000,
     });
   });
 
-  test("Astrogram dossier SEO meta tags are correct", async ({ page }) => {
+  test("Astrogram tool SEO meta tags are correct", async ({ page }) => {
     await expect(page).toHaveTitle(
-      "Astrogram Dossier - Professional Exposure Cards",
+      "Astrogram Tool - Professional Exposure Cards",
     );
 
     const ogTitle = await page.getAttribute(
       'meta[property="og:title"]',
       "content",
     );
-    expect(ogTitle).toBe("Astrogram Dossier - Professional Exposure Cards");
+    expect(ogTitle).toBe("Astrogram Tool - Professional Exposure Cards");
 
     const ogImage = await page.getAttribute(
       'meta[property="og:image"]',
@@ -48,7 +48,7 @@ test.describe("Astrogram Dossier Page", () => {
       "content",
     );
     expect(twitterTitle).toBe(
-      "Astrogram Dossier - Professional Exposure Cards",
+      "Astrogram Tool - Professional Exposure Cards",
     );
 
     const twitterImage = await page.getAttribute(
@@ -58,10 +58,10 @@ test.describe("Astrogram Dossier Page", () => {
     expect(twitterImage).toContain("og-astrogram.png");
 
     const canonical = await page.getAttribute('link[rel="canonical"]', "href");
-    expect(canonical).toBe("https://dbastrosuite.com/dossier/astrogram");
+    expect(canonical).toBe("https://dbastrosuite.com/tool/astrogram");
   });
 
-  test("Astrogram dossier layout: overview is full width", async ({ page }) => {
+  test("Astrogram tool layout: overview is full width", async ({ page }) => {
     const overviewSection = page.locator(".overview-section");
     await expect(overviewSection).toBeVisible();
     await expect(overviewSection.locator("dba-ui-card")).toBeVisible();
@@ -79,7 +79,7 @@ test.describe("Astrogram Dossier Page", () => {
     expect(featuresBoundingBox!.y).toBeGreaterThan(overviewBoundingBox!.y);
   });
 
-  test("Astrogram dossier layout: features grid has 6 items", async ({
+  test("Astrogram tool layout: features grid has 6 items", async ({
     page,
   }) => {
     const featuresGrid = page.locator(".features-grid");
@@ -95,7 +95,7 @@ test.describe("Astrogram Dossier Page", () => {
     await expect(firstItem.locator("span")).toBeVisible();
   });
 
-  test("Astrogram dossier layout: How It Works and Demo are side by side", async ({
+  test("Astrogram tool layout: How It Works and Demo are side by side", async ({
     page,
   }) => {
     const bottomGrid = page.locator(".bottom-grid");
@@ -125,20 +125,20 @@ test.describe("Astrogram Dossier Page", () => {
   });
 });
 
-test.describe("Starwizz Dossier Page", () => {
+test.describe("Starwizz Tool Page", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("http://localhost:5173/dossier/starwizz");
+    await page.goto("http://localhost:5173/tool/starwizz");
     await expect(page.locator(".overview-section").first()).toBeVisible();
   });
 
-  test("Starwizz dossier visual test", async ({ page }) => {
-    await expect(page).toHaveScreenshot("starwizz-dossier.png", {
+  test("Starwizz tool visual test", async ({ page }) => {
+    await expect(page).toHaveScreenshot("starwizz-tool.png", {
       fullPage: true,
       timeout: 15000,
     });
   });
 
-  test("Starwizz dossier SEO meta tags are correct", async ({ page }) => {
+  test("Starwizz tool SEO meta tags are correct", async ({ page }) => {
     await expect(page).toHaveTitle("Starwizz - Cinematic Starfield Generator");
 
     const ogTitle = await page.getAttribute(
@@ -179,10 +179,10 @@ test.describe("Starwizz Dossier Page", () => {
     expect(twitterImage).toContain("preview.png");
 
     const canonical = await page.getAttribute('link[rel="canonical"]', "href");
-    expect(canonical).toBe("https://dbastrosuite.com/dossier/starwizz");
+    expect(canonical).toBe("https://dbastrosuite.com/tool/starwizz");
   });
 
-  test("Starwizz dossier layout: overview is full width", async ({ page }) => {
+  test("Starwizz tool layout: overview is full width", async ({ page }) => {
     const overviewSection = page.locator(".overview-section");
     await expect(overviewSection).toBeVisible();
     await expect(overviewSection.locator("dba-ui-card")).toBeVisible();
@@ -197,7 +197,7 @@ test.describe("Starwizz Dossier Page", () => {
     expect(featuresBoundingBox!.y).toBeGreaterThan(overviewBoundingBox!.y);
   });
 
-  test("Starwizz dossier layout: features grid has 3 items", async ({
+  test("Starwizz tool layout: features grid has 3 items", async ({
     page,
   }) => {
     const featuresGrid = page.locator(".features-grid");
@@ -212,7 +212,7 @@ test.describe("Starwizz Dossier Page", () => {
     await expect(firstItem.locator("span")).toBeVisible();
   });
 
-  test("Starwizz dossier layout: How It Works and Demo are side by side", async ({
+  test("Starwizz tool layout: How It Works and Demo are side by side", async ({
     page,
   }) => {
     const bottomGrid = page.locator(".bottom-grid");

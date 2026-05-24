@@ -119,7 +119,7 @@ applyTo: "{hub/**,tools/astrogram/**,tools/starwizz/**,libs/**}"
 - Guards: `[Feature]Guard` — `AuthGuard`
 - Pipes: `[Name]Pipe` — `FormatCoordsPipe`
 - Directives: `[Name]Directive` — `HighlightDirective`
-- Resolvers: `[Feature]Resolver` — `DossierResolver`
+- Resolvers: `[Feature]Resolver` — `ToolResolver`
 - Raw API DTOs: `[Name]Dto` — `RawExposureDto`
 - Domain models: plain noun, no suffix — `Exposure`, `StarfieldConfig`
 - Response interfaces for services go in a `models/` subfolder adjacent to the service file, named `<domain>.response.ts`. Error classes go in the same `models/` subfolder, named `<domain>.error.ts`. Interface names use PascalCase with no abbreviations (e.g. `AstroSolveResponse` not `AstrosolveSolveResponse`).

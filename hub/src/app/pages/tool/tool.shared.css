@@ -1,5 +1,5 @@
 /*
- * Shared dossier layout styles for the hub dossier pages.
+ * Shared tool layout styles for the hub tool pages.
  * Imported by each per-page CSS file so the structural pieces
  * (top nav, header, grids, lists, demo) stay aligned.
  */
@@ -12,11 +12,11 @@
   padding: 2rem;
   color: var(--db-color-text-primary);
   font-family: var(--db-font-ui);
-  animation: dossier-entry 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+  animation: tool-entry 0.8s cubic-bezier(0.23, 1, 0.32, 1);
   --card-title-color: var(--db-color-neon-pink);
 }
 
-@keyframes dossier-entry {
+@keyframes tool-entry {
   0% {
     opacity: 0;
     transform: scale(0.98);
@@ -63,7 +63,7 @@
   text-transform: uppercase;
 }
 
-.dossier-header {
+.tool-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -77,13 +77,13 @@
   gap: 1.5rem;
 }
 
-.dossier-logo {
+.tool-logo {
   width: 4rem;
   height: 4rem;
   object-fit: contain;
 }
 
-.dossier-header h1 {
+.tool-header h1 {
   font-family: var(--db-font-display);
   font-size: 2.6rem;
   margin: 0;
@@ -316,7 +316,7 @@
   margin: 0;
 }
 
-.dossier-grid {
+.tool-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
@@ -325,13 +325,13 @@
 
 @media (max-width: 900px) {
   .bottom-grid,
-  .dossier-grid {
+  .tool-grid {
     grid-template-columns: 1fr;
   }
   .features-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  .dossier-header h1 {
+  .tool-header h1 {
     font-size: 2rem;
   }
 }
@@ -340,7 +340,7 @@
   .features-grid {
     grid-template-columns: 1fr;
   }
-  .dossier-header {
+  .tool-header {
     flex-direction: column;
     align-items: center;
     text-align: center;
@@ -350,7 +350,7 @@
     text-align: center;
     gap: 1rem;
   }
-  .dossier-header h1 {
+  .tool-header h1 {
     font-size: clamp(1.5rem, 10vw, 2rem);
   }
   .tagline {

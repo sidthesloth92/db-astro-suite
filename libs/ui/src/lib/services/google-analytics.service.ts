@@ -363,7 +363,7 @@ export class GoogleAnalyticsService implements AnalyticsService {
   }
 
   /**
-   * Tracks a click on the Launch Tool / Access Repository button on a Hub dossier page.
+   * Tracks a click on the Launch Tool / Access Repository button on a Hub tool page.
    * Represents the hub → tool conversion.
    *
    * @param tool - Identifier of the tool being launched.

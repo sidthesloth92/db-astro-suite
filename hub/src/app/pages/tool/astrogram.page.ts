@@ -12,15 +12,15 @@ import {
   chevronLeftIcon,
   chevronRightIcon,
 } from '@db-astro-suite/ui';
-import { ASTROGRAM_LAUNCH_URL } from './dossier.constants';
+import { ASTROGRAM_LAUNCH_URL } from './tool.constants';
 
 /**
- * Astrogram dossier page — restyled to the Direction B Polished theme.
+ * Astrogram tool page — restyled to the Direction B Polished theme.
  * Layout preserved; bespoke chrome (back link arrow, launch button) now
  * uses the shared libs/ui primitives.
  */
 @Component({
-  selector: 'dba-hub-astrogram-dossier',
+  selector: 'dba-hub-astrogram-tool',
   standalone: true,
   imports: [
     RouterLink,
@@ -48,7 +48,7 @@ export default class AstroGramPage {
 
   constructor() {
     afterNextRender(() =>
-      this.upsertCanonical('https://dbastrosuite.com/dossier/astrogram'),
+      this.upsertCanonical('https://dbastrosuite.com/tool/astrogram'),
     );
   }
 
@@ -70,7 +70,7 @@ export default class AstroGramPage {
 }
 
 export const routeMeta: RouteMeta = {
-  title: 'Astrogram Dossier - Professional Exposure Cards',
+  title: 'Astrogram Tool - Professional Exposure Cards',
   meta: [
     {
       name: 'description',
@@ -79,7 +79,7 @@ export const routeMeta: RouteMeta = {
     },
     {
       property: 'og:title',
-      content: 'Astrogram Dossier - Professional Exposure Cards',
+      content: 'Astrogram Tool - Professional Exposure Cards',
     },
     {
       property: 'og:description',
@@ -92,7 +92,7 @@ export const routeMeta: RouteMeta = {
     },
     {
       property: 'og:url',
-      content: 'https://dbastrosuite.com/dossier/astrogram',
+      content: 'https://dbastrosuite.com/tool/astrogram',
     },
     {
       name: 'twitter:card',
@@ -100,7 +100,7 @@ export const routeMeta: RouteMeta = {
     },
     {
       name: 'twitter:title',
-      content: 'Astrogram Dossier - Professional Exposure Cards',
+      content: 'Astrogram Tool - Professional Exposure Cards',
     },
     {
       name: 'twitter:description',

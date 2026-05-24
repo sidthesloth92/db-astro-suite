@@ -216,7 +216,7 @@ export abstract class AnalyticsService {
   ): void;
 
   /**
-   * Track a click on the Launch Tool / Access Repository button on a Hub dossier page.
+   * Track a click on the Launch Tool / Access Repository button on a Hub tool page.
    * This is the conversion event for the Hub → tool funnel.
    * @param tool Identifier of the tool being launched ('astrogram' | 'starwizz' | 'file-grouper')
    * @param destination The href the user is being sent to
