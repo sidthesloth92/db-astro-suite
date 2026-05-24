@@ -69,4 +69,26 @@ describe('CardDataService', () => {
       expect(after).toEqual(before);
     });
   });
+
+  describe('setPreviewSize', () => {
+    it('updates previewSizeKey and mirrors the ratio onto cardData in infographic mode', () => {
+      service.activeMode.set('infographic');
+
+      service.setPreviewSize('ig-square');
+
+      expect(service.previewSizeKey()).toBe('ig-square');
+      expect(service.cardData().aspectRatio).toBe('1:1');
+    });
+
+    it('mirrors the ratio onto stellarMapData when active mode is stellar-map', () => {
+      service.activeMode.set('stellar-map');
+      const cardRatioBefore = service.cardData().aspectRatio;
+
+      service.setPreviewSize('ig-story');
+
+      expect(service.previewSizeKey()).toBe('ig-story');
+      expect(service.stellarMapData().aspectRatio).toBe('9:16');
+      expect(service.cardData().aspectRatio).toBe(cardRatioBefore);
+    });
+  });
 });

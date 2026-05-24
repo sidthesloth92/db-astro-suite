@@ -44,7 +44,12 @@ describe('EquipmentPanelComponent', () => {
     updateData: jasmine.Spy;
     mutateData: jasmine.Spy;
   };
-  let presetStub: { getEquipmentPresets: jasmine.Spy; saveEquipmentPreset: jasmine.Spy };
+  type PresetShape = { equipment: unknown[]; software: unknown[] };
+  let presetStub: {
+    presets: ReturnType<typeof signal<Record<string, PresetShape>>>;
+    getEquipmentPresets: jasmine.Spy;
+    saveEquipmentPreset: jasmine.Spy;
+  };
   let analyticsStub: Record<string, jasmine.Spy>;
 
   beforeEach(async () => {
@@ -60,6 +65,12 @@ describe('EquipmentPanelComponent', () => {
       }),
     };
     presetStub = {
+      presets: signal<Record<string, PresetShape>>({
+        'Backyard SHO': {
+          equipment: [{ icon: '🔭', label: 'Telescope', value: 'Askar 103' }],
+          software: [{ icon: '💻', label: 'Computer', name: 'ASIAIR' }],
+        },
+      }),
       getEquipmentPresets: jasmine.createSpy('getEquipmentPresets').and.returnValue({
         'Backyard SHO': [{ icon: '🔭', label: 'Telescope', value: 'Askar 103' }],
       }),
@@ -99,7 +110,7 @@ describe('EquipmentPanelComponent', () => {
   it('updates an equipment field on input', () => {
     const fixture = TestBed.createComponent(EquipmentPanelComponent);
     fixture.detectChanges();
-    fixture.componentInstance.updateEquipment(0, 'value', 'Askar 71F');
+    fixture.componentInstance.updateEquipment(0, 'Askar 71F');
     expect(dataStub.cardData().equipment[0].value).toBe('Askar 71F');
   });
 });

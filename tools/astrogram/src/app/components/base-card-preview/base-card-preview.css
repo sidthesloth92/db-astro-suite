@@ -103,6 +103,7 @@
 }
 
 .header-actions {
+  margin-left: auto;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -128,31 +129,26 @@
   color: white;
 }
 
-/* The Card - Restricted to Post Container Width */
+/* The Card — fixed 480 px base width; height is derived from CSS aspect-ratio so the
+   preview actually reshapes when the user picks a format. */
 .card {
   position: relative;
-  overflow: visible; /* Changed from hidden to allow stellar map markers to bleed slightly at edges */
+  overflow: visible; /* allow stellar map markers to bleed slightly at edges */
   border: none !important;
   flex-shrink: 0;
-  height: 600px;
-  min-height: 600px;
+  width: 480px;
   background: #000;
 }
 
-.card.aspect-3-4 {
-  aspect-ratio: 3/4;
-  width: auto;
-}
-
-.card.aspect-4-5 {
-  aspect-ratio: 4/5;
-  width: auto;
-}
+.card.aspect-3-4   { aspect-ratio: 3/4; }     /* 480 × 640  */
+.card.aspect-4-5   { aspect-ratio: 4/5; }     /* 480 × 600  */
+.card.aspect-1-1   { aspect-ratio: 1/1; }     /* 480 × 480  */
+.card.aspect-1-91-1 { aspect-ratio: 1.91/1; } /* 480 × ~251 */
+.card.aspect-9-16  { aspect-ratio: 9/16; }    /* 480 × ~853 */
 
 .card.aspect-auto {
   height: var(--img-height, 600px);
-  min-height: 0 !important;
-  width: 100%; /* Fill the post-container which handles the min/max width */
+  width: 100%; /* fill the post-container which handles min/max width */
 }
 
 /* Empty state: ensure the card has visible height so the upload overlay renders */

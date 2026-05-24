@@ -1,4 +1,30 @@
 <div class="panel-root">
+  <dba-ui-inspector-section title="Format" sub="Card dimensions for export">
+    <dba-ui-icon slot="icon" [def]="cropIcon" [size]="14" />
+    <div class="format-list">
+      @for (group of formatGroups; track group.label) {
+        <div class="format-group-label">{{ group.label }}</div>
+        @for (opt of group.options; track opt.key) {
+          <button
+            type="button"
+            class="format-row"
+            [class.is-active]="selectedSizeKey() === opt.key"
+            (click)="setFormat(opt.key)"
+          >
+            <span class="format-thumb" [attr.data-ratio]="opt.ratio"></span>
+            <span class="format-meta">
+              <span class="format-label">{{ opt.label }}</span>
+              <span class="format-dims">{{ opt.dims }}</span>
+            </span>
+            <span class="format-ratio">{{ opt.ratio }}</span>
+          </button>
+        }
+      }
+    </div>
+  </dba-ui-inspector-section>
+
+  <hr class="divider" aria-hidden="true" />
+
   <dba-ui-inspector-section title="Color" sub="Card accents">
     <dba-ui-icon slot="icon" [def]="paletteIcon" [size]="14" />
     <dba-ui-inspector-field label="Accent">

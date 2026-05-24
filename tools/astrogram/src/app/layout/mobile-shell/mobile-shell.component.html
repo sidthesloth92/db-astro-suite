@@ -16,7 +16,7 @@
         @case ('object') { <dba-ag-object-info-panel /> }
         @case ('capture') { <dba-ag-capture-panel /> }
         @case ('equipment') { <dba-ag-equipment-panel /> }
-        @case ('style') { <dba-ag-style-panel /> }
+        @case ('layout') { <dba-ag-layout-panel /> }
       }
     } @else {
       @switch (stellarSection()) {
@@ -32,6 +32,7 @@
         @case ('aperture') { <dba-ui-icon [def]="apertureIcon" [size]="18" /> }
         @case ('telescope') { <dba-ui-icon [def]="telescopeIcon" [size]="18" /> }
         @case ('palette') { <dba-ui-icon [def]="paletteIcon" [size]="18" /> }
+        @case ('crop') { <dba-ui-icon [def]="cropIcon" [size]="18" /> }
         @case ('filter') { <dba-ui-icon [def]="filterIcon" [size]="18" /> }
         @case ('target') { <dba-ui-icon [def]="targetIcon" [size]="18" /> }
       }

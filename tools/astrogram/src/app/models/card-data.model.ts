@@ -37,6 +37,13 @@ export interface ObjectAnnotation {
   radius: number;
 }
 
+/**
+ * Aspect ratio applied to a preview surface. `'auto'` defers to the source
+ * image's natural dimensions; the named ratios produce a fixed crop matched
+ * to a social-media post format (see `preview-sizes.constants.ts`).
+ */
+export type AspectRatio = '1:1' | '4:5' | '1.91:1' | '9:16' | '3:4' | 'auto';
+
 export interface CardData {
   // Header
   title: string;
@@ -67,7 +74,7 @@ export interface CardData {
   secondaryAccentColor: string;
   cardOpacity: number; // 0 to 1
   backgroundImage: string | null;
-  aspectRatio: '3:4' | '4:5' | 'auto';
+  aspectRatio: AspectRatio;
 
   // Social
   hashtags?: string;
@@ -79,7 +86,7 @@ export interface CardData {
 export interface StellarMapData {
   backgroundImage: string | null;
   rawFile: File | null;
-  aspectRatio: '3:4' | '4:5' | 'auto';
+  aspectRatio: AspectRatio;
   isSolving?: boolean;
   naturalWidth?: number;
   naturalHeight?: number;

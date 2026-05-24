@@ -3,7 +3,7 @@
     <dba-ui-icon slot="icon" [def]="layersIcon" [size]="14" />
     @if (!isSavingPreset()) {
       <button slot="action" type="button" class="action-btn" (click)="startSavePreset()">
-        <dba-ui-icon [def]="plusIcon" [size]="11" /> <span>New</span>
+        <dba-ui-icon [def]="plusIcon" [size]="11" /> <span>Save current</span>
       </button>
     }
 
@@ -24,23 +24,34 @@
 
     <div class="preset-list">
       @if (presetRows().length === 0) {
-        <div class="preset-empty">No saved presets yet — hit New to save the current rig.</div>
+        <div class="preset-empty">No saved presets yet — hit Save current to store this rig.</div>
       } @else {
         @for (preset of presetRows(); track preset.name) {
-          <button
-            type="button"
-            class="preset-row"
-            [class.is-active]="preset.active"
-            (click)="activatePreset(preset.name)"
-          >
-            <span class="preset-check" [class.is-on]="preset.active">
-              @if (preset.active) { <dba-ui-icon [def]="checkIcon" [size]="10" /> }
-            </span>
-            <span class="preset-meta">
-              <span class="preset-name">{{ preset.name }}</span>
-              <span class="preset-note">{{ preset.note }}</span>
-            </span>
-          </button>
+          <div class="preset-row" [class.is-active]="preset.active">
+            <button
+              type="button"
+              class="preset-load-btn"
+              [class.is-active]="preset.active"
+              (click)="activatePreset(preset.name)"
+              [attr.aria-pressed]="preset.active"
+            >
+              <span class="preset-check" [class.is-on]="preset.active">
+                @if (preset.active) { <dba-ui-icon [def]="checkIcon" [size]="10" /> }
+              </span>
+              <span class="preset-meta">
+                <span class="preset-name">{{ preset.name }}</span>
+                <span class="preset-note">{{ preset.note }}</span>
+              </span>
+            </button>
+            <button
+              type="button"
+              class="preset-del-btn"
+              (click)="deletePreset(preset.name)"
+              [attr.aria-label]="'Delete preset ' + preset.name"
+            >
+              <dba-ui-icon [def]="trashIcon" [size]="11" />
+            </button>
+          </div>
         }
       }
     </div>
@@ -51,13 +62,48 @@
   <dba-ui-inspector-section title="Equipment" sub="Hardware">
     <dba-ui-icon slot="icon" [def]="telescopeIcon" [size]="14" />
     @for (item of cardData().equipment; track $index; let i = $index) {
-      <dba-ui-inspector-field [label]="item.label">
+      <div class="eq-row">
+        @if (isEditingLabel('equipment', i)) {
+          <input
+            type="text"
+            class="eq-label-input"
+            size="1"
+            [value]="item.label"
+            (blur)="commitLabel('equipment', i, $event)"
+            (keyup.enter)="commitLabel('equipment', i, $event)"
+            (keyup.escape)="cancelEditLabel()"
+            autofocus
+          />
+        } @else {
+          <button
+            type="button"
+            class="eq-label-text"
+            (click)="startEditLabel('equipment', i)"
+            [title]="item.label + ' — click to rename'"
+          >
+            {{ item.label }}
+          </button>
+        }
         <dba-ui-micro-input
           [value]="item.value"
-          (valueChange)="updateEquipment(i, 'value', $event)"
+          placeholder="Value"
+          (valueChange)="updateEquipment(i, $event)"
         />
-      </dba-ui-inspector-field>
+        <button
+          type="button"
+          class="row-trash"
+          (click)="removeEquipmentRow(i)"
+          aria-label="Remove row"
+        >
+          <dba-ui-icon [def]="closeIcon" [size]="10" />
+        </button>
+      </div>
     }
+    <div class="add-row">
+      <button type="button" class="action-btn" (click)="addEquipmentRow()">
+        <dba-ui-icon [def]="plusIcon" [size]="11" /> <span>Add item</span>
+      </button>
+    </div>
   </dba-ui-inspector-section>
 
   <hr class="divider" aria-hidden="true" />
@@ -65,13 +111,48 @@
   <dba-ui-inspector-section title="Software" sub="Capture & processing pipeline">
     <dba-ui-icon slot="icon" [def]="cpuIcon" [size]="14" />
     @for (item of cardData().software; track $index; let i = $index) {
-      <dba-ui-inspector-field [label]="item.label">
+      <div class="eq-row">
+        @if (isEditingLabel('software', i)) {
+          <input
+            type="text"
+            class="eq-label-input"
+            size="1"
+            [value]="item.label"
+            (blur)="commitLabel('software', i, $event)"
+            (keyup.enter)="commitLabel('software', i, $event)"
+            (keyup.escape)="cancelEditLabel()"
+            autofocus
+          />
+        } @else {
+          <button
+            type="button"
+            class="eq-label-text"
+            (click)="startEditLabel('software', i)"
+            [title]="item.label + ' — click to rename'"
+          >
+            {{ item.label }}
+          </button>
+        }
         <dba-ui-micro-input
           [value]="item.name"
-          (valueChange)="updateSoftware(i, 'name', $event)"
+          placeholder="Value"
           [mono]="true"
+          (valueChange)="updateSoftware(i, $event)"
         />
-      </dba-ui-inspector-field>
+        <button
+          type="button"
+          class="row-trash"
+          (click)="removeSoftwareRow(i)"
+          aria-label="Remove row"
+        >
+          <dba-ui-icon [def]="closeIcon" [size]="10" />
+        </button>
+      </div>
     }
+    <div class="add-row">
+      <button type="button" class="action-btn" (click)="addSoftwareRow()">
+        <dba-ui-icon [def]="plusIcon" [size]="11" /> <span>Add item</span>
+      </button>
+    </div>
   </dba-ui-inspector-section>
 </div>

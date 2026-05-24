@@ -1,10 +1,13 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import {
   AnalyticsService,
+  ColorSwatchInputComponent,
   IconComponent,
   InspectorFieldComponent,
   InspectorSectionComponent,
   MicroSliderComponent,
+  SwitchComponent,
+  tagIcon,
   targetIcon,
   trashIcon,
 } from '@db-astro-suite/ui';
@@ -13,10 +16,15 @@ import type { ImageAnnotation } from '../../models/annotation.models';
 import { CardDataService } from '../../services/card-data.service';
 
 /**
- * Inspector panel that exposes per-annotation overrides (label / size /
- * thickness) and the delete action for the currently-selected
- * annotation. Renders an empty state when no annotation is selected.
- * Replaces `AnnotationDetailComponent`.
+ * Inspector panel that exposes per-annotation overrides for the
+ * currently-selected annotation. Mirrors the control surface of the
+ * global Annotation Style panel (circle colour / thickness / opacity,
+ * label colour / font size / opacity, show-magnitude) and layers in
+ * the per-annotation extras: custom label, size override, delete.
+ *
+ * Each override falls back to the matching `GlobalAnnotationSettings`
+ * value when undefined, so the displayed slider/swatch always reflects
+ * the effective render value.
  */
 @Component({
   selector: 'dba-ag-annotation-selected-panel',
@@ -25,6 +33,8 @@ import { CardDataService } from '../../services/card-data.service';
     InspectorSectionComponent,
     InspectorFieldComponent,
     MicroSliderComponent,
+    ColorSwatchInputComponent,
+    SwitchComponent,
     IconComponent,
   ],
   templateUrl: './annotation-selected-panel.component.html',
@@ -35,8 +45,10 @@ export class AnnotationSelectedPanelComponent {
   private readonly dataService = inject(CardDataService);
   private readonly analyticsService = inject(AnalyticsService);
 
-  /** Target glyph rendered in the selected-card pill and section title. */
+  /** Target glyph rendered in the selected-card pill and Circle section title. */
   protected readonly targetIcon = targetIcon;
+  /** Tag glyph rendered in the Label section title. */
+  protected readonly tagIcon = tagIcon;
   /** Trash glyph rendered on the delete button. */
   protected readonly trashIcon = trashIcon;
 
@@ -90,12 +102,62 @@ export class AnnotationSelectedPanelComponent {
     return 400;
   });
 
+  /** Effective circle colour (override → global). */
+  readonly effectiveColor = computed(
+    () => this.annotation()?.style?.color ?? this.globalSettings().color,
+  );
+
+  /** Effective circle opacity 0–1 (override → global). */
+  readonly effectiveCircleOpacity = computed(
+    () => this.annotation()?.style?.opacity ?? this.globalSettings().circleOpacity,
+  );
+
+  /** Circle opacity expressed in 0–100 for the slider readout. */
+  readonly circleOpacityPercent = computed(() =>
+    Math.round(this.effectiveCircleOpacity() * 100),
+  );
+
+  /** Effective label colour (override → global). */
+  readonly effectiveLabelColor = computed(
+    () => this.annotation()?.style?.labelColor ?? this.globalSettings().labelColor,
+  );
+
+  /** Effective label font size (override → global). */
+  readonly effectiveFontSize = computed(
+    () => this.annotation()?.style?.fontSize ?? this.globalSettings().fontSize,
+  );
+
+  /** Effective label opacity 0–1 (override → global). */
+  readonly effectiveLabelOpacity = computed(
+    () => this.annotation()?.style?.labelOpacity ?? this.globalSettings().labelOpacity,
+  );
+
+  /** Label opacity expressed in 0–100 for the slider readout. */
+  readonly labelOpacityPercent = computed(() =>
+    Math.round(this.effectiveLabelOpacity() * 100),
+  );
+
+  /** Effective show-magnitude toggle (override → global). */
+  readonly effectiveShowMagnitude = computed(
+    () => this.annotation()?.style?.showMagnitude ?? this.globalSettings().showMagnitude,
+  );
+
   /** Patches the annotation style for the current selection. */
   updateStyle(patch: Partial<AnnotationStyle>): void {
     const id = this.dataService.selectedAnnotationId();
     if (id) {
       this.dataService.updateAnnotationStyle(id, patch);
     }
+  }
+
+  /** Sets the per-annotation circle opacity (slider emits 0–100, model stores 0–1). */
+  setCircleOpacity(value: number): void {
+    this.updateStyle({ opacity: Math.max(0, Math.min(100, value)) / 100 });
+  }
+
+  /** Sets the per-annotation label opacity (slider emits 0–100, model stores 0–1). */
+  setLabelOpacity(value: number): void {
+    this.updateStyle({ labelOpacity: Math.max(0, Math.min(100, value)) / 100 });
   }
 
   /** Handles edits to the custom-label input. */

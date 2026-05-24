@@ -4,6 +4,7 @@ import {
   FloatingSheetComponent,
   IconComponent,
   apertureIcon,
+  cropIcon,
   filterIcon,
   imageIcon,
   paletteIcon,
@@ -24,7 +25,7 @@ import { AnnotationStylePanelComponent } from '../../panels/annotation-style/ann
 import { CapturePanelComponent } from '../../panels/capture/capture-panel.component';
 import { EquipmentPanelComponent } from '../../panels/equipment/equipment-panel.component';
 import { ObjectInfoPanelComponent } from '../../panels/object-info/object-info-panel.component';
-import { StylePanelComponent } from '../../panels/style/style-panel.component';
+import { LayoutPanelComponent } from '../../panels/layout/layout-panel.component';
 import { CardDataService } from '../../services/card-data.service';
 import { AstrogramTopBarComponent } from '../astrogram-top-bar/astrogram-top-bar.component';
 
@@ -46,7 +47,7 @@ import { AstrogramTopBarComponent } from '../astrogram-top-bar/astrogram-top-bar
     ObjectInfoPanelComponent,
     CapturePanelComponent,
     EquipmentPanelComponent,
-    StylePanelComponent,
+    LayoutPanelComponent,
     AnnotationFiltersPanelComponent,
     AnnotationStylePanelComponent,
     AnnotationSelectedPanelComponent,
@@ -63,6 +64,7 @@ export class MobileShellComponent {
   protected readonly imageIcon = imageIcon;
   protected readonly apertureIcon = apertureIcon;
   protected readonly telescopeIcon = telescopeIcon;
+  protected readonly cropIcon = cropIcon;
   protected readonly paletteIcon = paletteIcon;
   protected readonly filterIcon = filterIcon;
   protected readonly targetIcon = targetIcon;
@@ -83,7 +85,7 @@ export class MobileShellComponent {
     { id: 'object', label: 'Info', iconName: 'image' },
     { id: 'capture', label: 'Capture', iconName: 'aperture' },
     { id: 'equipment', label: 'Gear', iconName: 'telescope' },
-    { id: 'style', label: 'Style', iconName: 'palette' },
+    { id: 'layout', label: 'Layout', iconName: 'crop' },
   ];
 
   /** Bottom-nav items for stellar mode. */
@@ -100,7 +102,7 @@ export class MobileShellComponent {
         object: 'Object info',
         capture: 'Capture',
         equipment: 'Equipment',
-        style: 'Style',
+        layout: 'Layout',
       };
       return map[this.infographicSection()];
     }
@@ -139,7 +141,7 @@ export class MobileShellComponent {
   }
 
   private isInfographicId(id: string): id is MobileInfographicId {
-    return id === 'object' || id === 'capture' || id === 'equipment' || id === 'style';
+    return id === 'object' || id === 'capture' || id === 'equipment' || id === 'layout';
   }
 
   private isStellarId(id: string): id is MobileStellarId {

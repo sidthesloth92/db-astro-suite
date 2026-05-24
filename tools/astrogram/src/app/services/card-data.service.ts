@@ -1,4 +1,9 @@
 import { Injectable, signal } from '@angular/core';
+import {
+  DEFAULT_PREVIEW_SIZE_KEY,
+  PREVIEW_SIZES,
+  type PreviewSizeKey,
+} from '../constants/preview-sizes.constants';
 import { AnnotationStyle, GlobalAnnotationSettings } from '../models/annotation-settings.models';
 import { ImageAnnotation } from '../models/annotation.models';
 import {
@@ -48,6 +53,12 @@ export class CardDataService {
   });
 
   readonly activeMode = signal<'infographic' | 'stellar-map'>('infographic');
+
+  /**
+   * Currently selected preview-size preset key. The matching `aspectRatio`
+   * is mirrored into `cardData` / `stellarMapData` by `setPreviewSize()`.
+   */
+  readonly previewSizeKey = signal<PreviewSizeKey>(DEFAULT_PREVIEW_SIZE_KEY);
 
   /**
    * Requested export format. Drives `BaseCardPreviewComponent.exportCard()` —
@@ -153,6 +164,23 @@ export class CardDataService {
   addAnnotation(ann: ImageAnnotation) {
     this.stellarMapData.update((d) => ({ ...d, annotations: [...d.annotations, ann] }));
     this.selectedAnnotationId.set(ann.id);
+  }
+
+  /**
+   * Switches the preview to a named size preset, mirroring its `aspectRatio`
+   * into the active mode's data signal so the preview surface reshapes
+   * immediately. Single source of truth for both the toolbar dropdown and
+   * the Style inspector's format picker — both call through here.
+   */
+  setPreviewSize(key: PreviewSizeKey) {
+    const meta = PREVIEW_SIZES[key];
+    if (!meta) return;
+    this.previewSizeKey.set(key);
+    if (this.activeMode() === 'infographic') {
+      this.cardData.update((data) => ({ ...data, aspectRatio: meta.ratio }));
+    } else {
+      this.stellarMapData.update((data) => ({ ...data, aspectRatio: meta.ratio }));
+    }
   }
 
   updateData(newData: Partial<CardData>) {

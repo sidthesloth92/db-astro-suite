@@ -3,7 +3,16 @@
   <div class="body">
     <main class="preview-col">
       <div class="preview-inner">
-        <dba-ui-preview-context-bar [dimensions]="dimensions()" [currentZoom]="100" />
+        <dba-ui-preview-context-bar
+          [dimensions]="dimensions()"
+          [currentZoom]="100"
+          [sizeOptions]="sizeOptions"
+          [selectedSizeKey]="selectedSizeKey()"
+          [modeOptions]="modeOptions"
+          [selectedModeId]="selectedModeId()"
+          (sizeChange)="onSizeChange($event)"
+          (modeChange)="onModeChange($event)"
+        />
         <div class="preview-stage">
           @if (activeMode() === 'infographic') {
             <dba-ag-card-preview />

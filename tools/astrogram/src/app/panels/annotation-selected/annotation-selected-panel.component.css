@@ -8,6 +8,13 @@
   flex-direction: column;
 }
 
+.divider {
+  height: 1px;
+  background: var(--db-color-border);
+  border: none;
+  margin: 0 18px;
+}
+
 .selected-card {
   margin: 16px 18px 0;
   padding: 12px 14px;

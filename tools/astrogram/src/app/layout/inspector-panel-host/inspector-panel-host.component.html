@@ -2,6 +2,16 @@
   @if (mode() === 'infographic') {
     <dba-ui-icon-rail side="left">
       <dba-ui-icon-rail-item
+        id="layout"
+        label="Layout"
+        short="Layout"
+        [active]="infographicSection() === 'layout'"
+        side="left"
+        (selected)="selectInfographic($event)"
+      >
+        <dba-ui-icon [def]="cropIcon" [size]="17" />
+      </dba-ui-icon-rail-item>
+      <dba-ui-icon-rail-item
         id="object"
         label="Object info"
         short="Info"
@@ -33,16 +43,6 @@
       </dba-ui-icon-rail-item>
       <hr class="divider" aria-hidden="true" />
       <dba-ui-icon-rail-item
-        id="style"
-        label="Style"
-        short="Style"
-        [active]="infographicSection() === 'style'"
-        side="left"
-        (selected)="selectInfographic($event)"
-      >
-        <dba-ui-icon [def]="paletteIcon" [size]="17" />
-      </dba-ui-icon-rail-item>
-      <dba-ui-icon-rail-item
         id="export"
         label="Export"
         short="Out"
@@ -56,10 +56,10 @@
 
     <div class="panel">
       @switch (infographicSection()) {
+        @case ('layout') { <dba-ag-layout-panel /> }
         @case ('object') { <dba-ag-object-info-panel /> }
         @case ('capture') { <dba-ag-capture-panel /> }
         @case ('equipment') { <dba-ag-equipment-panel /> }
-        @case ('style') { <dba-ag-style-panel /> }
         @case ('export') { <dba-ag-export-panel /> }
       }
     </div>
@@ -85,17 +85,19 @@
       >
         <dba-ui-icon [def]="paletteIcon" [size]="17" />
       </dba-ui-icon-rail-item>
-      <hr class="divider" aria-hidden="true" />
-      <dba-ui-icon-rail-item
-        id="selected"
-        label="Selected annotation"
-        short="Item"
-        [active]="stellarSection() === 'selected'"
-        side="left"
-        (selected)="selectStellar($event)"
-      >
-        <dba-ui-icon [def]="targetIcon" [size]="17" />
-      </dba-ui-icon-rail-item>
+      @if (hasAnnotations()) {
+        <hr class="divider" aria-hidden="true" />
+        <dba-ui-icon-rail-item
+          id="selected"
+          label="Selected annotation"
+          short="Item"
+          [active]="stellarSection() === 'selected'"
+          side="left"
+          (selected)="selectStellar($event)"
+        >
+          <dba-ui-icon [def]="targetIcon" [size]="17" />
+        </dba-ui-icon-rail-item>
+      }
     </dba-ui-icon-rail>
 
     <div class="panel">

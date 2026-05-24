@@ -1,9 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import {
   IconComponent,
   IconRailComponent,
   IconRailItemComponent,
   apertureIcon,
+  cropIcon,
   downloadIcon,
   filterIcon,
   imageIcon,
@@ -12,6 +13,7 @@ import {
   telescopeIcon,
 } from '@db-astro-suite/ui';
 import { CardDataService } from '../../services/card-data.service';
+import { LayoutPanelComponent } from '../../panels/layout/layout-panel.component';
 import { AnnotationFiltersPanelComponent } from '../../panels/annotation-filters/annotation-filters-panel.component';
 import { AnnotationSelectedPanelComponent } from '../../panels/annotation-selected/annotation-selected-panel.component';
 import { AnnotationStylePanelComponent } from '../../panels/annotation-style/annotation-style-panel.component';
@@ -19,7 +21,6 @@ import { CapturePanelComponent } from '../../panels/capture/capture-panel.compon
 import { EquipmentPanelComponent } from '../../panels/equipment/equipment-panel.component';
 import { ExportPanelComponent } from '../../panels/export/export-panel.component';
 import { ObjectInfoPanelComponent } from '../../panels/object-info/object-info-panel.component';
-import { StylePanelComponent } from '../../panels/style/style-panel.component';
 import type {
   InfographicSectionId,
   StellarSectionId,
@@ -42,10 +43,10 @@ export type { InfographicSectionId, StellarSectionId };
     IconComponent,
     IconRailComponent,
     IconRailItemComponent,
+    LayoutPanelComponent,
     ObjectInfoPanelComponent,
     CapturePanelComponent,
     EquipmentPanelComponent,
-    StylePanelComponent,
     ExportPanelComponent,
     AnnotationFiltersPanelComponent,
     AnnotationStylePanelComponent,
@@ -59,14 +60,39 @@ export class InspectorPanelHostComponent {
   private readonly dataService = inject(CardDataService);
 
   /** Active inspector section for infographic mode. */
-  readonly infographicSection = signal<InfographicSectionId>('object');
+  readonly infographicSection = signal<InfographicSectionId>('layout');
   /** Active inspector section for stellar mode. */
   readonly stellarSection = signal<StellarSectionId>('filters');
 
   /** Mode signal mirrored for templates. */
   readonly mode = computed(() => this.dataService.activeMode());
 
+  /**
+   * True once the user has added or clicked an annotation. Gates the
+   * "Selected" rail item — it stays hidden on a fresh map and reappears
+   * only when there's at least one annotation to inspect.
+   */
+  readonly hasAnnotations = computed(
+    () => this.dataService.stellarMapData().annotations.length > 0,
+  );
+
+  /**
+   * Auto-routes the inspector to the "Selected" panel whenever the user
+   * picks (or adds) an annotation. Also bounces away when the last
+   * annotation is removed so we never sit on an empty panel.
+   */
+  private readonly autoRouteSelected = effect(() => {
+    const selectedId = this.dataService.selectedAnnotationId();
+    const hasAny = this.hasAnnotations();
+    if (selectedId) {
+      this.stellarSection.set('selected');
+    } else if (!hasAny && this.stellarSection() === 'selected') {
+      this.stellarSection.set('filters');
+    }
+  });
+
   /** Glyphs surfaced on the rail in infographic + stellar modes. */
+  protected readonly cropIcon = cropIcon;
   protected readonly imageIcon = imageIcon;
   protected readonly apertureIcon = apertureIcon;
   protected readonly telescopeIcon = telescopeIcon;
@@ -90,7 +116,7 @@ export class InspectorPanelHostComponent {
   }
 
   private isInfographicSection(id: string): id is InfographicSectionId {
-    return id === 'object' || id === 'capture' || id === 'equipment' || id === 'style' || id === 'export';
+    return id === 'layout' || id === 'object' || id === 'capture' || id === 'equipment' || id === 'export';
   }
 
   private isStellarSection(id: string): id is StellarSectionId {

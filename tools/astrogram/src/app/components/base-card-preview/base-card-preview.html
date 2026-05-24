@@ -1,10 +1,12 @@
 <div class="preview-wrapper" #cardWrapper>
   <!-- Header: Lives outside the scaled container so it never shrinks -->
   <div class="post-header">
-    <div class="user-meta">
-      <div class="avatar-mini"></div>
-      <span class="username-top">{{ author() || 'astrophotographer' }}</span>
-    </div>
+    @if (author()) {
+      <div class="user-meta">
+        <div class="avatar-mini"></div>
+        <span class="username-top">{{ author() }}</span>
+      </div>
+    }
     <div class="header-actions">
       <ng-content select="[headerAction]"></ng-content>
       <dba-ui-icon-button
@@ -34,6 +36,9 @@
         class="card"
         [class.aspect-3-4]="aspectRatio() === '3:4'"
         [class.aspect-4-5]="aspectRatio() === '4:5'"
+        [class.aspect-1-1]="aspectRatio() === '1:1'"
+        [class.aspect-1-91-1]="aspectRatio() === '1.91:1'"
+        [class.aspect-9-16]="aspectRatio() === '9:16'"
         [class.aspect-auto]="aspectRatio() === 'auto'"
         [class.no-image]="!backgroundImage()"
       >

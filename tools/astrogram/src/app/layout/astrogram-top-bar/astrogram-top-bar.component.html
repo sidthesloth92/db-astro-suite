@@ -6,24 +6,4 @@
   [githubLink]="githubLink"
   [aboutLink]="aboutLink"
   [tagline]="tagline"
->
-  <ng-template #tabIcon let-opt>
-    @switch (opt.id) {
-      @case ('infographic') {
-        <dba-ui-icon [def]="layoutIcon" [size]="12" />
-      }
-      @case ('stellar') {
-        <dba-ui-icon [def]="sparklesIcon" [size]="12" />
-      }
-    }
-  </ng-template>
-
-  <dba-ui-segmented-tabs
-    slot="center"
-    [options]="tabOptions()"
-    [value]="activeTabId()"
-    [size]="isCompact() ? 'sm' : 'md'"
-    [iconTemplate]="tabIcon"
-    (valueChange)="onTabChange($event)"
-  />
-</dba-ui-header>
+/>

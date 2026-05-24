@@ -5,19 +5,25 @@ import {
   InspectorFieldComponent,
   InspectorSectionComponent,
   MicroSliderComponent,
+  cropIcon,
   imageIcon,
   paletteIcon,
 } from '@db-astro-suite/ui';
+import {
+  PREVIEW_SIZES,
+  PREVIEW_SIZE_GROUPS,
+  type PreviewSizeKey,
+} from '../../constants/preview-sizes.constants';
 import { CardDataService } from '../../services/card-data.service';
+import type { FormatGroup, FormatOption } from './layout-panel.types';
 
 /**
- * Inspector panel for card format, accent colours, opacity, and the
- * background image. Format choice is delegated to
- * `CardDataService.setPreviewSize()` so this surface stays in sync with
- * the preview-context-bar's size dropdown.
+ * Inspector panel combining card format (aspect-ratio preset), accent
+ * colours, opacity, and background image. Consolidates the former Format
+ * section (previously in StylePanel) with colour and background controls.
  */
 @Component({
-  selector: 'dba-ag-style-panel',
+  selector: 'dba-ag-layout-panel',
   standalone: true,
   imports: [
     InspectorSectionComponent,
@@ -26,22 +32,46 @@ import { CardDataService } from '../../services/card-data.service';
     MicroSliderComponent,
     IconComponent,
   ],
-  templateUrl: './style-panel.component.html',
-  styleUrls: ['./style-panel.component.css'],
+  templateUrl: './layout-panel.component.html',
+  styleUrls: ['./layout-panel.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class StylePanelComponent {
+export class LayoutPanelComponent {
   private readonly dataService = inject(CardDataService);
 
   /** Current card document. */
   readonly cardData = this.dataService.cardData;
 
+  /** Currently selected preview-size key — drives the active-row highlight. */
+  readonly selectedSizeKey = this.dataService.previewSizeKey;
+
   /** Glyphs rendered next to each section title. */
+  protected readonly cropIcon = cropIcon;
   protected readonly paletteIcon = paletteIcon;
   protected readonly imageIcon = imageIcon;
 
+  /** All format options grouped by social platform, shown in the scrollable picker. */
+  readonly formatGroups: readonly FormatGroup[] = PREVIEW_SIZE_GROUPS.map((group) => ({
+    label: group.label,
+    options: group.keys.map<FormatOption>((key) => {
+      const meta = PREVIEW_SIZES[key];
+      const isAuto = meta.ratio === 'auto';
+      return {
+        key,
+        label: meta.name,
+        dims: isAuto ? 'matches source image' : `${meta.width} × ${meta.height}`,
+        ratio: meta.ratio,
+      };
+    }),
+  }));
+
   /** Current card opacity expressed in 0–100 for the slider readout. */
   readonly opacityPercent = computed(() => Math.round(this.cardData().cardOpacity * 100));
+
+  /** Picks a new size preset; routes through the shared service to keep context in sync. */
+  setFormat(key: PreviewSizeKey): void {
+    this.dataService.setPreviewSize(key);
+  }
 
   /** Patches the accent colour and its parsed RGB tuple. */
   setAccentColor(hex: string): void {

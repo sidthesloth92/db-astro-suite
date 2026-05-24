@@ -6,13 +6,13 @@
  */
 
 /** Inspector section id for infographic mode (desktop rail). */
-export type InfographicSectionId = 'object' | 'capture' | 'equipment' | 'style' | 'export';
+export type InfographicSectionId = 'layout' | 'object' | 'capture' | 'equipment' | 'export';
 
 /** Inspector section id for stellar-map mode (desktop rail). */
 export type StellarSectionId = 'filters' | 'style' | 'selected';
 
 /** Mobile bottom-nav section id for infographic mode. */
-export type MobileInfographicId = 'object' | 'capture' | 'equipment' | 'style';
+export type MobileInfographicId = 'object' | 'capture' | 'equipment' | 'layout';
 
 /** Mobile bottom-nav section id for stellar-map mode. */
 export type MobileStellarId = 'filters' | 'style' | 'selected';
@@ -26,6 +26,7 @@ export type MobileNavIconId =
   | 'aperture'
   | 'telescope'
   | 'palette'
+  | 'crop'
   | 'filter'
   | 'target';
 

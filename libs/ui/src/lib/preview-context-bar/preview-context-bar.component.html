@@ -1,16 +1,11 @@
 <div class="bar">
-  <div class="dim">{{ dimensions() }}</div>
-  <div class="spacer"></div>
-  <div class="zoom" role="radiogroup" aria-label="Zoom level">
-    @for (z of zoomLevels(); track z) {
-      <button
-        type="button"
-        role="radio"
-        class="zoom-btn"
-        [class.is-active]="z === currentZoom()"
-        [attr.aria-checked]="z === currentZoom()"
-        (click)="onPickZoom(z)"
-      >{{ z }}%</button>
-    }
-  </div>
+  @if (modeOptions().length > 0) {
+    <dba-ui-segmented-tabs
+      class="mode-tabs"
+      [options]="modeOptions()"
+      [value]="selectedModeId()"
+      size="sm"
+      (valueChange)="onModeChange($event)"
+    />
+  }
 </div>

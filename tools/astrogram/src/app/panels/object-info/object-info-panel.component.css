@@ -44,16 +44,16 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 4px 9px;
-  border-radius: 5px;
+  padding: 2px 8px;
+  border-radius: 4px;
   background: var(--db-color-cyan-soft);
-  border: 1px solid var(--db-color-cyan);
+  border: 1px solid var(--db-color-cyan-soft);
   color: var(--db-color-cyan);
-  font-family: var(--db-font-mono-code);
+  font-family: var(--db-font-ui);
   font-weight: 500;
   font-size: 10px;
   line-height: 1;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   cursor: pointer;
 }

@@ -16,6 +16,8 @@ import {
   signal,
   ViewChild,
 } from '@angular/core';
+import { EXPORT_DIMENSIONS_BY_RATIO } from '../../constants/preview-sizes.constants';
+import type { AspectRatio } from '../../models/card-data.model';
 import { CardDataService } from '../../services/card-data.service';
 
 /** File extension + MIME info per exportable format. */
@@ -38,7 +40,7 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
   private analyticsService = inject(AnalyticsService);
   private readonly cardDataService = inject(CardDataService);
   
-  aspectRatio = input<'3:4' | '4:5' | 'auto'>('4:5');
+  aspectRatio = input<AspectRatio>('4:5');
   backgroundImage = input<string | null>(null);
   fillMode = input<'cover' | 'contain' | 'fill'>('cover');
   author = input<string>('astrophotographer');
@@ -133,6 +135,15 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
           this.naturalImageHeight.set(0);
           this.scaleFactor.set(1);
         }
+      },
+      { injector: this.injector },
+    );
+
+    // Re-run scale calculation after the browser reflows for the new aspect-ratio class.
+    effect(
+      () => {
+        this.aspectRatio(); // track input
+        requestAnimationFrame(() => this.calculateScale());
       },
       { injector: this.injector },
     );
@@ -250,10 +261,7 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
         }),
       );
 
-      const targetDim =
-        this.aspectRatio() === '3:4'
-          ? { width: 1080, height: 1440 }
-          : { width: 1080, height: 1350 };
+      const targetDim = EXPORT_DIMENSIONS_BY_RATIO[this.aspectRatio()];
 
       // The card element's natural dimensions (unaffected by CSS transform on parent)
       const naturalWidth = element.offsetWidth;

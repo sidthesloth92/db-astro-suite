@@ -1,6 +1,7 @@
 :host {
   display: block;
   height: 100%;
+  min-width: 0;
 }
 
 .host {
@@ -9,6 +10,7 @@
   background: var(--db-color-surface);
   border-left: 1px solid var(--db-color-border);
   min-height: 0;
+  min-width: 0;
 }
 
 .divider {
@@ -21,5 +23,9 @@
 .panel {
   flex: 1;
   min-width: 0;
+  min-height: 0;
   overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
 }

@@ -68,10 +68,4 @@ describe('StylePanelComponent', () => {
     expect(stub.cardData().cardOpacity).toBe(0);
   });
 
-  it('changes the aspect ratio on format pick', () => {
-    const fixture = TestBed.createComponent(StylePanelComponent);
-    fixture.detectChanges();
-    fixture.componentInstance.setFormat('4:5');
-    expect(stub.cardData().aspectRatio).toBe('4:5');
-  });
 });

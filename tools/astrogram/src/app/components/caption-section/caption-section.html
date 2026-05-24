@@ -1,5 +1,16 @@
 <article class="caption-card">
   <header class="caption-head">
+    <div class="caption-actions" aria-label="Post actions">
+      <span class="action-icon action-like" aria-label="Like">
+        <dba-ui-icon [def]="heartIcon" [size]="22" />
+      </span>
+      <span class="action-icon" aria-label="Comment">
+        <dba-ui-icon [def]="commentIcon" [size]="22" />
+      </span>
+      <span class="action-icon" aria-label="Share">
+        <dba-ui-icon [def]="shareIcon" [size]="22" />
+      </span>
+    </div>
     <div class="caption-spacer"></div>
     <dba-ui-icon-button
       title="Copy caption"

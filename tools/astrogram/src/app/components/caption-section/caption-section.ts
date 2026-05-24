@@ -3,7 +3,10 @@ import {
   IconButtonComponent,
   IconComponent,
   checkIcon,
+  commentIcon,
   copyIcon,
+  heartIcon,
+  shareIcon,
 } from '@db-astro-suite/ui';
 import {
   calculateTotalIntegration,
@@ -39,6 +42,12 @@ export class CaptionSectionComponent {
   protected readonly copyIcon = copyIcon;
   /** Check glyph shown briefly after a successful copy. */
   protected readonly checkIcon = checkIcon;
+  /** Filled heart glyph for the Instagram-style "like" action. */
+  protected readonly heartIcon = heartIcon;
+  /** Speech-bubble glyph for the Instagram-style "comment" action. */
+  protected readonly commentIcon = commentIcon;
+  /** Share-arrow glyph for the Instagram-style "share" action. */
+  protected readonly shareIcon = shareIcon;
 
   /** Caption text appended to the clipboard on copy. */
   readonly formattedCaption = computed(() => generateInstagramCaption(this.cardData()));
