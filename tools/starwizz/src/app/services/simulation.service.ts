@@ -349,7 +349,7 @@ export class SimulationService {
 
   /**
    * Clears the currently loaded image and resets related state.
-   * Called when user clicks the "Clear Target" button.
+   * Called when user clicks the "Clear" button.
    */
   clearImage(): void {
     this.isDefaultImage.set(false);
