@@ -43,7 +43,7 @@
         [(expanded)]="sheetExpanded"
         title="System Controls"
         [maxHeightPercent]="50"
-        (pointerdown)="onAdjustStart()"
+        (pointerdown)="onAdjustStart($event)"
         (pointerup)="onAdjustEnd()"
         (pointercancel)="onAdjustEnd()"
       >

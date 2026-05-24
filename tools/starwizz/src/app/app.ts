@@ -12,12 +12,8 @@ import { ControlPanel } from './components/control-panel/control-panel';
 import { Simulator } from './components/simulator/simulator';
 import { SimulationService } from './services/simulation.service';
 
-/**
- * Delay (ms) after the user releases a control before the mobile sheet
- * fades back to its normal opacity. Keeps the sheet ghosted briefly so
- * the simulation effect is visible after the gesture ends.
- */
-const ADJUST_LINGER_MS = 600;
+/** Selector used to detect whether a pointer gesture started on a slider. */
+const SLIDER_TARGET_SELECTOR = 'dba-ui-micro-slider';
 
 /**
  * Starwizz root shell. On desktop it lays out the simulator and the
@@ -72,8 +68,6 @@ export class App {
     this.simService.recordingState() === 'recording' ? 'Stop recording' : 'Start recording',
   );
 
-  private adjustResetTimeout: ReturnType<typeof setTimeout> | null = null;
-
   constructor() {
     let previousRecordingState = this.simService.recordingState();
     effect(() => {
@@ -90,23 +84,22 @@ export class App {
     this.sheetExpanded.update((open) => !open);
   }
 
-  /** Pointer pressed inside the sheet — ghost the panel so the simulation is visible. */
-  protected onAdjustStart(): void {
-    this.isAdjusting.set(true);
-    if (this.adjustResetTimeout) {
-      clearTimeout(this.adjustResetTimeout);
-      this.adjustResetTimeout = null;
+  /**
+   * Pointer pressed inside the sheet — ghost the panel so the simulation
+   * is visible, but only when the gesture started on a slider. Other
+   * controls (reset buttons, switches, the format dropdown) should not
+   * fade the panel out.
+   */
+  protected onAdjustStart(event: PointerEvent): void {
+    const target = event.target as HTMLElement | null;
+    if (!target?.closest(SLIDER_TARGET_SELECTOR)) {
+      return;
     }
+    this.isAdjusting.set(true);
   }
 
-  /** Pointer released — restore the panel opacity after a short linger. */
+  /** Pointer released — restore the panel opacity immediately. */
   protected onAdjustEnd(): void {
-    if (this.adjustResetTimeout) {
-      clearTimeout(this.adjustResetTimeout);
-    }
-    this.adjustResetTimeout = setTimeout(() => {
-      this.isAdjusting.set(false);
-      this.adjustResetTimeout = null;
-    }, ADJUST_LINGER_MS);
+    this.isAdjusting.set(false);
   }
 }

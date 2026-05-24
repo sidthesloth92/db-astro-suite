@@ -33,6 +33,7 @@ const SHOOTING_STAR_SPAWN_RATE = 1.5;
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[style.--aspect-ratio]': 'aspectRatioStyle()',
+    '[style.--aspect-ratio-num]': 'aspectRatioNum()',
     '[style.--format-width]': 'formatWidthStyle()',
   },
 })
@@ -53,10 +54,22 @@ export class Simulator implements AfterViewInit {
   });
 
   /**
-   * CSS custom property value for the host's format width (in CSS px).
-   * Consumed by `.simulation-wrapper` as a `max-width` so the preview
-   * never inflates past the user-selected export width on viewports
-   * wider than the format itself.
+   * Numeric (width / height) aspect ratio, e.g. `0.5625` for 9:16. Used by
+   * CSS `min()` math to derive a width that respects a height cap while
+   * keeping the aspect ratio intact (CSS `aspect-ratio` won't shrink an
+   * explicit width when `max-height` clips, so we feed the ratio in
+   * directly via this var).
+   */
+  protected readonly aspectRatioNum = computed(() => {
+    const dims = this.simService.canvasDimensions();
+    return `${dims.width / dims.height}`;
+  });
+
+  /**
+   * Format width (in CSS px) — the user-selected export width. Used as
+   * one of the upper bounds when sizing the on-screen preview; the
+   * export itself always uses the full pixel dimensions regardless of
+   * how large the preview renders.
    */
   protected readonly formatWidthStyle = computed(() => {
     const dims = this.simService.canvasDimensions();

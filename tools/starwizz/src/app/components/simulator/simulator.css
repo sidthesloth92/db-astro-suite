@@ -39,16 +39,27 @@
   }
 
   /*
-   * Cap the preview at the user-selected format width (set on the host
-   * as `--format-width`). On viewports narrower than the format the
-   * `min()` clamps to 100% so it goes full-bleed; on wider viewports it
-   * stops at the format width and `margin: 0 auto` centres it.
+   * Preview sizing on tablet / mobile. The user-selected format only
+   * affects the export — on screen the preview is always rendered
+   * smaller than the viewport so the user has breathing room around it.
+   * Width = the smallest of:
+   *   - the format's own width (never enlarge past 1:1 export pixels)
+   *   - 70% of the viewport width (horizontal breathing room)
+   *   - 80vh * (width / height) — equivalent to capping height at 80vh
+   *     while preserving aspect ratio. CSS `aspect-ratio` alone can't
+   *     do this because it won't shrink an explicit width when
+   *     `max-height` would otherwise clip, so we feed the numeric ratio
+   *     in via `--aspect-ratio-num` and do the math here.
+   * Height is then derived by `aspect-ratio` from the inherited rule.
+   * `margin: 0 auto` centres the preview horizontally.
    */
   .simulation-wrapper {
-    width: 100%;
-    max-width: min(100%, var(--format-width, 100%));
+    width: min(
+      var(--format-width, 100vw),
+      70vw,
+      calc(80vh * var(--aspect-ratio-num, 0.5625))
+    );
     height: auto;
-    max-height: 90vh;
     margin: 0 auto;
   }
 }
