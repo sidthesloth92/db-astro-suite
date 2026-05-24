@@ -38,6 +38,17 @@
   box-shadow: 0 0 15px var(--db-color-cyan-soft);
 }
 
+.icon-button[data-accent="red"] {
+  color: var(--db-color-red);
+}
+
+.icon-button[data-accent="red"]:hover:not(:disabled) {
+  color: var(--db-color-red);
+  border-color: var(--db-color-red);
+  background: var(--db-color-red-soft);
+  box-shadow: 0 0 15px var(--db-color-red-soft);
+}
+
 .icon-button:active:not(:disabled) {
   transform: scale(0.92);
   transition-duration: 80ms;
@@ -63,6 +74,12 @@
   color: var(--db-color-cyan);
   border-color: var(--db-color-cyan);
   background: var(--db-color-cyan-soft);
+}
+
+.icon-button.is-active[data-accent="red"] {
+  color: var(--db-color-red);
+  border-color: var(--db-color-red);
+  background: var(--db-color-red-soft);
 }
 
 /*

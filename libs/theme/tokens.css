@@ -170,6 +170,8 @@
   --db-color-orange: #FF6B3D;
   --db-color-green: #5AE08A;
   --db-color-green-soft: rgba(90, 224, 138, 0.12);
+  --db-color-red: #FF4D5E;
+  --db-color-red-soft: rgba(255, 77, 94, 0.12);
   --db-color-pink-soft: rgba(255, 45, 149, 0.12);
   --db-color-pink-dim: rgba(255, 45, 149, 0.45);
 

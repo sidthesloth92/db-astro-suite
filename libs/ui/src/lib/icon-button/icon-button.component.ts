@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 
 /** Accent colours supported by `IconButtonComponent`. */
-export type IconButtonAccent = 'pink' | 'cyan';
+export type IconButtonAccent = 'pink' | 'cyan' | 'red';
 
 /**
  * Square icon button used in chrome (top bars, floating toolbars, etc.).

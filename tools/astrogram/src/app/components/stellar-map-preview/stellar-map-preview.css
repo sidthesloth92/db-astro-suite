@@ -100,23 +100,6 @@
   color: var(--db-color-text-dim);
 }
 
-.clear-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 0 8px;
-  height: 28px;
-  border-radius: 5px;
-  background: transparent;
-  border: 1px solid var(--db-color-border);
-  color: var(--db-color-text-dim);
-  font-family: var(--db-font-mono-code);
-  font-size: 10px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  cursor: pointer;
-}
-
 .selected-annotation-label {
   display: inline-flex;
   align-items: center;

@@ -33,11 +33,19 @@
         </dba-ui-icon-button>
         <span class="toolbar-divider" aria-hidden="true"></span>
         <dba-ui-pill-badge tone="cyan">{{ visibleCount() }} OBJECTS</dba-ui-pill-badge>
-        <button type="button" class="clear-btn db-hover-cyan" (click)="clearAll()" title="Clear image &amp; data">
-          Clear
-        </button>
       }
     </div>
+  }
+  @if (mapData().backgroundImage && !selectedAnnotation()) {
+    <dba-ui-icon-button
+      headerAction
+      accent="red"
+      title="Clear image & data"
+      [size]="36"
+      (clicked)="clearAll()"
+    >
+      <dba-ui-icon [def]="trashIcon" [size]="18" />
+    </dba-ui-icon-button>
   }
 
   <!-- Absolute layer for annotations -->
