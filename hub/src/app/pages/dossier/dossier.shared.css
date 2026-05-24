@@ -13,6 +13,7 @@
   color: var(--db-color-text-primary);
   font-family: var(--db-font-ui);
   animation: dossier-entry 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+  --card-title-color: var(--db-color-neon-pink);
 }
 
 @keyframes dossier-entry {
@@ -119,7 +120,7 @@
   font-family: var(--db-font-ui);
   font-size: 1rem;
   letter-spacing: 0.04em;
-  color: var(--db-color-text-primary);
+  color: var(--db-color-neon-pink);
   text-transform: uppercase;
   margin: 1.5rem 0 0.75rem;
   padding-bottom: 0.4rem;
