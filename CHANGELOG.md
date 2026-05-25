@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.17.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.16.1...v1.17.0) (2026-05-25)
+
+
+### Features
+
+* **astrogram:** ux redesign — Direction B Polished (rail + inspector + mobile sheet) ([#38](https://github.com/sidthesloth92/db-astro-suite/issues/38)) ([ed84fd4](https://github.com/sidthesloth92/db-astro-suite/commit/ed84fd42ea139254afb5b9681edf15057d29a118))
+* implement select component with optgroup support ([ed84fd4](https://github.com/sidthesloth92/db-astro-suite/commit/ed84fd42ea139254afb5b9681edf15057d29a118))
+
+
+### Bug Fixes
+
+* adjust header component alignment ([ed84fd4](https://github.com/sidthesloth92/db-astro-suite/commit/ed84fd42ea139254afb5b9681edf15057d29a118))
+
 ## [1.16.1](https://github.com/sidthesloth92/db-astro-suite/compare/v1.16.0...v1.16.1) (2026-05-23)
 
 
