@@ -48,6 +48,42 @@
   cursor: not-allowed;
 }
 
+/*
+ * Per-control "Use global" chip. Surfaces next to a field's label only
+ * when that single control has been overridden — clicking clears just
+ * that field so the control falls back to its global value. The
+ * rotate-ccw glyph communicates revert semantics; pink at rest signals
+ * "this is currently overridden" and cyan hover matches the rest of
+ * the inspector's button language.
+ */
+.use-global-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  background: var(--db-color-pink-soft);
+  border: 1px solid var(--db-color-border-active);
+  border-radius: 4px;
+  color: var(--db-color-neon-pink);
+  cursor: pointer;
+  transition:
+    color 150ms ease,
+    border-color 150ms ease,
+    background 150ms ease,
+    box-shadow 150ms ease,
+    transform 150ms ease;
+}
+
+.use-global-chip:hover {
+  color: var(--db-color-cyan);
+  border-color: var(--db-color-cyan);
+  background: var(--db-color-cyan-soft);
+  box-shadow: 0 0 10px var(--db-color-cyan-soft);
+  transform: scale(1.08);
+}
+
 .selected-card {
   margin: 16px 18px 0;
   padding: 12px 14px;

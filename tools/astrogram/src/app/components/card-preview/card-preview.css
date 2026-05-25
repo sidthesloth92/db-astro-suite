@@ -4,10 +4,13 @@
   margin: 12px 6px 0;
   padding: 16px 8px 14px;
   border-radius: 10px;
+  /* Decorative pink/purple radials layered on top of a `--card-opacity`-
+     driven solid so the Style panel's opacity slider controls how
+     transparent the inner section feels against the bg image. */
   background:
     radial-gradient(ellipse 80% 60% at 30% 50%, rgba(255, 80, 130, 0.18), transparent 70%),
     radial-gradient(ellipse 60% 40% at 80% 80%, rgba(120, 40, 180, 0.2), transparent 70%),
-    var(--db-color-surface-bg);
+    rgba(8, 10, 16, var(--card-opacity, 0.7));
   text-align: center;
 }
 
@@ -45,7 +48,11 @@
 .pn-integration {
   margin: 10px 6px;
   padding: 12px 8px;
-  background: radial-gradient(ellipse at 50% 50%, rgba(80, 30, 80, 0.4), rgba(10, 10, 15, 0.6));
+  /* Decorative purple radial layered on top of a `--card-opacity`-
+     driven solid (matches the other inner sections). */
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(80, 30, 80, 0.4), transparent 70%),
+    rgba(8, 10, 16, var(--card-opacity, 0.7));
   border-radius: 10px;
   border: 1px solid var(--db-color-border);
 }
@@ -103,7 +110,7 @@
 .pn-software,
 .pn-bortle {
   padding: 10px 8px;
-  background: rgba(8, 10, 16, 0.7);
+  background: rgba(8, 10, 16, var(--card-opacity, 0.7));
   border: 1px solid var(--db-color-border);
   border-radius: 10px;
 }

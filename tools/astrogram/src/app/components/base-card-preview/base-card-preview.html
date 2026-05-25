@@ -1,12 +1,12 @@
 <div class="preview-wrapper" #cardWrapper>
   <!-- Header: Lives outside the scaled container so it never shrinks -->
   <div class="post-header">
-    @if (author()) {
-      <div class="user-meta">
-        <div class="avatar-mini"></div>
+    <div class="user-meta">
+      <div class="avatar-mini"></div>
+      @if (author()) {
         <span class="username-top">{{ author() }}</span>
-      </div>
-    }
+      }
+    </div>
     <div class="header-actions">
       <ng-content select="[headerAction]"></ng-content>
       @if (!hideDownload()) {

@@ -33,7 +33,7 @@ describe('AnnotationSelectedPanelComponent', () => {
     expect(empty).toBeTruthy();
   });
 
-  it('renders the selected annotation when one is selected', () => {
+  it('renders the selected annotation label in the Label input', () => {
     const ann: ImageAnnotation = {
       id: 'a',
       xPercent: 50,
@@ -46,11 +46,11 @@ describe('AnnotationSelectedPanelComponent', () => {
     svc.addAnnotation(ann);
     const fixture = TestBed.createComponent(AnnotationSelectedPanelComponent);
     fixture.detectChanges();
-    const title = fixture.nativeElement.querySelector('.title') as HTMLElement;
-    expect(title?.textContent).toContain('NGC 1234');
+    const labelInput = fixture.nativeElement.querySelector('.label-input') as HTMLInputElement;
+    expect(labelInput?.value).toBe('NGC 1234');
   });
 
-  it('removes the selected annotation on trash click', () => {
+  it('reverts every per-annotation override on revertOverrides()', () => {
     const ann: ImageAnnotation = {
       id: 'a',
       xPercent: 50,
@@ -59,11 +59,33 @@ describe('AnnotationSelectedPanelComponent', () => {
       label: 'Tmp',
       visible: true,
       source: 'custom',
+      style: { color: '#ff0000', thickness: 4, customLabel: 'Custom' },
     };
     svc.addAnnotation(ann);
     const fixture = TestBed.createComponent(AnnotationSelectedPanelComponent);
     fixture.detectChanges();
-    fixture.componentInstance.removeAnnotation();
-    expect(svc.stellarMapData().annotations.length).toBe(0);
+    fixture.componentInstance.revertOverrides();
+    const updated = svc.stellarMapData().annotations.find((a) => a.id === 'a');
+    expect(updated?.style).toBeUndefined();
+  });
+
+  it('clears a single field on clearField()', () => {
+    const ann: ImageAnnotation = {
+      id: 'a',
+      xPercent: 50,
+      yPercent: 50,
+      radiusDb: 40,
+      label: 'Tmp',
+      visible: true,
+      source: 'custom',
+      style: { color: '#ff0000', thickness: 4 },
+    };
+    svc.addAnnotation(ann);
+    const fixture = TestBed.createComponent(AnnotationSelectedPanelComponent);
+    fixture.detectChanges();
+    fixture.componentInstance.clearField('color');
+    const updated = svc.stellarMapData().annotations.find((a) => a.id === 'a');
+    expect(updated?.style?.color).toBeUndefined();
+    expect(updated?.style?.thickness).toBe(4);
   });
 });

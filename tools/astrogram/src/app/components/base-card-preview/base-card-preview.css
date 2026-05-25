@@ -86,7 +86,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem 1rem;
-  width: var(--header-width, 480px);
+  width: var(--header-width, 482px);
   max-width: 100%;
   background: rgba(10, 15, 25, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -94,6 +94,11 @@
   border-radius: 12px 12px 0 0;
   box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.4);
   flex-shrink: 0;
+  /* `--header-width` is the TOTAL visual width (including the 1px L/R
+     borders) so that it matches `.post-container`'s post-transform width.
+     Stays on the default (global) border-box so the value is taken as the
+     box total — flip to content-box would push the borders 2px outside
+     and break alignment with the card. */
 }
 
 .user-meta {
@@ -136,7 +141,11 @@
   overflow: visible; /* allow stellar map markers to bleed slightly at edges */
   border: none !important;
   flex-shrink: 0;
-  width: 480px;
+  /* Fill the post-container's content area (480px declared minus its 2px
+     L/R borders under the global border-box). A hard 480px width here
+     would overflow the borders and hide them. The card's height is
+     derived from the aspect-ratio rules below. */
+  width: 100%;
   background: #000;
 }
 
@@ -193,7 +202,10 @@
 .bg-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, var(--card-opacity, 0.6));
+  /* Fixed dim on the bg image — the user-facing "Card opacity" slider
+     now drives the inner card sections' translucency (see card-preview.css),
+     not this surrounding overlay. */
+  background: rgba(0, 0, 0, 0.35);
 }
 
 /* Content */

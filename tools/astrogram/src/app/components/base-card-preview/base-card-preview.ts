@@ -225,22 +225,22 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
     // Scaling strategy differs by mode
     let scale = 1;
 
-    // Cap the on-screen card height at 80 % of the viewport so the preview
-    // (and the surrounding chrome — top bar, context bar, caption) always
+    // Cap the on-screen card height at a fraction of the viewport so the
+    // preview (and the surrounding chrome — top bar, context bar, caption)
     // fits without scrolling. The exporter ignores this transform (it
     // temporarily clears it in `exportCard`), so the downloaded image is
     // still rendered at the full target resolution from
-    // `EXPORT_DIMENSIONS_BY_RATIO`.
+    // `EXPORT_DIMENSIONS_BY_RATIO`. Stellar-map mode (auto) gets a more
+    // generous height budget because it has no caption section below.
     const viewportHeight = window.innerHeight;
-    const maxAllowedHeight = viewportHeight * 0.8;
+    const isAuto = this.aspectRatio() === 'auto';
+    const maxAllowedHeight = viewportHeight * (isAuto ? 0.92 : 0.8);
 
-    if (this.aspectRatio() === 'auto') {
-      // PROPORTIONAL SCALING: Maximize size based on both width AND height constraints
-      const scaleW = (wrapperRect.width - 40) / naturalWidth; // 40px buffer for horizontal margins
+    if (isAuto) {
+      // PROPORTIONAL SCALING: Maximize size based on both width AND height constraints.
+      // No horizontal buffer — let the stellar-map image fill the available width.
+      const scaleW = wrapperRect.width / naturalWidth;
       const scaleH = maxAllowedHeight / naturalHeight;
-
-      // In Auto mode (Stellar Map), we prioritize filling the available screen height (95%)
-      // This ensures 16:10 or landscape images don't look small.
       scale = Math.min(scaleW, scaleH);
     } else {
       // INFOGRAPHIC SCALING: Fixed width priority, scale down if width is too small
