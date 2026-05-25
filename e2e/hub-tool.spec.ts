@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { HubToolPage } from "./pages/hub-tool.page";
 
 test.describe("Astrogram Tool Page", () => {
   test.beforeEach(async ({ page }) => {
@@ -238,4 +239,118 @@ test.describe("Starwizz Tool Page", () => {
     const demoImage = page.locator('.demo-section img[alt="Starwizz Demo"]');
     await expect(demoImage).toBeVisible();
   });
+});
+
+test.describe("File Grouper Tool Page", () => {
+  let hubTool: HubToolPage;
+
+  test.beforeEach(async ({ page }) => {
+    hubTool = new HubToolPage(page);
+    await hubTool.navigate("file-grouper");
+  });
+
+  test("should render the file-grouper hero heading", async ({ page }) => {
+    await expect(hubTool.getHeroHeading()).toContainText("file grouper");
+    // The file-grouper page renders Overview / Features / Setup &
+    // Usage as <dba-ui-card> titles — assert the Overview heading
+    // exists rather than coupling to a section CSS class.
+    await expect(page.getByText("Overview", { exact: true })).toBeVisible();
+    await expect(
+      page.getByText("File Grouper is a platform-agnostic", {
+        exact: false,
+      }),
+    ).toBeVisible();
+  });
+
+  test("should render exactly three feature items", async () => {
+    // The file-grouper page lists features as a `<ul class="specs-list">`
+    // rather than the `.feature-item` grid used by astrogram/starwizz.
+    // The row count is still the user-facing contract.
+    const specs = hubTool.getSpecsListItems();
+    await expect(specs).toHaveCount(3);
+  });
+
+  test("should expose the canonical, og, and twitter SEO meta tags", async ({
+    page,
+  }) => {
+    await expect(page).toHaveTitle(
+      "File Grouper Tool - Dataset Organization Utility",
+    );
+
+    const ogTitle = await page.getAttribute(
+      'meta[property="og:title"]',
+      "content",
+    );
+    expect(ogTitle).toBe("File Grouper - Organize Your Space Data");
+
+    const description = await page.getAttribute(
+      'meta[name="description"]',
+      "content",
+    );
+    expect(description).toBeTruthy();
+    expect(description!.toLowerCase()).toContain("astrophotography");
+
+    const twitterCard = await page.getAttribute(
+      'meta[name="twitter:card"]',
+      "content",
+    );
+    expect(twitterCard).toBe("summary_large_image");
+
+    const canonical = await page.getAttribute('link[rel="canonical"]', "href");
+    expect(canonical).toBe("https://dbastrosuite.com/tool/file-grouper");
+  });
+
+  test("should visually match the file-grouper baseline", async ({ page }) => {
+    await expect(page).toHaveScreenshot("file-grouper-tool.png", {
+      fullPage: true,
+      threshold: 0.2,
+      timeout: 15000,
+    });
+  });
+});
+
+test.describe("Hub tool demo lightbox", () => {
+  // BLOCKER: the file-grouper page currently has no demo lightbox —
+  // only astrogram and starwizz do. Lightbox coverage is therefore
+  // scoped to those two tools.
+  const tools: ReadonlyArray<{
+    slug: "astrogram" | "starwizz";
+    demoAlt: string;
+  }> = [
+    { slug: "astrogram", demoAlt: "Astrogram Demo" },
+    { slug: "starwizz", demoAlt: "Starwizz Demo" },
+  ];
+
+  for (const tool of tools) {
+    test(`should open and close the ${tool.slug} demo lightbox via the close button`, async ({
+      page,
+    }) => {
+      const hubTool = new HubToolPage(page);
+      await hubTool.navigate(tool.slug);
+      await hubTool.openDemoLightbox(tool.demoAlt);
+      await expect(hubTool.getLightbox()).toBeVisible();
+      await hubTool.closeDemoLightbox();
+      await expect(hubTool.getLightbox()).toBeHidden();
+    });
+
+    test(`should close the ${tool.slug} demo lightbox when ESC is pressed`, async ({
+      page,
+    }) => {
+      const hubTool = new HubToolPage(page);
+      await hubTool.navigate(tool.slug);
+      await hubTool.openDemoLightbox(tool.demoAlt);
+      await hubTool.closeDemoLightboxByEscape();
+      await expect(hubTool.getLightbox()).toBeHidden();
+    });
+
+    test(`should close the ${tool.slug} demo lightbox when the backdrop is clicked`, async ({
+      page,
+    }) => {
+      const hubTool = new HubToolPage(page);
+      await hubTool.navigate(tool.slug);
+      await hubTool.openDemoLightbox(tool.demoAlt);
+      await hubTool.closeDemoLightboxByBackdrop();
+      await expect(hubTool.getLightbox()).toBeHidden();
+    });
+  }
 });

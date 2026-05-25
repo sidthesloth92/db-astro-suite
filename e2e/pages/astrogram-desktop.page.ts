@@ -2,19 +2,22 @@ import { Download, Locator, Page, expect } from "@playwright/test";
 
 /**
  * Inspector rail section IDs available on the desktop shell. The set varies
- * by active mode — the infographic mode shows Object info / Capture /
- * Equipment / Style / Export, while the stellar mode shows Filters /
- * Annotation style / Selection.
+ * by active mode — infographic surfaces Layout / Object info / Capture /
+ * Equipment / Export; stellar surfaces Annotation filters / Annotation
+ * style / Selected Target / Export.
  */
 export type DesktopInspectorSection =
+  | "Layout"
   | "Object info"
   | "Capture"
   | "Equipment"
-  | "Style"
   | "Export"
   | "Annotation filters"
   | "Annotation style"
-  | "Selected annotation";
+  | "Selected Target";
+
+/** Export-format radio identifiers surfaced by the Export panel. */
+export type ExportFormat = "png" | "jpeg" | "webp";
 
 /**
  * Default capture filter names seeded by `DEFAULT_FILTERS`. The switch
@@ -61,14 +64,16 @@ export class AstrogramDesktopPage {
   /** Switches the top-bar tabs to Infographic mode. */
   async switchToInfographicMode(): Promise<void> {
     await this.page
-      .getByRole("tab", { name: "Infographic", exact: true })
+      .getByRole("tab", { name: /Infographic/i })
+      .first()
       .click();
   }
 
   /** Switches the top-bar tabs to Stellar Map mode. */
   async switchToStellarMode(): Promise<void> {
     await this.page
-      .getByRole("tab", { name: "Stellar Map", exact: true })
+      .getByRole("tab", { name: /Stellar/i })
+      .first()
       .click();
   }
 
@@ -84,6 +89,26 @@ export class AstrogramDesktopPage {
       .getByRole("navigation")
       .getByRole("button", { name: section, exact: true })
       .click();
+  }
+
+  /** Opens the Equipment panel from the rail. */
+  async openEquipmentPanel(): Promise<void> {
+    await this.openPanel("Equipment");
+  }
+
+  /** Opens the Layout panel from the rail. */
+  async openLayoutPanel(): Promise<void> {
+    await this.openPanel("Layout");
+  }
+
+  /** Opens the Export panel from the rail. */
+  async openExportPanel(): Promise<void> {
+    await this.openPanel("Export");
+  }
+
+  /** Opens the Capture panel from the rail. */
+  async openCapturePanel(): Promise<void> {
+    await this.openPanel("Capture");
   }
 
   /**
@@ -108,12 +133,29 @@ export class AstrogramDesktopPage {
   }
 
   /**
-   * Opens the Style panel and writes the given hex into the native color
-   * input backing the Accent swatch. Dispatches input + change events
-   * because <input type="color"> does not respond to fill().
+   * Sets the seconds-per-frame value for the named filter row. Writes
+   * directly to the numeric input identified by its
+   * `<filter> seconds per frame` aria-label and fires `input` so the
+   * signal updates.
+   */
+  async setSecondsPerFrame(
+    filterName: CaptureFilterName | "Custom",
+    seconds: number,
+  ): Promise<void> {
+    const input = this.page.getByLabel(`${filterName} seconds per frame`, {
+      exact: true,
+    });
+    await input.fill(String(seconds));
+    await input.blur();
+  }
+
+  /**
+   * Opens the Layout panel and writes the given hex into the primary
+   * Accent swatch's hidden `<input type="color">`. Dispatches input +
+   * change because color inputs ignore `.fill()`.
    */
   async setAccentColor(hex: string): Promise<void> {
-    await this.openPanel("Style");
+    await this.openPanel("Layout");
     // Both "Accent colour" and "Secondary accent colour" exist in the
     // panel — require an exact match to disambiguate.
     const accentInput = this.page.getByLabel("Accent colour", { exact: true });
@@ -125,11 +167,125 @@ export class AstrogramDesktopPage {
     }, hex);
   }
 
+  /** Sets the primary Accent colour on the open Layout panel (does not re-open). */
+  async setPrimaryAccent(hex: string): Promise<void> {
+    const accentInput = this.page.getByLabel("Accent colour", { exact: true });
+    await accentInput.evaluate((el, value) => {
+      const input = el as HTMLInputElement;
+      input.value = value;
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+    }, hex);
+  }
+
+  /**
+   * Writes a hex value into the "Secondary accent colour" swatch. This
+   * accent drives the OIII progress-ring stroke and secondary pill
+   * tones on the card.
+   */
+  async setSecondaryAccent(hex: string): Promise<void> {
+    const accentInput = this.page.getByLabel("Secondary accent colour", {
+      exact: true,
+    });
+    await accentInput.evaluate((el, value) => {
+      const input = el as HTMLInputElement;
+      input.value = value;
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+    }, hex);
+  }
+
+  /**
+   * Saves the current equipment + software list as a preset under the
+   * given label. Sequence: click `Add new` → fill the inline draft input
+   * → click `Save`. Caller must already be on the Equipment panel.
+   */
+  async saveEquipmentPreset(label: string): Promise<void> {
+    await this.page.getByRole("button", { name: "Add new" }).click();
+    await this.page.getByPlaceholder("Enter preset name...").fill(label);
+    await this.page.getByRole("button", { name: "Save", exact: true }).click();
+  }
+
+  /**
+   * Activates an existing preset by its label. The load button's
+   * accessible name combines the preset name + its equipment note in
+   * a single string (e.g. `"Test rig · Askar 103 APO · ZWO ASI2600"`),
+   * so we match by substring rather than exact equality.
+   */
+  async applyEquipmentPreset(label: string): Promise<void> {
+    await this.page
+      .getByRole("button", { name: new RegExp(escapeRegex(label)) })
+      .first()
+      .click();
+  }
+
+  /**
+   * Returns the labels of all saved presets — derived from the per-row
+   * "Delete preset <name>" button accessible names so the list is
+   * read straight from the rendered DOM.
+   */
+  async getEquipmentPresetLabels(): Promise<string[]> {
+    const buttons = this.page.getByRole("button", {
+      name: /^Delete preset /,
+    });
+    const labels: string[] = [];
+    const count = await buttons.count();
+    for (let i = 0; i < count; i += 1) {
+      const name = await buttons.nth(i).getAttribute("aria-label");
+      if (name) {
+        labels.push(name.replace(/^Delete preset /, ""));
+      }
+    }
+    return labels;
+  }
+
+  /**
+   * Picks an export format radio inside the Export panel. The radio
+   * row's accessible name is the visible label ("PNG" / "JPEG" /
+   * "WebP"), case-mapped from the lower-case format id.
+   */
+  async setExportFormat(format: ExportFormat): Promise<void> {
+    const label =
+      format === "png" ? "PNG" : format === "jpeg" ? "JPEG" : "WebP";
+    // The radio row's accessible name combines the visible format label
+    // with its descriptive note (e.g. "PNG Best quality · larger file"),
+    // so substring matching is required.
+    await this.page
+      .getByRole("button", { name: new RegExp(`^${label}\\b`) })
+      .click();
+  }
+
+  /**
+   * Clicks the in-panel Export CTA (not the top-bar Export rail item)
+   * and resolves with the resulting Download event. The CTA's button
+   * name is "Export"; we scope by DOM order (last match) so this does
+   * not collide with the rail item that also reads "Export".
+   */
+  async triggerExport(): Promise<Download> {
+    const downloadPromise = this.page.waitForEvent("download");
+    await this.page
+      .getByRole("button", { name: "Export", exact: true })
+      .last()
+      .click();
+    return downloadPromise;
+  }
+
+  /** Returns the in-panel Export CTA — useful for disabled-state assertions. */
+  getExportPanelCta(): Locator {
+    return this.page
+      .getByRole("button", { name: "Export", exact: true })
+      .last();
+  }
+
+  /** True when the in-panel Export CTA is enabled. */
+  async isExportPanelCtaEnabled(): Promise<boolean> {
+    return this.getExportPanelCta().isEnabled();
+  }
+
   /**
    * Clicks the top-bar Export CTA and resolves with the resulting
    * Download event. The export pipeline triggers a browser download
-   * (PNG/JPEG/SVG); callers can inspect the suggested filename or
-   * stream to disk for snapshotting.
+   * (PNG/JPEG/WebP).
    */
   async exportCard(): Promise<Download> {
     const downloadPromise = this.page.waitForEvent("download");
@@ -153,9 +309,7 @@ export class AstrogramDesktopPage {
    * the live preview.
    */
   async getCardHeroBorderColor(): Promise<string> {
-    return this.cardHero.evaluate(
-      (el) => getComputedStyle(el).borderColor,
-    );
+    return this.cardHero.evaluate((el) => getComputedStyle(el).borderColor);
   }
 
   /** Returns the visible text content of the card hero (title + meta). */
@@ -196,4 +350,9 @@ export class AstrogramDesktopPage {
   getPage(): Page {
     return this.page;
   }
+}
+
+/** Escapes regex metacharacters so `label` text is matched literally. */
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
