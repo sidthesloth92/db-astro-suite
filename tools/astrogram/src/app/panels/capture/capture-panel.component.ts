@@ -48,9 +48,6 @@ export class CapturePanelComponent {
     formatDuration(calculateTotalIntegration(this.cardData().filters)),
   );
 
-  /** Class label for the Bortle pill (e.g. "Class 9"). */
-  readonly bortleClassLabel = computed(() => `Class ${this.cardData().bortleScale}`);
-
   /** Indices of fixed filters (the 7 standard ones); the rest are user-added. */
   readonly bortleSteps: ReadonlyArray<number> = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 

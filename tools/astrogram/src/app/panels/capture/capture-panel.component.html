@@ -1,5 +1,8 @@
 <div class="panel-root">
-  <dba-ui-inspector-section title="Filter integration" sub="Per-filter frame count and exposure">
+  <dba-ui-inspector-section
+    title="Exposure Information"
+    sub="Per-filter frame count and exposure seconds"
+  >
     <dba-ui-icon slot="icon" [def]="filterIcon" [size]="14" />
     <dba-ui-pill-badge slot="action" tone="cyan">{{ totalIntegration() }}</dba-ui-pill-badge>
 
@@ -76,7 +79,6 @@
 
   <dba-ui-inspector-section title="Bortle Scale" sub="Light pollution at capture site">
     <dba-ui-icon slot="icon" [def]="mountainIcon" [size]="14" />
-    <dba-ui-pill-badge slot="action" tone="pink">{{ bortleClassLabel() }}</dba-ui-pill-badge>
 
     <div class="bortle-wrap">
       <div class="bortle-row">

@@ -1,5 +1,5 @@
 <div class="panel-root">
-  <dba-ui-inspector-section title="Format" sub="Card dimensions for export">
+  <dba-ui-inspector-section title="Layout" sub="Card dimensions for export">
     <dba-ui-icon slot="icon" [def]="cropIcon" [size]="14" />
     <div class="format-list">
       @for (group of formatGroups; track group.label) {
@@ -68,14 +68,23 @@
           <span class="bg-name">
             {{ cardData().backgroundImage ? 'Current background' : 'No background image' }}
           </span>
-          <span class="bg-sub">{{ cardData().backgroundImage ? 'Custom upload' : 'Pick an image to enable' }}</span>
+          <span class="bg-sub">{{
+            cardData().backgroundImage ? 'Custom upload' : 'Pick an image to enable'
+          }}</span>
         </div>
         <label class="replace-btn">
           <input type="file" accept="image/*" (change)="onImageUpload($event)" hidden />
           <span>Replace</span>
         </label>
         @if (cardData().backgroundImage) {
-          <button type="button" class="remove-btn" (click)="removeBackground()" aria-label="Remove background">✕</button>
+          <button
+            type="button"
+            class="remove-btn"
+            (click)="removeBackground()"
+            aria-label="Remove background"
+          >
+            ✕
+          </button>
         }
       </div>
     </div>

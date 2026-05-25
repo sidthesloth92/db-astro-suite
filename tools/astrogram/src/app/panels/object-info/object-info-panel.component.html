@@ -1,5 +1,5 @@
 <div class="panel-root">
-  <dba-ui-inspector-section title="General" sub="Object name & hashtags">
+  <dba-ui-inspector-section title="General" sub="Basic info about the object">
     <dba-ui-icon slot="icon" [def]="tagIcon" [size]="14" />
     <dba-ui-inspector-field label="Name">
       <dba-ui-micro-input
@@ -53,7 +53,7 @@
 
   <hr class="divider" aria-hidden="true" />
 
-  <dba-ui-inspector-section title="Caption" sub="Short text shown on the card">
+  <dba-ui-inspector-section title="Caption" sub="Short text shown on the title card">
     <dba-ui-icon slot="icon" [def]="commentIcon" [size]="14" />
     <div class="textarea-wrap">
       <textarea
@@ -67,9 +67,15 @@
     </div>
   </dba-ui-inspector-section>
 
-  <dba-ui-inspector-section title="Description" sub="Long-form caption for the post">
+  <dba-ui-inspector-section title="Description" sub="Long-form caption for the post caption">
     <dba-ui-icon slot="icon" [def]="editIcon" [size]="14" />
-    <button slot="action" type="button" class="wiki-btn" (click)="fetchWiki()" [disabled]="isFetching()">
+    <button
+      slot="action"
+      type="button"
+      class="wiki-btn"
+      (click)="fetchWiki()"
+      [disabled]="isFetching()"
+    >
       <dba-ui-icon [def]="searchIcon" [size]="10" />
       <span>{{ isFetching() ? 'Fetching...' : 'Wiki' }}</span>
     </button>

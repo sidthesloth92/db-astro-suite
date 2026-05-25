@@ -87,7 +87,9 @@
 }
 
 .num-input {
-  width: 44px;
+  /* 44 px clipped 3-digit values like "180". 60 px holds 3 digits +
+     the WebKit spinner arrows (~16 px on the right) without clipping. */
+  width: 60px;
   padding: 4px 6px;
   text-align: right;
   background: var(--db-color-surface-bg);
