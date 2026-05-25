@@ -123,6 +123,36 @@ test('rotateKey throws AccessKeyError when username does not exist', () => {
   db.close();
 });
 
+test('rotateKey reactivates a previously deactivated key so the new key can authenticate', () => {
+  const db = createTestDb();
+  const dao = new SqliteAccessKeyDao(db);
+
+  // Create, use once, then deactivate.
+  createKey(dao, 'deactivateduser');
+  dao.deactivateAccessKey('deactivateduser');
+
+  // Confirm deactivation took effect.
+  const beforeRow = db
+    .prepare('SELECT active FROM solve_api_access_keys WHERE username = ?')
+    .get('deactivateduser');
+  assert.equal(beforeRow.active, 0, 'key must be inactive after remove');
+
+  // Rotate should reactivate.
+  const newKey = rotateKey(dao, 'deactivateduser');
+  assert.ok(typeof newKey === 'string' && newKey.length > 0);
+
+  const afterRow = db
+    .prepare('SELECT active FROM solve_api_access_keys WHERE username = ?')
+    .get('deactivateduser');
+  assert.equal(afterRow.active, 1, 'rotate must set active = 1');
+
+  // validateKey must now return a valid id.
+  const keyId = validateKey(dao, newKey);
+  assert.ok(keyId != null, 'new key must authenticate after rotate');
+
+  db.close();
+});
+
 test('use_count does not increment for inactive tokens', () => {
   const db = createTestDb();
   const dao = new SqliteAccessKeyDao(db);
