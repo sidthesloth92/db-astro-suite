@@ -1,0 +1,16 @@
+<button
+  type="button"
+  class="icon-button"
+  [class.is-active]="active()"
+  [class.is-success]="success()"
+  [attr.data-accent]="accent()"
+  [attr.title]="title() || null"
+  [attr.aria-label]="title() || null"
+  [attr.aria-pressed]="active()"
+  [disabled]="disabled()"
+  [style.width.px]="size()"
+  [style.height.px]="size()"
+  (click)="onClick()"
+>
+  <ng-content />
+</button>

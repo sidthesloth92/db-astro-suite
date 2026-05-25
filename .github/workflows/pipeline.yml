@@ -36,6 +36,17 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          # Check out the PR head branch (not the GitHub-generated merge ref)
+          # so the "Seed visual baselines" step can push commits back to the
+          # PR branch. For push events this falls back to the workflow's ref.
+          ref: ${{ github.event.pull_request.head.ref || github.ref }}
+          fetch-depth: 0
+          # Use the classic PAT so seed-step pushes bypass the
+          # GITHUB_TOKEN restrictions that return 500 Internal Server Error
+          # when an Actions bot tries to push to a PR branch with protections
+          # or required status checks.
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
 
       - name: Install pnpm
         uses: pnpm/action-setup@v3
@@ -60,7 +71,67 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run Playwright Tests
-        run: npx playwright test
+        id: playwright
+        shell: bash
+        run: |
+          set -o pipefail
+          npx playwright test 2>&1 | tee /tmp/playwright-output.log
+
+      # Visual snapshot baselines are intentionally NOT committed locally
+      # (rule: .claude/rules/e2e.md — baselines MUST be generated in
+      # Linux/Docker so font rendering matches CI's output).
+      #
+      # This step auto-seeds ONLY when the failure is "snapshot doesn't
+      # exist" (i.e. a brand-new visual test added in this PR). If any
+      # failure is a visual *diff* — "Screenshot comparison failed" —
+      # the step refuses to overwrite, leaving the gate red so the dev
+      # makes a conscious decision:
+      #   - Intentional UI change? Regenerate locally with the matching
+      #     Linux Chromium image and commit the new baselines:
+      #         pnpm test:e2e:docker:update <spec>
+      #   - Accidental regression? Fix the code instead.
+      #
+      # This eliminates the original auto-seed's biggest risk — silently
+      # baking visual regressions into the baseline.
+      - name: Seed missing visual snapshot baselines (PR only, missing-only)
+        if: ${{ failure() && steps.playwright.outcome == 'failure' && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}
+        shell: bash
+        run: |
+          set -e
+          log=/tmp/playwright-output.log
+          # Bail when any failure is a real visual diff (not a missing
+          # baseline). Auto-overwriting would silently launder regressions.
+          if grep -qE "Screenshot comparison failed|expected to have screenshot.*to match" "$log" 2>/dev/null; then
+            echo "::error::Visual diff failures detected (not missing baselines)."
+            echo "Auto-seed declined to avoid laundering a regression."
+            echo "If the change is intentional, regenerate locally and commit:"
+            echo "  pnpm test:e2e:docker:update <affected-spec-or-grep>"
+            exit 0
+          fi
+          if ! grep -q "snapshot doesn't exist" "$log" 2>/dev/null; then
+            echo "Failures are not snapshot-related; nothing to seed."
+            exit 0
+          fi
+          echo "All visual failures are 'snapshot doesn't exist'; seeding baselines..."
+          npx playwright test --update-snapshots --reporter=line || true
+          # Snapshot directories live at e2e/<spec>.spec.ts-snapshots/ —
+          # use globstar so `**` matches zero-or-more path components.
+          shopt -s globstar nullglob
+          baselines=(e2e/**/*-snapshots/*.png)
+          if [ ${#baselines[@]} -eq 0 ]; then
+            echo "No baseline files matched after --update-snapshots."
+            exit 0
+          fi
+          git add "${baselines[@]}"
+          if git diff --staged --quiet; then
+            echo "No new baselines were generated."
+            exit 0
+          fi
+          git -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -m "test(e2e): seed visual baselines from CI"
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
+          echo "Baselines committed and pushed; the next CI run validates them."
 
       - name: Upload Playwright Report
         uses: actions/upload-artifact@v4

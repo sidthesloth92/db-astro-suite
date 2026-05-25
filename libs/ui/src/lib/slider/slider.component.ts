@@ -6,6 +6,12 @@ import {
   computed,
 } from "@angular/core";
 
+/**
+ * Themed numeric slider with label / tooltip / precision.
+ *
+ * @deprecated Replaced by `MicroSliderComponent` from the Direction B Polished
+ * component family. Slated for removal in a follow-up cleanup PR.
+ */
 @Component({
   selector: "dba-ui-slider",
   standalone: true,

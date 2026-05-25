@@ -1,0 +1,81 @@
+.upload-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  text-align: center;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.upload-card {
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 280px;
+  width: 100%;
+  padding: 18px;
+  background: var(--db-color-sheet-bg);
+  border: 1px solid var(--db-color-border);
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.upload-trigger {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 22px 12px;
+  border: 1px dashed var(--db-color-border-strong);
+  border-radius: 8px;
+  background: var(--db-color-surface-bg);
+  transition:
+    border-color 180ms ease,
+    background 180ms ease;
+}
+
+.upload-trigger:hover {
+  border-color: var(--db-color-border-active);
+  background: var(--db-color-surface);
+}
+
+.upload-glyph {
+  font-family: var(--db-font-mono-code);
+  font-size: 26px;
+  color: var(--db-color-neon-pink);
+  line-height: 1;
+}
+
+.upload-title {
+  font-family: var(--db-font-display-major);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--db-color-text-primary);
+  text-transform: uppercase;
+}
+
+.upload-hint {
+  font-family: var(--db-font-ui);
+  font-size: 11px;
+  color: var(--db-color-text-dim);
+}
+
+.upload-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

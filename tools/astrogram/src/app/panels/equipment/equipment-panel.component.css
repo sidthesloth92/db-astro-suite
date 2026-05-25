@@ -1,0 +1,253 @@
+:host {
+  display: block;
+  color: var(--db-color-text-primary);
+  min-width: 0;
+}
+
+.panel-root {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.divider {
+  height: 1px;
+  background: var(--db-color-border);
+  border: none;
+  margin: 0 18px;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: 5px;
+  background: transparent;
+  border: 1px solid var(--db-color-border);
+  color: var(--db-color-text-dim);
+  font-family: var(--db-font-mono-code);
+  font-weight: 500;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.action-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.save-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 18px 12px;
+}
+
+.save-input {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 8px;
+  background: var(--db-color-surface-bg);
+  border: 1px solid var(--db-color-border);
+  border-radius: 6px;
+  color: var(--db-color-text-primary);
+  font-family: var(--db-font-ui);
+  font-size: 12px;
+  outline: none;
+}
+
+.save-input:focus {
+  border-color: var(--db-color-border-active);
+}
+
+.save-confirm,
+.save-cancel {
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-family: var(--db-font-mono-code);
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: 1px solid var(--db-color-border);
+  background: transparent;
+  color: var(--db-color-text-dim);
+}
+
+.save-confirm {
+  background: var(--db-color-neon-pink);
+  border-color: var(--db-color-neon-pink);
+  color: var(--db-color-text-primary);
+}
+
+.preset-list {
+  padding: 0 18px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.preset-empty {
+  padding: 10px 12px;
+  font-family: var(--db-font-mono-code);
+  font-size: 10.5px;
+  color: var(--db-color-text-faint);
+  border: 1px dashed var(--db-color-border);
+  border-radius: 6px;
+}
+
+.preset-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.preset-row.is-active .preset-load-btn {
+  background: var(--db-color-surface-hi);
+  border-color: var(--db-color-border-strong);
+}
+
+.preset-load-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  padding: 10px 12px;
+  border-radius: 7px;
+  background: transparent;
+  border: 1px solid var(--db-color-border);
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+
+.preset-load-btn.is-active {
+  background: var(--db-color-surface-hi);
+  border-color: var(--db-color-border-strong);
+}
+
+.preset-del-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  color: var(--db-color-text-faint);
+  cursor: pointer;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.preset-check {
+  display: inline-grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  background: transparent;
+  border: 1.5px solid var(--db-color-border-strong);
+  color: var(--db-color-text-primary);
+  flex-shrink: 0;
+}
+
+.preset-check.is-on {
+  background: var(--db-color-neon-pink);
+  border-color: var(--db-color-neon-pink);
+}
+
+.preset-meta {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.preset-name {
+  font-family: var(--db-font-ui);
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--db-color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.preset-note {
+  font-family: var(--db-font-mono-code);
+  font-size: 10.5px;
+  color: var(--db-color-text-faint);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eq-row {
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr) 24px;
+  gap: 12px;
+  align-items: center;
+  padding: 9px 18px;
+  min-width: 0;
+}
+
+.eq-label-text,
+.eq-label-input {
+  font: 400 11px/1.2 var(--db-font-ui);
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.eq-label-text {
+  color: var(--db-color-text-dim);
+  background: transparent;
+  border: none;
+  padding: 0;
+  text-align: left;
+  cursor: text;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.eq-label-input {
+  color: var(--db-color-text-primary);
+  background: var(--db-color-surface-bg);
+  border: 1px solid var(--db-color-border-active);
+  border-radius: 4px;
+  padding: 1px 4px;
+  outline: none;
+  width: 100%;
+}
+
+.row-trash {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  color: var(--db-color-text-faint);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  min-width: 0;
+}
+
+.add-row {
+  padding: 6px 18px 10px;
+}

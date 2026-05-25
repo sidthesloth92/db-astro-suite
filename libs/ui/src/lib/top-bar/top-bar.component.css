@@ -1,0 +1,34 @@
+:host {
+  display: block;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+  height: 56px;
+  border-bottom: 1px solid var(--db-color-border);
+  background: var(--db-color-surface);
+  gap: 14px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 160px;
+}
+
+.tabs {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 160px;
+  justify-content: flex-end;
+}

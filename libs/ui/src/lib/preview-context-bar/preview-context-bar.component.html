@@ -1,0 +1,11 @@
+<div class="bar">
+  @if (modeOptions().length > 0) {
+    <dba-ui-segmented-tabs
+      class="mode-tabs"
+      [options]="modeOptions()"
+      [value]="selectedModeId()"
+      size="sm"
+      (valueChange)="onModeChange($event)"
+    />
+  }
+</div>

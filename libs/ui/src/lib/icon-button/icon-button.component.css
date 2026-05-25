@@ -1,0 +1,97 @@
+:host {
+  display: inline-flex;
+}
+
+.icon-button {
+  display: grid;
+  place-items: center;
+  /* Background, border, glyph colour, and corner radius can each be
+     overridden by the host via `--db-icon-button-*` custom properties.
+     Defaults preserve the dim, square-ish resting state used across the
+     suite. */
+  background: var(--db-icon-button-background, transparent);
+  border: 1px solid var(--db-icon-button-border-color, var(--db-color-border));
+  border-radius: var(--db-icon-button-radius, 8px);
+  color: var(--db-icon-button-color, var(--db-color-text-dim));
+  cursor: pointer;
+  padding: 0;
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.icon-button:hover:not(:disabled) {
+  color: var(--db-color-text-primary);
+  border-color: var(--db-color-border-strong);
+  transform: scale(1.1);
+}
+
+.icon-button[data-accent="pink"]:hover:not(:disabled) {
+  color: var(--db-color-neon-pink);
+  border-color: var(--db-color-border-active);
+  background: var(--db-color-pink-soft);
+  box-shadow: 0 0 15px var(--db-color-pink-soft);
+}
+
+.icon-button[data-accent="cyan"]:hover:not(:disabled) {
+  color: var(--db-color-cyan);
+  border-color: var(--db-color-cyan);
+  background: var(--db-color-cyan-soft);
+  box-shadow: 0 0 15px var(--db-color-cyan-soft);
+}
+
+.icon-button[data-accent="red"] {
+  color: var(--db-color-red);
+}
+
+.icon-button[data-accent="red"]:hover:not(:disabled) {
+  color: var(--db-color-red);
+  border-color: var(--db-color-red);
+  background: var(--db-color-red-soft);
+  box-shadow: 0 0 15px var(--db-color-red-soft);
+}
+
+.icon-button:active:not(:disabled) {
+  transform: scale(0.92);
+  transition-duration: 80ms;
+}
+
+.icon-button:focus-visible {
+  outline: 2px solid var(--db-color-cyan);
+  outline-offset: 2px;
+}
+
+.icon-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.icon-button.is-active[data-accent="pink"] {
+  color: var(--db-color-neon-pink);
+  border-color: var(--db-color-border-active);
+  background: var(--db-color-pink-soft);
+}
+
+.icon-button.is-active[data-accent="cyan"] {
+  color: var(--db-color-cyan);
+  border-color: var(--db-color-cyan);
+  background: var(--db-color-cyan-soft);
+}
+
+.icon-button.is-active[data-accent="red"] {
+  color: var(--db-color-red);
+  border-color: var(--db-color-red);
+  background: var(--db-color-red-soft);
+}
+
+/*
+ * Success state — paints green regardless of accent. Used for transient
+ * post-action feedback (e.g. "copied!" on a clipboard button). Listed
+ * after the hover + active rules so it wins the cascade on conflicts.
+ */
+.icon-button.is-success,
+.icon-button.is-success:hover:not(:disabled) {
+  color: var(--db-color-green);
+  border-color: var(--db-color-green);
+  background: var(--db-color-green-soft);
+  box-shadow: 0 0 15px var(--db-color-green-soft);
+  transform: none;
+}

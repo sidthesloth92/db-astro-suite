@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 
@@ -15,8 +15,7 @@ export interface SimbadResult {
 })
 export class SimbadService {
   private readonly baseUrl = 'https://simbad.cds.unistra.fr/simbad/sim-tap/sync';
-
-  constructor(private http: HttpClient) {}
+  private readonly http = inject(HttpClient);
 
   /**
    * Search SIMBAD by object name (e.g. 'M 42', 'Barnard 33')

@@ -1,0 +1,71 @@
+<div class="mobile" data-testid="mobile-shell">
+  <dba-ag-top-bar [isCompact]="true" />
+
+  <div class="mode-toggle-row">
+    <dba-ui-segmented-tabs
+      [options]="modeOptions"
+      [value]="selectedModeId()"
+      size="sm"
+      (valueChange)="onModeChange($event)"
+    />
+  </div>
+
+  <main class="preview-area">
+    @if (activeMode() === 'infographic') {
+      <dba-ag-card-preview />
+      <dba-ag-caption-section />
+    } @else {
+      <dba-ag-stellar-map-preview [hideAuthor]="true" />
+    }
+  </main>
+
+  <dba-ui-floating-sheet [(expanded)]="sheetExpanded" [title]="sheetTitle()" [maxHeightPercent]="70">
+    @if (activeMode() === 'infographic') {
+      @switch (infographicSection()) {
+        @case ('object') { <dba-ag-object-info-panel /> }
+        @case ('capture') { <dba-ag-capture-panel /> }
+        @case ('equipment') { <dba-ag-equipment-panel /> }
+        @case ('layout') { <dba-ag-layout-panel /> }
+        @case ('export') { <dba-ag-export-panel [hideHeader]="true" /> }
+      }
+    } @else {
+      @switch (stellarSection()) {
+        @case ('filters') { <dba-ag-annotation-filters-panel /> }
+        @case ('style') { <dba-ag-annotation-style-panel /> }
+        @case ('selected') { <dba-ag-annotation-selected-panel /> }
+        @case ('export') { <dba-ag-export-panel [hideHeader]="true" /> }
+      }
+    }
+
+    <ng-template #navIcon let-item>
+      @switch (item.iconName) {
+        @case ('image') { <dba-ui-icon [def]="imageIcon" [size]="18" /> }
+        @case ('aperture') { <dba-ui-icon [def]="apertureIcon" [size]="18" /> }
+        @case ('telescope') { <dba-ui-icon [def]="telescopeIcon" [size]="18" /> }
+        @case ('palette') { <dba-ui-icon [def]="paletteIcon" [size]="18" /> }
+        @case ('crop') { <dba-ui-icon [def]="cropIcon" [size]="18" /> }
+        @case ('filter') { <dba-ui-icon [def]="filterIcon" [size]="18" /> }
+        @case ('target') { <dba-ui-icon [def]="targetIcon" [size]="18" /> }
+        @case ('download') { <dba-ui-icon [def]="downloadIcon" [size]="18" /> }
+      }
+    </ng-template>
+
+    <ng-container slot="nav">
+      @if (activeMode() === 'infographic') {
+        <dba-ui-bottom-nav
+          [items]="infographicItems"
+          [activeId]="infographicSection()"
+          [iconTemplate]="navIcon"
+          (activate)="onInfographicActivate($event)"
+        />
+      } @else {
+        <dba-ui-bottom-nav
+          [items]="stellarItems()"
+          [activeId]="activeStellarRailId()"
+          [iconTemplate]="navIcon"
+          (activate)="onStellarActivate($event)"
+        />
+      }
+    </ng-container>
+  </dba-ui-floating-sheet>
+</div>

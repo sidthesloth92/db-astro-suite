@@ -1,0 +1,29 @@
+:host {
+  display: block;
+  flex-shrink: 0;
+}
+
+.rail {
+  width: 60px;
+  background: var(--db-color-surface);
+  padding: 8px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rail[data-side="left"] {
+  border-right: 1px solid var(--db-color-border);
+}
+
+.rail[data-side="right"] {
+  border-left: 1px solid var(--db-color-border);
+}
+
+/* Allow consumers to drop in a plain <hr /> to break up groups. */
+.rail ::ng-deep hr {
+  margin: 6px 12px;
+  height: 1px;
+  border: none;
+  background: var(--db-color-border);
+}

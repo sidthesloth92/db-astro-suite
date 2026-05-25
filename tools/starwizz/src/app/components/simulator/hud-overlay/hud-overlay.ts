@@ -1,12 +1,11 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
+/** Decorative HUD overlay — corner brackets, scanning line, and telemetry readouts. */
 @Component({
   selector: 'dba-sw-hud-overlay',
   imports: [],
   templateUrl: './hud-overlay.html',
-  styleUrl: './hud-overlay.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrl: './hud-overlay.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HudOverlay {
-
-}
+export class HudOverlay {}

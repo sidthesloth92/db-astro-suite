@@ -1,0 +1,38 @@
+:host {
+  display: inline-flex;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  color: var(--db-color-cyan);
+  font-family: var(--db-font-ui);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.pill[data-tone="cyan"] {
+  color: var(--db-color-cyan);
+  border-color: var(--db-color-cyan-soft);
+  background: var(--db-color-cyan-soft);
+}
+
+.pill[data-tone="pink"] {
+  color: var(--db-color-neon-pink);
+  border-color: var(--db-color-pink-dim);
+  background: var(--db-color-pink-soft);
+}
+
+.pill[data-tone="orange"] {
+  color: var(--db-color-orange);
+  border: 1px solid var(--db-color-orange);
+  background: transparent;
+}

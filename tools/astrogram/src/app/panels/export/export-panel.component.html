@@ -1,0 +1,27 @@
+<div class="panel-root">
+  <dba-ui-inspector-section title="Output format" [hideHeader]="hideHeader()">
+    <dba-ui-icon slot="icon" [def]="downloadIcon" [size]="14" />
+    <div class="format-list">
+      @for (opt of formats; track opt.id) {
+        <button
+          type="button"
+          class="format-row"
+          [class.is-active]="format() === opt.id"
+          (click)="selectFormat(opt.id)"
+        >
+          <span class="radio-dot" [class.is-on]="format() === opt.id"></span>
+          <span class="format-meta">
+            <span class="format-label">{{ opt.label }}</span>
+            <span class="format-note">{{ opt.note }}</span>
+          </span>
+        </button>
+      }
+    </div>
+    <div class="cta-wrap">
+      <button type="button" class="cta-btn" [disabled]="!canExport()" (click)="triggerExport()">
+        <dba-ui-icon [def]="downloadIcon" [size]="13" />
+        <span>Export</span>
+      </button>
+    </div>
+  </dba-ui-inspector-section>
+</div>

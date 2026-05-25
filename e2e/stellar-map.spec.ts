@@ -27,18 +27,22 @@ test.describe("Stellar Map Mode", () => {
   test("switches to Stellar Map mode when tab is clicked", async ({ page }) => {
     await stellarMapPage.switchToStellarMapMode();
 
-    // Upload target card is the empty-state UI in the preview panel
+    // Upload target card is the empty-state UI in the preview panel.
     await expect(stellarMapPage.getUploadTargetHeading()).toBeVisible();
     await expect(
       page.getByText("UPLOAD AN IMAGE TO BEGIN PLATE SOLVING"),
     ).toBeVisible();
-    // ASTROSOLVE trigger must be present in the config panel
-    await expect(stellarMapPage.getAstrosolveButton()).toBeVisible();
+    // ASTROSOLVE trigger lives in the post-upload toolbar — it is NOT
+    // rendered while the empty-state upload card is visible.
+    await expect(stellarMapPage.getAstrosolveButton()).toHaveCount(0);
   });
 
-  test("ASTROSOLVE button is disabled before image upload", async () => {
+  test("ASTROSOLVE button is not rendered before image upload", async () => {
     await stellarMapPage.switchToStellarMapMode();
-    await expect(stellarMapPage.getAstrosolveButton()).toBeDisabled();
+    // The upload-panel template gates the ASTROSOLVE button behind a
+    // populated `backgroundImage` — before upload it is absent from the
+    // DOM (not just hidden).
+    await expect(stellarMapPage.getAstrosolveButton()).toHaveCount(0);
   });
 
   test("ASTROSOLVE button is enabled after image upload", async () => {

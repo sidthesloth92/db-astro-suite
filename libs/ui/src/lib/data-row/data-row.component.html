@@ -1,0 +1,9 @@
+<div class="row" [attr.data-accent]="accent()">
+  <div class="icon">
+    <ng-content select="[slot=icon]" />
+  </div>
+  <div class="text">
+    <div class="label">{{ label() }}</div>
+    <div class="value">{{ value() }}</div>
+  </div>
+</div>

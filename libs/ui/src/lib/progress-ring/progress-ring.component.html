@@ -1,0 +1,31 @@
+<div class="wrap">
+  <div class="ring-frame" [style.width.px]="size()" [style.height.px]="size()">
+    <svg
+      [attr.width]="size()"
+      [attr.height]="size()"
+      [attr.viewBox]="'0 0 ' + size() + ' ' + size()"
+      aria-hidden="true"
+    >
+      <circle
+        [attr.cx]="center()"
+        [attr.cy]="center()"
+        [attr.r]="radius()"
+        class="track"
+      />
+      <circle
+        [attr.cx]="center()"
+        [attr.cy]="center()"
+        [attr.r]="radius()"
+        class="arc"
+        [attr.stroke]="color()"
+        [attr.stroke-dasharray]="circumference()"
+        [attr.stroke-dashoffset]="dashOffset()"
+        [attr.transform]="'rotate(-90 ' + center() + ' ' + center() + ')'"
+      />
+    </svg>
+    <div class="center">{{ centerText() }}</div>
+  </div>
+  @if (label()) {
+    <div class="label">{{ label() }}</div>
+  }
+</div>

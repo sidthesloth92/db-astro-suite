@@ -1,4 +1,9 @@
 import { Injectable, signal } from '@angular/core';
+import {
+  DEFAULT_PREVIEW_SIZE_KEY,
+  PREVIEW_SIZES,
+  type PreviewSizeKey,
+} from '../constants/preview-sizes.constants';
 import { AnnotationStyle, GlobalAnnotationSettings } from '../models/annotation-settings.models';
 import { ImageAnnotation } from '../models/annotation.models';
 import {
@@ -6,7 +11,7 @@ import {
   DEFAULT_FILTERS,
   DEFAULT_GLOBAL_ANNOTATION_SETTINGS,
   StellarMapData,
-} from '../models/card-data';
+} from '../models/card-data.model';
 
 @Injectable({
   providedIn: 'root',
@@ -39,6 +44,7 @@ export class CardDataService {
     focalLength: null,
     accentColor: '#ff2d95',
     accentColorRgb: '255, 45, 149',
+    secondaryAccentColor: '#00E5FF',
     cardOpacity: 0.6,
     backgroundImage: 'assets/img/rosette.jpg',
     aspectRatio: '3:4',
@@ -48,9 +54,25 @@ export class CardDataService {
 
   readonly activeMode = signal<'infographic' | 'stellar-map'>('infographic');
 
+  /**
+   * Currently selected preview-size preset key. The matching `aspectRatio`
+   * is mirrored into `cardData` / `stellarMapData` by `setPreviewSize()`.
+   */
+  readonly previewSizeKey = signal<PreviewSizeKey>(DEFAULT_PREVIEW_SIZE_KEY);
+
+  /**
+   * Requested export format. Drives `BaseCardPreviewComponent.exportCard()` —
+   * defaults to `'jpeg'` to preserve historical behaviour.
+   */
+  readonly exportFormat = signal<'jpeg' | 'png' | 'webp'>('jpeg');
+
   readonly stellarMapData = signal<StellarMapData>({
     backgroundImage: null,
     rawFile: null,
+    // Default to source-image dimensions so the uploaded stellar image is
+    // shown at its natural aspect — and exported at its native size — out
+    // of the box. Users can switch to a fixed preset (1:1, 4:5, etc.) via
+    // the Layout panel if they want a social-media crop.
     aspectRatio: 'auto',
     annotations: [],
     filters: {
@@ -146,6 +168,22 @@ export class CardDataService {
   addAnnotation(ann: ImageAnnotation) {
     this.stellarMapData.update((d) => ({ ...d, annotations: [...d.annotations, ann] }));
     this.selectedAnnotationId.set(ann.id);
+  }
+
+  /**
+   * Switches the preview to a named size preset, mirroring its `aspectRatio`
+   * into the active mode's data signal so the preview surface reshapes
+   * immediately. Single source of truth for both the toolbar dropdown and
+   * the Style inspector's format picker — both call through here.
+   */
+  setPreviewSize(key: PreviewSizeKey) {
+    const meta = PREVIEW_SIZES[key];
+    if (!meta) return;
+    this.previewSizeKey.set(key);
+    // Layout preset only affects the infographic card. Stellar-map keeps
+    // its own aspect (defaults to `auto` = uploaded image's natural size)
+    // so picking 1080×1080 here doesn't crop the stellar image.
+    this.cardData.update((data) => ({ ...data, aspectRatio: meta.ratio }));
   }
 
   updateData(newData: Partial<CardData>) {

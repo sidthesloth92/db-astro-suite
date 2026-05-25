@@ -1,11 +1,13 @@
 import {
   AfterViewInit,
-  Component,
-  ElementRef,
-  ViewChild,
-  effect,
   ChangeDetectionStrategy,
-  HostBinding,
+  Component,
+  DestroyRef,
+  ElementRef,
+  computed,
+  effect,
+  inject,
+  viewChild,
 } from '@angular/core';
 import { SimulationService } from '../../services/simulation.service';
 import { ClearImageButton } from './clear-image-button/clear-image-button';
@@ -29,14 +31,50 @@ const SHOOTING_STAR_SPAWN_RATE = 1.5;
   standalone: true,
   imports: [HudOverlay, LoadingOverlay, ImageUploadOverlay, ClearImageButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '[style.--aspect-ratio]': 'aspectRatioStyle()',
+    '[style.--aspect-ratio-num]': 'aspectRatioNum()',
+    '[style.--format-width]': 'formatWidthStyle()',
+  },
 })
 export class Simulator implements AfterViewInit {
-  @ViewChild('starCanvas') canvasRef!: ElementRef<HTMLCanvasElement>;
+  /** @private Canvas template reference — available after view init. */
+  private readonly canvasRef = viewChild.required<ElementRef<HTMLCanvasElement>>('starCanvas');
 
-  @HostBinding('style.--aspect-ratio') get aspectRatio() {
+  /** Shared simulation state + recording state machine. */
+  protected readonly simService = inject(SimulationService);
+
+  /** @private Cleanup hook for the window resize listener. */
+  private readonly _destroyRef = inject(DestroyRef);
+
+  /** CSS custom property value for the host's aspect-ratio. */
+  protected readonly aspectRatioStyle = computed(() => {
     const dims = this.simService.canvasDimensions();
     return `${dims.width} / ${dims.height}`;
-  }
+  });
+
+  /**
+   * Numeric (width / height) aspect ratio, e.g. `0.5625` for 9:16. Used by
+   * CSS `min()` math to derive a width that respects a height cap while
+   * keeping the aspect ratio intact (CSS `aspect-ratio` won't shrink an
+   * explicit width when `max-height` clips, so we feed the ratio in
+   * directly via this var).
+   */
+  protected readonly aspectRatioNum = computed(() => {
+    const dims = this.simService.canvasDimensions();
+    return `${dims.width / dims.height}`;
+  });
+
+  /**
+   * Format width (in CSS px) — the user-selected export width. Used as
+   * one of the upper bounds when sizing the on-screen preview; the
+   * export itself always uses the full pixel dimensions regardless of
+   * how large the preview renders.
+   */
+  protected readonly formatWidthStyle = computed(() => {
+    const dims = this.simService.canvasDimensions();
+    return `${dims.width}px`;
+  });
 
   // Rendering State
   private ctx: CanvasRenderingContext2D | null = null;
@@ -50,60 +88,48 @@ export class Simulator implements AfterViewInit {
   private lastShootingStarSpawn = 0;
   private animationFrameId: number | null = null;
 
-  constructor(public simService: SimulationService) {
-    // Effect to respond to recording state changes
-    effect(() => {
-      const state = this.simService.recordingState();
-      if (state === 'recording' && !this.simService.isRecording()) {
-        this.simService.startRecording(this.canvasRef.nativeElement);
-      } else if (state === 'idle' && this.simService.isRecording()) {
-        this.simService.stopRecording();
-      }
-    });
+  /** Effect: start/stop MediaRecorder in response to recording state changes. */
+  private readonly _recordingEffect = effect(() => {
+    const state = this.simService.recordingState();
+    if (state === 'recording' && !this.simService.isRecording()) {
+      this.simService.startRecording(this.canvasRef().nativeElement);
+    } else if (state === 'idle' && this.simService.isRecording()) {
+      this.simService.stopRecording();
+    }
+  });
 
-    // Effect to handle reset-and-record request (from beginning checkbox)
-    effect(() => {
-      const shouldResetAndRecord = this.simService.resetAndRecordRequested();
-      if (shouldResetAndRecord) {
-        // Reset animation state to beginning (no star regeneration to avoid lag)
-        this.currentScale = 1.0;
-        this.currentRotation = 0;
+  /** Effect: reset animation to frame 0 before a record-from-beginning session. */
+  private readonly _resetAndRecordEffect = effect(() => {
+    const shouldResetAndRecord = this.simService.resetAndRecordRequested();
+    if (shouldResetAndRecord) {
+      this.currentScale = 1.0;
+      this.currentRotation = 0;
+      this.simService.resetAndRecordRequested.set(false);
+      requestAnimationFrame(() => {
+        this.renderFrame();
+        this.simService.recordingState.set('recording');
+      });
+    }
+  });
 
-        // Clear the request flag
-        this.simService.resetAndRecordRequested.set(false);
+  /** Effect: reset animation position without entering a recording session. */
+  private readonly _restartEffect = effect(() => {
+    const shouldRestart = this.simService.restartAnimationRequested();
+    if (shouldRestart) {
+      this.currentScale = 1.0;
+      this.currentRotation = 0;
+      this.simService.restartAnimationRequested.set(false);
+    }
+  });
 
-        // Render one frame with reset state before starting recording
-        // This ensures the first frame of recording shows the beginning state
-        requestAnimationFrame(() => {
-          this.renderFrame();
-          // Now start recording
-          this.simService.recordingState.set('recording');
-        });
-      }
-    });
-
-    // Effect to handle restart animation request (without recording)
-    effect(() => {
-      const shouldRestart = this.simService.restartAnimationRequested();
-      if (shouldRestart) {
-        // Reset animation state to beginning (no star regeneration to avoid lag)
-        this.currentScale = 1.0;
-        this.currentRotation = 0;
-
-        // Clear the request flag
-        this.simService.restartAnimationRequested.set(false);
-      }
-    });
-
-    // Effect to respond to canvas dimension changes
-    effect(() => {
-      const dims = this.simService.canvasDimensions();
-      if (this.ctx) {
-        this.setupCanvasDimensions(dims);
-        this.resetSimulation();
-      }
-    });
-  }
+  /** Effect: rebuild canvas dimensions when the format selection changes. */
+  private readonly _dimensionsEffect = effect(() => {
+    const dims = this.simService.canvasDimensions();
+    if (this.ctx) {
+      this.setupCanvasDimensions(dims);
+      this.resetSimulation();
+    }
+  });
 
   ngAfterViewInit() {
     this.init();
@@ -121,15 +147,13 @@ export class Simulator implements AfterViewInit {
   }
 
   private init() {
-    this.ctx = this.canvasRef.nativeElement.getContext('2d');
+    this.ctx = this.canvasRef().nativeElement.getContext('2d');
     this.setupCanvasDimensions();
     this.generateStarTexture();
     this.simService.loadingProgress.set('Initializing...');
 
-    // Load default scene
     this.simService.loadDefaultScene();
 
-    // Generate stars with small delay for UI
     setTimeout(() => {
       this.simService.loadStarsAsync(this.width, this.height, () => {
         this.simService.loadingProgress.set('Ready');
@@ -138,11 +162,14 @@ export class Simulator implements AfterViewInit {
     }, 10);
 
     this.animate();
-    window.addEventListener('resize', () => this.setupCanvasDimensions());
+
+    const onResize = () => this.setupCanvasDimensions();
+    window.addEventListener('resize', onResize);
+    this._destroyRef.onDestroy(() => window.removeEventListener('resize', onResize));
   }
 
   private setupCanvasDimensions = (overrideDims?: { width: number; height: number }) => {
-    const canvas = this.canvasRef.nativeElement;
+    const canvas = this.canvasRef().nativeElement;
     const dims = overrideDims || this.simService.canvasDimensions();
     canvas.width = dims.width;
     canvas.height = dims.height;

@@ -1,8 +1,17 @@
 /**
  * DB Astro Suite - Neon Theme Design Tokens
- * 
+ *
  * Import this file in any project to use the shared theme.
  * Example: @import '@db-astro-suite/theme';
+ *
+ * NOTE: Web fonts loaded over the network (Fira Code, Orbitron, Rajdhani)
+ * are linked from each consuming app's `index.html` rather than via CSS
+ * `@import url(...)`. The `@import` form is order-sensitive (must precede
+ * every other rule), and Tailwind v4's `@import "tailwindcss"` emits
+ * `@layer` blocks ahead of any subsequent imports — which would make
+ * a font @import here invalid and triggers a noisy bundler warning.
+ * The local `.woff2` / `.ttf` files below remain inlined here because
+ * `@font-face` has no ordering restriction.
  */
 
 /* ========================================
@@ -43,6 +52,49 @@
   font-weight: 700;
   font-display: swap;
 }
+
+/* Direction B Polished — Outfit (UI + display), Fira Code (mono) */
+@font-face {
+  font-family: "Outfit";
+  src: url("./fonts/outfit-100.woff2") format("woff2");
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Outfit";
+  src: url("./fonts/outfit-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Outfit";
+  src: url("./fonts/outfit-500.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Outfit";
+  src: url("./fonts/outfit-600.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Outfit";
+  src: url("./fonts/outfit-700.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+
 
 /* ========================================
    CSS CUSTOM PROPERTIES (DESIGN TOKENS)
@@ -98,6 +150,85 @@
 }
 
 /* ========================================
+   DIRECTION B POLISHED TOKENS
+   ----------------------------------------
+   Additive token layer used by the astrogram redesign and the new
+   reusable primitives in @db-astro-suite/ui. Existing tokens above
+   are preserved for hub/starwizz and the older astrogram chrome.
+   ======================================== */
+
+:root {
+  /* Surface scale (darker than current) */
+  --db-color-surface-bg: #05060A;
+  --db-color-surface: #0B0E16;
+  --db-color-surface-raised: #11151F;
+  --db-color-surface-hi: #171C28;
+
+  /* Accents */
+  --db-color-cyan: #00E5FF;
+  --db-color-cyan-soft: rgba(0, 229, 255, 0.10);
+  --db-color-orange: #FF6B3D;
+  --db-color-green: #5AE08A;
+  --db-color-green-soft: rgba(90, 224, 138, 0.12);
+  --db-color-red: #FF4D5E;
+  --db-color-red-soft: rgba(255, 77, 94, 0.12);
+  --db-color-pink-soft: rgba(255, 45, 149, 0.12);
+  --db-color-pink-dim: rgba(255, 45, 149, 0.45);
+
+  /* Borders */
+  --db-color-border: rgba(255, 255, 255, 0.06);
+  --db-color-border-strong: rgba(255, 255, 255, 0.10);
+  --db-color-border-active: rgba(255, 45, 149, 0.55);
+
+  /* Text scale */
+  --db-color-text-dim: #8B92A6;
+  --db-color-text-faint: #5A6175;
+  --db-color-text-link: #7AA7D9;
+
+  /* Typography families */
+  --db-font-display-major: "Outfit", -apple-system, system-ui, sans-serif;
+  --db-font-ui: "Outfit", -apple-system, system-ui, sans-serif;
+  --db-font-mono-code: "Fira Code", ui-monospace, monospace;
+
+  /* Breakpoints */
+  --db-bp-mobile: 768px;
+
+  /* ------------------------------------------------------------------
+     Reusable surfaces / shadows for the redesigned primitives
+     ------------------------------------------------------------------ */
+
+  /** Floating-sheet glass surface. */
+  --db-color-sheet-bg: rgba(11, 14, 22, 0.72);
+  /** Floating-sheet sticky header surface (slightly more transparent). */
+  --db-color-sheet-header-bg: rgba(11, 14, 22, 0.55);
+  /** Floating-sheet drop shadow. */
+  --db-shadow-sheet: 0 -8px 30px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(0, 0, 0, 0.3);
+
+  /** Star colour used by the StarryBackground gradients. */
+  --db-color-star: 255, 255, 255;
+
+  /** Switch knob colour. */
+  --db-color-switch-knob: #ffffff;
+
+  /** Astrogram-brand avatar gradient stops (warm to deep). */
+  --db-color-avatar-warm: #ffc36b;
+  --db-color-avatar-deep: #6b1a48;
+  /** Composed gradient binding the two stops with the neon-pink mid. */
+  --db-gradient-astrogram-avatar: radial-gradient(
+    circle at 30% 30%,
+    var(--db-color-avatar-warm),
+    var(--db-color-neon-pink) 70%,
+    var(--db-color-avatar-deep)
+  );
+
+  /** Default colour for a freshly-added custom filter (data, not brand). */
+  --db-color-filter-default: #ff00ff;
+
+  /** Error text colour used in inline form / upload validations. */
+  --db-color-text-error: #ff6b6b;
+}
+
+/* ========================================
    SHARED FORM UTILITIES
    ======================================== */
 
@@ -114,14 +245,14 @@
 }
 
 .db-form-label {
-  font-family: var(--db-form-font-mono);
+  font-family: var(--db-font-ui);
   font-size: var(--db-form-label-font-size);
   text-transform: uppercase;
   letter-spacing: 0.15em;
   color: var(--db-color-neon-pink);
   opacity: 0.8;
   margin-bottom: 0;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .db-form-input,
@@ -281,4 +412,36 @@ h1, h2, h3, h4, h5, h6 {
 
 .font-display {
   font-family: var(--db-font-display);
+}
+
+/* ========================================
+   BUTTON HOVER UTILITIES
+   Apply `.db-hover-pink` to primary actions and `.db-hover-cyan` to
+   neutral/secondary actions on any clickable element across the suite.
+   Provides a consistent soft-glow + tint hover animation. Specificity
+   is intentionally raised via doubled class names so these utilities
+   override component-scoped `:hover` rules emitted by Angular's
+   emulated view encapsulation.
+   ======================================== */
+
+.db-hover-pink,
+.db-hover-cyan {
+  transition: color 200ms cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 200ms cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 200ms cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.db-hover-pink.db-hover-pink:hover:not(:disabled):not([disabled]) {
+  color: var(--db-color-neon-pink);
+  border-color: var(--db-color-border-active);
+  background-color: var(--db-color-pink-soft);
+  box-shadow: 0 0 15px var(--db-color-pink-soft);
+}
+
+.db-hover-cyan.db-hover-cyan:hover:not(:disabled):not([disabled]) {
+  color: var(--db-color-cyan);
+  border-color: var(--db-color-cyan);
+  background-color: var(--db-color-cyan-soft);
+  box-shadow: 0 0 15px var(--db-color-cyan-soft);
 }

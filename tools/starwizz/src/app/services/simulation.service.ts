@@ -1,9 +1,9 @@
 import { computed, inject, Injectable, signal, WritableSignal } from '@angular/core';
 import {
-  ASPECT_RATIOS,
-  AspectRatioKey,
   CONTROLS,
   DEFAULT_GALAXY_URL,
+  FORMATS,
+  FormatKey,
 } from '../constants/simulation.constant';
 import { ShootingStar } from '../models/shooting-star.model';
 import { ControlKey, RecordingState } from '../models/simulation.model';
@@ -147,21 +147,40 @@ export class SimulationService {
    */
   galaxyImage = signal<HTMLImageElement | null>(null);
 
-  // ==================== Aspect Ratio State ====================
+  // ==================== Format State ====================
 
   /**
-   * Currently selected aspect ratio for the simulation canvas.
+   * Currently selected output format for the simulation canvas.
    * Affects canvas dimensions and output video size.
    */
-  currentAspectRatio = signal<AspectRatioKey>('9:16');
+  currentFormat = signal<FormatKey>('reels');
 
   /**
-   * Computed canvas dimensions based on the selected aspect ratio.
+   * Toggles the recording state machine — idle ↔ recording. Centralised here
+   * so multiple UI surfaces (desktop control panel, mobile sheet header) can
+   * trigger recording without duplicating the logic. Byte-identical behaviour
+   * to the previous ControlPanel implementation.
+   */
+  toggleRecording(): void {
+    const currentState = this.recordingState();
+    if (currentState === 'idle') {
+      if (this.recordFromBeginning()) {
+        this.resetAndRecordRequested.set(true);
+      } else {
+        this.recordingState.set('recording');
+      }
+    } else if (currentState === 'recording') {
+      this.recordingState.set('idle');
+    }
+  }
+
+  /**
+   * Computed canvas dimensions based on the selected format.
    * Returns an object with width and height properties.
    */
   canvasDimensions = computed(() => {
-    const ratio = this.currentAspectRatio();
-    return ASPECT_RATIOS[ratio];
+    const format = this.currentFormat();
+    return FORMATS[format];
   });
 
   // ==================== Star Collection Signals ====================
@@ -330,7 +349,7 @@ export class SimulationService {
 
   /**
    * Clears the currently loaded image and resets related state.
-   * Called when user clicks the "Clear Target" button.
+   * Called when user clicks the "Clear" button.
    */
   clearImage(): void {
     this.isDefaultImage.set(false);
@@ -547,10 +566,19 @@ export class SimulationService {
     // Determine file extension based on format
     const extension = mimeType.includes('mp4') ? '.mp4' : '.webm';
 
+    // Compose filename as `starfield_starwizz_<aspect>_<w>_<h>.<ext>` so the
+    // saved file carries both a human-readable basename and the aspect /
+    // resolution the recording was rendered at.
+    const { width, height } = this.canvasDimensions();
+    const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b));
+    const g = gcd(width, height) || 1;
+    const aspectSlug = `${width / g}_${height / g}`;
+    const filename = `starfield_starwizz_${aspectSlug}_${width}_${height}${extension}`;
+
     // Trigger download via programmatic link click
     const a = document.createElement('a');
     a.href = url;
-    a.download = `starfield-simulation${extension}`;
+    a.download = filename;
     a.click();
 
     // Clean up

@@ -1,0 +1,28 @@
+:host {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  z-index: 20;
+}
+
+.clear-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: color-mix(in srgb, var(--db-color-space-black) 60%, transparent);
+  border: 1px solid color-mix(in srgb, var(--db-color-neon-pink) 30%, transparent);
+  color: color-mix(in srgb, var(--db-color-neon-pink) 70%, transparent);
+  font-family: var(--db-font-ui);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 180ms ease, border-color 180ms ease;
+}
+
+.clear-btn:hover {
+  color: var(--db-color-neon-pink);
+  border-color: var(--db-color-neon-pink);
+}

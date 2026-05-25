@@ -1,0 +1,12 @@
+<button
+  type="button"
+  role="switch"
+  class="switch"
+  [class.is-on]="checked()"
+  [attr.aria-checked]="checked()"
+  [attr.aria-label]="ariaLabel() || null"
+  [disabled]="disabled()"
+  (click)="onToggle()"
+>
+  <span class="dot" aria-hidden="true"></span>
+</button>

@@ -1,6 +1,12 @@
 import { Component, ChangeDetectionStrategy, input, model } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
+/**
+ * Single accordion row, child of `<dba-ui-accordion>`.
+ *
+ * @deprecated Replaced by the Direction B Polished component family.
+ * Slated for removal in a follow-up cleanup PR.
+ */
 @Component({
   selector: 'dba-ui-accordion-item',
   standalone: true,

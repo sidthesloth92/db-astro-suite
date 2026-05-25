@@ -35,6 +35,11 @@ test.describe("Stellar Map — Draggable Annotation Markers", () => {
     await stellarMapPage.addCustomAnnotation();
 
     const marker = stellarMapPage.getFirstAnnotationMarker();
+    // `CardDataService.addAnnotation` auto-selects the new annotation, so
+    // the marker is already in the selected state required by the two-stroke
+    // pointer model — no extra click-to-select needed before the drag.
+    await expect(marker).toHaveClass(/selected/);
+
     const initialBox = await marker.boundingBox();
     expect(initialBox).not.toBeNull();
 

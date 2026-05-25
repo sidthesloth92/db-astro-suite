@@ -1,0 +1,47 @@
+:host {
+  display: inline-flex;
+}
+
+.switch {
+  position: relative;
+  width: 32px;
+  height: 18px;
+  padding: 0;
+  border-radius: 9px;
+  background: var(--db-color-surface-bg);
+  border: 1px solid var(--db-color-border-strong);
+  cursor: pointer;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease;
+}
+
+.switch:focus-visible {
+  outline: 2px solid var(--db-color-cyan);
+  outline-offset: 2px;
+}
+
+.switch:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.switch.is-on {
+  background: var(--db-color-neon-pink);
+  border-color: var(--db-color-neon-pink);
+}
+
+.dot {
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--db-color-switch-knob);
+  transition: left 150ms ease;
+}
+
+.switch.is-on .dot {
+  left: 15px;
+}

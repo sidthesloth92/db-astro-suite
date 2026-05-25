@@ -1,0 +1,19 @@
+<div class="group" role="tablist" [attr.data-size]="size()">
+  @for (opt of options(); track opt.id) {
+    <button
+      type="button"
+      role="tab"
+      class="tab"
+      [class.is-active]="opt.id === value()"
+      [attr.aria-selected]="opt.id === value()"
+      (click)="onSelect(opt.id)"
+    >
+      @if (iconTemplate(); as tpl) {
+        <span class="icon">
+          <ng-container [ngTemplateOutlet]="tpl" [ngTemplateOutletContext]="{ $implicit: opt }" />
+        </span>
+      }
+      <span class="label">{{ opt.label }}</span>
+    </button>
+  }
+</div>
