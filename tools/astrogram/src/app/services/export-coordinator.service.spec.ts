@@ -47,4 +47,26 @@ describe('ExportCoordinatorService', () => {
     service.trigger();
     expect(second).toHaveBeenCalledTimes(1);
   });
+
+  it('returns a function from register so callers can unregister on destroy', () => {
+    const unregister = service.register(() => undefined);
+    expect(typeof unregister).toBe('function');
+  });
+
+  it('invokes the registered exporter once per trigger call', () => {
+    const exporter = jasmine.createSpy('exporter');
+    service.register(exporter);
+    service.trigger();
+    service.trigger();
+    service.trigger();
+    expect(exporter).toHaveBeenCalledTimes(3);
+  });
+
+  it('treats trigger after a stale unregister-only sequence as a no-op', () => {
+    const first = jasmine.createSpy('first');
+    const unregister = service.register(first);
+    unregister();
+    service.trigger();
+    expect(first).not.toHaveBeenCalled();
+  });
 });
