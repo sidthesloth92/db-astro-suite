@@ -242,6 +242,34 @@
   padding: 0.75rem 1rem;
 }
 
+/* 1.91:1 is a landscape strip (~251 px tall) where the column stack would
+   overflow even after content shrinks. Lay the hero and integration side
+   by side and centre them in the strip; `card-preview.css` hides the
+   other sections for this aspect. Also lift the standard top/bottom gap
+   so the two blocks sit visually balanced. */
+.card.aspect-1-91-1 .card-content {
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 6px 12px;
+}
+
+/* 1:1 (480×480) is the tightest column aspect — collapse the inter-section
+   gap aggressively. The default 1.75 rem spread across 5 gaps eats ~140 px
+   of height; 0.4 rem reclaims ~110 px for actual content. */
+.card.aspect-1-1 .card-content {
+  gap: 0.4rem;
+}
+
+/* 9:16 has plenty of vertical room — give the projected sections more
+   breathing space than the default 1.75 rem so the bottom of the card
+   doesn't feel empty. Per-section font/padding adjustments live in
+   `card-preview.css`. */
+.card.aspect-9-16 .card-content {
+  gap: 2.25rem;
+}
+
 .card-overlay {
   position: absolute;
   inset: 0;

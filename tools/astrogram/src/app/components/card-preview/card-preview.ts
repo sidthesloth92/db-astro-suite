@@ -2,6 +2,7 @@ import {
   Component,
   ChangeDetectionStrategy,
   DestroyRef,
+  HostBinding,
   inject,
   computed,
   OnInit,
@@ -44,6 +45,17 @@ export class CardPreviewComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   readonly cardData = this.dataService.cardData;
   private readonly base = viewChild.required<BaseCardPreviewComponent>('base');
+
+  /**
+   * Mirrors the active aspect ratio onto the host element as `aspect-X-Y`
+   * (e.g. `aspect-1-1`, `aspect-1-91-1`). Lets `card-preview.css` apply
+   * per-aspect content-density tweaks via `:host(.aspect-X-Y)` selectors
+   * without fighting view encapsulation.
+   */
+  @HostBinding('class')
+  protected get aspectHostClass(): string {
+    return `aspect-${this.cardData().aspectRatio.replace(/[:.]/g, '-')}`;
+  }
 
   ngOnInit(): void {
     const unregister = this.exportCoordinator.register(() => this.exportCard());

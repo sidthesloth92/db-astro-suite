@@ -38,8 +38,8 @@
           [color]="ringColor(filter)"
           [label]="filter.name"
           [centerText]="filterCenterText(filter)"
-          [size]="72"
-          [radius]="28"
+          [size]="cardData().aspectRatio === '1:1' ? 56 : 72"
+          [radius]="cardData().aspectRatio === '1:1' ? 22 : 28"
         />
       }
     </div>
@@ -65,7 +65,6 @@
         }
       </section>
       <section class="pn-bortle">
-        <div class="pn-col-kicker">bortle {{ cardData().bortleScale }}</div>
         <dba-ag-bortle-scale
           [value]="cardData().bortleScale"
           [accentColor]="cardData().accentColor"

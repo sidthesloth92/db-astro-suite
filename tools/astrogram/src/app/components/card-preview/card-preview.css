@@ -12,6 +12,7 @@
   margin: 12px 6px 0;
   padding: 16px 8px 14px;
   border-radius: 10px;
+  border: 1px solid var(--db-color-border-strong);
   /* Decorative pink/purple radials layered on top of a `--card-opacity`-
      driven solid so the Style panel's opacity slider controls how
      transparent the inner section feels against the bg image. */
@@ -62,7 +63,7 @@
     radial-gradient(ellipse at 50% 50%, rgba(80, 30, 80, 0.4), transparent 70%),
     rgba(8, 10, 16, var(--card-opacity, 0.7));
   border-radius: 10px;
-  border: 1px solid var(--db-color-border);
+  border: 1px solid var(--db-color-border-strong);
 }
 
 .pn-integration-head {
@@ -119,7 +120,7 @@
 .pn-bortle {
   padding: 10px 8px;
   background: rgba(8, 10, 16, var(--card-opacity, 0.7));
-  border: 1px solid var(--db-color-border);
+  border: 1px solid var(--db-color-border-strong);
   border-radius: 10px;
 }
 
@@ -146,4 +147,94 @@
 .pn-icon {
   font-size: 14px;
   font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', sans-serif;
+}
+
+/* ── Aspect-aware density tiers ───────────────────────────────────────
+   Standard (4:5, 3:4) inherits the rules above untouched. The blocks
+   below selectively shrink (1:1) or expand (9:16) the projected sections
+   so each preset fits its card height without clipping. 1.91:1 hides
+   most blocks because 251 px is too short for anything else; the
+   `card-content` flex direction is also rotated to row in
+   base-card-preview.css to centre the remaining hero + integration. */
+
+/* Shrunk standard: 1:1 (480×480) */
+:host(.aspect-1-1) .pn-description {
+  display: none;
+}
+:host(.aspect-1-1) .pn-hero {
+  padding: 10px 8px 8px;
+}
+:host(.aspect-1-1) .pn-title {
+  font-size: 16px;
+  line-height: 1.15;
+}
+:host(.aspect-1-1) .pn-meta {
+  font-size: 8px;
+  margin-top: 6px;
+}
+:host(.aspect-1-1) .pn-integration {
+  margin: 6px;
+  padding: 8px 6px;
+}
+:host(.aspect-1-1) .pn-integration-kicker,
+:host(.aspect-1-1) .pn-integration-total {
+  font-size: 10px;
+}
+:host(.aspect-1-1) .pn-ring-row {
+  gap: 4px;
+}
+:host(.aspect-1-1) .pn-equipment,
+:host(.aspect-1-1) .pn-software,
+:host(.aspect-1-1) .pn-bortle {
+  padding: 6px 7px;
+}
+:host(.aspect-1-1) .pn-col-kicker {
+  font-size: 10px;
+}
+:host(.aspect-1-1) .pn-two-col {
+  gap: 6px;
+}
+:host(.aspect-1-1) .pn-stack {
+  gap: 6px;
+}
+
+/* Centred-minimal: 1.91:1 (480×~251) — paired with row-direction
+   override on .card-content in base-card-preview.css */
+:host(.aspect-1-91-1) .pn-description,
+:host(.aspect-1-91-1) .pn-two-col {
+  display: none;
+}
+:host(.aspect-1-91-1) .pn-hero {
+  margin: 0;
+  padding: 6px 12px;
+  flex: 0 0 auto;
+}
+:host(.aspect-1-91-1) .pn-title {
+  font-size: 15px;
+  line-height: 1.15;
+}
+:host(.aspect-1-91-1) .pn-meta {
+  font-size: 8px;
+  margin-top: 4px;
+}
+:host(.aspect-1-91-1) .pn-integration {
+  margin: 0;
+  padding: 6px 8px;
+  flex: 0 0 auto;
+}
+
+/* Expanded: 9:16 (480×853) — title breathes, lists go full width */
+:host(.aspect-9-16) .pn-title {
+  font-size: 24px;
+  line-height: 1.15;
+}
+:host(.aspect-9-16) .pn-hero {
+  padding-top: 24px;
+  padding-bottom: 22px;
+}
+:host(.aspect-9-16) .pn-two-col {
+  grid-template-columns: 1fr;
+}
+:host(.aspect-9-16) .pn-stack {
+  gap: 16px;
 }
