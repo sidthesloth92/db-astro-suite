@@ -9,6 +9,11 @@ dist
 # Playwright
 playwright-report/
 test-results/
+# Snapshot-comparison failure artefacts (never legitimate baselines).
+# CI-committed baselines live in `e2e/**/*.spec.ts-snapshots/*.png` and
+# stay tracked — only these failure outputs are excluded.
+e2e/**/*-actual.png
+e2e/**/*-diff.png
 
 # Python
 __pycache__/

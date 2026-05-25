@@ -56,25 +56,21 @@ export class StellarMapPage {
   }
 
   /**
-   * Uploads an image via the user-facing upload card. Routes through
-   * Playwright's filechooser pattern (click the upload card → resolve
-   * the OS-level file dialog) — this is more reliable than calling
-   * `setInputFiles` directly on the hidden `<input type="file">` because
-   * the latter intermittently fails to trigger the Angular `(change)`
-   * handler under parallel-worker load. Falls back to the direct input
-   * path when the upload card is not present (e.g. an image is already
-   * loaded).
+   * Uploads an image into the stellar-upload panel. Critical sequencing:
+   * waits for the "Upload Target" card to be visible BEFORE setting files,
+   * otherwise the hidden file input is in the DOM but not bound to
+   * `(change)="onImageUpload(...)"` yet — Angular's CD may not have wired
+   * the handler, so setInputFiles silently no-ops. This was the root cause
+   * of subsequent-test upload flakes (the first test in a worker happened
+   * to wait long enough via test orchestration; later tests raced).
    */
   async uploadImage(absolutePath: string) {
-    const uploadCard = this.page.getByRole("button", { name: /Upload Target/ });
-    if ((await uploadCard.count()) > 0 && (await uploadCard.first().isVisible())) {
-      const [fileChooser] = await Promise.all([
-        this.page.waitForEvent("filechooser"),
-        uploadCard.first().click(),
-      ]);
-      await fileChooser.setFiles(absolutePath);
-      return;
-    }
+    // Gate on the user-visible affordance — when this is on screen, the
+    // hidden `<input type="file">` is guaranteed to be bound and live.
+    await this.page
+      .getByText("Upload Target")
+      .first()
+      .waitFor({ state: "visible", timeout: 5000 });
     const fileInput = this.page
       .locator('input[type="file"][accept="image/*"]')
       .first();
