@@ -1,6 +1,12 @@
 :host {
   display: block;
   position: relative;
+  /* Match card-preview.css and base-card-preview.css. Without an
+     explicit width, the stellar host's intrinsic-content-driven sizing
+     left the projected `<dba-ag-base-card-preview>` (whose own host is
+     `width: 100%` of its parent) narrower than the infographic mode's
+     equivalent chain. */
+  width: 100%;
 }
 
 .annotations-layer {
@@ -20,9 +26,15 @@
   transform: translate(-50%, -50%);
   border-style: solid;
   border-radius: 50%;
-  transition: all 0.25s ease;
+  /* Snappy drag — the previous `transition: all 0.25s` animated `left`/`top`,
+     so every drag step lagged by 250ms. Only animate the visual properties
+     (border / outline / shadow) on hover/select. */
+  transition: outline-offset 0.15s ease, filter 0.15s ease;
   cursor: grab;
   pointer-events: auto;
+  /* Stop the browser from interpreting touch-drag on the marker as a page
+     scroll/pinch — without this, pointermove never fires on touch devices. */
+  touch-action: none;
 }
 
 .annotation-marker.selected {

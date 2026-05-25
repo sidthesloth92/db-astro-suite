@@ -86,6 +86,11 @@ export class StellarMapPreviewComponent implements OnInit {
   /** True while an annotation drag is in progress. */
   readonly isDragging = computed(() => this._dragId() !== null);
 
+  /** Pending RAF id while a drag-move is queued — coalesces high-frequency pointermove events to one update per frame. */
+  private _moveRaf: number | null = null;
+  /** Latest pointer position pending commit on the next animation frame. */
+  private _pendingMove: { clientX: number; clientY: number } | null = null;
+
   private readonly base = viewChild.required<BaseCardPreviewComponent>('base');
   private readonly uploadPanel = viewChild.required<StellarUploadPanelComponent>('upload');
   private readonly annotationsLayerRef = viewChild.required<ElementRef>('annotationsLayer');
@@ -120,28 +125,58 @@ export class StellarMapPreviewComponent implements OnInit {
     this.dataService.selectAnnotation(null);
   }
 
-  /** Records drag-start state on mousedown. */
-  onMarkerMousedown(ann: ImageAnnotation, event: MouseEvent): void {
+  /**
+   * Records drag-start state on pointerdown. Pointer events unify mouse +
+   * touch so this works on both desktop and mobile. `setPointerCapture`
+   * keeps subsequent move events firing on this element even if the
+   * finger drifts outside the marker box.
+   */
+  onMarkerPointerdown(ann: ImageAnnotation, event: PointerEvent): void {
     event.preventDefault();
     event.stopPropagation();
+    (event.target as Element).setPointerCapture?.(event.pointerId);
     this._dragId.set(ann.id);
     this._dragStartMouse.set({ x: event.clientX, y: event.clientY });
   }
 
-  /** Repositions the active annotation while dragging. */
-  onLayerMousemove(event: MouseEvent): void {
-    const dragId = this._dragId();
-    if (!dragId) {
+  /**
+   * Repositions the active annotation while dragging. Pointermove can
+   * fire at 120+ Hz; each signal write triggers a full CD pass over
+   * every marker + computeds, which is too expensive to do per event.
+   * We coalesce to one update per animation frame via RAF.
+   */
+  onLayerPointermove(event: PointerEvent): void {
+    if (!this._dragId()) {
       return;
     }
-    const rect = this.annotationsLayerRef().nativeElement.getBoundingClientRect();
-    const xPercent = ((event.clientX - rect.left) / rect.width) * 100;
-    const yPercent = ((event.clientY - rect.top) / rect.height) * 100;
-    this.dataService.updateAnnotationPosition(dragId, xPercent, yPercent);
+    this._pendingMove = { clientX: event.clientX, clientY: event.clientY };
+    if (this._moveRaf !== null) {
+      return;
+    }
+    this._moveRaf = requestAnimationFrame(() => {
+      this._moveRaf = null;
+      const dragId = this._dragId();
+      const pending = this._pendingMove;
+      this._pendingMove = null;
+      if (!dragId || !pending) {
+        return;
+      }
+      const rect = this.annotationsLayerRef().nativeElement.getBoundingClientRect();
+      const xPercent = ((pending.clientX - rect.left) / rect.width) * 100;
+      const yPercent = ((pending.clientY - rect.top) / rect.height) * 100;
+      this.dataService.updateAnnotationPosition(dragId, xPercent, yPercent);
+    });
   }
 
   /** Ends a drag and resolves selection. */
-  onLayerMouseup(event: MouseEvent): void {
+  onLayerPointerup(event: PointerEvent): void {
+    // Drop any RAF-queued move so the final position from this event
+    // (handled below) isn't overwritten by a stale pending update.
+    if (this._moveRaf !== null) {
+      cancelAnimationFrame(this._moveRaf);
+      this._moveRaf = null;
+      this._pendingMove = null;
+    }
     const dragId = this._dragId();
     if (dragId) {
       const startMouse = this._dragStartMouse();
@@ -165,8 +200,13 @@ export class StellarMapPreviewComponent implements OnInit {
     }
   }
 
-  /** Cancels a drag when the pointer leaves the layer (never deselects). */
-  onLayerMouseleave(): void {
+  /** Cancels a drag when the pointer is cancelled (e.g. system gesture takeover). */
+  onLayerPointercancel(): void {
+    if (this._moveRaf !== null) {
+      cancelAnimationFrame(this._moveRaf);
+      this._moveRaf = null;
+      this._pendingMove = null;
+    }
     this._dragId.set(null);
     this._dragStartMouse.set(null);
   }

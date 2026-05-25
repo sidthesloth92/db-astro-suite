@@ -237,11 +237,11 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
     const footerPadding = 40;
     const maxAllowedHeight = (viewportHeight - headerHeight - footerPadding) * 0.95;
 
-    // Stellar (auto) keeps a small horizontal buffer so the image doesn't
-    // touch the wrapper edges; fixed-aspect cards already self-constrain to
-    // 480 px via CSS, so no buffer needed.
-    const horizontalBuffer = this.aspectRatio() === 'auto' ? 40 : 0;
-    const scaleW = (wrapperRect.width - horizontalBuffer) / naturalWidth;
+    // No horizontal buffer — stellar (auto) and infographic (fixed) preview
+    // surfaces share the same available width so their final rendered card
+    // widths stay consistent. The card itself clips overflow, so an image
+    // can't bleed past the wrapper edges visually.
+    const scaleW = wrapperRect.width / naturalWidth;
     const scaleH = maxAllowedHeight / naturalHeight;
     const scale = Math.min(scaleW, scaleH, 1);
 

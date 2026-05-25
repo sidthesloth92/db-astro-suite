@@ -96,8 +96,25 @@ export class MobileShellComponent {
 
   /** Active mobile section for infographic mode. */
   readonly infographicSection = signal<MobileInfographicId>('layout');
-  /** Active mobile section for stellar mode. */
-  readonly stellarSection = signal<MobileStellarId>('filters');
+  /** The stellar section the user explicitly picked from the bottom-nav. Derived `stellarSection` may override (forced to `'selected'` when an annotation is selected). */
+  private readonly _userStellarSection = signal<MobileStellarId>('filters');
+  /**
+   * Derived stellar section.
+   * - If an annotation is selected → `'selected'` (overrides the user's pick).
+   * - Else if the user's last pick was `'selected'` → fall back to `'filters'`.
+   * - Else → the user's pick.
+   * Synchronous derivation eliminates the race window inherent to effect-based bouncing.
+   */
+  readonly stellarSection = computed<MobileStellarId>(() => {
+    const user = this._userStellarSection();
+    // Cleanup-only fallback: if the user was on "Selected Target" but
+    // the selection that justified it has cleared, drop back to Filters
+    // so the @switch doesn't render the empty-state panel orphaned.
+    if (user === 'selected' && this.dataService.selectedAnnotationId() === null) {
+      return 'filters';
+    }
+    return user;
+  });
 
   /** Whether the floating sheet is currently expanded. */
   readonly sheetExpanded = signal<boolean>(false);
@@ -111,13 +128,48 @@ export class MobileShellComponent {
     { id: 'export', label: 'Export', iconName: 'download' },
   ];
 
-  /** Bottom-nav items for stellar mode. */
-  readonly stellarItems: ReadonlyArray<MobileNavItem<MobileStellarId>> = [
-    { id: 'filters', label: 'Filters', iconName: 'filter' },
-    { id: 'style', label: 'Style', iconName: 'palette' },
-    { id: 'selected', label: 'Item', iconName: 'target' },
-    { id: 'export', label: 'Export', iconName: 'download' },
-  ];
+  /**
+   * Gates the "Selected Target" bottom-nav item — visible only while an
+   * annotation is currently selected. Mirrors desktop-rail behaviour.
+   */
+  readonly hasSelectedAnnotation = computed(
+    () => this.dataService.selectedAnnotationId() !== null,
+  );
+
+  /**
+   * Bottom-nav highlight id. When an annotation is selected, the
+   * "Selected Target" item lights up to indicate where the user can go
+   * to inspect it — independent of which panel is actually showing in
+   * the sheet (driven by `stellarSection`). Without a selection, falls
+   * back to the active section.
+   */
+  readonly activeStellarRailId = computed<MobileStellarId>(() =>
+    this.hasSelectedAnnotation() ? 'selected' : this.stellarSection(),
+  );
+
+  /**
+   * Bottom-nav items for stellar mode. "Selected Target" is appended
+   * only while an annotation is selected, mirroring the desktop rail.
+   */
+  readonly stellarItems = computed<ReadonlyArray<MobileNavItem<MobileStellarId>>>(() => {
+    const base: ReadonlyArray<MobileNavItem<MobileStellarId>> = [
+      { id: 'filters', label: 'Filters', iconName: 'filter' },
+      { id: 'style', label: 'Style', iconName: 'palette' },
+    ];
+    const selected: MobileNavItem<MobileStellarId> = {
+      id: 'selected',
+      label: 'Selected Target',
+      iconName: 'target',
+    };
+    const exportItem: MobileNavItem<MobileStellarId> = {
+      id: 'export',
+      label: 'Export',
+      iconName: 'download',
+    };
+    return this.hasSelectedAnnotation()
+      ? [...base, selected, exportItem]
+      : [...base, exportItem];
+  });
 
   /** Title to render in the expanded sheet, derived from the active section. */
   readonly sheetTitle = computed(() => {
@@ -153,7 +205,8 @@ export class MobileShellComponent {
     }
   }
 
-  /** Handles a bottom-nav activation in stellar mode. */
+  /** Handles a bottom-nav activation in stellar mode. Navigation is
+   * independent of selection state. */
   onStellarActivate(id: string): void {
     if (!this.isStellarId(id)) {
       return;
@@ -161,7 +214,7 @@ export class MobileShellComponent {
     if (this.stellarSection() === id) {
       this.sheetExpanded.update((v) => !v);
     } else {
-      this.stellarSection.set(id);
+      this._userStellarSection.set(id);
       this.sheetExpanded.set(true);
     }
   }

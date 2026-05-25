@@ -4,7 +4,7 @@
   [backgroundImage]="mapData().backgroundImage"
   fillMode="fill"
   [cardOpacity]="mapData().backgroundImage ? 0 : 0.85"
-  [author]="''"
+  [author]="cardData().author"
   [exportName]="cardData().title || 'stellar-map'"
   exportTag="stellar-map"
   [disableDownload]="!mapData().backgroundImage"
@@ -54,9 +54,9 @@
     class="annotations-layer"
     fullBleed
     [class.is-dragging]="isDragging()"
-    (mousemove)="onLayerMousemove($event)"
-    (mouseup)="onLayerMouseup($event)"
-    (mouseleave)="onLayerMouseleave()"
+    (pointermove)="onLayerPointermove($event)"
+    (pointerup)="onLayerPointerup($event)"
+    (pointercancel)="onLayerPointercancel()"
   >
     @for (ann of visibleAnnotations(); track ann.id) {
       <div
@@ -66,7 +66,7 @@
         [style.top.%]="ann.yPercent"
         [ngStyle]="markerStyle(ann)"
         [attr.data-annotation-id]="ann.id"
-        (mousedown)="onMarkerMousedown(ann, $event)"
+        (pointerdown)="onMarkerPointerdown(ann, $event)"
         [title]="ann.label"
       >
         @if (effectiveShowLabel(ann)) {
@@ -74,7 +74,7 @@
             class="annotation-label"
             [ngClass]="getLabelPosition(ann.xPercent, ann.yPercent)"
             [ngStyle]="labelStyle(ann)"
-            (mousedown)="onMarkerMousedown(ann, $event)"
+            (pointerdown)="onMarkerPointerdown(ann, $event)"
           >
             {{ effectiveLabel(ann) }}
             @if (effectiveShowMagnitude(ann) && ann.magnitude !== undefined) {

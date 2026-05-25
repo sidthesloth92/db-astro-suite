@@ -60,8 +60,8 @@
         />
       } @else {
         <dba-ui-bottom-nav
-          [items]="stellarItems"
-          [activeId]="stellarSection()"
+          [items]="stellarItems()"
+          [activeId]="activeStellarRailId()"
           [iconTemplate]="navIcon"
           (activate)="onStellarActivate($event)"
         />

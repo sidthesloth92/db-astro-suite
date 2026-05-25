@@ -70,35 +70,48 @@ export class InspectorPanelHostComponent {
 
   /** Active inspector section for infographic mode. */
   readonly infographicSection = signal<InfographicSectionId>('layout');
-  /** Active inspector section for stellar mode. */
-  readonly stellarSection = signal<StellarSectionId>('filters');
+  /** The stellar section the user explicitly picked from the rail. Derived `stellarSection` may override (forced to `'selected'` when an annotation is selected). */
+  private readonly _userStellarSection = signal<StellarSectionId>('filters');
+  /**
+   * Derived stellar section.
+   * - If an annotation is selected → `'selected'` (overrides the user's pick).
+   * - Else if the user's last pick was `'selected'` → fall back to `'filters'` (the section is no longer valid).
+   * - Else → the user's pick.
+   * Synchronous derivation eliminates the race window inherent to effect-based bouncing.
+   */
+  readonly stellarSection = computed<StellarSectionId>(() => {
+    const user = this._userStellarSection();
+    // Cleanup-only fallback: if the user was on "Selected Target" but
+    // the selection that justified it has cleared, drop back to Filters
+    // so the @switch doesn't render the empty-state panel orphaned.
+    if (user === 'selected' && this.dataService.selectedAnnotationId() === null) {
+      return 'filters';
+    }
+    return user;
+  });
 
   /** Mode signal mirrored for templates. */
   readonly mode = computed(() => this.dataService.activeMode());
 
   /**
-   * True once the user has added or clicked an annotation. Gates the
-   * "Selected" rail item — it stays hidden on a fresh map and reappears
-   * only when there's at least one annotation to inspect.
+   * Gates the "Selected Target" rail item — visible only while an
+   * annotation is currently selected. Adding an annotation implicitly
+   * selects it, so the item appears on add and disappears on deselect.
    */
-  readonly hasAnnotations = computed(
-    () => this.dataService.stellarMapData().annotations.length > 0,
+  readonly hasSelectedAnnotation = computed(
+    () => this.dataService.selectedAnnotationId() !== null,
   );
 
   /**
-   * Auto-routes the inspector to the "Selected" panel whenever the user
-   * picks (or adds) an annotation. Also bounces away when the last
-   * annotation is removed so we never sit on an empty panel.
+   * Rail highlight id. When an annotation is selected, the "Selected
+   * Target" item lights up to indicate where the user can go to inspect
+   * it — independent of which panel is actually showing (driven by
+   * `stellarSection`). Without a selection, falls back to the active
+   * section so the rail highlight tracks the visible panel.
    */
-  private readonly autoRouteSelected = effect(() => {
-    const selectedId = this.dataService.selectedAnnotationId();
-    const hasAny = this.hasAnnotations();
-    if (selectedId) {
-      this.stellarSection.set('selected');
-    } else if (!hasAny && this.stellarSection() === 'selected') {
-      this.stellarSection.set('filters');
-    }
-  });
+  readonly activeStellarRailId = computed<StellarSectionId>(() =>
+    this.hasSelectedAnnotation() ? 'selected' : this.stellarSection(),
+  );
 
   /** Scrollable panel containers — one per mode branch in the template. */
   private readonly panelScrollEls = viewChildren<ElementRef<HTMLElement>>('panelScroll');
@@ -135,10 +148,10 @@ export class InspectorPanelHostComponent {
     }
   }
 
-  /** Picks a stellar section by id. */
+  /** Picks a stellar section by id. Navigation is independent of selection. */
   selectStellar(id: string): void {
     if (this.isStellarSection(id)) {
-      this.stellarSection.set(id);
+      this._userStellarSection.set(id);
     }
   }
 

@@ -1,5 +1,13 @@
 /* Pink Nebula card layout — rendered inside BaseCardPreviewComponent. */
 
+:host {
+  /* Match stellar-map-preview's `:host { display: block }` so the
+     wrapped `<dba-ag-base-card-preview>` resolves widths against the
+     same block context in both modes. */
+  display: block;
+  width: 100%;
+}
+
 .pn-hero {
   margin: 12px 6px 0;
   padding: 16px 8px 14px;

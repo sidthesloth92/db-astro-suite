@@ -24,7 +24,7 @@
       <dba-ui-icon-rail-item
         id="capture"
         label="Capture"
-        short="Cap"
+        short="Capture"
         [active]="infographicSection() === 'capture'"
         side="left"
         (selected)="selectInfographic($event)"
@@ -45,7 +45,7 @@
       <dba-ui-icon-rail-item
         id="export"
         label="Export"
-        short="Out"
+        short="Export"
         [active]="infographicSection() === 'export'"
         side="left"
         (selected)="selectInfographic($event)"
@@ -56,11 +56,21 @@
 
     <div class="panel" #panelScroll>
       @switch (infographicSection()) {
-        @case ('layout') { <dba-ag-layout-panel /> }
-        @case ('object') { <dba-ag-object-info-panel /> }
-        @case ('capture') { <dba-ag-capture-panel /> }
-        @case ('equipment') { <dba-ag-equipment-panel /> }
-        @case ('export') { <dba-ag-export-panel /> }
+        @case ('layout') {
+          <dba-ag-layout-panel />
+        }
+        @case ('object') {
+          <dba-ag-object-info-panel />
+        }
+        @case ('capture') {
+          <dba-ag-capture-panel />
+        }
+        @case ('equipment') {
+          <dba-ag-equipment-panel />
+        }
+        @case ('export') {
+          <dba-ag-export-panel />
+        }
       }
     </div>
   } @else {
@@ -68,8 +78,8 @@
       <dba-ui-icon-rail-item
         id="filters"
         label="Annotation filters"
-        short="Filt"
-        [active]="stellarSection() === 'filters'"
+        short="Filters"
+        [active]="activeStellarRailId() === 'filters'"
         side="left"
         (selected)="selectStellar($event)"
       >
@@ -79,19 +89,19 @@
         id="style"
         label="Annotation style"
         short="Style"
-        [active]="stellarSection() === 'style'"
+        [active]="activeStellarRailId() === 'style'"
         side="left"
         (selected)="selectStellar($event)"
       >
         <dba-ui-icon [def]="paletteIcon" [size]="17" />
       </dba-ui-icon-rail-item>
-      @if (hasAnnotations()) {
+      @if (hasSelectedAnnotation()) {
         <hr class="divider" aria-hidden="true" />
         <dba-ui-icon-rail-item
           id="selected"
-          label="Selected annotation"
-          short="Item"
-          [active]="stellarSection() === 'selected'"
+          label="Selected Target"
+          short="Selected Target"
+          [active]="activeStellarRailId() === 'selected'"
           side="left"
           (selected)="selectStellar($event)"
         >
@@ -102,8 +112,8 @@
       <dba-ui-icon-rail-item
         id="export"
         label="Export"
-        short="Out"
-        [active]="stellarSection() === 'export'"
+        short="Export"
+        [active]="activeStellarRailId() === 'export'"
         side="left"
         (selected)="selectStellar($event)"
       >
@@ -113,10 +123,18 @@
 
     <div class="panel" #panelScroll>
       @switch (stellarSection()) {
-        @case ('filters') { <dba-ag-annotation-filters-panel /> }
-        @case ('style') { <dba-ag-annotation-style-panel /> }
-        @case ('selected') { <dba-ag-annotation-selected-panel /> }
-        @case ('export') { <dba-ag-export-panel /> }
+        @case ('filters') {
+          <dba-ag-annotation-filters-panel />
+        }
+        @case ('style') {
+          <dba-ag-annotation-style-panel />
+        }
+        @case ('selected') {
+          <dba-ag-annotation-selected-panel />
+        }
+        @case ('export') {
+          <dba-ag-export-panel />
+        }
       }
     </div>
   }

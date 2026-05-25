@@ -1,3 +1,12 @@
+:host {
+  /* Host the component as a block so `.preview-wrapper { width: 100% }`
+     resolves against the parent's block context. Defaulting to inline
+     (no `:host` rule) makes the wrapper's 100% width collapse to the
+     intrinsic content width, which shrinks the rendered preview. */
+  display: block;
+  width: 100%;
+}
+
 .preview-wrapper {
   display: flex;
   flex-direction: column;
