@@ -21,8 +21,22 @@
   min-height: 0;
 }
 
+/* Left flex spacer grabs the leftover width on the left side so the
+   preview sits biased right of centre. The inspector column itself
+   extends all the way to the viewport's right edge for a desktop-app
+   look — its inner panel content stays at a fixed width (see
+   `inspector-panel-host.component.css`). Spacer collapses to zero on
+   narrow viewports, so the small-screen layout is unchanged. */
+.body::before {
+  content: '';
+  flex: 1 1 0;
+}
+
 .preview-col {
-  flex: 1;
+  /* Preferred 580 px (480 preview + 32 px L/R padding + small breathing
+     margin). `flex: 0 1 580` means no grow (so the spacers above can do
+     their job) and shrink if the viewport demands it. */
+  flex: 0 1 580px;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -49,8 +63,11 @@
 }
 
 .inspector-col {
-  width: 540px;
-  flex-shrink: 0;
+  /* Stretch to the viewport's right edge — `inspector-panel-host` keeps
+     its content (icon rail + 480 px panel) at fixed width and aligns
+     them to the left, so the extra width shows as dark panel surface. */
+  flex: 1 1 540px;
+  min-width: 540px;
   display: flex;
   min-height: 0;
 }

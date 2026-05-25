@@ -21,7 +21,11 @@
 }
 
 .panel {
-  flex: 1;
+  /* Fixed width so the inputs inside keep their original size even
+     though `.host` (and its dark background) stretches to the viewport's
+     right edge for a desktop-app look. The leftover host width on the
+     right of the panel renders as bare panel surface. */
+  flex: 0 0 480px;
   min-width: 0;
   min-height: 0;
   overflow-y: auto;
