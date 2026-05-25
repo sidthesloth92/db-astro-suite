@@ -112,6 +112,20 @@
   color: var(--db-color-text-dim);
 }
 
+.attribution-disclaimer {
+  display: block;
+  width: var(--header-width, 482px);
+  max-width: 100%;
+  margin: 0.5rem auto 0;
+  padding: 0 0.25rem;
+  font-family: var(--db-font-ui);
+  font-size: 10px;
+  line-height: 1.4;
+  color: var(--db-color-text-dim);
+  text-align: center;
+  opacity: 0.75;
+}
+
 .selected-annotation-label {
   display: inline-flex;
   align-items: center;

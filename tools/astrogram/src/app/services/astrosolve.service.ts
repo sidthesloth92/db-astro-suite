@@ -47,9 +47,7 @@ export class AstrosolveService {
   async loadLimits(): Promise<UploadLimits> {
     if (this.limitsCache) return this.limitsCache;
     if (this.limitsInflight) return this.limitsInflight;
-    this.limitsInflight = firstValueFrom(
-      this.http.get<UploadLimits>(`${this.baseUrl}/limits`),
-    )
+    this.limitsInflight = firstValueFrom(this.http.get<UploadLimits>(`${this.baseUrl}/limits`))
       .then((limits) => {
         this.limitsCache = limits;
         return limits;
@@ -70,9 +68,7 @@ export class AstrosolveService {
    */
   formatLimitsHint(limits: UploadLimits): string {
     const maxMb = Math.round(limits.maxBytes / (1024 * 1024));
-    const exts = limits.allowedExtensions
-      .map((e) => e.replace(/^\./, '').toUpperCase())
-      .join('/');
+    const exts = limits.allowedExtensions.map((e) => e.replace(/^\./, '').toUpperCase()).join('/');
     return `${exts} · max ${maxMb} MB · ${limits.minDimension}×${limits.minDimension} to ${limits.maxDimension}×${limits.maxDimension}`;
   }
 
@@ -86,9 +82,7 @@ export class AstrosolveService {
     const limits = await this.loadLimits();
 
     const lowerName = file.name.toLowerCase();
-    const ext = lowerName.includes('.')
-      ? lowerName.slice(lowerName.lastIndexOf('.'))
-      : '';
+    const ext = lowerName.includes('.') ? lowerName.slice(lowerName.lastIndexOf('.')) : '';
     if (!limits.allowedExtensions.includes(ext)) {
       return {
         ok: false,
@@ -176,7 +170,7 @@ export class AstrosolveService {
 
     formData.append('image', file);
 
-    onProgress?.('Astrometry.net is solving your image...');
+    onProgress?.('Solving your image...');
 
     const keyToUse = accessKey ?? this.storage.getItem(ACCESS_KEY_STORAGE_KEY);
     const headers = new HttpHeaders(keyToUse ? { 'x-access-key': keyToUse } : {});
