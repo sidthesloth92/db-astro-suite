@@ -6,6 +6,7 @@ import {
   DestroyRef,
   ElementRef,
   inject,
+  input,
   OnInit,
   signal,
   viewChild,
@@ -57,6 +58,9 @@ export class StellarMapPreviewComponent implements OnInit {
   readonly cardData = this.dataService.cardData;
   readonly selectedAnnotationId = this.dataService.selectedAnnotationId;
 
+  /** When true, suppresses the `@author` text in the title bar (used by the mobile shell where the top bar is already cramped). */
+  readonly hideAuthor = input<boolean>(false);
+
   ngOnInit(): void {
     const unregister = this.exportCoordinator.register(() => this.exportCard());
     this.destroyRef.onDestroy(unregister);
@@ -82,7 +86,15 @@ export class StellarMapPreviewComponent implements OnInit {
   }
 
   private readonly _dragId = signal<string | null>(null);
-  private readonly _dragStartMouse = signal<{ x: number; y: number } | null>(null);
+  /** Captured at drag-start: pointer origin AND the annotation's original position. Lets us move by relative delta instead of snapping the circle's centre under the pointer. */
+  private readonly _dragStart = signal<{
+    pointerX: number;
+    pointerY: number;
+    annXPercent: number;
+    annYPercent: number;
+  } | null>(null);
+  /** Pointerdown on an *unselected* marker records intent here; pointerup commits the select. No drag fires until the marker is already selected. */
+  private readonly _pendingSelectId = signal<string | null>(null);
   /** True while an annotation drag is in progress. */
   readonly isDragging = computed(() => this._dragId() !== null);
 
@@ -126,17 +138,32 @@ export class StellarMapPreviewComponent implements OnInit {
   }
 
   /**
-   * Records drag-start state on pointerdown. Pointer events unify mouse +
-   * touch so this works on both desktop and mobile. `setPointerCapture`
-   * keeps subsequent move events firing on this element even if the
-   * finger drifts outside the marker box.
+   * Pointerdown on a marker. Two-stroke interaction:
+   * - If the marker is already selected → enable drag, capturing the
+   *   pointer origin AND the annotation's current position so we can
+   *   move by a delta on pointermove (no snap to pointer).
+   * - If it isn't selected → record pending-select intent only; the
+   *   pointerup handler commits the selection. No drag fires.
+   *
+   * Pointer events unify mouse + touch so this works on both desktop and
+   * mobile. `setPointerCapture` keeps subsequent move events firing on
+   * this element even if the finger drifts outside the marker box.
    */
   onMarkerPointerdown(ann: ImageAnnotation, event: PointerEvent): void {
     event.preventDefault();
     event.stopPropagation();
     (event.target as Element).setPointerCapture?.(event.pointerId);
-    this._dragId.set(ann.id);
-    this._dragStartMouse.set({ x: event.clientX, y: event.clientY });
+    if (this.dataService.selectedAnnotationId() === ann.id) {
+      this._dragId.set(ann.id);
+      this._dragStart.set({
+        pointerX: event.clientX,
+        pointerY: event.clientY,
+        annXPercent: ann.xPercent,
+        annYPercent: ann.yPercent,
+      });
+    } else {
+      this._pendingSelectId.set(ann.id);
+    }
   }
 
   /**
@@ -157,14 +184,21 @@ export class StellarMapPreviewComponent implements OnInit {
       this._moveRaf = null;
       const dragId = this._dragId();
       const pending = this._pendingMove;
+      const start = this._dragStart();
       this._pendingMove = null;
-      if (!dragId || !pending) {
+      if (!dragId || !pending || !start) {
         return;
       }
+      // Move by delta from the drag origin so the offset between the
+      // pointer and the marker centre is preserved — no jump-to-pointer.
       const rect = this.annotationsLayerRef().nativeElement.getBoundingClientRect();
-      const xPercent = ((pending.clientX - rect.left) / rect.width) * 100;
-      const yPercent = ((pending.clientY - rect.top) / rect.height) * 100;
-      this.dataService.updateAnnotationPosition(dragId, xPercent, yPercent);
+      const dxPct = ((pending.clientX - start.pointerX) / rect.width) * 100;
+      const dyPct = ((pending.clientY - start.pointerY) / rect.height) * 100;
+      this.dataService.updateAnnotationPosition(
+        dragId,
+        start.annXPercent + dxPct,
+        start.annYPercent + dyPct,
+      );
     });
   }
 
@@ -179,24 +213,31 @@ export class StellarMapPreviewComponent implements OnInit {
     }
     const dragId = this._dragId();
     if (dragId) {
-      const startMouse = this._dragStartMouse();
-      if (startMouse) {
-        const dx = event.clientX - startMouse.x;
-        const dy = event.clientY - startMouse.y;
+      // Drag end. If the pointer barely moved, treat as a toggle-deselect
+      // (clicking a selected marker again clears the selection).
+      const start = this._dragStart();
+      if (start) {
+        const dx = event.clientX - start.pointerX;
+        const dy = event.clientY - start.pointerY;
         if (Math.sqrt(dx * dx + dy * dy) < 3) {
-          const current = this.dataService.selectedAnnotationId();
-          this.dataService.selectAnnotation(current === dragId ? null : dragId);
-        } else {
-          this.dataService.selectAnnotation(dragId);
+          this.dataService.selectAnnotation(null);
         }
+        // else: drag was committed via the move handler; leave selection as-is.
       }
       this._dragId.set(null);
-      this._dragStartMouse.set(null);
-    } else {
-      const target = event.target as HTMLElement | null;
-      if (!target?.closest?.('.annotation-marker')) {
-        this.dataService.selectAnnotation(null);
-      }
+      this._dragStart.set(null);
+      return;
+    }
+    const pendingId = this._pendingSelectId();
+    if (pendingId) {
+      this._pendingSelectId.set(null);
+      this.dataService.selectAnnotation(pendingId);
+      return;
+    }
+    // Empty area click → deselect.
+    const target = event.target as HTMLElement | null;
+    if (!target?.closest?.('.annotation-marker')) {
+      this.dataService.selectAnnotation(null);
     }
   }
 
@@ -208,7 +249,8 @@ export class StellarMapPreviewComponent implements OnInit {
       this._pendingMove = null;
     }
     this._dragId.set(null);
-    this._dragStartMouse.set(null);
+    this._dragStart.set(null);
+    this._pendingSelectId.set(null);
   }
 
   /** Adds a new custom annotation at the centre of the canvas. */

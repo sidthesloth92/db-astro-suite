@@ -4,7 +4,7 @@
   [backgroundImage]="mapData().backgroundImage"
   fillMode="fill"
   [cardOpacity]="mapData().backgroundImage ? 0 : 0.85"
-  [author]="cardData().author"
+  [author]="hideAuthor() ? '' : cardData().author"
   [exportName]="cardData().title || 'stellar-map'"
   exportTag="stellar-map"
   [disableDownload]="!mapData().backgroundImage"
@@ -14,7 +14,7 @@
       @if (selectedAnnotation(); as ann) {
         <span class="selected-annotation-label" [title]="effectiveLabel(ann)">{{ effectiveLabel(ann) }}</span>
         <dba-ui-icon-button
-          accent="cyan"
+          accent="red"
           title="Delete annotation"
           [size]="28"
           (clicked)="deleteSelectedAnnotation()"
