@@ -34,7 +34,9 @@ test.describe.serial("Visual regression", () => {
   test("mobile infographic mode with sheet collapsed", async ({ page }) => {
     const astrogram = new AstrogramMobilePage(page);
     await astrogram.navigate();
-    await astrogram.collapseFloatingSheet();
+    // Mobile shell mounts with the floating sheet COLLAPSED by default
+    // on the Layout section — no explicit collapse needed.
+    await astrogram.expectSheetCollapsed();
     await expect(page).toHaveScreenshot("mobile-infographic.png", {
       fullPage: true,
       threshold: 0.2,
@@ -45,7 +47,7 @@ test.describe.serial("Visual regression", () => {
     const astrogram = new AstrogramMobilePage(page);
     await astrogram.navigate();
     await astrogram.switchToStellarMode();
-    await astrogram.collapseFloatingSheet();
+    await astrogram.expectSheetCollapsed();
     await expect(page).toHaveScreenshot("mobile-stellar.png", {
       fullPage: true,
       threshold: 0.2,

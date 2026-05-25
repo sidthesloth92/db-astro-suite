@@ -29,34 +29,39 @@ test.describe("Astrogram Logic & Functional Tests", () => {
     await expect(ringRow.getByText("CUSTOM-HA")).toBeVisible();
   });
 
-  test("Accent colour change reflects on the hero block border", async ({
+  test("Accent colour change reflects on the hero title", async ({
     page,
   }) => {
-    await page.getByRole("button", { name: "Style" }).first().click();
-    // Disambiguate from the sibling "Secondary accent colour" input that
-    // was added alongside the primary swatch — exact match locks onto
-    // the primary accent.
+    // Inspector rail item that holds the primary Accent swatch was renamed
+    // from "Style" to "Layout" in the Direction B redesign.
+    await page.getByRole("button", { name: "Layout", exact: true }).first().click();
+    // Disambiguate from the sibling "Secondary accent colour" input.
     const accentInput = page.getByLabel("Accent colour", { exact: true });
     await accentInput.evaluate((el: HTMLInputElement) => {
       el.value = "#00ff00";
       el.dispatchEvent(new Event("input", { bubbles: true }));
       el.dispatchEvent(new Event("change", { bubbles: true }));
     });
-    // Border is driven off the accent colour custom property — read
-    // the computed style off the hero section, identified by testid.
-    // Chromium can return either legacy `rgb(0, 255, 0)` or the modern
-    // `color(srgb 0 1 0 / 0.4)` notation depending on the version — the
-    // assertion tolerates both by checking the green channel is the
-    // dominant component (max value in either format).
-    const hero = page.getByTestId("card-hero");
-    const borderColor = await hero.evaluate(
-      (el) => getComputedStyle(el).borderColor,
+    // The Direction B card uses `--accent-color` on the `.pn-title` text
+    // colour (the prior design used a hero border). Assert the dominant
+    // green channel on the h1 inside the card hero.
+    const title = page.getByTestId("card-hero").getByRole("heading", { level: 1 });
+    const titleColor = await title.evaluate(
+      (el) => getComputedStyle(el).color,
     );
-    expect(borderColor).toMatch(/(?:rgb\([^)]*255[^)]*\))|(?:srgb\s+0\s+1\s+0)/);
+    expect(titleColor).toMatch(/(?:rgb\([^)]*255[^)]*\))|(?:srgb\s+0\s+1\s+0)/);
   });
 
   test("Download button stays enabled after click", async ({ page }) => {
-    const downloadBtn = page.getByRole("button", { name: "Download card" });
+    // The card-preview FAB is an icon-only button with title="Export"
+    // (replaces the legacy "Download card" name). It is the FIRST button
+    // named "Export" in DOM order on the default desktop mount — preview
+    // column renders before the inspector-rail Export item. The in-panel
+    // Export CTA only exists when the Export panel is open (not the
+    // default state), so `.first()` is unambiguous here.
+    const downloadBtn = page
+      .getByRole("button", { name: "Export", exact: true })
+      .first();
     await expect(downloadBtn).toBeEnabled();
     await downloadBtn.click();
     await page.waitForTimeout(1000);
@@ -73,13 +78,19 @@ test.describe("Astrogram Logic & Functional Tests", () => {
   });
 
   test("Wiki fetch populates the long-form caption", async ({ page }) => {
-    await page.getByRole("button", { name: "Object info" }).first().click();
+    await page.getByRole("button", { name: "Object info", exact: true }).first().click();
     await page.getByLabel("Object name").fill("Andromeda Galaxy");
     await page.getByRole("button", { name: /Wiki/i }).click();
+    // The textarea ships with seed text from the default CardData, so
+    // a plain `not.toHaveValue("")` resolves instantly without waiting for
+    // the wiki fetch. Poll the value until the appended extract contains
+    // the queried object name.
     const captionTextarea = page.getByLabel("Long-form caption");
-    await expect(captionTextarea).not.toHaveValue("", { timeout: 15000 });
-    const value = await captionTextarea.inputValue();
-    expect(value.toLowerCase()).toContain("andromeda");
+    await expect
+      .poll(async () => (await captionTextarea.inputValue()).toLowerCase(), {
+        timeout: 15000,
+      })
+      .toContain("andromeda");
   });
 });
 

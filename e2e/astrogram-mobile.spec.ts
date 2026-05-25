@@ -22,9 +22,8 @@ test.describe("Astrogram mobile", () => {
   });
 
   test("should expand the floating sheet when tapping a bottom-nav item", async () => {
-    // Default mobile state has the sheet expanded on "Info"; collapse
-    // first so the expand assertion is meaningful.
-    await astrogram.collapseFloatingSheet();
+    // Default mobile state has the sheet COLLAPSED on the "Layout"
+    // section — tapping a bottom-nav item must expand it.
     await astrogram.expectSheetCollapsed();
 
     await astrogram.tapBottomNavItem("Capture");
@@ -33,7 +32,6 @@ test.describe("Astrogram mobile", () => {
   });
 
   test("should collapse the sheet when tapping the same nav item twice", async () => {
-    await astrogram.collapseFloatingSheet();
     await astrogram.tapBottomNavItem("Capture");
     await astrogram.expectSheetExpanded();
 
@@ -43,22 +41,22 @@ test.describe("Astrogram mobile", () => {
   });
 
   test("should collapse the sheet when tapping the X close button", async () => {
-    // Sheet starts expanded on default mount.
+    // Expand the sheet first — default state is collapsed.
+    await astrogram.tapBottomNavItem("Info");
     await astrogram.expectSheetExpanded();
     await astrogram.collapseFloatingSheet();
     await astrogram.expectSheetCollapsed();
   });
 
   test("should keep the card preview visible while the sheet is expanded", async () => {
-    // Default mount: sheet expanded on Info. Card hero should still
-    // be visible above the sheet.
+    await astrogram.tapBottomNavItem("Info");
     await astrogram.expectSheetExpanded();
     expect(await astrogram.isCardPreviewVisible()).toBe(true);
   });
 
   test("should swap panel content when tapping a different bottom-nav item", async () => {
-    // Default expands on Info — switch to Gear and assert the
-    // Equipment panel content is mounted via the sheet aria-label.
+    // Tap Gear — the bottom-nav label for the Equipment section.
+    // Sheet expands and aria-label flips to "Equipment".
     await astrogram.tapBottomNavItem("Gear");
     await astrogram.expectSheetExpanded();
     await astrogram.expectSheetTitle("Equipment");

@@ -21,9 +21,14 @@ test.describe("Astrogram Mobile DSO Fetch", () => {
     await page.getByRole("button", { name: /Wiki/i }).click();
 
     // The long-form caption textarea is the second textarea in the panel.
+    // The default CardData populates it with seed text, so plain
+    // `not.toHaveValue("")` resolves instantly without waiting for the
+    // wiki fetch. Poll the value until the appended extract surfaces.
     const captionTextarea = page.getByLabel("Long-form caption");
-    await expect(captionTextarea).not.toHaveValue("", { timeout: 15000 });
-    const value = await captionTextarea.inputValue();
-    expect(value.toLowerCase()).toContain("orion");
+    await expect
+      .poll(async () => (await captionTextarea.inputValue()).toLowerCase(), {
+        timeout: 15000,
+      })
+      .toContain("orion");
   });
 });

@@ -26,18 +26,18 @@ test.describe("Astrogram desktop", () => {
     page,
   }) => {
     await astrogram.switchToStellarMode();
-    // Stellar mode rail surfaces the stellar-only inspector items.
+    // Stellar mode rail surfaces the stellar-only inspector items. The
+    // "Selected Target" item is conditional on `hasSelectedAnnotation()`
+    // and is not present until a marker is clicked, so we don't assert it
+    // here.
     await expect(
       page.getByRole("button", { name: "Annotation filters", exact: true }),
     ).toBeVisible();
     await expect(
       page.getByRole("button", { name: "Annotation style", exact: true }),
     ).toBeVisible();
-    await expect(
-      page.getByRole("button", { name: "Selected annotation", exact: true }),
-    ).toBeVisible();
-    // With no background image picked yet, the upload card is rendered.
-    await expect(astrogram.getCardHero()).not.toBeVisible();
+    // With no background image picked yet, the upload prompt is rendered.
+    await expect(astrogram.getStellarUploadHeading()).toBeVisible();
   });
 
   test("should reflect the new object name in the card preview hero", async ({
@@ -62,24 +62,28 @@ test.describe("Astrogram desktop", () => {
       .not.toBe(before);
   });
 
-  test("should change the accent colour and apply it to the hero border", async () => {
+  test("should change the accent colour and apply it to the hero title", async ({
+    page,
+  }) => {
     await astrogram.setAccentColor("#ff6b3d");
-    const borderColor = await astrogram.getCardHeroBorderColor();
-    // Chromium can serialise computed border-color as either legacy
-    // `rgb(255, 107, 61)` or modern `color(srgb 1 0.42 0.24 / 0.4)`.
-    // Match the dominant red channel in either notation.
-    expect(borderColor).toMatch(/(?:rgb\([^)]*255[^)]*\))|(?:srgb\s+1\b)/);
+    // The Direction B card uses `--accent-color` for `.pn-title` text
+    // colour (the prior design used a hero border). Assert the dominant
+    // red channel on the h1 inside the card hero.
+    const titleColor = await page
+      .getByTestId("card-hero")
+      .getByRole("heading", { level: 1 })
+      .evaluate((el) => getComputedStyle(el).color);
+    expect(titleColor).toMatch(/(?:rgb\([^)]*255[^)]*\))|(?:srgb\s+1\b)/);
   });
 
   test("should open the Export panel from the rail and show format options", async ({
     page,
   }) => {
     await astrogram.openPanel("Export");
-    // The Export panel surfaces three format radios + Export now CTA.
-    await expect(page.getByText("Export options")).toBeVisible();
-    await expect(
-      page.getByRole("button", { name: /Export now/i }),
-    ).toBeVisible();
+    // The Export panel renders three format radios under the "Output
+    // format" inspector section and an in-panel "Export" CTA.
+    await expect(page.getByText("Output format")).toBeVisible();
+    await expect(astrogram.getExportPanelCta()).toBeVisible();
   });
 
   test("should copy the caption to the clipboard with bulleted sections", async () => {
@@ -107,12 +111,17 @@ test.describe("Astrogram inspector panels", () => {
   // The inspector rail entries — each maps a rail label to a panel
   // headline that must appear once opened. Behavioural assertion only,
   // no snapshots (those live in astrogram-visual.spec.ts).
+  // Each entry maps a rail label to a panel sub-heading that uniquely
+  // identifies the mounted panel. The sub-headings come from
+  // `<dba-ui-inspector-section sub="…">` on each panel template and are
+  // chosen because they do NOT also appear in the rail short-labels — so
+  // a page-wide getByText assertion is unambiguous.
   const panels = [
-    { rail: "Object info" as const, headline: "Identification" },
-    { rail: "Capture" as const, headline: "Filter integration" },
-    { rail: "Equipment" as const, headline: "Rig presets" },
-    { rail: "Style" as const, headline: "Format" },
-    { rail: "Export" as const, headline: "Export options" },
+    { rail: "Object info" as const, headline: "Basic info about the object" },
+    { rail: "Capture" as const, headline: "Light pollution at capture site" },
+    { rail: "Equipment" as const, headline: "Hardware" },
+    { rail: "Layout" as const, headline: "Card dimensions for export" },
+    { rail: "Export" as const, headline: "Output format" },
   ];
 
   for (const panel of panels) {

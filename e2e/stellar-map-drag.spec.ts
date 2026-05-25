@@ -31,7 +31,7 @@ test.describe("Stellar Map — Draggable Annotation Markers", () => {
     await expect(stellarMapPage.getAnnotationMarkers()).toHaveCount(1);
   });
 
-  test("dragging an annotation marker repositions it", async () => {
+  test("dragging an annotation marker repositions it", async ({ page }) => {
     await stellarMapPage.addCustomAnnotation();
 
     const marker = stellarMapPage.getFirstAnnotationMarker();
@@ -41,6 +41,15 @@ test.describe("Stellar Map — Draggable Annotation Markers", () => {
     // Safe to use non-null assertion here — guarded by the expect above
     const oldCx = initialBox!.x + initialBox!.width / 2;
     const oldCy = initialBox!.y + initialBox!.height / 2;
+
+    // Direction B redesign: the drag handler ONLY engages when the marker
+    // is already the selected annotation (two-stroke pointer model — first
+    // pointerdown selects, second pointerdown drags). Click once to
+    // commit the selection, then drag.
+    await page.mouse.move(oldCx, oldCy);
+    await page.mouse.down();
+    await page.mouse.up();
+    await expect(marker).toHaveClass(/selected/);
 
     await stellarMapPage.dragAnnotationBy(marker, 80, 60);
 

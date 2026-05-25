@@ -6,16 +6,21 @@ import { Locator, Page, expect } from "@playwright/test";
  * the bottom-nav tab `aria-label` attribute.
  */
 export type MobileInfographicNavLabel =
+  | "Layout"
   | "Info"
   | "Capture"
   | "Gear"
-  | "Style";
+  | "Export";
 
 /**
  * Bottom-nav labels available in mobile stellar mode. The labels come
  * from `MobileShellComponent.stellarItems`.
  */
-export type MobileStellarNavLabel = "Filters" | "Style" | "Item";
+export type MobileStellarNavLabel =
+  | "Filters"
+  | "Style"
+  | "Selected Target"
+  | "Export";
 
 /**
  * Sheet titles rendered in the expanded floating-sheet header — used as
@@ -23,10 +28,11 @@ export type MobileStellarNavLabel = "Filters" | "Style" | "Item";
  * inside the sheet body.
  */
 export type MobileSheetTitle =
+  | "Layout"
   | "Object info"
   | "Capture"
   | "Equipment"
-  | "Style"
+  | "Export"
   | "Annotation filters"
   | "Annotation style"
   | "Selected annotation";
@@ -70,19 +76,20 @@ export class AstrogramMobilePage {
 
   /** Switches the top-bar segmented tabs to Infographic mode. */
   async switchToInfographicMode(): Promise<void> {
-    // The compact top-bar uses the shorter "Info" label, while the
-    // bottom-nav also has an "Info" tab — disambiguate via .first()
-    // since the top-bar appears first in DOM order.
+    // Top-bar tab label is "Infographics"; the bottom-nav has a separate
+    // "Info" entry pointing to the Object Info section. Use a regex
+    // anchored on the unique top-bar label so we don't collide.
     await this.page
-      .getByRole("tab", { name: "Info", exact: true })
+      .getByRole("tab", { name: /^Infographics$/ })
       .first()
       .click();
   }
 
   /** Switches the top-bar segmented tabs to Stellar Map mode. */
   async switchToStellarMode(): Promise<void> {
+    // Top-bar tab label is "Stellar map" (case-sensitive lowercase 'm').
     await this.page
-      .getByRole("tab", { name: "Stellar", exact: true })
+      .getByRole("tab", { name: /^Stellar map$/ })
       .first()
       .click();
   }
