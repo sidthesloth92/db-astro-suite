@@ -1,15 +1,15 @@
 import PQueue from "p-queue";
 import fs from "fs/promises";
-import config from "../config.js";
+import defaultConfig from "../config.js";
 import { SOLVE_KEY_RATE_LIMIT } from "../constants/rate-limit.constants.js";
 import { SolveError, AstrometryError } from "../models/errors.model.js";
 import {
   SolveSuccessResponse,
   SolveErrorResponse,
 } from "../models/solve-response.model.js";
-import { parseMultipartRequest } from "../services/upload.service.js";
-import { processSolveRequest } from "../services/solve.service.js";
-import { solveAuthHook } from "../hooks/solve-auth.hook.js";
+import { parseMultipartRequest as defaultParseMultipartRequest } from "../services/upload.service.js";
+import { processSolveRequest as defaultProcessSolveRequest } from "../services/solve.service.js";
+import { solveAuthHook as defaultSolveAuthHook } from "../hooks/solve-auth.hook.js";
 import {
   initSolveAnalytics,
   recordSolveAnalytics,
@@ -19,20 +19,40 @@ import { AccessKeyDao } from "../dao/access-key.dao.js";
 import { LocalCatalogDao } from "../dao/local-catalog.dao.js";
 import { SolveEventDao } from "../dao/solve-event.dao.js";
 
-// Concurrency queue to protect backend execution.
-const solveQueue = new PQueue({ concurrency: config.queueConcurrency });
-
 /**
  * Fastify route plugin — registers the POST /api/v1/solve endpoint.
- * Receives DAO instances via plugin opts (dependency injection).
- * Handles request parsing, queue management, and response mapping only.
- * All business logic is delegated to the solve service.
+ *
+ * Production wiring (`src/index.js`) supplies only the three DAOs and lets the
+ * plugin fall back to its module-level defaults for config, multipart parsing,
+ * solve orchestration, auth hook, and the concurrency queue. The test harness
+ * (`src/test/build-test-app.util.js`) injects mocks for those same seams via
+ * the optional opts below — keeping the production call site unchanged while
+ * making every collaborator substitutable (DIP).
  *
  * @param fastify - Fastify instance
- * @param {{ accessKeyDao: AccessKeyDao, localCatalogDao: LocalCatalogDao, solveEventDao: SolveEventDao }} opts
+ * @param {{
+ *   accessKeyDao: AccessKeyDao,
+ *   localCatalogDao: LocalCatalogDao,
+ *   solveEventDao: SolveEventDao,
+ *   config?: typeof defaultConfig,
+ *   parseMultipartRequest?: typeof defaultParseMultipartRequest,
+ *   processSolveRequest?: typeof defaultProcessSolveRequest,
+ *   solveAuthHook?: typeof defaultSolveAuthHook,
+ *   solveQueue?: PQueue,
+ * }} opts
  */
 export default async function (fastify, opts) {
   const { accessKeyDao, localCatalogDao, solveEventDao } = opts;
+  const config = opts.config ?? defaultConfig;
+  const parseMultipartRequest =
+    opts.parseMultipartRequest ?? defaultParseMultipartRequest;
+  const processSolveRequest =
+    opts.processSolveRequest ?? defaultProcessSolveRequest;
+  const solveAuthHook = opts.solveAuthHook ?? defaultSolveAuthHook;
+  // Concurrency queue protects backend execution. A fresh queue is created
+  // per plugin instantiation so test harnesses get isolated queue state.
+  const solveQueue =
+    opts.solveQueue ?? new PQueue({ concurrency: config.queueConcurrency });
 
   await fs.mkdir(config.uploadsDir, { recursive: true });
 
