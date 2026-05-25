@@ -113,6 +113,26 @@ export class InspectorPanelHostComponent {
     this.hasSelectedAnnotation() ? 'selected' : this.stellarSection(),
   );
 
+  /** Last seen `selectedAnnotationId` — used to detect new-selection events. */
+  private previousSelectedId: string | null = null;
+
+  /**
+   * Auto-routes the inspector to the "Selected Target" panel whenever the
+   * user picks (or adds) an annotation. Only acts on the null → non-null
+   * (or non-null → different non-null) transition, so navigating to a
+   * different section while an annotation remains selected does NOT
+   * bounce the user back. Deselection (non-null → null) is handled by
+   * the existing fallback in the `stellarSection` computed. Desktop-only
+   * UX — the mobile shell intentionally does not auto-open the sheet.
+   */
+  private readonly autoRouteSelected = effect(() => {
+    const currentId = this.dataService.selectedAnnotationId();
+    if (currentId !== null && currentId !== this.previousSelectedId) {
+      this._userStellarSection.set('selected');
+    }
+    this.previousSelectedId = currentId;
+  });
+
   /** Scrollable panel containers — one per mode branch in the template. */
   private readonly panelScrollEls = viewChildren<ElementRef<HTMLElement>>('panelScroll');
 
