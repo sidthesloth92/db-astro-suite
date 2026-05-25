@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.17.1](https://github.com/sidthesloth92/db-astro-suite/compare/v1.17.0...v1.17.1) (2026-05-25)
+
+
+### Bug Fixes
+
+* **astrosolve:** rotate reactivates previously deactivated access key ([#40](https://github.com/sidthesloth92/db-astro-suite/issues/40)) ([636d045](https://github.com/sidthesloth92/db-astro-suite/commit/636d0457659123f169f8694db1a5e537bae8c11c))
+
 ## [1.17.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.16.1...v1.17.0) (2026-05-25)
 
 
