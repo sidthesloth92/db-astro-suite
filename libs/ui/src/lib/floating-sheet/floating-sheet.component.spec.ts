@@ -35,12 +35,16 @@ describe('FloatingSheetComponent', () => {
     expect(root.querySelector('.nav-content')?.textContent).toBe('nav');
   });
 
-  it('should hide the body but keep the nav slot when collapsed', () => {
+  it('should hide the body via aria-hidden but keep the nav slot when collapsed', () => {
     const f = fixture();
     f.componentInstance.expanded.set(false);
     f.detectChanges();
     const root = f.nativeElement as HTMLElement;
-    expect(root.querySelector('.body')).toBeNull();
+    // The redesigned floating sheet keeps `.body` in the DOM so the
+    // dialog can animate height, but flips `aria-hidden` on the wrapper.
+    // The wrapping `.sheet` also reports `aria-expanded="false"`.
+    expect(root.querySelector('.body-wrapper')?.getAttribute('aria-hidden')).toBe('true');
+    expect(root.querySelector('.sheet')?.getAttribute('aria-expanded')).toBe('false');
     expect(root.querySelector('.nav-content')?.textContent).toBe('nav');
   });
 

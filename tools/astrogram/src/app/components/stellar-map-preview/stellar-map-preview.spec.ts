@@ -65,22 +65,46 @@ function makeAnalyticsStub(): Record<string, jasmine.Spy> {
   });
 }
 
-describe('StellarMapPreviewComponent drag state machine', () => {
+/** PointerEvent stub — mouse event with pointer-id and a non-null target the component can call setPointerCapture on. */
+function makePointer(type: 'pointerdown' | 'pointerup', clientX: number, clientY: number): PointerEvent {
+  const ev = new MouseEvent(type, { clientX, clientY, bubbles: true });
+  Object.defineProperty(ev, 'pointerId', { value: 1, configurable: true });
+  // Component reads `event.target.setPointerCapture?.()`. Stub it so it no-ops in the test environment
+  // (a detached element throws InvalidStateError when called with a non-active pointer id).
+  const fakeTarget = document.createElement('div');
+  fakeTarget.setPointerCapture = () => undefined;
+  Object.defineProperty(ev, 'target', { value: fakeTarget, configurable: true });
+  return ev as PointerEvent;
+}
+
+describe('StellarMapPreviewComponent pointer state machine', () => {
   let mockDataService: {
     stellarMapData: ReturnType<typeof signal<StellarMapData>>;
+    cardData: ReturnType<typeof signal<unknown>>;
     selectedAnnotationId: ReturnType<typeof signal<string | null>>;
     selectAnnotation: jasmine.Spy;
     updateAnnotationPosition: jasmine.Spy;
     addAnnotation: jasmine.Spy;
+    removeAnnotation: jasmine.Spy;
   };
+
+  function mountComponent() {
+    const fixture = TestBed.createComponent(StellarMapPreviewComponent);
+    fixture.detectChanges();
+    return fixture.componentInstance;
+  }
 
   beforeEach(async () => {
     mockDataService = {
       stellarMapData: signal<StellarMapData>({ ...MINIMAL_MAP_DATA }),
+      cardData: signal<unknown>({}),
       selectedAnnotationId: signal<string | null>(null),
-      selectAnnotation: jasmine.createSpy('selectAnnotation'),
+      selectAnnotation: jasmine.createSpy('selectAnnotation').and.callFake((id: string | null) => {
+        mockDataService.selectedAnnotationId.set(id);
+      }),
       updateAnnotationPosition: jasmine.createSpy('updateAnnotationPosition'),
       addAnnotation: jasmine.createSpy('addAnnotation'),
+      removeAnnotation: jasmine.createSpy('removeAnnotation'),
     };
 
     await TestBed.configureTestingModule({
@@ -102,80 +126,69 @@ describe('StellarMapPreviewComponent drag state machine', () => {
       .compileComponents();
   });
 
-  it('should start drag on mousedown regardless of prior selection state', () => {
-    const fixture = TestBed.createComponent(StellarMapPreviewComponent);
-    const component = fixture.componentInstance;
-    fixture.detectChanges();
+  it('should not start a drag when pointerdown lands on an unselected marker', () => {
+    const component = mountComponent();
+    const ann = makeAnnotation('m-1');
 
-    const ann = makeAnnotation('test-select');
-    const mouseEvent = new MouseEvent('mousedown', { clientX: 100, clientY: 100 });
-    component.onMarkerMousedown(ann, mouseEvent);
+    component.onMarkerPointerdown(ann, makePointer('pointerdown', 100, 100));
 
-    expect(component.isDragging()).toBeTrue();
+    expect(component.isDragging()).toBeFalse();
     expect(mockDataService.selectAnnotation).not.toHaveBeenCalled();
   });
 
-  it('should select annotation on mouseup when delta < 3 and annotation was unselected', () => {
-    const fixture = TestBed.createComponent(StellarMapPreviewComponent);
-    const component = fixture.componentInstance;
-    fixture.detectChanges();
+  it('should commit the pending selection on pointerup after pointerdown on an unselected marker', () => {
+    const component = mountComponent();
+    const ann = makeAnnotation('m-pending');
 
-    const ann = makeAnnotation('test-click-select');
-    component.onMarkerMousedown(ann, new MouseEvent('mousedown', { clientX: 100, clientY: 100 }));
-    component.onLayerMouseup(new MouseEvent('mouseup', { clientX: 101, clientY: 100 }));
+    component.onMarkerPointerdown(ann, makePointer('pointerdown', 100, 100));
+    component.onLayerPointerup(makePointer('pointerup', 101, 100));
 
-    expect(mockDataService.selectAnnotation).toHaveBeenCalledWith('test-click-select');
+    expect(mockDataService.selectAnnotation).toHaveBeenCalledWith('m-pending');
     expect(component.isDragging()).toBeFalse();
   });
 
-  it('should set isDragging to true after onMarkerMousedown', () => {
-    const fixture = TestBed.createComponent(StellarMapPreviewComponent);
-    const component = fixture.componentInstance;
-    fixture.detectChanges();
+  it('should start a drag when pointerdown lands on an already-selected marker', () => {
+    const component = mountComponent();
+    const ann = makeAnnotation('m-selected');
+    mockDataService.selectedAnnotationId.set('m-selected');
 
-    const mouseEvent = new MouseEvent('mousedown', { clientX: 100, clientY: 100 });
-    component.onMarkerMousedown(makeAnnotation('test-1'), mouseEvent);
+    component.onMarkerPointerdown(ann, makePointer('pointerdown', 100, 100));
 
     expect(component.isDragging()).toBeTrue();
   });
 
-  it('should set isDragging to false after onLayerMouseup when delta < 3 (treated as click)', () => {
-    const fixture = TestBed.createComponent(StellarMapPreviewComponent);
-    const component = fixture.componentInstance;
-    fixture.detectChanges();
+  it('should deselect when a drag ends with delta < 3 (treat as toggle-off click)', () => {
+    const component = mountComponent();
+    const ann = makeAnnotation('m-toggle');
+    mockDataService.selectedAnnotationId.set('m-toggle');
 
-    const downEvent = new MouseEvent('mousedown', { clientX: 100, clientY: 100 });
-    component.onMarkerMousedown(makeAnnotation('test-2'), downEvent);
+    component.onMarkerPointerdown(ann, makePointer('pointerdown', 100, 100));
     expect(component.isDragging()).toBeTrue();
 
-    const upEvent = new MouseEvent('mouseup', { clientX: 101, clientY: 100 });
-    component.onLayerMouseup(upEvent);
+    component.onLayerPointerup(makePointer('pointerup', 101, 100));
 
+    expect(mockDataService.selectAnnotation).toHaveBeenCalledWith(null);
     expect(component.isDragging()).toBeFalse();
   });
 
-  it('should set isDragging to false after onLayerMouseup when delta >= 3 (drag ended)', () => {
-    const fixture = TestBed.createComponent(StellarMapPreviewComponent);
-    const component = fixture.componentInstance;
-    fixture.detectChanges();
+  it('should keep selection intact when a drag ends with delta >= 3', () => {
+    const component = mountComponent();
+    const ann = makeAnnotation('m-drag');
+    mockDataService.selectedAnnotationId.set('m-drag');
 
-    const downEvent = new MouseEvent('mousedown', { clientX: 100, clientY: 100 });
-    component.onMarkerMousedown(makeAnnotation('test-3'), downEvent);
-    expect(component.isDragging()).toBeTrue();
+    component.onMarkerPointerdown(ann, makePointer('pointerdown', 100, 100));
+    component.onLayerPointerup(makePointer('pointerup', 130, 130));
 
-    const upEvent = new MouseEvent('mouseup', { clientX: 110, clientY: 110 });
-    component.onLayerMouseup(upEvent);
-
+    // selectAnnotation is the toggle-off path. With a real drag (delta >= 3),
+    // the handler must leave selection alone.
+    expect(mockDataService.selectAnnotation).not.toHaveBeenCalledWith(null);
     expect(component.isDragging()).toBeFalse();
   });
 
-  it('should call selectAnnotation(null) on background mouseup when not dragging', () => {
-    const fixture = TestBed.createComponent(StellarMapPreviewComponent);
-    const component = fixture.componentInstance;
-    fixture.detectChanges();
+  it('should deselect when pointerup fires on empty background while nothing is being dragged', () => {
+    const component = mountComponent();
 
-    const upEvent = new MouseEvent('mouseup', { clientX: 50, clientY: 50 });
-    component.onLayerMouseup(upEvent);
+    component.onLayerPointerup(makePointer('pointerup', 50, 50));
 
     expect(mockDataService.selectAnnotation).toHaveBeenCalledWith(null);
   });

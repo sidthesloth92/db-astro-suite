@@ -57,6 +57,13 @@ class HostComponent {
   }
 }
 
+@Component({
+  standalone: true,
+  imports: [PreviewContextBarComponent],
+  template: `<dba-ui-preview-context-bar [modeOptions]="[]" />`,
+})
+class EmptyHostComponent {}
+
 describe('PreviewContextBarComponent', () => {
   function fixture() {
     TestBed.configureTestingModule({ imports: [HostComponent] });
@@ -65,52 +72,31 @@ describe('PreviewContextBarComponent', () => {
     return f;
   }
 
-  it('renders the dimension string', () => {
+  it('renders the mode tabs when modeOptions are provided', () => {
     const f = fixture();
-    const root = f.nativeElement as HTMLElement;
-    expect(root.querySelector('.dim')?.textContent?.trim()).toBe('1080 × 1440');
+    const tabs = (f.nativeElement as HTMLElement).querySelectorAll('[role="tab"]');
+    expect(tabs.length).toBe(2);
   });
 
-  it('renders one option per zoom level inside the zoom select', () => {
+  it('marks the selected mode tab as aria-selected', () => {
     const f = fixture();
-    const zoomSelect = (f.nativeElement as HTMLElement).querySelector(
-      '.zoom-select select',
-    ) as HTMLSelectElement;
-    expect(zoomSelect.options.length).toBe(3);
+    const tabs = (f.nativeElement as HTMLElement).querySelectorAll('[role="tab"]');
+    expect(tabs[0].getAttribute('aria-selected')).toBe('true');
+    expect(tabs[1].getAttribute('aria-selected')).toBe('false');
   });
 
-  it('selects the current zoom inside the zoom select', () => {
-    const f = fixture();
-    const zoomSelect = (f.nativeElement as HTMLElement).querySelector(
-      '.zoom-select select',
-    ) as HTMLSelectElement;
-    expect(zoomSelect.value).toBe('100');
-  });
-
-  it('emits zoomChange when a different zoom is picked', () => {
-    const f = fixture();
-    const zoomSelect = (f.nativeElement as HTMLElement).querySelector(
-      '.zoom-select select',
-    ) as HTMLSelectElement;
-    zoomSelect.value = '150';
-    zoomSelect.dispatchEvent(new Event('change'));
-    expect(f.componentInstance.emittedZoom).toBe(150);
-  });
-
-  it('emits sizeChange with the chosen key', () => {
-    const f = fixture();
-    const sizeSelect = (f.nativeElement as HTMLElement).querySelector(
-      '.size-select select',
-    ) as HTMLSelectElement;
-    sizeSelect.value = 'ig-portrait';
-    sizeSelect.dispatchEvent(new Event('change'));
-    expect(f.componentInstance.emittedSize).toBe('ig-portrait');
-  });
-
-  it('emits modeChange when a mode tab is clicked', () => {
+  it('emits modeChange when a different mode tab is clicked', () => {
     const f = fixture();
     const tabs = (f.nativeElement as HTMLElement).querySelectorAll('[role="tab"]');
     (tabs[1] as HTMLButtonElement).click();
     expect(f.componentInstance.emittedMode).toBe('stellar');
+  });
+
+  it('renders nothing inside the bar when modeOptions are empty', () => {
+    TestBed.configureTestingModule({ imports: [EmptyHostComponent] });
+    const f = TestBed.createComponent(EmptyHostComponent);
+    f.detectChanges();
+    const tabs = (f.nativeElement as HTMLElement).querySelectorAll('[role="tab"]');
+    expect(tabs.length).toBe(0);
   });
 });

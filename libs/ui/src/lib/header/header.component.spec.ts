@@ -32,7 +32,10 @@ describe('HeaderComponent', () => {
     fixture.detectChanges();
     const root = fixture.nativeElement as HTMLElement;
     expect(root.querySelector('.brand-title')?.textContent?.trim()).toBe('starwizz');
-    expect(root.querySelector('.brand-version')?.textContent?.trim()).toBe('v1.2.3');
+    // Version is now rendered inside a `<dba-ui-pill-badge>` element rather
+    // than a dedicated `.brand-version` span. The pill's slotted content
+    // includes the "v" prefix.
+    expect(root.querySelector('dba-ui-pill-badge')?.textContent?.trim()).toBe('v1.2.3');
   });
 
   it('projects [slot=center] content between brand and actions', () => {
