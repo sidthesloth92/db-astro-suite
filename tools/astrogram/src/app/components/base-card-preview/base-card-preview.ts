@@ -68,8 +68,8 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
   exportName = input<string>('astrogram');
   /** Differentiator inserted between the name and the aspect/resolution suffix (e.g. `info`, `stellar-map`). */
   exportTag = input<string>('astrogram');
-  /** Hides the built-in Download button. Used when the host has nothing exportable yet. */
-  hideDownload = input<boolean>(false);
+  /** Disables the built-in Export button (still visible). Used when the host has nothing exportable yet. */
+  disableDownload = input<boolean>(false);
 
   accentColor = input<string>('#ff2d95');
   accentColorRgb = input<string>('255, 45, 149');
@@ -222,9 +222,6 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
     }
     this.naturalHeightPx.set(naturalHeight);
 
-    // Scaling strategy differs by mode
-    let scale = 1;
-
     // Cap the on-screen card height at a fraction of the viewport so the
     // preview (and the surrounding chrome — top bar, context bar, caption)
     // fits without scrolling. The exporter ignores this transform (it
@@ -236,21 +233,12 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
     const isAuto = this.aspectRatio() === 'auto';
     const maxAllowedHeight = viewportHeight * (isAuto ? 0.92 : 0.8);
 
-    if (isAuto) {
-      // PROPORTIONAL SCALING: Maximize size based on both width AND height constraints.
-      // No horizontal buffer — let the stellar-map image fill the available width.
-      const scaleW = wrapperRect.width / naturalWidth;
-      const scaleH = maxAllowedHeight / naturalHeight;
-      scale = Math.min(scaleW, scaleH);
-    } else {
-      // INFOGRAPHIC SCALING: Fixed width priority, scale down if width is too small
-      scale = wrapperRect.width < naturalWidth ? wrapperRect.width / naturalWidth : 1;
-
-      // Safety clamp for vertical overflow in infographic mode too
-      if (naturalHeight * scale > maxAllowedHeight) {
-        scale = maxAllowedHeight / naturalHeight;
-      }
-    }
+    // Same fit-to-(wrapper × max-height) strategy for both modes. The `1`
+    // cap prevents fixed-aspect cards (480 px CSS native) from being
+    // upscaled past their design width on wider wrappers.
+    const scaleW = wrapperRect.width / naturalWidth;
+    const scaleH = maxAllowedHeight / naturalHeight;
+    const scale = Math.min(scaleW, scaleH, 1);
 
     this.scaleFactor.set(scale);
   }

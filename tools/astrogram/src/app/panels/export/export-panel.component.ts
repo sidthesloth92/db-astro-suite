@@ -55,6 +55,19 @@ export class ExportPanelComponent {
   /** Current format choice mirrored from `CardDataService.exportFormat`. */
   readonly format = computed(() => this.cardDataService.exportFormat());
 
+  /**
+   * True when the active preview surface has something exportable.
+   * Stellar map exports require a selected background image; infographic
+   * always exports the card regardless. Disables the Export CTA when
+   * false so users don't fire an empty capture.
+   */
+  readonly canExport = computed(() => {
+    if (this.cardDataService.activeMode() !== 'stellar-map') {
+      return true;
+    }
+    return !!this.cardDataService.stellarMapData().backgroundImage;
+  });
+
   /** Transient flag — true for the brief window after a successful link copy. */
   readonly linkCopied = signal(false);
 
@@ -113,6 +126,9 @@ export class ExportPanelComponent {
 
   /** Triggers the active preview's export pipeline via the coordinator. */
   triggerExport(): void {
+    if (!this.canExport()) {
+      return;
+    }
     this.exportCoordinator.trigger();
   }
 

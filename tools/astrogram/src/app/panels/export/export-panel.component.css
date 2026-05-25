@@ -108,8 +108,14 @@
     0 4px 12px var(--db-color-pink-soft);
 }
 
-.cta-btn:hover {
+.cta-btn:hover:not(:disabled) {
   filter: brightness(1.08);
+}
+
+.cta-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 .share-grid {

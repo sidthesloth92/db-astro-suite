@@ -18,9 +18,14 @@
       }
     </div>
     <div class="cta-wrap">
-      <button type="button" class="cta-btn" (click)="triggerExport()">
+      <button
+        type="button"
+        class="cta-btn"
+        [disabled]="!canExport()"
+        (click)="triggerExport()"
+      >
         <dba-ui-icon [def]="downloadIcon" [size]="13" />
-        <span>Export now</span>
+        <span>Export</span>
       </button>
     </div>
   </dba-ui-inspector-section>

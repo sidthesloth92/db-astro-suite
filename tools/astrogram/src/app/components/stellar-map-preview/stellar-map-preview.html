@@ -7,7 +7,7 @@
   [author]="''"
   [exportName]="cardData().title || 'stellar-map'"
   exportTag="stellar-map"
-  [hideDownload]="!mapData().backgroundImage"
+  [disableDownload]="!mapData().backgroundImage"
 >
   @if (mapData().backgroundImage) {
     <div class="toolbar" headerAction>
