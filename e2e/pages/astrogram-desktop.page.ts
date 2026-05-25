@@ -260,13 +260,25 @@ export class AstrogramDesktopPage {
    * and resolves with the resulting Download event. The CTA's button
    * name is "Export"; we scope by DOM order (last match) so this does
    * not collide with the rail item that also reads "Export".
+   *
+   * Sequencing matters on slow CI runners:
+   *   - Gate on the "Output format" header so we know the Export panel
+   *     has mounted (otherwise `.last()` may resolve to the rail item).
+   *   - Wait for the CTA to be enabled (`!canExport()` may be true
+   *     briefly while the preview registers its exporter).
+   *   - Use a 60s download wait — the first export pipeline invocation
+   *     dynamically imports `modern-screenshot` and waits for fonts,
+   *     which can exceed the 30s default in CI cold-cache.
    */
   async triggerExport(): Promise<Download> {
-    const downloadPromise = this.page.waitForEvent("download");
     await this.page
-      .getByRole("button", { name: "Export", exact: true })
-      .last()
-      .click();
+      .getByText("Output format")
+      .first()
+      .waitFor({ state: "visible", timeout: 10_000 });
+    const cta = this.getExportPanelCta();
+    await expect(cta).toBeEnabled({ timeout: 10_000 });
+    const downloadPromise = this.page.waitForEvent("download", { timeout: 60_000 });
+    await cta.click();
     return downloadPromise;
   }
 

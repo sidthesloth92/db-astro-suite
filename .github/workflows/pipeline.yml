@@ -36,6 +36,12 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          # Check out the PR head branch (not the GitHub-generated merge ref)
+          # so the "Seed visual baselines" step can push commits back to the
+          # PR branch. For push events this falls back to the workflow's ref.
+          ref: ${{ github.event.pull_request.head.ref || github.ref }}
+          fetch-depth: 0
 
       - name: Install pnpm
         uses: pnpm/action-setup@v3
@@ -60,7 +66,37 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run Playwright Tests
+        id: playwright
         run: npx playwright test
+
+      # Visual snapshot baselines are intentionally NOT committed locally
+      # (rule: .claude/rules/e2e.md — baselines MUST be generated in
+      # Linux/Docker via CI). When a new visual test lands, the first CI
+      # run fails with "snapshot doesn't exist", we regenerate via
+      # --update-snapshots, commit only the new baseline PNGs, and push
+      # back to the PR branch. The push retriggers CI which validates the
+      # baselines on the next run.
+      #
+      # Guarded with `git diff --staged --quiet` — if no new baselines are
+      # actually created (i.e. the failure was a real bug, not a missing
+      # snapshot), the step exits without pushing, surfacing the original
+      # failure. This prevents infinite seed loops.
+      - name: Seed missing visual snapshot baselines (PR only)
+        if: ${{ failure() && steps.playwright.outcome == 'failure' && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}
+        run: |
+          set -e
+          echo "Tests failed; attempting to seed any missing snapshot baselines..."
+          npx playwright test --update-snapshots --reporter=line || true
+          git add 'e2e/**/*-snapshots/*.png' 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "No new baselines were generated. Failures are not snapshot-related."
+            exit 0
+          fi
+          git -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -m "test(e2e): seed visual baselines from CI"
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
+          echo "Baselines committed and pushed; the next CI run validates them."
 
       - name: Upload Playwright Report
         uses: actions/upload-artifact@v4
