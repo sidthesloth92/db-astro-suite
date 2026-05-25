@@ -42,6 +42,11 @@ jobs:
           # PR branch. For push events this falls back to the workflow's ref.
           ref: ${{ github.event.pull_request.head.ref || github.ref }}
           fetch-depth: 0
+          # Use the classic PAT so seed-step pushes bypass the
+          # GITHUB_TOKEN restrictions that return 500 Internal Server Error
+          # when an Actions bot tries to push to a PR branch with protections
+          # or required status checks.
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
 
       - name: Install pnpm
         uses: pnpm/action-setup@v3
