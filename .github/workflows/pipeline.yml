@@ -87,7 +87,17 @@ jobs:
           set -e
           echo "Tests failed; attempting to seed any missing snapshot baselines..."
           npx playwright test --update-snapshots --reporter=line || true
-          git add 'e2e/**/*-snapshots/*.png' 2>/dev/null || true
+          # Snapshot directories live at e2e/<spec>.spec.ts-snapshots/ — the
+          # previous glob `e2e/**/*-snapshots/*.png` only matched 3+ levels
+          # deep and silently missed all of them. Use shopt globstar so `**`
+          # matches zero-or-more path components, then add by directory.
+          shopt -s globstar nullglob
+          baselines=(e2e/**/*-snapshots/*.png)
+          if [ ${#baselines[@]} -eq 0 ]; then
+            echo "No baseline files matched after --update-snapshots."
+            exit 0
+          fi
+          git add "${baselines[@]}"
           if git diff --staged --quiet; then
             echo "No new baselines were generated. Failures are not snapshot-related."
             exit 0
@@ -97,6 +107,7 @@ jobs:
               commit -m "test(e2e): seed visual baselines from CI"
           git push origin HEAD:${{ github.event.pull_request.head.ref }}
           echo "Baselines committed and pushed; the next CI run validates them."
+        shell: bash
 
       - name: Upload Playwright Report
         uses: actions/upload-artifact@v4
