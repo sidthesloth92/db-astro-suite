@@ -97,7 +97,7 @@ export class SqliteAccessKeyDao extends SqliteBaseDao {
   rotateAccessKey(username, newKeyHash) {
     const result = this.db
       .prepare(
-        "UPDATE solve_api_access_keys SET key_hash = ? WHERE username = ?",
+        "UPDATE solve_api_access_keys SET key_hash = ?, active = 1 WHERE username = ?",
       )
       .run(newKeyHash, username);
 
