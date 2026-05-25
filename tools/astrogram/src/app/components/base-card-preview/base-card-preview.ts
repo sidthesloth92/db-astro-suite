@@ -19,6 +19,8 @@ import {
 import { EXPORT_DIMENSIONS_BY_RATIO } from '../../constants/preview-sizes.constants';
 import type { AspectRatio } from '../../models/card-data.model';
 import { CardDataService } from '../../services/card-data.service';
+import { PreviewLayoutService } from '../../services/preview-layout.service';
+import { resizeDataUrlToExactDimensions } from '../../utils/resize-data-url.util';
 
 /** File extension + MIME info per exportable format. */
 const EXPORT_FORMAT_MAP = {
@@ -59,7 +61,9 @@ function nameSlug(raw: string, fallback: string): string {
 export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestroy {
   private analyticsService = inject(AnalyticsService);
   private readonly cardDataService = inject(CardDataService);
-  
+  private readonly previewLayout = inject(PreviewLayoutService);
+
+
   aspectRatio = input<AspectRatio>('4:5');
   backgroundImage = input<string | null>(null);
   fillMode = input<'cover' | 'contain' | 'fill'>('cover');
@@ -222,25 +226,30 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
     }
     this.naturalHeightPx.set(naturalHeight);
 
-    // Cap the on-screen card height at a fraction of the viewport so the
-    // preview (and the surrounding chrome — top bar, context bar, caption)
-    // fits without scrolling. The exporter ignores this transform (it
-    // temporarily clears it in `exportCard`), so the downloaded image is
-    // still rendered at the full target resolution from
-    // `EXPORT_DIMENSIONS_BY_RATIO`. Stellar-map mode (auto) gets a more
-    // generous height budget because it has no caption section below.
+    // Chrome-aware height budget so tall images (and tall infographic cards)
+    // always fit on screen. Accounts for the top bar + mode-toggle row at the
+    // top and a small breathing room at the bottom. The exporter ignores this
+    // transform (it temporarily clears it in `exportCard`), so the downloaded
+    // image is still rendered at the full target resolution from
+    // `EXPORT_DIMENSIONS_BY_RATIO`.
     const viewportHeight = window.innerHeight;
-    const isAuto = this.aspectRatio() === 'auto';
-    const maxAllowedHeight = viewportHeight * (isAuto ? 0.92 : 0.8);
+    const headerHeight = 80;
+    const footerPadding = 40;
+    const maxAllowedHeight = (viewportHeight - headerHeight - footerPadding) * 0.95;
 
-    // Same fit-to-(wrapper × max-height) strategy for both modes. The `1`
-    // cap prevents fixed-aspect cards (480 px CSS native) from being
-    // upscaled past their design width on wider wrappers.
-    const scaleW = wrapperRect.width / naturalWidth;
+    // Stellar (auto) keeps a small horizontal buffer so the image doesn't
+    // touch the wrapper edges; fixed-aspect cards already self-constrain to
+    // 480 px via CSS, so no buffer needed.
+    const horizontalBuffer = this.aspectRatio() === 'auto' ? 40 : 0;
+    const scaleW = (wrapperRect.width - horizontalBuffer) / naturalWidth;
     const scaleH = maxAllowedHeight / naturalHeight;
     const scale = Math.min(scaleW, scaleH, 1);
 
     this.scaleFactor.set(scale);
+    // Publish the displayed card width so sibling components (e.g. the
+    // caption section) can match it instead of falling back to the static
+    // 480 px design baseline.
+    this.previewLayout.displayedCardWidth.set(naturalWidth * scale);
   }
 
   async exportCard(event?: MouseEvent) {
@@ -275,7 +284,14 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
         }),
       );
 
-      const targetDim = EXPORT_DIMENSIONS_BY_RATIO[this.aspectRatio()];
+      // For fixed-aspect presets we ship at the preset's pixel dimensions
+      // (Instagram-ready 1080×*). For `auto` (stellar map) we ship at the
+      // uploaded image's natural dimensions so the user gets back what
+      // they put in, full resolution.
+      const targetDim =
+        this.aspectRatio() === 'auto'
+          ? { width: this.naturalImageWidth(), height: this.naturalImageHeight() }
+          : EXPORT_DIMENSIONS_BY_RATIO[this.aspectRatio()];
       const name = nameSlug(this.exportName(), 'astrogram');
       const tag = this.exportTag() || 'astrogram';
       const filename = `${name}_${tag}_${aspectSlug(targetDim.width, targetDim.height)}_${targetDim.width}_${targetDim.height}.${fmtInfo.ext}`;
@@ -320,6 +336,19 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
           postContainer.style.transform = originalTransform;
           postContainer.style.transformOrigin = originalTransformOrigin;
         }
+      }
+
+      // Lock the file to the exact target pixel dimensions. The DOM
+      // capture can drift by 1 px on aspects whose 480 × (h/w) isn't an
+      // integer (9:16, 1.91:1) or from raster sub-pixel rounding. For
+      // `auto` mode the target is the uploaded image's natural size.
+      if (targetDim.width > 0 && targetDim.height > 0) {
+        dataUrl = await resizeDataUrlToExactDimensions(
+          dataUrl,
+          fmtInfo.mime,
+          targetDim.width,
+          targetDim.height,
+        );
       }
 
       console.log('Image generated. Triggering download...');

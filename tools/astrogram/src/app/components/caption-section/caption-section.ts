@@ -16,6 +16,7 @@ import {
   type FilterExposure,
 } from '../../models/card-data.model';
 import { CardDataService } from '../../services/card-data.service';
+import { PreviewLayoutService } from '../../services/preview-layout.service';
 
 /**
  * Instagram-style preview block under the card. Renders the live caption
@@ -32,9 +33,12 @@ import { CardDataService } from '../../services/card-data.service';
 })
 export class CaptionSectionComponent {
   private readonly dataService = inject(CardDataService);
+  private readonly previewLayout = inject(PreviewLayoutService);
 
   /** Current card document. */
   readonly cardData = this.dataService.cardData;
+  /** Displayed (post-scale) card width — used to keep the caption aligned with the scaled card. */
+  readonly displayedCardWidth = this.previewLayout.displayedCardWidth;
   /** True for the brief window after a successful copy. */
   readonly copied = signal(false);
 
