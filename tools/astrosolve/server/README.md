@@ -143,3 +143,33 @@ docker exec -it astrosolve node scripts/manage-keys.js list
 > **Why `list` doesn't show the keys:** the database stores only the SHA-256 hash of each key, not the plain key. This is the same design as password storage — even a leaked DB cannot give an attacker working API keys. If a user has lost their key, use `rotate <username>` to issue them a fresh one without losing their analytics history.
 
 > **Note:** `remove` deactivates the key (marks it inactive in the database). The row is retained for audit purposes. The user will no longer be able to submit solve requests. Use `rotate` instead if you want them to keep using the service with a new credential.
+
+## Viewing Analytics
+
+Solve events are stored in the `solve_events` table of `astrosolve.sqlite`. Use the analytics script via `docker exec` to query them:
+
+```sh
+# Aggregate stats — success rate, durations, file sizes, top users (default: last 7 days)
+docker exec -it astrosolve node scripts/analytics.js summary
+docker exec -it astrosolve node scripts/analytics.js summary --days 30
+
+# Last N events, newest first (default: 20)
+docker exec -it astrosolve node scripts/analytics.js recent
+docker exec -it astrosolve node scripts/analytics.js recent --limit 50
+
+# Per-user breakdown (default: last 7 days)
+docker exec -it astrosolve node scripts/analytics.js by-user
+docker exec -it astrosolve node scripts/analytics.js by-user --days 14
+
+# Last N non-success events (default: 20)
+docker exec -it astrosolve node scripts/analytics.js failures
+docker exec -it astrosolve node scripts/analytics.js failures --limit 50
+
+# Queue saturation stats — rejections, wait times, max depth (default: last 7 days)
+docker exec -it astrosolve node scripts/analytics.js queue
+docker exec -it astrosolve node scripts/analytics.js queue --days 30
+
+# Dump all rows to CSV
+docker exec -it astrosolve node scripts/analytics.js export /tmp/events.csv
+docker cp astrosolve:/tmp/events.csv ./events.csv
+```

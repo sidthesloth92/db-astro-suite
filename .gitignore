@@ -35,4 +35,7 @@ bin/
 tools/astrosolve/server/data/astrosolve.sqlite
 tools/astrosolve/server/data/access-keys.sqlite
 
+# Claude Code local settings — contain machine-specific paths
+.claude/settings.json
+
 astrogram_design

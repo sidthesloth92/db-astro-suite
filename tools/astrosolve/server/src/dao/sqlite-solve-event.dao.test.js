@@ -33,6 +33,11 @@ test("insert + listRecent round-trips a fully populated row", () => {
     key_id: 7,
     client_ip: "1.2.3.4",
     user_agent: "curl/8.0",
+    browser_name: "Mobile Safari",
+    browser_version: "17.2",
+    os_name: "iOS",
+    os_version: "17.2",
+    device_type: "mobile",
     error_message: null,
     file_size_bytes: 196965,
     image_width_px: 1080,
@@ -83,6 +88,13 @@ test("insert + listRecent round-trips a fully populated row", () => {
   assert.equal(row.outcome, "success");
   assert.ok(row.id > 0);
   assert.ok(typeof row.created_at === "string" && row.created_at.length > 0);
+
+  // Parsed user-agent columns round-trip verbatim.
+  assert.equal(row.browser_name, "Mobile Safari");
+  assert.equal(row.browser_version, "17.2");
+  assert.equal(row.os_name, "iOS");
+  assert.equal(row.os_version, "17.2");
+  assert.equal(row.device_type, "mobile");
 
   // New breakdown columns round-trip verbatim.
   assert.equal(row.objects_returned_stars, 3);
@@ -141,6 +153,11 @@ test("insert stores NULL for unspecified columns", () => {
   assert.equal(row.file_size_bytes, null);
   assert.equal(row.solve_ra_deg, null);
   assert.equal(row.error_message, null);
+  assert.equal(row.browser_name, null);
+  assert.equal(row.browser_version, null);
+  assert.equal(row.os_name, null);
+  assert.equal(row.os_version, null);
+  assert.equal(row.device_type, null);
 });
 
 test("listRecentFailures excludes successes", () => {
