@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.18.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.17.1...v1.18.0) (2026-05-29)
+
+
+### Features
+
+* **astrosolve:** enhance analytics with user-agent parsing and additional metrics ([#42](https://github.com/sidthesloth92/db-astro-suite/issues/42)) ([3ab1768](https://github.com/sidthesloth92/db-astro-suite/commit/3ab17680d0f5bd10e62a1357a4a8463733e6f826))
+
 ## [1.17.1](https://github.com/sidthesloth92/db-astro-suite/compare/v1.17.0...v1.17.1) (2026-05-25)
 
 
