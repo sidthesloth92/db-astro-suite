@@ -12,6 +12,11 @@ const CREATE_TABLE_SQL = `
     key_id                        INTEGER,
     client_ip                     TEXT,
     user_agent                    TEXT,
+    browser_name                  TEXT,
+    browser_version               TEXT,
+    os_name                       TEXT,
+    os_version                    TEXT,
+    device_type                   TEXT,
     outcome                       TEXT    NOT NULL,
     http_status                   INTEGER NOT NULL,
     response_code                 TEXT    NOT NULL,
@@ -87,6 +92,11 @@ export class SqliteSolveEventDao extends SqliteBaseDao {
       "ALTER TABLE solve_events ADD COLUMN objects_returned_from_local INTEGER",
       "ALTER TABLE solve_events ADD COLUMN objects_returned_from_simbad INTEGER",
       "ALTER TABLE solve_events ADD COLUMN diagnostics TEXT",
+      "ALTER TABLE solve_events ADD COLUMN browser_name TEXT",
+      "ALTER TABLE solve_events ADD COLUMN browser_version TEXT",
+      "ALTER TABLE solve_events ADD COLUMN os_name TEXT",
+      "ALTER TABLE solve_events ADD COLUMN os_version TEXT",
+      "ALTER TABLE solve_events ADD COLUMN device_type TEXT",
     ]) {
       idempotentAlter(db, ddl);
     }

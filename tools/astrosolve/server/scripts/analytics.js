@@ -38,6 +38,19 @@ function parseFlags(argv) {
   return flags;
 }
 
+function printTable(headers, rows) {
+  const allRows = [headers, ...rows];
+  const widths = headers.map((_, i) =>
+    Math.max(...allRows.map((r) => String(r[i] ?? "").length)),
+  );
+  const bar = widths.map((w) => "─".repeat(w)).join("─┼─");
+  const fmt = (row) =>
+    row.map((v, i) => String(v ?? "").padEnd(widths[i])).join(" │ ");
+  console.log(fmt(headers));
+  console.log(bar);
+  for (const row of rows) console.log(fmt(row));
+}
+
 function fmtMs(v) {
   if (v == null) return "—";
   return `${Math.round(v)}ms`;
@@ -72,79 +85,140 @@ try {
       const days = flags.days ?? 7;
       const rows = eventsInLastDays(dao, days);
       const s = summarize(rows);
+
+      const formatCounts = new Map();
+      const widths = [];
+      const heights = [];
+      for (const row of rows) {
+        const ext = row.file_extension ?? "(unknown)";
+        formatCounts.set(ext, (formatCounts.get(ext) ?? 0) + 1);
+        if (row.image_width_px != null) widths.push(row.image_width_px);
+        if (row.image_height_px != null) heights.push(row.image_height_px);
+      }
+      widths.sort((a, b) => a - b);
+      heights.sort((a, b) => a - b);
+
+      const meanInt = (arr) => arr.length === 0 ? null : Math.round(arr.reduce((s, v) => s + v, 0) / arr.length);
+      const p50Int = (arr) => arr.length === 0 ? null : arr[Math.floor(arr.length * 0.5)];
+
+      const fmtPx = (v) => v == null ? "—" : `${v}px`;
+
       console.log(`Summary — last ${days} day(s)`);
       console.log(`  total requests:       ${s.total}`);
       console.log(`  success rate:         ${fmtPct(s.successRate)}`);
-      console.log(`  by outcome:`);
-      for (const [outcome, count] of Object.entries(s.byOutcome)) {
-        console.log(`    ${outcome.padEnd(20)} ${count}`);
-      }
-      console.log(`  solve duration:       mean ${fmtMs(s.solveDurationMs.mean)}  p50 ${fmtMs(s.solveDurationMs.p50)}  p95 ${fmtMs(s.solveDurationMs.p95)}`);
-      console.log(`  total request time:   mean ${fmtMs(s.totalDurationMs.mean)}  p50 ${fmtMs(s.totalDurationMs.p50)}  p95 ${fmtMs(s.totalDurationMs.p95)}`);
-      console.log(`  file size:            mean ${fmtBytes(s.fileSizeBytes.mean)}  p50 ${fmtBytes(s.fileSizeBytes.p50)}  p95 ${fmtBytes(s.fileSizeBytes.p95)}`);
-      console.log(`  top users:`);
-      for (const u of s.topUsers) {
-        console.log(`    key_id=${u.keyId}\t${userLabel(u.keyId)}\t${u.count} req`);
-      }
+      console.log(`\nOutcomes:`);
+      printTable(
+        ["outcome", "count"],
+        Object.entries(s.byOutcome).map(([outcome, count]) => [outcome, count]),
+      );
+      console.log(`\nTimings:`);
+      printTable(
+        ["metric", "mean", "p50", "p95"],
+        [
+          ["solve_duration",   fmtMs(s.solveDurationMs.mean),    fmtMs(s.solveDurationMs.p50),    fmtMs(s.solveDurationMs.p95)],
+          ["total_duration",   fmtMs(s.totalDurationMs.mean),    fmtMs(s.totalDurationMs.p50),    fmtMs(s.totalDurationMs.p95)],
+          ["file_size",        fmtBytes(s.fileSizeBytes.mean),   fmtBytes(s.fileSizeBytes.p50),   fmtBytes(s.fileSizeBytes.p95)],
+          ["image_width",      fmtPx(meanInt(widths)),           fmtPx(p50Int(widths)),           "—"],
+          ["image_height",     fmtPx(meanInt(heights)),          fmtPx(p50Int(heights)),          "—"],
+        ],
+      );
+      console.log(`\nFormats:`);
+      printTable(
+        ["format", "count"],
+        [...formatCounts.entries()].sort((a, b) => b[1] - a[1]).map(([ext, count]) => [ext, count]),
+      );
+      console.log(`\nTop users:`);
+      printTable(
+        ["key_id", "user", "requests"],
+        s.topUsers.map((u) => [u.keyId, userLabel(u.keyId), u.count]),
+      );
       break;
     }
     case "recent": {
       const limit = flags.limit ?? 20;
       const rows = recentEvents(dao, limit);
-      console.log("created_at\tkey_id\tuser\toutcome\thttp\ttotal_ms\tsolve_ms\tfile_size");
-      for (const r of rows) {
-        console.log(
-          [
-            r.created_at,
-            r.key_id ?? "—",
-            userLabel(r.key_id),
-            r.outcome,
-            r.http_status,
-            r.total_duration_ms,
-            r.solve_duration_ms ?? "—",
-            r.file_size_bytes ?? "—",
-          ].join("\t"),
-        );
-      }
+      printTable(
+        ["created_at", "key_id", "user", "outcome", "http", "total_ms", "solve_ms", "file_size", "format", "width", "height", "browser", "browser_ver", "os", "os_ver", "device"],
+        rows.map((r) => [
+          r.created_at,
+          r.key_id ?? "—",
+          userLabel(r.key_id),
+          r.outcome,
+          r.http_status,
+          r.total_duration_ms,
+          r.solve_duration_ms ?? "—",
+          fmtBytes(r.file_size_bytes),
+          r.file_extension ?? "—",
+          r.image_width_px ?? "—",
+          r.image_height_px ?? "—",
+          r.browser_name ?? "—",
+          r.browser_version ?? "—",
+          r.os_name ?? "—",
+          r.os_version ?? "—",
+          r.device_type ?? "—",
+        ]),
+      );
       break;
     }
     case "by-user": {
       const days = flags.days ?? 7;
       const rows = eventsInLastDays(dao, days);
       const grouped = byUser(rows);
+
+      const userDimensions = new Map();
+      for (const row of rows) {
+        const key = row.key_id == null ? "(no key)" : String(row.key_id);
+        if (!userDimensions.has(key)) userDimensions.set(key, { widths: [], heights: [] });
+        const d = userDimensions.get(key);
+        if (row.image_width_px != null) d.widths.push(row.image_width_px);
+        if (row.image_height_px != null) d.heights.push(row.image_height_px);
+      }
+      const meanInt = (arr) => arr.length === 0 ? null : Math.round(arr.reduce((s, v) => s + v, 0) / arr.length);
+      const fmtPx = (v) => v == null ? "—" : `${v}px`;
+
       console.log(`Per-user — last ${days} day(s)`);
-      console.log("key_id\tuser\ttotal\tsuccess_rate\tmean_solve_ms\tmean_file_size");
-      for (const u of grouped) {
-        const keyIdNum = Number(u.keyId);
-        console.log(
-          [
+      printTable(
+        ["key_id", "user", "total", "success_rate", "mean_solve_ms", "mean_file_size", "mean_width", "mean_height"],
+        grouped.map((u) => {
+          const keyIdNum = Number(u.keyId);
+          const dims = userDimensions.get(u.keyId) ?? { widths: [], heights: [] };
+          return [
             u.keyId,
             Number.isFinite(keyIdNum) ? userLabel(keyIdNum) : "—",
             u.total,
             fmtPct(u.successRate),
             fmtMs(u.meanSolveDurationMs),
             fmtBytes(u.meanFileSizeBytes),
-          ].join("\t"),
-        );
-      }
+            fmtPx(meanInt(dims.widths)),
+            fmtPx(meanInt(dims.heights)),
+          ];
+        }),
+      );
       break;
     }
     case "failures": {
       const limit = flags.limit ?? 20;
       const rows = recentFailures(dao, limit);
-      console.log("created_at\tkey_id\tuser\toutcome\thttp\terror_message");
-      for (const r of rows) {
-        console.log(
-          [
-            r.created_at,
-            r.key_id ?? "—",
-            userLabel(r.key_id),
-            r.outcome,
-            r.http_status,
-            r.error_message ?? "",
-          ].join("\t"),
-        );
-      }
+      printTable(
+        ["created_at", "key_id", "user", "outcome", "http", "error_message", "file_size", "format", "width", "height", "browser", "browser_ver", "os", "os_ver", "device"],
+        rows.map((r) => [
+          r.created_at,
+          r.key_id ?? "—",
+          userLabel(r.key_id),
+          r.outcome,
+          r.http_status,
+          r.error_message ?? "",
+          fmtBytes(r.file_size_bytes),
+          r.file_extension ?? "—",
+          r.image_width_px ?? "—",
+          r.image_height_px ?? "—",
+          r.browser_name ?? "—",
+          r.browser_version ?? "—",
+          r.os_name ?? "—",
+          r.os_version ?? "—",
+          r.device_type ?? "—",
+        ]),
+      );
       break;
     }
     case "queue": {

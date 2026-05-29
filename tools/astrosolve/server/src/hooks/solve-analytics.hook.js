@@ -5,6 +5,7 @@ import {
 } from "../services/solve-event.service.js";
 import { SOLVE_EVENT_COLUMNS } from "../models/solve-event.model.js";
 import { SolveEventDao } from "../dao/solve-event.dao.js";
+import { parseUserAgent } from "../utils/user-agent.util.js";
 
 /**
  * Fastify onRequest hook: initializes a request-scoped analytics accumulator.
@@ -14,11 +15,16 @@ import { SolveEventDao } from "../dao/solve-event.dao.js";
  * @param {import('fastify').FastifyRequest} request
  */
 export async function initSolveAnalytics(request) {
+  const userAgent = request.headers["user-agent"] ?? null;
   request.analytics = {
     startedAt: Date.now(),
     request_id: request.id,
     client_ip: request.ip ?? null,
-    user_agent: request.headers["user-agent"] ?? null,
+    user_agent: userAgent,
+    // Parsed UA fields populate browser_name/os_name/etc on solve_events so
+    // analytics can group by structured values instead of LIKE-matching the
+    // raw header. Unknown fields become NULL.
+    ...parseUserAgent(userAgent),
     // Per-3rd-party-system diagnostic payload. Stays empty on clean runs;
     // serialised to JSON and written to `solve_events.diagnostics` only
     // when at least one subsystem (astrometry, simbad, local catalog)
