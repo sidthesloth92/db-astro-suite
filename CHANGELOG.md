@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.19.2](https://github.com/sidthesloth92/db-astro-suite/compare/v1.19.1...v1.19.2) (2026-05-30)
+
+
+### Bug Fixes
+
+* **seo:** legacy /dossier redirects, sitemap generator, AI-crawler robots + catalog-loading refactor ([#48](https://github.com/sidthesloth92/db-astro-suite/issues/48)) ([cb31387](https://github.com/sidthesloth92/db-astro-suite/commit/cb31387bf3a2fc2cb6ca8e006cf1b017ae280e75))
+
 ## [1.19.1](https://github.com/sidthesloth92/db-astro-suite/compare/v1.19.0...v1.19.1) (2026-05-30)
 
 
