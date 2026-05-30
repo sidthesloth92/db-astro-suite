@@ -65,7 +65,7 @@ cat ~/.ssh/hertzner_db_astro_suite.pub
 4. Wait ~30 seconds for the server to reach **Running** state
 5. Copy the **Public IPv4** address — this is your `SERVER_IP`
 
-> **Disk sizing.** Data lives on the server's local disk under `/opt/astrosolve/`. Budget for the astrometry index files (~5–10 GB) **and** the local celestial catalog (~8 GB incl. Gaia + R-tree, uploaded from your Mac). Together that is ~13–18 GB; with the Docker image and uploads on top, the default CX22 disk (40 GB) is workable but provision a larger disk if you want comfortable headroom. The catalog is built on your Mac and rsynced over, so the server needs storage for the file but no extra scratch space for a download.
+> **Disk sizing.** Data lives on the server's local disk under `/opt/astrosolve/`. Budget for the astrometry index files (~5–10 GB) **and** the local celestial catalog (~8 GB incl. Gaia + R-tree, built on the server). Together that is ~13–18 GB; with the Docker image and uploads on top, the default CX22 disk (40 GB) is workable but provision a larger disk if you want comfortable headroom for the catalog build.
 
 ---
 
@@ -116,11 +116,11 @@ As a quick reference, here is what each phase of that runbook does:
 | **1**          | SCP the deploy scripts to the server                                                                        |
 | **2**          | SSH into the server as root                                                                                 |
 | **3**          | Run `1_server_init.sh` — installs Docker, creates the deploy user, downloads astrometry indexes (15–30 min) |
-| **3a**         | Build the catalog on your Mac + upload it with `2_sync_catalog.sh` (deploy.md §3a) — ~8 GB, no server download |
+| **3a**         | _No manual step._ The deploy pipeline builds the ~8 GB local celestial catalog automatically before the API starts (deploy.md §3a) — first deploy downloads it (~20–40 min), later deploys skip it |
 | **4**          | Reconnect as the `deploy` user to verify Docker works                                                       |
 | **5**          | Configure Cloudflare DNS (see Phase 4 below)                                                                |
 | **6**          | Add GitHub Actions secrets                                                                                  |
-| **7**          | Trigger the first deploy via workflow_dispatch                                                              |
+| **7**          | Trigger the first deploy via workflow_dispatch (builds the catalog, then starts the API)                    |
 | **8**          | Smoke test the API endpoint                                                                                 |
 | **9**          | Verify data directories and disk headroom                                                                   |
 
@@ -186,10 +186,10 @@ Use this to track your progress end-to-end:
 - [ ] SSH access verified (`ssh root@$SERVER_IP`)
 - [ ] Init scripts copied to server
 - [ ] `1_server_init.sh` completed (Docker, user, astrometry indexes)
-- [ ] Local celestial catalog built (deploy.md §3a) — `data/local-catalog/celestial.sqlite` present
 - [ ] Deploy user SSH access verified
 - [ ] Cloudflare A record created and proxied
 - [ ] Cloudflare SSL set to Full (strict)
 - [ ] GitHub Actions secrets added (`DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_SSH_KEY`)
-- [ ] First deploy triggered via workflow_dispatch and succeeded
+- [ ] First deploy triggered via workflow_dispatch and succeeded (builds the catalog, ~20–40 min, then starts the API)
+- [ ] Catalog present after deploy — `data/local-catalog/celestial.sqlite` exists on the server
 - [ ] API smoke test passed (`curl https://api.dbastrosuite.com/`)

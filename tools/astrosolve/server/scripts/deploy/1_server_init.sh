@@ -13,10 +13,11 @@
 #   - Downloads Astrometry.net index files (15-30 min on first run)
 #
 # What this script does NOT build:
-#   - The local celestial catalog (data/local-catalog/celestial.sqlite). It is
-#     built ON YOUR MAC (`npm run init-local-catalog-db`) and uploaded with
-#     `2_sync_catalog.sh` — the server never downloads Gaia itself. This script
-#     just creates the empty mount directory for it.
+#   - The local celestial catalog (data/local-catalog/celestial.sqlite). The
+#     deploy pipeline builds it on the server automatically, as a resumable
+#     one-shot before the API starts (full download on the first deploy, a
+#     no-op afterwards) — see deploy.md §3a. This script just creates the mount
+#     directory.
 #
 # What this script does NOT do (handled by the pipeline):
 #   - Pull or run Docker images
@@ -128,10 +129,13 @@ echo "Data directory : $TARGET_DIR"
 echo "Deploy user    : $DEPLOY_USER"
 echo ""
 echo "Next steps:"
-echo "  1. Upload the celestial catalog from your Mac: 2_sync_catalog.sh"
-echo "     (build it locally first with 'npm run init-local-catalog-db')"
-echo "  2. Add GitHub Actions secrets (DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY)"
-echo "  3. Add GitHub Actions variables (APP_DIR, ASTROSOLVE_ORIGIN)"
-echo "  4. Point Cloudflare DNS A record to this server IP"
-echo "  5. Trigger a deploy from GitHub Actions"
+echo "  1. Add GitHub Actions secrets (DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY)"
+echo "  2. Add GitHub Actions variables (APP_DIR, ASTROSOLVE_ORIGIN)"
+echo "  3. Point Cloudflare DNS A record to this server IP"
+echo "  4. Trigger a deploy from GitHub Actions"
+echo ""
+echo "The deploy pipeline builds the local celestial catalog automatically as a"
+echo "resumable one-shot before the API starts (deploy.md §3a). The first deploy"
+echo "downloads the whole catalog (~20-40 min); later deploys skip it in seconds."
+echo "No manual catalog build is needed."
 echo ""

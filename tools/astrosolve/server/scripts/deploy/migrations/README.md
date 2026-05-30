@@ -6,9 +6,12 @@ migration **newer than the version currently running** on the server.
 
 ## Index
 
-| #    | Migration                                                                    |
-| ---- | ---------------------------------------------------------------------------- |
-| 0001 | [Local catalog moves out of the Docker image](./0001-local-catalog-out-of-image.md) |
+_No migrations yet._ When a deploy needs a manual step beyond a normal rollout,
+add it here as `0001-short-slug.md` (see "Adding a new migration" below).
+
+| #   | Migration |
+| --- | --------- |
+|     |           |
 
 ## Adding a new migration
 
@@ -24,10 +27,10 @@ migration **newer than the version currently running** on the server.
   `ALTER TABLE ADD COLUMN` statements on startup, which preserve all existing
   rows. Existing solves are not lost.
 - The catalog DB (`celestial.sqlite`) is regenerable and is rebuilt by the init
-  script — it is not user data.
+  script (`npm run init-local-catalog-db`) — it is not user data. It is built
+  **on the server**, automatically by the deploy pipeline (a resumable one-shot
+  `docker run` against the pulled image, before the API starts), like the
+  astrometry indexes.
 - `APP_DIR` is the value configured in the GitHub Actions `APP_DIR` variable
   (e.g. `/opt/astrosolve`). `IMAGE` is the pulled astrosolve image tag for the
-  release you are deploying. `SERVER_IP` / `SSH_KEY` / `DEPLOY_USER` are the
-  values from deploy.md "Fill These Values First" (used by `2_sync_catalog.sh`).
-- The celestial catalog is built **on your Mac** and uploaded with
-  `2_sync_catalog.sh` — the server never downloads Gaia.
+  release you are deploying.

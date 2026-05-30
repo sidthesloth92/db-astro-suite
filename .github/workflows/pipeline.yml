@@ -291,6 +291,18 @@ jobs:
             docker rm astrosolve || true
             docker ps -q --filter publish=80 | xargs -r docker stop
             docker ps -aq --filter publish=80 | xargs -r docker rm
+            # One-time, resumable local catalog build. On a fresh server this
+            # downloads the full deep catalog (~20-40 min); on every later deploy
+            # the init script skips already-loaded sources and returns in seconds.
+            # Runs while no API container is up so the R-tree rebuild has a single
+            # writer, and uses a read-write mount (the long-running API below keeps
+            # the catalog read-only). Warn-and-continue: a hard failure still lets
+            # the API start (catalog-less) rather than block the whole service.
+            docker run --rm \
+              -v ${{ vars.APP_DIR }}/data/local-catalog:/usr/src/app/data/local-catalog \
+              ${IMAGE} \
+              npm run init-local-catalog-db \
+              || echo "WARN: catalog init failed; starting API without a fresh build"
             docker run -d \
               --name astrosolve \
               --restart unless-stopped \
