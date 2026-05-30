@@ -101,6 +101,9 @@
 }
 
 .body.stellar-wide .preview-inner {
-  /* Grow up to 720px; the existing `margin: 0 auto` centres it in the column. */
-  max-width: 720px;
+  /* Let the preview fill most of the region left of the inspector. The base
+     preview never upscales past the image's natural size (or the viewport
+     height budget), so a generous cap just lets big images breathe on wide
+     desktops without becoming absurd on ultrawide. `margin: 0 auto` centres it. */
+  max-width: 1280px;
 }
