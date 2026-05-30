@@ -10,6 +10,10 @@
         <span class="box">@if (filters().showHDStars) { <dba-ui-icon [def]="checkIcon" [size]="9" /> }</span>
         <span class="lbl">HD Stars</span>
       </button>
+      <button type="button" class="check" [class.is-on]="filters().showFieldStars" (click)="toggle('showFieldStars')">
+        <span class="box">@if (filters().showFieldStars) { <dba-ui-icon [def]="checkIcon" [size]="9" /> }</span>
+        <span class="lbl">Field Stars</span>
+      </button>
     </div>
 
     <div class="mag-block">

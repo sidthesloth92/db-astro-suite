@@ -75,6 +75,15 @@ export class AnnotationSelectedPanelComponent {
     return a.style?.customLabel ?? a.label ?? '';
   });
 
+  /** All designations for the selected object — shown as selectable chips. */
+  readonly aliases = computed(() => this.annotation()?.aliases ?? []);
+
+  /** Human-readable category labels for the selected object. */
+  readonly categories = computed(() => this.annotation()?.categories ?? []);
+
+  /** The name currently used as the label, for highlighting the matching chip. */
+  readonly activeName = computed(() => this.effectiveLabel());
+
   /** Effective circle radius for the size slider. */
   readonly effectiveRadius = computed(() => {
     const a = this.annotation();
@@ -223,5 +232,15 @@ export class AnnotationSelectedPanelComponent {
     const original = this.annotation()?.label ?? '';
     this.analyticsService.trackButtonClicked('edit_annotation', 'annotation');
     this.updateStyle({ customLabel: value && value !== original ? value : undefined });
+  }
+
+  /**
+   * Selects one of the object's known designations as the label. Picking the
+   * annotation's original name clears the override instead of pinning it.
+   */
+  selectName(name: string): void {
+    const original = this.annotation()?.label ?? '';
+    this.analyticsService.trackButtonClicked('pick_annotation_name', 'annotation');
+    this.updateStyle({ customLabel: name && name !== original ? name : undefined });
   }
 }

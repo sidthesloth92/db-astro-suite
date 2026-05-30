@@ -170,6 +170,7 @@ export default async function (fastify, opts) {
       const breakdown = result.objectBreakdown;
       a.objects_returned_stars = breakdown.stars;
       a.objects_returned_galaxies = breakdown.galaxies;
+      a.objects_returned_quasars = breakdown.quasars;
       a.objects_returned_nebulae = breakdown.nebulae;
       a.objects_returned_clusters = breakdown.clusters;
       a.objects_returned_other = breakdown.other;

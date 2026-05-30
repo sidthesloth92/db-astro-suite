@@ -137,6 +137,13 @@ orb run -m astrosolve-test sudo ls -la ${APP_DIR}/data/
 orb run -m astrosolve-test id ${DEPLOY_USER}
 ```
 
+> **Catalog required.** The server aborts on startup if
+> `data/local-catalog/celestial.sqlite` is missing. For a local smoke test,
+> build it once into the VM volume from the loaded image (see deploy.md §3a) —
+> or, to skip the multi-hour Gaia fetch, generate a smaller catalog by running
+> `npm run init-local-catalog-db` with the Gaia step interrupted; the DSO
+> sources alone produce a valid (smaller) `celestial.sqlite`.
+
 ## 6. Load Image Into The VM
 
 ```bash
@@ -154,6 +161,7 @@ orb run -m astrosolve-test sudo -u "$DEPLOY_USER" bash -c "
     --restart unless-stopped \
     -p 80:3000 \
     -v ${APP_DIR}/data/astrometry:/usr/src/app/data/astrometry:ro \
+    -v ${APP_DIR}/data/local-catalog:/usr/src/app/data/local-catalog:ro \
     -v ${APP_DIR}/data/uploads:/usr/src/app/data/uploads \
     -v ${APP_DIR}/data/astrosolve.sqlite:/usr/src/app/data/astrosolve.sqlite \
     -e ASTROSOLVE_ORIGIN='${ASTROSOLVE_ORIGIN}' \

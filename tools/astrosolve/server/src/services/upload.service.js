@@ -6,6 +6,10 @@ import crypto from "crypto";
 import { imageSize } from "image-size";
 import config from "../config.js";
 import { SolveError } from "../models/errors.model.js";
+import {
+  FOV_PRESET,
+  FOV_PRESET_VALUES,
+} from "../constants/solve-field.constants.js";
 
 // Magic-byte signatures for the formats we accept. The byte sequences are
 // the official format identifiers — matching these rules out e.g. a .gif
@@ -57,7 +61,7 @@ export function validateMagicBytes(buffer, ext) {
 
 /**
  * Validates the hints before allowing the image stream to proceed.
- * Extracts pre-file multipart fields (types, ra_hint, dec_hint).
+ * Extracts pre-file multipart fields (types, ra_hint, dec_hint, fov_preset).
  *
  * @param {Object} fields - Extracted multipart fields
  * @returns {Object} Clean hints object
@@ -76,7 +80,22 @@ export function validateAndExtractHints(fields) {
     types: types,
     ra_hint: Number.isFinite(raHint) ? raHint : null,
     dec_hint: Number.isFinite(decHint) ? decHint : null,
+    fov_preset: normalizeFovPreset(fields.fov_preset?.value),
   };
+}
+
+/**
+ * Normalises a client-supplied FOV preset to a known value. Anything missing
+ * or unrecognised falls back to AUTO so a stale or malformed client can never
+ * make a field unsolvable — it just loses the speed hint.
+ *
+ * @param {string | null | undefined} raw
+ * @returns {string} A value from {@link FOV_PRESET}
+ */
+function normalizeFovPreset(raw) {
+  if (typeof raw !== "string") return FOV_PRESET.AUTO;
+  const value = raw.trim().toLowerCase();
+  return FOV_PRESET_VALUES.includes(value) ? value : FOV_PRESET.AUTO;
 }
 
 /**
@@ -191,9 +210,15 @@ export async function parseMultipartRequest(request, uploadsDir) {
       throw err;
     }
 
+    // Surface the larger image dimension on the hints so the astrometry
+    // command can pick the adaptive downsample factor. Hints are extracted
+    // before the stream is read, so dimensions are only known here.
+    const imageMaxDimPx = Math.max(dimensions.width, dimensions.height);
+    const hintsWithDims = { ...hints, image_max_dim_px: imageMaxDimPx };
+
     return {
       filePath,
-      hints,
+      hints: hintsWithDims,
       fileSizeBytes: stats.size,
       imageWidthPx: dimensions.width,
       imageHeightPx: dimensions.height,

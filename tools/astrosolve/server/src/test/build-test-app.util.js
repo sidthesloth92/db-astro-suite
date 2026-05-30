@@ -123,14 +123,13 @@ export function buildNoopAccessKeyDao() {
 
 /**
  * Builds a no-op LocalCatalogDao stub. Returns an empty result set for every
- * bounding-box query so tests can drive the solve pipeline without touching
- * SQLite.
+ * region query so tests can drive the solve pipeline without touching SQLite.
  *
  * @returns {object}
  */
 export function buildNoopLocalCatalogDao() {
   return {
-    queryObjectsByBoundingBox: () => [],
+    queryObjectsInRegion: () => [],
   };
 }
 

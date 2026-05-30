@@ -188,3 +188,61 @@
   font-size: 11.5px;
   color: var(--db-color-text-dim);
 }
+
+/* Label input + its name chips, stacked so the chips read as alternatives
+   for the label field directly above them. */
+.label-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+/* Shared chip container for the Names + Type rows. Center-aligned so chips sit
+   on the same baseline as the field's label in the inspector-field grid. */
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Tighter gap for chips tucked directly under the label input. */
+.chip-row-tight {
+  gap: 4px;
+}
+
+.category-chip {
+  font-family: var(--db-font-mono-code);
+  font-size: 10px;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--db-color-cyan);
+  background: var(--db-color-surface-raised);
+  border: 1px solid var(--db-color-border);
+  border-radius: 10px;
+  padding: 2px 8px;
+}
+
+/* Selectable name chip — click fills the label; active = current label.
+   Small + tucked under the input so it reads as part of the Label field. */
+.name-chip {
+  font-family: var(--db-font-ui);
+  font-size: 9.5px;
+  line-height: 1.3;
+  color: var(--db-color-text-dim);
+  background: var(--db-color-surface-raised);
+  border: 1px solid var(--db-color-border);
+  border-radius: 8px;
+  padding: 1px 6px;
+  cursor: pointer;
+}
+
+.name-chip:hover {
+  border-color: var(--db-color-border-active);
+}
+
+.name-chip.is-active {
+  border-color: var(--db-color-neon-pink);
+  color: var(--db-color-neon-pink);
+}

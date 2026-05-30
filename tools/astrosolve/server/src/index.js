@@ -42,7 +42,7 @@ fastify.log.info(
   "Solve-events table initialised",
 );
 
-let localCatalogDao;
+let localCatalogDao = null;
 try {
   localCatalogDao = SqliteLocalCatalogDao.create();
   fastify.log.info(
@@ -50,11 +50,18 @@ try {
     "Local catalog DB opened",
   );
 } catch (err) {
-  fastify.log.error(
+  // Warn-and-continue: the local catalog is an optional enrichment layer. When
+  // it is absent (a fresh server before the one-time build, or an e2e/CI run
+  // without the catalog) or fails to open, the API still boots and serves —
+  // solves just return without local-catalog labels, because
+  // findObjectsInRadius treats a null DAO as "no matches". This keeps the
+  // service available instead of crash-looping, and matches the deploy
+  // pipeline, which builds the catalog as a best-effort one-shot before start.
+  localCatalogDao = null;
+  fastify.log.warn(
     { err, path: config.localCatalogDbPath },
-    "Local catalog DB failed to open — run 'npm run init-db' first. Aborting.",
+    "Local catalog DB unavailable — serving without local-catalog enrichment. Build it with 'npm run init-local-catalog-db'.",
   );
-  process.exit(1);
 }
 
 // Register Rate Limiting — applied globally with per-IP key based on real client IP.

@@ -12,6 +12,13 @@
 #   - Creates the application data directory structure
 #   - Downloads Astrometry.net index files (15-30 min on first run)
 #
+# What this script does NOT build:
+#   - The local celestial catalog (data/local-catalog/celestial.sqlite). The
+#     deploy pipeline builds it on the server automatically, as a resumable
+#     one-shot before the API starts (full download on the first deploy, a
+#     no-op afterwards) — see deploy.md §3a. This script just creates the mount
+#     directory.
+#
 # What this script does NOT do (handled by the pipeline):
 #   - Pull or run Docker images
 #   - Write runtime config (.env, compose.yaml)
@@ -92,6 +99,7 @@ echo "--- Directory Setup ---"
 
 echo "==> Creating application directories under $TARGET_DIR"
 mkdir -p "$TARGET_DIR/data/astrometry"
+mkdir -p "$TARGET_DIR/data/local-catalog"
 mkdir -p "$TARGET_DIR/data/uploads"
 # Pre-create the SQLite file so Docker mounts it as a file, not a directory.
 touch "$TARGET_DIR/data/astrosolve.sqlite"
@@ -125,4 +133,9 @@ echo "  1. Add GitHub Actions secrets (DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY)
 echo "  2. Add GitHub Actions variables (APP_DIR, ASTROSOLVE_ORIGIN)"
 echo "  3. Point Cloudflare DNS A record to this server IP"
 echo "  4. Trigger a deploy from GitHub Actions"
+echo ""
+echo "The deploy pipeline builds the local celestial catalog automatically as a"
+echo "resumable one-shot before the API starts (deploy.md §3a). The first deploy"
+echo "downloads the whole catalog (~20-40 min); later deploys skip it in seconds."
+echo "No manual catalog build is needed."
 echo ""

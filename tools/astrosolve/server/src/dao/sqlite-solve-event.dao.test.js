@@ -61,14 +61,15 @@ test("insert + listRecent round-trips a fully populated row", () => {
     local_catalog_count: 3,
     simbad_count: 5,
     simbad_available: 1,
-    objects_returned: 7,
+    objects_returned: 8,
     objects_returned_stars: 3,
     objects_returned_galaxies: 2,
+    objects_returned_quasars: 1,
     objects_returned_nebulae: 1,
     objects_returned_clusters: 1,
     objects_returned_other: 0,
     objects_returned_from_local: 3,
-    objects_returned_from_simbad: 4,
+    objects_returned_from_simbad: 5,
     diagnostics,
   });
   dao.insertEvent(event);
@@ -84,7 +85,7 @@ test("insert + listRecent round-trips a fully populated row", () => {
   assert.equal(row.solve_match_count, 11);
   assert.equal(row.solve_sources_found, 973);
   assert.equal(row.solve_index_used, "index-4109.fits");
-  assert.equal(row.objects_returned, 7);
+  assert.equal(row.objects_returned, 8);
   assert.equal(row.outcome, "success");
   assert.ok(row.id > 0);
   assert.ok(typeof row.created_at === "string" && row.created_at.length > 0);
@@ -99,16 +100,18 @@ test("insert + listRecent round-trips a fully populated row", () => {
   // New breakdown columns round-trip verbatim.
   assert.equal(row.objects_returned_stars, 3);
   assert.equal(row.objects_returned_galaxies, 2);
+  assert.equal(row.objects_returned_quasars, 1);
   assert.equal(row.objects_returned_nebulae, 1);
   assert.equal(row.objects_returned_clusters, 1);
   assert.equal(row.objects_returned_other, 0);
   assert.equal(row.objects_returned_from_local, 3);
-  assert.equal(row.objects_returned_from_simbad, 4);
+  assert.equal(row.objects_returned_from_simbad, 5);
 
   // Invariant: per-type and per-source buckets each sum to objects_returned.
   const byType =
     row.objects_returned_stars +
     row.objects_returned_galaxies +
+    row.objects_returned_quasars +
     row.objects_returned_nebulae +
     row.objects_returned_clusters +
     row.objects_returned_other;

@@ -10,6 +10,18 @@ export interface SolveMetadata {
 }
 
 /**
+ * One designation contributing to a merged object — how a single sky position
+ * is identified across catalogs (e.g. "Navi" / "HD 5394" / "Gaia DR3 ...").
+ */
+export interface ObjectAlias {
+  name: string;
+  type: string;
+  magnitude: number | null;
+  source: 'local' | 'simbad';
+  catalog?: string;
+}
+
+/**
  * A single celestial object returned by the plate-solve catalog query.
  */
 export interface CatalogObject {
@@ -23,6 +35,10 @@ export interface CatalogObject {
   entryId?: string;
   commonName?: string;
   sizeArcmin?: number | null;
+  /** All coincident designations for this position, best-name-first. */
+  aliases?: ObjectAlias[];
+  /** Distinct human-readable category labels (e.g. "Galaxy", "Star"). */
+  categories?: string[];
 }
 
 /**

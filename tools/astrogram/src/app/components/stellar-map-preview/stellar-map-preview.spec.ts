@@ -39,6 +39,7 @@ const MINIMAL_MAP_DATA: StellarMapData = {
     showQuasars: true,
     showNamedStars: true,
     showHDStars: true,
+    showFieldStars: true,
     maxStarMagnitude: 7,
   },
   globalAnnotationSettings: { ...DEFAULT_GLOBAL_ANNOTATION_SETTINGS },

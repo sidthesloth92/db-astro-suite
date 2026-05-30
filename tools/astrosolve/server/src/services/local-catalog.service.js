@@ -1,6 +1,7 @@
 import { LocalCatalogDao } from "../dao/local-catalog.dao.js";
 import { CatalogObject } from "../models/solve.model.js";
 import { CatalogError } from "../models/errors.model.js";
+import { raSeparationDeg } from "../utils/catalog-query.util.js";
 
 /** Regex used to normalise OpenNGC compact names (e.g. NGC2023 → NGC 2023, IC0434 → IC 434). */
 const NAME_NORMALISE_RE = /^(NGC|IC)0*(\d+)$/;
@@ -19,7 +20,6 @@ const NAME_NORMALISE_RE = /^(NGC|IC)0*(\d+)$/;
  * @param {number} params.ra - Right Ascension of the search center (degrees)
  * @param {number} params.dec - Declination of the search center (degrees)
  * @param {number} params.radiusDeg - Search radius in degrees
- * @param {number} [params.maxMagnitude=10] - Faintest magnitude to include
  * @param {string[]} [params.types=[]] - Object type codes to additionally include
  * @param {Object} params.log - Fastify-compatible structured logger
  * @returns {Promise<CatalogObject[]>} Matching celestial objects, or an empty array if the
@@ -27,7 +27,7 @@ const NAME_NORMALISE_RE = /^(NGC|IC)0*(\d+)$/;
  */
 export async function findObjectsInRadius(
   localCatalogDao,
-  { ra, dec, radiusDeg, maxMagnitude = 10, types = [], log },
+  { ra, dec, radiusDeg, types = [], log },
 ) {
   if (!localCatalogDao) {
     log.info("Local catalog DAO not configured — skipping local catalog query.");
@@ -36,25 +36,14 @@ export async function findObjectsInRadius(
 
   const cosDec = Math.cos((dec * Math.PI) / 180.0);
 
-  // Calculate bounding box for fast initial filter
-  const raDelta = radiusDeg / Math.max(0.01, cosDec);
-  const minRA = ra - raDelta;
-  const maxRA = ra + raDelta;
-  const minDec = dec - radiusDeg;
-  const maxDec = dec + radiusDeg;
-
-  const queryParams = {
-    minRA,
-    maxRA,
-    minDec,
-    maxDec,
-    maxMagnitude,
-    types,
-  };
-
   let candidates;
   try {
-    candidates = localCatalogDao.queryObjectsByBoundingBox(queryParams);
+    candidates = localCatalogDao.queryObjectsInRegion({
+      ra,
+      dec,
+      radiusDeg,
+      types,
+    });
   } catch (err) {
     // Wrap DAO errors in CatalogError with rich detail so analytics can
     // record exactly why the local catalog returned nothing (missing
@@ -67,15 +56,16 @@ export async function findObjectsInRadius(
         status: "error",
         error_class: err.constructor?.name ?? "Error",
         error_message: err.message,
-        params: { ra, dec, radiusDeg, maxMagnitude, types },
+        params: { ra, dec, radiusDeg, types },
       },
     );
   }
 
-  // Refine with accurate spherical distance check (conical)
+  // Refine with accurate spherical distance check (conical). RA separation is
+  // computed across the 0/360° seam so a field straddling it is not truncated.
   return candidates
     .filter((obj) => {
-      const dRA = (obj.ra - ra) * cosDec;
+      const dRA = raSeparationDeg(obj.ra, ra) * cosDec;
       const dDec = obj.dec - dec;
       return dRA * dRA + dDec * dDec <= radiusDeg * radiusDeg;
     })
