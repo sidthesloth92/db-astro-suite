@@ -39,6 +39,7 @@ const emptyMap: StellarMapData = {
     showQuasars: true,
     showNamedStars: true,
     showHDStars: true,
+    showFieldStars: true,
     maxStarMagnitude: 7,
   },
   globalAnnotationSettings: { ...DEFAULT_GLOBAL_ANNOTATION_SETTINGS },
@@ -106,6 +107,42 @@ describe('StellarUploadPanelComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect(fixture.componentInstance.loadLimitsError()).toContain('Could not load');
+  });
+
+  it('renders the FOV preset dropdown defaulting to Auto when an image is uploaded', () => {
+    dataStub.stellarMapData.update((d) => ({ ...d, backgroundImage: 'data:img' }));
+    const fixture = TestBed.createComponent(StellarUploadPanelComponent);
+    fixture.detectChanges();
+    const select = fixture.nativeElement.querySelector('dba-ui-select');
+    expect(select).toBeTruthy();
+    expect(fixture.componentInstance.fovPreset()).toBe('auto' as never);
+  });
+
+  it('updates the selected preset signal on dropdown change', () => {
+    dataStub.stellarMapData.update((d) => ({ ...d, backgroundImage: 'data:img' }));
+    const fixture = TestBed.createComponent(StellarUploadPanelComponent);
+    fixture.detectChanges();
+    fixture.componentInstance.onFovPresetChange('narrow');
+    expect(fixture.componentInstance.fovPreset()).toBe('narrow' as never);
+  });
+
+  it('passes the selected FOV preset into solveImage', async () => {
+    // Reject so the success path (which touches the bare WcsService stub) is
+    // skipped — solveImage is invoked with hints before any WcsService call,
+    // so the recorded args still carry the preset.
+    solveStub.solveImage.and.rejectWith(new Error('stop'));
+    dataStub.stellarMapData.update((d) => ({
+      ...d,
+      backgroundImage: 'data:img',
+      rawFile: new File(['x'], 'shot.jpg', { type: 'image/jpeg' }),
+    }));
+    const fixture = TestBed.createComponent(StellarUploadPanelComponent);
+    fixture.detectChanges();
+    const cmp = fixture.componentInstance;
+    cmp.onFovPresetChange('wide');
+    await cmp.triggerPlateSolve('test-key');
+    const hints = solveStub.solveImage.calls.mostRecent().args[1] as { fovPreset?: string };
+    expect(hints.fovPreset).toBe('wide');
   });
 
   it('resets the map document on resetMap()', () => {

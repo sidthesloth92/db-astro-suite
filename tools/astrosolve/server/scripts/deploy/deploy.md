@@ -22,9 +22,15 @@ Production design:
 | ------------------- | ----------------- | ------ | ------------------------------------------------------------------- |
 | `1_server_init.sh`  | Once (setup)      | root   | Bootstrap: Docker, deploy user, data directories, astrometry files  |
 | `1a_init_docker.sh` | Called by init    | —      | Docker Engine install helper (sourced by `1_server_init.sh`)        |
+| `2_sync_catalog.sh` | Setup + refresh   | (Mac)  | rsync the locally-built `celestial.sqlite` to the server volume     |
 | `3_restart.sh`      | On-demand         | deploy | Restart the container without pulling a new image                   |
 | `4_stop.sh`         | On-demand         | deploy | Gracefully stop the container (data preserved)                      |
 | `5_teardown.sh`     | Decommission only | root   | **DESTRUCTIVE** — removes everything, returns server to clean state |
+
+> **Upgrading an existing deployment?** See [`migrations/`](./migrations/) for
+> numbered, sequenced migration steps (e.g. moving the local catalog out of the
+> image). Apply every migration newer than your currently-running version, in
+> ascending order.
 
 ---
 
@@ -76,9 +82,41 @@ This does the following:
 
 - Installs Docker Engine (via `1a_init_docker.sh`)
 - Creates the deploy user and copies root's SSH authorized keys to it
-- Creates `$APP_DIR` with subdirectories: `data/astrometry`, `data/uploads`
+- Creates `$APP_DIR` with subdirectories: `data/astrometry`, `data/local-catalog`, `data/uploads`
 - Pre-creates `data/astrosolve.sqlite` (access keys database, persisted across deploys)
 - **Downloads Astrometry.net index files** into `data/astrometry` — takes 15–30 min on first run; subsequent runs skip files already present
+
+It does **not** build the local celestial catalog — that is built on your Mac
+and uploaded (see §3a).
+
+## 3a. Build And Upload The Local Celestial Catalog
+
+`data/local-catalog/celestial.sqlite` is the deep object catalog (OpenNGC +
+HyperLEDA galaxies + Milliquas quasars + faint nebulae/clusters + Gaia DR3
+G≤15 stars + R-tree spatial index). Like the astrometry indexes it lives only
+on the server's disk and is **never** baked into the image.
+
+**The server never downloads Gaia.** You build the catalog on your Mac and
+rsync the finished file up. Gaia is fetched in RA/Dec tiles from the ESA
+archive — building locally keeps that load (and the ~8 GB result) off the VPS.
+
+```bash
+# 1. Build it locally (on your Mac), ~tens of minutes — Gaia dominates.
+cd tools/astrosolve/server
+npm run init-local-catalog-db
+
+# 2. Upload it to the server volume (run from the repo root). Resumable.
+cd ../../..
+bash tools/astrosolve/server/scripts/deploy/2_sync_catalog.sh
+```
+
+`2_sync_catalog.sh` reads `SERVER_IP` / `SSH_KEY` / `DEPLOY_USER` / `APP_DIR`
+from your shell (the same values as §0) and rsyncs `celestial.sqlite` into
+`$APP_DIR/data/local-catalog` on the server.
+
+**Refreshing later:** rebuild locally (step 1), re-run `2_sync_catalog.sh`
+(step 2), then restart the running API so it reopens the new file
+(§Day-2 → Restart). The container mounts this directory read-only.
 
 ## 4. Reconnect As The Deploy User
 
@@ -150,6 +188,8 @@ On the server:
 ```bash
 df -h
 du -sh $APP_DIR/data/astrometry
+du -sh $APP_DIR/data/local-catalog
+ls -lh $APP_DIR/data/local-catalog/celestial.sqlite
 du -sh $APP_DIR/data/uploads
 ls -lh $APP_DIR/data/astrosolve.sqlite
 ```
@@ -211,5 +251,6 @@ sudo /root/astrosolve-deploy/5_teardown.sh
 
 - Runtime config (CORS origin, app dir) lives in GitHub Actions variables — not on the server
 - The astrometry index files are large and live only on the server — never in the Docker image
+- The local celestial catalog (`local-catalog/celestial.sqlite`, ~8 GB) is built on your Mac, uploaded with `2_sync_catalog.sh`, and mounted — never in the Docker image, and never downloaded on the server (see §3a)
 - The access keys database (`astrosolve.sqlite`) is volume-mounted and survives image updates
 - Normal commits to `main` do not deploy — only release PR merges and `workflow_dispatch` triggers

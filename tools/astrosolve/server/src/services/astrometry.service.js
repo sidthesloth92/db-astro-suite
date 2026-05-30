@@ -4,6 +4,12 @@ import fs from "fs/promises";
 import path from "path";
 import { AstrometryError } from "../models/errors.model.js";
 import { tail } from "../utils/diagnostics.util.js";
+import {
+  FOV_PRESET,
+  FOV_SCALE_RANGES,
+  DOWNSAMPLE,
+  SOLVE_DEPTH,
+} from "../constants/solve-field.constants.js";
 
 const execAsync = promisify(exec);
 
@@ -58,10 +64,29 @@ export async function solveWithAstrometry(filePath, hints, log) {
 
     try {
       const alignmentInfo = parseAstrometryWcs(wcsData);
+      // Prefer solve-field's reported field center + pixel scale (from stdout)
+      // over the raw WCS keywords. CRVAL is the reference pixel — often NOT the
+      // image center — so using it shifts the catalog search off-frame; and
+      // CD1_1 alone is wrong under field rotation. solve-field computes both
+      // correctly from the full WCS. Fall back to the WCS-derived values only
+      // if stdout parsing failed.
+      const ra = solveStats.field_center_ra ?? alignmentInfo.ra;
+      const dec = solveStats.field_center_dec ?? alignmentInfo.dec;
+      const scale =
+        solveStats.pixel_scale_arcsec != null
+          ? solveStats.pixel_scale_arcsec / 3600 // arcsec/px → deg/px (the unit the rest of the code expects)
+          : alignmentInfo.scale;
       return {
         status: "success",
         wcsData,
         solveStats,
+        // Surface the solved field dimensions to the top level so the caller
+        // can size the catalog-search radius to the actual frame (half-diagonal)
+        // instead of a fixed guess. These also live inside solveStats for
+        // analytics; mirroring them here keeps the consumer from reaching into
+        // the analytics-shaped blob.
+        field_width_arcmin: solveStats.field_width_arcmin ?? null,
+        field_height_arcmin: solveStats.field_height_arcmin ?? null,
         // Success-path diagnostics — mirrors the failure-path shape so
         // every solve_events row has comparable subsystem context. Lets
         // the dashboard ask "what command line / runtime / output produced
@@ -72,6 +97,10 @@ export async function solveWithAstrometry(filePath, hints, log) {
           wcs_file_existed: true,
         },
         ...alignmentInfo,
+        // Authoritative center/scale override the WCS-keyword-derived ones.
+        ra,
+        dec,
+        scale,
       };
     } catch (parseErr) {
       // .wcs exists but its contents are unparsable — separate signal
@@ -107,25 +136,59 @@ export async function solveWithAstrometry(filePath, hints, log) {
 }
 
 /**
+ * Resolves the blind-solve scale range for a requested FOV preset. Unknown
+ * or missing presets fall back to AUTO (the full blind range) so a bad value
+ * can never make a field unsolvable.
+ *
+ * @param {string | null | undefined} fovPreset
+ * @returns {{ low: number, high: number }}
+ */
+function resolveScaleRange(fovPreset) {
+  return FOV_SCALE_RANGES[fovPreset] ?? FOV_SCALE_RANGES[FOV_PRESET.AUTO];
+}
+
+/**
+ * Picks the downsample factor from the image's largest dimension. Large
+ * images tolerate an aggressive factor (fewer pixels → faster extraction);
+ * small, near-minimum-resolution images keep the gentler factor so the solve
+ * does not lose the stars it needs.
+ *
+ * @param {number | null | undefined} maxImageDimPx - Larger of width/height (px)
+ * @returns {number}
+ */
+function resolveDownsampleFactor(maxImageDimPx) {
+  const dim = Number(maxImageDimPx);
+  if (Number.isFinite(dim) && dim >= DOWNSAMPLE.LARGE_IMAGE_MIN_DIM_PX) {
+    return DOWNSAMPLE.LARGE_FACTOR;
+  }
+  return DOWNSAMPLE.SMALL_FACTOR;
+}
+
+/**
  * Constructs the solve-field command based on hints.
  *
  * @param {string} filePath - Absolute path to the uploaded image
- * @param {Object} hints - Solving hints
+ * @param {Object} hints - Solving hints { ra_hint, dec_hint, fov_preset, image_max_dim_px }
  * @returns {string} The constructed command string
  */
-function createAstrometryCommand(filePath, hints) {
+export function createAstrometryCommand(filePath, hints) {
   // -O (overwrite output)
   // -p (no plots/images, just math/data)
   // --new-fits 'none' (don't output a new fits file with wcs headers baked in)
   // -W (write WCS file out)
   // --objs 1000 (extract more stars)
   // --tweak-order 2 (better polynomial fit for distortion)
-  // --downsample 2 (standard for modern high-res digital cameras)
-  const baseCommand = `solve-field "${filePath}" -O -p --no-plots --objs 1000 --tweak-order 2 --downsample 2 --new-fits none --no-verify`;
+  // --downsample N (adaptive: aggressive for large images, gentle for small)
+  // --depth a,b,c (solve in increasing star batches so easy fields finish early)
+  const downsample = resolveDownsampleFactor(hints.image_max_dim_px);
+  const baseCommand = `solve-field "${filePath}" -O -p --no-plots --objs 1000 --tweak-order 2 --downsample ${downsample} --depth ${SOLVE_DEPTH} --new-fits none --no-verify`;
   const wcsOut = `-W "${filePath.replace(path.extname(filePath), ".wcs")}"`;
 
-  // Blind solve mode restricted to downloaded indices (index 19 reaches ~34 degrees)
-  const scaleParams = `--scale-units degwidth --scale-low 0.1 --scale-high 34.0`;
+  // Restrict the blind solve to the scale range implied by the FOV preset.
+  // AUTO keeps the full downloaded-index range (index 19 reaches ~34 degrees);
+  // narrower presets let solve-field skip indices that cannot match the frame.
+  const { low, high } = resolveScaleRange(hints.fov_preset);
+  const scaleParams = `--scale-units degwidth --scale-low ${low} --scale-high ${high}`;
 
   // Location hints — only applied when both ra_hint and dec_hint are explicitly
   // provided. Guard against null/undefined before coercing to Number, because
@@ -258,6 +321,9 @@ export function parseSolveFieldStdout(stdout) {
       field_width_arcmin: null,
       field_height_arcmin: null,
       field_rotation_deg: null,
+      field_center_ra: null,
+      field_center_dec: null,
+      pixel_scale_arcsec: null,
       log_odds: null,
       match_count: null,
       index_used: null,
@@ -273,6 +339,17 @@ export function parseSolveFieldStdout(stdout) {
   const rotMatch = stdout.match(
     /Field rotation angle:\s*up is\s*([0-9.eE+-]+)\s*degrees/,
   );
+  // "Field center: (RA,Dec) = (14.903380, 60.946762) deg." — the TRUE image
+  // center, computed by solve-field from the full WCS. This is authoritative;
+  // the raw CRVAL keyword is the reference pixel, which is often not the
+  // center and would shift the catalog search.
+  const centerMatch = stdout.match(
+    /Field center:\s*\(RA,\s*Dec\)\s*=\s*\(\s*([0-9.eE+-]+)\s*,\s*([0-9.eE+-]+)\s*\)/,
+  );
+  // "RA,Dec = (14.9047,60.9463), pixel scale 3.08398 arcsec/pix."
+  const scaleMatch = stdout.match(
+    /pixel scale\s+([0-9.eE+-]+)\s*arcsec\/pix/,
+  );
   // "log-odds ratio 93.5234 (4.13723e+40), 11 match, 0 conflict, 9 distractors, 15 index."
   const oddsMatch = stdout.match(
     /log-odds ratio\s+([0-9.eE+-]+).*?,\s*([0-9]+)\s+match/,
@@ -285,6 +362,9 @@ export function parseSolveFieldStdout(stdout) {
     field_width_arcmin: sizeMatch ? parseFloat(sizeMatch[1]) : null,
     field_height_arcmin: sizeMatch ? parseFloat(sizeMatch[2]) : null,
     field_rotation_deg: rotMatch ? parseFloat(rotMatch[1]) : null,
+    field_center_ra: centerMatch ? parseFloat(centerMatch[1]) : null,
+    field_center_dec: centerMatch ? parseFloat(centerMatch[2]) : null,
+    pixel_scale_arcsec: scaleMatch ? parseFloat(scaleMatch[1]) : null,
     log_odds: oddsMatch ? parseFloat(oddsMatch[1]) : null,
     match_count: oddsMatch ? parseInt(oddsMatch[2], 10) : null,
     index_used: indexMatch ? indexMatch[1] : null,

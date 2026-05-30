@@ -18,6 +18,10 @@ import {
 import {
   AnalyticsService,
   ConstellationLoaderComponent,
+  IconComponent,
+  SelectComponent,
+  sparklesIcon,
+  type SelectOption,
 } from '@db-astro-suite/ui';
 import {
   ASTROGRAM_USER_ID,
@@ -29,6 +33,10 @@ import type { StellarMapData } from '../../models/card-data.model';
 import { AstrosolveService } from '../../services/astrosolve.service';
 import { CardDataService } from '../../services/card-data.service';
 import { AccessKeyError } from '../../services/models/access-key.error';
+import {
+  FOV_PRESET_OPTIONS,
+  FovPreset,
+} from '../../services/models/fov-preset.enum';
 import { WcsService } from '../../services/wcs.service';
 
 /**
@@ -40,7 +48,7 @@ import { WcsService } from '../../services/wcs.service';
 @Component({
   selector: 'dba-ag-stellar-upload-panel',
   standalone: true,
-  imports: [ConstellationLoaderComponent],
+  imports: [ConstellationLoaderComponent, SelectComponent, IconComponent],
   templateUrl: './stellar-upload-panel.component.html',
   styleUrls: ['./stellar-upload-panel.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -71,6 +79,23 @@ export class StellarUploadPanelComponent implements OnInit, OnDestroy {
   /** Mirror flag — true while the upload card should be shown. */
   readonly isEmpty = computed(() => this.mapData().backgroundImage === null);
 
+  /** Sparkle glyph rendered on the ASTROSOLVE button. */
+  protected readonly sparklesIcon = sparklesIcon;
+
+  /** Selectable FOV presets for the dropdown. */
+  readonly fovPresetOptions = FOV_PRESET_OPTIONS;
+  /** Options mapped to the shared `dba-ui-select` shape. */
+  readonly fovSelectOptions: readonly SelectOption[] = FOV_PRESET_OPTIONS.map(
+    (o) => ({ label: o.label, value: o.value }),
+  );
+  /** Currently selected FOV preset; Auto by default. */
+  readonly fovPreset = signal<FovPreset>(FovPreset.Auto);
+  /** Focal-length helper line for the selected preset. */
+  readonly fovPresetHint = computed(
+    () =>
+      this.fovPresetOptions.find((o) => o.value === this.fovPreset())?.focalLengthHint ?? '',
+  );
+
   private modalRef: ComponentRef<AccessKeyModalComponent> | null = null;
 
   /** Hidden file input — clicked programmatically when the upload card is tapped. */
@@ -96,6 +121,15 @@ export class StellarUploadPanelComponent implements OnInit, OnDestroy {
   /** Opens the OS file picker by forwarding to the hidden input. */
   pickFile(): void {
     this.fileInput()?.nativeElement.click();
+  }
+
+  /** Updates the selected FOV preset from the dropdown change event. */
+  onFovPresetChange(value: string | number | boolean): void {
+    // Validate against the known options rather than casting a raw value.
+    const match = this.fovPresetOptions.find((o) => o.value === value);
+    if (match) {
+      this.fovPreset.set(match.value);
+    }
   }
 
   /** Reads the picked file, validates it, then loads it into the stellar map document. */
@@ -162,7 +196,7 @@ export class StellarUploadPanelComponent implements OnInit, OnDestroy {
     this.solveStatus.set('Starting plate solve...');
 
     try {
-      const hints = {};
+      const hints = { fovPreset: this.fovPreset() };
       const result = await this.astrosolveService.solveImage(
         file,
         hints,
@@ -207,6 +241,13 @@ export class StellarUploadPanelComponent implements OnInit, OnDestroy {
             catalog: obj.catalog,
             type: obj.type,
             magnitude: obj.magnitude ?? undefined,
+            aliases: obj.aliases?.map((al) => ({
+              name: al.name,
+              catalog: al.catalog,
+              type: al.type,
+              magnitude: al.magnitude,
+            })),
+            categories: obj.categories,
           };
         })
         .filter(

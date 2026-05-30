@@ -58,6 +58,7 @@ export const SOLVE_EVENT_COLUMNS = Object.freeze([
   "objects_returned",
   "objects_returned_stars",
   "objects_returned_galaxies",
+  "objects_returned_quasars",
   "objects_returned_nebulae",
   "objects_returned_clusters",
   "objects_returned_other",

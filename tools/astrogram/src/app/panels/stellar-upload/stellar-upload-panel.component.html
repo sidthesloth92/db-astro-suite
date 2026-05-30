@@ -36,13 +36,27 @@
   </div>
 } @else if (mapData().annotations.length === 0) {
   <div class="solve-bar">
+    <div class="fov-field" [title]="fovPresetHint()">
+      <label class="fov-label">Field of view</label>
+      <dba-ui-select
+        class="fov-select-neon"
+        [noBox]="true"
+        [value]="fovPreset()"
+        [options]="fovSelectOptions"
+        (valueChange)="onFovPresetChange($event)"
+      />
+      @if (fovPresetHint(); as hint) {
+        <div class="fov-hint">{{ hint }}</div>
+      }
+    </div>
     <button
       type="button"
-      class="solve-btn db-hover-pink"
+      class="solve-btn"
       (click)="triggerPlateSolve()"
       [disabled]="!mapData().backgroundImage || isSolving()"
     >
-      {{ isSolving() ? 'ANALYZING…' : 'ASTROSOLVE' }}
+      <dba-ui-icon class="solve-btn-icon" [def]="sparklesIcon" [size]="16" />
+      <span>{{ isSolving() ? 'ANALYZING…' : 'ASTROSOLVE' }}</span>
     </button>
     @if (solveStatus(); as status) {
       <div class="solve-status">{{ status }}</div>

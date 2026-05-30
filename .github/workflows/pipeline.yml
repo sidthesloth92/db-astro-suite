@@ -296,6 +296,7 @@ jobs:
               --restart unless-stopped \
               -p 80:3000 \
               -v ${{ vars.APP_DIR }}/data/astrometry:/usr/src/app/data/astrometry:ro \
+              -v ${{ vars.APP_DIR }}/data/local-catalog:/usr/src/app/data/local-catalog:ro \
               -v ${{ vars.APP_DIR }}/data/uploads:/usr/src/app/data/uploads \
               -v ${{ vars.APP_DIR }}/data/astrosolve.sqlite:/usr/src/app/data/astrosolve.sqlite \
               -e ASTROSOLVE_ORIGIN="${{ vars.ASTROSOLVE_ORIGIN }}" \

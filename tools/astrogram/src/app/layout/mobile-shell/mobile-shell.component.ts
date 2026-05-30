@@ -89,29 +89,37 @@ export class MobileShellComponent {
   /** Active mode mapped to the tab id consumed by `<dba-ui-segmented-tabs>`. */
   readonly selectedModeId = computed(() => activeModeToTabId(this.dataService.activeMode()));
 
-  /** Forwards the top-bar mode-tab change into `CardDataService`. */
+  /**
+   * Forwards the top-bar mode-tab change into `CardDataService`. Collapses the
+   * floating sheet so a panel left open in one mode does not carry over and
+   * appear pre-opened in the other.
+   */
   onModeChange(id: string): void {
     this.dataService.activeMode.set(tabIdToActiveMode(id));
+    this.sheetExpanded.set(false);
   }
 
   /** Active mobile section for infographic mode. */
   readonly infographicSection = signal<MobileInfographicId>('layout');
-  /** The stellar section the user explicitly picked from the bottom-nav. Derived `stellarSection` may override (forced to `'selected'` when an annotation is selected). */
-  private readonly _userStellarSection = signal<MobileStellarId>('filters');
   /**
-   * Derived stellar section.
-   * - If an annotation is selected → `'selected'` (overrides the user's pick).
-   * - Else if the user's last pick was `'selected'` → fall back to `'filters'`.
-   * - Else → the user's pick.
+   * The stellar section the user explicitly picked from the bottom-nav, or
+   * `null` when they have not picked one yet. Null means no nav item is
+   * highlighted and the sheet shows no panel — so nothing is presumptively
+   * selected on entering the stellar map.
+   */
+  private readonly _userStellarSection = signal<MobileStellarId | null>(null);
+  /**
+   * Derived stellar section, or `null` when nothing is active.
+   * - If the user picked a section → that section.
+   * - If the user's pick was `'selected'` but the annotation that justified it
+   *   has since cleared → `null` (drop back to no selection).
+   * - Otherwise (no pick yet) → `null`.
    * Synchronous derivation eliminates the race window inherent to effect-based bouncing.
    */
-  readonly stellarSection = computed<MobileStellarId>(() => {
+  readonly stellarSection = computed<MobileStellarId | null>(() => {
     const user = this._userStellarSection();
-    // Cleanup-only fallback: if the user was on "Selected Target" but
-    // the selection that justified it has cleared, drop back to Filters
-    // so the @switch doesn't render the empty-state panel orphaned.
     if (user === 'selected' && this.dataService.selectedAnnotationId() === null) {
-      return 'filters';
+      return null;
     }
     return user;
   });
@@ -140,11 +148,11 @@ export class MobileShellComponent {
    * Bottom-nav highlight id. When an annotation is selected, the
    * "Selected Target" item lights up to indicate where the user can go
    * to inspect it — independent of which panel is actually showing in
-   * the sheet (driven by `stellarSection`). Without a selection, falls
-   * back to the active section.
+   * the sheet (driven by `stellarSection`). Without a selection it follows
+   * the active section, or `''` (no item highlighted) when nothing is picked.
    */
-  readonly activeStellarRailId = computed<MobileStellarId>(() =>
-    this.hasSelectedAnnotation() ? 'selected' : this.stellarSection(),
+  readonly activeStellarRailId = computed<string>(() =>
+    this.hasSelectedAnnotation() ? 'selected' : (this.stellarSection() ?? ''),
   );
 
   /**
@@ -183,13 +191,17 @@ export class MobileShellComponent {
       };
       return map[this.infographicSection()];
     }
+    const section = this.stellarSection();
+    if (section === null) {
+      return '';
+    }
     const map: Record<MobileStellarId, string> = {
       filters: 'Annotation filters',
       style: 'Annotation style',
       selected: 'Selected annotation',
       export: 'Export',
     };
-    return map[this.stellarSection()];
+    return map[section];
   });
 
   /** Handles a bottom-nav activation in infographic mode. */

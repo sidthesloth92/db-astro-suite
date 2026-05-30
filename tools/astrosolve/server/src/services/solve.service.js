@@ -2,6 +2,7 @@ import { solveWithAstrometry } from "./astrometry.service.js";
 import { querySimbad } from "./simbad.service.js";
 import { findObjectsInRadius } from "./local-catalog.service.js";
 import { mergeObjects } from "../utils/catalog-merge.util.js";
+import { fieldRadiusDeg } from "../utils/field-radius.util.js";
 import {
   classifyType,
   OBJECT_BUCKETS,
@@ -59,7 +60,7 @@ async function timedCatalog(source, fn, contextOnSuccess) {
  * when no objects of that type were returned).
  *
  * @param {Array<{type: string, source: string}>} objects
- * @returns {{stars: number, galaxies: number, nebulae: number, clusters: number, other: number, fromLocal: number, fromSimbad: number}}
+ * @returns {{stars: number, galaxies: number, quasars: number, nebulae: number, clusters: number, other: number, fromLocal: number, fromSimbad: number}}
  */
 function buildObjectBreakdown(objects) {
   const typeTally = Object.fromEntries(OBJECT_BUCKETS.map((b) => [b, 0]));
@@ -73,6 +74,7 @@ function buildObjectBreakdown(objects) {
   return {
     stars: typeTally.stars,
     galaxies: typeTally.galaxies,
+    quasars: typeTally.quasars,
     nebulae: typeTally.nebulae,
     clusters: typeTally.clusters,
     other: typeTally.other,
@@ -104,8 +106,13 @@ export async function processSolveRequest(
   const solveResult = await solveWithAstrometry(filePath, hints, log);
 
   // Step 2: Hybrid Search (Local + SIMBAD)
-  // We search within a 2-degree radius (typical wide field crop)
-  const radius = 2.0;
+  // Size the search radius to the actual solved field: the half-diagonal of
+  // the frame, so wide fields search wide and zoomed fields search tight.
+  // Falls back to 2° when solve-field did not report field dimensions.
+  const radius = fieldRadiusDeg(
+    solveResult.field_width_arcmin,
+    solveResult.field_height_arcmin,
+  );
 
   // Fire both queries in parallel — each is wrapped so we always get a
   // diagnostics payload regardless of outcome. Lets us record per-subsystem
@@ -118,7 +125,6 @@ export async function processSolveRequest(
           ra: solveResult.ra,
           dec: solveResult.dec,
           radiusDeg: radius,
-          maxMagnitude: hints.min_magnitude,
           types: hints.types,
           log,
         }),
@@ -127,7 +133,6 @@ export async function processSolveRequest(
           ra: solveResult.ra,
           dec: solveResult.dec,
           radiusDeg: radius,
-          maxMagnitude: hints.min_magnitude,
           types: hints.types,
         },
       },

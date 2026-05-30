@@ -150,3 +150,13 @@ test("validateAndExtractHints leaves ra/dec null when not finite", () => {
   assert.equal(hints.dec_hint, null);
   assert.deepEqual(hints.types, []);
 });
+
+test("validateAndExtractHints accepts a known fov_preset (case-insensitive, trimmed)", () => {
+  assert.equal(validateAndExtractHints({ fov_preset: { value: "wide" } }).fov_preset, "wide");
+  assert.equal(validateAndExtractHints({ fov_preset: { value: " NARROW " } }).fov_preset, "narrow");
+});
+
+test("validateAndExtractHints falls back to auto for missing or unknown fov_preset", () => {
+  assert.equal(validateAndExtractHints({}).fov_preset, "auto");
+  assert.equal(validateAndExtractHints({ fov_preset: { value: "telescope" } }).fov_preset, "auto");
+});

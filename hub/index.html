@@ -72,20 +72,50 @@
     <link rel="sitemap" type="application/xml" href="sitemap.xml" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
 
-    <!-- Google tag (gtag.js) -->
-    <script
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=G-SBXMGWP56E"
-    ></script>
+    <!-- Google tag (gtag.js) — skipped on localhost so dev traffic never reaches the prod GA4 property.
+         Re-enable locally with ?analytics=on (one session) or localStorage 'ga-debug'='on' (persistent). -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag() {
         dataLayer.push(arguments);
       }
-      gtag("js", new Date());
+      (function () {
+        var host = location.hostname;
+        var isLocal =
+          host === "localhost" || host === "127.0.0.1" || host.endsWith(".local");
 
-      // page_view is fired manually by RouteAnalyticsTracker on every router NavigationEnd
-      gtag("config", "G-SBXMGWP56E", { send_page_view: false });
+        // Local opt-in override: ?analytics=on forces it on for this load and
+        // remembers the choice; ?analytics=off clears it. A persisted 'ga-debug'
+        // flag keeps GA on across reloads until explicitly turned off.
+        var override = null;
+        try {
+          var qp = new URLSearchParams(location.search).get("analytics");
+          if (qp === "on") {
+            localStorage.setItem("ga-debug", "on");
+            override = true;
+          } else if (qp === "off") {
+            localStorage.removeItem("ga-debug");
+            override = false;
+          } else if (localStorage.getItem("ga-debug") === "on") {
+            override = true;
+          }
+        } catch (e) {
+          /* storage unavailable (private mode) — fall back to host check */
+        }
+
+        var enabled = override === null ? !isLocal : override;
+        if (!enabled) {
+          return; // analytics disabled
+        }
+
+        var s = document.createElement("script");
+        s.async = true;
+        s.src = "https://www.googletagmanager.com/gtag/js?id=G-SBXMGWP56E";
+        document.head.appendChild(s);
+        gtag("js", new Date());
+        // page_view is fired manually by RouteAnalyticsTracker on every router NavigationEnd
+        gtag("config", "G-SBXMGWP56E", { send_page_view: false });
+      })();
     </script>
     <script type="application/ld+json">
       {

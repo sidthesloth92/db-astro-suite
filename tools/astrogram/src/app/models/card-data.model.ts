@@ -111,9 +111,11 @@ export interface AnnotationFilters {
   showPlanetaryNebulae: boolean;
   showNebulae: boolean;
   showQuasars: boolean;
-  // Stars (OR logic: star shows if either matching checkbox is on AND mag <= slider)
+  // Stars (OR logic: star shows if a matching checkbox is on AND mag <= slider)
   showNamedStars: boolean;
   showHDStars: boolean;
+  /** Anonymous survey stars (e.g. Gaia) that are neither named nor HD-catalogued. */
+  showFieldStars: boolean;
   maxStarMagnitude: number;
 }
 

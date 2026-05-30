@@ -4,6 +4,12 @@ This document lists all Google Analytics 4 (GA4) events emitted by the apps in
 this workspace. All apps report to the same GA4 property using Measurement ID
 `G-SBXMGWP56E` (loaded via `gtag.js` in each app's `index.html`).
 
+> **Local development:** GA is **disabled on `localhost` / `127.0.0.1` / `*.local`**
+> so dev traffic never skews the production property. The `gtag.js` script is not
+> even loaded on those hosts. See
+> [Local development](#local-development-ga-disabled-by-default) below for how to
+> re-enable it for testing.
+
 The event implementations live in
 [google-analytics.service.ts](libs/ui/src/lib/services/google-analytics.service.ts),
 which is provided to each app via `app.config.ts`.
@@ -12,7 +18,7 @@ which is provided to each app via `app.config.ts`.
 
 ## Astrogram (`tools/astrogram`)
 
-GA bootstrap: [tools/astrogram/src/index.html:105-116](tools/astrogram/src/index.html#L105-L116)
+GA bootstrap: [tools/astrogram/src/index.html:105-149](tools/astrogram/src/index.html#L105-L149)
 Provider wiring: [tools/astrogram/src/app/app.config.ts:22](tools/astrogram/src/app/app.config.ts#L22)
 
 | Event name                          | Parameters                                        | Triggered when                                                                                        | Emitted from                                                                                                                                                                                                      |
@@ -34,7 +40,7 @@ Provider wiring: [tools/astrogram/src/app/app.config.ts:22](tools/astrogram/src/
 
 ## Starwizz (`tools/starwizz`)
 
-GA bootstrap: [tools/starwizz/src/index.html:90-101](tools/starwizz/src/index.html#L90-L101)
+GA bootstrap: [tools/starwizz/src/index.html:96-140](tools/starwizz/src/index.html#L96-L140)
 Provider wiring: [tools/starwizz/src/app/app.config.ts:20](tools/starwizz/src/app/app.config.ts#L20)
 
 > Note: the project folder is `starwizz` (single `e`), not "starwizze".
@@ -58,7 +64,7 @@ Provider wiring: [tools/starwizz/src/app/app.config.ts:20](tools/starwizz/src/ap
 
 ## Hub (`hub`)
 
-GA bootstrap: [hub/index.html:69-83](hub/index.html#L69-L83)
+GA bootstrap: [hub/index.html:75-119](hub/index.html#L75-L119)
 Provider wiring: [hub/src/app/app.config.ts](hub/src/app/app.config.ts)
 
 | Event name                | Parameters                                                                              | Triggered when                                                                                                  | Emitted from                                                                                                                                                                                             |
@@ -108,6 +114,31 @@ events:
    GA4 property for `G-SBXMGWP56E`.
 2. **Pick the right property** from the property selector in the top-left.
    The Measurement ID is visible under _Admin → Data Streams → Web_.
+
+### Local development (GA disabled by default)
+
+To avoid skewing real page-visit data, the `gtag.js` bootstrap in each app's
+`index.html` short-circuits on `localhost`, `127.0.0.1`, and any `*.local`
+hostname: the GA script is never loaded and `gtag('config', ...)` is never
+called, so **no** session, page_view, or custom events are sent during
+development. `window.gtag` is still defined, so
+[`GoogleAnalyticsService`](libs/ui/src/lib/services/google-analytics.service.ts)
+degrades gracefully — calls just push to a `dataLayer` that is never transmitted.
+
+**Re-enable GA locally when you need to test the integration:**
+
+- **Per session:** append `?analytics=on` to the URL — e.g.
+  `http://localhost:4200/?analytics=on`. This loads GA for the current page and
+  persists the choice in `localStorage` (`ga-debug=on`) so reloads and route
+  changes keep it on.
+- **From DevTools:** run `localStorage.setItem('ga-debug', 'on')` then reload.
+- **Turn it back off:** visit `?analytics=off`, or run
+  `localStorage.removeItem('ga-debug')` and reload.
+
+When testing locally, pair this with `&debug_mode=true` and **DebugView** (below)
+so your test events are clearly separated from real traffic. Production domains
+are unaffected by this guard (they track as normal); `?analytics=off` also works
+there as a deliberate opt-out.
 
 ### Live / debugging (events as they happen)
 

@@ -6,8 +6,10 @@ npm-debug.log
 .gitignore
 *.md
 
-# Data directories (only celestial.sqlite is baked into the image)
+# Data directories — all runtime data is mounted from the host volume, never
+# baked into the image (the catalog is rebuilt off-box via `npm run init-db`).
 data/astrometry/
+data/local-catalog/
 data/uploads/
 
 # Build/Orchestration scripts (run on host, not in container)

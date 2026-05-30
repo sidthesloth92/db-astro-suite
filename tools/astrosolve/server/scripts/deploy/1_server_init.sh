@@ -12,6 +12,12 @@
 #   - Creates the application data directory structure
 #   - Downloads Astrometry.net index files (15-30 min on first run)
 #
+# What this script does NOT build:
+#   - The local celestial catalog (data/local-catalog/celestial.sqlite). It is
+#     built ON YOUR MAC (`npm run init-local-catalog-db`) and uploaded with
+#     `2_sync_catalog.sh` — the server never downloads Gaia itself. This script
+#     just creates the empty mount directory for it.
+#
 # What this script does NOT do (handled by the pipeline):
 #   - Pull or run Docker images
 #   - Write runtime config (.env, compose.yaml)
@@ -92,6 +98,7 @@ echo "--- Directory Setup ---"
 
 echo "==> Creating application directories under $TARGET_DIR"
 mkdir -p "$TARGET_DIR/data/astrometry"
+mkdir -p "$TARGET_DIR/data/local-catalog"
 mkdir -p "$TARGET_DIR/data/uploads"
 # Pre-create the SQLite file so Docker mounts it as a file, not a directory.
 touch "$TARGET_DIR/data/astrosolve.sqlite"
@@ -121,8 +128,10 @@ echo "Data directory : $TARGET_DIR"
 echo "Deploy user    : $DEPLOY_USER"
 echo ""
 echo "Next steps:"
-echo "  1. Add GitHub Actions secrets (DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY)"
-echo "  2. Add GitHub Actions variables (APP_DIR, ASTROSOLVE_ORIGIN)"
-echo "  3. Point Cloudflare DNS A record to this server IP"
-echo "  4. Trigger a deploy from GitHub Actions"
+echo "  1. Upload the celestial catalog from your Mac: 2_sync_catalog.sh"
+echo "     (build it locally first with 'npm run init-local-catalog-db')"
+echo "  2. Add GitHub Actions secrets (DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY)"
+echo "  3. Add GitHub Actions variables (APP_DIR, ASTROSOLVE_ORIGIN)"
+echo "  4. Point Cloudflare DNS A record to this server IP"
+echo "  5. Trigger a deploy from GitHub Actions"
 echo ""

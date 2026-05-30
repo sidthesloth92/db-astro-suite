@@ -7,6 +7,10 @@ data/astrometry/*
 !data/astrometry/.gitkeep
 data/uploads/*
 !data/uploads/.gitkeep
+# Local celestial catalog — built off-box via `npm run init-local-catalog-db`
+# (~15 GB incl. Gaia + R-tree) and mounted at runtime; never committed.
+data/local-catalog/*
+!data/local-catalog/.gitkeep
 
 # Temporary and test files
 *.axy

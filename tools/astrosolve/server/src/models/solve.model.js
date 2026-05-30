@@ -26,7 +26,25 @@ export class SolveMetadata {
 }
 
 /**
+ * One designation contributing to a merged celestial object — i.e. how a
+ * single sky position is identified across catalogs (e.g. the same star as
+ * "Navi", "HD 5394", and "Gaia DR3 ...").
+ *
+ * @typedef {Object} ObjectAlias
+ * @property {string} name - The designation/name from this catalog
+ * @property {string} type - Object type code for this entry
+ * @property {number | null} magnitude - Magnitude from this entry (null if unknown)
+ * @property {'local' | 'simbad'} source - Which service provided it
+ * @property {string} [catalog] - Catalog tag (e.g. "Named", "PGC", "Gaia")
+ */
+
+/**
  * A single celestial object returned by a catalog query (local or SIMBAD).
+ *
+ * After merging, an object may represent several coincident catalog entries:
+ * `aliases` lists every contributing designation and `categories` the distinct
+ * human-readable type labels, so the UI can let the user pick which name to
+ * show and see what the object is.
  */
 export class CatalogObject {
   /**
@@ -40,6 +58,8 @@ export class CatalogObject {
    * @param {string} [entryId] - Catalog-specific entry ID
    * @param {string} [commonName] - Human-readable common name if available
    * @param {number | null} [sizeArcmin] - Angular size in arcminutes if known
+   * @param {ObjectAlias[]} [aliases] - All coincident designations (incl. this one)
+   * @param {string[]} [categories] - Distinct human-readable category labels
    */
   constructor(
     name,
@@ -52,6 +72,8 @@ export class CatalogObject {
     entryId,
     commonName,
     sizeArcmin,
+    aliases,
+    categories,
   ) {
     this.name = name;
     this.type = type;
@@ -63,6 +85,8 @@ export class CatalogObject {
     this.entryId = entryId;
     this.commonName = commonName;
     this.sizeArcmin = sizeArcmin;
+    this.aliases = aliases;
+    this.categories = categories;
   }
 }
 

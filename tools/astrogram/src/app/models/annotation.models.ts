@@ -13,8 +13,20 @@ export interface ImageAnnotation {
   name?: string;
   commonName?: string;
   magnitude?: number;
+  /** All coincident designations for this position, best-name-first. */
+  aliases?: AnnotationAlias[];
+  /** Distinct human-readable category labels (e.g. "Galaxy", "Star"). */
+  categories?: string[];
   /** Per-annotation visual overrides. Absent = inherit GlobalAnnotationSettings. */
   style?: AnnotationStyle;
+}
+
+/** One alternative designation for an annotation, shown in the detail pane. */
+export interface AnnotationAlias {
+  name: string;
+  catalog?: string;
+  type?: string;
+  magnitude?: number | null;
 }
 
 export interface LocalAstroObject {

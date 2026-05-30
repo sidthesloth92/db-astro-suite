@@ -12,6 +12,7 @@ import {
 import { AccessKeyError } from './models/access-key.error';
 import { AstrosolveError } from './models/astrosolve.error';
 import { AstroSolveApiResponse, AstroSolveResponse } from './models/astrosolve.response';
+import { FovPreset } from './models/fov-preset.enum';
 import { UploadLimits, UploadValidation } from './models/upload-limits.model';
 
 /**
@@ -156,6 +157,7 @@ export class AstrosolveService {
     file: File,
     hints: {
       types?: string[];
+      fovPreset?: FovPreset;
     },
     onProgress?: (msg: string) => void,
     accessKey?: string,
@@ -166,6 +168,12 @@ export class AstrosolveService {
 
     if (hints.types && hints.types.length > 0) {
       formData.append('types', hints.types.join(','));
+    }
+
+    // Omit when Auto so the server's default blind range applies; sending it
+    // explicitly is harmless but the absent case is the common one.
+    if (hints.fovPreset && hints.fovPreset !== FovPreset.Auto) {
+      formData.append('fov_preset', hints.fovPreset);
     }
 
     formData.append('image', file);

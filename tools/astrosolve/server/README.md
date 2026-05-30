@@ -36,6 +36,17 @@ npm run init-db
 
 This runs both `init-astrometry-db` (populates `data/astrometry/`) and `init-local-catalog-db` (creates `data/local-catalog/celestial.sqlite`).
 
+> **Note:** `init-local-catalog-db` downloads every catalog live, including
+> Gaia DR3 G≤15 (~37M stars, fetched in RA/Dec tiles from the ESA archive in a
+> bounded concurrent pool — expect roughly tens of minutes, not hours). It
+> produces a ~8 GB file plus its R-tree spatial index, so it needs a working
+> network connection and ~15 GB of free disk. A catalog tile that keeps failing
+> is logged and skipped rather than aborting the whole build. `celestial.sqlite`
+> is **not** committed to git and **not** baked into the Docker image. In
+> production you build it **here on your Mac** and upload it to the server with
+> `scripts/deploy/2_sync_catalog.sh` — the server never downloads Gaia (see
+> `scripts/deploy/deploy.md` §3a).
+
 ### 2. Build the image
 
 ```bash
@@ -80,7 +91,8 @@ docker logs -f <CONTAINER_ID>
 Production keeps heavy runtime data on the server, not in the image:
 
 - Astrometry indexes are mounted from persistent host storage
-- `celestial.sqlite` is included from `data/local-catalog` in the image
+- `celestial.sqlite` is built off-box via `npm run init-local-catalog-db` and
+  mounted from `data/local-catalog` on the host — never baked into the image
 - uploads are mounted from persistent host storage
 
 Use the deploy runbook for the one-time VPS setup:

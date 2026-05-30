@@ -353,7 +353,7 @@ export class StellarMapPreviewComponent implements OnInit {
   ]);
   private static readonly GALAXY_TYPES = new Set([
     'G', 'GPAIR', 'GTRPL', 'GGROUP',
-    'GX', 'GIP', 'GIG', 'GIC', 'BCLG', 'SY*', 'SY1', 'SY2', 'AGN', 'LINER', 'EMG',
+    'GX', 'GIP', 'GIG', 'GIC', 'BCLG', 'SY*', 'SY1', 'SY2', 'LINER', 'EMG',
   ]);
   private static readonly OPEN_CLUSTER_TYPES = new Set([
     'OCL', 'CL+N', 'OPC', 'CL*', 'AS*', 'OAS',
@@ -364,7 +364,7 @@ export class StellarMapPreviewComponent implements OnInit {
     'RNE', 'MOC', 'DNE', 'EMO', 'BUB', 'HH',
   ]);
   private static readonly GALAXY_CLUSTER_TYPES = new Set(['GCLUS', 'CLG']);
-  private static readonly QUASAR_TYPES = new Set(['QSO', 'BLA']);
+  private static readonly QUASAR_TYPES = new Set(['QSO', 'BLA', 'AGN']);
 
   readonly visibleAnnotations = computed(() => {
     const f = this.mapData().filters;
@@ -386,7 +386,12 @@ export class StellarMapPreviewComponent implements OnInit {
         const namedMatch =
           f.showNamedStars && !!ann.commonName && !isHD && mag <= f.maxStarMagnitude;
         const hdMatch = f.showHDStars && isHD && mag <= f.maxStarMagnitude;
-        return namedMatch || hdMatch;
+        // Anonymous survey stars (e.g. Gaia): a star that is neither named nor
+        // HD-catalogued. Without this branch they were filtered out entirely,
+        // so the magnitude slider appeared to do nothing for deep fields.
+        const isFieldStar = !isHD && !ann.commonName;
+        const fieldMatch = f.showFieldStars && isFieldStar && mag <= f.maxStarMagnitude;
+        return namedMatch || hdMatch || fieldMatch;
       }
 
       let show = false;

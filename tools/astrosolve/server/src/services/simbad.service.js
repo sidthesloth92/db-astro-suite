@@ -2,6 +2,7 @@ import axios from "axios";
 import { CatalogObject } from "../models/solve.model.js";
 import { CatalogError } from "../models/errors.model.js";
 import { tail } from "../utils/diagnostics.util.js";
+import { SIMBAD_RESULT_CAP } from "../constants/catalog.constants.js";
 
 const SIMBAD_TAP_URL = "http://simbad.u-strasbg.fr/simbad/sim-tap/sync";
 
@@ -17,10 +18,10 @@ const SIMBAD_TAP_URL = "http://simbad.u-strasbg.fr/simbad/sim-tap/sync";
  * @returns {Promise<Array>} List of recognized celestial objects
  */
 export async function querySimbad(ra, dec, radiusDeg, minMagnitude = 13.5) {
-  // Query for basic data, filtering to Galaxies (G), Quasars (QSO), Planetary Nebulae (PN), HII regions, and Stars
-  // We use TOP 400 to ensure a rich star field without overwhelming the UI
+  // Query for basic data, filtering to Galaxies (G), Quasars (QSO), Planetary Nebulae (PN), HII regions, and Stars.
+  // The row cap is raised (see SIMBAD_RESULT_CAP) so the deep field returns a richer object list.
   const adqlQuery = `
-    SELECT TOP 500 basic.MAIN_ID, basic.OTYPE, basic.RA, basic.DEC
+    SELECT TOP ${SIMBAD_RESULT_CAP} basic.MAIN_ID, basic.OTYPE, basic.RA, basic.DEC
     FROM basic
     WHERE CONTAINS(POINT('ICRS', basic.RA, basic.DEC), CIRCLE('ICRS', ${ra}, ${dec}, ${radiusDeg})) = 1
     AND basic.OTYPE IN (

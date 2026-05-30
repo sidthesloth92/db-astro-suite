@@ -6,7 +6,10 @@ import { parse } from "csv-parse/sync";
 import axios from "axios";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-// The generated catalog is committed and baked into the image, unlike the FITS indexes.
+// The generated catalog is built off-box by this script and rsynced onto the
+// host-mounted volume at runtime — exactly like the Astrometry.net FITS
+// indexes. It is NOT committed to git and NOT baked into the Docker image
+// (see .dockerignore / .gitignore). Run `npm run init-db` to (re)build it.
 const dbPath = path.join(
   __dirname,
   "../../data/local-catalog/celestial.sqlite",
@@ -16,8 +19,179 @@ const dbPath = path.join(
 const OPEN_NGC_URL =
   "https://raw.githubusercontent.com/mattiaverga/OpenNGC/master/database_files/NGC.csv";
 
+// VizieR TAP (ADQL) endpoint shared by the deep-sky-object loaders.
+const VIZIER_TAP_URL = "https://tapvizier.u-strasbg.fr/TAPVizieR/tap/sync";
+
+// ESA Gaia archive TAP endpoint for the Gaia DR3 G≤15 stellar fetch.
+const GAIA_TAP_URL = "https://gea.esac.esa.int/tap-server/tap/sync";
+
+// Faintest Gaia G magnitude to ingest. G≤15 is ~90M stars — bright enough to
+// be useful labels without dragging in the full ~1.8B-row catalog.
+const GAIA_MAG_LIMIT = 15;
+
+// RA/Dec tile size (degrees) for the Gaia sweep. A single TAP sync request
+// caps at a few million rows, so the sky is split into tiles.
+const GAIA_TILE_DEG = 10;
+
+// How many Gaia tiles to fetch concurrently. The sky is ~648 tiles at 10°;
+// fetching them one at a time means ~648 sequential ESA round-trips (hours).
+// A bounded pool turns that into ~20–40 min without hammering ESA. Tune down
+// if ESA starts returning 429/503.
+const GAIA_FETCH_CONCURRENCY = 6;
+
+// Per-tile retry budget. A tile that fails (transient ESA 5xx, network blip)
+// is retried with linear backoff before being given up on and skipped.
+const GAIA_TILE_MAX_ATTEMPTS = 3;
+
+// Retry budget for VizieR fetches. VizieR occasionally drops a connection
+// ("socket hang up") under load; a couple of retries with backoff turns those
+// transient failures into success instead of a whole catalog seeding 0 rows.
+const VIZIER_MAX_ATTEMPTS = 3;
+
+/**
+ * Fetches a VizieR `asu-tsv` table and returns its non-comment data lines.
+ * Mirrors the proven Sh2/ACO loaders: filters out comment (`#`), separator
+ * (`-`), and blank lines so callers only see data rows. Transient network
+ * failures are retried with linear backoff.
+ *
+ * @param {string} source - VizieR `-source` table id (e.g. "VII/237/pgc")
+ * @param {string} out - Comma-separated `-out` column list
+ * @param {number} [max=99999] - `-out.max` row cap
+ * @returns {Promise<string[]>} Data lines (tab-separated)
+ */
+async function fetchVizierTsv(source, out, max = 99999) {
+  let lastErr;
+  for (let attempt = 1; attempt <= VIZIER_MAX_ATTEMPTS; attempt++) {
+    try {
+      const response = await axios.get(
+        "https://vizier.cds.unistra.fr/viz-bin/asu-tsv",
+        {
+          params: { "-source": source, "-out": out, "-out.max": String(max) },
+          responseType: "text",
+          timeout: 300000,
+        },
+      );
+      return response.data
+        .split("\n")
+        .filter(
+          (l) => l && !l.startsWith("#") && !l.startsWith("-") && l.trim(),
+        );
+    } catch (err) {
+      lastErr = err;
+      if (attempt < VIZIER_MAX_ATTEMPTS) {
+        await new Promise((r) => setTimeout(r, attempt * 5000));
+      }
+    }
+  }
+  throw lastErr;
+}
+
+/**
+ * Performs an `axios.get` with the same retry/backoff policy as VizieR fetches.
+ * Used by the inline loaders (Hipparcos, Tycho) that issue bespoke requests not
+ * covered by fetchVizierTsv, so a transient "socket hang up" no longer wipes a
+ * catalog for the whole run.
+ *
+ * @param {string} url
+ * @param {object} options - axios request options
+ * @returns {Promise<import('axios').AxiosResponse>}
+ */
+async function axiosGetWithRetry(url, options) {
+  let lastErr;
+  for (let attempt = 1; attempt <= VIZIER_MAX_ATTEMPTS; attempt++) {
+    try {
+      return await axios.get(url, options);
+    } catch (err) {
+      lastErr = err;
+      if (attempt < VIZIER_MAX_ATTEMPTS) {
+        await new Promise((r) => setTimeout(r, attempt * 5000));
+      }
+    }
+  }
+  throw lastErr;
+}
+
+// Catalog tags owned by the small/fast "original" loaders that run inline in
+// seed(). They are loaded as one group under the "inline_originals" progress
+// key: cleared and re-fetched together when not yet loaded, skipped wholesale
+// once recorded. --rebuild forces a reload.
+const INLINE_LOADER_TAGS = [
+  "NGC/IC", "Star", "M", "C", "Sh2", "ACO", "HIP", "TYC", "Named", "Neb",
+];
+
+// Pass --rebuild (or REBUILD=1) to wipe everything and rebuild from scratch.
+const REBUILD =
+  process.argv.includes("--rebuild") || process.env.REBUILD === "1";
+
+/**
+ * True when a previously-completed loader recorded itself in load_progress.
+ * Always false under --rebuild so every source re-fetches.
+ *
+ * @param {import('better-sqlite3').Database} db
+ * @param {string} source
+ * @returns {boolean}
+ */
+function isLoaded(db, source) {
+  if (REBUILD) return false;
+  const row = db
+    .prepare("SELECT rows FROM load_progress WHERE source = ?")
+    .get(source);
+  return row != null;
+}
+
+/**
+ * Records a loader as complete with its row count (idempotent upsert).
+ *
+ * @param {import('better-sqlite3').Database} db
+ * @param {string} source
+ * @param {number} rows
+ */
+function markLoaded(db, source, rows) {
+  db.prepare(
+    `INSERT INTO load_progress (source, rows, completed_at)
+       VALUES (?, ?, datetime('now'))
+     ON CONFLICT(source) DO UPDATE SET rows = excluded.rows, completed_at = excluded.completed_at`,
+  ).run(source, rows);
+}
+
+/**
+ * Deletes all rows owned by the given catalog tags. Used to clear stale/partial
+ * data before a loader re-inserts, so re-runs never duplicate rows.
+ *
+ * @param {import('better-sqlite3').Database} db
+ * @param {string[]} tags
+ */
+function clearCatalogs(db, tags) {
+  if (tags.length === 0) return;
+  const placeholders = tags.map(() => "?").join(",");
+  db.prepare(`DELETE FROM objects WHERE catalog IN (${placeholders})`).run(...tags);
+}
+
+/**
+ * Skip-or-run wrapper for the expensive catalog loaders. Skips entirely when
+ * the source is already recorded complete; otherwise clears the source's tags
+ * (removing any partial rows from a prior crash), runs the loader, and records
+ * completion with the resulting row count. A loader that legitimately yields 0
+ * rows (e.g. a bad table id) is NOT marked complete, so it retries next run.
+ *
+ * @param {import('better-sqlite3').Database} db
+ * @param {string} source - Stable progress key
+ * @param {string[]} tags - Catalog tags this loader owns
+ * @param {() => Promise<number>} fn - Loader returning the number of rows inserted
+ */
+async function runStep(db, source, tags, fn) {
+  if (isLoaded(db, source)) {
+    console.log(`✓ ${source} already loaded — skipping.`);
+    return;
+  }
+  clearCatalogs(db, tags);
+  const n = await fn();
+  if (n > 0) markLoaded(db, source, n);
+}
+
 async function seed() {
   console.log("--- Master Seeder: Initializing Galactic Atlas ---");
+  if (REBUILD) console.log("--rebuild: wiping existing catalog for a clean build.");
 
   // Keep the output path predictable so the runtime service and Docker image agree.
   if (!fs.existsSync(path.dirname(dbPath))) {
@@ -26,10 +200,18 @@ async function seed() {
 
   const db = sqlite3(dbPath);
 
-  // Rebuild from scratch so every run produces a complete, self-consistent catalog.
+  // --rebuild starts from zero; otherwise the table (and prior progress)
+  // persists so a re-run only fetches what is missing or stale.
+  if (REBUILD) {
+    db.exec(`
+      DROP TABLE IF EXISTS objects;
+      DROP TABLE IF EXISTS objects_rtree;
+      DROP TABLE IF EXISTS load_progress;
+      DROP TABLE IF EXISTS gaia_tiles;
+    `);
+  }
   db.exec(`
-    DROP TABLE IF EXISTS objects;
-    CREATE TABLE objects (
+    CREATE TABLE IF NOT EXISTS objects (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       catalog TEXT,
       entryId TEXT,
@@ -41,10 +223,46 @@ async function seed() {
       magnitude REAL,
       sizeArcmin REAL
     );
-    CREATE INDEX idx_coords ON objects (ra, dec);
+    CREATE INDEX IF NOT EXISTS idx_coords ON objects (ra, dec);
+    CREATE TABLE IF NOT EXISTS load_progress (
+      source TEXT PRIMARY KEY,
+      rows INTEGER,
+      completed_at TEXT
+    );
+    CREATE TABLE IF NOT EXISTS gaia_tiles (
+      tile_key TEXT PRIMARY KEY,
+      rows INTEGER,
+      completed_at TEXT
+    );
   `);
 
+  // Shared insert statement for every loader. Hoisted here (rather than inside
+  // the OpenNGC block) so it exists even when the inline group is skipped on a
+  // re-run. All catalog imports normalize into the same table shape.
+  const insert = db.prepare(`
+    INSERT INTO objects (catalog, entryId, name, commonName, type, ra, dec, magnitude, sizeArcmin)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+
+  // The small "original" catalogs (OpenNGC, Sh2, ACO, Hipparcos, Tycho, named
+  // stars, special DSOs) are loaded as one group, skipped wholesale on a
+  // re-run once recorded; --rebuild forces a reload.
+  //
+  // IMPORTANT: do NOT clear the group's rows up front. Each loader clears its
+  // own catalog tags *inside* its own insert transaction (see clearAndInsert),
+  // so a download failure or interruption rolls back and leaves the prior rows
+  // intact — rather than the old behaviour, which deleted everything up front
+  // and could leave catalogs permanently empty if the run was interrupted
+  // mid-reload.
+  const inlineOriginalsLoaded = isLoaded(db, "inline_originals");
+  if (inlineOriginalsLoaded) {
+    console.log("✓ Original catalogs (OpenNGC/Sh2/ACO/HIP/TYC/named) already loaded — skipping.");
+  }
+
   try {
+    if (inlineOriginalsLoaded) {
+      // no-op: the inline original catalogs are already present
+    } else {
     console.log("Downloading OpenNGC Database (NGC, IC, Messier, Caldwell)...");
     const response = await axios.get(OPEN_NGC_URL);
     const records = parse(response.data, {
@@ -53,13 +271,10 @@ async function seed() {
       delimiter: ";", // OpenNGC uses semicolon
     });
 
-    // All downstream catalog imports normalize into the same table shape.
-    const insert = db.prepare(`
-      INSERT INTO objects (catalog, entryId, name, commonName, type, ra, dec, magnitude, sizeArcmin) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `);
-
     db.transaction(() => {
+      // Clear + reinsert in one transaction: an interrupted run rolls back and
+      // leaves the prior rows intact (these tags are owned by OpenNGC).
+      clearCatalogs(db, ["NGC/IC", "Star", "M", "C"]);
       // Fix: OpenNGC uses sexagesimal coordinates (05:40:53.3 and -01:29:58)
       // We must translate these to decimal degrees. RA is in Hours (1 hr = 15 deg).
       function parseRA(raStr) {
@@ -161,7 +376,9 @@ async function seed() {
           (l) => l && !l.startsWith("#") && !l.startsWith("-") && l.trim(),
         );
 
+      let sh2Count = 0;
       const sh2Insert = db.transaction(() => {
+        clearCatalogs(db, ["Sh2"]);
         for (const line of sh2Lines) {
           const cols = line.split("\t").map((c) => c.trim());
           if (cols.length < 3) continue;
@@ -181,10 +398,11 @@ async function seed() {
             null,
             diam,
           );
+          sh2Count++;
         }
       });
       sh2Insert();
-      console.log("Sharpless Sh2 catalog seeded.");
+      console.log(`Sharpless Sh2 catalog seeded: ${sh2Count} nebulae.`);
     } catch (err) {
       console.warn(
         "Sharpless catalog download failed (skipping):",
@@ -213,7 +431,9 @@ async function seed() {
           (l) => l && !l.startsWith("#") && !l.startsWith("-") && l.trim(),
         );
 
+      let acoCount = 0;
       const acoInsert = db.transaction(() => {
+        clearCatalogs(db, ["ACO"]);
         for (const line of acoLines) {
           const cols = line.split("\t").map((c) => c.trim());
           if (cols.length < 3) continue;
@@ -234,10 +454,11 @@ async function seed() {
             mag,
             diam,
           );
+          acoCount++;
         }
       });
       acoInsert();
-      console.log("Abell Galaxy Clusters (ACO) seeded.");
+      console.log(`Abell Galaxy Clusters (ACO) seeded: ${acoCount} clusters.`);
     } catch (err) {
       console.warn("ACO catalog download failed (skipping):", err.message);
     }
@@ -250,13 +471,17 @@ async function seed() {
       "Downloading Hipparcos catalog for accurate HD star positions (~118k stars)...",
     );
     try {
-      const hipResponse = await axios.get(
+      const hipResponse = await axiosGetWithRetry(
         "https://vizier.cds.unistra.fr/viz-bin/asu-tsv",
         {
           params: {
             "-source": "I/239/hip_main",
             "-out": "_RAJ2000,_DEJ2000,HD,Vmag",
-            "-out.max": "unlimited",
+            // VizieR returns an empty body for "-out.max=unlimited" on this
+            // table (server-side policy/load), which silently seeded 0 rows.
+            // Hipparcos main is ~118k stars, so a concrete cap reliably returns
+            // the full set.
+            "-out.max": "200000",
           },
           responseType: "text",
           timeout: 300000,
@@ -271,6 +496,7 @@ async function seed() {
 
       let hipCount = 0;
       const hipInsert = db.transaction(() => {
+        clearCatalogs(db, ["HIP"]);
         for (const line of hipLines) {
           const cols = line.split("\t").map((c) => c.trim());
           if (cols.length < 3) continue;
@@ -320,7 +546,7 @@ async function seed() {
         'JOIN "I/259/tyc2" AS t ON (b.TYC1=t.TYC1 AND b.TYC2=t.TYC2 AND b.TYC3=t.TYC3)',
         "WHERE b.HD IS NOT NULL",
       ].join(" ");
-      const tycResponse = await axios.get(
+      const tycResponse = await axiosGetWithRetry(
         "https://tapvizier.u-strasbg.fr/TAPVizieR/tap/sync",
         {
           params: {
@@ -343,6 +569,7 @@ async function seed() {
 
       let tycCount = 0;
       const tycInsert = db.transaction(() => {
+        clearCatalogs(db, ["TYC"]);
         for (const line of tycLines) {
           const cols = line.split("\t").map((c) => c.trim());
           if (cols.length < 4) continue;
@@ -375,252 +602,56 @@ async function seed() {
     }
 
     // --- IAU WGSN Named Stars ---
-    // Query SIMBAD TAP for all objects with an official IAU name (NAME prefix),
-    // filtered to V < 7.5 to capture all ~460 approved star names while
-    // excluding faint DSOs. Entries use catalog='Named' so solve.js can
-    // prefer them over anonymous HD numbers for the same star.
-    const NON_STELLAR_KEYWORDS = [
-      "nebula",
-      "galaxy",
-      "cloud",
-      "cluster",
-      "remnant",
-      "association",
-      "complex",
-      "supernova",
-      "steamer",
-    ];
-    console.log("Downloading IAU WGSN named stars from SIMBAD TAP...");
+    // Download the official IAU Catalog of Star Names (IAU-CSN), the
+    // authoritative list of ~450 WGSN-approved proper names (Sirius, Vega,
+    // Schedar, ...). Each row carries the name plus accurate J2000 coords and
+    // HD/HIP ids, so entries are stored as catalog='Named' and the merge step
+    // shadows the matching anonymous HD/HIP star with the proper name.
+    //
+    // This replaces the old SIMBAD `NAME %` query, which silently missed many
+    // famous stars (their WGSN name is not surfaced under the `NAME ` prefix).
+    console.log("Downloading IAU Catalog of Star Names (IAU-CSN)...");
     let namedStarCount = 0;
     try {
-      // SIMBAD's ADQL parser rejects qualified column names (e.g. `f.flux`) in
-      // ORDER BY, so we alias the flux column and order by the alias.
-      const adql = [
-        "SELECT i.id, b.ra, b.dec, f.flux AS vflux",
-        "FROM ident AS i",
-        "JOIN basic AS b ON b.oid = i.oidref",
-        "JOIN flux AS f ON f.oidref = b.oid AND f.filter = 'V'",
-        "WHERE i.id LIKE 'NAME %'",
-        "AND f.flux < 7.5",
-        "ORDER BY vflux",
-      ].join(" ");
-
-      const simbadRes = await axios.get(
-        "https://simbad.cds.unistra.fr/simbad/sim-tap/sync",
-        {
-          params: {
-            REQUEST: "doQuery",
-            LANG: "ADQL",
-            FORMAT: "tsv",
-            QUERY: adql,
-          },
-          responseType: "text",
-          timeout: 30000,
-        },
+      const csnRes = await axiosGetWithRetry(
+        "https://www.pas.rochester.edu/~emamajek/WGSN/IAU-CSN.txt",
+        { responseType: "text", timeout: 60000 },
       );
-
-      const lines = simbadRes.data
+      const csnLines = csnRes.data
         .split("\n")
-        .filter(
-          (l) => l && !l.startsWith("#") && !l.startsWith("-") && l.trim(),
-        );
+        // Drop comment (`#`), citation (`$`), and blank lines; data rows start
+        // with the ASCII name.
+        .filter((l) => l && !l.startsWith("#") && !l.startsWith("$") && l.trim());
 
       db.transaction(() => {
-        for (const line of lines) {
-          const cols = line.split("\t").map((c) => c.trim());
-          if (cols.length < 4) continue;
-          const rawId = cols[0];
-          if (!rawId.startsWith("NAME ")) continue; // skip header row
-          const iauName = rawId.slice(5).trim();
-          if (!iauName) continue;
-          // Skip non-stellar named objects (nebulae, galaxies, clusters)
-          const lower = iauName.toLowerCase();
-          if (NON_STELLAR_KEYWORDS.some((kw) => lower.includes(kw))) continue;
-          const ra = parseFloat(cols[1]);
-          const dec = parseFloat(cols[2]);
-          const mag = parseFloat(cols[3]);
+        clearCatalogs(db, ["Named"]);
+        for (const line of csnLines) {
+          // Whitespace-delimited fixed-ish columns. Anchor on the YYYY-MM-DD
+          // "Date" column: RA/Dec are the two tokens before it, HD/HIP the two
+          // before that, and the ASCII name is the first token. This is robust
+          // against the variable-width Bayer/constellation columns in between.
+          const cols = line.trim().split(/\s+/);
+          const dateIdx = cols.findIndex((t) => /^\d{4}-\d{2}-\d{2}$/.test(t));
+          if (dateIdx < 4) continue;
+          const ra = parseFloat(cols[dateIdx - 2]);
+          const dec = parseFloat(cols[dateIdx - 1]);
           if (isNaN(ra) || isNaN(dec)) continue;
-          insert.run(
-            "Named",
-            iauName,
-            iauName,
-            iauName,
-            "Star",
-            ra,
-            dec,
-            isNaN(mag) ? null : mag,
-            null,
-          );
-          namedStarCount++;
-        }
-      })();
-      console.log(`IAU WGSN named stars seeded: ${namedStarCount} stars.`);
-    } catch (err) {
-      console.warn(
-        "IAU named stars download failed (falling back to hardcoded list):",
-        err.message,
-      );
-      // Hardcoded fallback: complete IAU WGSN list for the most important named stars.
-      // [name, ra_deg, dec_deg, vmag]
-      const FALLBACK_NAMED_STARS = [
-        ["Sirius", 101.2874, -16.7161, -1.46],
-        ["Canopus", 95.9879, -52.6957, -0.74],
-        ["Rigil Kentaurus", 219.9021, -60.834, -0.27],
-        ["Arcturus", 213.9153, 19.1822, -0.04],
-        ["Vega", 279.2347, 38.7837, 0.03],
-        ["Capella", 79.1723, 45.998, 0.08],
-        ["Rigel", 78.6345, -8.2016, 0.12],
-        ["Procyon", 114.8255, 5.225, 0.34],
-        ["Betelgeuse", 88.7929, 7.4071, 0.45],
-        ["Achernar", 24.4286, -57.2367, 0.46],
-        ["Hadar", 210.9559, -60.373, 0.61],
-        ["Altair", 297.6958, 8.8683, 0.77],
-        ["Acrux", 186.6496, -63.0991, 0.77],
-        ["Aldebaran", 68.9802, 16.5093, 0.85],
-        ["Spica", 201.2983, -11.1614, 0.97],
-        ["Antares", 247.3519, -26.432, 1.06],
-        ["Pollux", 116.329, 28.0262, 1.14],
-        ["Fomalhaut", 344.4127, -29.6222, 1.16],
-        ["Mimosa", 191.9302, -59.6888, 1.25],
-        ["Deneb", 310.3579, 45.2803, 1.25],
-        ["Regulus", 152.0929, 11.9672, 1.35],
-        ["Adhara", 104.6564, -28.9721, 1.5],
-        ["Castor", 113.6497, 31.8883, 1.58],
-        ["Shaula", 263.4022, -37.1033, 1.62],
-        ["Gacrux", 187.7915, -57.1132, 1.64],
-        ["Bellatrix", 81.283, 6.3497, 1.64],
-        ["Elnath", 81.5727, 28.6074, 1.68],
-        ["Miaplacidus", 138.3001, -69.7172, 1.68],
-        ["Alnilam", 84.0533, -1.2019, 1.69],
-        ["Alnitak", 85.1897, -1.9426, 1.74],
-        ["Regor", 122.383, -47.3366, 1.75],
-        ["Alioth", 193.5073, 55.9598, 1.77],
-        ["Dubhe", 165.932, 61.751, 1.79],
-        ["Mirfak", 51.0807, 49.8612, 1.8],
-        ["Wezen", 107.0979, -26.3932, 1.84],
-        ["Kaus Australis", 276.043, -34.3847, 1.85],
-        ["Avior", 125.6284, -59.5092, 1.86],
-        ["Alkaid", 206.8852, 49.3133, 1.86],
-        ["Sargas", 264.3297, -42.9978, 1.87],
-        ["Atria", 252.1662, -69.0277, 1.92],
-        ["Alhena", 99.4278, 16.3993, 1.93],
-        ["Peacock", 306.412, -56.735, 1.94],
-        ["Alsephina", 131.1757, -54.7087, 1.96],
-        ["Mirzam", 95.6748, -17.9559, 1.98],
-        ["Alphard", 141.8968, -8.6586, 1.98],
-        ["Polaris", 37.9529, 89.2641, 1.97],
-        ["Hamal", 31.7933, 23.4625, 2.01],
-        ["Diphda", 10.8974, -17.9866, 2.04],
-        ["Nunki", 283.8163, -26.2967, 2.05],
-        ["Alpheratz", 2.0969, 29.0905, 2.06],
-        ["Mirach", 17.433, 35.6204, 2.06],
-        ["Menkent", 211.6706, -36.3701, 2.06],
-        ["Saiph", 86.9388, -9.6697, 2.07],
-        ["Ankaa", 6.571, -42.3061, 2.4],
-        ["Schedar", 10.1268, 56.5373, 2.23],
-        ["Mintaka", 83.0017, -0.2991, 2.25],
-        ["Eltanin", 269.1516, 51.4889, 2.23],
-        ["Caph", 2.2945, 59.1498, 2.28],
-        ["Naos", 120.8961, -40.0031, 2.21],
-        ["Dschubba", 240.0833, -22.6217, 2.29],
-        ["Izar", 221.2467, 27.0742, 2.35],
-        ["Markab", 346.1902, 15.2052, 2.49],
-        ["Acrab", 241.3591, -19.8054, 2.5],
-        ["Algol", 47.0421, 40.9557, 2.12],
-        ["Algieba", 154.9931, 19.8414, 2.01],
-        ["Scheat", 345.9443, 28.0828, 2.44],
-        ["Menkib", 56.4553, 35.7912, 4.04],
-        ["Almaaz", 75.4922, 43.8232, 2.99],
-        ["Sadr", 305.5571, 40.2567, 2.23],
-        ["Tarazed", 298.8281, 10.6136, 2.72],
-        ["Hatysa", 83.8583, -5.9097, 2.77],
-        ["Kornephoros", 247.5549, 21.4896, 2.78],
-        ["Zubenelgenubi", 222.7196, -16.0418, 2.75],
-        ["Zubeneschamali", 229.2517, -9.383, 2.61],
-        ["Alderamin", 319.6447, 62.5856, 2.45],
-        ["Kochab", 222.6764, 74.1555, 2.07],
-        ["Pherkad", 230.1823, 71.834, 3.05],
-        ["Navi", 14.1773, 60.7167, 2.2],
-        ["Ruchbah", 21.4538, 60.2353, 2.68],
-        ["Segin", 28.5988, 63.67, 3.37],
-        ["Alphecca", 233.6719, 26.7147, 2.22],
-        ["Nusakan", 232.5148, 29.1056, 3.68],
-        ["Albireo", 292.6803, 27.9597, 3.09],
-        ["Deneb Algedi", 326.7603, -16.1272, 2.85],
-        ["Nashira", 325.0225, -16.6622, 3.68],
-        ["Dabih", 305.2521, -14.7814, 3.05],
-        ["Algedi", 304.5127, -12.5447, 3.58],
-        ["Sadalsuud", 322.8896, -5.5712, 2.9],
-        ["Sadalmelik", 331.4457, -0.3199, 2.95],
-        ["Sadachbia", 336.1277, 1.3788, 3.85],
-        ["Alrescha", 30.5742, 2.764, 3.82],
-        ["Torcularis Septentrionalis", 24.5039, 9.1858, 4.27],
-        ["Fumalsamakah", 348.5823, 4.0691, 4.48],
-        ["Revati", 10.8877, 7.5755, 5.19],
-        ["Almach", 30.9751, 42.3297, 2.26],
-        ["Adhil", 18.3514, 36.7932, 4.88],
-        ["Titawin", 22.8269, 41.4065, 4.1],
-        ["Sarir", 27.2618, 29.0905, 4.52],
-        ["Mesarthim", 28.3826, 19.294, 3.86],
-        ["Sheratan", 28.6605, 20.8082, 2.66],
-        ["Bharani", 48.0189, 27.261, 3.61],
-        ["Botein", 44.1098, 19.7267, 4.35],
-        ["Porrima", 190.4151, -1.4493, 2.74],
-        ["Vindemiatrix", 195.544, 10.9592, 2.83],
-        ["Minelauva", 197.9674, 3.3975, 3.38],
-        ["Heze", 205.005, -0.5958, 3.38],
-        ["Syrma", 214.0044, -6.0006, 4.08],
-        ["Zaniah", 188.4356, 0.6668, 3.89],
-        ["Rijl al Awwa", 218.0093, -5.6574, 4.53],
-        ["Sulaphat", 284.7364, 32.6896, 3.25],
-        ["Sheliak", 282.5198, 33.3627, 3.52],
-        ["Aladfar", 286.1776, 36.8982, 4.23],
-        ["Sulafat", 284.7364, 32.6896, 3.25],
-        ["Okab", 283.8163, 13.8633, 2.99],
-        ["Alshain", 298.8281, 6.4069, 3.71],
-        ["Libertas", 301.1194, 12.3563, 4.71],
-        ["Altais", 288.1388, 67.6614, 3.07],
-        ["Aldulfin", 309.0915, 11.3036, 4.43],
-        ["Sham", 319.378, 12.5563, 3.77],
-        ["Anser", 298.0064, 24.6647, 4.44],
-        ["Kaus Media", 275.2491, -29.828, 2.7],
-        ["Kaus Borealis", 271.452, -25.4217, 2.81],
-        ["Polis", 274.4067, -29.828, 3.91],
-        ["Ascella", 286.7362, -29.88, 2.6],
-        ["Alnasl", 271.452, -30.4239, 2.99],
-        ["Nanto", 283.8163, -26.9968, 3.17],
-        ["Rukbat", 283.8163, -40.6154, 3.96],
-        ["Arkab Prior", 282.7278, -44.4596, 4.01],
-        ["Arkab Posterior", 282.5198, -44.809, 4.27],
-        ["Ainalrami", 279.2347, -36.7616, 4.73],
-        ["Albaldah", 294.1797, -29.88, 2.89],
-        ["Nunki", 283.8163, -26.2967, 2.05],
-        ["Alrami", 279.2347, -36.7616, 4.73],
-        ["Kaus Australis", 276.043, -34.3847, 1.85],
-        ["Gomeisa", 111.7876, 8.2893, 2.89],
-        ["Furud", 95.0783, -30.0635, 3.02],
-        ["Aludra", 111.0237, -29.3032, 2.45],
-        ["Muliphein", 104.2396, -15.633, 4.11],
-        ["Unurgunite", 111.0237, -27.9353, 3.49],
-        ["Sirius", 101.2874, -16.7161, -1.46],
-        ["Phact", 84.9122, -34.0741, 2.65],
-        ["Wazn", 87.7399, -35.7683, 3.12],
-        ["Hassaleh", 74.2479, 33.1661, 2.69],
-        ["Menkalinan", 89.982, 44.9474, 1.9],
-        ["Kabdhilinan", 76.6279, 41.2341, 2.69],
-        ["Mahasim", 89.982, 37.2128, 2.65],
-        ["Hoedus", 82.4958, 41.2341, 3.17],
-        ["Sadatoni", 92.4279, 41.4065, 3.75],
-        ["Almaaz", 75.4922, 43.8232, 2.99],
-        ["Elkurud", 95.6748, -24.3044, 3.73],
-      ];
-      db.transaction(() => {
-        for (const [name, ra, dec, mag] of FALLBACK_NAMED_STARS) {
+          const name = cols[0];
+          if (!name || name === "_") continue;
+          // Columns before Date are: ... mag bnd HIP HD RA Dec Date, so the
+          // magnitude is six tokens before the date anchor.
+          const magRaw = parseFloat(cols[dateIdx - 6]);
+          const mag = isNaN(magRaw) ? null : magRaw;
           insert.run("Named", name, name, name, "Star", ra, dec, mag, null);
           namedStarCount++;
         }
       })();
-      console.log(`Fallback named stars inserted: ${namedStarCount}.`);
+      console.log(`IAU-CSN named stars seeded: ${namedStarCount} stars.`);
+    } catch (err) {
+      // IAU-CSN is a static file fetched with retry; if it is unreachable we
+      // skip named-star labels for this run rather than carrying a stale
+      // hardcoded copy. HD/Gaia stars still render (just without a proper name).
+      console.warn("IAU-CSN download failed (skipping named stars):", err.message);
     }
 
     // Keep well-known DSO common names that solve.js won't get from OpenNGC
@@ -649,8 +680,39 @@ async function seed() {
       ],
     ];
     db.transaction(() => {
+      clearCatalogs(db, ["Neb"]);
       for (const dso of specialDSOs) insert.run(...dso);
     })();
+
+      // Record the whole inline-originals group as loaded so a re-run skips it.
+      const inlineRows = db
+        .prepare(
+          `SELECT COUNT(*) n FROM objects WHERE catalog IN (${INLINE_LOADER_TAGS.map(() => "?").join(",")})`,
+        )
+        .get(...INLINE_LOADER_TAGS).n;
+      markLoaded(db, "inline_originals", inlineRows);
+    } // end inline-originals group
+
+    // --- Deep-sky-object bundle (galaxies, quasars, faint nebulae, clusters) ---
+    // Each is skip-guarded: a re-run skips ones already loaded and retries any
+    // that previously yielded 0 rows (e.g. a bad table id now fixed).
+    await runStep(db, "hyperleda", ["PGC"], () => seedHyperLeda(db, insert));
+    await runStep(db, "milliquas", ["MILLIQUAS"], () => seedMilliquas(db, insert));
+    for (const src of NEBULA_SOURCES) {
+      const [key, , , , , catalog] = src;
+      await runStep(db, key, [catalog], () => seedNebulaSource(db, insert, src));
+    }
+    await runStep(db, "clusters", ["OCL"], () => seedClusters(db, insert));
+
+    // --- Gaia DR3 G≤15 stars (~37M) ---
+    // Gaia tracks completed tiles itself, so it resumes a partial sweep rather
+    // than restarting; no runStep wrapper needed.
+    await seedGaia(db, insert);
+
+    // Spatial index over point positions, so the runtime DAO can prefilter a
+    // cone with the R-tree instead of scanning the full table — essential at
+    // ~38M rows. Point objects use a degenerate box (min==max) per axis.
+    buildRtreeIndex(db);
 
     const count = db
       .prepare("SELECT COUNT(*) as count FROM objects")
@@ -661,6 +723,438 @@ async function seed() {
   } finally {
     db.close();
   }
+}
+
+/**
+ * (Re)builds the R-tree spatial index over object positions.
+ *
+ * The build is **atomic and verified**: the DROP + CREATE + bulk INSERT run in
+ * a single transaction, so an interrupted run rolls back and leaves the prior
+ * index intact rather than a half-filled, ID-mismatched one. After building it
+ * confirms the R-tree row count equals the number of objects with coordinates;
+ * only then is it skippable on the next run. If a prior run left a stale index
+ * (row counts disagree), it is rebuilt.
+ *
+ * @param {import('better-sqlite3').Database} db
+ */
+function buildRtreeIndex(db) {
+  const objectsWithCoords = db
+    .prepare("SELECT COUNT(*) n FROM objects WHERE ra IS NOT NULL AND dec IS NOT NULL")
+    .get().n;
+
+  const hasRtree = db
+    .prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='objects_rtree'")
+    .get();
+  if (hasRtree && !REBUILD) {
+    const rtreeRows = db.prepare("SELECT COUNT(*) n FROM objects_rtree").get().n;
+    if (rtreeRows === objectsWithCoords) {
+      console.log(`✓ R-tree already built (${rtreeRows} rows) — skipping.`);
+      return;
+    }
+    console.log(
+      `R-tree stale (${rtreeRows} rows vs ${objectsWithCoords} objects) — rebuilding.`,
+    );
+  }
+
+  console.log(`Building R-tree spatial index over ${objectsWithCoords} objects...`);
+  const build = db.transaction(() => {
+    db.exec("DROP TABLE IF EXISTS objects_rtree");
+    db.exec(
+      "CREATE VIRTUAL TABLE objects_rtree USING rtree(id, minRA, maxRA, minDec, maxDec)",
+    );
+    db.exec(`
+      INSERT INTO objects_rtree (id, minRA, maxRA, minDec, maxDec)
+        SELECT id, ra, ra, dec, dec FROM objects WHERE ra IS NOT NULL AND dec IS NOT NULL
+    `);
+  });
+  build();
+
+  const built = db.prepare("SELECT COUNT(*) n FROM objects_rtree").get().n;
+  if (built !== objectsWithCoords) {
+    throw new Error(
+      `R-tree build mismatch: ${built} index rows vs ${objectsWithCoords} objects`,
+    );
+  }
+  console.log(`R-tree spatial index built (${built} rows).`);
+}
+
+/**
+ * HyperLEDA / PGC galaxies. Brings deep galaxies far beyond the OpenNGC set.
+ * Normalised to catalog='PGC', type='G'. VizieR source: VII/237 (HYPERLEDA).
+ *
+ * @param {import('better-sqlite3').Database} db
+ * @param {import('better-sqlite3').Statement} insert
+ * @returns {Promise<number>} Rows inserted (0 on failure, so the step retries)
+ */
+async function seedHyperLeda(db, insert) {
+  console.log("Downloading HyperLEDA galaxies (PGC) from VizieR...");
+  try {
+    const lines = await fetchVizierTsv(
+      "VII/237/pgc",
+      "_RAJ2000,_DEJ2000,PGC,logD25",
+      4000000,
+    );
+    let n = 0;
+    const run = db.transaction(() => {
+      for (const line of lines) {
+        const c = line.split("\t").map((x) => x.trim());
+        if (c.length < 3) continue;
+        const ra = parseFloat(c[0]);
+        const dec = parseFloat(c[1]);
+        const pgc = c[2];
+        if (isNaN(ra) || isNaN(dec) || !pgc) continue;
+        // logD25 is log10 of the apparent diameter in 0.1-arcmin units.
+        const logD25 = parseFloat(c[3]);
+        const sizeArcmin = isNaN(logD25) ? null : Math.pow(10, logD25) / 10;
+        insert.run("PGC", `PGC ${pgc}`, `PGC ${pgc}`, null, "G", ra, dec, null, sizeArcmin);
+        n++;
+      }
+    });
+    run();
+    console.log(`HyperLEDA galaxies seeded: ${n}.`);
+    return n;
+  } catch (err) {
+    console.warn("HyperLEDA download failed (skipping):", err.message);
+    return 0;
+  }
+}
+
+/**
+ * Milliquas (Million Quasars) catalogue. Normalised to catalog='MILLIQUAS',
+ * type='QSO'. VizieR source: VII/294 (Flesch).
+ *
+ * @param {import('better-sqlite3').Database} db
+ * @param {import('better-sqlite3').Statement} insert
+ * @returns {Promise<number>} Rows inserted (0 on failure, so the step retries)
+ */
+async function seedMilliquas(db, insert) {
+  console.log("Downloading Milliquas quasars from VizieR...");
+  try {
+    const lines = await fetchVizierTsv(
+      "VII/294/catalog",
+      "_RAJ2000,_DEJ2000,Name,Rmag",
+      4000000,
+    );
+    let n = 0;
+    const run = db.transaction(() => {
+      for (const line of lines) {
+        const c = line.split("\t").map((x) => x.trim());
+        if (c.length < 3) continue;
+        const ra = parseFloat(c[0]);
+        const dec = parseFloat(c[1]);
+        const name = c[2];
+        if (isNaN(ra) || isNaN(dec) || !name) continue;
+        const rmag = parseFloat(c[3]);
+        insert.run(
+          "MILLIQUAS",
+          name,
+          name,
+          null,
+          "QSO",
+          ra,
+          dec,
+          isNaN(rmag) ? null : rmag,
+          null,
+        );
+        n++;
+      }
+    });
+    run();
+    console.log(`Milliquas quasars seeded: ${n}.`);
+    return n;
+  } catch (err) {
+    console.warn("Milliquas download failed (skipping):", err.message);
+    return 0;
+  }
+}
+
+/**
+ * The faint-nebula sources, each loaded as its own resumable step so a bad
+ * table id (e.g. LBN) can be fixed and retried without re-fetching the others.
+ * Fields: [progress key, label, VizieR source, id column, type code, catalog tag, name prefix].
+ */
+const NEBULA_SOURCES = [
+  // LBN's identifier column is `Seq` (verified against VizieR VII/9B); the
+  // table has no column literally named "LBN".
+  ["nebula_lbn", "LBN bright nebulae", "VII/9B/catalog", "Seq", "RNe", "LBN", "LBN"],
+  ["nebula_ldn", "LDN dark nebulae", "VII/7A/ldn", "LDN", "DNe", "LDN", "LDN"],
+  ["nebula_barnard", "Barnard dark nebulae", "VII/220A/barnard", "Barn", "DNe", "Barnard", "B"],
+];
+
+/**
+ * Loads a single faint-nebula VizieR table. Normalised to its catalog tag with
+ * a SIMBAD-style type code the classifier understands (RNe / DNe).
+ *
+ * @param {import('better-sqlite3').Database} db
+ * @param {import('better-sqlite3').Statement} insert
+ * @param {[string,string,string,string,string,string,string]} source - NEBULA_SOURCES entry
+ * @returns {Promise<number>} Rows inserted (0 on failure, so the step retries)
+ */
+async function seedNebulaSource(db, insert, source) {
+  const [, label, vizierId, idCol, typeCode, catalog, prefix] = source;
+  console.log(`Downloading ${label} from VizieR...`);
+  try {
+    const lines = await fetchVizierTsv(
+      vizierId,
+      `_RAJ2000,_DEJ2000,${idCol}`,
+      99999,
+    );
+    let n = 0;
+    const run = db.transaction(() => {
+      for (const line of lines) {
+        const c = line.split("\t").map((x) => x.trim());
+        if (c.length < 3) continue;
+        const ra = parseFloat(c[0]);
+        const dec = parseFloat(c[1]);
+        const id = c[2];
+        if (isNaN(ra) || isNaN(dec) || !id) continue;
+        const name = `${prefix} ${id}`;
+        insert.run(catalog, name, name, null, typeCode, ra, dec, null, null);
+        n++;
+      }
+    });
+    run();
+    console.log(`${label} seeded: ${n}.`);
+    return n;
+  } catch (err) {
+    console.warn(`${label} download failed (skipping):`, err.message);
+    return 0;
+  }
+}
+
+/**
+ * Open clusters from the Melotte, Collinder, and Trumpler catalogues, via the
+ * MWSC (Kharchenko) master list on VizieR. Normalised to catalog='OCL',
+ * type='OpC'. VizieR source: J/A+A/558/A53 (MWSC).
+ *
+ * @param {import('better-sqlite3').Database} db
+ * @param {import('better-sqlite3').Statement} insert
+ * @returns {Promise<number>} Rows inserted (0 on failure, so the step retries)
+ */
+async function seedClusters(db, insert) {
+  console.log("Downloading open clusters from MWSC (Kharchenko)...");
+  try {
+    const lines = await fetchVizierTsv(
+      "J/A+A/558/A53/catalog",
+      "_RAJ2000,_DEJ2000,Name,r2",
+      99999,
+    );
+    let n = 0;
+    const run = db.transaction(() => {
+      for (const line of lines) {
+        const c = line.split("\t").map((x) => x.trim());
+        if (c.length < 3) continue;
+        const ra = parseFloat(c[0]);
+        const dec = parseFloat(c[1]);
+        // MWSC's Name is the cluster's common designation (NGC/IC/Mel/Cr/Tr/…).
+        // MWSC is wholly an open-cluster catalogue, so keep every entry rather
+        // than filtering by name prefix (the previous regex dropped all ~3000
+        // rows because most are named "NGC ...", not "Melotte ...").
+        // MWSC names use underscores (e.g. "NGC_7801", "Berkeley_58"); restore
+        // spaces so they read naturally and match the rest of the catalog.
+        const name = c[2] ? c[2].replace(/_/g, " ") : null;
+        if (isNaN(ra) || isNaN(dec) || !name) continue;
+        // r2 is the cluster angular radius in degrees; convert to diameter in arcmin.
+        const r2 = parseFloat(c[3]);
+        const sizeArcmin = isNaN(r2) ? null : r2 * 2 * 60;
+        insert.run("OCL", name, name, null, "OpC", ra, dec, null, sizeArcmin);
+        n++;
+      }
+    });
+    run();
+    console.log(`Open clusters seeded: ${n}.`);
+    return n;
+  } catch (err) {
+    console.warn("Open clusters download failed (skipping):", err.message);
+    return 0;
+  }
+}
+
+/**
+ * Gaia DR3 stars down to G≤15 (~90M rows). A single TAP sync request cannot
+ * return the whole set, so the sky is split into RA/Dec tiles. Tiles are
+ * *fetched* concurrently (a bounded pool — the long pole is ESA's per-query
+ * latency, not bandwidth, so parallelism turns hours into tens of minutes),
+ * while *inserts* run on the main thread as each fetch resolves (better-sqlite3
+ * is synchronous and SQLite serialises writes anyway). A tile that keeps
+ * failing is logged and skipped so one bad tile cannot abort the build.
+ *
+ * @param {import('better-sqlite3').Database} db
+ * @param {import('better-sqlite3').Statement} insert
+ */
+async function seedGaia(db, insert) {
+  const allTiles = buildGaiaTiles();
+
+  // Resume: skip tiles already recorded complete in gaia_tiles (unless
+  // --rebuild, which drops that table up front). A tile's rows and its
+  // completion record are written in the same transaction, so a recorded
+  // tile is guaranteed fully inserted.
+  const doneKeys = new Set(
+    db.prepare("SELECT tile_key FROM gaia_tiles").all().map((r) => r.tile_key),
+  );
+  const tiles = allTiles.filter((t) => !doneKeys.has(gaiaTileKey(t)));
+
+  if (tiles.length === 0) {
+    console.log(`✓ Gaia already loaded (${allTiles.length} tiles) — skipping.`);
+    return;
+  }
+  console.log(
+    `Downloading Gaia DR3 G≤${GAIA_MAG_LIMIT}: ${tiles.length} of ${allTiles.length} tiles ` +
+      `remaining (${GAIA_TILE_DEG}°, ${GAIA_FETCH_CONCURRENCY} concurrent` +
+      `${doneKeys.size > 0 ? `, ${doneKeys.size} already done` : ""})...`,
+  );
+
+  let total = 0;
+  let tilesOk = 0;
+  let tilesFailed = 0;
+  let tilesDone = 0;
+  let next = 0;
+
+  // Worker pulls the next tile index, fetches it (with retry), then inserts.
+  // Inserts are synchronous so they never interleave mid-transaction.
+  async function worker() {
+    while (next < tiles.length) {
+      const tile = tiles[next++];
+      try {
+        const lines = await fetchGaiaTileWithRetry(tile);
+        total += insertGaiaLines(db, insert, lines, gaiaTileKey(tile));
+        tilesOk++;
+      } catch (err) {
+        tilesFailed++;
+        console.warn(
+          `Gaia tile RA[${tile.raLo},${tile.raHi}) Dec[${tile.decLo},${tile.decHi}) ` +
+            `failed after ${GAIA_TILE_MAX_ATTEMPTS} attempts (skipping): ${err.message}`,
+        );
+      }
+      tilesDone++;
+      if (tilesDone % 25 === 0 || tilesDone === tiles.length) {
+        console.log(
+          `Gaia progress: ${tilesDone}/${tiles.length} tiles — ${total} stars ` +
+            `(${tilesFailed} skipped).`,
+        );
+      }
+    }
+  }
+
+  const pool = Array.from(
+    { length: Math.min(GAIA_FETCH_CONCURRENCY, tiles.length) },
+    () => worker(),
+  );
+  await Promise.all(pool);
+
+  console.log(
+    `Gaia DR3 seeded this run: ${total} stars across ${tilesOk} tiles (${tilesFailed} skipped/failed).`,
+  );
+}
+
+/**
+ * Stable progress key for a Gaia tile.
+ *
+ * @param {{raLo:number,raHi:number,decLo:number,decHi:number}} tile
+ * @returns {string}
+ */
+function gaiaTileKey({ raLo, raHi, decLo, decHi }) {
+  return `${raLo}_${raHi}_${decLo}_${decHi}`;
+}
+
+/**
+ * Enumerates the RA/Dec tiles covering the whole sky. RA is half-open
+ * [raLo, raHi) so adjacent tiles do not double-count border stars.
+ *
+ * @returns {Array<{raLo:number,raHi:number,decLo:number,decHi:number}>}
+ */
+function buildGaiaTiles() {
+  const tiles = [];
+  for (let decLo = -90; decLo < 90; decLo += GAIA_TILE_DEG) {
+    const decHi = Math.min(90, decLo + GAIA_TILE_DEG);
+    for (let raLo = 0; raLo < 360; raLo += GAIA_TILE_DEG) {
+      const raHi = Math.min(360, raLo + GAIA_TILE_DEG);
+      tiles.push({ raLo, raHi, decLo, decHi });
+    }
+  }
+  return tiles;
+}
+
+/**
+ * Fetches one Gaia tile from the ESA TAP service, retrying transient failures
+ * with linear backoff before giving up.
+ *
+ * @param {{raLo:number,raHi:number,decLo:number,decHi:number}} tile
+ * @returns {Promise<string[]>} Non-comment TSV data lines
+ */
+async function fetchGaiaTileWithRetry(tile) {
+  const { raLo, raHi, decLo, decHi } = tile;
+  const adql = [
+    "SELECT source_id, ra, dec, phot_g_mean_mag",
+    "FROM gaiadr3.gaia_source",
+    `WHERE phot_g_mean_mag <= ${GAIA_MAG_LIMIT}`,
+    `AND ra >= ${raLo} AND ra < ${raHi}`,
+    `AND dec >= ${decLo} AND dec < ${decHi}`,
+  ].join(" ");
+
+  let lastErr;
+  for (let attempt = 1; attempt <= GAIA_TILE_MAX_ATTEMPTS; attempt++) {
+    try {
+      const res = await axios.get(GAIA_TAP_URL, {
+        params: {
+          REQUEST: "doQuery",
+          LANG: "ADQL",
+          FORMAT: "tsv",
+          QUERY: adql,
+        },
+        responseType: "text",
+        timeout: 300000,
+      });
+      return res.data
+        .split("\n")
+        .filter((l) => l && !l.startsWith("#") && l.trim());
+    } catch (err) {
+      lastErr = err;
+      if (attempt < GAIA_TILE_MAX_ATTEMPTS) {
+        await new Promise((r) => setTimeout(r, attempt * 5000));
+      }
+    }
+  }
+  throw lastErr;
+}
+
+/**
+ * Inserts parsed Gaia TSV lines into the objects table AND records the tile as
+ * complete in gaia_tiles — both in a single transaction, so a tile is never
+ * marked done unless its rows committed (and vice versa). Synchronous
+ * (better-sqlite3) — callers must not run two of these concurrently.
+ *
+ * @param {import('better-sqlite3').Database} db
+ * @param {import('better-sqlite3').Statement} insert
+ * @param {string[]} lines - Non-comment TSV data lines
+ * @param {string} tileKey - Stable key recorded so the tile is skipped on re-run
+ * @returns {number} Number of stars inserted
+ */
+function insertGaiaLines(db, insert, lines, tileKey) {
+  const markTile = db.prepare(
+    `INSERT INTO gaia_tiles (tile_key, rows, completed_at)
+       VALUES (?, ?, datetime('now'))
+     ON CONFLICT(tile_key) DO UPDATE SET rows = excluded.rows, completed_at = excluded.completed_at`,
+  );
+  let n = 0;
+  const run = db.transaction(() => {
+    for (const line of lines) {
+      const c = line.split("\t").map((x) => x.trim());
+      if (c.length < 4) continue;
+      const sourceId = c[0];
+      const ra = parseFloat(c[1]);
+      const dec = parseFloat(c[2]);
+      const mag = parseFloat(c[3]);
+      // Skip the header row (non-numeric ra) and malformed rows.
+      if (!sourceId || isNaN(ra) || isNaN(dec)) continue;
+      const name = `Gaia DR3 ${sourceId}`;
+      insert.run("Gaia", name, name, null, "Star", ra, dec, isNaN(mag) ? null : mag, null);
+      n++;
+    }
+    markTile.run(tileKey, n);
+  });
+  run();
+  return n;
 }
 
 seed();

@@ -130,37 +130,57 @@
 .solve-bar {
   position: absolute;
   left: 50%;
-  bottom: 16px;
+  /* Sit above the bottom edge so the controls never clip below the preview's
+     viewport. Honours the safe-area inset on devices that report one. */
+  bottom: calc(48px + env(safe-area-inset-bottom, 0px));
   transform: translateX(-50%);
   z-index: 18;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 12px;
   pointer-events: auto;
 }
 
+/* Primary action — solid neon-pink fill with a soft outer glow, the headline
+   CTA of the panel. Paired with the cyan FOV control above it. */
 .solve-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 7px 14px;
-  border-radius: 6px;
-  background: rgba(11, 14, 22, 0.6);
-  border: 1px solid var(--db-color-border);
-  color: var(--db-color-text-dim);
+  justify-content: center;
+  gap: 9px;
+  padding: 13px 30px;
+  border-radius: 12px;
+  background: var(--db-color-neon-pink);
+  border: none;
+  color: var(--db-color-text-primary);
+  box-shadow: 0 0 22px -2px var(--db-color-neon-pink);
   font-family: var(--db-font-mono-code);
-  font-weight: 600;
-  font-size: 10.5px;
-  letter-spacing: 0.08em;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   cursor: pointer;
-  backdrop-filter: blur(6px);
+  transition: box-shadow 0.15s ease, transform 0.1s ease, filter 0.15s ease;
+}
+
+.solve-btn:hover:not(:disabled) {
+  box-shadow: 0 0 30px 0 var(--db-color-neon-pink);
+  filter: brightness(1.08);
+}
+
+.solve-btn:active:not(:disabled) {
+  transform: translateY(1px);
 }
 
 .solve-btn:disabled {
-  opacity: 0.4;
+  opacity: 0.45;
   cursor: not-allowed;
+  box-shadow: none;
+}
+
+.solve-btn-icon {
+  display: inline-flex;
 }
 
 .solve-status {
@@ -172,4 +192,57 @@
   border: 1px solid var(--db-color-border);
   padding: 4px 8px;
   border-radius: 6px;
+}
+
+.fov-field {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.fov-label {
+  font-family: var(--db-font-mono-code);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--db-color-cyan);
+}
+
+/* Solid, rounded dark dropdown that reads clearly against the star field.
+   Wider + taller than the library default, with a cyan arrow accent. */
+.fov-select-neon ::ng-deep .field {
+  color: var(--db-color-text-primary);
+  background: var(--db-color-surface-raised);
+  border-color: var(--db-color-border);
+  border-radius: 8px;
+  height: 32px;
+  min-width: 150px;
+  padding: 0 1.75rem 0 11px;
+  font-family: var(--db-font-ui);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  transition: border-color 0.15s ease;
+}
+
+.fov-select-neon ::ng-deep .field:hover,
+.fov-select-neon ::ng-deep .field:focus {
+  border-color: var(--db-color-border-active);
+}
+
+.fov-select-neon ::ng-deep .select-arrow {
+  color: var(--db-color-cyan);
+}
+
+.fov-hint {
+  font-family: var(--db-font-mono-code);
+  font-size: 9.5px;
+  letter-spacing: 0.05em;
+  color: var(--db-color-text-dim);
+  background: rgba(11, 14, 22, 0.6);
+  padding: 2px 8px;
+  border-radius: 4px;
+  backdrop-filter: blur(6px);
+  max-width: 16rem;
+  text-align: center;
 }

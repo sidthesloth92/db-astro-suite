@@ -65,7 +65,7 @@ cat ~/.ssh/hertzner_db_astro_suite.pub
 4. Wait ~30 seconds for the server to reach **Running** state
 5. Copy the **Public IPv4** address — this is your `SERVER_IP`
 
-> **No volume needed.** Data lives on the server's local disk under `/opt/astrosolve/`. The astrometry index files are ~5–10 GB and the default CX22 disk (40 GB) has plenty of headroom.
+> **Disk sizing.** Data lives on the server's local disk under `/opt/astrosolve/`. Budget for the astrometry index files (~5–10 GB) **and** the local celestial catalog (~8 GB incl. Gaia + R-tree, uploaded from your Mac). Together that is ~13–18 GB; with the Docker image and uploads on top, the default CX22 disk (40 GB) is workable but provision a larger disk if you want comfortable headroom. The catalog is built on your Mac and rsynced over, so the server needs storage for the file but no extra scratch space for a download.
 
 ---
 
@@ -116,6 +116,7 @@ As a quick reference, here is what each phase of that runbook does:
 | **1**          | SCP the deploy scripts to the server                                                                        |
 | **2**          | SSH into the server as root                                                                                 |
 | **3**          | Run `1_server_init.sh` — installs Docker, creates the deploy user, downloads astrometry indexes (15–30 min) |
+| **3a**         | Build the catalog on your Mac + upload it with `2_sync_catalog.sh` (deploy.md §3a) — ~8 GB, no server download |
 | **4**          | Reconnect as the `deploy` user to verify Docker works                                                       |
 | **5**          | Configure Cloudflare DNS (see Phase 4 below)                                                                |
 | **6**          | Add GitHub Actions secrets                                                                                  |
@@ -185,6 +186,7 @@ Use this to track your progress end-to-end:
 - [ ] SSH access verified (`ssh root@$SERVER_IP`)
 - [ ] Init scripts copied to server
 - [ ] `1_server_init.sh` completed (Docker, user, astrometry indexes)
+- [ ] Local celestial catalog built (deploy.md §3a) — `data/local-catalog/celestial.sqlite` present
 - [ ] Deploy user SSH access verified
 - [ ] Cloudflare A record created and proxied
 - [ ] Cloudflare SSL set to Full (strict)
