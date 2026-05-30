@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.19.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.18.0...v1.19.0) (2026-05-30)
+
+
+### Features
+
+* **astrosolve:** deep-search catalog, smarter solving, and automated catalog build ([#44](https://github.com/sidthesloth92/db-astro-suite/issues/44)) ([9d7ac58](https://github.com/sidthesloth92/db-astro-suite/commit/9d7ac58504e7abcd2cb3fcd102dd91cca396f50d))
+
 ## [1.18.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.17.1...v1.18.0) (2026-05-29)
 
 
