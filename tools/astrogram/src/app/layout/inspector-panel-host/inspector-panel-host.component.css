@@ -1,0 +1,35 @@
+:host {
+  display: block;
+  height: 100%;
+  min-width: 0;
+}
+
+.host {
+  display: flex;
+  height: 100%;
+  background: var(--db-color-surface);
+  border-left: 1px solid var(--db-color-border);
+  min-height: 0;
+  min-width: 0;
+}
+
+.divider {
+  margin: 6px 12px;
+  height: 1px;
+  background: var(--db-color-border);
+  border: none;
+}
+
+.panel {
+  /* Fixed width so the inputs inside keep their original size even
+     though `.host` (and its dark background) stretches to the viewport's
+     right edge for a desktop-app look. The leftover host width on the
+     right of the panel renders as bare panel surface. */
+  flex: 0 0 480px;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}

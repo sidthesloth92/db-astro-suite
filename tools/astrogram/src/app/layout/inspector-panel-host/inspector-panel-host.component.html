@@ -1,0 +1,141 @@
+<div class="host">
+  @if (mode() === 'infographic') {
+    <dba-ui-icon-rail side="left">
+      <dba-ui-icon-rail-item
+        id="layout"
+        label="Layout"
+        short="Layout"
+        [active]="infographicSection() === 'layout'"
+        side="left"
+        (selected)="selectInfographic($event)"
+      >
+        <dba-ui-icon [def]="cropIcon" [size]="17" />
+      </dba-ui-icon-rail-item>
+      <dba-ui-icon-rail-item
+        id="object"
+        label="Object info"
+        short="Info"
+        [active]="infographicSection() === 'object'"
+        side="left"
+        (selected)="selectInfographic($event)"
+      >
+        <dba-ui-icon [def]="imageIcon" [size]="17" />
+      </dba-ui-icon-rail-item>
+      <dba-ui-icon-rail-item
+        id="capture"
+        label="Capture"
+        short="Capture"
+        [active]="infographicSection() === 'capture'"
+        side="left"
+        (selected)="selectInfographic($event)"
+      >
+        <dba-ui-icon [def]="apertureIcon" [size]="17" />
+      </dba-ui-icon-rail-item>
+      <dba-ui-icon-rail-item
+        id="equipment"
+        label="Equipment"
+        short="Gear"
+        [active]="infographicSection() === 'equipment'"
+        side="left"
+        (selected)="selectInfographic($event)"
+      >
+        <dba-ui-icon [def]="telescopeIcon" [size]="17" />
+      </dba-ui-icon-rail-item>
+      <hr class="divider" aria-hidden="true" />
+      <dba-ui-icon-rail-item
+        id="export"
+        label="Export"
+        short="Export"
+        [active]="infographicSection() === 'export'"
+        side="left"
+        (selected)="selectInfographic($event)"
+      >
+        <dba-ui-icon [def]="downloadIcon" [size]="17" />
+      </dba-ui-icon-rail-item>
+    </dba-ui-icon-rail>
+
+    <div class="panel" #panelScroll>
+      @switch (infographicSection()) {
+        @case ('layout') {
+          <dba-ag-layout-panel />
+        }
+        @case ('object') {
+          <dba-ag-object-info-panel />
+        }
+        @case ('capture') {
+          <dba-ag-capture-panel />
+        }
+        @case ('equipment') {
+          <dba-ag-equipment-panel />
+        }
+        @case ('export') {
+          <dba-ag-export-panel />
+        }
+      }
+    </div>
+  } @else {
+    <dba-ui-icon-rail side="left">
+      <dba-ui-icon-rail-item
+        id="filters"
+        label="Annotation filters"
+        short="Filters"
+        [active]="activeStellarRailId() === 'filters'"
+        side="left"
+        (selected)="selectStellar($event)"
+      >
+        <dba-ui-icon [def]="filterIcon" [size]="17" />
+      </dba-ui-icon-rail-item>
+      <dba-ui-icon-rail-item
+        id="style"
+        label="Annotation style"
+        short="Style"
+        [active]="activeStellarRailId() === 'style'"
+        side="left"
+        (selected)="selectStellar($event)"
+      >
+        <dba-ui-icon [def]="paletteIcon" [size]="17" />
+      </dba-ui-icon-rail-item>
+      @if (hasSelectedAnnotation()) {
+        <hr class="divider" aria-hidden="true" />
+        <dba-ui-icon-rail-item
+          id="selected"
+          label="Selected Target"
+          short="Selected Target"
+          [active]="activeStellarRailId() === 'selected'"
+          side="left"
+          (selected)="selectStellar($event)"
+        >
+          <dba-ui-icon [def]="targetIcon" [size]="17" />
+        </dba-ui-icon-rail-item>
+      }
+      <hr class="divider" aria-hidden="true" />
+      <dba-ui-icon-rail-item
+        id="export"
+        label="Export"
+        short="Export"
+        [active]="activeStellarRailId() === 'export'"
+        side="left"
+        (selected)="selectStellar($event)"
+      >
+        <dba-ui-icon [def]="downloadIcon" [size]="17" />
+      </dba-ui-icon-rail-item>
+    </dba-ui-icon-rail>
+
+    <div class="panel" #panelScroll>
+      @switch (stellarSection()) {
+        @case ('filters') {
+          <dba-ag-annotation-filters-panel />
+        }
+        @case ('style') {
+          <dba-ag-annotation-style-panel />
+        }
+        @case ('selected') {
+          <dba-ag-annotation-selected-panel />
+        }
+        @case ('export') {
+          <dba-ag-export-panel />
+        }
+      }
+    </div>
+  }
+</div>

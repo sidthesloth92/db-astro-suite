@@ -3,101 +3,94 @@ import { expect, test } from "@playwright/test";
 test.describe("Astrogram Logic & Functional Tests", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("http://localhost:4201/astrogram/");
-    await expect(page.locator(".form-container").first()).toBeVisible();
+    await expect(page.getByTestId("desktop-shell")).toBeVisible();
   });
 
-  test("Filter name is editable for custom filters and updates preview", async ({
+  test("Custom filter added in Capture panel appears on the card", async ({
     page,
   }) => {
-    await page
-      .locator(".accordion-header")
-      .filter({ hasText: "Integration" })
-      .click();
-    await page.waitForTimeout(600);
-    await page
-      .locator("button.subtle-add-btn")
-      .filter({ hasText: "Add Custom Filter" })
-      .click();
-    await page.waitForTimeout(100);
-    const filterInput = page.locator("input.filter-name-input-ag").first();
-    await expect(filterInput).toBeVisible();
-    const framesInput = page
-      .locator(".filter-inputs input[type='number']")
-      .nth(-2);
+    await page.getByRole("button", { name: "Capture" }).first().click();
+    await page.getByRole("button", { name: /Add custom filter/i }).click();
+    // Each filter row gets a name-scoped frames label (e.g. "Ha frames",
+    // "Custom frames"). The newly added custom row is named "Custom" until
+    // the user renames it, so this locator auto-waits for that specific row
+    // to render before Playwright fires `fill`. Using the generic "Frames"
+    // label with `.last()` is racy: between the click that adds the row and
+    // the next action, Angular may not yet have flushed CD, so `.last()`
+    // resolves to the previous final row's input.
+    const framesInput = page.getByLabel("Custom frames", { exact: true });
+    const nameInput = page.getByLabel("Filter name");
     await framesInput.fill("10");
-    const lastFilterLabel = page
-      .locator(".filter-rings dba-ag-filter-ring .filter-label")
-      .last();
-    await filterInput.click();
-    await filterInput.fill("CUSTOM-HA");
-    await filterInput.press("Enter");
-    await expect(lastFilterLabel).toHaveText("CUSTOM-HA");
+    await nameInput.fill("CUSTOM-HA");
+    await nameInput.blur();
+    // Scope to the integration ring grid — the caption block also now
+    // mentions "CUSTOM-HA" so a page-wide getByText would be ambiguous.
+    const ringRow = page.getByTestId("integration-rings");
+    await expect(ringRow.getByText("CUSTOM-HA")).toBeVisible();
   });
 
-  test("Accent color applies to output card section borders", async ({
+  test("Accent colour change reflects on the hero title", async ({
     page,
   }) => {
-    await page
-      .locator(".accordion-header")
-      .filter({ hasText: "Card Settings" })
-      .click();
-    await page.waitForTimeout(600);
-    const accentPicker = page.locator("input[type='color']").first();
-    await accentPicker.fill("#00ff00");
-    const cardSection = page.locator(".card-section").first();
-    const borderColor = await cardSection.evaluate(
-      (el) => getComputedStyle(el).borderColor,
+    // Inspector rail item that holds the primary Accent swatch was renamed
+    // from "Style" to "Layout" in the Direction B redesign.
+    await page.getByRole("button", { name: "Layout", exact: true }).first().click();
+    // Disambiguate from the sibling "Secondary accent colour" input.
+    const accentInput = page.getByLabel("Accent colour", { exact: true });
+    await accentInput.evaluate((el: HTMLInputElement) => {
+      el.value = "#00ff00";
+      el.dispatchEvent(new Event("input", { bubbles: true }));
+      el.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    // The Direction B card uses `--accent-color` on the `.pn-title` text
+    // colour (the prior design used a hero border). Assert the dominant
+    // green channel on the h1 inside the card hero.
+    const title = page.getByTestId("card-hero").getByRole("heading", { level: 1 });
+    const titleColor = await title.evaluate(
+      (el) => getComputedStyle(el).color,
     );
-    expect(borderColor).toContain("255");
+    expect(titleColor).toMatch(/(?:rgb\([^)]*255[^)]*\))|(?:srgb\s+0\s+1\s+0)/);
   });
 
-  test("Download button re-enables after export", async ({ page }) => {
-    const downloadBtn = page.locator("button.download-fab");
+  test("Download button stays enabled after click", async ({ page }) => {
+    // The card-preview FAB is an icon-only button with title="Export"
+    // (replaces the legacy "Download card" name). It is the FIRST button
+    // named "Export" in DOM order on the default desktop mount — preview
+    // column renders before the inspector-rail Export item. The in-panel
+    // Export CTA only exists when the Export panel is open (not the
+    // default state), so `.first()` is unambiguous here.
+    const downloadBtn = page
+      .getByRole("button", { name: "Export", exact: true })
+      .first();
     await expect(downloadBtn).toBeEnabled();
     await downloadBtn.click();
     await page.waitForTimeout(1000);
     await expect(downloadBtn).toBeEnabled();
   });
 
-  test("Mobile export resolution verification", async ({ page }) => {
+  test("Mobile shell renders the floating sheet at narrow widths", async ({
+    page,
+  }) => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.reload();
-    const downloadBtn = page.locator("button.download-fab");
-    await expect(downloadBtn).toBeVisible();
-    await expect(downloadBtn).toBeEnabled();
+    await expect(page.getByTestId("mobile-shell")).toBeVisible();
+    await expect(page.getByRole("dialog")).toBeVisible();
   });
 
-  test("DSO description fetch from Wikipedia works", async ({ page }) => {
-    await page
-      .locator(".accordion-header")
-      .filter({ hasText: "Image Details" })
-      .click();
-    await page.waitForTimeout(600);
-
-    const searchInput = page.locator("#dso-search-input");
-    const findBtn = page
-      .locator("button.fetch-btn")
-      .filter({ hasText: "Find" });
-    // Target the caption textarea specifically (the Find button populates the caption field)
-    const captionTextarea = page.locator(
-      'textarea[placeholder="Detailed caption for social media..."]',
-    );
-
-    const defaultCaption =
-      "The first ever nebula that I shot was the Rosette. I still remember looking at the first frame as it came through in disbelief, as to how to the naked eye I couldn't see anything but it was just right there hidden among the stars.";
-
-    // Clear and fill correctly
-    await searchInput.fill("Andromeda Galaxy");
-    await findBtn.click();
-
-    // Wait for the caption to change from its default value
-    await expect(captionTextarea).not.toHaveValue(defaultCaption, {
-      timeout: 15000,
-    });
-
-    const value = await captionTextarea.inputValue();
-    console.log("Fetched Caption:", value);
-    expect(value.toLowerCase()).toContain("andromeda");
+  test("Wiki fetch populates the long-form caption", async ({ page }) => {
+    await page.getByRole("button", { name: "Object info", exact: true }).first().click();
+    await page.getByLabel("Object name").fill("Andromeda Galaxy");
+    await page.getByRole("button", { name: /Wiki/i }).click();
+    // The textarea ships with seed text from the default CardData, so
+    // a plain `not.toHaveValue("")` resolves instantly without waiting for
+    // the wiki fetch. Poll the value until the appended extract contains
+    // the queried object name.
+    const captionTextarea = page.getByLabel("Long-form caption");
+    await expect
+      .poll(async () => (await captionTextarea.inputValue()).toLowerCase(), {
+        timeout: 15000,
+      })
+      .toContain("andromeda");
   });
 });
 
@@ -109,32 +102,27 @@ test.describe("Astrogram SEO", () => {
       "Astrogram - Professional Exposure Cards. Instantly.",
     );
 
-    const ogTitle = await page.getAttribute(
-      'meta[property="og:title"]',
-      "content",
-    );
-    expect(ogTitle).toBe("Astrogram - Professional Exposure Cards. Instantly.");
-
-    const ogImage = await page.getAttribute(
-      'meta[property="og:image"]',
-      "content",
-    );
-    expect(ogImage).toContain("og-astrogram.png");
-
-    const twitterCard = await page.getAttribute(
-      'meta[property="twitter:card"]',
-      "content",
-    );
-    expect(twitterCard).toBe("summary_large_image");
-
-    const twitterSite = await page.getAttribute(
-      'meta[name="twitter:site"]',
-      "content",
-    );
-    expect(twitterSite).toBe("@sidthesloth92");
-
-    const canonical = await page.getAttribute('link[rel="canonical"]', "href");
-    expect(canonical).toContain("astrogram");
+    // Document-level meta tags are not addressable via Playwright's
+    // semantic locator APIs; read them through the DOM directly.
+    const meta = await page.evaluate(() => {
+      const get = (sel: string) =>
+        (document.querySelector(sel) as HTMLMetaElement | HTMLLinkElement | null)
+          ?.getAttribute("content") ??
+        (document.querySelector(sel) as HTMLLinkElement | null)?.getAttribute("href") ??
+        "";
+      return {
+        ogTitle: get('meta[property="og:title"]'),
+        ogImage: get('meta[property="og:image"]'),
+        twitterCard: get('meta[property="twitter:card"]'),
+        twitterSite: get('meta[name="twitter:site"]'),
+        canonical: get('link[rel="canonical"]'),
+      };
+    });
+    expect(meta.ogTitle).toBe("Astrogram - Professional Exposure Cards. Instantly.");
+    expect(meta.ogImage).toContain("og-astrogram.png");
+    expect(meta.twitterCard).toBe("summary_large_image");
+    expect(meta.twitterSite).toBe("@sidthesloth92");
+    expect(meta.canonical).toContain("astrogram");
 
     const jsonLdText = await page.evaluate(
       () =>

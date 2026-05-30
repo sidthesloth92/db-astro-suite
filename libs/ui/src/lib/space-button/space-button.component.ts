@@ -5,6 +5,12 @@ export type SpaceButtonType = 'button' | 'submit' | 'reset';
 export type SpaceButtonVariant = 'primary' | 'recording' | 'processing';
 export type SpaceButtonSize = 'sm' | 'md' | 'lg';
 
+/**
+ * Legacy themed button used by the previous Starwizz / Hub chrome.
+ *
+ * @deprecated Replaced by the Direction B Polished component family.
+ * Slated for removal in a follow-up cleanup PR.
+ */
 @Component({
   selector: 'dba-ui-space-button',
   standalone: true,

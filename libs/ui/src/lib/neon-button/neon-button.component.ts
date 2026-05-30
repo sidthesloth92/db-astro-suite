@@ -4,6 +4,12 @@ export type NeonButtonType = 'button' | 'submit' | 'reset';
 export type NeonButtonVariant = 'primary' | 'secondary';
 export type NeonButtonSize = 'sm' | 'md';
 
+/**
+ * Legacy neon-themed button.
+ *
+ * @deprecated Replaced by `TextButtonComponent` from the Direction B Polished
+ * component family. Slated for removal in a follow-up cleanup PR.
+ */
 @Component({
   selector: 'dba-ui-neon-button',
   standalone: true,

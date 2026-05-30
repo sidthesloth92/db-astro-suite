@@ -6,11 +6,18 @@ npm-debug.log
 .gitignore
 *.md
 
-# Data directories (only celestial.sqlite is baked into the image)
+# Data directories — all runtime data is mounted from the host volume, never
+# baked into the image (the catalog is rebuilt off-box via `npm run init-db`).
 data/astrometry/
+data/local-catalog/
 data/uploads/
 
-# Build/Orchestration scripts (run on host, not in container)
-scripts/data/
+# Host-only shell scripts are never run inside the container (the container runs
+# Node — see the Dockerfile CMD). Exclude every .sh anywhere. The .mjs/.js
+# scripts the image *does* run stay in (e.g. scripts/data/init-local-catalog-db.mjs,
+# executed by the deploy pipeline to build the catalog into the host volume).
+**/*.sh
+
+# Deploy runbook and its markdown (host-only orchestration)
 scripts/deploy/
 

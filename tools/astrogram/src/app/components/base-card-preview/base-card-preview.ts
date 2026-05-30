@@ -1,5 +1,4 @@
-import { CommonModule } from '@angular/common';
-import { AnalyticsService } from '@db-astro-suite/ui';
+import { AnalyticsService, IconButtonComponent, IconComponent, downloadIcon } from '@db-astro-suite/ui';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -17,11 +16,43 @@ import {
   signal,
   ViewChild,
 } from '@angular/core';
+import { EXPORT_DIMENSIONS_BY_RATIO } from '../../constants/preview-sizes.constants';
+import type { AspectRatio } from '../../models/card-data.model';
+import { CardDataService } from '../../services/card-data.service';
+import { PreviewLayoutService } from '../../services/preview-layout.service';
+import { resizeDataUrlToExactDimensions } from '../../utils/resize-data-url.util';
+
+/** File extension + MIME info per exportable format. */
+const EXPORT_FORMAT_MAP = {
+  jpeg: { ext: 'jpg', mime: 'image/jpeg' as const },
+  png: { ext: 'png', mime: 'image/png' as const },
+  webp: { ext: 'webp', mime: 'image/webp' as const },
+} as const;
+
+/** Reduces a (w, h) pair to its lowest-terms aspect string using `_` as the separator (e.g. `4_5`, `9_16`). */
+function aspectSlug(width: number, height: number): string {
+  const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b));
+  const g = gcd(width, height) || 1;
+  return `${width / g}_${height / g}`;
+}
+
+/**
+ * Filesystem-safe slug derived from a free-form name: lower-cases, replaces
+ * any run of non `[a-z0-9]` characters with a single `-`, and trims leading
+ * and trailing dashes. Returns the fallback when the result is empty.
+ */
+function nameSlug(raw: string, fallback: string): string {
+  const cleaned = raw
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return cleaned || fallback;
+}
 
 @Component({
   selector: 'dba-ag-base-card-preview',
   standalone: true,
-  imports: [CommonModule],
+  imports: [IconButtonComponent, IconComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './base-card-preview.html',
   styleUrls: ['./base-card-preview.css'],
@@ -29,15 +60,24 @@ import {
 })
 export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestroy {
   private analyticsService = inject(AnalyticsService);
-  
-  aspectRatio = input<'3:4' | '4:5' | 'auto'>('4:5');
+  private readonly cardDataService = inject(CardDataService);
+  private readonly previewLayout = inject(PreviewLayoutService);
+
+
+  aspectRatio = input<AspectRatio>('4:5');
   backgroundImage = input<string | null>(null);
   fillMode = input<'cover' | 'contain' | 'fill'>('cover');
   author = input<string>('astrophotographer');
-  exportFilename = input<string>('astrogram');
+  /** Human-readable basename for the export — typically the card title. */
+  exportName = input<string>('astrogram');
+  /** Differentiator inserted between the name and the aspect/resolution suffix (e.g. `info`, `stellar-map`). */
+  exportTag = input<string>('astrogram');
+  /** Disables the built-in Export button (still visible). Used when the host has nothing exportable yet. */
+  disableDownload = input<boolean>(false);
 
   accentColor = input<string>('#ff2d95');
   accentColorRgb = input<string>('255, 45, 149');
+  secondaryAccentColor = input<string>('#00E5FF');
   cardOpacity = input<number>(0.85);
 
   @HostBinding('style.--scale-factor') get scale() {
@@ -52,7 +92,9 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
       if (natW > 0) return `${natW}px`;
       return this.backgroundImage() ? 'auto' : '480px';
     }
-    return `${this.aspectRatio() === '3:4' ? 450 : 480}px`;
+    // Both 3:4 and 4:5 render at 480 px so the surrounding context bar +
+    // caption section align flush with the card chrome on either side.
+    return '480px';
   }
   @HostBinding('style.--img-height') get imgHeight() {
     const natH = this.naturalImageHeight();
@@ -65,8 +107,7 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
       if (natW > 0) return `${natW * scale}px`;
       return `${480 * scale}px`;
     }
-    const baseW = this.aspectRatio() === '3:4' ? 450 : 480;
-    return `${baseW * scale}px`;
+    return `${480 * scale}px`;
   }
   @HostBinding('style.--post-width') get postWidth() {
     if (this.aspectRatio() === 'auto') {
@@ -86,6 +127,9 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
   @HostBinding('style.--accent-color-rgb') get _accentColorRgb() {
     return this.accentColorRgb();
   }
+  @HostBinding('style.--secondary-accent-color') get _secondaryAccentColor() {
+    return this.secondaryAccentColor();
+  }
   @HostBinding('style.--card-opacity') get _cardOpacity() {
     return this.cardOpacity();
   }
@@ -93,6 +137,9 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
   @ViewChild('cardWrapper') cardWrapper!: ElementRef;
   @ViewChild('cardElement') cardElement!: ElementRef;
   @ViewChild('postContainer') postContainerRef!: ElementRef;
+
+  /** Download glyph used by the export FAB. */
+  protected readonly downloadIcon = downloadIcon;
 
   isExporting = signal(false);
   scaleFactor = signal(1);
@@ -117,6 +164,15 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
           this.naturalImageHeight.set(0);
           this.scaleFactor.set(1);
         }
+      },
+      { injector: this.injector },
+    );
+
+    // Re-run scale calculation after the browser reflows for the new aspect-ratio class.
+    effect(
+      () => {
+        this.aspectRatio(); // track input
+        requestAnimationFrame(() => this.calculateScale());
       },
       { injector: this.injector },
     );
@@ -170,34 +226,30 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
     }
     this.naturalHeightPx.set(naturalHeight);
 
-    // Scaling strategy differs by mode
-    let scale = 1;
-
-    // Use window height for better accuracy as the parent .main-container may have padding/margins
+    // Chrome-aware height budget so tall images (and tall infographic cards)
+    // always fit on screen. Accounts for the top bar + mode-toggle row at the
+    // top and a small breathing room at the bottom. The exporter ignores this
+    // transform (it temporarily clears it in `exportCard`), so the downloaded
+    // image is still rendered at the full target resolution from
+    // `EXPORT_DIMENSIONS_BY_RATIO`.
     const viewportHeight = window.innerHeight;
-    const headerHeight = 80; // Adjusted for actual header height
-    const footerPadding = 40; // Small bottom margin
+    const headerHeight = 80;
+    const footerPadding = 40;
     const maxAllowedHeight = (viewportHeight - headerHeight - footerPadding) * 0.95;
 
-    if (this.aspectRatio() === 'auto') {
-      // PROPORTIONAL SCALING: Maximize size based on both width AND height constraints
-      const scaleW = (wrapperRect.width - 40) / naturalWidth; // 40px buffer for horizontal margins
-      const scaleH = maxAllowedHeight / naturalHeight;
-
-      // In Auto mode (Stellar Map), we prioritize filling the available screen height (95%)
-      // This ensures 16:10 or landscape images don't look small.
-      scale = Math.min(scaleW, scaleH);
-    } else {
-      // INFOGRAPHIC SCALING: Fixed width priority, scale down if width is too small
-      scale = wrapperRect.width < naturalWidth ? wrapperRect.width / naturalWidth : 1;
-
-      // Safety clamp for vertical overflow in infographic mode too
-      if (naturalHeight * scale > maxAllowedHeight) {
-        scale = maxAllowedHeight / naturalHeight;
-      }
-    }
+    // No horizontal buffer — stellar (auto) and infographic (fixed) preview
+    // surfaces share the same available width so their final rendered card
+    // widths stay consistent. The card itself clips overflow, so an image
+    // can't bleed past the wrapper edges visually.
+    const scaleW = wrapperRect.width / naturalWidth;
+    const scaleH = maxAllowedHeight / naturalHeight;
+    const scale = Math.min(scaleW, scaleH, 1);
 
     this.scaleFactor.set(scale);
+    // Publish the displayed card width so sibling components (e.g. the
+    // caption section) can match it instead of falling back to the static
+    // 480 px design baseline.
+    this.previewLayout.displayedCardWidth.set(naturalWidth * scale);
   }
 
   async exportCard(event?: MouseEvent) {
@@ -209,14 +261,15 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
       event.stopPropagation();
     }
 
+    const format = this.cardDataService.exportFormat();
+    const fmtInfo = EXPORT_FORMAT_MAP[format];
+
     try {
       // Track card export initiation
-      this.analyticsService.trackCardExportInitiated('jpg');
+      this.analyticsService.trackCardExportInitiated(fmtInfo.ext);
       console.log('--- Export Start (Modern Screenshot) ---');
-      const { domToJpeg } = await import('modern-screenshot');
+      const screenshot = await import('modern-screenshot');
       const element = this.cardElement.nativeElement;
-
-      const filename = `${this.exportFilename() || 'astrogram'}.jpg`;
 
       // Wait for fonts and all images to be truly ready
       await document.fonts.ready;
@@ -231,10 +284,17 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
         }),
       );
 
+      // For fixed-aspect presets we ship at the preset's pixel dimensions
+      // (Instagram-ready 1080×*). For `auto` (stellar map) we ship at the
+      // uploaded image's natural dimensions so the user gets back what
+      // they put in, full resolution.
       const targetDim =
-        this.aspectRatio() === '3:4'
-          ? { width: 1080, height: 1440 }
-          : { width: 1080, height: 1350 };
+        this.aspectRatio() === 'auto'
+          ? { width: this.naturalImageWidth(), height: this.naturalImageHeight() }
+          : EXPORT_DIMENSIONS_BY_RATIO[this.aspectRatio()];
+      const name = nameSlug(this.exportName(), 'astrogram');
+      const tag = this.exportTag() || 'astrogram';
+      const filename = `${name}_${tag}_${aspectSlug(targetDim.width, targetDim.height)}_${targetDim.width}_${targetDim.height}.${fmtInfo.ext}`;
 
       // The card element's natural dimensions (unaffected by CSS transform on parent)
       const naturalWidth = element.offsetWidth;
@@ -258,17 +318,37 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
 
       let dataUrl: string;
       try {
-        dataUrl = await domToJpeg(element, {
+        const opts = {
           scale: captureScale,
           quality: 0.95,
           backgroundColor: '#000000',
-        });
+        };
+        if (format === 'png') {
+          dataUrl = await screenshot.domToPng(element, opts);
+        } else if (format === 'webp') {
+          dataUrl = await screenshot.domToWebp(element, opts);
+        } else {
+          dataUrl = await screenshot.domToJpeg(element, opts);
+        }
         console.log('DOM ready for capture:', filename);
       } finally {
         if (postContainer) {
           postContainer.style.transform = originalTransform;
           postContainer.style.transformOrigin = originalTransformOrigin;
         }
+      }
+
+      // Lock the file to the exact target pixel dimensions. The DOM
+      // capture can drift by 1 px on aspects whose 480 × (h/w) isn't an
+      // integer (9:16, 1.91:1) or from raster sub-pixel rounding. For
+      // `auto` mode the target is the uploaded image's natural size.
+      if (targetDim.width > 0 && targetDim.height > 0) {
+        dataUrl = await resizeDataUrlToExactDimensions(
+          dataUrl,
+          fmtInfo.mime,
+          targetDim.width,
+          targetDim.height,
+        );
       }
 
       console.log('Image generated. Triggering download...');
@@ -288,7 +368,7 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
       
       // Track successful export
       const dataUrlSize = Math.ceil(dataUrl.length / 1024); // Convert to KB
-      this.analyticsService.trackCardExportSuccess('jpg', dataUrlSize, 0);
+      this.analyticsService.trackCardExportSuccess(fmtInfo.ext, dataUrlSize, 0);
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';
       this.analyticsService.trackCardExportFailed(errorMsg);

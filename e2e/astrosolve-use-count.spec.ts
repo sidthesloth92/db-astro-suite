@@ -21,9 +21,23 @@ interface SqliteDb {
   close(): void;
 }
 
-const Database = serverRequire("better-sqlite3") as {
-  new (filePath: string): SqliteDb;
-};
+/**
+ * Skip this whole describe block when running inside the Docker test
+ * runner (`pnpm test:e2e:docker`). The container bind-mounts the host's
+ * node_modules, but `better-sqlite3` ships a compiled C++ addon built
+ * for whichever OS ran `pnpm install` — macOS bytes can't load on the
+ * container's Linux runtime. CI runs `pnpm install` inside its Linux
+ * runner so the binary matches there; native macOS dev (`pnpm test:e2e`)
+ * also works because the binary matches the host. Only the
+ * macOS-host-into-Linux-container hop breaks.
+ */
+const skipForDockerMacBinary = process.env.SKIP_NATIVE_DEPS_TESTS === "1";
+
+const Database = skipForDockerMacBinary
+  ? (null as unknown as { new (filePath: string): SqliteDb })
+  : (serverRequire("better-sqlite3") as {
+      new (filePath: string): SqliteDb;
+    });
 
 const DB_PATH = path.resolve(
   __dirname,
@@ -41,7 +55,12 @@ function hashKey(plainKey: string): string {
   return crypto.createHash("sha256").update(plainKey).digest("hex");
 }
 
-test.describe("astrosolve: use_count tracking", () => {
+// `test.describe.skip` short-circuits beforeAll + every test in the block,
+// which is what we need — beforeAll opens the SQLite handle and would
+// crash on the missing native binary before any per-test skip could fire.
+const describer = skipForDockerMacBinary ? test.describe.skip : test.describe;
+
+describer("astrosolve: use_count tracking", () => {
   // Tests share a live server and the same DB file — run serially to avoid
   // request ordering surprises and to stay within the server's rate limit
   // (5 req/min).

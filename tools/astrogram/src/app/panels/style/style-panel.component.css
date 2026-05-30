@@ -1,0 +1,89 @@
+:host {
+  display: block;
+  color: var(--db-color-text-primary);
+}
+
+.panel-root {
+  display: flex;
+  flex-direction: column;
+}
+
+.divider {
+  height: 1px;
+  background: var(--db-color-border);
+  border: none;
+  margin: 0 18px;
+}
+
+.bg-wrap {
+  padding: 0 18px 16px;
+}
+
+.bg-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 7px;
+  background: var(--db-color-surface-bg);
+  border: 1px solid var(--db-color-border);
+}
+
+.bg-thumb {
+  width: 44px;
+  height: 32px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: radial-gradient(ellipse, var(--db-color-pink-soft), var(--db-color-surface-bg));
+  flex-shrink: 0;
+}
+
+.bg-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bg-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bg-name {
+  font-family: var(--db-font-ui);
+  font-size: 11px;
+  color: var(--db-color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bg-sub {
+  font-family: var(--db-font-mono-code);
+  font-size: 10px;
+  color: var(--db-color-text-faint);
+}
+
+.replace-btn,
+.remove-btn {
+  padding: 5px 10px;
+  border-radius: 5px;
+  background: transparent;
+  border: 1px solid var(--db-color-border);
+  color: var(--db-color-text-dim);
+  font-family: var(--db-font-mono-code);
+  font-weight: 500;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.replace-btn:hover,
+.remove-btn:hover {
+  color: var(--db-color-text-primary);
+  border-color: var(--db-color-border-strong);
+}

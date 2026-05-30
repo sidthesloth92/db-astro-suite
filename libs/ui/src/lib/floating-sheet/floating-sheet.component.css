@@ -1,0 +1,125 @@
+:host {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 20;
+}
+
+.sheet {
+  background: var(--db-color-sheet-bg);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  backdrop-filter: blur(20px) saturate(160%);
+  border-radius: 16px;
+  border: 1px solid var(--db-color-border-strong);
+  box-shadow: var(--db-shadow-sheet);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition:
+    background 260ms cubic-bezier(0.32, 0.72, 0, 1),
+    border-color 260ms cubic-bezier(0.32, 0.72, 0, 1),
+    box-shadow 260ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.sheet:not(.is-expanded):not(:has(.nav-slot:not(:empty))) {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+/*
+ * The body-wrapper uses the `grid-template-rows: 0fr ↔ 1fr` trick to
+ * give us a reversible, CSS-only slide animation when `expanded`
+ * toggles. The body itself remains in the DOM at all times so both
+ * the enter and leave transitions run smoothly.
+ */
+.body-wrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 260ms cubic-bezier(0.32, 0.72, 0, 1);
+  min-height: 0;
+  overflow: hidden;
+}
+
+.sheet.is-expanded .body-wrapper {
+  grid-template-rows: 1fr;
+}
+
+.body {
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border-bottom: 1px solid var(--db-color-border-strong);
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  transition: opacity 220ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.sheet.is-expanded .body {
+  opacity: 1;
+}
+
+.sheet:not(.is-expanded) .body {
+  border-bottom-color: transparent;
+  pointer-events: none;
+}
+
+.header {
+  padding: 10px 16px 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: sticky;
+  top: 0;
+  background: var(--db-color-sheet-header-bg);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  z-index: 1;
+}
+
+.title {
+  font: 600 13px/1 var(--db-font-ui);
+  color: var(--db-color-text-primary);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-actions:empty {
+  display: none;
+}
+
+.close {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: var(--db-color-text-dim);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  border-radius: 4px;
+}
+
+.close:hover {
+  color: var(--db-color-text-primary);
+}
+
+.close:focus-visible {
+  outline: 2px solid var(--db-color-cyan);
+  outline-offset: 2px;
+}
+
+.content {
+  flex: 1;
+}

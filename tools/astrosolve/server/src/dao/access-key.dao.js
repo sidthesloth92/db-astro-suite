@@ -29,9 +29,24 @@ export class AccessKeyDao {
   }
 
   /**
+   * Replaces the stored key hash for an existing username. The previous
+   * key stops working immediately. `use_count`, `created_at`, and
+   * `active` are intentionally preserved.
+   *
+   * @param {string} username
+   * @param {string} newKeyHash - SHA-256 hex digest of the new plain-text key
+   * @returns {void}
+   * @throws {AccessKeyError} If the username is not found
+   */
+  // eslint-disable-next-line no-unused-vars
+  rotateAccessKey(username, newKeyHash) {
+    throw new Error("Not implemented");
+  }
+
+  /**
    * Returns all key records (without hashes).
    *
-   * @returns {{ username: string, created_at: string, active: number, use_count: number }[]}
+   * @returns {{ id: number, username: string, created_at: string, active: number, use_count: number }[]}
    */
   listAccessKeys() {
     throw new Error("Not implemented");

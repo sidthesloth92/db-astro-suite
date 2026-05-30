@@ -1,0 +1,126 @@
+:host {
+  display: block;
+}
+
+.footer {
+  width: 100%;
+  background: var(--db-color-surface);
+  border-top: 1px solid var(--db-color-border);
+  padding: 3rem 2rem 1.5rem;
+  margin-top: 4rem;
+  font-family: var(--db-font-ui);
+  color: var(--db-color-text-dim);
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto 3rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 3rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--db-font-display-major);
+  font-weight: 400;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  color: var(--db-color-text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.brand-dot {
+  width: 7px;
+  height: 7px;
+  background: var(--db-color-neon-pink);
+  border-radius: 50%;
+}
+
+.tagline {
+  font-family: var(--db-font-mono-code);
+  font-size: 10px;
+  color: var(--db-color-text-faint);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.status {
+  display: flex;
+  gap: 3rem;
+  justify-content: center;
+}
+
+.status-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.status-label {
+  font-family: var(--db-font-mono-code);
+  font-size: 9px;
+  color: var(--db-color-text-faint);
+  letter-spacing: 0.12em;
+}
+
+.status-value {
+  font-family: var(--db-font-mono-code);
+  font-size: 11px;
+  color: var(--db-color-cyan);
+  letter-spacing: 0.08em;
+}
+
+.footer-links {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.footer-link {
+  color: var(--db-color-text-dim);
+  text-decoration: none;
+  font-family: var(--db-font-ui);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  transition: color 180ms ease;
+}
+
+.footer-link:hover {
+  color: var(--db-color-text-primary);
+}
+
+.footer-link:focus-visible {
+  outline: 2px solid var(--db-color-cyan);
+  outline-offset: 2px;
+}
+
+.footer-bottom {
+  max-width: 1200px;
+  margin: 0 auto;
+  border-top: 1px solid var(--db-color-border);
+  padding-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  color: var(--db-color-text-faint);
+  font-family: var(--db-font-mono-code);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+}
+
+@media (max-width: 900px) {
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    text-align: center;
+  }
+
+  .brand,
+  .status,
+  .footer-links {
+    justify-content: center;
+  }
+}

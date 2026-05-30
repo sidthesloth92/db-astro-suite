@@ -1,0 +1,709 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DB Astro Suite — Logo Concepts</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Orbitron:wght@400;700&family=Fira+Code:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #05060a;
+        --surface: #0b0e16;
+        --surface-raised: #11151f;
+        --pink: #ff2d95;
+        --cyan: #00e5ff;
+        --orange: #ff6b3d;
+        --warm: #ffc36b;
+        --deep: #6b1a48;
+        --text: #e0e0e0;
+        --dim: #8b92a6;
+        --faint: #5a6175;
+        --border: rgba(255, 255, 255, 0.06);
+        --border-strong: rgba(255, 255, 255, 0.1);
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at 15% 10%, rgba(255, 45, 149, 0.08), transparent 40%),
+          radial-gradient(circle at 85% 80%, rgba(0, 229, 255, 0.06), transparent 45%),
+          var(--bg);
+        color: var(--text);
+        font-family: "Outfit", system-ui, sans-serif;
+        padding: 48px 32px 96px;
+      }
+
+      header {
+        max-width: 1200px;
+        margin: 0 auto 48px;
+        text-align: center;
+      }
+
+      header h1 {
+        font-family: "Orbitron", sans-serif;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        font-size: 28px;
+        margin: 0 0 12px;
+        background: linear-gradient(90deg, var(--pink), var(--cyan));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      header p {
+        color: var(--dim);
+        font-size: 14px;
+        margin: 0;
+        letter-spacing: 0.05em;
+      }
+
+      section {
+        max-width: 1200px;
+        margin: 0 auto 64px;
+      }
+
+      .section-head {
+        display: flex;
+        align-items: baseline;
+        gap: 16px;
+        margin-bottom: 24px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .section-head h2 {
+        font-family: "Orbitron", sans-serif;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        font-size: 18px;
+        margin: 0;
+        color: var(--pink);
+      }
+
+      .section-head .blurb {
+        color: var(--faint);
+        font-size: 13px;
+        font-family: "Fira Code", monospace;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+      }
+
+      .card {
+        background: linear-gradient(180deg, var(--surface-raised), var(--surface));
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 28px 24px 20px;
+        position: relative;
+        overflow: hidden;
+        transition: transform 200ms ease, border-color 200ms ease,
+          box-shadow 200ms ease;
+      }
+
+      .card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          135deg,
+          transparent 60%,
+          rgba(255, 45, 149, 0.05) 100%
+        );
+        pointer-events: none;
+      }
+
+      .card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(255, 45, 149, 0.4);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6),
+          0 0 0 1px rgba(255, 45, 149, 0.2);
+      }
+
+      .card .id {
+        position: absolute;
+        top: 12px;
+        right: 14px;
+        font-family: "Fira Code", monospace;
+        font-size: 10px;
+        color: var(--faint);
+        letter-spacing: 0.1em;
+      }
+
+      .logo-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 120px;
+        margin-bottom: 20px;
+      }
+
+      .lockup {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 14px;
+        background: rgba(0, 0, 0, 0.25);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+      }
+
+      .lockup svg { flex: none; }
+
+      .lockup .name {
+        font-family: "Outfit", sans-serif;
+        font-weight: 600;
+        font-size: 18px;
+        letter-spacing: 0.06em;
+        color: var(--text);
+      }
+
+      .lockup .name span { color: var(--pink); }
+
+      .meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 11px;
+        font-family: "Fira Code", monospace;
+        color: var(--dim);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .meta .label { color: var(--text); }
+      .meta .tag {
+        color: var(--cyan);
+        border: 1px solid rgba(0, 229, 255, 0.3);
+        background: rgba(0, 229, 255, 0.06);
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>DB Astro Suite — Logo Concepts</h1>
+      <p>Three brands · three concepts each · neon-on-space palette</p>
+    </header>
+
+    <!-- ====================== DB ASTRO SUITE ====================== -->
+    <section>
+      <div class="section-head">
+        <h2>db astro suite</h2>
+        <span class="blurb">// umbrella brand · monogram + orbit</span>
+      </div>
+      <div class="grid">
+        <!-- DBS-01: Hex monogram with orbit -->
+        <div class="card">
+          <span class="id">DBS · 01</span>
+          <div class="logo-wrap">
+            <svg width="96" height="96" viewBox="0 0 96 96" fill="none">
+              <defs>
+                <linearGradient id="dbs1-grad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#ff2d95" />
+                  <stop offset="1" stop-color="#ff6b3d" />
+                </linearGradient>
+                <filter id="dbs1-glow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feGaussianBlur stdDeviation="2" result="b" />
+                  <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+                </filter>
+              </defs>
+              <!-- Hex frame -->
+              <path
+                d="M48 6 L82 26 L82 70 L48 90 L14 70 L14 26 Z"
+                stroke="url(#dbs1-grad)"
+                stroke-width="2"
+                fill="rgba(255,45,149,0.04)"
+                filter="url(#dbs1-glow)"
+              />
+              <!-- Orbit ellipse -->
+              <ellipse
+                cx="48"
+                cy="48"
+                rx="30"
+                ry="12"
+                stroke="#00e5ff"
+                stroke-width="1.2"
+                fill="none"
+                opacity="0.7"
+                transform="rotate(-25 48 48)"
+              />
+              <!-- Monogram db -->
+              <text
+                x="48"
+                y="58"
+                text-anchor="middle"
+                font-family="Orbitron, sans-serif"
+                font-weight="700"
+                font-size="26"
+                fill="#e0e0e0"
+                letter-spacing="2"
+              >db</text>
+              <!-- Orbit dot -->
+              <circle cx="76" cy="38" r="2.5" fill="#00e5ff" filter="url(#dbs1-glow)" />
+            </svg>
+          </div>
+          <div class="lockup">
+            <svg width="28" height="28" viewBox="0 0 96 96">
+              <path d="M48 6 L82 26 L82 70 L48 90 L14 70 L14 26 Z" stroke="#ff2d95" stroke-width="3" fill="none" />
+              <text x="48" y="60" text-anchor="middle" font-family="Orbitron" font-weight="700" font-size="32" fill="#e0e0e0">db</text>
+            </svg>
+            <div class="name">DB <span>ASTRO SUITE</span></div>
+          </div>
+          <div class="meta">
+            <span class="label">Hex Monogram</span>
+            <span class="tag">UMBRELLA</span>
+          </div>
+        </div>
+
+        <!-- DBS-02: Astrolabe rings -->
+        <div class="card">
+          <span class="id">DBS · 02</span>
+          <div class="logo-wrap">
+            <svg width="96" height="96" viewBox="0 0 96 96" fill="none">
+              <defs>
+                <radialGradient id="dbs2-core" cx="0.5" cy="0.5" r="0.5">
+                  <stop offset="0" stop-color="#ffc36b" />
+                  <stop offset="0.6" stop-color="#ff2d95" />
+                  <stop offset="1" stop-color="#6b1a48" />
+                </radialGradient>
+                <filter id="dbs2-glow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feGaussianBlur stdDeviation="2.5" />
+                </filter>
+              </defs>
+              <!-- Outer ring with notches -->
+              <circle cx="48" cy="48" r="40" stroke="#ff2d95" stroke-width="1" fill="none" opacity="0.6" />
+              <circle cx="48" cy="48" r="40" stroke="#ff2d95" stroke-width="2" fill="none" stroke-dasharray="2 8" />
+              <!-- Middle ring -->
+              <ellipse cx="48" cy="48" rx="32" ry="14" stroke="#00e5ff" stroke-width="1.5" fill="none" opacity="0.8" />
+              <ellipse cx="48" cy="48" rx="14" ry="32" stroke="#00e5ff" stroke-width="1.5" fill="none" opacity="0.4" />
+              <!-- Core -->
+              <circle cx="48" cy="48" r="10" fill="url(#dbs2-core)" filter="url(#dbs2-glow)" />
+              <circle cx="48" cy="48" r="10" fill="url(#dbs2-core)" />
+              <!-- Cardinal ticks -->
+              <line x1="48" y1="2" x2="48" y2="10" stroke="#ff2d95" stroke-width="2" />
+              <line x1="48" y1="86" x2="48" y2="94" stroke="#ff2d95" stroke-width="2" />
+              <line x1="2" y1="48" x2="10" y2="48" stroke="#ff2d95" stroke-width="2" />
+              <line x1="86" y1="48" x2="94" y2="48" stroke="#ff2d95" stroke-width="2" />
+            </svg>
+          </div>
+          <div class="lockup">
+            <svg width="28" height="28" viewBox="0 0 96 96">
+              <circle cx="48" cy="48" r="40" stroke="#ff2d95" stroke-width="3" fill="none" />
+              <ellipse cx="48" cy="48" rx="32" ry="14" stroke="#00e5ff" stroke-width="3" fill="none" />
+              <circle cx="48" cy="48" r="10" fill="#ff2d95" />
+            </svg>
+            <div class="name">DB <span>ASTRO SUITE</span></div>
+          </div>
+          <div class="meta">
+            <span class="label">Astrolabe</span>
+            <span class="tag">UMBRELLA</span>
+          </div>
+        </div>
+
+        <!-- DBS-03: Stacked DB with scanline -->
+        <div class="card">
+          <span class="id">DBS · 03</span>
+          <div class="logo-wrap">
+            <svg width="120" height="96" viewBox="0 0 120 96" fill="none">
+              <defs>
+                <linearGradient id="dbs3-scan" x1="0" x2="1" y1="0" y2="0">
+                  <stop offset="0" stop-color="transparent" />
+                  <stop offset="0.5" stop-color="#ff2d95" />
+                  <stop offset="1" stop-color="transparent" />
+                </linearGradient>
+                <filter id="dbs3-glow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feGaussianBlur stdDeviation="1.5" result="b" />
+                  <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+                </filter>
+              </defs>
+              <!-- Top bracket -->
+              <path d="M8 12 L8 4 L24 4" stroke="#00e5ff" stroke-width="1.5" fill="none" />
+              <path d="M112 12 L112 4 L96 4" stroke="#00e5ff" stroke-width="1.5" fill="none" />
+              <path d="M8 84 L8 92 L24 92" stroke="#00e5ff" stroke-width="1.5" fill="none" />
+              <path d="M112 84 L112 92 L96 92" stroke="#00e5ff" stroke-width="1.5" fill="none" />
+              <!-- DB letters -->
+              <text
+                x="60"
+                y="56"
+                text-anchor="middle"
+                font-family="Orbitron, sans-serif"
+                font-weight="700"
+                font-size="44"
+                fill="#e0e0e0"
+                letter-spacing="6"
+                filter="url(#dbs3-glow)"
+              >DB</text>
+              <!-- Scanline -->
+              <rect x="14" y="68" width="92" height="2" fill="url(#dbs3-scan)" />
+              <!-- Tagline -->
+              <text x="60" y="80" text-anchor="middle" font-family="Fira Code, monospace" font-size="7" letter-spacing="3" fill="#8b92a6">ASTRO SUITE</text>
+              <!-- Star dots -->
+              <circle cx="14" cy="26" r="1.5" fill="#ff2d95" />
+              <circle cx="106" cy="26" r="1.5" fill="#ff2d95" />
+            </svg>
+          </div>
+          <div class="lockup">
+            <svg width="40" height="28" viewBox="0 0 120 96">
+              <text x="60" y="60" text-anchor="middle" font-family="Orbitron" font-weight="700" font-size="48" fill="#e0e0e0" letter-spacing="4">DB</text>
+              <rect x="14" y="72" width="92" height="3" fill="#ff2d95" />
+            </svg>
+            <div class="name">DB <span>ASTRO SUITE</span></div>
+          </div>
+          <div class="meta">
+            <span class="label">Terminal Bracket</span>
+            <span class="tag">UMBRELLA</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================== ASTROGRAM ====================== -->
+    <section>
+      <div class="section-head">
+        <h2>astrogram</h2>
+        <span class="blurb">// photo annotation · frame + star</span>
+      </div>
+      <div class="grid">
+        <!-- AG-01: Aperture star fusion -->
+        <div class="card">
+          <span class="id">AG · 01</span>
+          <div class="logo-wrap">
+            <svg width="96" height="96" viewBox="0 0 96 96" fill="none">
+              <defs>
+                <linearGradient id="ag1-grad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#ffc36b" />
+                  <stop offset="0.6" stop-color="#ff2d95" />
+                  <stop offset="1" stop-color="#6b1a48" />
+                </linearGradient>
+                <filter id="ag1-glow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feGaussianBlur stdDeviation="3" />
+                </filter>
+              </defs>
+              <!-- Aperture blades (octagon) -->
+              <g stroke="#ff2d95" stroke-width="2" fill="none" stroke-linejoin="round">
+                <polygon points="48,8 70,18 82,40 82,56 70,78 48,88 26,78 14,56 14,40 26,18" />
+              </g>
+              <!-- Inner blade lines -->
+              <g stroke="#ff2d95" stroke-width="1" opacity="0.4">
+                <line x1="48" y1="8" x2="48" y2="48" />
+                <line x1="70" y1="18" x2="48" y2="48" />
+                <line x1="82" y1="40" x2="48" y2="48" />
+                <line x1="82" y1="56" x2="48" y2="48" />
+                <line x1="70" y1="78" x2="48" y2="48" />
+                <line x1="48" y1="88" x2="48" y2="48" />
+                <line x1="26" y1="78" x2="48" y2="48" />
+                <line x1="14" y1="56" x2="48" y2="48" />
+                <line x1="14" y1="40" x2="48" y2="48" />
+                <line x1="26" y1="18" x2="48" y2="48" />
+              </g>
+              <!-- Center star burst -->
+              <g filter="url(#ag1-glow)">
+                <path
+                  d="M48 28 L52 44 L68 48 L52 52 L48 68 L44 52 L28 48 L44 44 Z"
+                  fill="url(#ag1-grad)"
+                />
+              </g>
+              <path
+                d="M48 28 L52 44 L68 48 L52 52 L48 68 L44 52 L28 48 L44 44 Z"
+                fill="#ffc36b"
+              />
+            </svg>
+          </div>
+          <div class="lockup">
+            <svg width="28" height="28" viewBox="0 0 96 96">
+              <polygon points="48,8 70,18 82,40 82,56 70,78 48,88 26,78 14,56 14,40 26,18" stroke="#ff2d95" stroke-width="4" fill="none" />
+              <path d="M48 30 L52 44 L66 48 L52 52 L48 66 L44 52 L30 48 L44 44 Z" fill="#ff2d95" />
+            </svg>
+            <div class="name">ASTRO<span>GRAM</span></div>
+          </div>
+          <div class="meta">
+            <span class="label">Aperture · Star</span>
+            <span class="tag">PHOTO</span>
+          </div>
+        </div>
+
+        <!-- AG-02: Frame + crosshair + pin star -->
+        <div class="card">
+          <span class="id">AG · 02</span>
+          <div class="logo-wrap">
+            <svg width="96" height="96" viewBox="0 0 96 96" fill="none">
+              <defs>
+                <filter id="ag2-glow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feGaussianBlur stdDeviation="2" result="b" />
+                  <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+                </filter>
+              </defs>
+              <!-- Photo frame corners -->
+              <g stroke="#ff2d95" stroke-width="2.5" stroke-linecap="round" fill="none">
+                <path d="M10 22 L10 10 L22 10" />
+                <path d="M86 22 L86 10 L74 10" />
+                <path d="M10 74 L10 86 L22 86" />
+                <path d="M86 74 L86 86 L74 86" />
+              </g>
+              <!-- Crosshair -->
+              <line x1="48" y1="24" x2="48" y2="38" stroke="#00e5ff" stroke-width="1.5" opacity="0.7" />
+              <line x1="48" y1="58" x2="48" y2="72" stroke="#00e5ff" stroke-width="1.5" opacity="0.7" />
+              <line x1="24" y1="48" x2="38" y2="48" stroke="#00e5ff" stroke-width="1.5" opacity="0.7" />
+              <line x1="58" y1="48" x2="72" y2="48" stroke="#00e5ff" stroke-width="1.5" opacity="0.7" />
+              <!-- Center star -->
+              <g filter="url(#ag2-glow)">
+                <path
+                  d="M48 34 L51 45 L62 48 L51 51 L48 62 L45 51 L34 48 L45 45 Z"
+                  fill="#ff2d95"
+                />
+              </g>
+              <!-- Diffraction spikes -->
+              <line x1="48" y1="28" x2="48" y2="68" stroke="#ffc36b" stroke-width="0.8" opacity="0.7" />
+              <line x1="28" y1="48" x2="68" y2="48" stroke="#ffc36b" stroke-width="0.8" opacity="0.7" />
+            </svg>
+          </div>
+          <div class="lockup">
+            <svg width="28" height="28" viewBox="0 0 96 96">
+              <g stroke="#ff2d95" stroke-width="5" fill="none" stroke-linecap="round">
+                <path d="M10 22 L10 10 L22 10" />
+                <path d="M86 22 L86 10 L74 10" />
+                <path d="M10 74 L10 86 L22 86" />
+                <path d="M86 74 L86 86 L74 86" />
+              </g>
+              <path d="M48 36 L52 46 L62 48 L52 50 L48 60 L44 50 L34 48 L44 46 Z" fill="#ff2d95" />
+            </svg>
+            <div class="name">ASTRO<span>GRAM</span></div>
+          </div>
+          <div class="meta">
+            <span class="label">Frame · Crosshair</span>
+            <span class="tag">PHOTO</span>
+          </div>
+        </div>
+
+        <!-- AG-03: Polaroid with constellation -->
+        <div class="card">
+          <span class="id">AG · 03</span>
+          <div class="logo-wrap">
+            <svg width="96" height="96" viewBox="0 0 96 96" fill="none">
+              <defs>
+                <linearGradient id="ag3-bg" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#11151f" />
+                  <stop offset="1" stop-color="#05060a" />
+                </linearGradient>
+                <filter id="ag3-glow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feGaussianBlur stdDeviation="1.5" result="b" />
+                  <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+                </filter>
+              </defs>
+              <!-- Polaroid frame -->
+              <rect x="14" y="10" width="68" height="76" rx="4" stroke="#ff2d95" stroke-width="2" fill="url(#ag3-bg)" transform="rotate(-6 48 48)" />
+              <rect x="20" y="16" width="56" height="46" rx="2" fill="rgba(0,229,255,0.04)" stroke="#00e5ff" stroke-width="0.8" transform="rotate(-6 48 48)" />
+              <!-- Constellation inside -->
+              <g transform="rotate(-6 48 48)" filter="url(#ag3-glow)">
+                <line x1="30" y1="28" x2="42" y2="34" stroke="#ff2d95" stroke-width="0.8" opacity="0.6" />
+                <line x1="42" y1="34" x2="56" y2="30" stroke="#ff2d95" stroke-width="0.8" opacity="0.6" />
+                <line x1="42" y1="34" x2="48" y2="48" stroke="#ff2d95" stroke-width="0.8" opacity="0.6" />
+                <line x1="48" y1="48" x2="64" y2="44" stroke="#ff2d95" stroke-width="0.8" opacity="0.6" />
+                <circle cx="30" cy="28" r="1.8" fill="#ffc36b" />
+                <circle cx="42" cy="34" r="2.5" fill="#ff2d95" />
+                <circle cx="56" cy="30" r="1.5" fill="#e0e0e0" />
+                <circle cx="48" cy="48" r="2" fill="#00e5ff" />
+                <circle cx="64" cy="44" r="1.8" fill="#ffc36b" />
+              </g>
+              <!-- Caption strip -->
+              <rect x="20" y="68" width="56" height="14" fill="rgba(255,45,149,0.1)" transform="rotate(-6 48 48)" />
+            </svg>
+          </div>
+          <div class="lockup">
+            <svg width="28" height="28" viewBox="0 0 96 96">
+              <rect x="14" y="10" width="68" height="76" rx="4" stroke="#ff2d95" stroke-width="5" fill="none" transform="rotate(-6 48 48)" />
+              <circle cx="48" cy="44" r="6" fill="#ff2d95" transform="rotate(-6 48 48)" />
+            </svg>
+            <div class="name">ASTRO<span>GRAM</span></div>
+          </div>
+          <div class="meta">
+            <span class="label">Polaroid · Constellation</span>
+            <span class="tag">PHOTO</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================== STARWIZZ ====================== -->
+    <section>
+      <div class="section-head">
+        <h2>starwizz</h2>
+        <span class="blurb">// plate solving · star + wizardry</span>
+      </div>
+      <div class="grid">
+        <!-- SW-01: Wand + star tip -->
+        <div class="card">
+          <span class="id">SW · 01</span>
+          <div class="logo-wrap">
+            <svg width="96" height="96" viewBox="0 0 96 96" fill="none">
+              <defs>
+                <linearGradient id="sw1-wand" x1="0" y1="1" x2="1" y2="0">
+                  <stop offset="0" stop-color="#6b1a48" />
+                  <stop offset="1" stop-color="#ff2d95" />
+                </linearGradient>
+                <filter id="sw1-glow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feGaussianBlur stdDeviation="3" />
+                </filter>
+              </defs>
+              <!-- Wand body -->
+              <line x1="20" y1="76" x2="58" y2="38" stroke="url(#sw1-wand)" stroke-width="4" stroke-linecap="round" />
+              <!-- Wand grip -->
+              <line x1="18" y1="78" x2="26" y2="70" stroke="#00e5ff" stroke-width="3" stroke-linecap="round" opacity="0.8" />
+              <!-- Sparkle trail -->
+              <circle cx="44" cy="60" r="1.5" fill="#ffc36b" opacity="0.7" />
+              <circle cx="36" cy="68" r="1" fill="#00e5ff" opacity="0.6" />
+              <circle cx="52" cy="52" r="1.2" fill="#ff2d95" opacity="0.8" />
+              <!-- Star tip with glow -->
+              <g filter="url(#sw1-glow)">
+                <path
+                  d="M62 16 L66 32 L82 36 L66 40 L62 56 L58 40 L42 36 L58 32 Z"
+                  fill="#ff2d95"
+                />
+              </g>
+              <path
+                d="M62 16 L66 32 L82 36 L66 40 L62 56 L58 40 L42 36 L58 32 Z"
+                fill="#ffc36b"
+              />
+              <!-- Spark rays -->
+              <line x1="62" y1="6" x2="62" y2="14" stroke="#ffc36b" stroke-width="1.5" stroke-linecap="round" />
+              <line x1="78" y1="20" x2="84" y2="14" stroke="#ffc36b" stroke-width="1.5" stroke-linecap="round" />
+              <line x1="84" y1="36" x2="92" y2="36" stroke="#ffc36b" stroke-width="1.5" stroke-linecap="round" />
+            </svg>
+          </div>
+          <div class="lockup">
+            <svg width="28" height="28" viewBox="0 0 96 96">
+              <line x1="20" y1="76" x2="58" y2="38" stroke="#ff2d95" stroke-width="8" stroke-linecap="round" />
+              <path d="M62 16 L66 32 L82 36 L66 40 L62 56 L58 40 L42 36 L58 32 Z" fill="#ffc36b" />
+            </svg>
+            <div class="name">STAR<span>WIZZ</span></div>
+          </div>
+          <div class="meta">
+            <span class="label">Wand · Sparkle</span>
+            <span class="tag">SOLVER</span>
+          </div>
+        </div>
+
+        <!-- SW-02: Star with orbit ring -->
+        <div class="card">
+          <span class="id">SW · 02</span>
+          <div class="logo-wrap">
+            <svg width="96" height="96" viewBox="0 0 96 96" fill="none">
+              <defs>
+                <radialGradient id="sw2-star" cx="0.4" cy="0.4" r="0.6">
+                  <stop offset="0" stop-color="#ffc36b" />
+                  <stop offset="0.5" stop-color="#ff2d95" />
+                  <stop offset="1" stop-color="#6b1a48" />
+                </radialGradient>
+                <filter id="sw2-glow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feGaussianBlur stdDeviation="3.5" />
+                </filter>
+              </defs>
+              <!-- Orbit ring -->
+              <ellipse cx="48" cy="48" rx="40" ry="14" stroke="#00e5ff" stroke-width="1.5" fill="none" transform="rotate(-20 48 48)" opacity="0.8" />
+              <ellipse cx="48" cy="48" rx="40" ry="14" stroke="#00e5ff" stroke-width="1" fill="none" transform="rotate(-20 48 48)" stroke-dasharray="1 4" />
+              <!-- Star core glow -->
+              <circle cx="48" cy="48" r="22" fill="url(#sw2-star)" filter="url(#sw2-glow)" opacity="0.6" />
+              <!-- Star -->
+              <path
+                d="M48 22 L54 42 L74 48 L54 54 L48 74 L42 54 L22 48 L42 42 Z"
+                fill="url(#sw2-star)"
+              />
+              <!-- Diffraction spikes -->
+              <line x1="48" y1="10" x2="48" y2="22" stroke="#ffc36b" stroke-width="1" opacity="0.8" />
+              <line x1="48" y1="74" x2="48" y2="86" stroke="#ffc36b" stroke-width="1" opacity="0.8" />
+              <line x1="10" y1="48" x2="22" y2="48" stroke="#ffc36b" stroke-width="1" opacity="0.8" />
+              <line x1="74" y1="48" x2="86" y2="48" stroke="#ffc36b" stroke-width="1" opacity="0.8" />
+              <!-- Orbiting planet -->
+              <circle cx="84" cy="42" r="2.5" fill="#00e5ff" />
+            </svg>
+          </div>
+          <div class="lockup">
+            <svg width="28" height="28" viewBox="0 0 96 96">
+              <ellipse cx="48" cy="48" rx="40" ry="14" stroke="#00e5ff" stroke-width="4" fill="none" transform="rotate(-20 48 48)" />
+              <path d="M48 22 L54 42 L74 48 L54 54 L48 74 L42 54 L22 48 L42 42 Z" fill="#ff2d95" />
+            </svg>
+            <div class="name">STAR<span>WIZZ</span></div>
+          </div>
+          <div class="meta">
+            <span class="label">Star · Orbit</span>
+            <span class="tag">SOLVER</span>
+          </div>
+        </div>
+
+        <!-- SW-03: Constellation map -->
+        <div class="card">
+          <span class="id">SW · 03</span>
+          <div class="logo-wrap">
+            <svg width="96" height="96" viewBox="0 0 96 96" fill="none">
+              <defs>
+                <filter id="sw3-glow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feGaussianBlur stdDeviation="2" result="b" />
+                  <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+                </filter>
+              </defs>
+              <!-- Solving box -->
+              <rect x="8" y="8" width="80" height="80" rx="6" stroke="#ff2d95" stroke-width="1.2" fill="rgba(255,45,149,0.03)" stroke-dasharray="4 4" />
+              <!-- Constellation lines -->
+              <g stroke="#00e5ff" stroke-width="1" opacity="0.7">
+                <line x1="22" y1="28" x2="40" y2="22" />
+                <line x1="40" y1="22" x2="60" y2="38" />
+                <line x1="60" y1="38" x2="48" y2="58" />
+                <line x1="48" y1="58" x2="28" y2="64" />
+                <line x1="48" y1="58" x2="72" y2="66" />
+                <line x1="72" y1="66" x2="78" y2="46" />
+              </g>
+              <!-- Stars -->
+              <g filter="url(#sw3-glow)">
+                <circle cx="22" cy="28" r="2" fill="#e0e0e0" />
+                <circle cx="40" cy="22" r="2.5" fill="#ffc36b" />
+                <circle cx="60" cy="38" r="4" fill="#ff2d95" />
+                <circle cx="48" cy="58" r="3" fill="#ffc36b" />
+                <circle cx="28" cy="64" r="2" fill="#e0e0e0" />
+                <circle cx="72" cy="66" r="2.5" fill="#00e5ff" />
+                <circle cx="78" cy="46" r="2" fill="#e0e0e0" />
+              </g>
+              <!-- Reticle on main star -->
+              <circle cx="60" cy="38" r="9" fill="none" stroke="#ff2d95" stroke-width="0.8" opacity="0.8" />
+              <line x1="60" y1="26" x2="60" y2="30" stroke="#ff2d95" stroke-width="0.8" />
+              <line x1="60" y1="46" x2="60" y2="50" stroke="#ff2d95" stroke-width="0.8" />
+              <line x1="48" y1="38" x2="52" y2="38" stroke="#ff2d95" stroke-width="0.8" />
+              <line x1="68" y1="38" x2="72" y2="38" stroke="#ff2d95" stroke-width="0.8" />
+            </svg>
+          </div>
+          <div class="lockup">
+            <svg width="28" height="28" viewBox="0 0 96 96">
+              <g stroke="#00e5ff" stroke-width="3">
+                <line x1="22" y1="28" x2="60" y2="38" />
+                <line x1="60" y1="38" x2="48" y2="58" />
+                <line x1="48" y1="58" x2="72" y2="66" />
+              </g>
+              <circle cx="60" cy="38" r="8" fill="#ff2d95" />
+              <circle cx="22" cy="28" r="4" fill="#ffc36b" />
+              <circle cx="48" cy="58" r="4" fill="#ffc36b" />
+              <circle cx="72" cy="66" r="4" fill="#e0e0e0" />
+            </svg>
+            <div class="name">STAR<span>WIZZ</span></div>
+          </div>
+          <div class="meta">
+            <span class="label">Constellation · Reticle</span>
+            <span class="tag">SOLVER</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>

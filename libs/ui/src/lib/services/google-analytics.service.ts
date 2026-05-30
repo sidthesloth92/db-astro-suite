@@ -46,9 +46,25 @@ export class GoogleAnalyticsService implements AnalyticsService {
         return;
       }
       gtag("event", eventName, params);
-    } catch {
-      // Tracking failures must never propagate to callers
+    } catch (err) {
+      // Tracking failures must never propagate to callers, but are logged
+      // at warn level so they surface in browser diagnostics.
+      console.warn("[gtag]", err);
     }
+  }
+
+  /**
+   * Sends a GA4 `page_view` event. Called by the route analytics tracker on
+   * Angular router NavigationEnd so SPA route changes are recorded.
+   *
+   * @param pageLocation - Full URL of the page being viewed.
+   * @param pageTitle - Document title at the time of the view.
+   */
+  trackPageView(pageLocation: string, pageTitle?: string): void {
+    this.trackEvent("page_view", {
+      page_location: pageLocation,
+      page_title: pageTitle,
+    });
   }
 
   /**
@@ -174,6 +190,13 @@ export class GoogleAnalyticsService implements AnalyticsService {
    */
   trackAccessKeySubmitted(success: boolean): void {
     this.trackEvent("astrogram_access_key_submitted", { success });
+  }
+
+  /**
+   * Tracks a click on the "DM on Instagram" CTA in the access-key modal.
+   */
+  trackInstagramCtaClicked(): void {
+    this.trackEvent("astrogram_instagram_cta_clicked");
   }
 
   /**
@@ -327,5 +350,26 @@ export class GoogleAnalyticsService implements AnalyticsService {
       browser_type: browserType,
       fallback_format: fallbackFormat,
     });
+  }
+
+  /**
+   * Tracks a click on a tool card on the Hub home page.
+   *
+   * @param tool - Identifier of the tool whose card was clicked.
+   * @param target - Which area of the card was clicked: the card body or the LEARN MORE CTA.
+   */
+  trackHubToolCardClicked(tool: string, target: "card" | "learn_more"): void {
+    this.trackEvent("hub_tool_card_clicked", { tool, target });
+  }
+
+  /**
+   * Tracks a click on the Launch Tool / Access Repository button on a Hub tool page.
+   * Represents the hub → tool conversion.
+   *
+   * @param tool - Identifier of the tool being launched.
+   * @param destination - The href the user is being sent to.
+   */
+  trackHubLaunchToolClicked(tool: string, destination: string): void {
+    this.trackEvent("hub_launch_tool_clicked", { tool, destination });
   }
 }

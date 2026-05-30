@@ -1,4 +1,4 @@
-name: test-release-deploy
+name: release-deploy
 
 on:
   push:
@@ -7,6 +7,12 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Image tag to build and deploy (e.g. 1.0.0)'
+        required: true
+        default: 'manual'
 
 permissions:
   contents: write
@@ -22,14 +28,25 @@ concurrency:
 jobs:
   verify:
     name: Build & Verify
-    # Run on PRs, OR on pushes to main THAT ARE NOT release merges
+    # Run on PRs (except release-please PRs), OR on pushes to main THAT ARE NOT release merges
     if: |
-      github.event_name == 'pull_request' || 
-      (github.event_name == 'push' && github.ref == 'refs/heads/main' && !startsWith(github.event.head_commit.message, 'chore(main): release'))
+      (github.event_name == 'pull_request' && !startsWith(github.head_ref, 'release-please--')) ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/main' && !startsWith(github.event.head_commit.message, 'chore(main): release') && !startsWith(github.event.head_commit.message, 'feat(main): release'))
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          # Check out the PR head branch (not the GitHub-generated merge ref)
+          # so the "Seed visual baselines" step can push commits back to the
+          # PR branch. For push events this falls back to the workflow's ref.
+          ref: ${{ github.event.pull_request.head.ref || github.ref }}
+          fetch-depth: 0
+          # Use the classic PAT so seed-step pushes bypass the
+          # GITHUB_TOKEN restrictions that return 500 Internal Server Error
+          # when an Actions bot tries to push to a PR branch with protections
+          # or required status checks.
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
 
       - name: Install pnpm
         uses: pnpm/action-setup@v3
@@ -39,7 +56,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           cache: "pnpm"
 
       - name: Install Dependencies
@@ -54,7 +71,67 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run Playwright Tests
-        run: npx playwright test
+        id: playwright
+        shell: bash
+        run: |
+          set -o pipefail
+          npx playwright test 2>&1 | tee /tmp/playwright-output.log
+
+      # Visual snapshot baselines are intentionally NOT committed locally
+      # (rule: .claude/rules/e2e.md — baselines MUST be generated in
+      # Linux/Docker so font rendering matches CI's output).
+      #
+      # This step auto-seeds ONLY when the failure is "snapshot doesn't
+      # exist" (i.e. a brand-new visual test added in this PR). If any
+      # failure is a visual *diff* — "Screenshot comparison failed" —
+      # the step refuses to overwrite, leaving the gate red so the dev
+      # makes a conscious decision:
+      #   - Intentional UI change? Regenerate locally with the matching
+      #     Linux Chromium image and commit the new baselines:
+      #         pnpm test:e2e:docker:update <spec>
+      #   - Accidental regression? Fix the code instead.
+      #
+      # This eliminates the original auto-seed's biggest risk — silently
+      # baking visual regressions into the baseline.
+      - name: Seed missing visual snapshot baselines (PR only, missing-only)
+        if: ${{ failure() && steps.playwright.outcome == 'failure' && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}
+        shell: bash
+        run: |
+          set -e
+          log=/tmp/playwright-output.log
+          # Bail when any failure is a real visual diff (not a missing
+          # baseline). Auto-overwriting would silently launder regressions.
+          if grep -qE "Screenshot comparison failed|expected to have screenshot.*to match" "$log" 2>/dev/null; then
+            echo "::error::Visual diff failures detected (not missing baselines)."
+            echo "Auto-seed declined to avoid laundering a regression."
+            echo "If the change is intentional, regenerate locally and commit:"
+            echo "  pnpm test:e2e:docker:update <affected-spec-or-grep>"
+            exit 0
+          fi
+          if ! grep -q "snapshot doesn't exist" "$log" 2>/dev/null; then
+            echo "Failures are not snapshot-related; nothing to seed."
+            exit 0
+          fi
+          echo "All visual failures are 'snapshot doesn't exist'; seeding baselines..."
+          npx playwright test --update-snapshots --reporter=line || true
+          # Snapshot directories live at e2e/<spec>.spec.ts-snapshots/ —
+          # use globstar so `**` matches zero-or-more path components.
+          shopt -s globstar nullglob
+          baselines=(e2e/**/*-snapshots/*.png)
+          if [ ${#baselines[@]} -eq 0 ]; then
+            echo "No baseline files matched after --update-snapshots."
+            exit 0
+          fi
+          git add "${baselines[@]}"
+          if git diff --staged --quiet; then
+            echo "No new baselines were generated."
+            exit 0
+          fi
+          git -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -m "test(e2e): seed visual baselines from CI"
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
+          echo "Baselines committed and pushed; the next CI run validates them."
 
       - name: Upload Playwright Report
         uses: actions/upload-artifact@v4
@@ -69,18 +146,26 @@ jobs:
     needs: verify
     # Only run on main pushes THAT ARE NOT release merges
     if: |
-      always() && 
-      needs.verify.result == 'success' && 
-      github.event_name == 'push' && 
-      github.ref == 'refs/heads/main' && 
-      !startsWith(github.event.head_commit.message, 'chore(main): release')
+      always() &&
+      needs.verify.result == 'success' &&
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' &&
+      !startsWith(github.event.head_commit.message, 'chore(main): release') &&
+      !startsWith(github.event.head_commit.message, 'feat(main): release')
     runs-on: ubuntu-latest
     outputs:
       release_created: ${{ steps.release.outputs.releases_created }}
       sortronomy_release_created: ${{ steps.release.outputs['tools/sortronomy--release_created'] }}
       sortronomy_tag: ${{ steps.release.outputs['tools/sortronomy--tag_name'] }}
     steps:
-      - uses: googleapis/release-please-action@v4
+      # Uses a classic PAT with full `repo` scope. GITHUB_TOKEN gets silently
+      # capped on the create-release endpoint on this repo (returns 403
+      # "Resource not accessible by integration" despite the job header showing
+      # Contents: write). Classic PATs bypass that cap. Do NOT use a
+      # fine-grained PAT here — those hit a separate "Resource not accessible
+      # by personal access token" error on release creation, even with
+      # Contents: Read and write set.
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         id: release
         with:
           config-file: release-please-config.json
@@ -118,9 +203,9 @@ jobs:
     # Run ONLY on main pushes THAT ARE release merges
     if: |
       always() &&
-      github.event_name == 'push' && 
-      github.ref == 'refs/heads/main' && 
-      startsWith(github.event.head_commit.message, 'chore(main): release')
+      github.event_name == 'push' &&
+      github.ref == 'refs/heads/main' &&
+      (startsWith(github.event.head_commit.message, 'chore(main): release') || startsWith(github.event.head_commit.message, 'feat(main): release'))
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -132,7 +217,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Enable pnpm
         run: corepack enable && corepack prepare pnpm@latest --activate
@@ -156,9 +241,10 @@ jobs:
     name: Build Backend Image
     if: |
       always() &&
-      github.event_name == 'push' &&
+      (github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' &&
       github.ref == 'refs/heads/main' &&
-      startsWith(github.event.head_commit.message, 'chore(main): release')
+      (startsWith(github.event.head_commit.message, 'chore(main): release') || startsWith(github.event.head_commit.message, 'feat(main): release'))))
     runs-on: ubuntu-latest
     outputs:
       image_name: ${{ steps.image.outputs.name }}
@@ -171,16 +257,20 @@ jobs:
         id: image
         run: echo "name=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/db-astro-suite-astrosolve" >> "$GITHUB_OUTPUT"
 
-      - name: Compute image tag from release version
+      - name: Compute image tag
         id: meta
         run: |
-          version=$(python3 - <<'PY'
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "tag=${{ github.event.inputs.image_tag }}" >> "$GITHUB_OUTPUT"
+          else
+            version=$(python3 - <<'PY'
           import json
           with open('package.json', 'r', encoding='utf-8') as package_file:
               print(json.load(package_file)['version'])
           PY
-          )
-          echo "tag=${version}" >> "$GITHUB_OUTPUT"
+            )
+            echo "tag=${version}" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Log in to GHCR
         uses: docker/login-action@v3
@@ -199,30 +289,59 @@ jobs:
             ${{ steps.image.outputs.name }}:${{ steps.meta.outputs.tag }}
 
   deploy-backend:
-    name: Deploy Backend To Hetzner
+    name: Deploy Backend
     needs: build-backend-image
     if: |
       always() &&
       needs.build-backend-image.result == 'success' &&
-      github.event_name == 'push' &&
+      (github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' &&
       github.ref == 'refs/heads/main' &&
-      startsWith(github.event.head_commit.message, 'chore(main): release')
+      (startsWith(github.event.head_commit.message, 'chore(main): release') || startsWith(github.event.head_commit.message, 'feat(main): release'))))
     runs-on: ubuntu-latest
     steps:
       - name: Start SSH agent
         uses: webfactory/ssh-agent@v0.9.0
         with:
-          ssh-private-key: ${{ secrets.HETZNER_SSH_KEY }}
+          ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
 
-      - name: Trust Hetzner host key
+      - name: Trust server host key
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -H "${{ secrets.HETZNER_HOST }}" >> ~/.ssh/known_hosts
+          ssh-keyscan -H "${{ secrets.DEPLOY_HOST }}" >> ~/.ssh/known_hosts
 
       - name: Deploy backend
-        # ACCESS_KEY_REQUIRED is not passed here — it is managed on the server
-        # via the deploy script environment. Set it in the server's compose/run
-        # config or export it before calling server_deploy.sh.
         run: |
-          ssh "${{ secrets.HETZNER_USER }}@${{ secrets.HETZNER_HOST }}" \
-            "GHCR_USERNAME='${{ github.repository_owner }}' GHCR_TOKEN='${{ github.token }}' /opt/astrosolve/scripts/server_deploy.sh '${{ needs.build-backend-image.outputs.image_tag }}'"
+          IMAGE="${{ needs.build-backend-image.outputs.image_name }}:${{ needs.build-backend-image.outputs.image_tag }}"
+          ssh "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}" << ENDSSH
+            echo "${{ github.token }}" | docker login ghcr.io -u "${{ github.repository_owner }}" --password-stdin
+            docker pull ${IMAGE}
+            docker stop astrosolve || true
+            docker rm astrosolve || true
+            docker ps -q --filter publish=80 | xargs -r docker stop
+            docker ps -aq --filter publish=80 | xargs -r docker rm
+            # One-time, resumable local catalog build. On a fresh server this
+            # downloads the full deep catalog (~20-40 min); on every later deploy
+            # the init script skips already-loaded sources and returns in seconds.
+            # Runs while no API container is up so the R-tree rebuild has a single
+            # writer, and uses a read-write mount (the long-running API below keeps
+            # the catalog read-only). Warn-and-continue: a hard failure still lets
+            # the API start (catalog-less) rather than block the whole service.
+            docker run --rm \
+              -v ${{ vars.APP_DIR }}/data/local-catalog:/usr/src/app/data/local-catalog \
+              ${IMAGE} \
+              npm run init-local-catalog-db \
+              || echo "WARN: catalog init failed; starting API without a fresh build"
+            docker run -d \
+              --name astrosolve \
+              --restart unless-stopped \
+              -p 80:3000 \
+              -v ${{ vars.APP_DIR }}/data/astrometry:/usr/src/app/data/astrometry:ro \
+              -v ${{ vars.APP_DIR }}/data/local-catalog:/usr/src/app/data/local-catalog:ro \
+              -v ${{ vars.APP_DIR }}/data/uploads:/usr/src/app/data/uploads \
+              -v ${{ vars.APP_DIR }}/data/astrosolve.sqlite:/usr/src/app/data/astrosolve.sqlite \
+              -e ASTROSOLVE_ORIGIN="${{ vars.ASTROSOLVE_ORIGIN }}" \
+              -e NODE_ENV=production \
+              -e TRUST_PROXY=true \
+              ${IMAGE}
+          ENDSSH

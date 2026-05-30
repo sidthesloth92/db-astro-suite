@@ -1,0 +1,53 @@
+:host {
+  display: block;
+}
+
+.wrap {
+  display: flex;
+  align-items: center;
+  background: var(--db-color-surface-bg);
+  border: 1px solid var(--db-color-border);
+  border-radius: 6px;
+  padding: 0 9px;
+  transition: border-color 150ms ease;
+}
+
+.wrap:focus-within {
+  border-color: var(--db-color-border-active);
+}
+
+.prefix,
+.suffix {
+  font: 400 11px/1 var(--db-font-mono-code);
+  color: var(--db-color-text-faint);
+  flex-shrink: 0;
+}
+
+.prefix {
+  margin-right: 6px;
+}
+
+.suffix {
+  margin-left: 6px;
+  font-weight: 500;
+  font-size: 10px;
+}
+
+.field {
+  flex: 1;
+  padding: 7px 0;
+  background: transparent;
+  border: none;
+  color: var(--db-color-text-primary);
+  font: 400 12px/1.2 var(--db-font-ui);
+  outline: none;
+  min-width: 0;
+}
+
+.field.is-mono {
+  font: 500 12px/1.2 var(--db-font-mono-code);
+}
+
+.field::placeholder {
+  color: var(--db-color-text-faint);
+}

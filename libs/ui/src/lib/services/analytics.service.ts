@@ -12,6 +12,14 @@ export abstract class AnalyticsService {
   abstract trackEvent(eventName: string, params?: Record<string, unknown>): void;
 
   /**
+   * Track a page view. Used by {@link RouteAnalyticsTracker} on every Angular
+   * router NavigationEnd so single-page apps report SPA route changes to GA4.
+   * @param pageLocation Full URL of the page (e.g. window.location.href)
+   * @param pageTitle Document title at the time of the view
+   */
+  abstract trackPageView(pageLocation: string, pageTitle?: string): void;
+
+  /**
    * Track image generation in Astrogram.
    * @param userId Unique identifier for the user (can be anonymized)
    * @param toolsUsed Comma-separated list of tools/features used
@@ -89,6 +97,11 @@ export abstract class AnalyticsService {
    * @param success Whether the key was valid and accepted
    */
   abstract trackAccessKeySubmitted(success: boolean): void;
+
+  /**
+   * Track click on the "DM on Instagram" CTA in the access-key modal.
+   */
+  abstract trackInstagramCtaClicked(): void;
 
   /**
    * Track button click in Astrogram.
@@ -189,6 +202,26 @@ export abstract class AnalyticsService {
     browserType: string,
     fallbackFormat: string
   ): void;
+
+  // ====================== HUB EVENTS ======================
+
+  /**
+   * Track a click on a tool card on the Hub home page.
+   * @param tool Identifier of the tool whose card was clicked ('astrogram' | 'starwizz' | 'file-grouper')
+   * @param target Which area of the card was clicked ('card' = anywhere in the card body, 'learn_more' = the LEARN MORE CTA)
+   */
+  abstract trackHubToolCardClicked(
+    tool: string,
+    target: "card" | "learn_more"
+  ): void;
+
+  /**
+   * Track a click on the Launch Tool / Access Repository button on a Hub tool page.
+   * This is the conversion event for the Hub → tool funnel.
+   * @param tool Identifier of the tool being launched ('astrogram' | 'starwizz' | 'file-grouper')
+   * @param destination The href the user is being sent to
+   */
+  abstract trackHubLaunchToolClicked(tool: string, destination: string): void;
 }
 
 

@@ -33,7 +33,7 @@ no subscription, no render queue. Open it in a browser, set your parameters, and
 record a perfectly looped 4K starfield in minutes.
 
 **URL**: https://dbastrosuite.com/starwizz/
-**Dossier**: https://dbastrosuite.com/dossier/starwizz
+**Tool Page**: https://dbastrosuite.com/tool/starwizz
 
 ### Features
 
@@ -87,7 +87,7 @@ generating: (1) a pixel-perfect exposure card graphic ready for Instagram, and
 editing.
 
 **URL**: https://dbastrosuite.com/astrogram/
-**Dossier**: https://dbastrosuite.com/dossier/astrogram
+**Tool Page**: https://dbastrosuite.com/tool/astrogram
 
 ### Features
 
@@ -157,8 +157,8 @@ camera, date, and object target with a single command.
 |-----|-------------|
 | https://dbastrosuite.com/ | Hub homepage — suite overview and tool cards |
 | https://dbastrosuite.com/about | About the project and author |
-| https://dbastrosuite.com/dossier/starwizz | Starwizz tool dossier (features, how it works, demo) |
-| https://dbastrosuite.com/dossier/astrogram | Astrogram tool dossier (features, how it works, demo) |
+| https://dbastrosuite.com/tool/starwizz | Starwizz tool page (features, how it works, demo) |
+| https://dbastrosuite.com/tool/astrogram | Astrogram tool page (features, how it works, demo) |
 | https://dbastrosuite.com/starwizz/ | Starwizz application |
 | https://dbastrosuite.com/astrogram/ | Astrogram application |
 

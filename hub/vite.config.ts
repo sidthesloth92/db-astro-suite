@@ -20,9 +20,9 @@ export default defineConfig(({ mode }) => ({
         routes: [
           '/',
           '/about',
-          '/dossier/starwizz',
-          '/dossier/astrogram',
-          '/dossier/sortronomy',
+          '/tool/starwizz',
+          '/tool/astrogram',
+          '/tool/sortronomy',
         ],
       },
       nitro: {

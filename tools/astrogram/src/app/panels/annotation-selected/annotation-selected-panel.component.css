@@ -1,0 +1,248 @@
+:host {
+  display: block;
+  color: var(--db-color-text-primary);
+}
+
+.panel-root {
+  display: flex;
+  flex-direction: column;
+}
+
+.divider {
+  height: 1px;
+  background: var(--db-color-border);
+  border: none;
+  margin: 0 18px;
+}
+
+.revert-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 9px;
+  background: transparent;
+  border: 1px solid var(--db-color-border);
+  border-radius: 6px;
+  color: var(--db-color-text-dim);
+  font-family: var(--db-font-ui);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition:
+    color 150ms ease,
+    border-color 150ms ease,
+    background 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.revert-btn:hover:not(:disabled) {
+  color: var(--db-color-cyan);
+  border-color: var(--db-color-cyan);
+  background: var(--db-color-cyan-soft);
+  box-shadow: 0 0 15px var(--db-color-cyan-soft);
+}
+
+.revert-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/*
+ * Per-control "Use global" chip. Surfaces next to a field's label only
+ * when that single control has been overridden — clicking clears just
+ * that field so the control falls back to its global value. The
+ * rotate-ccw glyph communicates revert semantics; pink at rest signals
+ * "this is currently overridden" and cyan hover matches the rest of
+ * the inspector's button language.
+ */
+.use-global-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  background: var(--db-color-pink-soft);
+  border: 1px solid var(--db-color-border-active);
+  border-radius: 4px;
+  color: var(--db-color-neon-pink);
+  cursor: pointer;
+  transition:
+    color 150ms ease,
+    border-color 150ms ease,
+    background 150ms ease,
+    box-shadow 150ms ease,
+    transform 150ms ease;
+}
+
+.use-global-chip:hover {
+  color: var(--db-color-cyan);
+  border-color: var(--db-color-cyan);
+  background: var(--db-color-cyan-soft);
+  box-shadow: 0 0 10px var(--db-color-cyan-soft);
+  transform: scale(1.08);
+}
+
+.selected-card {
+  margin: 16px 18px 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: var(--db-color-surface-hi);
+  border: 1px solid var(--db-color-border-strong);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.icon-pill {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: var(--db-color-cyan-soft);
+  border: 1px solid var(--db-color-cyan);
+  display: grid;
+  place-items: center;
+  color: var(--db-color-cyan);
+  flex-shrink: 0;
+}
+
+.meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.kicker {
+  font-family: var(--db-font-mono-code);
+  font-size: 9px;
+  color: var(--db-color-text-faint);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+
+.title {
+  font-family: var(--db-font-ui);
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--db-color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trash {
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  color: var(--db-color-text-faint);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  border-radius: 5px;
+}
+
+.trash:hover {
+  color: var(--db-color-neon-pink);
+  background: var(--db-color-pink-soft);
+}
+
+.label-input {
+  width: 100%;
+  padding: 7px 9px;
+  background: var(--db-color-surface-bg);
+  border: 1px solid var(--db-color-border);
+  border-radius: 6px;
+  color: var(--db-color-text-primary);
+  font-family: var(--db-font-mono-code);
+  font-weight: 500;
+  font-size: 12px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.label-input:focus {
+  border-color: var(--db-color-border-active);
+}
+
+.empty {
+  margin: 24px 18px;
+  padding: 20px 16px;
+  border-radius: 8px;
+  background: var(--db-color-surface-raised);
+  border: 1px dashed var(--db-color-border);
+  text-align: center;
+}
+
+.empty-title {
+  font-family: var(--db-font-ui);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--db-color-text-primary);
+  margin-bottom: 4px;
+}
+
+.empty-sub {
+  font-family: var(--db-font-ui);
+  font-size: 11.5px;
+  color: var(--db-color-text-dim);
+}
+
+/* Label input + its name chips, stacked so the chips read as alternatives
+   for the label field directly above them. */
+.label-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+/* Shared chip container for the Names + Type rows. Center-aligned so chips sit
+   on the same baseline as the field's label in the inspector-field grid. */
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Tighter gap for chips tucked directly under the label input. */
+.chip-row-tight {
+  gap: 4px;
+}
+
+.category-chip {
+  font-family: var(--db-font-mono-code);
+  font-size: 10px;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--db-color-cyan);
+  background: var(--db-color-surface-raised);
+  border: 1px solid var(--db-color-border);
+  border-radius: 10px;
+  padding: 2px 8px;
+}
+
+/* Selectable name chip — click fills the label; active = current label.
+   Small + tucked under the input so it reads as part of the Label field. */
+.name-chip {
+  font-family: var(--db-font-ui);
+  font-size: 9.5px;
+  line-height: 1.3;
+  color: var(--db-color-text-dim);
+  background: var(--db-color-surface-raised);
+  border: 1px solid var(--db-color-border);
+  border-radius: 8px;
+  padding: 1px 6px;
+  cursor: pointer;
+}
+
+.name-chip:hover {
+  border-color: var(--db-color-border-active);
+}
+
+.name-chip.is-active {
+  border-color: var(--db-color-neon-pink);
+  color: var(--db-color-neon-pink);
+}

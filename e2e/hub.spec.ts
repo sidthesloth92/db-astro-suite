@@ -55,3 +55,38 @@ test("Hub SEO meta tags and structured data are correct", async ({ page }) => {
   expect(noscriptHtml).toContain("Starwizz");
   expect(noscriptHtml).toContain("Astrogram");
 });
+
+test.describe("Hub About page", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto("http://localhost:5173/about");
+    await expect(page.getByRole("heading", { name: "About", level: 1 })).toBeVisible();
+  });
+
+  test("should render the About hero heading", async ({ page }) => {
+    await expect(
+      page.getByRole("heading", { name: "About", level: 1 }),
+    ).toBeVisible();
+  });
+
+  test("should render the Why and About-Me sub-sections", async ({ page }) => {
+    await expect(
+      page.getByRole("heading", { name: /Why DB Astro Suite/i, level: 2 }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: /About Me/i, level: 2 }),
+    ).toBeVisible();
+  });
+
+  test("should expose a Back to Home navigation link", async ({ page }) => {
+    const backLink = page.getByRole("link", { name: /Back to Home/i });
+    await expect(backLink).toBeVisible();
+    await expect(backLink).toHaveAttribute("href", "/");
+  });
+
+  test("should visually match the About page baseline", async ({ page }) => {
+    await expect(page).toHaveScreenshot("hub-about.png", {
+      fullPage: true,
+      threshold: 0.2,
+    });
+  });
+});

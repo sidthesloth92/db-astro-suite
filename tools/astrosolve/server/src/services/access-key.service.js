@@ -39,10 +39,32 @@ export function removeKey(dao, username) {
 }
 
 /**
+ * Generates a new plain-text key for an existing username, replacing the
+ * stored hash. The previous key stops working immediately. `use_count`,
+ * `created_at`, and `active` are preserved — same user, same analytics
+ * history, just a new credential.
+ *
+ * Use this when a user has lost their key: rotate, then hand them the
+ * new plain key. The old hash is overwritten, so the old key cannot
+ * authenticate any more.
+ *
+ * @param {AccessKeyDao} dao
+ * @param {string} username
+ * @returns {string} The new plain-text key (only time it is ever visible)
+ * @throws {AccessKeyError} If username is not found
+ */
+export function rotateKey(dao, username) {
+  const plainKey = crypto.randomBytes(32).toString("hex");
+  const keyHash = hashKey(plainKey);
+  dao.rotateAccessKey(username, keyHash);
+  return plainKey;
+}
+
+/**
  * Returns all key records without hashes.
  *
  * @param {AccessKeyDao} dao
- * @returns {{ username: string, created_at: string, active: number, use_count: number }[]}
+ * @returns {{ id: number, username: string, created_at: string, active: number, use_count: number }[]}
  */
 export function listKeys(dao) {
   return dao.listAccessKeys();

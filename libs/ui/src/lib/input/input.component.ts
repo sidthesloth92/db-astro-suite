@@ -4,6 +4,12 @@ export type InputType = 'text' | 'number' | 'date' | 'email' | 'password' | 'col
 
 let nextInputId = 0;
 
+/**
+ * Themed labelled `<input>` wrapper.
+ *
+ * @deprecated Replaced by `MicroInputComponent` from the Direction B Polished
+ * component family. Slated for removal in a follow-up cleanup PR.
+ */
 @Component({
   selector: 'dba-ui-input',
   standalone: true,

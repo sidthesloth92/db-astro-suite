@@ -1,6 +1,10 @@
 import axios from "axios";
 import { CatalogObject } from "../models/solve.model.js";
 import { CatalogError } from "../models/errors.model.js";
+import { tail } from "../utils/diagnostics.util.js";
+import { SIMBAD_RESULT_CAP } from "../constants/catalog.constants.js";
+
+const SIMBAD_TAP_URL = "http://simbad.u-strasbg.fr/simbad/sim-tap/sync";
 
 /**
  * Queries the SIMBAD TAP service to find DSOs within a given radius using an ADQL command.
@@ -14,10 +18,10 @@ import { CatalogError } from "../models/errors.model.js";
  * @returns {Promise<Array>} List of recognized celestial objects
  */
 export async function querySimbad(ra, dec, radiusDeg, minMagnitude = 13.5) {
-  // Query for basic data, filtering to Galaxies (G), Quasars (QSO), Planetary Nebulae (PN), HII regions, and Stars
-  // We use TOP 400 to ensure a rich star field without overwhelming the UI
+  // Query for basic data, filtering to Galaxies (G), Quasars (QSO), Planetary Nebulae (PN), HII regions, and Stars.
+  // The row cap is raised (see SIMBAD_RESULT_CAP) so the deep field returns a richer object list.
   const adqlQuery = `
-    SELECT TOP 500 basic.MAIN_ID, basic.OTYPE, basic.RA, basic.DEC
+    SELECT TOP ${SIMBAD_RESULT_CAP} basic.MAIN_ID, basic.OTYPE, basic.RA, basic.DEC
     FROM basic
     WHERE CONTAINS(POINT('ICRS', basic.RA, basic.DEC), CIRCLE('ICRS', ${ra}, ${dec}, ${radiusDeg})) = 1
     AND basic.OTYPE IN (
@@ -31,19 +35,17 @@ export async function querySimbad(ra, dec, radiusDeg, minMagnitude = 13.5) {
     )
   `;
 
+  const startedAt = Date.now();
   try {
-    const response = await axios.get(
-      "http://simbad.u-strasbg.fr/simbad/sim-tap/sync",
-      {
-        timeout: 10_000,
-        params: {
-          request: "doQuery",
-          lang: "adql",
-          format: "json",
-          query: adqlQuery,
-        },
+    const response = await axios.get(SIMBAD_TAP_URL, {
+      timeout: 10_000,
+      params: {
+        request: "doQuery",
+        lang: "adql",
+        format: "json",
+        query: adqlQuery,
       },
-    );
+    });
 
     if (response.data && response.data.data) {
       return response.data.data.map(
@@ -65,6 +67,34 @@ export async function querySimbad(ra, dec, radiusDeg, minMagnitude = 13.5) {
 
     return [];
   } catch (err) {
-    throw new CatalogError("simbad", `SIMBAD TAP query failed: ${err.message}`);
+    // Build rich diagnostic context so the analytics row alone is enough
+    // to figure out what SIMBAD did (HTTP 4xx with TAP error XML, network
+    // ECONNRESET, etc.) without needing the user to reproduce.
+    const httpStatus = err.response?.status ?? null;
+    const responseBody =
+      err.response?.data == null
+        ? null
+        : typeof err.response.data === "string"
+          ? err.response.data
+          : JSON.stringify(err.response.data);
+    const details = {
+      status: httpStatus
+        ? "http_error"
+        : err.code
+          ? "network_error"
+          : "parse_error",
+      http_status: httpStatus,
+      error_code: err.code ?? null,
+      error_message: err.message,
+      request_url: err.config?.url ?? SIMBAD_TAP_URL,
+      response_body_tail: tail(responseBody),
+      adql: adqlQuery.trim(),
+      elapsed_ms: Date.now() - startedAt,
+    };
+    throw new CatalogError(
+      "simbad",
+      `SIMBAD TAP query failed: ${err.message}`,
+      details,
+    );
   }
 }

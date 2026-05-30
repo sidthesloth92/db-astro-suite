@@ -6,15 +6,15 @@ import { findObjectsInRadius } from "./local-catalog.service.js";
 const log = { info: () => {}, warn: () => {}, error: () => {} };
 
 /**
- * Builds a minimal LocalCatalogDao stub whose queryObjectsByBoundingBox
+ * Builds a minimal LocalCatalogDao stub whose queryObjectsInRegion
  * returns a fixed list of raw DB rows.
  *
- * @param {Array<Object>} rows - Raw rows to return from the bounding-box query
- * @returns {{ queryObjectsByBoundingBox: Function }}
+ * @param {Array<Object>} rows - Raw rows to return from the region query
+ * @returns {{ queryObjectsInRegion: Function }}
  */
 function makeDao(rows) {
   return {
-    queryObjectsByBoundingBox: () => rows,
+    queryObjectsInRegion: () => rows,
   };
 }
 
@@ -98,6 +98,22 @@ describe("findObjectsInRadius", () => {
 
     assert.equal(result.length, 1);
     assert.equal(result[0].name, "Sirius");
+  });
+
+  it("keeps objects across the 0/360° RA seam within the conical radius", async () => {
+    // Center at RA 1°, object at RA 359° is only 2° away across the seam.
+    const nearSeam = { name: "NGC0001", type: "G", ra: 359, dec: 0, magnitude: 5, sizeArcmin: null };
+    // Object at RA 5° is 4° away — outside a 3° radius — and must be excluded.
+    const farSide = { name: "NGC0002", type: "G", ra: 5, dec: 0, magnitude: 5, sizeArcmin: null };
+    const dao = makeDao([nearSeam, farSide]);
+    const result = await findObjectsInRadius(dao, {
+      ra: 1,
+      dec: 0,
+      radiusDeg: 3,
+      log,
+    });
+    assert.equal(result.length, 1);
+    assert.equal(result[0].name, "NGC 1");
   });
 
   it("adds source: 'local' to every returned object", async () => {

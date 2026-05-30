@@ -1,0 +1,36 @@
+:host {
+  display: block;
+}
+
+.field {
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 9px 18px;
+}
+
+.field[data-density="compact"] {
+  padding: 6px 18px;
+}
+
+.label-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.label {
+  font: 400 11px/1.2 var(--db-font-ui);
+  color: var(--db-color-text-dim);
+}
+
+.sub {
+  font: 400 10px/1 var(--db-font-mono-code);
+  color: var(--db-color-text-faint);
+  margin-top: 2px;
+}
+
+.control-cell {
+  min-width: 0;
+}

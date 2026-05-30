@@ -1,0 +1,145 @@
+:host {
+  display: block;
+  position: relative;
+  /* Match card-preview.css and base-card-preview.css. Without an
+     explicit width, the stellar host's intrinsic-content-driven sizing
+     left the projected `<dba-ag-base-card-preview>` (whose own host is
+     `width: 100%` of its parent) narrower than the infographic mode's
+     equivalent chain. */
+  width: 100%;
+}
+
+.annotations-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: auto;
+}
+
+.annotations-layer.is-dragging,
+.annotations-layer.is-dragging .annotation-marker {
+  cursor: grabbing;
+}
+
+.annotation-marker {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border-style: solid;
+  border-radius: 50%;
+  /* Snappy drag — the previous `transition: all 0.25s` animated `left`/`top`,
+     so every drag step lagged by 250ms. Only animate the visual properties
+     (border / outline / shadow) on hover/select. */
+  transition: outline-offset 0.15s ease, filter 0.15s ease;
+  cursor: grab;
+  pointer-events: auto;
+  /* Stop the browser from interpreting touch-drag on the marker as a page
+     scroll/pinch — without this, pointermove never fires on touch devices. */
+  touch-action: none;
+}
+
+.annotation-marker.selected {
+  outline: 2px solid rgba(255, 255, 255, 0.9);
+  outline-offset: 3px;
+  filter: brightness(1.4) drop-shadow(0 0 6px white);
+}
+
+.annotation-label {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.6);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: bold;
+  white-space: nowrap;
+  text-align: center;
+  text-transform: uppercase;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 1);
+  cursor: pointer;
+}
+
+.annotation-label.label-top {
+  top: auto;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.annotation-label.label-right {
+  top: 50%;
+  left: calc(100% + 6px);
+  transform: translateY(-50%);
+}
+
+.annotation-label.label-left {
+  top: 50%;
+  left: auto;
+  right: calc(100% + 6px);
+  transform: translateY(-50%);
+}
+
+.toolbar {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 8px;
+  background: rgba(11, 14, 22, 0.92);
+  border: 1px solid var(--db-color-border-strong);
+  backdrop-filter: blur(8px);
+  pointer-events: auto;
+}
+
+.toolbar-divider {
+  width: 1px;
+  height: 16px;
+  background: var(--db-color-border);
+  margin: 0 4px;
+}
+
+.toolbar-count {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 8px;
+  font-family: var(--db-font-ui);
+  font-size: 11px;
+  color: var(--db-color-text-dim);
+}
+
+.attribution-disclaimer {
+  display: block;
+  width: var(--header-width, 482px);
+  max-width: 100%;
+  margin: 0.5rem auto 0;
+  padding: 0 0.25rem;
+  font-family: var(--db-font-ui);
+  font-size: 10px;
+  line-height: 1.4;
+  color: var(--db-color-text-dim);
+  text-align: center;
+  opacity: 0.75;
+}
+
+.selected-annotation-label {
+  display: inline-flex;
+  align-items: center;
+  max-width: 220px;
+  padding: 0 10px;
+  height: 28px;
+  border-radius: 5px;
+  background: var(--db-color-surface-raised);
+  border: 1px solid var(--db-color-border);
+  color: var(--db-color-text-primary);
+  font-family: var(--db-font-ui);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

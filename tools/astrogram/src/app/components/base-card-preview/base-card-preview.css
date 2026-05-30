@@ -1,3 +1,12 @@
+:host {
+  /* Host the component as a block so `.preview-wrapper { width: 100% }`
+     resolves against the parent's block context. Defaulting to inline
+     (no `:host` rule) makes the wrapper's 100% width collapse to the
+     intrinsic content width, which shrinks the rendered preview. */
+  display: block;
+  width: 100%;
+}
+
 .preview-wrapper {
   display: flex;
   flex-direction: column;
@@ -86,7 +95,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem 1rem;
-  width: var(--header-width, 480px);
+  width: var(--header-width, 482px);
   max-width: 100%;
   background: rgba(10, 15, 25, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -94,6 +103,11 @@
   border-radius: 12px 12px 0 0;
   box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.4);
   flex-shrink: 0;
+  /* `--header-width` is the TOTAL visual width (including the 1px L/R
+     borders) so that it matches `.post-container`'s post-transform width.
+     Stays on the default (global) border-box so the value is taken as the
+     box total — flip to content-box would push the borders 2px outside
+     and break alignment with the card. */
 }
 
 .user-meta {
@@ -103,6 +117,7 @@
 }
 
 .header-actions {
+  margin-left: auto;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -128,60 +143,38 @@
   color: white;
 }
 
-/* Download FAB */
-.download-fab {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: rgba(255, 255, 255, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.download-fab:hover:not(:disabled) {
-  background: rgba(255, 45, 149, 0.15);
-  border-color: rgba(255, 45, 149, 0.4);
-  color: var(--db-color-neon-pink);
-  transform: scale(1.1);
-  box-shadow: 0 0 15px rgba(255, 45, 149, 0.4);
-}
-
-.download-fab:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-}
-
-/* The Card - Restricted to Post Container Width */
+/* The Card — fixed 480 px base width; height is derived from CSS aspect-ratio so the
+   preview actually reshapes when the user picks a format. */
 .card {
   position: relative;
-  overflow: visible; /* Changed from hidden to allow stellar map markers to bleed slightly at edges */
+  /* Clip any content that doesn't fit the aspect-ratio box so the rendered
+     card always matches the chosen preset (1:1 is square, 3:4 is tall, etc.)
+     in both preview and export. `aspect-auto` re-enables `visible` below for
+     stellar markers that may bleed past image edges. */
+  overflow: hidden;
+  /* Stop content from pushing the card past its CSS aspect-ratio — this is
+     the on-export-dimension guarantee: card.offsetHeight === aspect-derived. */
+  min-height: 0;
   border: none !important;
   flex-shrink: 0;
-  height: 600px;
-  min-height: 600px;
+  /* Fill the post-container's content area (480px declared minus its 2px
+     L/R borders under the global border-box). A hard 480px width here
+     would overflow the borders and hide them. The card's height is
+     derived from the aspect-ratio rules below. */
+  width: 100%;
   background: #000;
 }
 
-.card.aspect-3-4 {
-  aspect-ratio: 3/4;
-  width: auto;
-}
-
-.card.aspect-4-5 {
-  aspect-ratio: 4/5;
-  width: auto;
-}
+.card.aspect-3-4   { aspect-ratio: 3/4; }     /* 480 × 640  */
+.card.aspect-4-5   { aspect-ratio: 4/5; }     /* 480 × 600  */
+.card.aspect-1-1   { aspect-ratio: 1/1; }     /* 480 × 480  */
+.card.aspect-1-91-1 { aspect-ratio: 1.91/1; } /* 480 × ~251 */
+.card.aspect-9-16  { aspect-ratio: 9/16; }    /* 480 × ~853 */
 
 .card.aspect-auto {
   height: var(--img-height, 600px);
-  min-height: 0 !important;
-  width: 100%; /* Fill the post-container which handles the min/max width */
+  width: 100%; /* fill the post-container which handles min/max width */
+  overflow: visible; /* stellar map markers may bleed slightly at image edges */
 }
 
 /* Empty state: ensure the card has visible height so the upload overlay renders */
@@ -226,7 +219,10 @@
 .bg-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, var(--card-opacity, 0.6));
+  /* Fixed dim on the bg image — the user-facing "Card opacity" slider
+     now drives the inner card sections' translucency (see card-preview.css),
+     not this surrounding overlay. */
+  background: rgba(0, 0, 0, 0.35);
 }
 
 /* Content */
@@ -236,8 +232,42 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  /* Centre the projected sections vertically with a fixed gap rather than
+     spreading them via `space-between`. On tall aspect ratios (e.g. 9:16)
+     the old behaviour left huge dead space between blocks; this keeps the
+     hero / integration / equipment grouping compact and visually balanced
+     regardless of card height. */
+  justify-content: center;
+  gap: 1.75rem;
   padding: 0.75rem 1rem;
+}
+
+/* 1.91:1 is a landscape strip (~251 px tall) where the column stack would
+   overflow even after content shrinks. Lay the hero and integration side
+   by side and centre them in the strip; `card-preview.css` hides the
+   other sections for this aspect. Also lift the standard top/bottom gap
+   so the two blocks sit visually balanced. */
+.card.aspect-1-91-1 .card-content {
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 6px 12px;
+}
+
+/* 1:1 (480×480) is the tightest column aspect — collapse the inter-section
+   gap aggressively. The default 1.75 rem spread across 5 gaps eats ~140 px
+   of height; 0.4 rem reclaims ~110 px for actual content. */
+.card.aspect-1-1 .card-content {
+  gap: 0.4rem;
+}
+
+/* 9:16 has plenty of vertical room — give the projected sections more
+   breathing space than the default 1.75 rem so the bottom of the card
+   doesn't feel empty. Per-section font/padding adjustments live in
+   `card-preview.css`. */
+.card.aspect-9-16 .card-content {
+  gap: 2.25rem;
 }
 
 .card-overlay {

@@ -41,9 +41,9 @@ Value-Proposition: Semantic grouping by camera, date, and object target.
 # Sitemap Information
 - Home: /
 - About: /about
-- Starwizz Dossier: /dossier/starwizz
-- Astrogram Dossier: /dossier/astrogram
-- File Grouper Dossier: /dossier/file-grouper
+- Starwizz Tool: /tool/starwizz
+- Astrogram Tool: /tool/astrogram
+- File Grouper Tool: /tool/file-grouper
 - Starwizz Tool: /starwizz/
 - Astrogram Tool: /astrogram/
 

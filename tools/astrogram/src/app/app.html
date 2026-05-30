@@ -1,71 +1,7 @@
-<div class="dba-hub-root">
-  <!-- Shared Header -->
-  <dba-ui-header
-    #header
-    title="ASTROGRAM"
-    [version]="appVersion"
-    tagline="Professional Exposure Cards. Instantly."
-    logoSrc="assets/img/astrogram.png"
-    logoLink="/db-astro-suite/dossier/astrogram"
-    githubLink="https://github.com/sidthesloth92/db-astro-suite"
-    aboutLink="https://dineshbalajiv.com"
-  ></dba-ui-header>
-
-  <div class="stars-overlay"></div>
-
-  <div class="nebula-overlay"></div>
-  <div class="scanlines"></div>
-
-  <!-- Main Work Area -->
-  <main class="main-container">
-    <!-- Preview Section (Left) -->
-    <div class="simulator-panel md:px-0">
-      <div
-        class="post-wrap"
-        [class.aspect-4-5]="
-          dataService.activeMode() === 'infographic'
-            ? dataService.cardData().aspectRatio === '4:5'
-            : dataService.stellarMapData().aspectRatio === '4:5'
-        "
-        [class.aspect-auto]="
-          dataService.activeMode() === 'infographic'
-            ? dataService.cardData().aspectRatio === 'auto'
-            : dataService.stellarMapData().aspectRatio === 'auto'
-        "
-      >
-        @if (dataService.activeMode() === 'infographic') {
-          <dba-ag-card-preview></dba-ag-card-preview>
-          <dba-ag-caption-section></dba-ag-caption-section>
-        } @else {
-          <dba-ag-stellar-map-preview></dba-ag-stellar-map-preview>
-        }
-      </div>
-    </div>
-
-    <!-- Configuration Section (Right) -->
-    <div class="config-panel db-glass-panel db-scanline-top">
-      <div class="app-mode-switcher">
-        <button
-          class="mode-btn"
-          [class.active]="dataService.activeMode() === 'infographic'"
-          (click)="dataService.activeMode.set('infographic')"
-        >
-          🎨 Infographic
-        </button>
-        <button
-          class="mode-btn"
-          [class.active]="dataService.activeMode() === 'stellar-map'"
-          (click)="dataService.activeMode.set('stellar-map')"
-        >
-          ✨ Stellar Map
-        </button>
-      </div>
-
-      @if (dataService.activeMode() === 'infographic') {
-        <dba-ag-card-form></dba-ag-card-form>
-      } @else {
-        <dba-ag-annotation-controls></dba-ag-annotation-controls>
-      }
-    </div>
-  </main>
-</div>
+<dba-ui-starry-background>
+  @if (isMobile()) {
+    <dba-ag-mobile-shell />
+  } @else {
+    <dba-ag-desktop-shell />
+  }
+</dba-ui-starry-background>

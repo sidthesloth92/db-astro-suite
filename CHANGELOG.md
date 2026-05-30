@@ -1,5 +1,83 @@
 # Changelog
 
+## [1.19.1](https://github.com/sidthesloth92/db-astro-suite/compare/v1.19.0...v1.19.1) (2026-05-30)
+
+
+### Bug Fixes
+
+* **astrosolve:** keep catalog init script in the Docker image; exclude all shell scripts ([#46](https://github.com/sidthesloth92/db-astro-suite/issues/46)) ([d232a8d](https://github.com/sidthesloth92/db-astro-suite/commit/d232a8d4027656c1e1adbbc060b676649c499f56))
+
+## [1.19.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.18.0...v1.19.0) (2026-05-30)
+
+
+### Features
+
+* **astrosolve:** deep-search catalog, smarter solving, and automated catalog build ([#44](https://github.com/sidthesloth92/db-astro-suite/issues/44)) ([9d7ac58](https://github.com/sidthesloth92/db-astro-suite/commit/9d7ac58504e7abcd2cb3fcd102dd91cca396f50d))
+
+## [1.18.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.17.1...v1.18.0) (2026-05-29)
+
+
+### Features
+
+* **astrosolve:** enhance analytics with user-agent parsing and additional metrics ([#42](https://github.com/sidthesloth92/db-astro-suite/issues/42)) ([3ab1768](https://github.com/sidthesloth92/db-astro-suite/commit/3ab17680d0f5bd10e62a1357a4a8463733e6f826))
+
+## [1.17.1](https://github.com/sidthesloth92/db-astro-suite/compare/v1.17.0...v1.17.1) (2026-05-25)
+
+
+### Bug Fixes
+
+* **astrosolve:** rotate reactivates previously deactivated access key ([#40](https://github.com/sidthesloth92/db-astro-suite/issues/40)) ([636d045](https://github.com/sidthesloth92/db-astro-suite/commit/636d0457659123f169f8694db1a5e537bae8c11c))
+
+## [1.17.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.16.1...v1.17.0) (2026-05-25)
+
+
+### Features
+
+* **astrogram:** ux redesign — Direction B Polished (rail + inspector + mobile sheet) ([#38](https://github.com/sidthesloth92/db-astro-suite/issues/38)) ([ed84fd4](https://github.com/sidthesloth92/db-astro-suite/commit/ed84fd42ea139254afb5b9681edf15057d29a118))
+* implement select component with optgroup support ([ed84fd4](https://github.com/sidthesloth92/db-astro-suite/commit/ed84fd42ea139254afb5b9681edf15057d29a118))
+
+
+### Bug Fixes
+
+* adjust header component alignment ([ed84fd4](https://github.com/sidthesloth92/db-astro-suite/commit/ed84fd42ea139254afb5b9681edf15057d29a118))
+
+## [1.16.1](https://github.com/sidthesloth92/db-astro-suite/compare/v1.16.0...v1.16.1) (2026-05-23)
+
+
+### Bug Fixes
+
+* surface upload limits and validation from [#35](https://github.com/sidthesloth92/db-astro-suite/issues/35) ([#36](https://github.com/sidthesloth92/db-astro-suite/issues/36)) ([02ba024](https://github.com/sidthesloth92/db-astro-suite/commit/02ba0243c674576bc281931fd45a4c082f2e819c))
+
+## [1.16.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.15.0...v1.16.0) (2026-05-23)
+
+
+### Features
+
+* solve_events analytics + Hub funnel + access-key dialog ([#33](https://github.com/sidthesloth92/db-astro-suite/issues/33)) ([ed81e74](https://github.com/sidthesloth92/db-astro-suite/commit/ed81e74b9f9fa9619772691446384333356912b4))
+
+## [1.15.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.14.0...v1.15.0) (2026-05-23)
+
+
+### Features
+
+* **claude:** add Claude Code config mirroring .github/ Copilot setup ([#30](https://github.com/sidthesloth92/db-astro-suite/issues/30)) ([5265700](https://github.com/sidthesloth92/db-astro-suite/commit/5265700cc4dd5ebfb2d642cfd6103cf85221978f))
+
+## [1.14.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.13.1...v1.14.0) (2026-05-21)
+
+
+### Features
+
+* **astrogram:** add Stellar Map mode — overlay plate-solved annotations on astrophotography images ([#17](https://github.com/sidthesloth92/db-astro-suite/pull/17))
+* **astrogram:** support single-gesture click-and-drag to reposition custom annotation markers ([a8b1004](https://github.com/sidthesloth92/db-astro-suite/commit/a8b1004492016190227d5b477a788dc7fc3b448d), [1507f88](https://github.com/sidthesloth92/db-astro-suite/commit/1507f88bc5db0edd711c254cd9fb6a4a3c22994a))
+* **astrosolve:** add headless plate-solving microservice (Astrometry.net + SIMBAD + OpenNGC) with access-key auth and rate limiting
+* **deploy:** add remote deployment scripts and runbook for the Astrosolve backend ([#26](https://github.com/sidthesloth92/db-astro-suite/pull/26))
+
+
+### Build & Tooling
+
+* gitignore runtime SQLite databases (access keys, uploads) — local catalog remains tracked and baked into the image ([ffe7d6a](https://github.com/sidthesloth92/db-astro-suite/commit/ffe7d6ad547768f817e863e6174638e2baf9e1a5))
+* harden release-please pipeline: pin action to a known-working SHA, switch to classic PAT to work around a GITHUB_TOKEN cap on the create-release endpoint ([#28](https://github.com/sidthesloth92/db-astro-suite/pull/28))
+
 ## [1.13.1](https://github.com/sidthesloth92/db-astro-suite/compare/v1.13.0...v1.13.1) (2026-03-14)
 
 

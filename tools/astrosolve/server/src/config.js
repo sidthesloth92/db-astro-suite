@@ -70,15 +70,37 @@ const config = Object.freeze({
 
   /**
    * Maximum number of requests per IP per rate-limit window for the solve
-   * endpoint. Defaults to 5. Configure via ASTROSOLVE_RATE_LIMIT_MAX.
+   * endpoint. Defaults to 2. Configure via ASTROSOLVE_RATE_LIMIT_MAX.
+   *
+   * The solve endpoint is hyper-aggressive on purpose: every request is a
+   * multi-MB upload that triggers seconds of CPU-bound work, so even a small
+   * number of unauthenticated callers can saturate the queue.
    */
-  rateLimitMax: parsePositiveInteger(process.env.ASTROSOLVE_RATE_LIMIT_MAX, 5),
+  rateLimitMax: parsePositiveInteger(process.env.ASTROSOLVE_RATE_LIMIT_MAX, 2),
 
   /**
    * Rate-limit time window for the solve endpoint (e.g. "1 minute", "30 seconds").
    * Defaults to "1 minute". Configure via ASTROSOLVE_RATE_LIMIT_WINDOW.
    */
   rateLimitWindow: process.env.ASTROSOLVE_RATE_LIMIT_WINDOW ?? "1 minute",
+
+  /**
+   * Per-access-key rate limit on the solve endpoint, stacked on top of the
+   * per-IP limit. Closes the IP-rotation / NAT / VPN loophole — a single
+   * access key cannot exceed this even from many different IPs. Defaults
+   * to 10. Configure via ASTROSOLVE_SOLVE_KEY_RATE_LIMIT_MAX.
+   */
+  solveKeyRateLimitMax: parsePositiveInteger(
+    process.env.ASTROSOLVE_SOLVE_KEY_RATE_LIMIT_MAX,
+    10,
+  ),
+
+  /**
+   * Time window for the per-access-key solve rate limit. Defaults to
+   * "1 minute". Configure via ASTROSOLVE_SOLVE_KEY_RATE_LIMIT_WINDOW.
+   */
+  solveKeyRateLimitWindow:
+    process.env.ASTROSOLVE_SOLVE_KEY_RATE_LIMIT_WINDOW ?? "1 minute",
 
   /**
    * Maximum number of requests per IP per minute allowed on the health check
@@ -97,9 +119,62 @@ const config = Object.freeze({
     process.env.ASTROSOLVE_HEALTH_RATE_LIMIT_WINDOW ?? "1 minute",
 
   /**
+   * Pino log level. Valid values: 'trace', 'debug', 'info', 'warn', 'error',
+   * 'fatal', 'silent'. Defaults to 'info'. Configure via ASTROSOLVE_LOG_LEVEL.
+   */
+  logLevel: process.env.ASTROSOLVE_LOG_LEVEL ?? "info",
+
+  /**
    * Absolute path to the uploads directory for incoming images.
    */
   uploadsDir: path.join(DATA_DIR, "uploads"),
+
+  /**
+   * Maximum upload size in bytes for POST /api/v1/solve, enforced both by
+   * Fastify multipart limits and surfaced via GET /api/v1/limits so the
+   * client can prevalidate. Defaults to 10 MB. Configure via
+   * ASTROSOLVE_UPLOAD_MAX_BYTES.
+   */
+  uploadMaxBytes: parsePositiveInteger(
+    process.env.ASTROSOLVE_UPLOAD_MAX_BYTES,
+    10 * 1024 * 1024,
+  ),
+
+  /**
+   * Minimum allowed image dimension (px) on either axis. Below this, plate
+   * solving has too few resolvable stars to succeed. Defaults to 1000.
+   * Configure via ASTROSOLVE_UPLOAD_MIN_DIMENSION.
+   */
+  uploadMinDimension: parsePositiveInteger(
+    process.env.ASTROSOLVE_UPLOAD_MIN_DIMENSION,
+    1000,
+  ),
+
+  /**
+   * Maximum allowed image dimension (px) on either axis. Defends against
+   * decompression bombs and pathological inputs — solve-field downsamples
+   * but image decoding still has to run first. Defaults to 8000.
+   * Configure via ASTROSOLVE_UPLOAD_MAX_DIMENSION.
+   */
+  uploadMaxDimension: parsePositiveInteger(
+    process.env.ASTROSOLVE_UPLOAD_MAX_DIMENSION,
+    8000,
+  ),
+
+  /**
+   * Allowed file extensions for upload (lowercase, dot-prefixed). Defaults
+   * to JPEG/PNG. Configure via ASTROSOLVE_UPLOAD_ALLOWED_EXTENSIONS as a
+   * comma-separated list (e.g. ".jpg,.jpeg,.png").
+   */
+  uploadAllowedExtensions: (() => {
+    const raw = process.env.ASTROSOLVE_UPLOAD_ALLOWED_EXTENSIONS;
+    if (!raw) return [".jpg", ".jpeg", ".png"];
+    return raw
+      .split(",")
+      .map((s) => s.trim().toLowerCase())
+      .filter((s) => s.length > 0)
+      .map((s) => (s.startsWith(".") ? s : `.${s}`));
+  })(),
 
   /**
    * Absolute path to the access-keys SQLite database.

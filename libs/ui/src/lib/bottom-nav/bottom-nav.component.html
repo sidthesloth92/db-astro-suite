@@ -1,0 +1,23 @@
+<nav class="nav" role="tablist">
+  @for (item of items(); track item.id) {
+    <button
+      type="button"
+      role="tab"
+      class="nav-btn"
+      [class.is-active]="item.id === activeId()"
+      [attr.aria-selected]="item.id === activeId()"
+      [attr.aria-label]="item.label"
+      (click)="onActivate(item.id)"
+    >
+      <span class="icon">
+        @if (iconTemplate(); as tpl) {
+          <ng-container [ngTemplateOutlet]="tpl" [ngTemplateOutletContext]="{ $implicit: item }" />
+        }
+      </span>
+      <span class="label">{{ item.label }}</span>
+      @if (item.id === activeId()) {
+        <span class="dot" aria-hidden="true"></span>
+      }
+    </button>
+  }
+</nav>

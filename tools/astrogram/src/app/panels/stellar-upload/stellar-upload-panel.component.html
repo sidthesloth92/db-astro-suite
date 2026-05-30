@@ -1,0 +1,65 @@
+<input
+  type="file"
+  accept="image/*"
+  #fileInput
+  hidden
+  (change)="onImageUpload($event)"
+/>
+
+@if (mapData().isSolving) {
+  <div class="solve-overlay" role="status" aria-live="polite">
+    <div class="solve-loader" aria-hidden="true">
+      <dba-ui-constellation-loader [fill]="true" />
+    </div>
+    <div class="solve-text">{{ solveStatus() || 'Analyzing Star Field...' }}</div>
+  </div>
+} @else if (isEmpty()) {
+  <div class="upload-shell">
+    <button type="button" class="upload-card" (click)="pickFile()">
+      <div class="upload-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+        </svg>
+      </div>
+      <div class="upload-title">Upload Target</div>
+      <div class="upload-help">UPLOAD AN IMAGE TO BEGIN PLATE SOLVING</div>
+      @if (uploadLimitsHint(); as hint) {
+        <div class="upload-limits">{{ hint }}</div>
+      }
+      @if (loadLimitsError(); as err) {
+        <div class="upload-limits">{{ err }}</div>
+      }
+      @if (uploadError(); as err) {
+        <div class="upload-error">{{ err }}</div>
+      }
+    </button>
+  </div>
+} @else if (mapData().annotations.length === 0) {
+  <div class="solve-bar">
+    <div class="fov-field" [title]="fovPresetHint()">
+      <label class="fov-label">Field of view</label>
+      <dba-ui-select
+        class="fov-select-neon"
+        [noBox]="true"
+        [value]="fovPreset()"
+        [options]="fovSelectOptions"
+        (valueChange)="onFovPresetChange($event)"
+      />
+      @if (fovPresetHint(); as hint) {
+        <div class="fov-hint">{{ hint }}</div>
+      }
+    </div>
+    <button
+      type="button"
+      class="solve-btn"
+      (click)="triggerPlateSolve()"
+      [disabled]="!mapData().backgroundImage || isSolving()"
+    >
+      <dba-ui-icon class="solve-btn-icon" [def]="sparklesIcon" [size]="13" />
+      <span>{{ isSolving() ? 'ANALYZING…' : 'ASTROSOLVE' }}</span>
+    </button>
+    @if (solveStatus(); as status) {
+      <div class="solve-status">{{ status }}</div>
+    }
+  </div>
+}

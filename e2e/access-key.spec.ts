@@ -2,14 +2,13 @@ import { expect, test } from "@playwright/test";
 import path from "path";
 import { AccessKeyModalPage } from "./pages/access-key-modal.page";
 import { StellarMapPage } from "./pages/stellar-map.page";
+import { ACCESS_KEY_STORAGE_KEY } from "../tools/astrogram/src/app/services/astrosolve.constants";
 
 // Fixture image shipped with the project — used for upload tests.
 const ROSETTE_IMAGE = path.resolve(
   __dirname,
   "../tools/astrogram/public/assets/img/rosette.jpg",
 );
-
-const ACCESS_KEY_STORAGE_KEY = "astrosolve_access_key";
 
 test.describe("Access Key Modal", () => {
   let stellarMapPage: StellarMapPage;
@@ -55,17 +54,27 @@ test.describe("Access Key Modal", () => {
     await triggerModal();
     await expect(accessKeyModalPage.getModal()).toBeVisible();
 
+    // The modal opens in the CTA view by default; switch to the key-entry
+    // view before interacting with the input + submit button.
+    await accessKeyModalPage.switchToKeyEntry();
     await accessKeyModalPage.typeKey(testKey);
     await accessKeyModalPage.submit();
 
     await expect(accessKeyModalPage.getModal()).not.toBeVisible();
 
-    // Verify the key was persisted to localStorage
-    const storedKey = await page.evaluate(
-      (key: string) => localStorage.getItem(key),
-      ACCESS_KEY_STORAGE_KEY,
-    );
-    expect(storedKey).toBe(testKey);
+    // Persistence happens asynchronously inside the solve catch path
+    // (the modal closes optimistically when SUBMIT is emitted, then the
+    // 503 mock round-trips, then the non-AccessKeyError branch in
+    // stellar-upload-panel.component.ts persists pendingKey). Poll up
+    // to the default expect timeout so we don't race that async path.
+    await expect
+      .poll(() =>
+        page.evaluate(
+          (key: string) => localStorage.getItem(key),
+          ACCESS_KEY_STORAGE_KEY,
+        ),
+      )
+      .toBe(testKey);
   });
 
   test("cancelling the modal hides it without storing a key", async ({
@@ -74,7 +83,7 @@ test.describe("Access Key Modal", () => {
     await triggerModal();
     await expect(accessKeyModalPage.getModal()).toBeVisible();
 
-    await accessKeyModalPage.cancel();
+    await accessKeyModalPage.close();
 
     await expect(accessKeyModalPage.getModal()).not.toBeVisible();
 
@@ -119,6 +128,9 @@ test.describe("Access Key Modal", () => {
     await triggerModal();
     await expect(accessKeyModalPage.getModal()).toBeVisible();
 
+    // Switch from the default CTA view to the key-entry view, where the
+    // input and SUBMIT button actually live.
+    await accessKeyModalPage.switchToKeyEntry();
     await expect(accessKeyModalPage.getSubmitButton()).toBeDisabled();
 
     await accessKeyModalPage.typeKey("a");

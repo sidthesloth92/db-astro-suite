@@ -1,10 +1,9 @@
 import { Component, Input, HostBinding } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'dba-ag-filter-ring',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './filter-ring.html',
   styleUrl: './filter-ring.css',
 })

@@ -1,0 +1,249 @@
+:host {
+  display: contents;
+}
+
+.upload-shell {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+}
+
+.upload-card {
+  position: relative;
+  width: 100%;
+  max-width: 340px;
+  aspect-ratio: 1;
+  padding: 2rem;
+  background: rgba(11, 14, 22, 0.55);
+  border: 2px dashed var(--db-color-border-active);
+  border-radius: 14px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  color: inherit;
+  font: inherit;
+  text-align: center;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(6px);
+}
+
+.upload-card:hover {
+  border-color: var(--db-color-neon-pink);
+  background: var(--db-color-pink-soft);
+  transform: translateY(-2px);
+}
+
+.upload-icon {
+  width: 48px;
+  height: 48px;
+  color: var(--db-color-neon-pink);
+}
+
+.upload-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.upload-title {
+  font-family: var(--db-font-ui);
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--db-color-text-primary);
+}
+
+.upload-help {
+  font-family: var(--db-font-mono-code);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--db-color-neon-pink);
+  opacity: 0.8;
+}
+
+.upload-limits {
+  font-family: var(--db-font-mono-code);
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--db-color-text-faint);
+  max-width: 260px;
+}
+
+.upload-error {
+  font-family: var(--db-font-ui);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--db-color-text-error);
+  max-width: 260px;
+}
+
+.solve-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  color: var(--db-color-cyan);
+  pointer-events: auto;
+}
+
+.solve-loader {
+  width: 180px;
+  height: 180px;
+  margin-bottom: 1.5rem;
+}
+
+.solve-text {
+  font-family: var(--db-font-mono-code);
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  max-width: 14rem;
+  text-align: center;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.solve-bar {
+  position: absolute;
+  left: 50%;
+  /* Sit above the bottom edge so the controls never clip below the preview's
+     viewport. Honours the safe-area inset on devices that report one. */
+  bottom: calc(48px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: 18;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  pointer-events: auto;
+}
+
+/* Primary action — solid neon-pink fill with a soft outer glow, the headline
+   CTA of the panel. Paired with the cyan FOV control above it. */
+.solve-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: 9px;
+  background: var(--db-color-neon-pink);
+  border: none;
+  color: var(--db-color-text-primary);
+  box-shadow: 0 0 16px -3px var(--db-color-neon-pink);
+  font-family: var(--db-font-mono-code);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, transform 0.1s ease, filter 0.15s ease;
+}
+
+.solve-btn:hover:not(:disabled) {
+  box-shadow: 0 0 30px 0 var(--db-color-neon-pink);
+  filter: brightness(1.08);
+}
+
+.solve-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.solve-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.solve-btn-icon {
+  display: inline-flex;
+}
+
+.solve-status {
+  font-family: var(--db-font-mono-code);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--db-color-text-dim);
+  background: rgba(11, 14, 22, 0.6);
+  border: 1px solid var(--db-color-border);
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.fov-field {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.fov-label {
+  font-family: var(--db-font-mono-code);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--db-color-cyan);
+}
+
+/* Solid, rounded dark dropdown that reads clearly against the star field.
+   Wider + taller than the library default, with a cyan arrow accent. */
+.fov-select-neon ::ng-deep .field {
+  color: var(--db-color-text-primary);
+  background: var(--db-color-surface-raised);
+  border-color: var(--db-color-border);
+  border-radius: 8px;
+  height: 32px;
+  min-width: 150px;
+  padding: 0 1.75rem 0 11px;
+  font-family: var(--db-font-ui);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  transition: border-color 0.15s ease;
+}
+
+.fov-select-neon ::ng-deep .field:hover,
+.fov-select-neon ::ng-deep .field:focus {
+  border-color: var(--db-color-border-active);
+}
+
+.fov-select-neon ::ng-deep .select-arrow {
+  color: var(--db-color-cyan);
+}
+
+.fov-hint {
+  margin-top: 7px;
+  font-family: var(--db-font-mono-code);
+  font-size: 9.5px;
+  letter-spacing: 0.05em;
+  color: var(--db-color-text-dim);
+  background: rgba(11, 14, 22, 0.6);
+  padding: 2px 8px;
+  border-radius: 4px;
+  backdrop-filter: blur(6px);
+  max-width: 16rem;
+  text-align: center;
+}

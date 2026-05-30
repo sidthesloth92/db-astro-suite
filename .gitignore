@@ -9,6 +9,11 @@ dist
 # Playwright
 playwright-report/
 test-results/
+# Snapshot-comparison failure artefacts (never legitimate baselines).
+# CI-committed baselines live in `e2e/**/*.spec.ts-snapshots/*.png` and
+# stay tracked — only these failure outputs are excluded.
+e2e/**/*-actual.png
+e2e/**/*-diff.png
 
 # Python
 __pycache__/
@@ -25,3 +30,12 @@ bin/
 
 # Astrometry binary index files
 *.fits
+
+# Runtime databases — contain secrets or mutable state, never commit
+tools/astrosolve/server/data/astrosolve.sqlite
+tools/astrosolve/server/data/access-keys.sqlite
+
+# Claude Code local settings — contain machine-specific paths
+.claude/settings.json
+
+astrogram_design

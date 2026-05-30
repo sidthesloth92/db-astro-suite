@@ -3,62 +3,9 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: #05070a;
-  color: white;
+  background-color: var(--db-color-surface-bg);
+  color: var(--db-color-text-primary);
   overflow: hidden;
-}
-
-/* Background Effects */
-.stars-overlay {
-  position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  z-index: 1;
-  background-image: 
-    radial-gradient(1px 1px at 20px 30px, #eee, rgba(0,0,0,0)),
-    radial-gradient(1px 1px at 40px 70px, #fff, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 50px 160px, #ddd, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 90px 40px, #fff, rgba(0,0,0,0)),
-    radial-gradient(1px 1px at 130px 80px, #fff, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 160px 120px, #ddd, rgba(0,0,0,0));
-  background-repeat: repeat;
-  background-size: 200px 200px;
-  opacity: 0.3;
-  animation: stars-twinkle 4s infinite alternate;
-  pointer-events: none;
-}
-
-@keyframes stars-twinkle {
-  0% { opacity: 0.2; }
-  100% { opacity: 0.5; }
-}
-
-.nebula-overlay {
-  position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  z-index: 1;
-  background: 
-    radial-gradient(circle at 20% 30%, rgba(255, 45, 149, 0.05) 0%, transparent 40%),
-    radial-gradient(circle at 80% 70%, rgba(0, 243, 255, 0.05) 0%, transparent 40%);
-  pointer-events: none;
-}
-
-.scanlines {
-  position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  z-index: 100;
-  pointer-events: none;
-  background: linear-gradient(
-    rgba(18, 16, 16, 0) 50%,
-    rgba(0, 0, 0, 0.1) 50%
-  ),
-  linear-gradient(
-    90deg,
-    rgba(255, 0, 0, 0.03),
-    rgba(0, 255, 0, 0.01),
-    rgba(0, 0, 255, 0.03)
-  );
-  background-size: 100% 3px, 2px 100%;
-  opacity: 0.4;
 }
 
 .sw-container {
@@ -67,26 +14,133 @@
   flex: 1;
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
   gap: 1rem;
   width: 100%;
-  padding: 0.25rem;
+  padding: 0.75rem;
   overflow: hidden;
 }
 
-@media (max-width: 768px) {
-  .dba-hub-root {
-    height: auto;
-    min-height: 100vh;
-    overflow-y: auto;
-  }
-
+@media (max-width: 1079px) {
   .sw-container {
     flex-direction: column;
-    height: auto;
-    overflow: visible;
     padding: 1rem 0.5rem;
     gap: 1.5rem;
+  }
+
+  .sw-container--mobile {
+    position: relative;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 16px;
+    gap: 0;
+    overflow: hidden;
+  }
+
+  .sw-mobile-record {
+    position: fixed;
+    left: 50%;
+    bottom: 16px;
+    transform: translateX(-50%);
+    z-index: 50;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    padding: 0;
+    background: rgba(11, 14, 22, 0.7);
+    border: 1px solid var(--db-color-border-strong);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    backdrop-filter: blur(18px) saturate(160%);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+    color: var(--db-color-text-primary);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: transform 200ms ease, background 200ms ease;
+  }
+
+  .sw-mobile-record:hover:not(:disabled) {
+    transform: translateX(-50%) scale(1.05);
+  }
+
+  .sw-mobile-record:focus-visible {
+    outline: 2px solid var(--db-color-cyan);
+    outline-offset: 2px;
+  }
+
+  .sw-mobile-record:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .sw-mobile-record__shape {
+    display: block;
+    width: 22px;
+    height: 22px;
+    background: var(--db-color-neon-pink);
+    border-radius: 50%;
+    box-shadow: 0 0 14px color-mix(in srgb, var(--db-color-neon-pink) 60%, transparent);
+    transition:
+      width 220ms ease,
+      height 220ms ease,
+      border-radius 220ms ease,
+      background 220ms ease,
+      box-shadow 220ms ease;
+  }
+
+  .sw-mobile-record[data-state='recording'] {
+    animation: sw-record-pulse 1.6s ease-in-out infinite;
+  }
+
+  .sw-mobile-record[data-state='recording'] .sw-mobile-record__shape {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    background: var(--db-color-orange);
+    box-shadow: 0 0 14px color-mix(in srgb, var(--db-color-orange) 70%, transparent);
+  }
+
+  .sw-mobile-record[data-state='processing'] .sw-mobile-record__shape {
+    background: var(--db-color-text-dim);
+    box-shadow: none;
+  }
+
+  /*
+   * Sliders launcher — Instagram-style pill: small circular button with a
+   * translucent dark background and a white glyph, anchored bottom-right
+   * over the live simulation so it stays legible on any frame.
+   */
+  .sw-mobile-fab {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 40;
+    --db-icon-button-color: var(--db-color-text-primary);
+    --db-icon-button-border-color: transparent;
+    --db-icon-button-background: rgba(11, 14, 22, 0.7);
+    --db-icon-button-radius: 50%;
+  }
+
+  .sw-mobile-sheet {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 20;
+    transition: opacity 180ms ease;
+  }
+
+  .sw-mobile-sheet--ghosted {
+    opacity: 0.12;
+  }
+}
+
+@keyframes sw-record-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.78;
   }
 }

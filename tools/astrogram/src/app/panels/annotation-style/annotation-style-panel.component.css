@@ -1,0 +1,16 @@
+:host {
+  display: block;
+  color: var(--db-color-text-primary);
+}
+
+.panel-root {
+  display: flex;
+  flex-direction: column;
+}
+
+.divider {
+  height: 1px;
+  background: var(--db-color-border);
+  border: none;
+  margin: 0 18px;
+}

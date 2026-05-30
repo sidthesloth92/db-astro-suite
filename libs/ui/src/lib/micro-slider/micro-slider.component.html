@@ -1,0 +1,20 @@
+<div class="wrap">
+  @if (showReadout()) {
+    <div class="readout">{{ value() }}{{ suffix() ?? '' }}</div>
+  }
+  <div class="track-wrap">
+    <div class="track">
+      <div class="fill" [style.width.%]="percent()"></div>
+      <div class="dot" [style.left.%]="percent()"></div>
+    </div>
+    <input
+      class="native"
+      type="range"
+      [min]="min()"
+      [max]="max()"
+      [step]="step()"
+      [value]="value()"
+      (input)="onInput($event)"
+    />
+  </div>
+</div>

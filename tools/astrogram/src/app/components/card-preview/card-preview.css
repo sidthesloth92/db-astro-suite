@@ -1,294 +1,240 @@
-/* card-preview.css now only contains inner content styling */
+/* Pink Nebula card layout — rendered inside BaseCardPreviewComponent. */
 
-
-/* Content */
-.card-content {
-  position: relative;
-  z-index: 1;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between; /* More stable than space-evenly for html2canvas */
-  padding: 0.75rem 1rem; /* Balanced padding */
+:host {
+  /* Match stellar-map-preview's `:host { display: block }` so the
+     wrapped `<dba-ag-base-card-preview>` resolves widths against the
+     same block context in both modes. */
+  display: block;
+  width: 100%;
 }
 
-/* Sections */
-.card-section {
-  background: rgba(20, 20, 20, var(--card-opacity, 0.85)); /* Dynamic opacity */
-  border: 1px solid rgba(var(--accent-color-rgb, 255, 45, 149), 0.4);
-  border-radius: 6px;
-  padding: 8px;
-  margin-bottom: 0.25rem;
+.pn-hero {
+  margin: 12px 6px 0;
+  padding: 16px 8px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--db-color-border-strong);
+  /* Decorative pink/purple radials layered on top of a `--card-opacity`-
+     driven solid so the Style panel's opacity slider controls how
+     transparent the inner section feels against the bg image. */
+  background:
+    radial-gradient(ellipse 80% 60% at 30% 50%, rgba(255, 80, 130, 0.18), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(120, 40, 180, 0.2), transparent 70%),
+    rgba(8, 10, 16, var(--card-opacity, 0.7));
+  text-align: center;
 }
 
-.section-header {
-  font-size: 0.75rem;
+.pn-title {
+  margin: 0;
+  font-family: var(--db-font-ui);
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  color: var(--accent-color, #ff2d95);
-  margin-bottom: 0.5rem;
+  font-size: 20px;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  color: var(--accent-color, var(--db-color-neon-pink));
 }
 
-.section-header-row {
+.pn-meta {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 10px;
+  font-family: var(--db-font-mono-code);
+  font-weight: 400;
+  font-size: 9px;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.pn-description {
+  margin: 10px 0 0;
+  font-family: var(--db-font-ui);
+  font-weight: 400;
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.pn-integration {
+  margin: 10px 6px;
+  padding: 12px 8px;
+  /* Decorative purple radial layered on top of a `--card-opacity`-
+     driven solid (matches the other inner sections). */
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(80, 30, 80, 0.4), transparent 70%),
+    rgba(8, 10, 16, var(--card-opacity, 0.7));
+  border-radius: 10px;
+  border: 1px solid var(--db-color-border-strong);
+}
+
+.pn-integration-head {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  margin-bottom: 0.5rem;
+  margin-bottom: 10px;
 }
 
-.section-header-row .section-header {
-  margin-bottom: 0;
-}
-
-/* Title Section */
-.title-section {
-  text-align: center;
-  padding: 0.75rem;
-}
-
-.card-title {
-  font-size: 1.4rem;
+.pn-integration-kicker {
+  font-family: var(--db-font-ui);
   font-weight: 700;
-  margin-bottom: 0.5rem;
-  line-height: 1.1;
-  color: var(--accent-color, #ff2d95); /* Changed to pink */
-}
-
-.card-meta {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.7);
-  flex-wrap: wrap;
-}
-
-.card-description {
-  margin-top: 0.5rem;
-  font-size: 14px; /* Increased for better legibility */
-  line-height: 1.4;
-  color: rgba(255, 255, 255, 0.85);
-  margin-left: auto;
-  margin-right: auto;
-  padding-bottom: 0.25rem; /* Prevent clipping */
-}
-
-.meta-item {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  white-space: nowrap;
-}
-
-/* Inline SVG Icons */
-.icon {
-  width: 0.75rem;
-  height: 0.75rem;
-  flex-shrink: 0;
-  vertical-align: middle;
-  position: relative;
-  top: -1px; /* Subtle lift for better alignment with text */
-}
-
-/* Integration */
-.integration-total {
-  display: flex;
-  align-items: baseline;
-  gap: 0.375rem;
-}
-
-.integration-time {
-  font-family: var(--db-font-display);
-  font-size: 1rem; /* Scaled down for header row */
-  font-weight: 700;
-  line-height: 1;
-  color: white;
-  letter-spacing: 0.05em;
-}
-
-.integration-label {
-  font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.5);
+  font-size: 12px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  color: var(--accent-color, var(--db-color-neon-pink));
 }
 
-.filter-rings {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-  margin-bottom: 0;
+.pn-integration-total {
+  font-family: var(--db-font-mono-code);
+  font-weight: 400;
+  font-size: 11px;
+  color: var(--db-color-text-dim);
 }
 
-/* Two Column Layout */
-.two-column {
-  display: flex;
-  gap: 0.25rem;
-  align-items: stretch; /* Force equal height for both columns */
-  width: 100%;
-}
-
-.col-55 {
-  width: 55%;
-  min-width: 0;
-  margin-bottom: 0 !important; /* Remove any push-up from card-section defaults */
-}
-
-.col-45 {
-  width: 45%;
-  min-width: 0;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 0.25rem;
-  margin-bottom: 0 !important;
-}
-
-/* Sidebar Stack */
-.vertical-stack {
-  flex-grow: 1;
-}
-
-/* Make Software section grow to push Bortle Scale to the bottom */
-.col-45.vertical-stack > section:first-of-type {
-  flex: 1 !important;
-  margin-bottom: 0 !important;
-}
-
-/* Vertical stack alignment */
-.vertical-stack .card-section {
-  margin-bottom: 0 !important;
-}
-
-/* Item Lists - Vertical layout top-to-bottom */
-.item-list {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  padding: 0;
-}
-
-.item-list li {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.75rem;
-  text-align: left;
-  width: 100%;
-  margin-bottom: 0.25rem; /* Explicit margin instead of gap */
-}
-
-.item-icon {
-  font-size: 1.1rem;
-  width: 1.5rem; /* Increased slightly for better emoji support */
-  display: flex;
-  justify-content: center;
-  flex-shrink: 0;
-  /* Ensure emojis render with proper system fonts */
-  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif;
-}
-
-.item-text {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 0.8rem;
-  white-space: nowrap;
-  vertical-align: middle;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex: 1;
-  max-width: none;
-}
-
-/* Information Pair (Stacked Label/Value) */
-.info-pair {
-  display: flex !important;
-  flex-direction: row;
-  align-items: flex-start !important; /* Align icon to top of stack */
-  gap: 0.625rem;
-  margin-bottom: 0.5rem !important;
-}
-
-.pair-content {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  flex: 1;
-  min-width: 0;
-}
-
-.pair-label {
-  font-size: 0.6rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--accent-color, #ff2d95);
-  opacity: 0.6;
-  font-weight: 700;
-}
-
-.pair-value {
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.95);
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Bottom Row: Bortle + Author side by side */
-.bottom-row {
-  display: flex;
-  gap: 0.375rem;
-}
-
-.bottom-row .card-section {
-  flex: 1;
-  min-width: 0;
-}
-
-/* Author (Header) */
-.author-link-icon {
-  color: var(--accent-color, #ff2d95);
-}
-
-/* Controls Below Card */
-.card-controls {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.aspect-info {
-  display: flex;
-  gap: 0.5rem;
-  font-size: 0.625rem;
-  color: rgba(255, 255, 255, 0.5);
-}
-
-.aspect-label {
+.pn-integration-total strong {
+  color: var(--db-color-text-primary);
+  font-size: 13px;
   font-weight: 600;
-  color: var(--accent-color, #ff2d95);
+  margin-left: 4px;
 }
 
-/* Export Button */
-.export-btn {
-  padding: 0.5rem 1.25rem;
-  background: var(--accent-color, #ff2d95);
-  color: white;
+.pn-ring-row {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.pn-two-col {
+  margin: 0 6px 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.pn-col {
+  min-width: 0;
+}
+
+.pn-equipment,
+.pn-software,
+.pn-bortle {
+  padding: 10px 8px;
+  background: rgba(8, 10, 16, var(--card-opacity, 0.7));
+  border: 1px solid var(--db-color-border-strong);
+  border-radius: 10px;
+}
+
+.pn-col-kicker {
+  margin-bottom: 8px;
+  font-family: var(--db-font-ui);
   font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-size: 0.75rem;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 0 15px rgba(var(--accent-color-rgb, 255, 45, 149), 0.3);
+  color: var(--accent-color, var(--db-color-neon-pink));
 }
 
-.export-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 0 25px rgba(var(--accent-color-rgb, 255, 45, 149), 0.5);
+.pn-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pn-bortle {
+  padding: 8px;
+}
+
+.pn-icon {
+  font-size: 14px;
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji', sans-serif;
+}
+
+/* ── Aspect-aware density tiers ───────────────────────────────────────
+   Standard (4:5, 3:4) inherits the rules above untouched. The blocks
+   below selectively shrink (1:1) or expand (9:16) the projected sections
+   so each preset fits its card height without clipping. 1.91:1 hides
+   most blocks because 251 px is too short for anything else; the
+   `card-content` flex direction is also rotated to row in
+   base-card-preview.css to centre the remaining hero + integration. */
+
+/* Shrunk standard: 1:1 (480×480) */
+:host(.aspect-1-1) .pn-description {
+  display: none;
+}
+:host(.aspect-1-1) .pn-hero {
+  padding: 10px 8px 8px;
+}
+:host(.aspect-1-1) .pn-title {
+  font-size: 16px;
+  line-height: 1.15;
+}
+:host(.aspect-1-1) .pn-meta {
+  font-size: 8px;
+  margin-top: 6px;
+}
+:host(.aspect-1-1) .pn-integration {
+  margin: 6px;
+  padding: 8px 6px;
+}
+:host(.aspect-1-1) .pn-integration-kicker,
+:host(.aspect-1-1) .pn-integration-total {
+  font-size: 10px;
+}
+:host(.aspect-1-1) .pn-ring-row {
+  gap: 4px;
+}
+:host(.aspect-1-1) .pn-equipment,
+:host(.aspect-1-1) .pn-software,
+:host(.aspect-1-1) .pn-bortle {
+  padding: 6px 7px;
+}
+:host(.aspect-1-1) .pn-col-kicker {
+  font-size: 10px;
+}
+:host(.aspect-1-1) .pn-two-col {
+  gap: 6px;
+}
+:host(.aspect-1-1) .pn-stack {
+  gap: 6px;
+}
+
+/* Centred-minimal: 1.91:1 (480×~251) — paired with row-direction
+   override on .card-content in base-card-preview.css */
+:host(.aspect-1-91-1) .pn-description,
+:host(.aspect-1-91-1) .pn-two-col {
+  display: none;
+}
+:host(.aspect-1-91-1) .pn-hero {
+  margin: 0;
+  padding: 6px 12px;
+  flex: 0 0 auto;
+}
+:host(.aspect-1-91-1) .pn-title {
+  font-size: 15px;
+  line-height: 1.15;
+}
+:host(.aspect-1-91-1) .pn-meta {
+  font-size: 8px;
+  margin-top: 4px;
+}
+:host(.aspect-1-91-1) .pn-integration {
+  margin: 0;
+  padding: 6px 8px;
+  flex: 0 0 auto;
+}
+
+/* Expanded: 9:16 (480×853) — title breathes, lists go full width */
+:host(.aspect-9-16) .pn-title {
+  font-size: 24px;
+  line-height: 1.15;
+}
+:host(.aspect-9-16) .pn-hero {
+  padding-top: 24px;
+  padding-bottom: 22px;
+}
+:host(.aspect-9-16) .pn-two-col {
+  grid-template-columns: 1fr;
+}
+:host(.aspect-9-16) .pn-stack {
+  gap: 16px;
 }

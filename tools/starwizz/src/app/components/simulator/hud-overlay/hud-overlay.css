@@ -1,0 +1,109 @@
+.hud-root {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.corner {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  border-color: color-mix(in srgb, var(--db-color-neon-pink) 60%, transparent);
+  border-style: solid;
+  border-width: 0;
+}
+
+.corner-tl {
+  top: 16px;
+  left: 16px;
+  border-top-width: 2px;
+  border-left-width: 2px;
+}
+
+.corner-tr {
+  top: 16px;
+  right: 16px;
+  border-top-width: 2px;
+  border-right-width: 2px;
+}
+
+.corner-bl {
+  bottom: 16px;
+  left: 16px;
+  border-bottom-width: 2px;
+  border-left-width: 2px;
+}
+
+.corner-br {
+  bottom: 16px;
+  right: 16px;
+  border-bottom-width: 2px;
+  border-right-width: 2px;
+}
+
+.scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: color-mix(in srgb, var(--db-color-neon-pink) 20%, transparent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--db-color-neon-pink) 50%, transparent);
+  animation: scan 8s linear infinite;
+}
+
+@keyframes scan {
+  0% {
+    top: 0%;
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  95% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+.hud-data {
+  position: absolute;
+  font-family: var(--db-font-mono-code);
+  font-size: 10px;
+  color: color-mix(in srgb, var(--db-color-neon-pink) 70%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hud-data-tl {
+  top: 24px;
+  left: 64px;
+}
+
+.hud-data-br {
+  bottom: 24px;
+  right: 64px;
+  text-align: right;
+}
+
+.value {
+  color: var(--db-color-text-primary);
+}
+
+.signal-pulse {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

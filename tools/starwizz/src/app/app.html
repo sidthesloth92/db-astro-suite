@@ -1,19 +1,59 @@
 <div class="dba-hub-root">
   <dba-ui-header
     title="STARWIZZ"
+    tagline="Cinematic Starfield Generator"
     [version]="appVersion"
     logoSrc="assets/img/sw.png"
-    logoLink="/db-astro-suite/dossier/starwizz"
+    logoLink="/tool/starwizz"
     githubLink="https://github.com/sidthesloth92/db-astro-suite"
     aboutLink="https://dineshbalajiv.com"
   ></dba-ui-header>
 
-  <div class="stars-overlay"></div>
-  <div class="nebula-overlay"></div>
-  <div class="scanlines"></div>
+  @if (breakpoints.isMobile()) {
+    <main class="sw-container sw-container--mobile">
+      <dba-sw-simulator></dba-sw-simulator>
 
-  <main class="sw-container">
-    <dba-sw-simulator></dba-sw-simulator>
-    <dba-sw-control-panel></dba-sw-control-panel>
-  </main>
+      <button
+        type="button"
+        class="sw-mobile-record"
+        [attr.data-state]="simService.recordingState()"
+        [disabled]="isMobileRecordDisabled()"
+        [attr.title]="mobileRecordLabel()"
+        [attr.aria-label]="mobileRecordLabel()"
+        (click)="simService.toggleRecording()"
+      >
+        <span class="sw-mobile-record__shape" aria-hidden="true"></span>
+      </button>
+
+      @if (!sheetExpanded()) {
+        <dba-ui-icon-button
+          class="sw-mobile-fab"
+          accent="cyan"
+          [size]="40"
+          title="Open controls"
+          (clicked)="toggleSheet()"
+        >
+          <dba-ui-icon [def]="slidersIcon" [size]="18" />
+        </dba-ui-icon-button>
+      }
+
+      <dba-ui-floating-sheet
+        class="sw-mobile-sheet"
+        [class.sw-mobile-sheet--ghosted]="isAdjusting()"
+        [(expanded)]="sheetExpanded"
+        title="System Controls"
+        [maxHeightPercent]="50"
+        (pointerdown)="onAdjustStart($event)"
+        (pointerup)="onAdjustEnd()"
+        (pointercancel)="onAdjustEnd()"
+      >
+        <dba-sw-control-panel class="in-sheet"></dba-sw-control-panel>
+      </dba-ui-floating-sheet>
+    </main>
+  } @else {
+    <main class="sw-container">
+      <dba-sw-simulator></dba-sw-simulator>
+      <dba-sw-control-panel></dba-sw-control-panel>
+    </main>
+  }
 </div>

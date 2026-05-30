@@ -9,6 +9,11 @@ import {
 } from '@angular/core';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { provideFileRouter, requestContextInterceptor } from '@analogjs/router';
+import {
+  AnalyticsService,
+  GoogleAnalyticsService,
+  provideRouteAnalytics,
+} from '@db-astro-suite/ui';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -19,5 +24,7 @@ export const appConfig: ApplicationConfig = {
       withInterceptors([requestContextInterceptor])
     ),
     provideClientHydration(withEventReplay()),
+    { provide: AnalyticsService, useClass: GoogleAnalyticsService },
+    provideRouteAnalytics(),
   ],
 };

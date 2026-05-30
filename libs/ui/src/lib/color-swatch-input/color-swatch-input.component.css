@@ -1,0 +1,40 @@
+:host {
+  display: block;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--db-color-surface-bg);
+  border: 1px solid var(--db-color-border);
+  border-radius: 6px;
+  padding: 5px 9px;
+  cursor: pointer;
+}
+
+.row:focus-within {
+  border-color: var(--db-color-border-active);
+}
+
+.swatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1px solid var(--db-color-border-strong);
+  flex-shrink: 0;
+}
+
+.hex {
+  font: 500 11px/1 var(--db-font-mono-code);
+  color: var(--db-color-text-primary);
+  flex: 1;
+}
+
+.native {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
