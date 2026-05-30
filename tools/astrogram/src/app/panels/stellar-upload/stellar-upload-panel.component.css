@@ -148,17 +148,17 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 9px;
-  padding: 13px 30px;
-  border-radius: 12px;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: 9px;
   background: var(--db-color-neon-pink);
   border: none;
   color: var(--db-color-text-primary);
-  box-shadow: 0 0 22px -2px var(--db-color-neon-pink);
+  box-shadow: 0 0 16px -3px var(--db-color-neon-pink);
   font-family: var(--db-font-mono-code);
   font-weight: 700;
-  font-size: 13px;
-  letter-spacing: 0.12em;
+  font-size: 11px;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   cursor: pointer;
   transition: box-shadow 0.15s ease, transform 0.1s ease, filter 0.15s ease;
@@ -235,6 +235,7 @@
 }
 
 .fov-hint {
+  margin-top: 7px;
   font-family: var(--db-font-mono-code);
   font-size: 9.5px;
   letter-spacing: 0.05em;

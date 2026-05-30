@@ -55,7 +55,7 @@
       (click)="triggerPlateSolve()"
       [disabled]="!mapData().backgroundImage || isSolving()"
     >
-      <dba-ui-icon class="solve-btn-icon" [def]="sparklesIcon" [size]="16" />
+      <dba-ui-icon class="solve-btn-icon" [def]="sparklesIcon" [size]="13" />
       <span>{{ isSolving() ? 'ANALYZING…' : 'ASTROSOLVE' }}</span>
     </button>
     @if (solveStatus(); as status) {

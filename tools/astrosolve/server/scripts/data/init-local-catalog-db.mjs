@@ -119,6 +119,14 @@ const INLINE_LOADER_TAGS = [
   "NGC/IC", "Star", "M", "C", "Sh2", "ACO", "HIP", "TYC", "Named", "Neb",
 ];
 
+// Subset of INLINE_LOADER_TAGS that must end up with rows for the group to be
+// considered successfully loaded. Excludes "Star": OpenNGC currently contains
+// no Star-type rows, so that tag is legitimately empty and must not gate
+// completion (otherwise the group would re-fetch on every run forever).
+const INLINE_REQUIRED_TAGS = [
+  "NGC/IC", "M", "C", "Sh2", "ACO", "HIP", "TYC", "Named", "Neb",
+];
+
 // Pass --rebuild (or REBUILD=1) to wipe everything and rebuild from scratch.
 const REBUILD =
   process.argv.includes("--rebuild") || process.env.REBUILD === "1";
@@ -357,12 +365,13 @@ async function seed() {
     // --- Sharpless (Sh2) Catalog: HII Emission Nebulae ---
     console.log("Downloading Sharpless Sh2 catalog from VizieR...");
     try {
-      // VizieR TAP query for Sharpless 1959 catalog (VII/20H)
-      const sh2Response = await axios.get(
+      // VizieR Sharpless 1959 catalog. The VII/20H/sharpless table returns an
+      // empty body; VII/20/catalog is the live table (~313 HII regions).
+      const sh2Response = await axiosGetWithRetry(
         "https://vizier.cds.unistra.fr/viz-bin/asu-tsv",
         {
           params: {
-            "-source": "VII/20H/sharpless",
+            "-source": "VII/20/catalog",
             "-out": "_RAJ2000,_DEJ2000,Sh2,Diam",
             "-out.max": "9999",
           },
@@ -684,13 +693,26 @@ async function seed() {
       for (const dso of specialDSOs) insert.run(...dso);
     })();
 
-      // Record the whole inline-originals group as loaded so a re-run skips it.
-      const inlineRows = db
+      // Mark the inline-originals group complete ONLY if every catalog it owns
+      // actually has rows. If any seeded 0 (e.g. a bad VizieR table id or a
+      // transient failure), leave it unrecorded so a plain re-run retries the
+      // whole group — no --rebuild needed. The group is small/fast, so redoing
+      // all of it to recover one empty catalog is cheap.
+      const perTag = db
         .prepare(
-          `SELECT COUNT(*) n FROM objects WHERE catalog IN (${INLINE_LOADER_TAGS.map(() => "?").join(",")})`,
+          `SELECT catalog, COUNT(*) n FROM objects WHERE catalog IN (${INLINE_LOADER_TAGS.map(() => "?").join(",")}) GROUP BY catalog`,
         )
-        .get(...INLINE_LOADER_TAGS).n;
-      markLoaded(db, "inline_originals", inlineRows);
+        .all(...INLINE_LOADER_TAGS);
+      const counts = new Map(perTag.map((r) => [r.catalog, r.n]));
+      const emptyTags = INLINE_REQUIRED_TAGS.filter((t) => !(counts.get(t) > 0));
+      const inlineRows = perTag.reduce((sum, r) => sum + r.n, 0);
+      if (emptyTags.length === 0) {
+        markLoaded(db, "inline_originals", inlineRows);
+      } else {
+        console.warn(
+          `Inline originals NOT marked complete — empty catalogs will retry next run: ${emptyTags.join(", ")}`,
+        );
+      }
     } // end inline-originals group
 
     // --- Deep-sky-object bundle (galaxies, quasars, faint nebulae, clusters) ---
