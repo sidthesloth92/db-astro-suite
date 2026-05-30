@@ -1,49 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <!-- Main Hub -->
   <url>
     <loc>https://dbastrosuite.com/</loc>
-    <lastmod>2026-03-13</lastmod>
+    <lastmod>2026-05-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://dbastrosuite.com/about</loc>
-    <lastmod>2026-03-13</lastmod>
+    <lastmod>2026-05-30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
-
-  <!-- Tool Pages -->
   <url>
     <loc>https://dbastrosuite.com/tool/starwizz</loc>
-    <lastmod>2026-03-13</lastmod>
+    <lastmod>2026-05-30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://dbastrosuite.com/tool/astrogram</loc>
-    <lastmod>2026-03-13</lastmod>
+    <lastmod>2026-05-30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://dbastrosuite.com/tool/file-grouper</loc>
-    <lastmod>2026-03-13</lastmod>
+    <lastmod>2026-05-30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
-
-  <!-- Individual Tools -->
   <url>
     <loc>https://dbastrosuite.com/starwizz/</loc>
-    <lastmod>2026-03-13</lastmod>
+    <lastmod>2026-05-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://dbastrosuite.com/astrogram/</loc>
-    <lastmod>2026-03-13</lastmod>
+    <lastmod>2026-05-30</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
