@@ -77,3 +77,30 @@
   min-width: 0;
   display: block;
 }
+
+/* Stellar-map mode: the preview shows an arbitrary (often large) astrophoto, so
+   let it use the wide empty region instead of the 480px Instagram baseline.
+   Scoped to `stellar-wide` so infographic cards are untouched. The base preview
+   scales the image up to fill the wider wrapper (capped at natural size and the
+   height budget); the empty/upload card stays 480px and just centres. */
+.body.stellar-wide::before {
+  /* Drop the left bias spacer so the preview can centre in the region left of
+     the inspector. */
+  flex: 0 0 0;
+}
+
+.body.stellar-wide .inspector-col {
+  /* Fix the inspector at its content width so it stops absorbing the extra
+     space — the preview column reclaims it. */
+  flex: 0 0 540px;
+}
+
+.body.stellar-wide .preview-col {
+  /* Fill the region left of the inspector. */
+  flex: 1 1 auto;
+}
+
+.body.stellar-wide .preview-inner {
+  /* Grow up to 720px; the existing `margin: 0 auto` centres it in the column. */
+  max-width: 720px;
+}

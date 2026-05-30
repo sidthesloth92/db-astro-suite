@@ -1,6 +1,6 @@
 <div class="desktop" data-testid="desktop-shell">
   <dba-ag-top-bar />
-  <div class="body">
+  <div class="body" [class.stellar-wide]="activeMode() !== 'infographic'">
     <main class="preview-col">
       <div class="preview-inner">
         <dba-ui-preview-context-bar

@@ -90,3 +90,119 @@ describe("mergeObjects — alias + category enrichment", () => {
     assert.equal(merged[0].aliases[0].name, "Gaia DR3 lonely");
   });
 });
+
+describe("mergeObjects — groups only the same object", () => {
+  const at = (name, type, catalog, ra = 148.888, dec = 69.065) =>
+    new CatalogObject(name, type, ra, dec, 8, "local", catalog, name, null, null);
+
+  it("merges cross-catalogue designations of one galaxy into a single marker", () => {
+    // M 81's NGC / PGC / UGC rows are different catalogues at the same point →
+    // one object. Coincident nova/HII/star are distinct kinds → not merged.
+    const inputs = [
+      at("PGC 28630", "G", "PGC"),
+      at("NGC 3031", "G", "NGC/IC"),
+      at("M 81", "G", "M"),
+      at("UGC 5318", "G", undefined),
+      at("M81N 2006-02b", "No*", undefined), // nova (star bucket)
+      at("[JCF89] 80", "HII", undefined), // HII region (nebula bucket)
+      at("Gaia DR3 foreground", "*", "Gaia"), // foreground star
+    ];
+
+    const merged = mergeObjects(inputs, []);
+    const galaxies = merged.filter((m) => (m.categories || []).includes("Galaxy"));
+    assert.equal(galaxies.length, 1, "the four galaxy rows collapse to one marker");
+
+    const galaxy = galaxies[0];
+    assert.equal(galaxy.name, "M 81", "labelled with the best human-readable designation");
+    assert.deepEqual(
+      galaxy.aliases.map((a) => a.name).sort(),
+      ["M 81", "NGC 3031", "PGC 28630", "UGC 5318"],
+      "aliases are exactly the galaxy's own designations",
+    );
+    assert.deepEqual(galaxy.categories, ["Galaxy"]);
+  });
+
+  it("keeps distinct sources of one survey as separate markers", () => {
+    // [ZBF2015] NGC6207 41/7/3 share a catalogue key → different objects, even
+    // though they sit on top of each other.
+    const inputs = [
+      at("[ZBF2015] NGC6207 41", "HII", undefined),
+      at("[ZBF2015] NGC6207 7", "HII", undefined),
+      at("[ZBF2015] NGC6207 3", "HII", undefined),
+    ];
+    const merged = mergeObjects(inputs, []);
+    assert.equal(merged.length, 3, "same-survey distinct sources stay separate");
+    for (const m of merged) {
+      assert.equal(m.aliases.length, 1, "each keeps only its own designation");
+    }
+  });
+
+  it("does not merge two different galaxies from the same catalogue", () => {
+    const inputs = [
+      at("PGC 28630", "G", "PGC"),
+      at("PGC 28631", "G", "PGC"), // a different galaxy, coincident
+    ];
+    const merged = mergeObjects(inputs, []);
+    assert.equal(merged.length, 2);
+  });
+
+  it("still merges a galaxy's NGC + PGC names that arrive from SIMBAD untagged", () => {
+    // SIMBAD entries have no catalog tag; identity must come from the name.
+    const simbad = [
+      new CatalogObject("NGC 3031", "G", 148.888, 69.065, null, "simbad", undefined, undefined, undefined, null),
+      new CatalogObject("PGC 28630", "G", 148.8881, 69.0651, null, "simbad", undefined, undefined, undefined, null),
+    ];
+    const merged = mergeObjects([], simbad);
+    assert.equal(merged.length, 1);
+    assert.equal(merged[0].name, "NGC 3031");
+  });
+});
+
+describe("mergeObjects — real M 81 fragmentation (size-aware radius + spacing)", () => {
+  // Local rows for one galaxy whose catalogue centres are 6.33″ apart, plus the
+  // sizeless SIMBAD "M  81" (double-spaced) — exactly the live solve. All three
+  // must collapse to ONE full-size marker.
+  const local = (name, ra, dec, size) =>
+    new CatalogObject(name, "G", ra, dec, null, "local", "NGC/IC", name, null, size);
+
+  it("collapses the double-space SIMBAD M 81, NGC 3031 and PGC 28630 into one full-size marker", () => {
+    const inputs = [
+      local("NGC3031", 148.888208, 69.065306, 21.63),
+      local("PGC 28630", 148.892083, 69.066389, 21.38), // 6.33″ from NGC3031
+    ];
+    const simbad = [
+      // SIMBAD main_id is double-spaced and carries no size (the tiny circle).
+      new CatalogObject("M  81", "Sy2", 148.88822, 69.0653, null, "simbad", undefined, undefined, undefined, null),
+    ];
+
+    const merged = mergeObjects(inputs, simbad);
+    const galaxies = merged.filter((m) => (m.categories || []).includes("Galaxy"));
+    assert.equal(galaxies.length, 1, "one galaxy marker, not three");
+
+    const g = galaxies[0];
+    assert.equal(g.name, "M 81", "single-spaced best name");
+    assert.equal(g.sizeArcmin, 21.63, "inherits the real size — not the sizeless SIMBAD row");
+    assert.deepEqual(
+      g.aliases.map((a) => a.name).sort(),
+      ["M 81", "NGC 3031", "PGC 28630"],
+      "spaced, deduped designations",
+    );
+  });
+
+  it("treats `M 81` and `M  81` as the same designation (no duplicate marker)", () => {
+    const merged = mergeObjects(
+      [new CatalogObject("M 81", "G", 148.888, 69.065, null, "local", "M", "m81", null, 21.63)],
+      [new CatalogObject("M  81", "Sy2", 148.888, 69.065, null, "simbad", undefined, undefined, undefined, null)],
+    );
+    assert.equal(merged.length, 1);
+    assert.equal(merged[0].sizeArcmin, 21.63);
+  });
+
+  it("does not let a large galaxy swallow a small distinct neighbour 90″ away", () => {
+    // Different catalogue (different key) but a genuinely separate small galaxy.
+    const big = new CatalogObject("NGC 3031", "G", 148.888, 69.065, null, "local", "NGC/IC", "n", null, 21.63);
+    const small = new CatalogObject("PGC 99999", "G", 148.888, 69.065 + 90 / 3600, null, "local", "PGC", "p", null, 1.0);
+    const merged = mergeObjects([big, small], []);
+    assert.equal(merged.length, 2, "the 1′ galaxy 90″ away stays separate");
+  });
+});
