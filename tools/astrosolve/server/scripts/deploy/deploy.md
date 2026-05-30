@@ -20,17 +20,19 @@ Production design:
 
 | Script              | When to run       | As     | Description                                                         |
 | ------------------- | ----------------- | ------ | ------------------------------------------------------------------- |
-| `1_server_init.sh`  | Once (setup)      | root   | Bootstrap: Docker, deploy user, data directories, astrometry files  |
-| `1a_init_docker.sh` | Called by init    | —      | Docker Engine install helper (sourced by `1_server_init.sh`)        |
-| `3_restart.sh`      | On-demand         | deploy | Restart the container without pulling a new image                   |
-| `4_stop.sh`         | On-demand         | deploy | Gracefully stop the container (data preserved)                      |
-| `5_teardown.sh`     | Decommission only | root   | **DESTRUCTIVE** — removes everything, returns server to clean state |
+| `1_server_init.sh`   | Once (setup)      | root   | Bootstrap: Docker, deploy user, data directories, astrometry files  |
+| `1a_init_docker.sh`  | Called by init    | —      | Docker Engine install helper (sourced by `1_server_init.sh`)        |
+| `rebuild-catalog.sh` | Setup + refresh   | deploy | Build/refresh the local celestial catalog, **detached** (see §3a)   |
+| `3_restart.sh`       | On-demand         | deploy | Restart the container without pulling a new image                   |
+| `4_stop.sh`          | On-demand         | deploy | Gracefully stop the container (data preserved)                      |
+| `5_teardown.sh`      | Decommission only | root   | **DESTRUCTIVE** — removes everything, returns server to clean state |
 
 > **Upgrading an existing deployment?** A normal deploy is self-contained — the
-> pipeline pulls the image, builds the catalog if needed (§3a), and restarts the
-> API. Any release that ever needs an extra manual step will document it as a
-> numbered file in [`migrations/`](./migrations/); apply every migration newer
-> than your currently-running version, in ascending order.
+> pipeline pulls the image and swaps the container (it does **not** touch the
+> catalog). Refresh the catalog out-of-band when you want to (§3a). Any release
+> that ever needs an extra manual step will document it as a numbered file in
+> [`migrations/`](./migrations/); apply every migration newer than your
+> currently-running version, in ascending order.
 
 ---
 
@@ -83,48 +85,46 @@ This does the following:
 - Pre-creates `data/astrosolve.sqlite` (access keys database, persisted across deploys)
 - **Downloads Astrometry.net index files** into `data/astrometry` — takes 15–30 min on first run; subsequent runs skip files already present
 
-It does **not** build the local celestial catalog directly — that is done by the
-**deploy pipeline**, automatically, on the first deploy (see §3a).
+It does **not** build the local celestial catalog — that is a separate,
+out-of-band step (see §3a). **Deploys never build the catalog.**
 
-## 3a. Build The Local Celestial Catalog
+## 3a. Build The Local Celestial Catalog (out-of-band)
 
 `data/local-catalog/celestial.sqlite` is the deep object catalog (OpenNGC +
 HyperLEDA galaxies + Milliquas quasars + faint nebulae/clusters + Gaia DR3
 G≤15 stars + R-tree spatial index). Like the astrometry indexes it lives only
 on the server's disk and is **never** baked into the image.
 
-**You do not normally run this by hand.** The deploy pipeline builds it for you:
-on every deploy it runs the resumable builder as a throwaway one-shot
-(`docker run --rm ... npm run init-local-catalog-db`) on the server **before**
-starting the API container. On a fresh server the first deploy downloads the
-whole catalog (Gaia is fetched in RA/Dec tiles from the ESA archive in a bounded
-concurrent pool — roughly 20–40 min), so the first deploy job runs long; every
-later deploy skips already-loaded sources and finishes in seconds. The builder
-needs Node + better-sqlite3, which ship inside the app image, so it reuses the
-same image being deployed. There is no manual step in the normal flow.
-
-### Manual build / forced rebuild (escape hatch)
-
-Only needed to recover a corrupt catalog or to force a clean rebuild after loader
-changes. Run on the server as the deploy user, against any pulled image tag:
+**Deploys do not build it.** Building it is slow (a full R-tree rebuild over
+~38M rows), so it is kept off the deploy path — deploys just pull the image and
+swap the container (~seconds). You build the catalog with a dedicated **detached**
+helper, so an SSH disconnect can't interrupt it:
 
 ```bash
-IMAGE=ghcr.io/<owner>/astrosolve:<tag>
-docker pull "$IMAGE"
-docker run --rm \
-  -v "$APP_DIR/data/local-catalog:/usr/src/app/data/local-catalog" \
-  "$IMAGE" \
-  npm run init-local-catalog-db          # resumable; add `-- --rebuild` to wipe & rebuild
+# On the server. Run once for first-time setup, and again whenever you want to
+# refresh the catalog. Needs an image already pulled — the first deploy does
+# that (the API runs catalog-less until this first build completes).
+/root/astrosolve-deploy/rebuild-catalog.sh            # resumable build
+/root/astrosolve-deploy/rebuild-catalog.sh --rebuild  # force a clean rebuild
+```
+
+Then watch it, and restart the API to pick up the new catalog:
+
+```bash
+docker logs -f catalog-build           # safe to Ctrl-C / disconnect — build continues
+# when it prints "R-tree spatial index built (...)":
+docker restart astrosolve
 ```
 
 Notes:
 
-- A catalog tile/source that keeps failing is logged and skipped, so a
-  transient network error will not abort the build. The build is resumable —
-  re-run and it skips what is already loaded.
-- The running API container mounts this directory read-only; after a manual
-  (re)build restart the API (§Day-2 → Restart) so it reopens the fresh file.
-  (A pipeline deploy restarts the API for you.)
+- The build is **resumable** — re-running skips already-loaded sources; a source
+  that keeps failing is logged and skipped rather than aborting the build.
+- It runs **detached** (`docker run -d`), so it survives an SSH drop. The first
+  full build downloads everything (Gaia dominates — ~20–40 min).
+- The `docker restart astrosolve` above is how the running API picks up a freshly
+  (re)built catalog. On a refresh of a live server the API's catalog lookups may
+  briefly error during the R-tree step — stop the API first if you want zero blips.
 
 ## 4. Reconnect As The Deploy User
 
@@ -175,13 +175,13 @@ Enter an image tag (e.g. `1.0.0`) and click **Run workflow**.
 The pipeline will:
 
 1. Build the backend Docker image and push it to GHCR
-2. SSH into the server, build the local catalog as a resumable one-shot
-   (§3a — full download on the first deploy, a seconds-long no-op afterwards),
-   then run `docker run` for the API with all config injected
+2. SSH into the server, pull the image, and swap the API container — **a fast
+   pull + container swap (~seconds)**. The deploy does **not** build the catalog.
 
-> On a brand-new server the first deploy is long because step 2 downloads the
-> whole catalog before the API starts. That is expected — the deploy is not
-> "done" until the catalog exists. Subsequent deploys are quick.
+> On a brand-new server the API comes up **catalog-less** after this first deploy
+> (it serves, just without catalog labels). Build the catalog next with §3a's
+> `rebuild-catalog.sh`, then restart the API. Subsequent deploys never touch the
+> catalog, so they stay fast.
 
 ## 8. Smoke Test The API
 
@@ -265,6 +265,6 @@ sudo /root/astrosolve-deploy/5_teardown.sh
 
 - Runtime config (CORS origin, app dir) lives in GitHub Actions variables — not on the server
 - The astrometry index files are large and live only on the server — never in the Docker image
-- The local celestial catalog (`local-catalog/celestial.sqlite`, ~8 GB) is built on the server by the deploy pipeline as a resumable one-shot before the API starts, and mounted read-only — never in the Docker image (see §3a; manual `docker run ... -- --rebuild` only for recovery/forced rebuild)
+- The local celestial catalog (`local-catalog/celestial.sqlite`, ~8 GB) is built **out-of-band** on the server via `rebuild-catalog.sh` (detached), mounted read-only, and **never** built by a deploy or baked into the image (see §3a). Deploys just pull + swap the container; restart the API after a (re)build to pick up the new catalog
 - The access keys database (`astrosolve.sqlite`) is volume-mounted and survives image updates
 - Normal commits to `main` do not deploy — only release PR merges and `workflow_dispatch` triggers

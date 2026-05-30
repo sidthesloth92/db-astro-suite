@@ -13,11 +13,10 @@
 #   - Downloads Astrometry.net index files (15-30 min on first run)
 #
 # What this script does NOT build:
-#   - The local celestial catalog (data/local-catalog/celestial.sqlite). The
-#     deploy pipeline builds it on the server automatically, as a resumable
-#     one-shot before the API starts (full download on the first deploy, a
-#     no-op afterwards) — see deploy.md §3a. This script just creates the mount
-#     directory.
+#   - The local celestial catalog (data/local-catalog/celestial.sqlite). It is
+#     built out-of-band, AFTER the first deploy has pulled an image, via
+#     rebuild-catalog.sh (detached) — deploys never build it. See deploy.md §3a.
+#     This script just creates the mount directory.
 #
 # What this script does NOT do (handled by the pipeline):
 #   - Pull or run Docker images
@@ -132,10 +131,12 @@ echo "Next steps:"
 echo "  1. Add GitHub Actions secrets (DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY)"
 echo "  2. Add GitHub Actions variables (APP_DIR, ASTROSOLVE_ORIGIN)"
 echo "  3. Point Cloudflare DNS A record to this server IP"
-echo "  4. Trigger a deploy from GitHub Actions"
+echo "  4. Trigger a deploy from GitHub Actions (pulls the image, starts the API"
+echo "     catalog-less — fast pull + container swap)"
+echo "  5. Build the catalog once it has an image, detached (deploy.md §3a):"
+echo "       ./rebuild-catalog.sh         # ~20-40 min, survives SSH drops"
+echo "     then: docker restart astrosolve"
 echo ""
-echo "The deploy pipeline builds the local celestial catalog automatically as a"
-echo "resumable one-shot before the API starts (deploy.md §3a). The first deploy"
-echo "downloads the whole catalog (~20-40 min); later deploys skip it in seconds."
-echo "No manual catalog build is needed."
+echo "Deploys never build the catalog — they just pull + swap the container, so"
+echo "they stay fast. Refresh the catalog out-of-band with rebuild-catalog.sh."
 echo ""
