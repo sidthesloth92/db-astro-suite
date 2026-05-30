@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.19.1](https://github.com/sidthesloth92/db-astro-suite/compare/v1.19.0...v1.19.1) (2026-05-30)
+
+
+### Bug Fixes
+
+* **astrosolve:** keep catalog init script in the Docker image; exclude all shell scripts ([#46](https://github.com/sidthesloth92/db-astro-suite/issues/46)) ([d232a8d](https://github.com/sidthesloth92/db-astro-suite/commit/d232a8d4027656c1e1adbbc060b676649c499f56))
+
 ## [1.19.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.18.0...v1.19.0) (2026-05-30)
 
 
