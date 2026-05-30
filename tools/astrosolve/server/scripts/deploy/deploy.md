@@ -53,11 +53,11 @@ From your Mac, at the repo root. Copies **all** deploy scripts so the server
 always has the latest set:
 
 ```bash
-ssh -i $SSH_KEY root@$SERVER_IP "mkdir -p /root/astrosolve-deploy"
+ssh -i $SSH_KEY root@$SERVER_IP "mkdir -p /opt/astrosolve/scripts"
 scp -i $SSH_KEY \
   tools/astrosolve/server/scripts/deploy/*.sh \
   tools/astrosolve/server/scripts/data/init-astrometry-db.sh \
-  root@$SERVER_IP:/root/astrosolve-deploy/
+  root@$SERVER_IP:/opt/astrosolve/scripts/
 ```
 
 ## 2. SSH Into The Server As Root
@@ -71,10 +71,10 @@ ssh -i $SSH_KEY root@$SERVER_IP
 On the server:
 
 ```bash
-chmod +x /root/astrosolve-deploy/*.sh
+chmod +x /opt/astrosolve/scripts/*.sh
 DEPLOY_USER='$DEPLOY_USER' \
 APP_DIR='$APP_DIR' \
-/root/astrosolve-deploy/1_server_init.sh
+/opt/astrosolve/scripts/1_server_init.sh
 ```
 
 This does the following:
@@ -104,8 +104,8 @@ helper, so an SSH disconnect can't interrupt it:
 # On the server. Run once for first-time setup, and again whenever you want to
 # refresh the catalog. Needs an image already pulled — the first deploy does
 # that (the API runs catalog-less until this first build completes).
-/root/astrosolve-deploy/rebuild-catalog.sh            # resumable build
-/root/astrosolve-deploy/rebuild-catalog.sh --rebuild  # force a clean rebuild
+/opt/astrosolve/scripts/rebuild-catalog.sh            # resumable build
+/opt/astrosolve/scripts/rebuild-catalog.sh --rebuild  # force a clean rebuild
 ```
 
 Then watch it, and restart the API to pick up the new catalog:
@@ -212,12 +212,31 @@ ls -lh $APP_DIR/data/astrosolve.sqlite
 
 ## Day-2 Operations
 
+### Refresh the deploy scripts
+
+The helper scripts under `/opt/astrosolve/scripts/` are copied to the server by
+hand (Step 1) — **the pipeline does not sync them**. When they change in the repo
+(a new helper like `rebuild-catalog.sh`, or a fix), re-copy them. After initial
+setup the `deploy` user owns `/opt/astrosolve/scripts`, so copy as that user:
+
+```bash
+# From your Mac, at the repo root:
+scp -i $SSH_KEY \
+  tools/astrosolve/server/scripts/deploy/*.sh \
+  tools/astrosolve/server/scripts/data/init-astrometry-db.sh \
+  $DEPLOY_USER@$SERVER_IP:/opt/astrosolve/scripts/
+ssh -i $SSH_KEY $DEPLOY_USER@$SERVER_IP "chmod +x /opt/astrosolve/scripts/*.sh"
+```
+
+This is the same copy as Step 1 (just re-run any time, as the `deploy` user
+rather than root). It overwrites the scripts in place; it never touches `data/`.
+
 ### Restart (no image pull)
 
 Use when the container is misbehaving or you need a clean restart:
 
 ```bash
-/root/astrosolve-deploy/3_restart.sh
+/opt/astrosolve/scripts/3_restart.sh
 ```
 
 Or directly:
@@ -231,7 +250,7 @@ docker restart astrosolve
 Gracefully stops and removes the container. Data volumes are preserved:
 
 ```bash
-/root/astrosolve-deploy/4_stop.sh
+/opt/astrosolve/scripts/4_stop.sh
 ```
 
 To resume, trigger a deploy from GitHub Actions.
@@ -254,7 +273,7 @@ Trigger a deploy from GitHub Actions using the previous good image tag.
 Returns the server to a clean state. Run as root:
 
 ```bash
-sudo /root/astrosolve-deploy/5_teardown.sh
+sudo /opt/astrosolve/scripts/5_teardown.sh
 ```
 
 **Back up any data you need before running this.**

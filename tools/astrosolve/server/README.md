@@ -109,14 +109,89 @@ cat tools/astrosolve/server/scripts/deploy/deploy.md
 The deployment scripts are:
 
 ```bash
-tools/astrosolve/server/scripts/deploy/1_server_init.sh  # one-time server bootstrap
-tools/astrosolve/server/scripts/deploy/2_deploy.sh       # pull image tag and start containers
-tools/astrosolve/server/scripts/deploy/3_restart.sh      # restart without pulling a new image
-tools/astrosolve/server/scripts/deploy/4_stop.sh         # gracefully stop containers
-tools/astrosolve/server/scripts/deploy/5_teardown.sh     # DESTRUCTIVE — wipe everything
+tools/astrosolve/server/scripts/deploy/1_server_init.sh    # one-time server bootstrap
+tools/astrosolve/server/scripts/deploy/rebuild-catalog.sh  # build/refresh the local catalog (detached)
+tools/astrosolve/server/scripts/deploy/3_restart.sh        # restart the container without pulling a new image
+tools/astrosolve/server/scripts/deploy/4_stop.sh           # gracefully stop the container
+tools/astrosolve/server/scripts/deploy/5_teardown.sh       # DESTRUCTIVE — wipe everything
 ```
 
-Use `1_server_init.sh` for one-time server bootstrap. It installs Docker, creates the deploy user, writes config, and downloads astrometry index files. Use `2_deploy.sh <release-version>` for rollouts and rollbacks.
+Use `1_server_init.sh` for the one-time server bootstrap (Docker, deploy user, data
+dirs, astrometry indexes). **Rollouts and rollbacks are done via GitHub Actions**
+(the `release-deploy` workflow), not a script — a deploy just pulls the image and
+swaps the API container; it never builds the catalog.
+
+## Catalog Builds
+
+The local celestial catalog (`data/local-catalog/celestial.sqlite` — OpenNGC,
+HyperLEDA, Milliquas, faint nebulae/clusters, Gaia DR3 G≤15, plus the R-tree
+spatial index) is built **out-of-band on the server** — never by a deploy and
+never baked into the image. `rebuild-catalog.sh` runs the build **detached**
+(`docker run -d`), so an SSH disconnect can't interrupt it, and the build is
+**resumable**: each loaded source is recorded and skipped next time, and the
+R-tree is rebuilt only when a source actually (re)loaded.
+
+> Scripts are copied to `/opt/astrosolve/scripts/` by deploy.md step 1. Optional
+> overrides: `APP_DIR` (default `/opt/astrosolve`) and `IMAGE` (default: the
+> latest pulled astrosolve image).
+
+### First-time build
+
+Run it **after** the first deploy — the deploy is what pulls an image onto the
+server, and until this build finishes the API serves **catalog-less** (it runs,
+just without catalog labels):
+
+```bash
+/opt/astrosolve/scripts/rebuild-catalog.sh   # full download, ~20–40 min (Gaia dominates)
+docker logs -f catalog-build                 # watch; safe to Ctrl-C / disconnect — the build keeps running
+docker restart astrosolve                    # after "R-tree spatial index built (...)" — API picks up the catalog
+```
+
+### Refresh (resumable — the gentle, common case)
+
+To pick up new/changed sources without re-downloading everything:
+
+```bash
+/opt/astrosolve/scripts/rebuild-catalog.sh
+docker restart astrosolve
+```
+
+It skips every already-loaded source and a consistent R-tree, so it's usually a
+quick no-op; it only rebuilds the R-tree if something actually changed. The live
+API is unaffected apart from the brief R-tree commit (if any).
+
+### Full rebuild from scratch (`--rebuild`)
+
+Only for a deliberate clean wipe (corruption, or to clear stale state). It
+**drops all tables up front and re-downloads everything** (including Gaia), so
+it is the long build **and** the catalog is empty/incomplete for its whole
+duration — meaning a **running API's catalog lookups stay degraded (empty or
+erroring) until it finishes**, not just briefly. Pick one:
+
+```bash
+# A) Keep the app up (catalog labels degraded during the build), restart after:
+/opt/astrosolve/scripts/rebuild-catalog.sh --rebuild
+docker logs -f catalog-build
+docker restart astrosolve
+
+# B) No degraded responses — full app downtime for the build instead:
+docker stop astrosolve
+/opt/astrosolve/scripts/rebuild-catalog.sh --rebuild
+docker logs -f catalog-build
+docker start astrosolve
+```
+
+### Why restart the API afterward
+
+The build writes `celestial.sqlite` **in place**; `docker restart astrosolve`
+reopens it on a fresh connection, which is the reliable way the running
+container picks up the rebuilt catalog (the in-place `DROP`/`CREATE` churns the
+schema and row ids, so a clean reopen beats relying on the live connection to
+re-sync). The restart takes a few seconds.
+
+> The same first-time and refresh flows are in the deploy runbook
+> (`scripts/deploy/deploy.md` §3a); this section is the fuller operational
+> reference.
 
 ## Managing Access Keys
 
