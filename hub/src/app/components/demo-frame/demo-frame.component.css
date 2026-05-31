@@ -1,0 +1,59 @@
+:host {
+  display: block;
+}
+
+.frame {
+  position: relative;
+  border: 1px solid var(--db-color-border-strong);
+  background: var(--db-color-surface);
+  overflow: hidden;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.6);
+}
+
+.frame__bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--db-color-border);
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--db-color-text-faint);
+}
+
+.frame__dots {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.frame__dots i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--db-color-surface-hi);
+}
+
+.frame__status {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.frame__status--live {
+  color: var(--db-color-cyan);
+}
+
+.frame__status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--db-color-cyan);
+  box-shadow: 0 0 8px var(--db-color-cyan);
+}
+
+.frame__body {
+  position: relative;
+  display: block;
+}

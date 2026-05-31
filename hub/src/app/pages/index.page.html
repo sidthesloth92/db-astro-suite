@@ -1,111 +1,143 @@
 <dba-ui-starry-background>
-  <div class="hero__loader" aria-hidden="true">
-    <dba-ui-black-hole-loader [fill]="true" />
-  </div>
+  @if (showBackground()) {
+    <div class="hero__loader" aria-hidden="true">
+      <dba-ui-black-hole-loader [fill]="true" />
+    </div>
+  }
   <main class="content">
     <header class="hero">
-      <dba-ui-pill-badge tone="pink">
-        <span class="system-dot" aria-hidden="true"></span>
-        DB Astro Suite Core // Online
-      </dba-ui-pill-badge>
+      <span class="status-pill">
+        <span class="status-pill__dot" aria-hidden="true"></span>
+        DB Astro Suite v{{ version }} · Online
+      </span>
 
-      <h1 class="hero__title">DB ASTRO SUITE</h1>
-      <p class="hero__subtitle">
-        A COLLECTION OF ASTRO TOOLS TO GO FROM SENSOR TO SOCIAL
-      </p>
-      <div class="hero__description" id="suite-description">
+      <dba-hub-crescent-logo
+        class="hero__logo"
+        [markSize]="128"
+        [showWordmark]="true"
+        (animationDone)="onLogoAnimationDone()"
+      />
+
+      <div class="hero__rule" aria-hidden="true"></div>
+
+      <p class="hero__description" id="suite-description">
         A professional collection of social-media focused astrophotography
         tools built to get your space photos off your hard drive and onto
         social media as cool, shareable videos and posts. Seamlessly
         transform your captures into cinematic starfield animations with
         Starwizz or professional Instagram exposure cards with Astrogram.
         Spend less time processing data and more time capturing the cosmos.
-      </div>
-      <div class="hero__scroll-cue" aria-hidden="true"></div>
+      </p>
     </header>
 
     <section class="tools" aria-labelledby="tools-title">
-      <h2 id="tools-title" class="sr-only">Available Astro Tools</h2>
+      <div class="tools__head">
+        <span class="kicker"><span class="kicker__dot"></span>Tools</span>
+        <h2 id="tools-title" class="tools__count">03 tools · 02 ready</h2>
+      </div>
+
       <div class="tools__grid">
-        <div
-          class="mission-card"
+        <a
+          class="tool-card"
           [routerLink]="['/tool/starwizz']"
           (click)="onCardClick('starwizz')"
         >
-          <dba-ui-card
-            title="STARWIZZ"
-            subtitle="Starfield Generator"
-            [clickable]="true"
-            logoSrc="assets/img/sw.png"
-          >
-            <div class="mission-status-slot">
-              <dba-ui-pill-badge tone="cyan">READY</dba-ui-pill-badge>
+          <div class="tool-card__head">
+            <div class="tool-card__id">
+              <img class="tool-card__logo" src="assets/img/sw.png" alt="" />
+              <div>
+                <div class="tool-card__name">STARWIZZ</div>
+                <div class="tool-card__tag">Starfield Generator</div>
+              </div>
             </div>
-            <p>
-              Generate high-fidelity starfield videos with surgical control
-              over star count, velocity, and rotation parameters.
-            </p>
-            <dba-ui-text-button
-              label="Learn more"
-              variant="secondary"
-              size="sm"
-              [routerLink]="['/tool/starwizz']"
-              (clicked)="onLearnMoreClick($event, 'starwizz')"
-              aria-label="Learn more about Starwizz"
-            >
-              <dba-ui-icon slot="trailing" [def]="chevronRightIcon" [size]="12" />
-            </dba-ui-text-button>
-          </dba-ui-card>
-        </div>
+            <span class="status-pill">
+              <span class="status-pill__dot" aria-hidden="true"></span>Ready
+            </span>
+          </div>
+          <div class="tool-card__preview">
+            <img
+              src="assets/img/sw_demo.gif"
+              alt="Starwizz starfield demo"
+              loading="lazy"
+            />
+          </div>
+          <p class="tool-card__desc">
+            Generate high-fidelity 4K starfield videos with surgical control
+            over star count, velocity, and rotation parameters.
+          </p>
+          <span class="tool-card__more"
+            >Learn more <span aria-hidden="true">›</span></span
+          >
+        </a>
 
-        <div
-          class="mission-card"
+        <a
+          class="tool-card"
           [routerLink]="['/tool/astrogram']"
           (click)="onCardClick('astrogram')"
         >
-          <dba-ui-card
-            title="ASTROGRAM"
-            subtitle="Professional Exposure Cards. Instantly."
-            [clickable]="true"
-            logoSrc="assets/img/astrogram.png"
-          >
-            <div class="mission-status-slot">
-              <dba-ui-pill-badge tone="cyan">READY</dba-ui-pill-badge>
+          <div class="tool-card__head">
+            <div class="tool-card__id">
+              <img class="tool-card__logo" src="assets/img/astrogram.png" alt="" />
+              <div>
+                <div class="tool-card__name">ASTROGRAM</div>
+                <div class="tool-card__tag">Exposure Cards. Instantly.</div>
+              </div>
             </div>
-            <p>
-              Astrogram generates beautifully designed and professional-grade
-              Instagram-ready images that display your full astrophotography
-              exposure details, from target and integration time to equipment,
-              filters, and Bortle scale. All in one clean, shareable image.
-            </p>
-            <dba-ui-text-button
-              label="Learn more"
-              variant="secondary"
-              size="sm"
-              [routerLink]="['/tool/astrogram']"
-              (clicked)="onLearnMoreClick($event, 'astrogram')"
-              aria-label="Learn more about Astrogram"
-            >
-              <dba-ui-icon slot="trailing" [def]="chevronRightIcon" [size]="12" />
-            </dba-ui-text-button>
-          </dba-ui-card>
-        </div>
+            <span class="status-pill">
+              <span class="status-pill__dot" aria-hidden="true"></span>Ready
+            </span>
+          </div>
+          <div class="tool-card__preview">
+            <img
+              src="assets/img/astrogram_demo.jpg"
+              alt="Astrogram exposure card demo"
+              loading="lazy"
+            />
+          </div>
+          <p class="tool-card__desc">
+            Turn your session metadata into beautifully typeset, Instagram-ready
+            exposure cards with plate-solved annotations and a ready-to-post
+            caption.
+          </p>
+          <span class="tool-card__more"
+            >Learn more <span aria-hidden="true">›</span></span
+          >
+        </a>
 
-        <div class="mission-card mission-card--disabled">
-          <dba-ui-card
-            title="FILE GROUPER"
-            subtitle="CLI Utility"
-            [clickable]="false"
-          >
-            <div class="mission-status-slot">
-              <dba-ui-pill-badge tone="orange">IN PROGRESS</dba-ui-pill-badge>
+        <a
+          class="tool-card tool-card--wip"
+          [routerLink]="['/tool/file-grouper']"
+          (click)="onCardClick('file-grouper')"
+        >
+          <div class="tool-card__head">
+            <div class="tool-card__id">
+              <span class="tool-card__icon">
+                <dba-ui-icon [def]="cpuIcon" [size]="22" />
+              </span>
+              <div>
+                <div class="tool-card__name">FILE GROUPER</div>
+                <div class="tool-card__tag">CLI Utility</div>
+              </div>
             </div>
-            <p>
-              A high-performance Go script to automatically group and
-              organize ASIAIR image datasets by camera, date, and object.
-            </p>
-          </dba-ui-card>
-        </div>
+            <span class="status-pill status-pill--wip">
+              <span class="status-pill__dot" aria-hidden="true"></span>WIP
+            </span>
+          </div>
+          <div class="tool-card__preview tool-card__preview--terminal">
+            <code>
+              <span class="terminal__prompt">$</span> file-grouper ./asiair<br />
+              → scanning 1,284 frames<br />
+              <span class="terminal__ok">✓ grouped 12 sets · 0.42s</span>
+            </code>
+          </div>
+          <p class="tool-card__desc">
+            A high-performance Go utility that automatically groups and
+            organizes ASIAIR image datasets by camera, date, and object.
+          </p>
+          <span class="tool-card__more"
+            >Learn more <span aria-hidden="true">›</span></span
+          >
+        </a>
       </div>
     </section>
 

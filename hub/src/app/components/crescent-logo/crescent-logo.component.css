@@ -1,0 +1,169 @@
+:host {
+  display: inline-block;
+  line-height: 0;
+}
+
+.lockup {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.75rem, 2.5vw, 1.75rem);
+}
+
+.lockup--wordmark {
+  flex-wrap: wrap;
+}
+
+/* ===== Crescent mark ===== */
+.cr-float {
+  overflow: visible;
+  animation: cr-floaty 5s ease-in-out infinite;
+}
+
+.cr-disc {
+  fill: var(--db-color-neon-pink);
+  opacity: 0.94;
+  animation: cr-glow 4s ease-in-out infinite;
+}
+
+.cr-letter {
+  fill: var(--db-color-text-primary);
+  font-family: var(--db-font-display);
+  font-weight: 700;
+  font-size: 28px;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.cr-star {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.cr-star-big,
+.cr-star-2 {
+  fill: var(--db-color-cyan);
+}
+
+.cr-star-1,
+.cr-star-3 {
+  fill: var(--db-color-text-primary);
+}
+
+.cr-star-big {
+  animation: cr-twinkle-big 2.6s ease-in-out infinite;
+}
+
+.cr-star-1 {
+  animation: cr-twinkle 1.8s ease-in-out infinite 0.2s;
+}
+
+.cr-star-2 {
+  animation: cr-twinkle 2.3s ease-in-out infinite 0.9s;
+}
+
+.cr-star-3 {
+  animation: cr-twinkle 2s ease-in-out infinite 1.4s;
+}
+
+/* ===== Wordmark lockup ===== */
+.wordmark {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.wordmark__row {
+  display: inline-flex;
+  font-family: var(--db-font-display);
+  font-weight: 700;
+  font-size: clamp(2.1rem, 6vw, 4.2rem);
+  line-height: 0.95;
+  letter-spacing: 0.03em;
+}
+
+.wordmark__tagline {
+  margin-top: clamp(0.4rem, 1.2vw, 0.7rem);
+  font-family: var(--db-font-ui);
+  font-weight: 500;
+  font-size: clamp(0.6rem, 1.5vw, 0.95rem);
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--db-color-text-faint);
+}
+
+.wordmark__astro,
+.wordmark__suite {
+  display: inline-block;
+}
+
+.wordmark__astro {
+  color: var(--db-color-neon-pink);
+  text-shadow:
+    0 0 12px color-mix(in srgb, var(--db-color-neon-pink) 70%, transparent),
+    0 0 34px color-mix(in srgb, var(--db-color-neon-pink) 45%, transparent);
+}
+
+.wordmark__suite {
+  color: var(--db-color-text-primary);
+}
+
+/* ===== Loops ===== */
+@keyframes cr-floaty {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes cr-glow {
+  0%,
+  100% {
+    filter:
+      drop-shadow(0 0 5px color-mix(in srgb, var(--db-color-neon-pink) 45%, transparent))
+      drop-shadow(0 0 14px color-mix(in srgb, var(--db-color-neon-pink) 20%, transparent));
+  }
+  50% {
+    filter:
+      drop-shadow(0 0 9px color-mix(in srgb, var(--db-color-neon-pink) 70%, transparent))
+      drop-shadow(0 0 22px color-mix(in srgb, var(--db-color-neon-pink) 35%, transparent));
+  }
+}
+
+@keyframes cr-twinkle {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.7);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes cr-twinkle-big {
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scale(0.9) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.12) rotate(8deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cr-float,
+  .cr-disc,
+  .cr-star-big,
+  .cr-star-1,
+  .cr-star-2,
+  .cr-star-3 {
+    animation: none;
+  }
+}
