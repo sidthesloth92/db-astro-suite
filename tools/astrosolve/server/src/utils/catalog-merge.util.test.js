@@ -231,6 +231,16 @@ describe("mergeObjects — zero-padding + sizeless cross-ID identity", () => {
     assert.equal(merged[0].name, "IC 59");
   });
 
+  it("inherits distanceLy from the member that carries it", () => {
+    // The galaxy's NGC row has no distance; its coincident PGC row does. The
+    // merged survivor must surface that distance.
+    const ngc = new CatalogObject("NGC 3034", "G", 148.97, 69.68, null, "local", "NGC/IC", "n", "Cigar Galaxy", 11, undefined, undefined, null);
+    const pgc = new CatalogObject("PGC 28655", "G", 148.9675, 69.6803, null, "local", "PGC", "p", undefined, 10.7, undefined, undefined, 11_500_000);
+    const merged = mergeObjects([ngc, pgc], []);
+    assert.equal(merged.length, 1);
+    assert.equal(merged[0].distanceLy, 11_500_000);
+  });
+
   it("merges a sizeless SIMBAD cross-ID into a sized local object beyond the bare floor", () => {
     // Different designations (NGC vs M) ~30″ apart; SIMBAD is sizeless. The
     // radius must fall back to the local object's known size so the cross-ID

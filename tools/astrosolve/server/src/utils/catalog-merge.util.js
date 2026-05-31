@@ -91,6 +91,7 @@ function buildSurvivor(members) {
     rep.sizeArcmin ?? pick((m) => m.sizeArcmin),
     gatherAliases(members),
     [...new Set(members.map((m) => categoryLabel(m.type)))],
+    rep.distanceLy ?? pick((m) => m.distanceLy),
   );
 }
 

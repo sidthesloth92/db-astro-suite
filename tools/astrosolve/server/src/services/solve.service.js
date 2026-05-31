@@ -10,6 +10,7 @@ import {
 import { LocalCatalogDao } from "../dao/local-catalog.dao.js";
 import { SolveResult, SolveMetadata } from "../models/solve.model.js";
 import { CatalogError } from "../models/errors.model.js";
+import config from "../config.js";
 
 /**
  * Wraps a catalog query so it always produces a `diagnostics` payload —
@@ -114,42 +115,51 @@ export async function processSolveRequest(
     solveResult.field_height_arcmin,
   );
 
-  // Fire both queries in parallel — each is wrapped so we always get a
-  // diagnostics payload regardless of outcome. Lets us record per-subsystem
-  // timings on the happy path too, useful for audience/system insight.
-  const [localResult, simbadResult] = await Promise.all([
-    timedCatalog(
-      "local_catalog",
-      () =>
-        findObjectsInRadius(localCatalogDao, {
-          ra: solveResult.ra,
-          dec: solveResult.dec,
-          radiusDeg: radius,
-          types: hints.types,
-          log,
-        }),
-      {
-        params: {
-          ra: solveResult.ra,
-          dec: solveResult.dec,
-          radiusDeg: radius,
-          types: hints.types,
+  // The local catalog is the primary (and, by default, only) source — it now
+  // covers every object niche. SIMBAD is an optional supplement, gated behind
+  // `config.simbadEnabled`; when off we skip the network call entirely and feed
+  // the merge an empty SIMBAD set. Each call is wrapped so we always get a
+  // diagnostics payload regardless of outcome.
+  const localPromise = timedCatalog(
+    "local_catalog",
+    () =>
+      findObjectsInRadius(localCatalogDao, {
+        ra: solveResult.ra,
+        dec: solveResult.dec,
+        radiusDeg: radius,
+        types: hints.types,
+        log,
+      }),
+    {
+      params: {
+        ra: solveResult.ra,
+        dec: solveResult.dec,
+        radiusDeg: radius,
+        types: hints.types,
+      },
+    },
+  );
+  const simbadPromise = config.simbadEnabled
+    ? timedCatalog(
+        "simbad",
+        () =>
+          querySimbad(
+            solveResult.ra,
+            solveResult.dec,
+            radius,
+            hints.min_magnitude,
+          ),
+        {
+          request_url: "http://simbad.u-strasbg.fr/simbad/sim-tap/sync",
         },
-      },
-    ),
-    timedCatalog(
-      "simbad",
-      () =>
-        querySimbad(
-          solveResult.ra,
-          solveResult.dec,
-          radius,
-          hints.min_magnitude,
-        ),
-      {
-        request_url: "http://simbad.u-strasbg.fr/simbad/sim-tap/sync",
-      },
-    ),
+      )
+    : Promise.resolve({
+        objects: [],
+        diagnostics: { status: "disabled", row_count: 0 },
+      });
+  const [localResult, simbadResult] = await Promise.all([
+    localPromise,
+    simbadPromise,
   ]);
 
   if (localResult.error) {
@@ -167,7 +177,7 @@ export async function processSolveRequest(
 
   const localObjects = localResult.objects;
   const simbadObjects = simbadResult.objects;
-  const simbadAvailable = !simbadResult.error;
+  const simbadAvailable = config.simbadEnabled && !simbadResult.error;
 
   // Step 3: Deduplication & Merging
   const objects = mergeObjects(localObjects, simbadObjects);
