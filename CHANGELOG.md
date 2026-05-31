@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.22.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.21.0...v1.22.0) (2026-05-31)
+
+
+### Features
+
+* **hub:** premium landing + tool-detail redesign with animated crescent logo ([#54](https://github.com/sidthesloth92/db-astro-suite/issues/54)) ([253b774](https://github.com/sidthesloth92/db-astro-suite/commit/253b774c64d42353776b047b34534928c377a389))
+
 ## [1.21.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.20.0...v1.21.0) (2026-05-31)
 
 
