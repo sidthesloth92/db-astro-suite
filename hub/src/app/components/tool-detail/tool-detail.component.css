@@ -281,6 +281,11 @@
   color: var(--db-color-text-primary);
 }
 
+/* Dual-colour heading: leading word pink, remainder white (no glow). */
+.sec-head__accent {
+  color: var(--db-color-neon-pink);
+}
+
 /* ===== About ===== */
 .about {
   display: grid;
@@ -300,10 +305,6 @@
   margin: 0;
   font-size: 16px;
   line-height: 1.75;
-  color: var(--db-color-text-dim);
-}
-
-.about__p--lead {
   color: var(--db-color-text-primary);
 }
 

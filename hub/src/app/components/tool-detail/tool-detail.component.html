@@ -73,7 +73,10 @@
       <div class="sec-head">
         <div>
           <span class="kicker"><span class="kicker__dot"></span>{{ config().aboutKicker }}</span>
-          <h2 class="sec-head__title">{{ config().aboutTitle }}</h2>
+          @let aboutTitle = config().aboutTitle | dualTitle;
+          <h2 class="sec-head__title">
+            <span class="sec-head__accent">{{ aboutTitle[0] }}</span>{{ aboutTitle[1] }}
+          </h2>
         </div>
         @if (config().aboutMeta) {
           <span class="meta">{{ config().aboutMeta }}</span>
@@ -82,7 +85,7 @@
       <div class="about">
         <div class="about__col">
           @for (p of aboutLeft(); track $index) {
-            <p class="about__p" [class.about__p--lead]="$first">{{ p }}</p>
+            <p class="about__p">{{ p }}</p>
           }
         </div>
         <div class="about__col">
@@ -101,7 +104,10 @@
       <div class="sec-head">
         <div>
           <span class="kicker"><span class="kicker__dot"></span>Section · 01</span>
-          <h2 class="sec-head__title">WHAT IT DOES</h2>
+          @let whatTitle = 'WHAT IT DOES' | dualTitle;
+          <h2 class="sec-head__title">
+            <span class="sec-head__accent">{{ whatTitle[0] }}</span>{{ whatTitle[1] }}
+          </h2>
         </div>
         <span class="meta">{{ config().features.length }} CAPABILITIES</span>
       </div>
@@ -123,7 +129,10 @@
       <div class="sec-head">
         <div>
           <span class="kicker"><span class="kicker__dot"></span>Section · 02</span>
-          <h2 class="sec-head__title">HOW IT WORKS</h2>
+          @let howTitle = 'HOW IT WORKS' | dualTitle;
+          <h2 class="sec-head__title">
+            <span class="sec-head__accent">{{ howTitle[0] }}</span>{{ howTitle[1] }}
+          </h2>
         </div>
         <span class="meta">{{ config().steps.length }} STEPS</span>
       </div>
@@ -143,7 +152,10 @@
       <div class="sec-head">
         <div>
           <span class="kicker"><span class="kicker__dot"></span>{{ config().outputKicker }}</span>
-          <h2 class="sec-head__title">{{ config().outputTitle }}</h2>
+          @let outputTitle = config().outputTitle | dualTitle;
+          <h2 class="sec-head__title">
+            <span class="sec-head__accent">{{ outputTitle[0] }}</span>{{ outputTitle[1] }}
+          </h2>
         </div>
         @if (config().outputMeta) {
           <span class="meta">{{ config().outputMeta }}</span>

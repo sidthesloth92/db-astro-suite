@@ -13,6 +13,7 @@ import {
   chevronLeftIcon,
   chevronRightIcon,
 } from '@db-astro-suite/ui';
+import { DualTitlePipe } from './dual-title.pipe';
 import type { ToolDetailConfig } from './tool-detail.model';
 
 /**
@@ -28,7 +29,13 @@ import type { ToolDetailConfig } from './tool-detail.model';
 @Component({
   selector: 'dba-hub-tool-detail',
   standalone: true,
-  imports: [RouterLink, StarryBackgroundComponent, FooterComponent, IconComponent],
+  imports: [
+    RouterLink,
+    StarryBackgroundComponent,
+    FooterComponent,
+    IconComponent,
+    DualTitlePipe,
+  ],
   templateUrl: './tool-detail.component.html',
   styleUrl: './tool-detail.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
