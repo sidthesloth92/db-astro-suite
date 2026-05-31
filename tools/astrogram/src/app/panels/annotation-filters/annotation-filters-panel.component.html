@@ -1,7 +1,19 @@
 <div class="panel-root">
-  <dba-ui-inspector-section title="Display" sub="Reduce on-screen clutter">
+  <dba-ui-inspector-section title="Display" sub="Labels, magnitude, distance & clutter">
     <dba-ui-icon slot="icon" [def]="eyeIcon" [size]="14" />
     <div class="check-grid">
+      <button type="button" class="check" [class.is-on]="settings().showLabels" (click)="toggleGlobal('showLabels')">
+        <span class="box">@if (settings().showLabels) { <dba-ui-icon [def]="checkIcon" [size]="9" /> }</span>
+        <span class="lbl">Show labels</span>
+      </button>
+      <button type="button" class="check" [class.is-on]="settings().showMagnitude" (click)="toggleGlobal('showMagnitude')">
+        <span class="box">@if (settings().showMagnitude) { <dba-ui-icon [def]="checkIcon" [size]="9" /> }</span>
+        <span class="lbl">Show magnitudes</span>
+      </button>
+      <button type="button" class="check" [class.is-on]="settings().showDistance" (click)="toggleGlobal('showDistance')">
+        <span class="box">@if (settings().showDistance) { <dba-ui-icon [def]="checkIcon" [size]="9" /> }</span>
+        <span class="lbl">Show distance</span>
+      </button>
       <button type="button" class="check" [class.is-on]="filters().onlyNamed" (click)="toggle('onlyNamed')">
         <span class="box">@if (filters().onlyNamed) { <dba-ui-icon [def]="checkIcon" [size]="9" /> }</span>
         <span class="lbl">Named objects only</span>

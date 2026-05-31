@@ -24,6 +24,7 @@ import {
 } from '@db-astro-suite/ui';
 import { findHitAnnotationId } from '../../utils/annotation-hit-test.util';
 import { isNamedAnnotation } from '../../utils/annotation-named.util';
+import { formatLightYears } from '../../utils/format-distance.util';
 import {
   clampZoom,
   IDENTITY_VIEW,
@@ -596,7 +597,7 @@ export class StellarMapPreviewComponent implements OnInit {
   }
 
   effectiveShowLabel(ann: ImageAnnotation): boolean {
-    return ann.style?.showLabel ?? true;
+    return ann.style?.showLabel ?? this.mapData().globalAnnotationSettings.showLabels ?? true;
   }
 
   effectiveShowMagnitude(ann: ImageAnnotation): boolean {
@@ -605,6 +606,20 @@ export class StellarMapPreviewComponent implements OnInit {
       return override;
     }
     return this.mapData().globalAnnotationSettings.showMagnitude ?? false;
+  }
+
+  /** Effective per-annotation distance visibility (override → global). */
+  effectiveShowDistance(ann: ImageAnnotation): boolean {
+    const override = ann.style?.showDistance;
+    if (override !== undefined) {
+      return override;
+    }
+    return this.mapData().globalAnnotationSettings.showDistance ?? false;
+  }
+
+  /** Compact light-year label for an annotation's distance (empty when unknown). */
+  formatDistance(distanceLy: number | undefined): string {
+    return formatLightYears(distanceLy);
   }
 
   getLabelPosition(xPercent: number, yPercent: number): string {

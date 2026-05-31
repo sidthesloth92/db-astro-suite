@@ -84,6 +84,11 @@
                 {{ ann.magnitude | number: '1.1-1' }}
               </span>
             }
+            @if (effectiveShowDistance(ann) && ann.distanceLy != null) {
+              <span style="display: block; font-size: 0.85em; opacity: 0.8">
+                {{ formatDistance(ann.distanceLy) }}
+              </span>
+            }
           </span>
         }
       </div>

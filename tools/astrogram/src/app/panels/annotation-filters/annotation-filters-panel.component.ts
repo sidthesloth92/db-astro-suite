@@ -45,12 +45,20 @@ export class AnnotationFiltersPanelComponent {
   /** Current filter state used by the template. */
   readonly filters = computed(() => this.mapData().filters);
 
+  /** Global label/magnitude/distance visibility used by the Display toggles. */
+  readonly settings = computed(() => this.mapData().globalAnnotationSettings);
+
   /** Flips a boolean filter by key. */
   toggle(key: BooleanFilterKey): void {
     this.dataService.stellarMapData.update((d) => ({
       ...d,
       filters: { ...d.filters, [key]: !d.filters[key] },
     }));
+  }
+
+  /** Flips a global label/magnitude/distance visibility setting. */
+  toggleGlobal(key: 'showLabels' | 'showMagnitude' | 'showDistance'): void {
+    this.dataService.updateGlobalAnnotationSettings({ [key]: !this.settings()[key] });
   }
 
   /** Updates the max-magnitude slider. */

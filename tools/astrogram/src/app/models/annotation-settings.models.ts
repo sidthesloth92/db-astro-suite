@@ -39,6 +39,8 @@ export interface AnnotationStyle {
   fontSize?: number;
   /** Show magnitude value below the label text. Overrides global showMagnitude. */
   showMagnitude?: boolean;
+  /** Show distance (light-years) below the label text. Overrides global showDistance. */
+  showDistance?: boolean;
   // fontFamily?: string;
 }
 
@@ -62,8 +64,12 @@ export interface GlobalAnnotationSettings {
    * touching the model or service.
    */
   fontFamily: string;
+  /** Master visibility for all annotation labels. Default true. */
+  showLabels: boolean;
   /** Show magnitude value below the label text. Default false. */
   showMagnitude: boolean;
+  /** Show distance (light-years) below the label text. Default false. */
+  showDistance: boolean;
 }
 
 export const DEFAULT_GLOBAL_ANNOTATION_SETTINGS: GlobalAnnotationSettings = {
@@ -74,5 +80,7 @@ export const DEFAULT_GLOBAL_ANNOTATION_SETTINGS: GlobalAnnotationSettings = {
   fontSize: 1,
   labelOpacity: 0.85,
   fontFamily: 'monospace',
+  showLabels: true,
   showMagnitude: false,
+  showDistance: false,
 };

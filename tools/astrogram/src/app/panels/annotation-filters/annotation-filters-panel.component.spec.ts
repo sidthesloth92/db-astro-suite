@@ -34,4 +34,17 @@ describe('AnnotationFiltersPanelComponent', () => {
     fixture.componentInstance.toggle('onlyNamed');
     expect(svc.stellarMapData().filters.onlyNamed).toBe(!initial);
   });
+
+  it('toggles global label/magnitude/distance visibility via the Display section', () => {
+    const fixture = TestBed.createComponent(AnnotationFiltersPanelComponent);
+    fixture.detectChanges();
+
+    const labels = svc.stellarMapData().globalAnnotationSettings.showLabels;
+    fixture.componentInstance.toggleGlobal('showLabels');
+    expect(svc.stellarMapData().globalAnnotationSettings.showLabels).toBe(!labels);
+
+    const distance = svc.stellarMapData().globalAnnotationSettings.showDistance;
+    fixture.componentInstance.toggleGlobal('showDistance');
+    expect(svc.stellarMapData().globalAnnotationSettings.showDistance).toBe(!distance);
+  });
 });

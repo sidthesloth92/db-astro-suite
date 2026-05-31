@@ -211,6 +211,24 @@
           (valueChange)="setLabelOpacity($event)"
         />
       </dba-ui-inspector-field>
+      <dba-ui-inspector-field label="Show label">
+        @if (isShowLabelOverridden()) {
+          <button
+            slot="label-trailing"
+            type="button"
+            class="use-global-chip"
+            title="Use global show-labels"
+            (click)="clearField('showLabel')"
+          >
+            <dba-ui-icon [def]="rotateCcwIcon" [size]="10" />
+          </button>
+        }
+        <dba-ui-switch
+          [checked]="effectiveShowLabel()"
+          ariaLabel="Show label"
+          (checkedChange)="updateStyle({ showLabel: $event })"
+        />
+      </dba-ui-inspector-field>
       <dba-ui-inspector-field label="Show mag">
         @if (isShowMagOverridden()) {
           <button
@@ -227,6 +245,24 @@
           [checked]="effectiveShowMagnitude()"
           ariaLabel="Show magnitude"
           (checkedChange)="updateStyle({ showMagnitude: $event })"
+        />
+      </dba-ui-inspector-field>
+      <dba-ui-inspector-field label="Show distance">
+        @if (isShowDistanceOverridden()) {
+          <button
+            slot="label-trailing"
+            type="button"
+            class="use-global-chip"
+            title="Use global show-distance"
+            (click)="clearField('showDistance')"
+          >
+            <dba-ui-icon [def]="rotateCcwIcon" [size]="10" />
+          </button>
+        }
+        <dba-ui-switch
+          [checked]="effectiveShowDistance()"
+          ariaLabel="Show distance"
+          (checkedChange)="updateStyle({ showDistance: $event })"
         />
       </dba-ui-inspector-field>
     </dba-ui-inspector-section>

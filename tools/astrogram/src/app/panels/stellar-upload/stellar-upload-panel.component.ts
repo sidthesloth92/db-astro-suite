@@ -243,6 +243,7 @@ export class StellarUploadPanelComponent implements OnInit, OnDestroy {
             catalog: obj.catalog,
             type: obj.type,
             magnitude: obj.magnitude ?? undefined,
+            distanceLy: obj.distanceLy ?? undefined,
             aliases: obj.aliases?.map((al) => ({
               name: al.name,
               catalog: al.catalog,
