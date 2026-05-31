@@ -4,6 +4,13 @@ import { fileURLToPath } from "url";
 import fs from "fs";
 import { parse } from "csv-parse/sync";
 import axios from "axios";
+import {
+  parallaxToLy,
+  parsecsToLy,
+  kiloparsecsToLy,
+  redshiftVelocityToLy,
+} from "../../src/utils/distance.util.js";
+import { curatedGalaxyDistanceLy } from "./galaxy-distances.constants.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // The generated catalog is built off-box by this script and rsynced onto the
@@ -28,6 +35,11 @@ const GAIA_TAP_URL = "https://gea.esac.esa.int/tap-server/tap/sync";
 // Faintest Gaia G magnitude to ingest. G≤15 is ~90M stars — bright enough to
 // be useful labels without dragging in the full ~1.8B-row catalog.
 const GAIA_MAG_LIMIT = 15;
+
+// Minimum RC3 recession velocity (km/s) for a redshift→Hubble distance to be
+// trustworthy. Below this, peculiar motion dominates (and several nearby
+// galaxies are blueshifted), so those are left to the curated distance table.
+const RC3_MIN_CZ_KM_S = 3000;
 
 // RA/Dec tile size (degrees) for the Gaia sweep. A single TAP sync request
 // caps at a few million rows, so the sky is split into tiles.
@@ -264,7 +276,8 @@ async function seed() {
       ra REAL,
       dec REAL,
       magnitude REAL,
-      sizeArcmin REAL
+      sizeArcmin REAL,
+      distanceLy REAL
     );
     CREATE INDEX IF NOT EXISTS idx_coords ON objects (ra, dec);
     CREATE TABLE IF NOT EXISTS load_progress (
@@ -283,8 +296,8 @@ async function seed() {
   // the OpenNGC block) so it exists even when the inline group is skipped on a
   // re-run. All catalog imports normalize into the same table shape.
   const insert = db.prepare(`
-    INSERT INTO objects (catalog, entryId, name, commonName, type, ra, dec, magnitude, sizeArcmin)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO objects (catalog, entryId, name, commonName, type, ra, dec, magnitude, sizeArcmin, distanceLy)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
   // Each catalog is its own resumable, atomic step (loadCatalog / runStep):
@@ -350,13 +363,23 @@ async function seed() {
             // MajAx is the major axis in arcmin in OpenNGC.
             const sizeArcmin = parseFloat(row.MajAx) || null;
 
-            rows.push([catalog, name, name, commonName, type, ra, dec, magnitude, sizeArcmin]);
+            const messierNum = parseInt(row.M, 10);
+            // Pin a curated redshift-independent distance for the recognisable
+            // galaxies (matched by NGC/IC or Messier designation). Non-galaxies
+            // and unlisted galaxies resolve to null; distant galaxies get an RC3
+            // redshift distance via the HyperLEDA step instead.
+            const galaxyLy =
+              curatedGalaxyDistanceLy(name) ??
+              (Number.isNaN(messierNum)
+                ? null
+                : curatedGalaxyDistanceLy(`M ${messierNum}`));
+
+            rows.push([catalog, name, name, commonName, type, ra, dec, magnitude, sizeArcmin, galaxyLy]);
 
             // Messier cross-reference row (OpenNGC column "M" is zero-padded
             // like "031"; normalise to the conventional "M 31"). Shares the
             // parent's type so it classifies/filters identically (e.g. M 42 as
             // a nebula), carrying the "M nn" designation as its searchable name.
-            const messierNum = parseInt(row.M, 10);
             if (!Number.isNaN(messierNum)) {
               rows.push([
                 "M",
@@ -368,6 +391,7 @@ async function seed() {
                 dec,
                 magnitude,
                 sizeArcmin,
+                galaxyLy,
               ]);
             }
           }
@@ -407,7 +431,7 @@ async function seed() {
             const sh2Num = cols[2];
             const diam = parseFloat(cols[3]) || null;
             if (isNaN(ra) || isNaN(dec) || !sh2Num) continue;
-            rows.push(["Sh2", `Sh2-${sh2Num}`, `Sh2 ${sh2Num}`, null, "HII", ra, dec, null, diam]);
+            rows.push(["Sh2", `Sh2-${sh2Num}`, `Sh2 ${sh2Num}`, null, "HII", ra, dec, null, diam, null]);
           }
           return rows;
         },
@@ -446,7 +470,7 @@ async function seed() {
             const mag = parseFloat(cols[3]) || null;
             const diam = parseFloat(cols[4]) || null;
             if (isNaN(ra) || isNaN(dec) || !acoNum) continue;
-            rows.push(["ACO", `Abell ${acoNum}`, `Abell ${acoNum}`, null, "GClus", ra, dec, mag, diam]);
+            rows.push(["ACO", `Abell ${acoNum}`, `Abell ${acoNum}`, null, "GClus", ra, dec, mag, diam, null]);
           }
           return rows;
         },
@@ -469,7 +493,7 @@ async function seed() {
             {
               params: {
                 "-source": "I/239/hip_main",
-                "-out": "_RAJ2000,_DEJ2000,HD,Vmag",
+                "-out": "_RAJ2000,_DEJ2000,HD,Vmag,Plx",
                 "-out.max": "200000",
               },
               responseType: "text",
@@ -489,7 +513,9 @@ async function seed() {
             const parsed = parseFloat(cols[3]);
             const mag = isNaN(parsed) ? null : parsed;
             if (isNaN(ra) || isNaN(dec) || !hdNum || hdNum === "") continue;
-            rows.push(["HIP", `HD ${hdNum}`, `HD ${hdNum}`, null, "Star", ra, dec, mag, null]);
+            // Hipparcos Plx is in milliarcsec; only positive parallaxes yield a distance.
+            const distanceLy = parallaxToLy(parseFloat(cols[4]));
+            rows.push(["HIP", `HD ${hdNum}`, `HD ${hdNum}`, null, "Star", ra, dec, mag, null, distanceLy]);
           }
           return rows;
         },
@@ -539,7 +565,9 @@ async function seed() {
             const parsed = parseFloat(cols[3]);
             const mag = isNaN(parsed) ? null : parsed;
             if (isNaN(ra) || isNaN(dec) || !hdNum) continue;
-            rows.push(["TYC", `HD ${hdNum}`, `HD ${hdNum}`, null, "Star", ra, dec, mag, null]);
+            // Tycho-2 carries no parallax; HD stars here gain distance via the
+            // merge if they also appear in Hipparcos/Gaia.
+            rows.push(["TYC", `HD ${hdNum}`, `HD ${hdNum}`, null, "Star", ra, dec, mag, null, null]);
           }
           return rows;
         },
@@ -580,7 +608,7 @@ async function seed() {
             if (!name || name === "_") continue;
             const magRaw = parseFloat(cols[dateIdx - 6]);
             const mag = isNaN(magRaw) ? null : magRaw;
-            rows.push(["Named", name, name, name, "Star", ra, dec, mag, null]);
+            rows.push(["Named", name, name, name, "Star", ra, dec, mag, null, null]);
           }
           return rows;
         },
@@ -593,8 +621,8 @@ async function seed() {
         tags: ["Neb"],
         label: "Special DSO common names",
         fetchRows: async () => [
-          ["Neb", "Horsehead", "IC 434", "Horsehead Nebula", "Neb", 85.2435, -2.458, 7.3, 8.0],
-          ["Neb", "Flame", "NGC 2024", "Flame Nebula", "Neb", 85.43, -1.86, 10.0, 30.0],
+          ["Neb", "Horsehead", "IC 434", "Horsehead Nebula", "Neb", 85.2435, -2.458, 7.3, 8.0, null],
+          ["Neb", "Flame", "NGC 2024", "Flame Nebula", "Neb", 85.43, -1.86, 10.0, 30.0, null],
         ],
       })) || changed;
 
@@ -615,6 +643,9 @@ async function seed() {
     }
     changed =
       (await runStep(db, "clusters", ["OCL"], () => seedClusters(db, insert))) ||
+      changed;
+    changed =
+      (await runStep(db, "globulars", ["GCL"], () => seedGlobulars(db, insert))) ||
       changed;
 
     // --- Gaia DR3 G≤15 stars (~37M) ---
@@ -708,9 +739,41 @@ function buildRtreeIndex(db, { changed = false } = {}) {
  * @param {import('better-sqlite3').Statement} insert
  * @returns {Promise<number>} Rows inserted (0 on failure, so the step retries)
  */
+/**
+ * Builds a PGC → light-years map from RC3 recession velocities. Only galaxies
+ * well inside the Hubble flow (cz ≥ RC3_MIN_CZ_KM_S) are included — nearby and
+ * blueshifted galaxies are excluded and instead pinned by the curated table.
+ * Best-effort: returns an empty map on failure so the galaxy load still runs.
+ * VizieR source: VII/155 (RC3, de Vaucouleurs+).
+ *
+ * @returns {Promise<Map<number, number>>} PGC number → distance (light-years)
+ */
+async function fetchRc3DistanceMap() {
+  const map = new Map();
+  try {
+    const lines = await fetchVizierTsv("VII/155/rc3", "PGC,cz", 99999);
+    for (const line of lines) {
+      const c = line.split("\t").map((x) => x.trim());
+      if (c.length < 2) continue;
+      const pgc = parseInt((c[0] || "").replace(/\D/g, ""), 10);
+      const cz = parseFloat(c[1]);
+      if (Number.isNaN(pgc) || Number.isNaN(cz) || cz < RC3_MIN_CZ_KM_S) continue;
+      const ly = redshiftVelocityToLy(cz);
+      if (ly != null) map.set(pgc, ly);
+    }
+    console.log(`RC3 redshift distances: ${map.size} galaxies (cz ≥ ${RC3_MIN_CZ_KM_S} km/s).`);
+  } catch (err) {
+    console.warn("RC3 distances download failed (skipping):", err.message);
+  }
+  return map;
+}
+
 async function seedHyperLeda(db, insert) {
   console.log("Downloading HyperLEDA galaxies (PGC) from VizieR...");
   try {
+    // Distant galaxies get a redshift (Hubble) distance from RC3; the curated
+    // table already pinned the nearby famous ones on their NGC/Messier rows.
+    const rc3 = await fetchRc3DistanceMap();
     const lines = await fetchVizierTsv(
       "VII/237/pgc",
       "_RAJ2000,_DEJ2000,PGC,logD25",
@@ -728,7 +791,8 @@ async function seedHyperLeda(db, insert) {
         // logD25 is log10 of the apparent diameter in 0.1-arcmin units.
         const logD25 = parseFloat(c[3]);
         const sizeArcmin = isNaN(logD25) ? null : Math.pow(10, logD25) / 10;
-        insert.run("PGC", `PGC ${pgc}`, `PGC ${pgc}`, null, "G", ra, dec, null, sizeArcmin);
+        const distanceLy = rc3.get(Number(pgc)) ?? null;
+        insert.run("PGC", `PGC ${pgc}`, `PGC ${pgc}`, null, "G", ra, dec, null, sizeArcmin, distanceLy);
         n++;
       }
     });
@@ -777,6 +841,7 @@ async function seedMilliquas(db, insert) {
           dec,
           isNaN(rmag) ? null : rmag,
           null,
+          null, // quasar distance (redshift-based) intentionally not surfaced
         );
         n++;
       }
@@ -831,7 +896,7 @@ async function seedNebulaSource(db, insert, source) {
         const id = c[2];
         if (isNaN(ra) || isNaN(dec) || !id) continue;
         const name = `${prefix} ${id}`;
-        insert.run(catalog, name, name, null, typeCode, ra, dec, null, null);
+        insert.run(catalog, name, name, null, typeCode, ra, dec, null, null, null);
         n++;
       }
     });
@@ -858,7 +923,7 @@ async function seedClusters(db, insert) {
   try {
     const lines = await fetchVizierTsv(
       "J/A+A/558/A53/catalog",
-      "_RAJ2000,_DEJ2000,Name,r2",
+      "_RAJ2000,_DEJ2000,Name,r2,d",
       99999,
     );
     let n = 0;
@@ -879,7 +944,9 @@ async function seedClusters(db, insert) {
         // r2 is the cluster angular radius in degrees; convert to diameter in arcmin.
         const r2 = parseFloat(c[3]);
         const sizeArcmin = isNaN(r2) ? null : r2 * 2 * 60;
-        insert.run("OCL", name, name, null, "OpC", ra, dec, null, sizeArcmin);
+        // MWSC `d` is the cluster distance in parsecs.
+        const distanceLy = parsecsToLy(parseFloat(c[4]));
+        insert.run("OCL", name, name, null, "OpC", ra, dec, null, sizeArcmin, distanceLy);
         n++;
       }
     });
@@ -888,6 +955,50 @@ async function seedClusters(db, insert) {
     return n;
   } catch (err) {
     console.warn("Open clusters download failed (skipping):", err.message);
+    return 0;
+  }
+}
+
+/**
+ * Harris (2010) Milky Way globular clusters (~160). Closes the one coverage gap
+ * left by making the local catalog the single source (SIMBAD off by default),
+ * and supplies their distances. Normalised to catalog='GCL', type='GlC' (the
+ * classifier buckets it as a cluster); names keep their NGC/M designation so each
+ * merges with the OpenNGC globular row that carries the size + common name.
+ * VizieR source: VII/202 (Harris).
+ *
+ * @param {import('better-sqlite3').Database} db
+ * @param {import('better-sqlite3').Statement} insert
+ * @returns {Promise<number>} Rows inserted (0 on failure, so the step retries)
+ */
+async function seedGlobulars(db, insert) {
+  console.log("Downloading Harris globular clusters from VizieR...");
+  try {
+    const lines = await fetchVizierTsv(
+      "VII/202/catalog",
+      "_RAJ2000,_DEJ2000,Name,Rsun",
+      9999,
+    );
+    let n = 0;
+    const run = db.transaction(() => {
+      for (const line of lines) {
+        const c = line.split("\t").map((x) => x.trim());
+        if (c.length < 3) continue;
+        const ra = parseFloat(c[0]);
+        const dec = parseFloat(c[1]);
+        const name = c[2];
+        if (isNaN(ra) || isNaN(dec) || !name) continue;
+        // Rsun is the heliocentric distance in kiloparsecs.
+        const distanceLy = kiloparsecsToLy(parseFloat(c[3]));
+        insert.run("GCL", name, name, null, "GlC", ra, dec, null, null, distanceLy);
+        n++;
+      }
+    });
+    run();
+    console.log(`Globular clusters seeded: ${n}.`);
+    return n;
+  } catch (err) {
+    console.warn("Globular clusters download failed (skipping):", err.message);
     return 0;
   }
 }
@@ -1008,7 +1119,7 @@ function buildGaiaTiles() {
 async function fetchGaiaTileWithRetry(tile) {
   const { raLo, raHi, decLo, decHi } = tile;
   const adql = [
-    "SELECT source_id, ra, dec, phot_g_mean_mag",
+    "SELECT source_id, ra, dec, phot_g_mean_mag, parallax",
     "FROM gaiadr3.gaia_source",
     `WHERE phot_g_mean_mag <= ${GAIA_MAG_LIMIT}`,
     `AND ra >= ${raLo} AND ra < ${raHi}`,
@@ -1071,7 +1182,20 @@ function insertGaiaLines(db, insert, lines, tileKey) {
       // Skip the header row (non-numeric ra) and malformed rows.
       if (!sourceId || isNaN(ra) || isNaN(dec)) continue;
       const name = `Gaia DR3 ${sourceId}`;
-      insert.run("Gaia", name, name, null, "Star", ra, dec, isNaN(mag) ? null : mag, null);
+      // Gaia parallax is in milliarcsec; only positive values yield a distance.
+      const distanceLy = parallaxToLy(parseFloat(c[4]));
+      insert.run(
+        "Gaia",
+        name,
+        name,
+        null,
+        "Star",
+        ra,
+        dec,
+        isNaN(mag) ? null : mag,
+        null,
+        distanceLy,
+      );
       n++;
     }
     markTile.run(tileKey, n);
