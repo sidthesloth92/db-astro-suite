@@ -1,47 +1,34 @@
 import { RouteMeta } from '@analogjs/router';
 import { DOCUMENT } from '@angular/common';
-import { ChangeDetectionStrategy, Component, afterNextRender, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import {
-  AnalyticsService,
-  CardComponent,
-  FooterComponent,
-  IconComponent,
-  StarryBackgroundComponent,
-  TextButtonComponent,
-  chevronLeftIcon,
-  chevronRightIcon,
-} from '@db-astro-suite/ui';
+  ChangeDetectionStrategy,
+  Component,
+  afterNextRender,
+  inject,
+  signal,
+} from '@angular/core';
+import { AnalyticsService } from '@db-astro-suite/ui';
+import { DemoFrameComponent } from '../../components/demo-frame/demo-frame.component';
+import { ToolDetailComponent } from '../../components/tool-detail/tool-detail.component';
+import { STARWIZZ_DETAIL } from './starwizz-detail.constants';
 import { STARWIZZ_LAUNCH_URL } from './tool.constants';
 
 /**
- * Starwizz tool page — restyled to the Direction B Polished theme.
- * Layout preserved; bespoke chrome (back link arrow, launch button) now
- * uses the shared libs/ui primitives.
+ * Starwizz tool page — premium redesign on the shared `ToolDetailComponent`.
+ * Provides the brand mark + starfield demo media via content projection and
+ * keeps a click-to-expand lightbox for the output animation.
  */
 @Component({
   selector: 'dba-hub-starwizz-tool',
   standalone: true,
-  imports: [
-    RouterLink,
-    CardComponent,
-    FooterComponent,
-    StarryBackgroundComponent,
-    TextButtonComponent,
-    IconComponent,
-  ],
+  imports: [ToolDetailComponent, DemoFrameComponent],
   templateUrl: './starwizz.page.html',
   styleUrl: './starwizz.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class StarwizzPage {
-  /** Public launch target — bound from the template as the anchor `href`. */
-  protected readonly launchUrl = STARWIZZ_LAUNCH_URL;
-
-  /** Chevron-left glyph used inside the "RETURN TO HUB" back link. */
-  protected readonly chevronLeftIcon = chevronLeftIcon;
-  /** Chevron-right glyph used as the trailing icon on the Launch Tool CTA. */
-  protected readonly chevronRightIcon = chevronRightIcon;
+  /** Content driving the shared detail layout. */
+  protected readonly config = STARWIZZ_DETAIL;
 
   /** Whether the demo lightbox is currently open. */
   protected readonly isLightboxOpen = signal(false);

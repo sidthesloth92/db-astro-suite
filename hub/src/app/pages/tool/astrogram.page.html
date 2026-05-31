@@ -1,198 +1,52 @@
-<dba-ui-starry-background>
-  <div class="content">
-    <nav class="top-nav">
-      <a routerLink="/" class="back-link">
-        <dba-ui-icon [def]="chevronLeftIcon" [size]="12" />
-        <span>RETURN TO HUB</span>
-      </a>
-      <div class="mission-id">Tool: AstroGram</div>
-    </nav>
+<dba-hub-tool-detail [config]="config" (primaryClicked)="onLaunch()">
+  <img mark class="tool-mark" src="assets/img/astrogram.png" alt="Astrogram logo" />
 
-    <header class="tool-header">
-      <div class="header-logo-container">
-        <img
-          src="assets/img/astrogram.png"
-          class="tool-logo"
-          alt="Astrogram Logo"
-        />
-        <div>
-          <h1>astrogram</h1>
-          <p class="tagline">Professional Exposure Cards. Instantly.</p>
-        </div>
-      </div>
-      <dba-ui-text-button
-        label="Launch Tool"
-        variant="primary"
-        size="md"
-        [href]="launchUrl"
-        (clicked)="onLaunch()"
-      >
-        <dba-ui-icon slot="trailing" [def]="chevronRightIcon" [size]="14" />
-      </dba-ui-text-button>
-    </header>
-
-    <section class="overview-section">
-      <dba-ui-card title="Overview">
-        <p>
-          Astrogram turns your astrophotography session metadata into a
-          pixel-perfect exposure card and a structured, hashtag-ready
-          Instagram caption &mdash; instantly. No manual formatting, no
-          repetitive typing; just enter your data and post.
-        </p>
-        <h4 class="subsection-title">The Problem It Solves</h4>
-        <p>
-          Every astrophotographer faces the same post-session dilemma:
-          you've spent a clear night capturing photons, stacked your frames,
-          and produced a stunning image &mdash; but when it comes to sharing
-          it, you're back at square one. Manually writing out your equipment
-          list, filter integrations, Bortle scale, and sky conditions for
-          every post is tedious, inconsistent, and kills the momentum of
-          sharing your work.
-        </p>
-        <p>
-          Astrogram was built to solve exactly this. Instead of spending 20
-          minutes formatting a caption from scratch, you enter your session
-          data once and get a pixel-perfect exposure card and a structured,
-          hashtag-rich Instagram caption instantly &mdash; ready to copy and
-          post without any further editing.
-        </p>
-      </dba-ui-card>
-    </section>
-
-    <section class="features-section">
-      <dba-ui-card title="Features">
-        <div class="features-grid">
-          <div class="feature-item">
-            <div class="feature-icon">&#x1F5BC;</div>
-            <strong>VISUAL IMAGE GENERATION</strong>
-            <span
-              >Instantly render a high-quality graphic with perfectly
-              balanced typography and real-time preview.</span
-            >
-          </div>
-          <div class="feature-item">
-            <div class="feature-icon">&#x270F;</div>
-            <strong>INSTAGRAM CAPTION GENERATOR</strong>
-            <span
-              >Automatically format your session data into a structured
-              caption with themed emojis and relevant hashtags.</span
-            >
-          </div>
-          <div class="feature-item">
-            <div class="feature-icon">&#x1F4CB;</div>
-            <strong>ONE-TAP COPY SYSTEM</strong>
-            <span
-              >Instantly copy your formatted caption to the clipboard with
-              neon visual feedback.</span
-            >
-          </div>
-          <div class="feature-item">
-            <div class="feature-icon">&#x1F52D;</div>
-            <strong>FULL EQUIPMENT STACK</strong>
-            <span
-              >Dedicated fields for your telescope, mount, main camera,
-              guide scope, and processing software.</span
-            >
-          </div>
-          <div class="feature-item">
-            <div class="feature-icon">&#x23F1;</div>
-            <strong>EXPOSURE &amp; FILTERS</strong>
-            <span
-              >Highlight total integration time, sub-frame lengths, and LRGB
-              / narrowband filter configurations.</span
-            >
-          </div>
-          <div class="feature-item">
-            <div class="feature-icon">&#x1F303;</div>
-            <strong>BORTLE &amp; LOCATION</strong>
-            <span
-              >Include Bortle scale and capture location to add scientific
-              context to your art.</span
-            >
-          </div>
-        </div>
-      </dba-ui-card>
-    </section>
-
-    <div class="bottom-grid">
-      <section class="how-it-works-section">
-        <dba-ui-card title="How It Works">
-          <ol class="steps-list">
-            <li>
-              <strong>ENTER YOUR TARGET</strong>
-              <span
-                >Type the deep-sky object name (e.g. M31, NGC 7000, Orion
-                Nebula) to populate the card header and caption.</span
-              >
-            </li>
-            <li>
-              <strong>INPUT YOUR GEAR STACK</strong>
-              <span
-                >Add your telescope OTA, mount, main imaging camera, guide
-                scope, and processing software.</span
-              >
-            </li>
-            <li>
-              <strong>SET FILTER INTEGRATIONS</strong>
-              <span
-                >Configure LRGB, H-alpha, OIII, and SII channels with
-                individual sub-frame lengths and frame counts. Total
-                integration time is calculated automatically.</span
-              >
-            </li>
-            <li>
-              <strong>ADD SESSION CONTEXT</strong>
-              <span
-                >Include your Bortle scale rating, capture location, and
-                observation date for scientific context and richer
-                captions.</span
-              >
-            </li>
-            <li>
-              <strong>CUSTOMISE &amp; EXPORT</strong>
-              <span
-                >Choose an accent colour, preview your card in real time,
-                export as a high-quality JPEG, and copy your formatted
-                caption to the clipboard with a single tap.</span
-              >
-            </li>
-          </ol>
-        </dba-ui-card>
-      </section>
-
-      <section class="demo-section">
-        <dba-ui-card title="Demo">
-          <div class="demo-image-container" (click)="openLightbox()" role="button" tabindex="0" aria-label="Expand demo preview" (keydown.enter)="openLightbox()">
-            <img
-              src="assets/img/astrogram_demo.jpg"
-              alt="Astrogram Demo"
-              class="demo-image"
-            />
-          </div>
-        </dba-ui-card>
-      </section>
-    </div>
-
-    <dba-ui-footer></dba-ui-footer>
+  <div preview>
+    <dba-hub-demo-frame label="astrogram.app" status="Preview" [live]="true">
+      <img
+        class="demo-media"
+        src="assets/img/astrogram_demo.jpg"
+        alt="Astrogram exposure card sample"
+      />
+    </dba-hub-demo-frame>
   </div>
 
-  @if (isLightboxOpen()) {
-    <div
-      class="demo-lightbox"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Demo preview"
-      (click)="closeLightbox()"
-      (keydown.escape)="closeLightbox()"
-      tabindex="-1"
-    >
-      <button class="demo-lightbox__close" aria-label="Close preview" (click)="closeLightbox()">&#x2715;</button>
-      <img
-        src="assets/img/astrogram_demo.jpg"
-        alt="Astrogram Demo"
-        class="demo-lightbox__image"
-        (click)="$event.stopPropagation()"
-      />
-    </div>
-  }
-</dba-ui-starry-background>
+  <div output>
+    <dba-hub-demo-frame label="astrogram.app / export" status="JPEG">
+      <button
+        type="button"
+        class="demo-media-btn"
+        (click)="openLightbox()"
+        aria-label="Expand the exposure card output"
+      >
+        <img
+          class="demo-media"
+          src="assets/img/astrogram_demo.jpg"
+          alt="Astrogram exposure card output"
+        />
+      </button>
+    </dba-hub-demo-frame>
+  </div>
+</dba-hub-tool-detail>
+
+@if (isLightboxOpen()) {
+  <div
+    class="demo-lightbox"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Exposure card preview"
+    (click)="closeLightbox()"
+    (keydown.escape)="closeLightbox()"
+    tabindex="-1"
+  >
+    <button class="demo-lightbox__close" aria-label="Close preview" (click)="closeLightbox()">
+      &#x2715;
+    </button>
+    <img
+      src="assets/img/astrogram_demo.jpg"
+      alt="Astrogram exposure card output"
+      class="demo-lightbox__image"
+      (click)="$event.stopPropagation()"
+    />
+  </div>
+}

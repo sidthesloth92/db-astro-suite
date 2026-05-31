@@ -1,173 +1,52 @@
-<dba-ui-starry-background>
-  <div class="content">
-    <nav class="top-nav">
-      <a routerLink="/" class="back-link">
-        <dba-ui-icon [def]="chevronLeftIcon" [size]="12" />
-        <span>RETURN TO HUB</span>
-      </a>
-      <div class="mission-id">Tool: StarWizz</div>
-    </nav>
+<dba-hub-tool-detail [config]="config" (primaryClicked)="onLaunch()">
+  <img mark class="tool-mark" src="assets/img/sw.png" alt="Starwizz logo" />
 
-    <header class="tool-header">
-      <div class="header-logo-container">
-        <img
-          src="assets/img/sw.png"
-          class="tool-logo"
-          alt="Starwizz Logo"
-        />
-        <div>
-          <h1>starwizz</h1>
-          <p class="tagline">CINEMATIC STARFIELD GENERATOR</p>
-        </div>
-      </div>
-      <dba-ui-text-button
-        label="Launch Tool"
-        variant="primary"
-        size="md"
-        [href]="launchUrl"
-        (clicked)="onLaunch()"
-      >
-        <dba-ui-icon slot="trailing" [def]="chevronRightIcon" [size]="14" />
-      </dba-ui-text-button>
-    </header>
-
-    <section class="overview-section">
-      <dba-ui-card title="Overview">
-        <p>
-          Starwizz is a browser-based 4K starfield and galaxy animation
-          generator. Set your parameters, hit record, and download a
-          cinematic space background in minutes &mdash; no software to
-          install, no account required.
-        </p>
-        <h4 class="subsection-title">The Problem It Solves</h4>
-        <p>
-          Creating a cinematic space background used to require 3D software,
-          stock footage subscriptions, or a graphics team. For
-          astrophotographers, content creators, and educators working alone,
-          none of those options are quick or free. Starwizz removes every
-          barrier &mdash; no installation, no subscription, no render queue.
-        </p>
-        <p>
-          Open it in a browser, dial in your simulation parameters, and
-          record a perfectly looped 4K starfield video in minutes. The
-          output is professional-grade and suited for YouTube intros,
-          Instagram Reels, presentation backdrops, and virtual meeting
-          backgrounds.
-        </p>
-      </dba-ui-card>
-    </section>
-
-    <section class="features-section">
-      <dba-ui-card title="Features">
-        <div class="features-grid">
-          <div class="feature-item">
-            <div class="feature-icon">&#x2B50;</div>
-            <strong>POPULATION CONTROL</strong>
-            <span
-              >Modify the density and number of stars to simulate different
-              galactic sectors.</span
-            >
-          </div>
-          <div class="feature-item">
-            <div class="feature-icon">&#x1F680;</div>
-            <strong>VELOCITY VECTORS</strong>
-            <span
-              >Adjust travel speed to transition from a slow gentle drift to
-              full high-warp effects.</span
-            >
-          </div>
-          <div class="feature-item">
-            <div class="feature-icon">&#x1F300;</div>
-            <strong>ROTATIONAL DYNAMICS</strong>
-            <span
-              >Fine-tune camera rotation to create chaotic orbits or smooth
-              stable traversals.</span
-            >
-          </div>
-        </div>
-      </dba-ui-card>
-    </section>
-
-    <div class="bottom-grid">
-      <section class="how-it-works-section">
-        <dba-ui-card title="How It Works">
-          <ol class="steps-list">
-            <li>
-              <strong>CHOOSE A SCENE TYPE</strong>
-              <span
-                >Select a pure deep-space starfield or a galaxy background
-                with dynamic nebula cloud overlays.</span
-              >
-            </li>
-            <li>
-              <strong>SET YOUR PARAMETERS</strong>
-              <span
-                >Use the real-time HUD to adjust star density, travel
-                velocity, rotation speed, zoom factor, and shooting star
-                frequency.</span
-              >
-            </li>
-            <li>
-              <strong>PREVIEW LIVE</strong>
-              <span
-                >The Canvas-based renderer updates immediately &mdash; what
-                you see in the browser is exactly what will be
-                recorded.</span
-              >
-            </li>
-            <li>
-              <strong>RECORD AT 4K</strong>
-              <span
-                >Hit Record and Starwizz captures the animation at full 4K
-                resolution directly in the browser using the MediaRecorder
-                API &mdash; no plugins required.</span
-              >
-            </li>
-            <li>
-              <strong>DOWNLOAD AND USE</strong>
-              <span
-                >Save the video file and drop it straight into your video
-                editor, presentation software, or upload it directly to
-                social media.</span
-              >
-            </li>
-          </ol>
-        </dba-ui-card>
-      </section>
-
-      <section class="demo-section">
-        <dba-ui-card title="Demo">
-          <div class="demo-image-container" (click)="openLightbox()" role="button" tabindex="0" aria-label="Expand demo preview" (keydown.enter)="openLightbox()">
-            <img
-              src="assets/img/sw_demo.gif"
-              alt="Starwizz Demo"
-              class="demo-image"
-            />
-          </div>
-        </dba-ui-card>
-      </section>
-    </div>
-
-    <dba-ui-footer></dba-ui-footer>
+  <div preview>
+    <dba-hub-demo-frame label="starwizz.app" status="Live" [live]="true">
+      <img
+        class="demo-media"
+        src="assets/img/sw_demo.gif"
+        alt="Starwizz starfield preview"
+      />
+    </dba-hub-demo-frame>
   </div>
 
-  @if (isLightboxOpen()) {
-    <div
-      class="demo-lightbox"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Demo preview"
-      (click)="closeLightbox()"
-      (keydown.escape)="closeLightbox()"
-      tabindex="-1"
-    >
-      <button class="demo-lightbox__close" aria-label="Close preview" (click)="closeLightbox()">&#x2715;</button>
-      <img
-        src="assets/img/sw_demo.gif"
-        alt="Starwizz Demo"
-        class="demo-lightbox__image"
-        (click)="$event.stopPropagation()"
-      />
-    </div>
-  }
-</dba-ui-starry-background>
+  <div output>
+    <dba-hub-demo-frame label="starwizz.app / render" status="Recording">
+      <button
+        type="button"
+        class="demo-media-btn"
+        (click)="openLightbox()"
+        aria-label="Expand the starfield output"
+      >
+        <img
+          class="demo-media"
+          src="assets/img/sw_demo.gif"
+          alt="Starwizz starfield output"
+        />
+      </button>
+    </dba-hub-demo-frame>
+  </div>
+</dba-hub-tool-detail>
+
+@if (isLightboxOpen()) {
+  <div
+    class="demo-lightbox"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Starfield preview"
+    (click)="closeLightbox()"
+    (keydown.escape)="closeLightbox()"
+    tabindex="-1"
+  >
+    <button class="demo-lightbox__close" aria-label="Close preview" (click)="closeLightbox()">
+      &#x2715;
+    </button>
+    <img
+      src="assets/img/sw_demo.gif"
+      alt="Starwizz starfield output"
+      class="demo-lightbox__image"
+      (click)="$event.stopPropagation()"
+    />
+  </div>
+}

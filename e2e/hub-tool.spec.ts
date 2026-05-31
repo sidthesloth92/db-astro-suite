@@ -2,9 +2,11 @@ import { expect, test } from "@playwright/test";
 import { HubToolPage } from "./pages/hub-tool.page";
 
 test.describe("Astrogram Tool Page", () => {
+  let hubTool: HubToolPage;
+
   test.beforeEach(async ({ page }) => {
-    await page.goto("http://localhost:5173/tool/astrogram");
-    await expect(page.locator(".overview-section").first()).toBeVisible();
+    hubTool = new HubToolPage(page);
+    await hubTool.navigate("astrogram");
   });
 
   test("Astrogram tool visual test", async ({ page }) => {
@@ -48,9 +50,7 @@ test.describe("Astrogram Tool Page", () => {
       'meta[name="twitter:title"]',
       "content",
     );
-    expect(twitterTitle).toBe(
-      "Astrogram Tool - Professional Exposure Cards",
-    );
+    expect(twitterTitle).toBe("Astrogram Tool - Professional Exposure Cards");
 
     const twitterImage = await page.getAttribute(
       'meta[name="twitter:image"]',
@@ -62,74 +62,36 @@ test.describe("Astrogram Tool Page", () => {
     expect(canonical).toBe("https://dbastrosuite.com/tool/astrogram");
   });
 
-  test("Astrogram tool layout: overview is full width", async ({ page }) => {
-    const overviewSection = page.locator(".overview-section");
-    await expect(overviewSection).toBeVisible();
-    await expect(overviewSection.locator("dba-ui-card")).toBeVisible();
-
-    // Overview should be full width (no sibling in a grid on the same row)
-    const featuresSection = page.locator(".features-section");
-    await expect(featuresSection).toBeVisible();
-
-    // Both overview and features are siblings at the top level, not inside a grid
-    const overviewBoundingBox = await overviewSection.boundingBox();
-    const featuresBoundingBox = await featuresSection.boundingBox();
-    expect(overviewBoundingBox).not.toBeNull();
-    expect(featuresBoundingBox).not.toBeNull();
-    // They should be stacked vertically (features top >= overview bottom)
-    expect(featuresBoundingBox!.y).toBeGreaterThan(overviewBoundingBox!.y);
+  test("renders the uniform detail sections", async () => {
+    await expect(hubTool.getHeroHeading()).toContainText("ASTROGRAM");
+    await expect(hubTool.getSectionHeading(/What Astrogram is/i)).toBeVisible();
+    await expect(hubTool.getSectionHeading("WHAT IT DOES")).toBeVisible();
+    await expect(hubTool.getSectionHeading("HOW IT WORKS")).toBeVisible();
+    await expect(hubTool.getSectionHeading(/The exposure card/i)).toBeVisible();
   });
 
-  test("Astrogram tool layout: features grid has 6 items", async ({
-    page,
-  }) => {
-    const featuresGrid = page.locator(".features-grid");
-    await expect(featuresGrid).toBeVisible();
-
-    const featureItems = page.locator(".feature-item");
-    await expect(featureItems).toHaveCount(6);
-
-    // Each item should have an icon, a strong label, and a span description
-    const firstItem = featureItems.first();
-    await expect(firstItem.locator(".feature-icon")).toBeVisible();
-    await expect(firstItem.locator("strong")).toBeVisible();
-    await expect(firstItem.locator("span")).toBeVisible();
+  test("lists six capabilities and five steps", async () => {
+    await expect(hubTool.getFeatureHeadings()).toHaveCount(6);
+    await expect(hubTool.getStepHeadings()).toHaveCount(5);
   });
 
-  test("Astrogram tool layout: How It Works and Demo are side by side", async ({
-    page,
-  }) => {
-    const bottomGrid = page.locator(".bottom-grid");
-    await expect(bottomGrid).toBeVisible();
-
-    const howItWorks = page.locator(".how-it-works-section");
-    const demo = page.locator(".demo-section");
-    await expect(howItWorks).toBeVisible();
-    await expect(demo).toBeVisible();
-
-    // On desktop they should be on the same row (similar Y position)
-    const howBox = await howItWorks.boundingBox();
-    const demoBox = await demo.boundingBox();
-    expect(howBox).not.toBeNull();
-    expect(demoBox).not.toBeNull();
-    expect(Math.abs(howBox!.y - demoBox!.y)).toBeLessThan(50);
-
-    // Steps list should be present in How It Works
-    const stepsList = page.locator(".steps-list");
-    await expect(stepsList).toBeVisible();
-    const steps = page.locator(".steps-list li");
-    expect(await steps.count()).toBe(5);
-
-    // Demo image should be present
-    const demoImage = page.locator('.demo-section img[alt="Astrogram Demo"]');
-    await expect(demoImage).toBeVisible();
+  test("exposes the launch CTA and demo preview", async () => {
+    await expect(hubTool.getPrimaryCta(/Launch Astrogram/i)).toHaveAttribute(
+      "href",
+      "/astrogram/",
+    );
+    await expect(
+      hubTool.getDemoImage("Astrogram exposure card sample"),
+    ).toBeVisible();
   });
 });
 
 test.describe("Starwizz Tool Page", () => {
+  let hubTool: HubToolPage;
+
   test.beforeEach(async ({ page }) => {
-    await page.goto("http://localhost:5173/tool/starwizz");
-    await expect(page.locator(".overview-section").first()).toBeVisible();
+    hubTool = new HubToolPage(page);
+    await hubTool.navigate("starwizz");
   });
 
   test("Starwizz tool visual test", async ({ page }) => {
@@ -183,61 +145,27 @@ test.describe("Starwizz Tool Page", () => {
     expect(canonical).toBe("https://dbastrosuite.com/tool/starwizz");
   });
 
-  test("Starwizz tool layout: overview is full width", async ({ page }) => {
-    const overviewSection = page.locator(".overview-section");
-    await expect(overviewSection).toBeVisible();
-    await expect(overviewSection.locator("dba-ui-card")).toBeVisible();
-
-    const featuresSection = page.locator(".features-section");
-    await expect(featuresSection).toBeVisible();
-
-    const overviewBoundingBox = await overviewSection.boundingBox();
-    const featuresBoundingBox = await featuresSection.boundingBox();
-    expect(overviewBoundingBox).not.toBeNull();
-    expect(featuresBoundingBox).not.toBeNull();
-    expect(featuresBoundingBox!.y).toBeGreaterThan(overviewBoundingBox!.y);
+  test("renders the uniform detail sections", async () => {
+    await expect(hubTool.getHeroHeading()).toContainText("STARWIZZ");
+    await expect(hubTool.getSectionHeading(/What Starwizz is/i)).toBeVisible();
+    await expect(hubTool.getSectionHeading("WHAT IT DOES")).toBeVisible();
+    await expect(hubTool.getSectionHeading("HOW IT WORKS")).toBeVisible();
+    await expect(hubTool.getSectionHeading(/The output/i)).toBeVisible();
   });
 
-  test("Starwizz tool layout: features grid has 3 items", async ({
-    page,
-  }) => {
-    const featuresGrid = page.locator(".features-grid");
-    await expect(featuresGrid).toBeVisible();
-
-    const featureItems = page.locator(".feature-item");
-    await expect(featureItems).toHaveCount(3);
-
-    const firstItem = featureItems.first();
-    await expect(firstItem.locator(".feature-icon")).toBeVisible();
-    await expect(firstItem.locator("strong")).toBeVisible();
-    await expect(firstItem.locator("span")).toBeVisible();
+  test("lists six capabilities and five steps", async () => {
+    await expect(hubTool.getFeatureHeadings()).toHaveCount(6);
+    await expect(hubTool.getStepHeadings()).toHaveCount(5);
   });
 
-  test("Starwizz tool layout: How It Works and Demo are side by side", async ({
-    page,
-  }) => {
-    const bottomGrid = page.locator(".bottom-grid");
-    await expect(bottomGrid).toBeVisible();
-
-    const howItWorks = page.locator(".how-it-works-section");
-    const demo = page.locator(".demo-section");
-    await expect(howItWorks).toBeVisible();
-    await expect(demo).toBeVisible();
-
-    const howBox = await howItWorks.boundingBox();
-    const demoBox = await demo.boundingBox();
-    expect(howBox).not.toBeNull();
-    expect(demoBox).not.toBeNull();
-    expect(Math.abs(howBox!.y - demoBox!.y)).toBeLessThan(50);
-
-    const stepsList = page.locator(".steps-list");
-    await expect(stepsList).toBeVisible();
-    const steps = page.locator(".steps-list li");
-    expect(await steps.count()).toBe(5);
-
-    // Demo gif should be present
-    const demoImage = page.locator('.demo-section img[alt="Starwizz Demo"]');
-    await expect(demoImage).toBeVisible();
+  test("exposes the launch CTA and demo preview", async () => {
+    await expect(hubTool.getPrimaryCta(/Launch Starwizz/i)).toHaveAttribute(
+      "href",
+      "/starwizz/",
+    );
+    await expect(
+      hubTool.getDemoImage("Starwizz starfield preview"),
+    ).toBeVisible();
   });
 });
 
@@ -249,25 +177,26 @@ test.describe("File Grouper Tool Page", () => {
     await hubTool.navigate("file-grouper");
   });
 
-  test("should render the file-grouper hero heading", async ({ page }) => {
-    await expect(hubTool.getHeroHeading()).toContainText("file grouper");
-    // The file-grouper page renders Overview / Features / Setup &
-    // Usage as <dba-ui-card> titles — assert the Overview heading
-    // exists rather than coupling to a section CSS class.
-    await expect(page.getByText("Overview", { exact: true })).toBeVisible();
+  test("renders the file-grouper hero heading and overview", async ({
+    page,
+  }) => {
+    await expect(hubTool.getHeroHeading()).toContainText("FILE GROUPER");
     await expect(
-      page.getByText("File Grouper is a platform-agnostic", {
-        exact: false,
-      }),
+      hubTool.getSectionHeading(/What File Grouper is/i),
+    ).toBeVisible();
+    await expect(
+      page.getByText("File Grouper is a platform-agnostic", { exact: false }),
     ).toBeVisible();
   });
 
   test("should render exactly three feature items", async () => {
-    // The file-grouper page lists features as a `<ul class="specs-list">`
-    // rather than the `.feature-item` grid used by astrogram/starwizz.
-    // The row count is still the user-facing contract.
-    const specs = hubTool.getSpecsListItems();
-    await expect(specs).toHaveCount(3);
+    await expect(hubTool.getFeatureHeadings()).toHaveCount(3);
+  });
+
+  test("exposes the access-repository CTA", async () => {
+    await expect(
+      hubTool.getPrimaryCta(/Access Repository/i),
+    ).toHaveAttribute("href", /github\.com.*file-grouper/);
   });
 
   test("should expose the canonical, og, and twitter SEO meta tags", async ({
@@ -310,15 +239,23 @@ test.describe("File Grouper Tool Page", () => {
 });
 
 test.describe("Hub tool demo lightbox", () => {
-  // BLOCKER: the file-grouper page currently has no demo lightbox —
-  // only astrogram and starwizz do. Lightbox coverage is therefore
-  // scoped to those two tools.
+  // The file-grouper page uses CLI terminal blocks (no demo image / lightbox),
+  // so lightbox coverage is scoped to astrogram and starwizz.
   const tools: ReadonlyArray<{
     slug: "astrogram" | "starwizz";
-    demoAlt: string;
+    expandButton: string;
+    lightbox: string;
   }> = [
-    { slug: "astrogram", demoAlt: "Astrogram Demo" },
-    { slug: "starwizz", demoAlt: "Starwizz Demo" },
+    {
+      slug: "astrogram",
+      expandButton: "Expand the exposure card output",
+      lightbox: "Exposure card preview",
+    },
+    {
+      slug: "starwizz",
+      expandButton: "Expand the starfield output",
+      lightbox: "Starfield preview",
+    },
   ];
 
   for (const tool of tools) {
@@ -327,10 +264,10 @@ test.describe("Hub tool demo lightbox", () => {
     }) => {
       const hubTool = new HubToolPage(page);
       await hubTool.navigate(tool.slug);
-      await hubTool.openDemoLightbox(tool.demoAlt);
-      await expect(hubTool.getLightbox()).toBeVisible();
+      await hubTool.openDemoLightbox(tool.expandButton, tool.lightbox);
+      await expect(hubTool.getLightbox(tool.lightbox)).toBeVisible();
       await hubTool.closeDemoLightbox();
-      await expect(hubTool.getLightbox()).toBeHidden();
+      await expect(hubTool.getLightbox(tool.lightbox)).toBeHidden();
     });
 
     test(`should close the ${tool.slug} demo lightbox when ESC is pressed`, async ({
@@ -338,9 +275,9 @@ test.describe("Hub tool demo lightbox", () => {
     }) => {
       const hubTool = new HubToolPage(page);
       await hubTool.navigate(tool.slug);
-      await hubTool.openDemoLightbox(tool.demoAlt);
-      await hubTool.closeDemoLightboxByEscape();
-      await expect(hubTool.getLightbox()).toBeHidden();
+      await hubTool.openDemoLightbox(tool.expandButton, tool.lightbox);
+      await hubTool.closeDemoLightboxByEscape(tool.lightbox);
+      await expect(hubTool.getLightbox(tool.lightbox)).toBeHidden();
     });
 
     test(`should close the ${tool.slug} demo lightbox when the backdrop is clicked`, async ({
@@ -348,9 +285,9 @@ test.describe("Hub tool demo lightbox", () => {
     }) => {
       const hubTool = new HubToolPage(page);
       await hubTool.navigate(tool.slug);
-      await hubTool.openDemoLightbox(tool.demoAlt);
-      await hubTool.closeDemoLightboxByBackdrop();
-      await expect(hubTool.getLightbox()).toBeHidden();
+      await hubTool.openDemoLightbox(tool.expandButton, tool.lightbox);
+      await hubTool.closeDemoLightboxByBackdrop(tool.lightbox);
+      await expect(hubTool.getLightbox(tool.lightbox)).toBeHidden();
     });
   }
 });

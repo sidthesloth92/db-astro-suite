@@ -1,47 +1,33 @@
 import { RouteMeta } from '@analogjs/router';
 import { DOCUMENT } from '@angular/common';
-import { ChangeDetectionStrategy, Component, afterNextRender, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import {
-  AnalyticsService,
-  CardComponent,
-  FooterComponent,
-  IconComponent,
-  StarryBackgroundComponent,
-  TextButtonComponent,
-  chevronLeftIcon,
-  chevronRightIcon,
-} from '@db-astro-suite/ui';
+  ChangeDetectionStrategy,
+  Component,
+  afterNextRender,
+  inject,
+} from '@angular/core';
+import { AnalyticsService } from '@db-astro-suite/ui';
+import { DemoFrameComponent } from '../../components/demo-frame/demo-frame.component';
+import { ToolDetailComponent } from '../../components/tool-detail/tool-detail.component';
+import { FILE_GROUPER_DETAIL } from './file-grouper-detail.constants';
 import { FILE_GROUPER_REPO_URL } from './tool.constants';
 
 /**
- * File Grouper tool page — restyled to the Direction B Polished theme.
- * Layout preserved; bespoke chrome (back link arrow, access-repository
- * button) now uses the shared libs/ui primitives.
+ * File Grouper tool page — premium redesign on the shared
+ * `ToolDetailComponent`. Provides CLI terminal blocks via content projection
+ * in place of demo media.
  */
 @Component({
   selector: 'dba-hub-file-grouper-tool',
   standalone: true,
-  imports: [
-    RouterLink,
-    CardComponent,
-    FooterComponent,
-    StarryBackgroundComponent,
-    TextButtonComponent,
-    IconComponent,
-  ],
+  imports: [ToolDetailComponent, DemoFrameComponent],
   templateUrl: './file-grouper.page.html',
   styleUrl: './file-grouper.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class FileGrouperPageComponent {
-  /** External GitHub repo URL — bound from the template as the anchor `href`. */
-  protected readonly repoUrl = FILE_GROUPER_REPO_URL;
-
-  /** Chevron-left glyph used inside the "RETURN TO HUB" back link. */
-  protected readonly chevronLeftIcon = chevronLeftIcon;
-  /** Chevron-right glyph used as the trailing icon on the Access Repository CTA. */
-  protected readonly chevronRightIcon = chevronRightIcon;
+  /** Content driving the shared detail layout. */
+  protected readonly config = FILE_GROUPER_DETAIL;
 
   private readonly analytics = inject(AnalyticsService);
   private readonly document = inject(DOCUMENT);
