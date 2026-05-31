@@ -33,7 +33,7 @@ VM_NAME="${VM_NAME:-astrosolve-test}"
 IMAGE_TAG="${IMAGE_TAG:-test}"
 LOCAL_IMAGE="astrosolve"
 
-DEPLOY_DIR="/root/astrosolve-deploy"
+DEPLOY_DIR="/opt/astrosolve/scripts"
 APP_DIR="${APP_DIR:-/opt/astrosolve}"
 ASTROSOLVE_ORIGIN="${ASTROSOLVE_ORIGIN:-http://localhost:4201}"
 DEPLOY_USER="${DEPLOY_USER:-deploy}"

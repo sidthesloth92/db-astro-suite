@@ -14,6 +14,16 @@
   inset: 0;
   z-index: 10;
   pointer-events: auto;
+  /* Stop the browser from claiming touch-drag/pinch on the map as page
+     scroll/zoom — without this, pointermove never fires for pan/pinch on
+     touch devices (mirrors the per-marker `touch-action: none`). */
+  touch-action: none;
+}
+
+/* Grab affordance on the empty background only while zoomed (panning is a
+   no-op at fit). Markers keep their own `grab` cursor. */
+.annotations-layer.can-pan {
+  cursor: grab;
 }
 
 .annotations-layer.is-dragging,
@@ -30,7 +40,10 @@
      so every drag step lagged by 250ms. Only animate the visual properties
      (border / outline / shadow) on hover/select. */
   transition: outline-offset 0.15s ease, filter 0.15s ease;
-  cursor: grab;
+  /* Unselected → `pointer` (click the ring/label to select). A marker only
+     becomes draggable (`grab`) once selected, so the cursor matches the
+     two-stroke select-then-drag interaction. */
+  cursor: pointer;
   pointer-events: auto;
   /* Stop the browser from interpreting touch-drag on the marker as a page
      scroll/pinch — without this, pointermove never fires on touch devices. */
@@ -41,6 +54,7 @@
   outline: 2px solid rgba(255, 255, 255, 0.9);
   outline-offset: 3px;
   filter: brightness(1.4) drop-shadow(0 0 6px white);
+  cursor: grab;
 }
 
 .annotation-label {
@@ -101,6 +115,35 @@
   height: 16px;
   background: var(--db-color-border);
   margin: 0 4px;
+}
+
+/* Map-style zoom controls pinned to the card's top-right corner. Projected
+   into the base card's `viewportOverlay` slot, but positioned here: the base
+   component's `[viewportOverlay]` rule is view-encapsulated to base's own
+   elements and does NOT reach projected content, so this must set its own
+   absolute fill (against `.post-scale-host`). The fill is click-through; only
+   the button group opts back into pointer events. */
+.zoom-controls {
+  position: absolute;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  padding: 12px;
+  pointer-events: none;
+}
+
+.zoom-controls-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 8px;
+  background: rgba(11, 14, 22, 0.92);
+  border: 1px solid var(--db-color-border-strong);
+  backdrop-filter: blur(8px);
+  pointer-events: auto;
 }
 
 .toolbar-count {

@@ -8,6 +8,7 @@
   [exportName]="cardData().title || 'stellar-map'"
   exportTag="stellar-map"
   [disableDownload]="!mapData().backgroundImage"
+  [contentTransform]="viewTransform()"
 >
   @if (mapData().backgroundImage) {
     <div class="toolbar" headerAction>
@@ -54,9 +55,12 @@
     class="annotations-layer"
     fullBleed
     [class.is-dragging]="isDragging()"
+    [class.can-pan]="isZoomed()"
+    (wheel)="onWheel($event)"
+    (pointerdown)="onLayerPointerdown($event)"
     (pointermove)="onLayerPointermove($event)"
     (pointerup)="onLayerPointerup($event)"
-    (pointercancel)="onLayerPointercancel()"
+    (pointercancel)="onLayerPointercancel($event)"
   >
     @for (ann of visibleAnnotations(); track ann.id) {
       <div
@@ -66,7 +70,6 @@
         [style.top.%]="ann.yPercent"
         [ngStyle]="markerStyle(ann)"
         [attr.data-annotation-id]="ann.id"
-        (pointerdown)="onMarkerPointerdown(ann, $event)"
         [title]="ann.label"
       >
         @if (effectiveShowLabel(ann)) {
@@ -74,7 +77,6 @@
             class="annotation-label"
             [ngClass]="getLabelPosition(ann.xPercent, ann.yPercent)"
             [ngStyle]="labelStyle(ann)"
-            (pointerdown)="onMarkerPointerdown(ann, $event)"
           >
             {{ effectiveLabel(ann) }}
             @if (effectiveShowMagnitude(ann) && ann.magnitude !== undefined) {
@@ -90,6 +92,32 @@
 
   <!-- Upload / solving overlay (handles both empty + solving states) -->
   <dba-ag-stellar-upload-panel #upload viewportOverlay />
+
+  <!-- Floating zoom controls, pinned to the card's top-right corner. The
+       wrapper is click-through (inline pointer-events:none beats the base
+       viewportOverlay rule) so only the buttons capture pointer events. -->
+  @if (mapData().backgroundImage) {
+    <div class="zoom-controls" viewportOverlay>
+      <div class="zoom-controls-group">
+        <dba-ui-icon-button title="Zoom in" [size]="34" (clicked)="zoomIn()">
+          <dba-ui-icon [def]="plusIcon" [size]="16" />
+        </dba-ui-icon-button>
+        <dba-ui-icon-button
+          title="Zoom out"
+          [size]="34"
+          [disabled]="!isZoomed()"
+          (clicked)="zoomOut()"
+        >
+          <dba-ui-icon [def]="minusIcon" [size]="16" />
+        </dba-ui-icon-button>
+        @if (isZoomed()) {
+          <dba-ui-icon-button title="Reset view" [size]="34" (clicked)="resetView()">
+            <dba-ui-icon [def]="rotateCcwIcon" [size]="16" />
+          </dba-ui-icon-button>
+        }
+      </div>
+    </div>
+  }
 
   <p footer class="attribution-disclaimer">
     Plate solving powered by Astrometry.net. Reference catalogs: Tycho-2 (ESA

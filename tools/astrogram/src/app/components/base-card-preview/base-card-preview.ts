@@ -3,6 +3,7 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
+  computed,
   CUSTOM_ELEMENTS_SCHEMA,
   effect,
   ElementRef,
@@ -74,6 +75,14 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
   exportTag = input<string>('astrogram');
   /** Disables the built-in Export button (still visible). Used when the host has nothing exportable yet. */
   disableDownload = input<boolean>(false);
+  /**
+   * CSS `transform` applied to the zoomable card layers (background image +
+   * full-bleed overlay), e.g. `translate(-20%, 10%) scale(2.5)`. Empty string
+   * (the default) leaves the card untransformed, so non-stellar consumers are
+   * unaffected. Always neutralized during export so downloads ship the full,
+   * un-zoomed frame — see `appliedContentTransform`.
+   */
+  contentTransform = input<string>('');
 
   accentColor = input<string>('#ff2d95');
   accentColorRgb = input<string>('255, 45, 149');
@@ -142,6 +151,14 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
   protected readonly downloadIcon = downloadIcon;
 
   isExporting = signal(false);
+  /**
+   * Transform actually bound to the zoomable layers. Forced to `none` while an
+   * export is in flight so `modern-screenshot` captures the card at zoom 1 —
+   * the user always gets back the full-resolution, fully-framed image.
+   */
+  readonly appliedContentTransform = computed(() =>
+    this.isExporting() ? 'none' : this.contentTransform(),
+  );
   scaleFactor = signal(1);
   naturalHeightPx = signal(680);
   naturalImageWidth = signal(0);

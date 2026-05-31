@@ -26,4 +26,12 @@ describe('AnnotationFiltersPanelComponent', () => {
     fixture.componentInstance.setMaxMagnitude(11);
     expect(svc.stellarMapData().filters.maxStarMagnitude).toBe(11);
   });
+
+  it('toggles the "named objects only" declutter filter', () => {
+    const fixture = TestBed.createComponent(AnnotationFiltersPanelComponent);
+    fixture.detectChanges();
+    const initial = svc.stellarMapData().filters.onlyNamed;
+    fixture.componentInstance.toggle('onlyNamed');
+    expect(svc.stellarMapData().filters.onlyNamed).toBe(!initial);
+  });
 });

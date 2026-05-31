@@ -113,14 +113,14 @@ As a quick reference, here is what each phase of that runbook does:
 | deploy.md Step | What happens                                                                                                |
 | -------------- | ----------------------------------------------------------------------------------------------------------- |
 | **0**          | Export shell variables on your Mac                                                                          |
-| **1**          | SCP the deploy scripts to the server                                                                        |
+| **1**          | SCP the deploy scripts to the server (into `/opt/astrosolve/scripts/`)                                      |
 | **2**          | SSH into the server as root                                                                                 |
 | **3**          | Run `1_server_init.sh` — installs Docker, creates the deploy user, downloads astrometry indexes (15–30 min) |
 | **4**          | Reconnect as the `deploy` user to verify Docker works                                                       |
 | **5**          | Configure Cloudflare DNS (see Phase 4 below)                                                                |
 | **6**          | Add GitHub Actions secrets                                                                                  |
 | **7**          | Trigger the first deploy via workflow_dispatch — fast pull + container swap; API comes up **catalog-less**   |
-| **7a**         | Build the ~8 GB local celestial catalog **out-of-band**, detached: `rebuild-catalog.sh` (~20–40 min, deploy.md §3a), then `docker restart astrosolve` |
+| **7a**         | Build the ~8 GB local celestial catalog **out-of-band**, detached: `/opt/astrosolve/scripts/rebuild-catalog.sh` (~20–40 min, deploy.md §3a), then `docker restart astrosolve` |
 | **8**          | Smoke test the API endpoint                                                                                 |
 | **9**          | Verify data directories and disk headroom                                                                   |
 

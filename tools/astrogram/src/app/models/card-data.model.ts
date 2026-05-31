@@ -97,6 +97,13 @@ export interface StellarMapData {
 }
 
 export interface AnnotationFilters {
+  /**
+   * Declutter view: when true, only objects with a real catalogue designation
+   * (Messier/NGC/IC/Caldwell/Sharpless/Abell + named DSOs) and HD stars are
+   * shown; anonymous survey sources (Gaia/2MASS field stars, bracketed/
+   * coordinate IDs) are hidden. Applied additively on top of the other filters.
+   */
+  onlyNamed: boolean;
   // Catalogs
   showMessier: boolean;
   showNGC: boolean;

@@ -1,4 +1,16 @@
 <div class="panel-root">
+  <dba-ui-inspector-section title="Display" sub="Reduce on-screen clutter">
+    <dba-ui-icon slot="icon" [def]="eyeIcon" [size]="14" />
+    <div class="check-grid">
+      <button type="button" class="check" [class.is-on]="filters().onlyNamed" (click)="toggle('onlyNamed')">
+        <span class="box">@if (filters().onlyNamed) { <dba-ui-icon [def]="checkIcon" [size]="9" /> }</span>
+        <span class="lbl">Named objects only</span>
+      </button>
+    </div>
+  </dba-ui-inspector-section>
+
+  <hr class="divider" aria-hidden="true" />
+
   <dba-ui-inspector-section title="Stars" sub="Star catalog visibility">
     <dba-ui-icon slot="icon" [def]="starsIcon" [size]="14" />
     <div class="check-grid">

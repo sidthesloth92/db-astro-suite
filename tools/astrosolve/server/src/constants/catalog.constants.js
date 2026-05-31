@@ -73,6 +73,23 @@ export const MATCH_DEG = 30 / 3600;
 export const STAR_COINCIDENCE_DEG = 5 / 3600;
 
 /**
+ * Floor radius (10 arcseconds) within which two DIFFERENT-catalogue, same-kind
+ * DSOs are treated as the same object even when neither carries a size — covers
+ * catalogue position jitter for sizeless/point sources.
+ */
+export const DSO_MERGE_BASE_DEG = 10 / 3600;
+
+/**
+ * Additional, size-aware merge allowance for extended DSOs: two same-kind,
+ * different-catalogue designations also merge when within this fraction of the
+ * SMALLER object's angular diameter. A large galaxy's catalogue rows can sit
+ * several arcsec apart (e.g. M 81's NGC vs PGC centres are 6.3″ apart); using
+ * the smaller size stops a big galaxy from swallowing a small distinct
+ * neighbour.
+ */
+export const DSO_MERGE_SIZE_FRACTION = 0.25;
+
+/**
  * Maximum number of deep-sky objects (galaxies, IC, quasars, nebulae,
  * clusters) returned from the local catalog for a single field. DSOs are the
  * named targets users care about, so the cap is generous — it only guards

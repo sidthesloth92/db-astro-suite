@@ -76,6 +76,7 @@ export class CardDataService {
     aspectRatio: 'auto',
     annotations: [],
     filters: {
+      onlyNamed: true,
       showMessier: true,
       showNGC: true,
       showIC: true,

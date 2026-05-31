@@ -4,7 +4,9 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   ElementRef,
+  HostListener,
   inject,
   input,
   OnInit,
@@ -14,16 +16,27 @@ import {
 import {
   IconButtonComponent,
   IconComponent,
+  minusIcon,
   PillBadgeComponent,
   plusIcon,
+  rotateCcwIcon,
   trashIcon,
 } from '@db-astro-suite/ui';
 import { findHitAnnotationId } from '../../utils/annotation-hit-test.util';
+import { isNamedAnnotation } from '../../utils/annotation-named.util';
+import {
+  clampZoom,
+  IDENTITY_VIEW,
+  panByScreenDelta,
+  zoomAtPoint,
+} from '../../utils/stellar-view.util';
 import { ImageAnnotation } from '../../models/annotation.models';
+import { ViewState } from '../../models/stellar-view.model';
 import { StellarUploadPanelComponent } from '../../panels/stellar-upload/stellar-upload-panel.component';
 import { CardDataService } from '../../services/card-data.service';
 import { ExportCoordinatorService } from '../../services/export-coordinator.service';
 import { BaseCardPreviewComponent } from '../base-card-preview/base-card-preview';
+import { WHEEL_ZOOM_SENSITIVITY, ZOOM_BUTTON_FACTOR } from './stellar-view.constants';
 
 /**
  * Stellar-map preview surface. Wraps `BaseCardPreviewComponent` and
@@ -70,6 +83,63 @@ export class StellarMapPreviewComponent implements OnInit {
   protected readonly plusIcon = plusIcon;
   /** Trash glyph used on the in-toolbar delete-selected button. */
   protected readonly trashIcon = trashIcon;
+  /** Minus glyph used on the zoom-out button. */
+  protected readonly minusIcon = minusIcon;
+  /** Reset glyph used on the reset-view button. */
+  protected readonly rotateCcwIcon = rotateCcwIcon;
+
+  // ── Zoom / pan view state ──────────────────────────────────────────────────
+  /** Current zoom multiplier + pan offsets driving the shared layer transform. */
+  private readonly view = signal<ViewState>(IDENTITY_VIEW);
+  /** CSS transform string forwarded to the base card's zoomable layers. */
+  readonly viewTransform = computed(() => {
+    const v = this.view();
+    // Round to 4 dp so floating-point drift from the projection math doesn't
+    // leak sub-pixel noise (e.g. `-19.999996%`) into the emitted CSS.
+    const round = (n: number): number => Number(n.toFixed(4));
+    return `translate(${round(v.panXPct)}%, ${round(v.panYPct)}%) scale(${round(v.zoom)})`;
+  });
+  /** True when the map is zoomed in (drives pan affordance + reset/zoom-out enablement). */
+  readonly isZoomed = computed(() => this.view().zoom > 1);
+
+  /** Resets the view to fit whenever the background image changes (new upload or clear). */
+  private readonly _backgroundImage = computed(() => this.mapData().backgroundImage);
+  private readonly _resetViewOnImageChange = effect(() => {
+    this._backgroundImage();
+    this.view.set(IDENTITY_VIEW);
+  });
+
+  /** Zooms in one step about the card centre. */
+  zoomIn(): void {
+    this.view.update((v) => zoomAtPoint(v, 0.5, 0.5, v.zoom * ZOOM_BUTTON_FACTOR));
+  }
+
+  /** Zooms out one step about the card centre. */
+  zoomOut(): void {
+    this.view.update((v) => zoomAtPoint(v, 0.5, 0.5, v.zoom / ZOOM_BUTTON_FACTOR));
+  }
+
+  /** Snaps the view back to fit (zoom 1, no pan). */
+  resetView(): void {
+    this.view.set(IDENTITY_VIEW);
+  }
+
+  /**
+   * Cursor-centered wheel zoom. The content point under the pointer stays put
+   * while the surrounding image scales. `preventDefault` stops the page from
+   * scrolling underneath the gesture.
+   */
+  onWheel(event: WheelEvent): void {
+    if (!this.mapData().backgroundImage) return;
+    event.preventDefault();
+    const rect = this.annotationsLayerRef().nativeElement.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return;
+    const u = (event.clientX - rect.left) / rect.width;
+    const v = (event.clientY - rect.top) / rect.height;
+    this.view.update((current) =>
+      zoomAtPoint(current, u, v, current.zoom * Math.exp(-event.deltaY * WHEEL_ZOOM_SENSITIVITY)),
+    );
+  }
 
   /** The currently-selected annotation, or `null` when nothing is selected. */
   readonly selectedAnnotation = computed<ImageAnnotation | null>(() => {
@@ -83,6 +153,30 @@ export class StellarMapPreviewComponent implements OnInit {
     const id = this.selectedAnnotationId();
     if (!id) return;
     this.dataService.removeAnnotation(id);
+  }
+
+  /**
+   * Deletes the selected annotation on Backspace/Delete. Ignored while the user
+   * is typing in a field (so editing the label text isn't hijacked) or when a
+   * modifier is held. `preventDefault` also stops Backspace from navigating back.
+   */
+  @HostListener('document:keydown', ['$event'])
+  onDocumentKeydown(event: KeyboardEvent): void {
+    if (event.key !== 'Backspace' && event.key !== 'Delete') return;
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    if (!this.selectedAnnotationId()) return;
+    const target = event.target as HTMLElement | null;
+    if (
+      target &&
+      (target.isContentEditable ||
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.tagName === 'SELECT')
+    ) {
+      return;
+    }
+    event.preventDefault();
+    this.deleteSelectedAnnotation();
   }
 
   private readonly _dragId = signal<string | null>(null);
@@ -103,6 +197,25 @@ export class StellarMapPreviewComponent implements OnInit {
   /** Latest pointer position pending commit on the next animation frame. */
   private _pendingMove: { clientX: number; clientY: number } | null = null;
 
+  // ── Pan / pinch gesture state ──────────────────────────────────────────────
+  /** Active non-marker pointers on the layer, keyed by `pointerId`. Size 1 → pan, size ≥ 2 → pinch. */
+  private readonly _pointers = new Map<number, { x: number; y: number }>();
+  /** Pan origin: pointer position + view captured at grab time. Null when not panning. */
+  private _panStart: { pointerX: number; pointerY: number; view: ViewState } | null = null;
+  /** True once a pan/pinch has moved beyond the click threshold — suppresses deselect-on-release. */
+  private _gestureMoved = false;
+  /** Pinch anchor: start finger spread/midpoint, the view, and the invariant (untransformed) layer box. */
+  private _pinchStart: {
+    dist: number;
+    midX: number;
+    midY: number;
+    view: ViewState;
+    originLeft: number;
+    originTop: number;
+    baseWidth: number;
+    baseHeight: number;
+  } | null = null;
+
   private readonly base = viewChild.required<BaseCardPreviewComponent>('base');
   private readonly uploadPanel = viewChild.required<StellarUploadPanelComponent>('upload');
   private readonly annotationsLayerRef = viewChild.required<ElementRef>('annotationsLayer');
@@ -120,39 +233,20 @@ export class StellarMapPreviewComponent implements OnInit {
     this.uploadPanel().resetMap();
   }
 
-  /** Click handler shared by annotation markers and the layer background. */
-  onAnnotationClick(event: MouseEvent): void {
-    event.stopPropagation();
-    const hitId = findHitAnnotationId(event, 10);
-    if (hitId) {
-      const current = this.dataService.selectedAnnotationId();
-      this.dataService.selectAnnotation(current === hitId ? null : hitId);
-      return;
-    }
-    this.dataService.selectAnnotation(null);
-  }
-
   /** Deselect everything. */
   deselectAll(): void {
     this.dataService.selectAnnotation(null);
   }
 
   /**
-   * Pointerdown on a marker. Two-stroke interaction:
-   * - If the marker is already selected → enable drag, capturing the
-   *   pointer origin AND the annotation's current position so we can
-   *   move by a delta on pointermove (no snap to pointer).
-   * - If it isn't selected → record pending-select intent only; the
-   *   pointerup handler commits the selection. No drag fires.
-   *
-   * Pointer events unify mouse + touch so this works on both desktop and
-   * mobile. `setPointerCapture` keeps subsequent move events firing on
-   * this element even if the finger drifts outside the marker box.
+   * Begins an annotation interaction once a press has been resolved to a
+   * specific annotation. Two-stroke:
+   * - already selected → start a delta-based drag (capturing the pointer origin
+   *   and the annotation's current position, so we move by a delta — no snap).
+   * - not selected → record pending-select intent only; pointerup commits it.
+   *   No drag fires until the annotation is already selected.
    */
-  onMarkerPointerdown(ann: ImageAnnotation, event: PointerEvent): void {
-    event.preventDefault();
-    event.stopPropagation();
-    (event.target as Element).setPointerCapture?.(event.pointerId);
+  pressAnnotation(ann: ImageAnnotation, event: PointerEvent): void {
     if (this.dataService.selectedAnnotationId() === ann.id) {
       this._dragId.set(ann.id);
       this._dragStart.set({
@@ -167,13 +261,72 @@ export class StellarMapPreviewComponent implements OnInit {
   }
 
   /**
-   * Repositions the active annotation while dragging. Pointermove can
-   * fire at 120+ Hz; each signal write triggers a full CD pass over
-   * every marker + computeds, which is too expensive to do per event.
-   * We coalesce to one update per animation frame via RAF.
+   * Single pointerdown handler for the whole map. Selection is driven by the
+   * annotation's RING (`findHitAnnotationId`) or its LABEL — never the filled
+   * centre — so a small circle nested inside a bigger one stays selectable
+   * (clicking the big circle's interior no longer always grabs the outer one).
+   * The already-selected annotation can be grabbed anywhere on its body for a
+   * forgiving drag. A press that lands on no annotation pans / pinches the map.
+   *
+   * Pointer events unify mouse + touch; the pointer is captured on the layer so
+   * subsequent move/up events keep firing even if the finger drifts away.
+   */
+  onLayerPointerdown(event: PointerEvent): void {
+    const targetEl = event.target as HTMLElement | null;
+    const layer = this.annotationsLayerRef().nativeElement as HTMLElement;
+    const selectedId = this.dataService.selectedAnnotationId();
+
+    // Label click selects its annotation; otherwise hit-test the ring.
+    const labelMarker = targetEl?.closest?.('.annotation-label')
+      ? (targetEl.closest('.annotation-marker') as HTMLElement | null)
+      : null;
+    let hitId: string | null =
+      labelMarker?.dataset?.['annotationId'] ?? findHitAnnotationId(event, 10);
+
+    // The selected annotation can be grabbed anywhere on its body to drag it.
+    if (!hitId && selectedId) {
+      const markerEl = targetEl?.closest?.('.annotation-marker') as HTMLElement | null;
+      if (markerEl?.dataset?.['annotationId'] === selectedId) {
+        hitId = selectedId;
+      }
+    }
+
+    if (hitId) {
+      event.preventDefault();
+      layer.setPointerCapture?.(event.pointerId);
+      const ann = this.mapData().annotations.find((a) => a.id === hitId);
+      if (ann) {
+        this.pressAnnotation(ann, event);
+      }
+      return;
+    }
+
+    // No annotation under the press → pan / pinch the empty background. A press
+    // is always tracked so a second finger can upgrade the gesture to pinch.
+    layer.setPointerCapture?.(event.pointerId);
+    this._pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    if (this._pointers.size >= 2) {
+      this._beginPinch();
+      this._panStart = null;
+      return;
+    }
+    if (this.view().zoom > 1) {
+      this._panStart = { pointerX: event.clientX, pointerY: event.clientY, view: this.view() };
+      this._gestureMoved = false;
+    }
+  }
+
+  /**
+   * Repositions the active annotation while dragging, or pans/pinches the
+   * view. Pointermove can fire at 120+ Hz; each signal write triggers a full
+   * CD pass over every marker + computeds, which is too expensive to do per
+   * event. We coalesce to one update per animation frame via RAF.
    */
   onLayerPointermove(event: PointerEvent): void {
-    if (!this._dragId()) {
+    if (this._pointers.has(event.pointerId)) {
+      this._pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    }
+    if (!this._dragId() && !this._panStart && !this._pinchStart) {
       return;
     }
     this._pendingMove = { clientX: event.clientX, clientY: event.clientY };
@@ -182,27 +335,113 @@ export class StellarMapPreviewComponent implements OnInit {
     }
     this._moveRaf = requestAnimationFrame(() => {
       this._moveRaf = null;
-      const dragId = this._dragId();
-      const pending = this._pendingMove;
-      const start = this._dragStart();
-      this._pendingMove = null;
-      if (!dragId || !pending || !start) {
-        return;
+      if (this._dragId()) {
+        this._applyMarkerDrag();
+      } else if (this._pinchStart) {
+        this._applyPinch();
+      } else if (this._panStart) {
+        this._applyPan();
       }
-      // Move by delta from the drag origin so the offset between the
-      // pointer and the marker centre is preserved — no jump-to-pointer.
-      const rect = this.annotationsLayerRef().nativeElement.getBoundingClientRect();
-      const dxPct = ((pending.clientX - start.pointerX) / rect.width) * 100;
-      const dyPct = ((pending.clientY - start.pointerY) / rect.height) * 100;
-      this.dataService.updateAnnotationPosition(
-        dragId,
-        start.annXPercent + dxPct,
-        start.annYPercent + dyPct,
-      );
     });
   }
 
-  /** Ends a drag and resolves selection. */
+  /** Commits the queued marker-drag move (delta from the drag origin, no snap-to-pointer). */
+  private _applyMarkerDrag(): void {
+    const dragId = this._dragId();
+    const pending = this._pendingMove;
+    const start = this._dragStart();
+    this._pendingMove = null;
+    if (!dragId || !pending || !start) {
+      return;
+    }
+    const rect = this.annotationsLayerRef().nativeElement.getBoundingClientRect();
+    const dxPct = ((pending.clientX - start.pointerX) / rect.width) * 100;
+    const dyPct = ((pending.clientY - start.pointerY) / rect.height) * 100;
+    this.dataService.updateAnnotationPosition(
+      dragId,
+      start.annXPercent + dxPct,
+      start.annYPercent + dyPct,
+    );
+  }
+
+  /** Commits the queued pan move (absolute offset from the grab origin). */
+  private _applyPan(): void {
+    const start = this._panStart;
+    const pending = this._pendingMove;
+    this._pendingMove = null;
+    if (!start || !pending) {
+      return;
+    }
+    const dx = pending.clientX - start.pointerX;
+    const dy = pending.clientY - start.pointerY;
+    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
+      this._gestureMoved = true;
+    }
+    const rect = this.annotationsLayerRef().nativeElement.getBoundingClientRect();
+    this.view.set(panByScreenDelta(start.view, dx, dy, rect.width, rect.height));
+  }
+
+  /** Commits a pinch update: scale by the finger-spread ratio about the start midpoint, then follow the midpoint translation. */
+  private _applyPinch(): void {
+    const start = this._pinchStart;
+    this._pendingMove = null;
+    if (!start) {
+      return;
+    }
+    const pts = [...this._pointers.values()];
+    if (pts.length < 2) {
+      return;
+    }
+    const [a, b] = pts;
+    const dist = Math.hypot(a.x - b.x, a.y - b.y) || start.dist;
+    const midX = (a.x + b.x) / 2;
+    const midY = (a.y + b.y) / 2;
+    const nextZoom = clampZoom((start.view.zoom * dist) / start.dist);
+    // Content fraction under the start midpoint, using the captured invariant
+    // box so the anchor stays stable across frames.
+    const u =
+      (start.midX - start.originLeft - (start.view.panXPct / 100) * start.baseWidth) /
+      (start.view.zoom * start.baseWidth);
+    const v =
+      (start.midY - start.originTop - (start.view.panYPct / 100) * start.baseHeight) /
+      (start.view.zoom * start.baseHeight);
+    const zoomed = zoomAtPoint(start.view, u, v, nextZoom);
+    this.view.set(
+      panByScreenDelta(
+        zoomed,
+        midX - start.midX,
+        midY - start.midY,
+        start.baseWidth * zoomed.zoom,
+        start.baseHeight * zoomed.zoom,
+      ),
+    );
+  }
+
+  /** Captures the pinch anchor (finger spread/midpoint + invariant layer box) when a second finger lands. */
+  private _beginPinch(): void {
+    const pts = [...this._pointers.values()];
+    if (pts.length < 2) {
+      return;
+    }
+    const [a, b] = pts;
+    const rect = this.annotationsLayerRef().nativeElement.getBoundingClientRect();
+    const view = this.view();
+    const baseWidth = rect.width / view.zoom;
+    const baseHeight = rect.height / view.zoom;
+    this._pinchStart = {
+      dist: Math.hypot(a.x - b.x, a.y - b.y) || 1,
+      midX: (a.x + b.x) / 2,
+      midY: (a.y + b.y) / 2,
+      view,
+      originLeft: rect.left - (view.panXPct / 100) * baseWidth,
+      originTop: rect.top - (view.panYPct / 100) * baseHeight,
+      baseWidth,
+      baseHeight,
+    };
+    this._gestureMoved = true; // a pinch is never a click
+  }
+
+  /** Ends a drag / pan / pinch and resolves selection. */
   onLayerPointerup(event: PointerEvent): void {
     // Drop any RAF-queued move so the final position from this event
     // (handled below) isn't overwritten by a stale pending update.
@@ -228,6 +467,36 @@ export class StellarMapPreviewComponent implements OnInit {
       this._dragStart.set(null);
       return;
     }
+
+    // Pan / pinch release. A tracked pointer means this press began on the
+    // empty background; resolve the gesture before falling back to selection.
+    if (this._pointers.has(event.pointerId)) {
+      const wasGesture = this._panStart !== null || this._pinchStart !== null;
+      this._pointers.delete(event.pointerId);
+
+      if (this._pinchStart && this._pointers.size < 2) {
+        // Dropped below two fingers — end the pinch. If one finger remains and
+        // we're still zoomed, hand off to a fresh pan so it doesn't jump.
+        this._pinchStart = null;
+        const remaining = [...this._pointers.values()][0];
+        if (remaining && this.view().zoom > 1) {
+          this._panStart = { pointerX: remaining.x, pointerY: remaining.y, view: this.view() };
+          this._gestureMoved = true;
+        }
+      } else if (this._panStart && this._pointers.size === 0) {
+        const moved = this._gestureMoved;
+        this._panStart = null;
+        // A no-movement empty-area tap still clears the current selection.
+        if (!moved) {
+          this.dataService.selectAnnotation(null);
+        }
+      }
+
+      if (wasGesture) {
+        return;
+      }
+    }
+
     const pendingId = this._pendingSelectId();
     if (pendingId) {
       this._pendingSelectId.set(null);
@@ -241,12 +510,19 @@ export class StellarMapPreviewComponent implements OnInit {
     }
   }
 
-  /** Cancels a drag when the pointer is cancelled (e.g. system gesture takeover). */
-  onLayerPointercancel(): void {
+  /** Cancels an in-progress drag / pan / pinch (e.g. system gesture takeover). */
+  onLayerPointercancel(event: PointerEvent): void {
     if (this._moveRaf !== null) {
       cancelAnimationFrame(this._moveRaf);
       this._moveRaf = null;
       this._pendingMove = null;
+    }
+    this._pointers.delete(event.pointerId);
+    if (this._pointers.size < 2) {
+      this._pinchStart = null;
+    }
+    if (this._pointers.size === 0) {
+      this._panStart = null;
     }
     this._dragId.set(null);
     this._dragStart.set(null);
@@ -373,6 +649,13 @@ export class StellarMapPreviewComponent implements OnInit {
     return this.mapData().annotations.filter((ann) => {
       if (ann.source === 'custom') {
         return ann.visible;
+      }
+
+      // Declutter gate (additive): when "Named objects only" is on, drop any
+      // catalog/survey object that lacks a human-recognisable designation. The
+      // remaining catalog/type/magnitude filters below still apply on top.
+      if (f.onlyNamed && !isNamedAnnotation(ann)) {
+        return false;
       }
 
       const type = (ann.type ?? '').toUpperCase();

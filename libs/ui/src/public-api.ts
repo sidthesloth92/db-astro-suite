@@ -83,6 +83,7 @@ export * from "./lib/icons/image.icon";
 export * from "./lib/icons/layers.icon";
 export * from "./lib/icons/layout.icon";
 export * from "./lib/icons/map-pin.icon";
+export * from "./lib/icons/minus.icon";
 export * from "./lib/icons/more.icon";
 export * from "./lib/icons/mountain.icon";
 export * from "./lib/icons/palette.icon";

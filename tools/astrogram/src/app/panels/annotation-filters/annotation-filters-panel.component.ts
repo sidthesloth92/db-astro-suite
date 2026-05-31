@@ -4,6 +4,7 @@ import {
   InspectorSectionComponent,
   MicroSliderComponent,
   checkIcon,
+  eyeIcon,
   globeIcon,
   layersIcon,
   starsIcon,
@@ -36,6 +37,7 @@ export class AnnotationFiltersPanelComponent {
 
   /** Glyphs surfaced in section titles + check tiles. */
   protected readonly checkIcon = checkIcon;
+  protected readonly eyeIcon = eyeIcon;
   protected readonly globeIcon = globeIcon;
   protected readonly layersIcon = layersIcon;
   protected readonly starsIcon = starsIcon;
