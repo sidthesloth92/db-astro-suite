@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.21.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.20.0...v1.21.0) (2026-05-31)
+
+
+### Features
+
+* create designation key utilities for catalog management ([a1238b1](https://github.com/sidthesloth92/db-astro-suite/commit/a1238b19d265e60767d6bb57c3a356bc16a4200a))
+* enhance catalog merging logic for deep-sky objects ([a1238b1](https://github.com/sidthesloth92/db-astro-suite/commit/a1238b19d265e60767d6bb57c3a356bc16a4200a))
+* stellar-map pan & zoom, named-only declutter, and catalog identity/merge fixes ([#52](https://github.com/sidthesloth92/db-astro-suite/issues/52)) ([a1238b1](https://github.com/sidthesloth92/db-astro-suite/commit/a1238b19d265e60767d6bb57c3a356bc16a4200a))
+
 ## [1.20.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.19.2...v1.20.0) (2026-05-30)
 
 
