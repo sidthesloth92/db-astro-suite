@@ -42,28 +42,41 @@ export function designationKey(name) {
 }
 
 /**
- * Identity form of a designation for *comparing* two names — upper-cased with
- * all whitespace removed — so spacing variants count as the same designation
- * (`"M 81"`, `"M  81"`, `"M81"` → `"M81"`; `"NGC3031"`, `"NGC 3031"` → `"NGC3031"`).
+ * Identity form of a designation for *comparing* two names — upper-cased, with
+ * all whitespace removed and leading zeros stripped from each numeric run — so
+ * spacing and zero-padding variants count as the same designation
+ * (`"M 81"`, `"M  81"`, `"M81"` → `"M81"`; `"NGC3031"`, `"NGC 3031"` → `"NGC3031"`;
+ * the zero-padded local form `"IC0063"` and SIMBAD's `"IC 63"` → `"IC63"`).
+ *
+ * Only run-LEADING zeros are removed (`IC0063` → `IC63`), never internal digits,
+ * so distinct long survey IDs (e.g. two Gaia DR3 numbers) stay distinct and no
+ * numeric precision is lost.
  *
  * @param {string} name
  * @returns {string}
  */
 export function normalizeName(name) {
-  return (name ?? "").toUpperCase().replace(/\s+/g, "");
+  return (name ?? "")
+    .toUpperCase()
+    .replace(/\s+/g, "")
+    .replace(/(^|\D)0+(?=\d)/g, "$1");
 }
 
 // Clean alphabetic catalogue prefixes that take a single space before their
-// number for display. Excludes digit-containing prefixes (Sh2, 2MASS) and
-// bracketed survey names, which must be left untouched.
-const DISPLAY_SPACED_PREFIXES = /^(NGC|IC|M|C|HD|HR|HIP|UGC|PGC|MCG|SAO|GJ|BD|CD)(\d)/i;
+// number for display. The `\s*0*` between prefix and the first significant
+// digit absorbs any separating space and the local catalogue's zero-padding, so
+// `"IC0063"` and `"IC 0063"` both render `"IC 63"`. Excludes digit-containing
+// prefixes (Sh2, 2MASS) and bracketed survey names, which are left untouched.
+const DISPLAY_SPACED_PREFIXES =
+  /^(NGC|IC|M|C|HD|HR|HIP|UGC|PGC|MCG|SAO|GJ|BD|CD)\s*0*(\d)/i;
 
 /**
- * Display form of a designation: collapse repeated whitespace and insert a
- * single space between a well-known catalogue prefix and its number, so chips
- * and labels read `"NGC 3031"`, `"M 81"`, `"HD 46105A"`. Names that don't match
- * a whitelisted prefix (`Sh2-155`, `2MASS J…`, `[ZBF2015] …`) are returned with
- * whitespace collapsed only.
+ * Display form of a designation: collapse repeated whitespace, then for a
+ * well-known catalogue prefix insert a single space before its number and drop
+ * any leading zeros, so chips and labels read `"NGC 3031"`, `"M 81"`,
+ * `"IC 63"`, `"HD 46105A"`. Names that don't match a whitelisted prefix
+ * (`Sh2-155`, `2MASS J…`, `[ZBF2015] …`) are returned with whitespace collapsed
+ * only.
  *
  * @param {string} name
  * @returns {string}

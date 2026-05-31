@@ -23,6 +23,7 @@ import {
   trashIcon,
 } from '@db-astro-suite/ui';
 import { findHitAnnotationId } from '../../utils/annotation-hit-test.util';
+import { isNamedAnnotation } from '../../utils/annotation-named.util';
 import {
   clampZoom,
   IDENTITY_VIEW,
@@ -648,6 +649,13 @@ export class StellarMapPreviewComponent implements OnInit {
     return this.mapData().annotations.filter((ann) => {
       if (ann.source === 'custom') {
         return ann.visible;
+      }
+
+      // Declutter gate (additive): when "Named objects only" is on, drop any
+      // catalog/survey object that lacks a human-recognisable designation. The
+      // remaining catalog/type/magnitude filters below still apply on top.
+      if (f.onlyNamed && !isNamedAnnotation(ann)) {
+        return false;
       }
 
       const type = (ann.type ?? '').toUpperCase();

@@ -20,36 +20,40 @@ export const OBJECT_BUCKETS = Object.freeze([
   "other",
 ]);
 
-const STAR_CODES = new Set([
-  "*", "**", "V*", "Ce*", "RR*", "LP*", "Mi*", "WR*", "C*",
-  "Be*", "HB*", "WD*", "No*", "SN*",
-]);
+// Type codes → bucket. The lists cover BOTH the SIMBAD OTYPE vocabulary and the
+// local catalogue's OpenNGC vocabulary (which differs: `OCl`/`GCl` vs SIMBAD's
+// `OpC`/`GlC`, plus `GPair`/`GTrpl`/`GGroup`, `Neb`/`RfN`/`EmN`, `Cl+N`, `*Ass`,
+// `Nova`, …). Matching is case-insensitive (see `CODE_TO_BUCKET`), so casing
+// differences between the two sources never split one object across buckets.
+const BUCKET_CODES = Object.freeze({
+  stars: [
+    "Star", // local-catalogue stellar literal (Named/HIP/TYC/Gaia rows)
+    "*", "**", "V*", "Ce*", "RR*", "LP*", "Mi*", "WR*", "C*",
+    "Be*", "HB*", "WD*", "No*", "SN*",
+  ],
+  // Quasars/AGN first so they win over the generic galaxy codes.
+  quasars: ["QSO", "Bla", "AGN"],
+  galaxies: [
+    "G", "EmG", "Sy1", "Sy2", "Sy*", "LINER",
+    "GiP", "GiG", "GiC", "BClG", "ClG",
+    "GPair", "GTrpl", "GGroup", "GClus",
+  ],
+  nebulae: [
+    "PN", "HII", "RNe", "DNe", "MoC", "EmO", "bub", "SNR",
+    "Neb", "RfN", "EmN", "Nova",
+  ],
+  clusters: [
+    "OpC", "GlC", "Cl*", "As*",
+    "OCl", "GCl", "Cl+N", "*Ass",
+  ],
+});
 
-const GALAXY_CODES = new Set([
-  "G", "EmG", "Sy1", "Sy2", "Sy*", "LINER",
-  "GiP", "GiG", "GiC", "BClG", "ClG",
-]);
-
-// Active galactic nuclei: quasars (QSO), blazars (Bla), and the generic AGN
-// code. Bucketed separately from ordinary galaxies because the deep catalog
-// adds a dedicated quasar source (Milliquas) and the dashboard tracks them
-// as their own population.
-const QUASAR_CODES = new Set([
-  "QSO", "Bla", "AGN",
-]);
-
-const NEBULA_CODES = new Set([
-  "PN", "HII", "RNe", "DNe", "MoC", "EmO", "bub", "SNR",
-]);
-
-const CLUSTER_CODES = new Set([
-  "OpC", "GlC", "Cl*", "As*",
-]);
-
-// Local catalog uses a separate `catalog` field for stellar entries
-// (Named/HIP/TYC) whose `type` is the literal string "Star" rather than
-// a SIMBAD code. Treat that as a star.
-const STAR_TYPE_LITERALS = new Set(["Star"]);
+// Lowercased code → bucket lookup, built once. Order of insertion does not
+// matter because the source code vocabularies do not overlap across buckets.
+const CODE_TO_BUCKET = new Map();
+for (const [bucket, codes] of Object.entries(BUCKET_CODES)) {
+  for (const code of codes) CODE_TO_BUCKET.set(code.toLowerCase(), bucket);
+}
 
 /**
  * @param {string | null | undefined} otype - SIMBAD OTYPE or local-catalog `type`
@@ -57,13 +61,7 @@ const STAR_TYPE_LITERALS = new Set(["Star"]);
  */
 export function classifyType(otype) {
   if (!otype) return "other";
-  if (STAR_TYPE_LITERALS.has(otype)) return "stars";
-  if (STAR_CODES.has(otype)) return "stars";
-  if (QUASAR_CODES.has(otype)) return "quasars";
-  if (GALAXY_CODES.has(otype)) return "galaxies";
-  if (NEBULA_CODES.has(otype)) return "nebulae";
-  if (CLUSTER_CODES.has(otype)) return "clusters";
-  return "other";
+  return CODE_TO_BUCKET.get(otype.toLowerCase()) ?? "other";
 }
 
 /**

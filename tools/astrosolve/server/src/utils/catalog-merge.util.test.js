@@ -206,3 +206,40 @@ describe("mergeObjects — real M 81 fragmentation (size-aware radius + spacing)
     assert.equal(merged.length, 2, "the 1′ galaxy 90″ away stays separate");
   });
 });
+
+describe("mergeObjects — zero-padding + sizeless cross-ID identity", () => {
+  it("collapses the local zero-padded IC0063 and SIMBAD IC 63 into one marker", () => {
+    // The real IC 63 (Ghost of Cassiopeia): OpenNGC stores "IC0063" (sized),
+    // SIMBAD returns "IC 63" (sizeless) and their centres sit 19″ apart — past
+    // any size-free radius. Same designation ⇒ one full-size marker.
+    const local = new CatalogObject("IC0063", "HII", 14.8702, 60.9117, null, "local", "NGC/IC", "ic0063", undefined, 10.0);
+    const simbad = new CatalogObject("IC 63", "HII", 14.87, 60.917, null, "simbad", undefined, undefined, undefined, null);
+    const merged = mergeObjects([local], [simbad]);
+    assert.equal(merged.length, 1, "the zero-padded and spaced forms are one object");
+    assert.equal(merged[0].name, "IC 63", "displayed without zero-padding");
+    assert.equal(merged[0].sizeArcmin, 10.0, "keeps the catalogued size, not the sizeless row");
+    assert.deepEqual(merged[0].aliases.map((a) => a.name), ["IC 63"], "deduped to one designation");
+  });
+
+  it("merges across an OpenNGC vs SIMBAD nebula-code difference (RfN vs RNe)", () => {
+    // Same designation, but the local row's OpenNGC type (RfN) and SIMBAD's
+    // (RNe) used to bucket apart (other vs nebulae) and never merge.
+    const local = new CatalogObject("IC0059", "RfN", 12.95, 61.05, null, "local", "NGC/IC", "ic0059", undefined, 10.0);
+    const simbad = new CatalogObject("IC 59", "RNe", 12.9505, 61.0503, null, "simbad", undefined, undefined, undefined, null);
+    const merged = mergeObjects([local], [simbad]);
+    assert.equal(merged.length, 1, "one nebula marker despite the differing type codes");
+    assert.equal(merged[0].name, "IC 59");
+  });
+
+  it("merges a sizeless SIMBAD cross-ID into a sized local object beyond the bare floor", () => {
+    // Different designations (NGC vs M) ~30″ apart; SIMBAD is sizeless. The
+    // radius must fall back to the local object's known size so the cross-ID
+    // still merges instead of collapsing to the 10″ floor.
+    const local = new CatalogObject("NGC 1976", "HII", 83.8221, -5.3911, null, "local", "NGC/IC", "ngc1976", undefined, 85.0);
+    const simbad = new CatalogObject("M 42", "HII", 83.8221, -5.3911 + 30 / 3600, null, "simbad", undefined, undefined, undefined, null);
+    const merged = mergeObjects([local], [simbad]);
+    assert.equal(merged.length, 1, "the sizeless cross-ID merges using the known size");
+    assert.equal(merged[0].name, "M 42", "best designation wins");
+    assert.equal(merged[0].sizeArcmin, 85.0);
+  });
+});

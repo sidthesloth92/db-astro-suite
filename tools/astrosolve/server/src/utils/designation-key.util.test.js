@@ -63,6 +63,22 @@ describe("normalizeName", () => {
     assert.notEqual(normalizeName("NGC 3031"), normalizeName("NGC 3034"));
     assert.notEqual(normalizeName("[ZBF2015] NGC6207 41"), normalizeName("[ZBF2015] NGC6207 7"));
   });
+
+  it("treats the local zero-padded form and SIMBAD's spaced form as one designation", () => {
+    // OpenNGC stores "IC0063" / "NGC0224"; SIMBAD returns "IC 63" / "NGC 224".
+    assert.equal(normalizeName("IC0063"), normalizeName("IC 63"));
+    assert.equal(normalizeName("NGC0224"), normalizeName("NGC 224"));
+    assert.equal(normalizeName("M081"), normalizeName("M 81"));
+  });
+
+  it("strips only run-leading zeros, so distinct long survey IDs stay distinct", () => {
+    // Internal digits are preserved (no Number() round-trip), so two different
+    // Gaia identifiers never collapse to the same normalised form.
+    assert.notEqual(
+      normalizeName("Gaia DR3 1000000000000000001"),
+      normalizeName("Gaia DR3 1000000000000000002"),
+    );
+  });
 });
 
 describe("formatDesignation", () => {
@@ -72,6 +88,10 @@ describe("formatDesignation", () => {
     ["M  81", "M 81"],
     ["HD  46105A", "HD 46105A"],
     ["NGC 3031", "NGC 3031"],
+    // Local catalogue zero-padding is dropped for display.
+    ["IC0063", "IC 63"],
+    ["IC 0063", "IC 63"],
+    ["NGC0224", "NGC 224"],
     ["Sh2-155", "Sh2-155"],
     ["2MASS J09553+6904", "2MASS J09553+6904"],
     ["[ZBF2015] NGC6207 41", "[ZBF2015] NGC6207 41"],

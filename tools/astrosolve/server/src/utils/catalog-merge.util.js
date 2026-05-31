@@ -106,8 +106,14 @@ function buildSurvivor(members) {
  * @returns {number}
  */
 function dsoMergeRadius(a, b) {
-  const minDiameterDeg = Math.min(a.sizeArcmin ?? 0, b.sizeArcmin ?? 0) / 60;
-  return Math.max(DSO_MERGE_BASE_DEG, DSO_MERGE_SIZE_FRACTION * minDiameterDeg);
+  const sa = a.sizeArcmin ?? 0;
+  const sb = b.sizeArcmin ?? 0;
+  // Both sized → use the SMALLER diameter so a big galaxy cannot swallow a small
+  // distinct neighbour. Only one sized (the other a sizeless SIMBAD row) → use
+  // the known size, so a sizeless cross-ID still merges across catalogue jitter
+  // instead of collapsing to the bare floor.
+  const refArcmin = sa > 0 && sb > 0 ? Math.min(sa, sb) : Math.max(sa, sb);
+  return Math.max(DSO_MERGE_BASE_DEG, DSO_MERGE_SIZE_FRACTION * (refArcmin / 60));
 }
 
 /**
@@ -138,7 +144,15 @@ function clusterObjects(inputs, radiusFn) {
       // designation written differently (`M 81` vs `M  81`) is a duplicate and may merge.
       const existing = cl.keyNames.get(key);
       if (existing !== undefined && existing !== norm) continue;
-      if (cl.members.some((m) => separationDeg(obj, m) <= radiusFn(obj, m))) {
+      // An identical designation IS the same object, so merge it regardless of
+      // the catalogue position gap (e.g. IC 63's local `IC0063` and SIMBAD
+      // `IC 63` centres sit 19″ apart — past any size-free radius). Differently
+      // named cross-catalogue designations still require positional coincidence.
+      const sameDesignation = cl.members.some((m) => normalizeName(m.name) === norm);
+      if (
+        sameDesignation ||
+        cl.members.some((m) => separationDeg(obj, m) <= radiusFn(obj, m))
+      ) {
         target = cl;
         break;
       }

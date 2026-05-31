@@ -25,6 +25,7 @@ const MINIMAL_MAP_DATA: StellarMapData = {
   aspectRatio: 'auto',
   annotations: [],
   filters: {
+    onlyNamed: false,
     showMessier: true,
     showNGC: true,
     showIC: true,
@@ -429,6 +430,91 @@ describe('StellarMapPreviewComponent pointer state machine', () => {
       component.onDocumentKeydown(makeKey('Backspace'));
 
       expect(mockDataService.removeAnnotation).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('named-objects-only declutter filter', () => {
+    const namedGalaxy: ImageAnnotation = {
+      id: 'ngc',
+      xPercent: 40,
+      yPercent: 40,
+      radiusDb: 40,
+      label: 'NGC 3031',
+      name: 'NGC 3031',
+      visible: true,
+      source: 'local',
+      type: 'G',
+      catalog: 'NGC/IC',
+      magnitude: 7,
+    };
+    const fieldStar: ImageAnnotation = {
+      id: 'gaia',
+      xPercent: 60,
+      yPercent: 60,
+      radiusDb: 8,
+      label: 'Gaia DR3 1',
+      name: 'Gaia DR3 1',
+      visible: true,
+      source: 'local',
+      type: 'Star',
+      magnitude: 5,
+    };
+
+    function seed(onlyNamed: boolean): void {
+      mockDataService.stellarMapData.update((d) => ({
+        ...d,
+        filters: { ...d.filters, onlyNamed },
+        annotations: [namedGalaxy, fieldStar, makeAnnotation('custom-1')],
+      }));
+    }
+
+    it('shows both catalog objects and customs when the filter is off', () => {
+      const component = mountComponent();
+      seed(false);
+
+      const ids = component.visibleAnnotations().map((a) => a.id);
+      expect(ids).toContain('ngc');
+      expect(ids).toContain('gaia');
+      expect(ids).toContain('custom-1');
+      expect(component.visibleCount()).toBe(3);
+    });
+
+    it('hides un-named survey sources but keeps named objects and customs when on', () => {
+      const component = mountComponent();
+      seed(true);
+
+      const ids = component.visibleAnnotations().map((a) => a.id);
+      expect(ids).toContain('ngc');
+      expect(ids).toContain('custom-1');
+      expect(ids).not.toContain('gaia');
+      expect(component.visibleCount()).toBe(2);
+    });
+  });
+
+  describe('star magnitude slider (named-only OFF)', () => {
+    const star = (id: string, magnitude: number): ImageAnnotation => ({
+      id,
+      xPercent: 50,
+      yPercent: 50,
+      radiusDb: 8,
+      label: id,
+      name: `Gaia DR3 ${id}`,
+      visible: true,
+      source: 'local',
+      type: 'Star',
+      magnitude,
+    });
+
+    it('hides field stars fainter than the magnitude slider when the named filter is off', () => {
+      const component = mountComponent();
+      mockDataService.stellarMapData.update((d) => ({
+        ...d,
+        filters: { ...d.filters, onlyNamed: false, showFieldStars: true, maxStarMagnitude: 5 },
+        annotations: [star('bright', 3), star('mid', 6), star('faint', 9)],
+      }));
+
+      const ids = component.visibleAnnotations().map((a) => a.id);
+      expect(ids).toEqual(['bright']);
     });
   });
 });
