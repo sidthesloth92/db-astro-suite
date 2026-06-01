@@ -15,6 +15,7 @@ import {
   formatDesignation,
   normalizeName,
 } from "../../src/utils/designation-key.util.js";
+import { FAMOUS_DISTANCE_BY_KEY } from "./famous-object-distances.constants.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // The generated catalog is built off-box by this script and rsynced onto the
@@ -664,6 +665,13 @@ async function seed() {
       (await runStep(db, "simbad_distances", [], () => seedSimbadDistances(db))) ||
       changed;
 
+    // Curated literature fallback for iconic nebulae SIMBAD misses (e.g. the
+    // Rosette, split across NGC rows that don't merge). Fills null rows only.
+    changed =
+      (await runStep(db, "curated_distances", [], () =>
+        Promise.resolve(seedCuratedDistances(db)),
+      )) || changed;
+
     // --- Gaia DR3 G≤15 stars (~37M) ---
     // Gaia tracks completed tiles itself, so it resumes a partial sweep rather
     // than restarting; no runStep wrapper needed.
@@ -1019,12 +1027,58 @@ async function seedGlobulars(db, insert) {
   }
 }
 
+/**
+ * Applies the curated famous-object distance fallback to any still-null DSO row
+ * whose designation matches. SIMBAD always wins (only null rows are touched), so
+ * this only fills the iconic-nebula gaps SIMBAD leaves. Synchronous UPDATE.
+ *
+ * @param {import('better-sqlite3').Database} db
+ * @returns {number} Number of object rows whose distance was set
+ */
+function seedCuratedDistances(db) {
+  const rows = db
+    .prepare(
+      `SELECT id, name FROM objects WHERE distanceLy IS NULL AND catalog IN ('NGC/IC','M','Sh2','Neb','LBN','LDN')`,
+    )
+    .all();
+  const update = db.prepare("UPDATE objects SET distanceLy = ? WHERE id = ?");
+  let n = 0;
+  const run = db.transaction(() => {
+    for (const r of rows) {
+      const ly = FAMOUS_DISTANCE_BY_KEY.get(normalizeName(formatDesignation(r.name)));
+      if (ly != null) {
+        update.run(ly, r.id);
+        n++;
+      }
+    }
+  });
+  run();
+  console.log(`Curated fallback distances applied to ${n} objects.`);
+  return n;
+}
+
 /** Median of a numeric array (null when empty). */
 function median(values) {
   if (values.length === 0) return null;
   const sorted = [...values].sort((a, b) => a - b);
   const mid = Math.floor(sorted.length / 2);
   return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+}
+
+/**
+ * Maps a local catalogue designation to the form SIMBAD's `ident` table uses, so
+ * the mesDistance lookup matches. Most designations pass through `formatDesignation`,
+ * but a couple need catalogue-specific shapes: Sharpless `Sh2 275` → `Sh 2-275`
+ * and Barnard `B 33` → `Barnard 33`. The matching key (`normalizeName` of this
+ * value) stays consistent with what SIMBAD returns.
+ *
+ * @param {string} name
+ * @returns {string}
+ */
+function simbadDesignation(name) {
+  if (/^Sh2[\s-]/i.test(name)) return name.replace(/^Sh2[\s-]*/i, "Sh 2-");
+  if (/^B\s+\d/.test(name)) return name.replace(/^B\s+/, "Barnard ");
+  return formatDesignation(name);
 }
 
 /**
@@ -1055,7 +1109,7 @@ async function seedSimbadDistances(db) {
   const idsByKey = new Map();
   const queryNames = new Set();
   for (const t of targets) {
-    const simbadName = formatDesignation(t.name);
+    const simbadName = simbadDesignation(t.name);
     const key = normalizeName(simbadName);
     if (!idsByKey.has(key)) idsByKey.set(key, []);
     idsByKey.get(key).push(t.id);
