@@ -9,8 +9,12 @@ import {
   parsecsToLy,
   kiloparsecsToLy,
   redshiftVelocityToLy,
+  measurementToLy,
 } from "../../src/utils/distance.util.js";
-import { curatedGalaxyDistanceLy } from "./galaxy-distances.constants.mjs";
+import {
+  formatDesignation,
+  normalizeName,
+} from "../../src/utils/designation-key.util.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // The generated catalog is built off-box by this script and rsynced onto the
@@ -38,8 +42,21 @@ const GAIA_MAG_LIMIT = 15;
 
 // Minimum RC3 recession velocity (km/s) for a redshift→Hubble distance to be
 // trustworthy. Below this, peculiar motion dominates (and several nearby
-// galaxies are blueshifted), so those are left to the curated distance table.
+// galaxies are blueshifted), so those are left to the SIMBAD enrichment.
 const RC3_MIN_CZ_KM_S = 3000;
+
+// SIMBAD TAP endpoint, used ONLY at ingest time to backfill named DSO distances
+// from the mesDistance measurement table. SIMBAD is never queried at runtime
+// (the solve pipeline is local-only; see config.simbadEnabled).
+const SIMBAD_TAP_URL = "http://simbad.u-strasbg.fr/simbad/sim-tap/sync";
+// Designations per SIMBAD batch query, and a polite pause between batches.
+const SIMBAD_DISTANCE_BATCH = 300;
+const SIMBAD_BATCH_PAUSE_MS = 800;
+// Catalogues whose still-null-distance rows we enrich from SIMBAD (the named
+// galaxies & nebulae; stars/clusters already carry parallax/MWSC/Harris values).
+const SIMBAD_DISTANCE_CATALOGS = [
+  "NGC/IC", "M", "Sh2", "LBN", "LDN", "Barnard", "Neb", "ACO", "OCL", "GCL",
+];
 
 // RA/Dec tile size (degrees) for the Gaia sweep. A single TAP sync request
 // caps at a few million rows, so the sky is split into tiles.
@@ -364,17 +381,9 @@ async function seed() {
             const sizeArcmin = parseFloat(row.MajAx) || null;
 
             const messierNum = parseInt(row.M, 10);
-            // Pin a curated redshift-independent distance for the recognisable
-            // galaxies (matched by NGC/IC or Messier designation). Non-galaxies
-            // and unlisted galaxies resolve to null; distant galaxies get an RC3
-            // redshift distance via the HyperLEDA step instead.
-            const galaxyLy =
-              curatedGalaxyDistanceLy(name) ??
-              (Number.isNaN(messierNum)
-                ? null
-                : curatedGalaxyDistanceLy(`M ${messierNum}`));
-
-            rows.push([catalog, name, name, commonName, type, ra, dec, magnitude, sizeArcmin, galaxyLy]);
+            // Distance is left null here; the SIMBAD mesDistance enrichment step
+            // backfills galaxies and nebulae after all catalogues are loaded.
+            rows.push([catalog, name, name, commonName, type, ra, dec, magnitude, sizeArcmin, null]);
 
             // Messier cross-reference row (OpenNGC column "M" is zero-padded
             // like "031"; normalise to the conventional "M 31"). Shares the
@@ -391,7 +400,7 @@ async function seed() {
                 dec,
                 magnitude,
                 sizeArcmin,
-                galaxyLy,
+                null,
               ]);
             }
           }
@@ -646,6 +655,13 @@ async function seed() {
       changed;
     changed =
       (await runStep(db, "globulars", ["GCL"], () => seedGlobulars(db, insert))) ||
+      changed;
+
+    // Backfill galaxy & nebula distances from SIMBAD's mesDistance table (one
+    // time, ingest only). Runs after the named DSO catalogues are loaded; an
+    // empty tag list means nothing is cleared first (it UPDATEs in place).
+    changed =
+      (await runStep(db, "simbad_distances", [], () => seedSimbadDistances(db))) ||
       changed;
 
     // --- Gaia DR3 G≤15 stars (~37M) ---
@@ -1001,6 +1017,100 @@ async function seedGlobulars(db, insert) {
     console.warn("Globular clusters download failed (skipping):", err.message);
     return 0;
   }
+}
+
+/** Median of a numeric array (null when empty). */
+function median(values) {
+  if (values.length === 0) return null;
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+}
+
+/**
+ * Backfills distances for named DSOs (galaxies, nebulae, and any cluster gaps)
+ * that are still missing one, using SIMBAD's `mesDistance` measurement table.
+ * Each object's measurements are converted to light-years and reduced to their
+ * median, which is robust to the spread of methods (Cepheid, Tully-Fisher,
+ * redshift, parallax, …). Runs at ingest time only — never at runtime. Matching
+ * is space/zero-padding-insensitive via `normalizeName`. Best-effort: a failed
+ * batch is skipped so the build still completes.
+ *
+ * @param {import('better-sqlite3').Database} db
+ * @returns {Promise<number>} Number of object rows whose distance was set
+ */
+async function seedSimbadDistances(db) {
+  const placeholders = SIMBAD_DISTANCE_CATALOGS.map(() => "?").join(",");
+  const targets = db
+    .prepare(
+      `SELECT id, name FROM objects WHERE distanceLy IS NULL AND catalog IN (${placeholders})`,
+    )
+    .all(...SIMBAD_DISTANCE_CATALOGS);
+  if (targets.length === 0) {
+    console.log("SIMBAD distances: nothing to enrich.");
+    return 0;
+  }
+
+  // SIMBAD-format designation → normalized key; key → the object row ids to set.
+  const idsByKey = new Map();
+  const queryNames = new Set();
+  for (const t of targets) {
+    const simbadName = formatDesignation(t.name);
+    const key = normalizeName(simbadName);
+    if (!idsByKey.has(key)) idsByKey.set(key, []);
+    idsByKey.get(key).push(t.id);
+    queryNames.add(simbadName);
+  }
+  const names = [...queryNames];
+  console.log(
+    `SIMBAD distances: ${names.length} designations (${targets.length} rows), batches of ${SIMBAD_DISTANCE_BATCH}...`,
+  );
+
+  const measurements = new Map(); // key → [lightYears, ...]
+  for (let i = 0; i < names.length; i += SIMBAD_DISTANCE_BATCH) {
+    const batch = names.slice(i, i + SIMBAD_DISTANCE_BATCH);
+    const inList = batch.map((n) => `'${n.replace(/'/g, "''")}'`).join(",");
+    const adql = `SELECT i.id, d.dist, d.unit FROM mesDistance d JOIN ident i ON i.oidref = d.oidref WHERE i.id IN (${inList})`;
+    try {
+      const res = await axios.get(SIMBAD_TAP_URL, {
+        params: { request: "doQuery", lang: "adql", format: "tsv", query: adql },
+        responseType: "text",
+        timeout: 120000,
+      });
+      for (const line of String(res.data).split("\n")) {
+        const cols = line.split("\t").map((c) => c.replace(/"/g, "").trim());
+        if (cols.length < 3) continue;
+        const ly = measurementToLy(parseFloat(cols[1]), cols[2]);
+        if (ly == null) continue;
+        const key = normalizeName(cols[0]);
+        if (!measurements.has(key)) measurements.set(key, []);
+        measurements.get(key).push(ly);
+      }
+    } catch (err) {
+      console.warn(`  SIMBAD batch @${i} failed (skipping):`, err.message);
+    }
+    console.log(`  ...${Math.min(i + SIMBAD_DISTANCE_BATCH, names.length)}/${names.length}`);
+    await new Promise((resolve) => setTimeout(resolve, SIMBAD_BATCH_PAUSE_MS));
+  }
+
+  const update = db.prepare("UPDATE objects SET distanceLy = ? WHERE id = ?");
+  let n = 0;
+  const run = db.transaction(() => {
+    for (const [key, lys] of measurements) {
+      const ids = idsByKey.get(key);
+      const med = median(lys);
+      if (!ids || med == null) continue;
+      for (const id of ids) {
+        update.run(med, id);
+        n++;
+      }
+    }
+  });
+  run();
+  console.log(
+    `SIMBAD distances applied to ${n} objects (${measurements.size} designations matched).`,
+  );
+  return n;
 }
 
 /**

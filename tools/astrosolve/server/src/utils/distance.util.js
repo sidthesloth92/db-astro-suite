@@ -34,6 +34,36 @@ export function kiloparsecsToLy(kpc) {
 }
 
 /**
+ * @param {number | null | undefined} mpc - Distance in megaparsecs
+ * @returns {number | null} Light-years, or null when the input is non-finite/≤0
+ */
+export function megaparsecsToLy(mpc) {
+  if (mpc == null || !Number.isFinite(mpc) || mpc <= 0) return null;
+  return mpc * 1_000_000 * LY_PER_PARSEC;
+}
+
+/**
+ * Converts a SIMBAD `mesDistance` measurement (a value plus a unit string of
+ * `pc` / `kpc` / `Mpc`) into light-years. Unknown units return null.
+ *
+ * @param {number | null | undefined} value - Distance value
+ * @param {string | null | undefined} unit - Unit string (case-insensitive)
+ * @returns {number | null} Light-years, or null when unparseable
+ */
+export function measurementToLy(value, unit) {
+  switch ((unit ?? '').trim().toLowerCase()) {
+    case 'pc':
+      return parsecsToLy(value);
+    case 'kpc':
+      return kiloparsecsToLy(value);
+    case 'mpc':
+      return megaparsecsToLy(value);
+    default:
+      return null;
+  }
+}
+
+/**
  * Trigonometric parallax → distance. Only positive parallaxes yield a distance
  * (Gaia lists zero/negative parallaxes for distant or poorly-measured sources).
  *

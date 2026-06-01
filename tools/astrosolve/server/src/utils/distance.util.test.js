@@ -4,6 +4,8 @@ import {
   LY_PER_PARSEC,
   parsecsToLy,
   kiloparsecsToLy,
+  megaparsecsToLy,
+  measurementToLy,
   parallaxToLy,
   distanceModulusToLy,
   redshiftVelocityToLy,
@@ -35,6 +37,19 @@ describe("kiloparsecsToLy", () => {
   it("returns null for missing or non-positive input", () => {
     assert.equal(kiloparsecsToLy(null), null);
     assert.equal(kiloparsecsToLy(0), null);
+  });
+});
+
+describe("megaparsecsToLy + measurementToLy (SIMBAD mesDistance units)", () => {
+  it("converts Mpc to light-years (M 81 ≈ 3.6 Mpc ⇒ ~11.7 Mly)", () => {
+    approx(megaparsecsToLy(3.6), 11_741_616, 1000);
+  });
+  it("dispatches by unit string (case-insensitive)", () => {
+    approx(measurementToLy(433, "pc"), 1412.3, 1); // Orion via parallax
+    approx(measurementToLy(8, "kpc"), 26092.5, 5); // M 13
+    approx(measurementToLy(3.6, "Mpc"), 11_741_616, 1000);
+    assert.equal(measurementToLy(5, "ly"), null); // unknown unit
+    assert.equal(measurementToLy(0, "pc"), null);
   });
 });
 
