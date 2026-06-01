@@ -562,7 +562,7 @@ describe('StellarMapPreviewComponent pointer state machine', () => {
 
     it('formats the distance as a compact light-year string', () => {
       const component = mountComponent();
-      expect(component.formatDistance(ann.distanceLy)).toBe('24.1 kly');
+      expect(component.formatDistance(ann.distanceLy)).toBe('24,100 ly');
       expect(component.formatDistance(undefined)).toBe('');
     });
   });

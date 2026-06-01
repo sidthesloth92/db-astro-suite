@@ -622,6 +622,7 @@ export class StellarMapPreviewComponent implements OnInit {
     return formatLightYears(distanceLy);
   }
 
+
   getLabelPosition(xPercent: number, yPercent: number): string {
     if (yPercent > 90) {
       return 'label-top';

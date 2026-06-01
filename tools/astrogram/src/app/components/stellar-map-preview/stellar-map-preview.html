@@ -79,14 +79,25 @@
             [ngStyle]="labelStyle(ann)"
           >
             {{ effectiveLabel(ann) }}
-            @if (effectiveShowMagnitude(ann) && ann.magnitude !== undefined) {
+            @if (
+              (effectiveShowMagnitude(ann) && ann.magnitude !== undefined) ||
+              (effectiveShowDistance(ann) && ann.distanceLy != null)
+            ) {
               <span style="display: block; font-size: 0.85em; opacity: 0.8">
-                {{ ann.magnitude | number: '1.1-1' }}
-              </span>
-            }
-            @if (effectiveShowDistance(ann) && ann.distanceLy != null) {
-              <span style="display: block; font-size: 0.85em; opacity: 0.8">
-                {{ formatDistance(ann.distanceLy) }}
+                @if (effectiveShowMagnitude(ann) && ann.magnitude !== undefined) {
+                  <span>{{ ann.magnitude | number: '1.1-1' }}</span>
+                }
+                @if (
+                  effectiveShowMagnitude(ann) &&
+                  ann.magnitude !== undefined &&
+                  effectiveShowDistance(ann) &&
+                  ann.distanceLy != null
+                ) {
+                  <span style="opacity: 0.6">&nbsp;·&nbsp;</span>
+                }
+                @if (effectiveShowDistance(ann) && ann.distanceLy != null) {
+                  <span>{{ formatDistance(ann.distanceLy) }}</span>
+                }
               </span>
             }
           </span>
