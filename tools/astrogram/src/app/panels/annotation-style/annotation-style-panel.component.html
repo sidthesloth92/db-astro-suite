@@ -1,13 +1,13 @@
 <div class="panel-root">
   <dba-ui-inspector-section title="Circle" sub="Annotation circle parameters">
     <dba-ui-icon slot="icon" [def]="targetIcon" [size]="14" />
-    <dba-ui-inspector-field label="Color">
+    <dba-ui-inspector-field label="Color" [dbaTooltip]="'Outline colour of every annotation circle.'">
       <dba-ui-color-swatch-input
         [value]="settings().color"
         (valueChange)="update({ color: $event })"
       />
     </dba-ui-inspector-field>
-    <dba-ui-inspector-field label="Thickness">
+    <dba-ui-inspector-field label="Thickness" [dbaTooltip]="'Line thickness of the annotation circle, in pixels.'">
       <dba-ui-micro-slider
         [value]="settings().thickness"
         [min]="1"
@@ -16,7 +16,7 @@
         (valueChange)="update({ thickness: $event })"
       />
     </dba-ui-inspector-field>
-    <dba-ui-inspector-field label="Opacity">
+    <dba-ui-inspector-field label="Opacity" [dbaTooltip]="'Transparency of the annotation circle.'">
       <dba-ui-micro-slider
         [value]="circleOpacityPercent()"
         [min]="0"
@@ -32,13 +32,13 @@
 
   <dba-ui-inspector-section title="Label" sub="Annotation label parameters">
     <dba-ui-icon slot="icon" [def]="tagIcon" [size]="14" />
-    <dba-ui-inspector-field label="Color">
+    <dba-ui-inspector-field label="Color" [dbaTooltip]="'Text colour of every annotation label.'">
       <dba-ui-color-swatch-input
         [value]="settings().labelColor"
         (valueChange)="update({ labelColor: $event })"
       />
     </dba-ui-inspector-field>
-    <dba-ui-inspector-field label="Font size">
+    <dba-ui-inspector-field label="Font size" [dbaTooltip]="'Text size of annotation labels.'">
       <dba-ui-micro-slider
         [value]="settings().fontSize"
         [min]="0.4"
@@ -47,7 +47,7 @@
         (valueChange)="update({ fontSize: $event })"
       />
     </dba-ui-inspector-field>
-    <dba-ui-inspector-field label="Opacity">
+    <dba-ui-inspector-field label="Opacity" [dbaTooltip]="'Transparency of annotation labels.'">
       <dba-ui-micro-slider
         [value]="labelOpacityPercent()"
         [min]="0"
@@ -57,7 +57,7 @@
         (valueChange)="setLabelOpacity($event)"
       />
     </dba-ui-inspector-field>
-    <dba-ui-inspector-field label="Show mag">
+    <dba-ui-inspector-field label="Show mag" [dbaTooltip]="'Show the magnitude beneath every label by default.'">
       <dba-ui-switch
         [checked]="settings().showMagnitude"
         ariaLabel="Show magnitude"

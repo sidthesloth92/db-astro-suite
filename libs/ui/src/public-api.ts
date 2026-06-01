@@ -16,6 +16,7 @@ export * from "./lib/neon-button/neon-button.component";
 export * from "./lib/select/select.component";
 export * from "./lib/select/select.model";
 export * from "./lib/text-button/text-button.component";
+export * from "./lib/tooltip/tooltip.directive";
 export * from "./lib/services/analytics-tracker.abstract";
 export * from "./lib/services/analytics.service";
 export * from "./lib/services/google-analytics.service";

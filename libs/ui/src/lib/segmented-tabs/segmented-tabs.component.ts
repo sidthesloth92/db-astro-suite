@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import type { SegmentedTabOption } from './segmented-tabs.model';
+import { TooltipDirective } from '../tooltip/tooltip.directive';
 
 /** Size preset for `SegmentedTabsComponent`. */
 export type SegmentedTabsSize = 'sm' | 'md';
@@ -24,7 +25,7 @@ export type SegmentedTabsSize = 'sm' | 'md';
 @Component({
   selector: 'dba-ui-segmented-tabs',
   standalone: true,
-  imports: [NgTemplateOutlet],
+  imports: [NgTemplateOutlet, TooltipDirective],
   templateUrl: './segmented-tabs.component.html',
   styleUrls: ['./segmented-tabs.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,

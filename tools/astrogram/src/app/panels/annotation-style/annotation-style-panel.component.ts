@@ -6,6 +6,7 @@ import {
   InspectorSectionComponent,
   MicroSliderComponent,
   SwitchComponent,
+  TooltipDirective,
   tagIcon,
   targetIcon,
 } from '@db-astro-suite/ui';
@@ -27,6 +28,7 @@ import { CardDataService } from '../../services/card-data.service';
     MicroSliderComponent,
     SwitchComponent,
     IconComponent,
+    TooltipDirective,
   ],
   templateUrl: './annotation-style-panel.component.html',
   styleUrls: ['./annotation-style-panel.component.css'],

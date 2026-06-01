@@ -8,4 +8,6 @@ export interface SegmentedTabOption {
   readonly id: string;
   /** User-visible label rendered inside the pill. */
   readonly label: string;
+  /** Optional hover tooltip describing what the tab does. */
+  readonly tooltip?: string;
 }

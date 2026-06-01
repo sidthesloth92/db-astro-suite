@@ -3,6 +3,7 @@ import {
   IconComponent,
   InspectorSectionComponent,
   MicroSliderComponent,
+  TooltipDirective,
   checkIcon,
   eyeIcon,
   globeIcon,
@@ -24,7 +25,7 @@ type BooleanFilterKey = Exclude<keyof AnnotationFilters, 'maxStarMagnitude'>;
 @Component({
   selector: 'dba-ag-annotation-filters-panel',
   standalone: true,
-  imports: [InspectorSectionComponent, MicroSliderComponent, IconComponent],
+  imports: [InspectorSectionComponent, MicroSliderComponent, IconComponent, TooltipDirective],
   templateUrl: './annotation-filters-panel.component.html',
   styleUrls: ['./annotation-filters-panel.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
