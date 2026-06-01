@@ -12,8 +12,11 @@ import {
   raRanges,
 } from "../utils/catalog-query.util.js";
 
-const SELECT_COLUMNS =
+const BASE_SELECT_COLUMNS =
   "catalog, entryId, name, commonName, type, ra, dec, magnitude, sizeArcmin";
+
+/** Optional column present only after a distance-aware catalog re-ingest. */
+const DISTANCE_COLUMN = "distanceLy";
 
 /**
  * SQLite-backed implementation of the LocalCatalogDao interface contract.
@@ -26,12 +29,16 @@ export class SqliteLocalCatalogDao extends SqliteBaseDao {
   /** Whether an R-tree spatial index (`objects_rtree`) is present. */
   #hasRtree;
 
+  /** Whether the optional `distanceLy` column exists (distance-aware ingest). */
+  #hasDistanceLy;
+
   /**
    * @param {Database} db - Open better-sqlite3 catalog database
    */
   constructor(db) {
     super(db);
     this.#hasRtree = this.#detectRtree();
+    this.#hasDistanceLy = this.#hasColumn("objects", DISTANCE_COLUMN);
   }
 
   /**
@@ -186,12 +193,30 @@ export class SqliteLocalCatalogDao extends SqliteBaseDao {
   }
 
   /**
-   * @returns {string} The qualified column list for the objects alias.
+   * @returns {string} The qualified column list for the objects alias. Adds the
+   *   optional `distanceLy` column only when the catalogue was built with it, so
+   *   the query stays valid against an older (distance-free) catalog file.
    */
   #selectList() {
-    return SELECT_COLUMNS.split(", ")
+    const cols = this.#hasDistanceLy
+      ? `${BASE_SELECT_COLUMNS}, ${DISTANCE_COLUMN}`
+      : BASE_SELECT_COLUMNS;
+    return cols
+      .split(", ")
       .map((c) => `o.${c}`)
       .join(", ");
+  }
+
+  /**
+   * Detects whether a column exists on a table (via `PRAGMA table_info`).
+   *
+   * @param {string} table
+   * @param {string} column
+   * @returns {boolean}
+   */
+  #hasColumn(table, column) {
+    const cols = this.db.prepare(`PRAGMA table_info(${table})`).all();
+    return cols.some((c) => c.name === column);
   }
 
   /**

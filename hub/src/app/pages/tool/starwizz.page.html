@@ -12,17 +12,18 @@
   </div>
 
   <div output>
-    <dba-hub-demo-frame label="starwizz.app / render" status="Recording">
+    <!-- TODO(demo): placeholder reuses sw_demo.gif; swap in a captured Custom Path (A→B) clip when ready. -->
+    <dba-hub-demo-frame label="starwizz.app / custom path" status="A→B">
       <button
         type="button"
         class="demo-media-btn"
         (click)="openLightbox()"
-        aria-label="Expand the starfield output"
+        aria-label="Expand the custom camera path output"
       >
         <img
           class="demo-media"
           src="assets/img/sw_demo.gif"
-          alt="Starwizz starfield output"
+          alt="Starwizz custom A→B camera path output"
         />
       </button>
     </dba-hub-demo-frame>
@@ -34,7 +35,7 @@
     class="demo-lightbox"
     role="dialog"
     aria-modal="true"
-    aria-label="Starfield preview"
+    aria-label="Custom camera path preview"
     (click)="closeLightbox()"
     (keydown.escape)="closeLightbox()"
     tabindex="-1"
@@ -44,7 +45,7 @@
     </button>
     <img
       src="assets/img/sw_demo.gif"
-      alt="Starwizz starfield output"
+      alt="Starwizz custom A→B camera path output"
       class="demo-lightbox__image"
       (click)="$event.stopPropagation()"
     />

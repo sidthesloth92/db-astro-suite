@@ -152,10 +152,12 @@
       <div class="sec-head">
         <div>
           <span class="kicker"><span class="kicker__dot"></span>{{ config().outputKicker }}</span>
-          @let outputTitle = config().outputTitle | dualTitle;
-          <h2 class="sec-head__title">
-            <span class="sec-head__accent">{{ outputTitle[0] }}</span>{{ outputTitle[1] }}
-          </h2>
+          @if (config().outputTitle; as rawOutputTitle) {
+            @let outputTitle = rawOutputTitle | dualTitle;
+            <h2 class="sec-head__title">
+              <span class="sec-head__accent">{{ outputTitle[0] }}</span>{{ outputTitle[1] }}
+            </h2>
+          }
         </div>
         @if (config().outputMeta) {
           <span class="meta">{{ config().outputMeta }}</span>

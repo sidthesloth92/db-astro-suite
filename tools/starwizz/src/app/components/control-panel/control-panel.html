@@ -9,7 +9,7 @@
       <span
         class="help-icon"
         tabindex="0"
-        [attr.data-tip]="formatHelp"
+        [dbaTooltip]="formatHelp"
         [attr.aria-label]="formatHelp"
       >
         <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
@@ -30,7 +30,7 @@
       <span
         class="help-icon"
         tabindex="0"
-        [attr.data-tip]="directionHelp"
+        [dbaTooltip]="directionHelp"
         [attr.aria-label]="directionHelp"
       >
         <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
@@ -49,7 +49,7 @@
     <div class="path-section">
       <div class="format-label-row">
         <label class="row-label">Custom Path (A→B)</label>
-        <span class="help-icon" tabindex="0" [attr.data-tip]="pathHelp" [attr.aria-label]="pathHelp">
+        <span class="help-icon" tabindex="0" [dbaTooltip]="pathHelp" [attr.aria-label]="pathHelp">
           <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
         </span>
       </div>
@@ -113,7 +113,7 @@
           <span
             class="help-icon"
             tabindex="0"
-            [attr.data-tip]="cameraSpeedHelp"
+            [dbaTooltip]="cameraSpeedHelp"
             [attr.aria-label]="cameraSpeedHelp"
           >
             <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
@@ -136,7 +136,7 @@
           <span
             class="help-icon"
             tabindex="0"
-            [attr.data-tip]="durationHelp"
+            [dbaTooltip]="durationHelp"
             [attr.aria-label]="durationHelp"
           >
             <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
@@ -164,7 +164,7 @@
           <span
             class="help-icon"
             tabindex="0"
-            [attr.data-tip]="starDriftHelp"
+            [dbaTooltip]="starDriftHelp"
             [attr.aria-label]="starDriftHelp"
           >
             <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
@@ -215,7 +215,7 @@
         <span
           class="help-icon"
           tabindex="0"
-          [attr.data-tip]="controlConfig[control].description"
+          [dbaTooltip]="controlConfig[control].description"
           [attr.aria-label]="controlConfig[control].description"
         >
           <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
@@ -260,7 +260,7 @@
       class="record-button"
       [attr.data-state]="recordingState()"
       [disabled]="isRecordDisabled()"
-      title="Record up to 30 seconds of the animation as a video file"
+      [dbaTooltip]="'Record up to 30 seconds of the animation as a video file'"
       (click)="toggleRecording()"
     >
       {{ buttonText() }}
@@ -277,7 +277,7 @@
       <span
         class="help-icon"
         tabindex="0"
-        [attr.data-tip]="fromBeginningHelp"
+        [dbaTooltip]="fromBeginningHelp"
         [attr.aria-label]="fromBeginningHelp"
       >
         <dba-ui-icon [def]="circleHelpIcon" [size]="14" />

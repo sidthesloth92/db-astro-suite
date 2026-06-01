@@ -1,1 +1,36 @@
 @import './tool-media.css';
+
+/* Output section — plate-solved image + infographic card side by side. */
+.output-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.output-pair__item {
+  margin: 0;
+  min-width: 0;
+}
+
+/* Dual-color sub-header above each screenshot — subordinate to the section title. */
+.output-pair__title {
+  margin: 0 0 14px;
+  font-family: var(--db-font-display-major);
+  font-weight: 600;
+  font-size: clamp(1.1rem, 2vw, 1.45rem);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--db-color-text-primary);
+}
+
+.output-pair__title-accent {
+  color: var(--db-color-neon-pink);
+}
+
+@media (max-width: 720px) {
+  .output-pair {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}

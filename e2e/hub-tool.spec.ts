@@ -67,12 +67,12 @@ test.describe("Astrogram Tool Page", () => {
     await expect(hubTool.getSectionHeading(/What Astrogram is/i)).toBeVisible();
     await expect(hubTool.getSectionHeading("WHAT IT DOES")).toBeVisible();
     await expect(hubTool.getSectionHeading("HOW IT WORKS")).toBeVisible();
-    await expect(hubTool.getSectionHeading(/The exposure card/i)).toBeVisible();
+    await expect(hubTool.getSectionHeading(/The output/i)).toBeVisible();
   });
 
-  test("lists six capabilities and five steps", async () => {
-    await expect(hubTool.getFeatureHeadings()).toHaveCount(6);
-    await expect(hubTool.getStepHeadings()).toHaveCount(5);
+  test("lists ten capabilities and six steps", async () => {
+    await expect(hubTool.getFeatureHeadings()).toHaveCount(10);
+    await expect(hubTool.getStepHeadings()).toHaveCount(6);
   });
 
   test("exposes the launch CTA and demo preview", async () => {
@@ -81,7 +81,9 @@ test.describe("Astrogram Tool Page", () => {
       "/astrogram/",
     );
     await expect(
-      hubTool.getDemoImage("Astrogram exposure card sample"),
+      hubTool.getDemoImage(
+        "Astrogram plate-solved Stellar Map with labelled objects and light-year distances",
+      ),
     ).toBeVisible();
   });
 });
@@ -153,8 +155,8 @@ test.describe("Starwizz Tool Page", () => {
     await expect(hubTool.getSectionHeading(/The output/i)).toBeVisible();
   });
 
-  test("lists six capabilities and five steps", async () => {
-    await expect(hubTool.getFeatureHeadings()).toHaveCount(6);
+  test("lists eight capabilities and five steps", async () => {
+    await expect(hubTool.getFeatureHeadings()).toHaveCount(8);
     await expect(hubTool.getStepHeadings()).toHaveCount(5);
   });
 
@@ -248,13 +250,14 @@ test.describe("Hub tool demo lightbox", () => {
   }> = [
     {
       slug: "astrogram",
-      expandButton: "Expand the exposure card output",
-      lightbox: "Exposure card preview",
+      expandButton: "Expand the plate-solved annotated image",
+      lightbox:
+        "Astrogram plate-solved annotated image with labelled objects and light-year distances",
     },
     {
       slug: "starwizz",
-      expandButton: "Expand the starfield output",
-      lightbox: "Starfield preview",
+      expandButton: "Expand the custom camera path output",
+      lightbox: "Custom camera path preview",
     },
   ];
 

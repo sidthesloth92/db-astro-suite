@@ -264,7 +264,10 @@ describe('StellarMapPreviewComponent pointer state machine', () => {
   it('should select an annotation when its label is clicked', () => {
     const component = mountComponent();
     stubLayerRect(layerEl());
-    mockDataService.stellarMapData.update((d) => ({ ...d, annotations: [makeAnnotation('m-lbl')] }));
+    mockDataService.stellarMapData.update((d) => ({
+      ...d,
+      annotations: [makeAnnotation('m-lbl')],
+    }));
 
     const marker = document.createElement('div');
     marker.className = 'annotation-marker';
@@ -282,7 +285,10 @@ describe('StellarMapPreviewComponent pointer state machine', () => {
   it('should grab the already-selected annotation anywhere on its body to drag', () => {
     const component = mountComponent();
     stubLayerRect(layerEl());
-    mockDataService.stellarMapData.update((d) => ({ ...d, annotations: [makeAnnotation('m-sel')] }));
+    mockDataService.stellarMapData.update((d) => ({
+      ...d,
+      annotations: [makeAnnotation('m-sel')],
+    }));
     mockDataService.selectedAnnotationId.set('m-sel');
 
     const marker = document.createElement('div');
@@ -515,6 +521,57 @@ describe('StellarMapPreviewComponent pointer state machine', () => {
 
       const ids = component.visibleAnnotations().map((a) => a.id);
       expect(ids).toEqual(['bright']);
+    });
+  });
+
+  describe('label & distance visibility', () => {
+    const ann: ImageAnnotation = {
+      id: 'a1',
+      xPercent: 50,
+      yPercent: 50,
+      radiusDb: 10,
+      label: 'M 13',
+      name: 'M 13',
+      visible: true,
+      source: 'local',
+      distanceLy: 24135,
+    };
+
+    function setGlobal(patch: Partial<StellarMapData['globalAnnotationSettings']>): void {
+      mockDataService.stellarMapData.update((d) => ({
+        ...d,
+        globalAnnotationSettings: { ...d.globalAnnotationSettings, ...patch },
+        annotations: [ann],
+      }));
+    }
+
+    it('hides all labels when the global show-labels toggle is off', () => {
+      const component = mountComponent();
+      setGlobal({ showLabels: false });
+      expect(component.effectiveShowLabel(ann)).toBeFalse();
+    });
+
+    it('lets a per-annotation override force a label on while global is off', () => {
+      const component = mountComponent();
+      setGlobal({ showLabels: false });
+      expect(component.effectiveShowLabel({ ...ann, style: { showLabel: true } })).toBeTrue();
+    });
+
+    it('shows distance only when the global (or per-annotation) toggle is on', () => {
+      const component = mountComponent();
+      setGlobal({ showDistance: false });
+      expect(component.effectiveShowDistance(ann)).toBeFalse();
+      setGlobal({ showDistance: true });
+      expect(component.effectiveShowDistance(ann)).toBeTrue();
+      expect(
+        component.effectiveShowDistance({ ...ann, style: { showDistance: false } }),
+      ).toBeFalse();
+    });
+
+    it('formats the distance as a compact light-year string', () => {
+      const component = mountComponent();
+      expect(component.formatDistance(ann.distanceLy)).toBe('24,100 ly');
+      expect(component.formatDistance(undefined)).toBe('');
     });
   });
 });

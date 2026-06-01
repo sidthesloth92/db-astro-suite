@@ -22,19 +22,20 @@ import {
   rotateCcwIcon,
   trashIcon,
 } from '@db-astro-suite/ui';
+import { ImageAnnotation } from '../../models/annotation.models';
+import { ViewState } from '../../models/stellar-view.model';
+import { StellarUploadPanelComponent } from '../../panels/stellar-upload/stellar-upload-panel.component';
+import { CardDataService } from '../../services/card-data.service';
+import { ExportCoordinatorService } from '../../services/export-coordinator.service';
 import { findHitAnnotationId } from '../../utils/annotation-hit-test.util';
 import { isNamedAnnotation } from '../../utils/annotation-named.util';
+import { formatLightYears } from '../../utils/format-distance.util';
 import {
   clampZoom,
   IDENTITY_VIEW,
   panByScreenDelta,
   zoomAtPoint,
 } from '../../utils/stellar-view.util';
-import { ImageAnnotation } from '../../models/annotation.models';
-import { ViewState } from '../../models/stellar-view.model';
-import { StellarUploadPanelComponent } from '../../panels/stellar-upload/stellar-upload-panel.component';
-import { CardDataService } from '../../services/card-data.service';
-import { ExportCoordinatorService } from '../../services/export-coordinator.service';
 import { BaseCardPreviewComponent } from '../base-card-preview/base-card-preview';
 import { WHEEL_ZOOM_SENSITIVITY, ZOOM_BUTTON_FACTOR } from './stellar-view.constants';
 
@@ -596,7 +597,7 @@ export class StellarMapPreviewComponent implements OnInit {
   }
 
   effectiveShowLabel(ann: ImageAnnotation): boolean {
-    return ann.style?.showLabel ?? true;
+    return ann.style?.showLabel ?? this.mapData().globalAnnotationSettings.showLabels ?? true;
   }
 
   effectiveShowMagnitude(ann: ImageAnnotation): boolean {
@@ -605,6 +606,20 @@ export class StellarMapPreviewComponent implements OnInit {
       return override;
     }
     return this.mapData().globalAnnotationSettings.showMagnitude ?? false;
+  }
+
+  /** Effective per-annotation distance visibility (override → global). */
+  effectiveShowDistance(ann: ImageAnnotation): boolean {
+    const override = ann.style?.showDistance;
+    if (override !== undefined) {
+      return override;
+    }
+    return this.mapData().globalAnnotationSettings.showDistance ?? false;
+  }
+
+  /** Compact light-year label for an annotation's distance (empty when unknown). */
+  formatDistance(distanceLy: number | undefined): string {
+    return formatLightYears(distanceLy);
   }
 
   getLabelPosition(xPercent: number, yPercent: number): string {
@@ -622,22 +637,67 @@ export class StellarMapPreviewComponent implements OnInit {
 
   // ── Type lookup sets (OpenNGC codes + SIMBAD OTYPEs, all uppercase) ────────
   private static readonly STAR_TYPES = new Set([
-    'STAR', '*', '**', '*ASS',
-    'V*', 'CE*', 'RR*', 'LP*', 'MI*', 'SR*', 'NO*', 'SN*', 'WR*', 'C*',
-    'BE*', 'HB*', 'WD*', 'N*', 'TT*', 'AE*', 'HS*', 'S*', 'SG*', 'S*R',
-    'S*B', 'S*Y', 'EM*', 'OR*',
+    'STAR',
+    '*',
+    '**',
+    '*ASS',
+    'V*',
+    'CE*',
+    'RR*',
+    'LP*',
+    'MI*',
+    'SR*',
+    'NO*',
+    'SN*',
+    'WR*',
+    'C*',
+    'BE*',
+    'HB*',
+    'WD*',
+    'N*',
+    'TT*',
+    'AE*',
+    'HS*',
+    'S*',
+    'SG*',
+    'S*R',
+    'S*B',
+    'S*Y',
+    'EM*',
+    'OR*',
   ]);
   private static readonly GALAXY_TYPES = new Set([
-    'G', 'GPAIR', 'GTRPL', 'GGROUP',
-    'GX', 'GIP', 'GIG', 'GIC', 'BCLG', 'SY*', 'SY1', 'SY2', 'LINER', 'EMG',
+    'G',
+    'GPAIR',
+    'GTRPL',
+    'GGROUP',
+    'GX',
+    'GIP',
+    'GIG',
+    'GIC',
+    'BCLG',
+    'SY*',
+    'SY1',
+    'SY2',
+    'LINER',
+    'EMG',
   ]);
-  private static readonly OPEN_CLUSTER_TYPES = new Set([
-    'OCL', 'CL+N', 'OPC', 'CL*', 'AS*', 'OAS',
-  ]);
+  private static readonly OPEN_CLUSTER_TYPES = new Set(['OCL', 'CL+N', 'OPC', 'CL*', 'AS*', 'OAS']);
   private static readonly GLOB_CLUSTER_TYPES = new Set(['GCL', 'GLC']);
   private static readonly NEBULA_TYPES = new Set([
-    'HII', 'EMN', 'NEB', 'RFN', 'DARKNEB', 'SNR', 'NOVA',
-    'RNE', 'MOC', 'DNE', 'EMO', 'BUB', 'HH',
+    'HII',
+    'EMN',
+    'NEB',
+    'RFN',
+    'DARKNEB',
+    'SNR',
+    'NOVA',
+    'RNE',
+    'MOC',
+    'DNE',
+    'EMO',
+    'BUB',
+    'HH',
   ]);
   private static readonly GALAXY_CLUSTER_TYPES = new Set(['GCLUS', 'CLG']);
   private static readonly QUASAR_TYPES = new Set(['QSO', 'BLA', 'AGN']);

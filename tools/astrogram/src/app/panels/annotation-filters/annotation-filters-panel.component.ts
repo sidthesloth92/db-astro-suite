@@ -3,6 +3,7 @@ import {
   IconComponent,
   InspectorSectionComponent,
   MicroSliderComponent,
+  TooltipDirective,
   checkIcon,
   eyeIcon,
   globeIcon,
@@ -24,7 +25,7 @@ type BooleanFilterKey = Exclude<keyof AnnotationFilters, 'maxStarMagnitude'>;
 @Component({
   selector: 'dba-ag-annotation-filters-panel',
   standalone: true,
-  imports: [InspectorSectionComponent, MicroSliderComponent, IconComponent],
+  imports: [InspectorSectionComponent, MicroSliderComponent, IconComponent, TooltipDirective],
   templateUrl: './annotation-filters-panel.component.html',
   styleUrls: ['./annotation-filters-panel.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -45,12 +46,20 @@ export class AnnotationFiltersPanelComponent {
   /** Current filter state used by the template. */
   readonly filters = computed(() => this.mapData().filters);
 
+  /** Global label/magnitude/distance visibility used by the Display toggles. */
+  readonly settings = computed(() => this.mapData().globalAnnotationSettings);
+
   /** Flips a boolean filter by key. */
   toggle(key: BooleanFilterKey): void {
     this.dataService.stellarMapData.update((d) => ({
       ...d,
       filters: { ...d.filters, [key]: !d.filters[key] },
     }));
+  }
+
+  /** Flips a global label/magnitude/distance visibility setting. */
+  toggleGlobal(key: 'showLabels' | 'showMagnitude' | 'showDistance'): void {
+    this.dataService.updateGlobalAnnotationSettings({ [key]: !this.settings()[key] });
   }
 
   /** Updates the max-magnitude slider. */

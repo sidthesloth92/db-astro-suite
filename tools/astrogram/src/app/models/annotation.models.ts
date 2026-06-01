@@ -13,6 +13,8 @@ export interface ImageAnnotation {
   name?: string;
   commonName?: string;
   magnitude?: number;
+  /** Distance to the object in light-years, when known. */
+  distanceLy?: number;
   /** All coincident designations for this position, best-name-first. */
   aliases?: AnnotationAlias[];
   /** Distinct human-readable category labels (e.g. "Galaxy", "Star"). */
