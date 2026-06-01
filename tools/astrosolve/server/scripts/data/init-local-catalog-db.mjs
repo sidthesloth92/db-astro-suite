@@ -1038,7 +1038,7 @@ async function seedGlobulars(db, insert) {
 function seedCuratedDistances(db) {
   const rows = db
     .prepare(
-      `SELECT id, name FROM objects WHERE distanceLy IS NULL AND catalog IN ('NGC/IC','M','Sh2','Neb','LBN','LDN')`,
+      `SELECT id, name FROM objects WHERE distanceLy IS NULL AND catalog IN ('NGC/IC','M','Sh2','Neb','LBN','LDN','Barnard')`,
     )
     .all();
   const update = db.prepare("UPDATE objects SET distanceLy = ? WHERE id = ?");
