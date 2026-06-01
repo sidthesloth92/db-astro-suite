@@ -13,15 +13,19 @@ import {
 export type TooltipPlacement = 'top' | 'bottom';
 
 /**
- * Lightweight, reusable hover tooltip. A snappier replacement for the native
+ * Lightweight, reusable tooltip. A snappier replacement for the native
  * `title` attribute (which has a ~1s browser delay and unstyled chrome): bind
  * `[dbaTooltip]` with the text to show. Multi-line text is supported
- * (newline-separated). The floating element is created on hover and appended to
- * `<body>`, positioned against the host's bounding box and clamped to the
+ * (newline-separated). The floating element is created on demand and appended
+ * to `<body>`, positioned against the host's bounding box and clamped to the
  * viewport; it is click-through and themed via `/libs/theme` tokens.
  *
- * SSR-safe: all DOM work happens in mouse handlers, which only fire in a
- * browser.
+ * Mouse/pen show it on hover and hide on leave. Touch devices have no hover, so
+ * a tap on the host toggles it; it then dismisses on the next interaction
+ * outside the host.
+ *
+ * SSR-safe: all DOM work happens in pointer/click handlers, which only fire in
+ * a browser.
  */
 @Directive({
   selector: '[dbaTooltip]',
@@ -41,10 +45,57 @@ export class TooltipDirective implements OnDestroy {
 
   private tip: HTMLElement | null = null;
   private timer: ReturnType<typeof setTimeout> | null = null;
+  private outsideUnlisten: (() => void) | null = null;
+  private lastPointerType = '';
 
-  /** Schedules the tooltip to appear after the configured delay. */
-  @HostListener('mouseenter')
-  onEnter(): void {
+  /** Records the pointer kind so {@link onClick} can tell a tap from a click. */
+  @HostListener('pointerdown', ['$event'])
+  onPointerDown(event: PointerEvent): void {
+    this.lastPointerType = event.pointerType;
+  }
+
+  /**
+   * Mouse/pen hover schedules a delayed show. Touch pointers have no hover, so
+   * they are ignored here — taps are handled by {@link onClick} instead.
+   */
+  @HostListener('pointerenter', ['$event'])
+  onPointerEnter(event: PointerEvent): void {
+    if (event.pointerType === 'touch') {
+      return;
+    }
+    this.scheduleShow();
+  }
+
+  /** Mouse/pen leaving the host dismisses the tooltip. */
+  @HostListener('pointerleave', ['$event'])
+  onPointerLeave(event: PointerEvent): void {
+    if (event.pointerType === 'touch') {
+      return;
+    }
+    this.hide();
+  }
+
+  /**
+   * Click handling. On touch (no hover) a tap toggles the tooltip — the only
+   * way to surface it on a phone. On mouse/pen it is already visible from
+   * hover, so a click simply dismisses it.
+   */
+  @HostListener('click')
+  onClick(): void {
+    if (this.lastPointerType === 'touch' && !this.tip) {
+      this.showNow();
+    } else {
+      this.hide();
+    }
+  }
+
+  /** @inheritDoc */
+  ngOnDestroy(): void {
+    this.hide();
+  }
+
+  /** Schedules the tooltip to appear after the configured delay (hover). */
+  private scheduleShow(): void {
     const text = this.dbaTooltip().trim();
     if (!text) {
       return;
@@ -53,16 +104,14 @@ export class TooltipDirective implements OnDestroy {
     this.timer = setTimeout(() => this.show(text), this.tooltipDelay());
   }
 
-  /** Dismisses the tooltip on leave or click. */
-  @HostListener('mouseleave')
-  @HostListener('click')
-  onLeave(): void {
-    this.hide();
-  }
-
-  /** @inheritDoc */
-  ngOnDestroy(): void {
-    this.hide();
+  /** Shows the tooltip immediately — used by tap-to-open on touch devices. */
+  private showNow(): void {
+    const text = this.dbaTooltip().trim();
+    if (!text) {
+      return;
+    }
+    this.clearTimer();
+    this.show(text);
   }
 
   /** Builds, styles, mounts and positions the tooltip element. */
@@ -76,6 +125,7 @@ export class TooltipDirective implements OnDestroy {
     this.renderer.setProperty(tip, 'textContent', text);
     this.renderer.appendChild(this.doc.body, tip);
     this.tip = tip;
+    this.attachOutsideDismiss();
     this.position();
     // Fade in after layout so the transition runs.
     this.doc.defaultView?.requestAnimationFrame(() => {
@@ -134,9 +184,26 @@ export class TooltipDirective implements OnDestroy {
     set('transition', 'opacity 0.12s ease');
   }
 
-  /** Removes the tooltip element and cancels any pending show. */
+  /**
+   * While the tooltip is open, dismiss it on the next pointer interaction
+   * outside the host — the primary way a tapped (touch) tooltip is closed.
+   */
+  private attachOutsideDismiss(): void {
+    this.outsideUnlisten = this.renderer.listen('document', 'pointerdown', (event: Event) => {
+      const target = event.target;
+      if (target instanceof Node && !this.host.nativeElement.contains(target)) {
+        this.hide();
+      }
+    });
+  }
+
+  /** Removes the tooltip, the outside-dismiss listener, and any pending show. */
   private hide(): void {
     this.clearTimer();
+    if (this.outsideUnlisten) {
+      this.outsideUnlisten();
+      this.outsideUnlisten = null;
+    }
     if (this.tip) {
       this.renderer.removeChild(this.doc.body, this.tip);
       this.tip = null;

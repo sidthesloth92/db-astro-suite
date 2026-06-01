@@ -201,7 +201,7 @@
 
 .cta--primary {
   background: var(--db-color-neon-pink);
-  color: var(--db-color-space-black);
+  color: var(--db-color-text-primary);
 }
 
 .cta--primary:hover {
