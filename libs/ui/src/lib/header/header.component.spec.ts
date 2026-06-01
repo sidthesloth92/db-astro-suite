@@ -8,6 +8,7 @@ import { HeaderComponent } from './header.component';
   template: `
     <dba-ui-header
       [title]="title"
+      [titleAccent]="titleAccent"
       [version]="version"
       [logoSrc]="logoSrc"
       [tagline]="tagline"
@@ -19,6 +20,7 @@ import { HeaderComponent } from './header.component';
 })
 class HostComponent {
   title = 'starwizz';
+  titleAccent = '';
   version = '1.2.3';
   logoSrc = 'assets/img/sw.png';
   tagline = 'Cinematic Starfield Generator';
@@ -36,6 +38,30 @@ describe('HeaderComponent', () => {
     // than a dedicated `.brand-version` span. The pill's slotted content
     // includes the "v" prefix.
     expect(root.querySelector('dba-ui-pill-badge')?.textContent?.trim()).toBe('v1.2.3');
+  });
+
+  it('splits the title into white base and accent suffix when titleAccent is a suffix', () => {
+    TestBed.configureTestingModule({ imports: [HostComponent] });
+    const fixture = TestBed.createComponent(HostComponent);
+    fixture.componentInstance.title = 'STARWIZZ';
+    fixture.componentInstance.titleAccent = 'WIZZ';
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('.brand-title-base')?.textContent?.trim()).toBe('STAR');
+    expect(root.querySelector('.brand-title-accent')?.textContent?.trim()).toBe('WIZZ');
+    // Full title preserved for accessibility / overall text content.
+    expect(root.querySelector('.brand-title')?.textContent?.trim()).toBe('STARWIZZ');
+  });
+
+  it('renders the whole title in one span when titleAccent is not a suffix', () => {
+    TestBed.configureTestingModule({ imports: [HostComponent] });
+    const fixture = TestBed.createComponent(HostComponent);
+    fixture.componentInstance.title = 'STARWIZZ';
+    fixture.componentInstance.titleAccent = 'NOPE';
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('.brand-title-accent')).toBeNull();
+    expect(root.querySelector('.brand-title')?.textContent?.trim()).toBe('STARWIZZ');
   });
 
   it('projects [slot=center] content between brand and actions', () => {

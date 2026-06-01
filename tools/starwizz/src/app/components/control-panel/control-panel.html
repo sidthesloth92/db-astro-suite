@@ -9,7 +9,7 @@
       <span
         class="help-icon"
         tabindex="0"
-        [attr.title]="formatHelp"
+        [attr.data-tip]="formatHelp"
         [attr.aria-label]="formatHelp"
       >
         <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
@@ -24,14 +24,198 @@
     ></dba-ui-select>
   </div>
 
-  @for (control of controlNames; track control) {
+  <div class="format-row">
+    <div class="format-label-row">
+      <label class="row-label">Direction</label>
+      <span
+        class="help-icon"
+        tabindex="0"
+        [attr.data-tip]="directionHelp"
+        [attr.aria-label]="directionHelp"
+      >
+        <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
+      </span>
+    </div>
+    <dba-ui-select
+      label=""
+      [noBox]="true"
+      [value]="simService.travelDirection()"
+      [options]="directionOptions"
+      (valueChange)="updateDirection($event)"
+    ></dba-ui-select>
+  </div>
+
+  @if (simService.isPathMode()) {
+    <div class="path-section">
+      <div class="format-label-row">
+        <label class="row-label">Custom Path (A→B)</label>
+        <span class="help-icon" tabindex="0" [attr.data-tip]="pathHelp" [attr.aria-label]="pathHelp">
+          <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
+        </span>
+      </div>
+
+      @if (!simService.pathFinalized()) {
+        <p class="path-hint">Drag the preview to pan · scroll to zoom</p>
+
+        <div class="slider-row">
+          <div class="slider-label-row">
+            <label class="row-label">Zoom</label>
+            <span class="row-value">{{ liveZoom().toFixed(2) }}×</span>
+          </div>
+          <dba-ui-micro-slider
+            [value]="liveZoom()"
+            [min]="zoomMin"
+            [max]="zoomMax"
+            [step]="zoomStep"
+            [showReadout]="false"
+            (valueChange)="updateZoom($event)"
+          ></dba-ui-micro-slider>
+        </div>
+
+        <div class="path-keyframes">
+          <dba-ui-text-button
+            [label]="simService.cameraStart() ? 'Start A ✓' : 'Set Start A'"
+            [variant]="simService.cameraStart() ? 'primary' : 'secondary'"
+            size="sm"
+            (clicked)="setStart()"
+          ></dba-ui-text-button>
+          <dba-ui-text-button
+            [label]="simService.cameraEnd() ? 'End B ✓' : 'Set End B'"
+            [variant]="simService.cameraEnd() ? 'primary' : 'secondary'"
+            size="sm"
+            (clicked)="setEnd()"
+          ></dba-ui-text-button>
+        </div>
+
+        <div class="panel-actions">
+          <dba-ui-text-button
+            label="Set Path"
+            variant="primary"
+            size="sm"
+            [disabled]="!simService.canPlayPath()"
+            (clicked)="fixPath()"
+          ></dba-ui-text-button>
+          <dba-ui-text-button
+            label="Reset Points"
+            variant="secondary"
+            size="sm"
+            [disabled]="!simService.cameraStart() && !simService.cameraEnd()"
+            (clicked)="resetPoints()"
+          ></dba-ui-text-button>
+        </div>
+      } @else {
+        <p class="path-hint">Path fixed · plays A→B once. Reset Animation to replay · Edit Path to recompose.</p>
+      }
+
+      <div class="slider-row">
+        <div class="slider-label-row">
+          <label class="row-label">Camera Speed</label>
+          <span
+            class="help-icon"
+            tabindex="0"
+            [attr.data-tip]="cameraSpeedHelp"
+            [attr.aria-label]="cameraSpeedHelp"
+          >
+            <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
+          </span>
+          <span class="row-value">{{ speedValue() }} px/s</span>
+        </div>
+        <dba-ui-micro-slider
+          [value]="speedValue()"
+          [min]="speedMin"
+          [max]="speedMax"
+          [step]="speedStep"
+          [showReadout]="false"
+          (valueChange)="updateSpeed($event)"
+        ></dba-ui-micro-slider>
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-label-row">
+          <label class="row-label">Duration</label>
+          <span
+            class="help-icon"
+            tabindex="0"
+            [attr.data-tip]="durationHelp"
+            [attr.aria-label]="durationHelp"
+          >
+            <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
+          </span>
+          <span class="row-value">{{ durationValue() }} s</span>
+        </div>
+        <dba-ui-micro-slider
+          [value]="durationValue()"
+          [min]="durationMin"
+          [max]="durationMax"
+          [step]="durationStep"
+          [showReadout]="false"
+          (valueChange)="updateDuration($event)"
+        ></dba-ui-micro-slider>
+      </div>
+
+      @if (showSidewaysDrift) {
+        <div class="record-aux">
+          <dba-ui-switch
+            ariaLabel="Sideways star drift"
+            [checked]="simService.starLateralOn()"
+            (checkedChange)="setStarLateral($event)"
+          ></dba-ui-switch>
+          <span class="record-aux-label">Sideways drift</span>
+          <span
+            class="help-icon"
+            tabindex="0"
+            [attr.data-tip]="starDriftHelp"
+            [attr.aria-label]="starDriftHelp"
+          >
+            <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
+          </span>
+        </div>
+
+        @if (simService.starLateralOn()) {
+          <div class="slider-row">
+            <div class="slider-label-row">
+              <label class="row-label">Drift Angle</label>
+              <span class="row-value">{{ simService.starDirectionDeg() }}°</span>
+            </div>
+            <dba-ui-micro-slider
+              [value]="simService.starDirectionDeg()"
+              [min]="angleMin"
+              [max]="angleMax"
+              [step]="angleStep"
+              [showReadout]="false"
+              (valueChange)="updateStarDirection($event)"
+            ></dba-ui-micro-slider>
+          </div>
+        }
+      }
+
+      @if (simService.pathFinalized()) {
+        <div class="panel-actions">
+          <dba-ui-text-button
+            label="Edit Path"
+            variant="secondary"
+            size="sm"
+            (clicked)="editPath()"
+          ></dba-ui-text-button>
+          <dba-ui-text-button
+            label="Reset Points"
+            variant="secondary"
+            size="sm"
+            (clicked)="resetPoints()"
+          ></dba-ui-text-button>
+        </div>
+      }
+    </div>
+  }
+
+  @for (control of visibleControlNames(); track control) {
     <div class="slider-row">
       <div class="slider-label-row">
         <label class="row-label">{{ controlConfig[control].label }}</label>
         <span
           class="help-icon"
           tabindex="0"
-          [attr.title]="controlConfig[control].description"
+          [attr.data-tip]="controlConfig[control].description"
           [attr.aria-label]="controlConfig[control].description"
         >
           <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
@@ -93,7 +277,7 @@
       <span
         class="help-icon"
         tabindex="0"
-        [attr.title]="fromBeginningHelp"
+        [attr.data-tip]="fromBeginningHelp"
         [attr.aria-label]="fromBeginningHelp"
       >
         <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
