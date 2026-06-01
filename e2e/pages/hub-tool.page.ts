@@ -33,9 +33,14 @@ export class HubToolPage {
     return this.page.getByRole("heading", { level: 2, name });
   }
 
-  /** Every feature-card title (`<h3>`) — the "what it does" grid contract. */
+  /**
+   * Every feature-card title (`<h3>`) — the "what it does" grid contract.
+   * Scoped to the feature `<article>` cards so it excludes any other `<h3>`
+   * a tool page may project into the output section (e.g. Astrogram's
+   * "Plate Solving" / "Infographic" output-pair titles).
+   */
   getFeatureHeadings(): Locator {
-    return this.page.getByRole("heading", { level: 3 });
+    return this.page.getByRole("article").getByRole("heading", { level: 3 });
   }
 
   /** Every "how it works" step title (`<h4>`). */
