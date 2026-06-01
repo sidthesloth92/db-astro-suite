@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { AnalyticsService } from '@db-astro-suite/ui';
 
 import { Simulator } from './simulator';
 
@@ -8,7 +9,8 @@ describe('Simulator', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Simulator]
+      imports: [Simulator],
+      providers: [{ provide: AnalyticsService, useValue: {} }],
     })
     .compileComponents();
 

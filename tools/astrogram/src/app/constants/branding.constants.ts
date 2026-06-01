@@ -7,6 +7,9 @@
 /** Wordmark rendered in the header brand cluster. */
 export const ASTROGRAM_TITLE = 'astrogram';
 
+/** Trailing portion of the wordmark rendered in the accent colour (white "astro" + pink "gram"). */
+export const ASTROGRAM_TITLE_ACCENT = 'gram';
+
 /** Tagline rendered next to the wordmark on desktop. */
 export const ASTROGRAM_TAGLINE = 'Professional Exposure Cards';
 

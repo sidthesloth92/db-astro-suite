@@ -53,6 +53,17 @@
   white-space: nowrap;
 }
 
+/* Two-colour title: leading part white, trailing accent part pink (with glow).
+   Only used when a `titleAccent` suffix is provided. */
+.brand-title-base {
+  color: var(--db-color-text-primary);
+  text-shadow: none;
+}
+
+.brand-title-accent {
+  color: var(--db-color-neon-pink);
+}
+
 .brand-separator {
   display: inline-block;
   width: 1px;

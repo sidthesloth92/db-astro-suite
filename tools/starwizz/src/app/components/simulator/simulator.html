@@ -25,5 +25,15 @@
   }
 
   <!-- Only the canvas remains here -->
-  <canvas #starCanvas class="star-canvas"></canvas>
+  <canvas
+    #starCanvas
+    class="star-canvas"
+    [class.path-mode]="simService.isPathMode()"
+    [class.dragging]="isDragging()"
+    (pointerdown)="onCanvasPointerDown($event)"
+    (pointermove)="onCanvasPointerMove($event)"
+    (pointerup)="onCanvasPointerUp()"
+    (pointerleave)="onCanvasPointerUp()"
+    (wheel)="onCanvasWheel($event)"
+  ></canvas>
 </div>

@@ -32,6 +32,16 @@
   z-index: 10;
 }
 
+/* Custom Path mode: the preview is draggable to pan / scrollable to zoom. */
+.star-canvas.path-mode {
+  cursor: grab;
+  touch-action: none;
+}
+
+.star-canvas.path-mode.dragging {
+  cursor: grabbing;
+}
+
 @media (max-width: 1079px) {
   :host {
     flex: 1;

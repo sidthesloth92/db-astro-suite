@@ -1,4 +1,10 @@
-import { ControlKey, ControlMetadata } from '../models/simulation.model';
+import { SelectItem } from '@db-astro-suite/ui';
+import {
+  ControlKey,
+  ControlMetadata,
+  StarMotionDefaults,
+  TravelDirection,
+} from '../models/simulation.model';
 
 export const CANVAS_DIMENSIONS = {
   width: 1080,
@@ -68,11 +74,14 @@ export const CONTROLS: Record<ControlKey, ControlMetadata> = {
   starSpeed: {
     label: 'Star Speed',
     description: 'Controls the movement speed of background stars that create depth.',
-    min: 0.1,
-    max: 5,
-    step: 0.1,
-    initial: 0.6,
+    min: 0.5,
+    max: 10,
+    step: 0.5,
+    initial: 5,
     precision: 1,
+    // Slider 5 maps to the previous sweet-spot internal speed of 0.6 (0.6 / 5),
+    // giving symmetric headroom to speed up (→10) or slow down (→0.5).
+    internalMultiplier: 0.12,
   },
   baseStarSize: {
     label: 'Star Size Multiplier',
@@ -83,4 +92,110 @@ export const CONTROLS: Record<ControlKey, ControlMetadata> = {
     initial: 10,
     precision: 1,
   },
+  starCount: {
+    label: 'Star Count',
+    description:
+      'Controls how many background stars are generated. Higher values create a denser starfield.',
+    min: 500,
+    max: 2000,
+    step: 100,
+    initial: 1000,
+    precision: 0,
+  },
 };
+
+/**
+ * Per-direction unit velocity applied to each star (and to the galaxy pan).
+ * `z` is depth (negative = toward the viewer), `x`/`y` are lateral world axes.
+ */
+export const DIRECTION_VECTORS: Record<TravelDirection, { x: number; y: number; z: number }> = {
+  forward: { x: 0, y: 0, z: -1 },
+  backward: { x: 0, y: 0, z: 1 },
+  left: { x: -1, y: 0, z: 0 },
+  right: { x: 1, y: 0, z: 0 },
+  up: { x: 0, y: -1, z: 0 },
+  down: { x: 0, y: 1, z: 0 },
+  // Custom Path carries no preset vector — star motion comes from the path.
+  path: { x: 0, y: 0, z: 0 },
+};
+
+/** Lower bound of the galaxy zoom ramp (upper bound `TARGET_SCALE` lives in the simulator). */
+export const MIN_SCALE = 1.0;
+
+/**
+ * Multiplier applied to lateral star drift. Matched to {@link STAR_DEPTH_FACTOR}
+ * so lateral and depth motion move at the same per-frame speed — Star Speed 5
+ * stays the original calibrated "normal" feel, and combined zoom+pan paths show
+ * both components equally instead of the pan swamping the depth.
+ */
+export const STAR_LATERAL_FACTOR = 1;
+
+/**
+ * Multiplier applied to the radial depth (in/out) star motion. Kept at 1 so the
+ * depth speed matches the original calibrated feel (the Star Speed slider value
+ * maps directly to the per-frame z step).
+ */
+export const STAR_DEPTH_FACTOR = 1;
+
+/**
+ * Galaxy (DSO) lateral pan factor, applied to `starSpeed`. Kept far below
+ * {@link STAR_LATERAL_FACTOR} so the backdrop is by far the slowest-moving
+ * layer — a deep, distant object that only creeps while the stars stream past
+ * it, giving a strong parallax depth cue without racing to the overscan edge.
+ */
+export const GALAXY_PAN_FACTOR = 0.15;
+
+/** Travel-direction options for the control-panel select. */
+export const DIRECTION_OPTIONS: readonly SelectItem[] = [
+  { label: 'Forward (into scene)', value: 'forward' },
+  { label: 'Backward (away)', value: 'backward' },
+  { label: 'Left', value: 'left' },
+  { label: 'Right', value: 'right' },
+  { label: 'Up', value: 'up' },
+  { label: 'Down', value: 'down' },
+  { label: 'Custom Path (A→B)', value: 'path' },
+];
+
+/**
+ * Star-motion defaults applied when each travel direction is selected. The
+ * lateral angle uses 0 = right, 90 = up, 180 = left, 270 = down. Forward/Backward
+ * are pure depth (no lateral drift); `path` is a placeholder overridden from the
+ * actual A→B framing when the path is set.
+ */
+export const DIRECTION_STAR_DEFAULTS: Record<TravelDirection, StarMotionDefaults> = {
+  forward: { depth: 'out', angleDeg: 0, lateralOn: false },
+  backward: { depth: 'in', angleDeg: 0, lateralOn: false },
+  right: { depth: 'none', angleDeg: 0, lateralOn: true },
+  left: { depth: 'none', angleDeg: 180, lateralOn: true },
+  up: { depth: 'none', angleDeg: 90, lateralOn: true },
+  down: { depth: 'none', angleDeg: 270, lateralOn: true },
+  // Custom Path starts off (no motion) until derived from the A→B framing.
+  path: { depth: 'none', angleDeg: 0, lateralOn: false },
+};
+
+/** Sideways-drift angle slider bounds/step (degrees). */
+export const STAR_ANGLE_MIN = 0;
+export const STAR_ANGLE_MAX = 360;
+export const STAR_ANGLE_STEP = 5;
+
+// ==================== Custom Path (A→B) tunables ====================
+
+/** Maximum zoom scale reachable by the path zoom slider / wheel. */
+export const MAX_ZOOM = 5;
+
+/** Travel-speed bounds for a Custom Path glide, in world px per second. */
+export const PATH_SPEED_MIN = 20;
+export const PATH_SPEED_MAX = 800;
+export const PATH_SPEED_STEP = 10;
+export const PATH_SPEED_DEFAULT = 150;
+
+/** A→B duration bounds (seconds) used by the linked Speed ⇄ Duration fields. */
+export const PATH_DURATION_MIN = 0.5;
+export const PATH_DURATION_MAX = 30;
+
+/**
+ * Weight applied to the zoom (scale) difference when measuring the A→B
+ * "distance" for the Speed ⇄ Duration link, converting a unit of scale into
+ * comparable world-px so a pure zoom move still has a sensible duration.
+ */
+export const PATH_SCALE_DISTANCE_WEIGHT = 600;
