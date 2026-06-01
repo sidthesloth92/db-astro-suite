@@ -2,30 +2,69 @@
   <img mark class="tool-mark" src="assets/img/astrogram.png" alt="Astrogram logo" />
 
   <div preview>
-    <dba-hub-demo-frame label="astrogram.app" status="Preview" [live]="true">
+    <!-- TODO(demo): placeholder reuses astrogram_demo.jpg; swap in a captured annotated Stellar Map when ready. -->
+    <dba-hub-demo-frame label="astrogram.app / stellar map" status="Solved" [live]="true">
       <img
         class="demo-media"
         src="assets/img/astrogram_demo.jpg"
-        alt="Astrogram exposure card sample"
+        alt="Astrogram plate-solved Stellar Map with labelled objects and light-year distances"
       />
     </dba-hub-demo-frame>
   </div>
 
   <div output>
-    <dba-hub-demo-frame label="astrogram.app / export" status="JPEG">
-      <button
-        type="button"
-        class="demo-media-btn"
-        (click)="openLightbox()"
-        aria-label="Expand the exposure card output"
-      >
-        <img
-          class="demo-media"
-          src="assets/img/astrogram_demo.jpg"
-          alt="Astrogram exposure card output"
-        />
-      </button>
-    </dba-hub-demo-frame>
+    <div class="output-pair">
+      <figure class="output-pair__item">
+        <h3 class="output-pair__title">
+          <span class="output-pair__title-accent">Plate</span> Solving
+        </h3>
+        <!-- TODO(demo): placeholder reuses astrogram_demo.jpg; swap in a captured plate-solved annotated image when ready. -->
+        <dba-hub-demo-frame label="astrogram.app / annotated">
+          <button
+            type="button"
+            class="demo-media-btn"
+            (click)="
+              openLightbox(
+                'assets/img/astrogram_demo.jpg',
+                'Astrogram plate-solved annotated image with labelled objects and light-year distances'
+              )
+            "
+            aria-label="Expand the plate-solved annotated image"
+          >
+            <img
+              class="demo-media"
+              src="assets/img/astrogram_demo.jpg"
+              alt="Astrogram plate-solved annotated image with labelled objects and light-year distances"
+            />
+          </button>
+        </dba-hub-demo-frame>
+      </figure>
+
+      <figure class="output-pair__item">
+        <h3 class="output-pair__title">
+          <span class="output-pair__title-accent">Info</span>graphic
+        </h3>
+        <dba-hub-demo-frame label="astrogram.app / card">
+          <button
+            type="button"
+            class="demo-media-btn"
+            (click)="
+              openLightbox(
+                'assets/img/astrogram_demo.jpg',
+                'Astrogram infographic exposure card output'
+              )
+            "
+            aria-label="Expand the infographic exposure card"
+          >
+            <img
+              class="demo-media"
+              src="assets/img/astrogram_demo.jpg"
+              alt="Astrogram infographic exposure card output"
+            />
+          </button>
+        </dba-hub-demo-frame>
+      </figure>
+    </div>
   </div>
 </dba-hub-tool-detail>
 
@@ -34,7 +73,7 @@
     class="demo-lightbox"
     role="dialog"
     aria-modal="true"
-    aria-label="Exposure card preview"
+    [attr.aria-label]="lightboxAlt()"
     (click)="closeLightbox()"
     (keydown.escape)="closeLightbox()"
     tabindex="-1"
@@ -43,8 +82,8 @@
       &#x2715;
     </button>
     <img
-      src="assets/img/astrogram_demo.jpg"
-      alt="Astrogram exposure card output"
+      [src]="lightboxSrc()"
+      [alt]="lightboxAlt()"
       class="demo-lightbox__image"
       (click)="$event.stopPropagation()"
     />

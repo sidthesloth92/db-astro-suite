@@ -107,8 +107,8 @@ export interface ToolDetailConfig {
 
   /** Kicker for the Output section. */
   readonly outputKicker: string;
-  /** Title for the Output section. */
-  readonly outputTitle: string;
+  /** Optional title for the Output section. Omit to let projected per-item headers stand alone. */
+  readonly outputTitle?: string;
   /** Optional small meta beside the Output title. */
   readonly outputMeta?: string;
   /** Optional caption beneath the projected output media. */

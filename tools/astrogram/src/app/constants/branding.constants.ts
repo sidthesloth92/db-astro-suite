@@ -22,5 +22,5 @@ export const ASTROGRAM_GITHUB_HREF = 'https://github.com/sidthesloth92/db-astro-
 /** External link to the author's personal site (rendered as "About me"). */
 export const ASTROGRAM_ABOUT_HREF = 'https://dineshbalajiv.com';
 
-/** Internal link target for the header brand (logo + title). */
-export const ASTROGRAM_BRAND_HREF = '/astrogram/';
+/** Link target for the header brand (logo + title) — returns to the hub's Astrogram tool page. */
+export const ASTROGRAM_BRAND_HREF = '/tool/astrogram';

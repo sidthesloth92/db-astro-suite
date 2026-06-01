@@ -16,7 +16,7 @@ import { ASTROGRAM_LAUNCH_URL } from './tool.constants';
 /**
  * Astrogram tool page — premium redesign on the shared `ToolDetailComponent`.
  * Provides the brand mark + demo media via content projection and keeps a
- * click-to-expand lightbox for the exposure-card output photo.
+ * click-to-expand lightbox for the plate-solved and exposure-card outputs.
  */
 @Component({
   selector: 'dba-hub-astrogram-tool',
@@ -33,6 +33,12 @@ export default class AstroGramPage {
   /** Whether the demo lightbox is currently open. */
   protected readonly isLightboxOpen = signal(false);
 
+  /** Source of the image currently shown in the lightbox. */
+  protected readonly lightboxSrc = signal('');
+
+  /** Alt text for the image currently shown in the lightbox. */
+  protected readonly lightboxAlt = signal('');
+
   private readonly analytics = inject(AnalyticsService);
   private readonly document = inject(DOCUMENT);
 
@@ -47,8 +53,10 @@ export default class AstroGramPage {
     this.analytics.trackHubLaunchToolClicked('astrogram', ASTROGRAM_LAUNCH_URL);
   }
 
-  /** Opens the demo lightbox and locks body scroll. */
-  openLightbox(): void {
+  /** Opens the demo lightbox for the given image and locks body scroll. */
+  openLightbox(src: string, alt: string): void {
+    this.lightboxSrc.set(src);
+    this.lightboxAlt.set(alt);
     this.isLightboxOpen.set(true);
     this.document.body.style.overflow = 'hidden';
   }

@@ -1,10 +1,12 @@
 import {
   cameraIcon,
+  cropIcon,
   gaugeIcon,
-  layersIcon,
   rotateCcwIcon,
   sparklesIcon,
   starsIcon,
+  uploadIcon,
+  wandIcon,
 } from '@db-astro-suite/ui';
 import type { ToolDetailConfig } from '../../components/tool-detail/tool-detail.model';
 import { GITHUB_REPO_URL, STARWIZZ_LAUNCH_URL } from './tool.constants';
@@ -39,7 +41,7 @@ export const STARWIZZ_DETAIL: ToolDetailConfig = {
     { value: '4K', label: 'Resolution' },
     { value: '~Mins', label: 'Time to clip' },
     { value: 'None', label: 'Install' },
-    { value: 'MP4', label: 'Output' },
+    { value: '9', label: 'Formats' },
   ],
 
   aboutKicker: 'Overview',
@@ -47,8 +49,8 @@ export const STARWIZZ_DETAIL: ToolDetailConfig = {
   aboutMeta: 'The longer story',
   about: [
     'Creating a cinematic space background used to require 3D software, stock-footage subscriptions, or a graphics team. For astrophotographers, content creators, and educators working alone, none of those options are quick or free. Starwizz collapses all of that into a single browser tab.',
-    'It’s a real-time starfield and galaxy engine. You shape the scene with a handful of intuitive controls — star density, travel velocity, rotation, zoom, nebula overlays and shooting-star frequency — and the Canvas responds instantly, so the preview you’re watching is exactly what gets recorded.',
-    'When the look is right, Starwizz captures the animation at full 4K directly in the browser via the MediaRecorder API and hands you a clean, perfectly looping MP4. Drop it behind a title sequence, a presentation, a music visualiser, or a social post.',
+    'It’s a real-time starfield and galaxy engine. Upload your own galaxy or nebula image as the backdrop, then shape the scene with intuitive controls — star density, travel speed and direction, rotation, zoom and shooting-star frequency. Want something more deliberate? Frame a custom A→B camera path and Starwizz glides a smooth, cinematic move between your two framings. The Canvas responds instantly, so the preview you’re watching is exactly what gets recorded.',
+    'When the look is right, pick your platform format — Reels, Shorts, TikTok, square, portrait or full 16:9 4K — and Starwizz captures the animation directly in the browser via the MediaRecorder API, handing you a clean, perfectly looping MP4. Drop it behind a title sequence, a presentation, a music visualiser, or a social post.',
     'No installs, no render farm, no account. Just open the page, dial in a galaxy, and walk away with a cinematic background in minutes.',
   ],
   aboutPull:
@@ -62,18 +64,28 @@ export const STARWIZZ_DETAIL: ToolDetailConfig = {
     },
     {
       icon: gaugeIcon,
-      name: 'Velocity vectors',
-      body: 'Adjust travel speed to transition from a slow gentle drift to full high-warp effects.',
+      name: 'Camera travel & direction',
+      body: 'Fly forward or back, or drift left, right, up and down with real parallax — and dial the travel speed.',
     },
     {
       icon: rotateCcwIcon,
       name: 'Rotational dynamics',
-      body: 'Fine-tune camera rotation to create chaotic orbits or smooth, stable traversals.',
+      body: 'Fine-tune camera rotation and zoom to create chaotic orbits or smooth, stable traversals.',
     },
     {
-      icon: layersIcon,
-      name: 'Nebula overlays',
-      body: 'Layer dynamic nebula clouds over the field for a galaxy backdrop with real depth.',
+      icon: wandIcon,
+      name: 'Custom camera path (A→B)',
+      body: 'Set a start and end framing and Starwizz glides a smooth, cinematic move between them — with linked camera speed and duration.',
+    },
+    {
+      icon: cropIcon,
+      name: 'Multi-format export',
+      body: 'One-click presets for Instagram Reels & Stories, square and portrait, TikTok, YouTube Shorts & 16:9, 4K, and Snapchat.',
+    },
+    {
+      icon: uploadIcon,
+      name: 'Upload your own backdrop',
+      body: 'Drop in any galaxy or nebula image as the moving background, or roll with the built-in demo starfield.',
     },
     {
       icon: sparklesIcon,
@@ -89,20 +101,20 @@ export const STARWIZZ_DETAIL: ToolDetailConfig = {
 
   steps: [
     {
-      title: 'Choose a scene type',
-      body: 'Pure deep-space starfield or a galaxy background with dynamic nebula overlays.',
+      title: 'Set your backdrop',
+      body: 'Upload your own galaxy or nebula image, or start from the built-in deep-space starfield.',
     },
     {
       title: 'Set your parameters',
-      body: 'Dial star density, velocity, rotation, zoom and shooting-star frequency in the live HUD.',
+      body: 'Dial star density, travel speed and direction, rotation, zoom and shooting-star frequency — or frame a custom A→B camera path.',
     },
     {
       title: 'Preview live',
       body: 'The Canvas renderer updates instantly — what you see is exactly what records.',
     },
     {
-      title: 'Record at 4K',
-      body: 'Hit record and Starwizz captures full 4K in-browser via the MediaRecorder API.',
+      title: 'Pick a format & record',
+      body: 'Choose your platform format, hit record and Starwizz captures up to 4K in-browser via the MediaRecorder API.',
     },
     {
       title: 'Download and use',
@@ -111,7 +123,7 @@ export const STARWIZZ_DETAIL: ToolDetailConfig = {
   ],
 
   outputKicker: 'See it in motion',
-  outputTitle: 'The output.',
+  outputTitle: 'The output',
   outputMeta: 'Looping 4K · MP4',
   outputCaption:
     'A perfectly looped 4K starfield — drop it behind a title, reel, or presentation.',
