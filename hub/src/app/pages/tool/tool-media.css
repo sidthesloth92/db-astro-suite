@@ -1,0 +1,128 @@
+/*
+ * Shared media styles for the hub tool detail pages — the hero brand mark,
+ * the demo media inside the browser-chrome frames, and the click-to-expand
+ * lightbox. Imported by each per-tool page CSS.
+ */
+
+.tool-mark {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.demo-media {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.demo-media-btn {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}
+
+.demo-media-btn:focus-visible {
+  outline: 2px solid var(--db-color-cyan);
+  outline-offset: 3px;
+}
+
+.demo-media-btn img {
+  transition: opacity 180ms ease;
+}
+
+.demo-media-btn:hover img {
+  opacity: 0.9;
+}
+
+/* ===== Terminal block (CLI demos) ===== */
+.term {
+  margin: 0;
+  padding: 22px 20px;
+  background: var(--db-color-surface-bg);
+  font-family: var(--db-font-mono-code);
+  font-size: 12.5px;
+  line-height: 1.85;
+  letter-spacing: 0.02em;
+  color: var(--db-color-text-dim);
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.term__prompt {
+  color: var(--db-color-cyan);
+}
+
+.term__ok {
+  color: var(--db-color-text-primary);
+}
+
+.term__dim {
+  color: var(--db-color-text-faint);
+}
+
+/* ===== Lightbox ===== */
+.demo-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.88);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  cursor: zoom-out;
+  animation: lightbox-in 160ms ease;
+}
+
+@keyframes lightbox-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.demo-lightbox__image {
+  max-width: min(100%, 1200px);
+  max-height: calc(100vh - 3rem);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  cursor: default;
+  box-shadow: 0 0 80px rgba(0, 0, 0, 0.9);
+}
+
+.demo-lightbox__close {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--db-color-text-primary);
+  font-size: 15px;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: background 180ms ease;
+}
+
+.demo-lightbox__close:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.demo-lightbox__close:focus-visible {
+  outline: 2px solid var(--db-color-cyan);
+  outline-offset: 2px;
+}

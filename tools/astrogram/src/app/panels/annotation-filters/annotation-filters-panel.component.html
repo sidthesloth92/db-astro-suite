@@ -9,17 +9,27 @@
         [dbaTooltip]="'Show or hide the name label beneath every annotation.'"
         (click)="toggleGlobal('showLabels')"
       >
-        <span class="box">@if (settings().showLabels) { <dba-ui-icon [def]="checkIcon" [size]="9" /> }</span>
+        <span class="box">
+          @if (settings().showLabels) {
+            <dba-ui-icon [def]="checkIcon" [size]="9" />
+          }
+        </span>
         <span class="lbl">Show labels</span>
       </button>
       <button
         type="button"
         class="check"
         [class.is-on]="settings().showMagnitude"
-        [dbaTooltip]="'Show the brightness (magnitude) of each object beneath its label — lower numbers are brighter.'"
+        [dbaTooltip]="
+          'Show the brightness (magnitude) of each object beneath its label — lower numbers are brighter.'
+        "
         (click)="toggleGlobal('showMagnitude')"
       >
-        <span class="box">@if (settings().showMagnitude) { <dba-ui-icon [def]="checkIcon" [size]="9" /> }</span>
+        <span class="box">
+          @if (settings().showMagnitude) {
+            <dba-ui-icon [def]="checkIcon" [size]="9" />
+          }
+        </span>
         <span class="lbl">Show magnitudes</span>
       </button>
       <button
@@ -29,17 +39,27 @@
         [dbaTooltip]="'Show the distance in light-years beneath each label, when known.'"
         (click)="toggleGlobal('showDistance')"
       >
-        <span class="box">@if (settings().showDistance) { <dba-ui-icon [def]="checkIcon" [size]="9" /> }</span>
+        <span class="box">
+          @if (settings().showDistance) {
+            <dba-ui-icon [def]="checkIcon" [size]="9" />
+          }
+        </span>
         <span class="lbl">Show distance</span>
       </button>
       <button
         type="button"
         class="check"
         [class.is-on]="filters().onlyNamed"
-        [dbaTooltip]="'Hide anonymous survey sources — keep only catalogued objects (Messier, NGC/IC, named and HD stars).'"
+        [dbaTooltip]="
+          'Hide anonymous survey sources — keep only catalogued objects (Messier, NGC/IC, named and HD stars).'
+        "
         (click)="toggle('onlyNamed')"
       >
-        <span class="box">@if (filters().onlyNamed) { <dba-ui-icon [def]="checkIcon" [size]="9" /> }</span>
+        <span class="box">
+          @if (filters().onlyNamed) {
+            <dba-ui-icon [def]="checkIcon" [size]="9" />
+          }
+        </span>
         <span class="lbl">Named objects only</span>
       </button>
     </div>
@@ -57,7 +77,11 @@
         [dbaTooltip]="'Show stars that have a proper name (e.g. Vega, Polaris).'"
         (click)="toggle('showNamedStars')"
       >
-        <span class="box">@if (filters().showNamedStars) { <dba-ui-icon [def]="checkIcon" [size]="9" /> }</span>
+        <span class="box">
+          @if (filters().showNamedStars) {
+            <dba-ui-icon [def]="checkIcon" [size]="9" />
+          }
+        </span>
         <span class="lbl">Named Stars</span>
       </button>
       <button
@@ -67,7 +91,11 @@
         [dbaTooltip]="'Show Henry Draper (HD) catalogue stars, limited by the magnitude slider.'"
         (click)="toggle('showHDStars')"
       >
-        <span class="box">@if (filters().showHDStars) { <dba-ui-icon [def]="checkIcon" [size]="9" /> }</span>
+        <span class="box">
+          @if (filters().showHDStars) {
+            <dba-ui-icon [def]="checkIcon" [size]="9" />
+          }
+        </span>
         <span class="lbl">HD Stars</span>
       </button>
       <button
@@ -77,14 +105,20 @@
         [dbaTooltip]="'Show anonymous survey stars (e.g. Gaia), limited by the magnitude slider.'"
         (click)="toggle('showFieldStars')"
       >
-        <span class="box">@if (filters().showFieldStars) { <dba-ui-icon [def]="checkIcon" [size]="9" /> }</span>
+        <span class="box">
+          @if (filters().showFieldStars) {
+            <dba-ui-icon [def]="checkIcon" [size]="9" />
+          }
+        </span>
         <span class="lbl">Field Stars</span>
       </button>
     </div>
 
     <div
       class="mag-block"
-      [dbaTooltip]="'Hide stars fainter than this magnitude. Higher values show more, fainter stars.'"
+      [dbaTooltip]="
+        'Hide stars fainter than this magnitude. Higher values show more, fainter stars.'
+      "
     >
       <div class="mag-row">
         <span class="mag-label">Max magnitude</span>
@@ -116,7 +150,11 @@
         [dbaTooltip]="'Show Messier catalogue objects (M 1 to M 110).'"
         (click)="toggle('showMessier')"
       >
-        <span class="box">@if (filters().showMessier) { <dba-ui-icon [def]="checkIcon" [size]="9" /> }</span>
+        <span class="box">
+          @if (filters().showMessier) {
+            <dba-ui-icon [def]="checkIcon" [size]="9" />
+          }
+        </span>
         <span class="lbl">Messier</span>
       </button>
       <button
@@ -126,7 +164,11 @@
         [dbaTooltip]="'Show New General Catalogue (NGC) deep-sky objects.'"
         (click)="toggle('showNGC')"
       >
-        <span class="box">@if (filters().showNGC) { <dba-ui-icon [def]="checkIcon" [size]="9" /> }</span>
+        <span class="box">
+          @if (filters().showNGC) {
+            <dba-ui-icon [def]="checkIcon" [size]="9" />
+          }
+        </span>
         <span class="lbl">NGC</span>
       </button>
       <button
@@ -136,7 +178,11 @@
         [dbaTooltip]="'Show Index Catalogue (IC) deep-sky objects.'"
         (click)="toggle('showIC')"
       >
-        <span class="box">@if (filters().showIC) { <dba-ui-icon [def]="checkIcon" [size]="9" /> }</span>
+        <span class="box">
+          @if (filters().showIC) {
+            <dba-ui-icon [def]="checkIcon" [size]="9" />
+          }
+        </span>
         <span class="lbl">IC</span>
       </button>
       <button
@@ -146,7 +192,11 @@
         [dbaTooltip]="'Show Caldwell catalogue showpiece objects.'"
         (click)="toggle('showCaldwell')"
       >
-        <span class="box">@if (filters().showCaldwell) { <dba-ui-icon [def]="checkIcon" [size]="9" /> }</span>
+        <span class="box">
+          @if (filters().showCaldwell) {
+            <dba-ui-icon [def]="checkIcon" [size]="9" />
+          }
+        </span>
         <span class="lbl">Caldwell</span>
       </button>
       <button
@@ -156,7 +206,11 @@
         [dbaTooltip]="'Show Sharpless (Sh2) emission-nebula regions.'"
         (click)="toggle('showSharpless')"
       >
-        <span class="box">@if (filters().showSharpless) { <dba-ui-icon [def]="checkIcon" [size]="9" /> }</span>
+        <span class="box">
+          @if (filters().showSharpless) {
+            <dba-ui-icon [def]="checkIcon" [size]="9" />
+          }
+        </span>
         <span class="lbl">Sharpless</span>
       </button>
       <button
@@ -166,7 +220,11 @@
         [dbaTooltip]="'Show Abell galaxy clusters.'"
         (click)="toggle('showAbellClusters')"
       >
-        <span class="box">@if (filters().showAbellClusters) { <dba-ui-icon [def]="checkIcon" [size]="9" /> }</span>
+        <span class="box">
+          @if (filters().showAbellClusters) {
+            <dba-ui-icon [def]="checkIcon" [size]="9" />
+          }
+        </span>
         <span class="lbl">Abell</span>
       </button>
     </div>
@@ -184,7 +242,11 @@
         [dbaTooltip]="'Show galaxies.'"
         (click)="toggle('showGalaxies')"
       >
-        <span class="box">@if (filters().showGalaxies) { <dba-ui-icon [def]="checkIcon" [size]="9" /> }</span>
+        <span class="box">
+          @if (filters().showGalaxies) {
+            <dba-ui-icon [def]="checkIcon" [size]="9" />
+          }
+        </span>
         <span class="lbl">Galaxies</span>
       </button>
       <button
@@ -194,7 +256,11 @@
         [dbaTooltip]="'Show open star clusters.'"
         (click)="toggle('showOpenClusters')"
       >
-        <span class="box">@if (filters().showOpenClusters) { <dba-ui-icon [def]="checkIcon" [size]="9" /> }</span>
+        <span class="box">
+          @if (filters().showOpenClusters) {
+            <dba-ui-icon [def]="checkIcon" [size]="9" />
+          }
+        </span>
         <span class="lbl">Open Clusters</span>
       </button>
       <button
@@ -204,7 +270,11 @@
         [dbaTooltip]="'Show globular star clusters.'"
         (click)="toggle('showGlobularClusters')"
       >
-        <span class="box">@if (filters().showGlobularClusters) { <dba-ui-icon [def]="checkIcon" [size]="9" /> }</span>
+        <span class="box">
+          @if (filters().showGlobularClusters) {
+            <dba-ui-icon [def]="checkIcon" [size]="9" />
+          }
+        </span>
         <span class="lbl">Globular Clusters</span>
       </button>
       <button
@@ -214,7 +284,11 @@
         [dbaTooltip]="'Show planetary nebulae.'"
         (click)="toggle('showPlanetaryNebulae')"
       >
-        <span class="box">@if (filters().showPlanetaryNebulae) { <dba-ui-icon [def]="checkIcon" [size]="9" /> }</span>
+        <span class="box">
+          @if (filters().showPlanetaryNebulae) {
+            <dba-ui-icon [def]="checkIcon" [size]="9" />
+          }
+        </span>
         <span class="lbl">Planetary Nebulae</span>
       </button>
       <button
@@ -224,7 +298,11 @@
         [dbaTooltip]="'Show emission, reflection and dark nebulae.'"
         (click)="toggle('showNebulae')"
       >
-        <span class="box">@if (filters().showNebulae) { <dba-ui-icon [def]="checkIcon" [size]="9" /> }</span>
+        <span class="box">
+          @if (filters().showNebulae) {
+            <dba-ui-icon [def]="checkIcon" [size]="9" />
+          }
+        </span>
         <span class="lbl">Nebulae</span>
       </button>
       <button
@@ -234,7 +312,11 @@
         [dbaTooltip]="'Show quasars and active galactic nuclei.'"
         (click)="toggle('showQuasars')"
       >
-        <span class="box">@if (filters().showQuasars) { <dba-ui-icon [def]="checkIcon" [size]="9" /> }</span>
+        <span class="box">
+          @if (filters().showQuasars) {
+            <dba-ui-icon [def]="checkIcon" [size]="9" />
+          }
+        </span>
         <span class="lbl">Quasars</span>
       </button>
     </div>

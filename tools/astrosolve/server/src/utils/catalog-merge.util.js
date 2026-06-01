@@ -50,7 +50,8 @@ function gatherAliases(members) {
     });
   }
   return [...byName.values()].sort(
-    (a, b) => rankDesignation(b.name, b.catalog) - rankDesignation(a.name, a.catalog),
+    (a, b) =>
+      rankDesignation(b.name, b.catalog) - rankDesignation(a.name, a.catalog),
   );
 }
 
@@ -66,7 +67,8 @@ function gatherAliases(members) {
 function buildSurvivor(members) {
   const rep = members.reduce(
     (best, m) =>
-      rankDesignation(m.name, m.catalog) > rankDesignation(best.name, best.catalog)
+      rankDesignation(m.name, m.catalog) >
+      rankDesignation(best.name, best.catalog)
         ? m
         : best,
     members[0],
@@ -114,7 +116,10 @@ function dsoMergeRadius(a, b) {
   // the known size, so a sizeless cross-ID still merges across catalogue jitter
   // instead of collapsing to the bare floor.
   const refArcmin = sa > 0 && sb > 0 ? Math.min(sa, sb) : Math.max(sa, sb);
-  return Math.max(DSO_MERGE_BASE_DEG, DSO_MERGE_SIZE_FRACTION * (refArcmin / 60));
+  return Math.max(
+    DSO_MERGE_BASE_DEG,
+    DSO_MERGE_SIZE_FRACTION * (refArcmin / 60),
+  );
 }
 
 /**
@@ -149,7 +154,9 @@ function clusterObjects(inputs, radiusFn) {
       // the catalogue position gap (e.g. IC 63's local `IC0063` and SIMBAD
       // `IC 63` centres sit 19″ apart — past any size-free radius). Differently
       // named cross-catalogue designations still require positional coincidence.
-      const sameDesignation = cl.members.some((m) => normalizeName(m.name) === norm);
+      const sameDesignation = cl.members.some(
+        (m) => normalizeName(m.name) === norm,
+      );
       if (
         sameDesignation ||
         cl.members.some((m) => separationDeg(obj, m) <= radiusFn(obj, m))
@@ -162,7 +169,11 @@ function clusterObjects(inputs, radiusFn) {
       target.members.push(obj);
       if (!target.keyNames.has(key)) target.keyNames.set(key, norm);
     } else {
-      clusters.push({ members: [obj], keyNames: new Map([[key, norm]]), bucket });
+      clusters.push({
+        members: [obj],
+        keyNames: new Map([[key, norm]]),
+        bucket,
+      });
     }
   }
   return clusters.map((cl) => buildSurvivor(cl.members));

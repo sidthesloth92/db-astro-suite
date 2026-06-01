@@ -1,0 +1,57 @@
+<div class="lockup" [class.lockup--wordmark]="showWordmark()">
+  <svg
+    class="cr-float"
+    [attr.width]="markSize()"
+    [attr.height]="markSize()"
+    viewBox="0 0 120 120"
+    role="img"
+    aria-label="DB Astro Suite"
+  >
+    <defs>
+      <mask [attr.id]="maskId">
+        <circle cx="58" cy="60" r="42" fill="#fff" />
+        <circle #shadow class="cr-shadow" cx="78" cy="60" r="38" fill="#000" />
+      </mask>
+    </defs>
+
+    <circle
+      class="cr-disc"
+      cx="58"
+      cy="60"
+      r="42"
+      [attr.mask]="'url(#' + maskId + ')'"
+    />
+
+    <text #letterD class="cr-letter" x="65" y="68" text-anchor="middle">D</text>
+    <text #letterB class="cr-letter" x="88" y="68" text-anchor="middle">B</text>
+
+    <g #stars class="cr-stars">
+      <path
+        class="cr-star cr-star-big"
+        d="M 96 28 L 98.6 38 L 108 41 L 98.6 44 L 96 54 L 93.4 44 L 84 41 L 93.4 38 Z"
+      />
+      <path
+        class="cr-star cr-star-1"
+        d="M 80 18 L 81 22 L 85 23 L 81 24 L 80 28 L 79 24 L 75 23 L 79 22 Z"
+      />
+      <path
+        class="cr-star cr-star-2"
+        d="M 111 52 L 112 56 L 116 57 L 112 58 L 111 62 L 110 58 L 106 57 L 110 56 Z"
+      />
+      <path
+        class="cr-star cr-star-3"
+        d="M 84 92 L 84.8 95 L 88 95.8 L 84.8 96.6 L 84 100 L 83.2 96.6 L 80 95.8 L 83.2 95 Z"
+      />
+    </g>
+  </svg>
+
+  @if (showWordmark()) {
+    <div class="wordmark" aria-hidden="true">
+      <div class="wordmark__row">
+        <span #astro class="wordmark__astro">ASTRO</span
+        ><span #suite class="wordmark__suite">SUITE</span>
+      </div>
+      <div #tagline class="wordmark__tagline">Sensor to Social</div>
+    </div>
+  }
+</div>

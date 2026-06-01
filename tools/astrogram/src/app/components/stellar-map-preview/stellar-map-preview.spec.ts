@@ -264,7 +264,10 @@ describe('StellarMapPreviewComponent pointer state machine', () => {
   it('should select an annotation when its label is clicked', () => {
     const component = mountComponent();
     stubLayerRect(layerEl());
-    mockDataService.stellarMapData.update((d) => ({ ...d, annotations: [makeAnnotation('m-lbl')] }));
+    mockDataService.stellarMapData.update((d) => ({
+      ...d,
+      annotations: [makeAnnotation('m-lbl')],
+    }));
 
     const marker = document.createElement('div');
     marker.className = 'annotation-marker';
@@ -282,7 +285,10 @@ describe('StellarMapPreviewComponent pointer state machine', () => {
   it('should grab the already-selected annotation anywhere on its body to drag', () => {
     const component = mountComponent();
     stubLayerRect(layerEl());
-    mockDataService.stellarMapData.update((d) => ({ ...d, annotations: [makeAnnotation('m-sel')] }));
+    mockDataService.stellarMapData.update((d) => ({
+      ...d,
+      annotations: [makeAnnotation('m-sel')],
+    }));
     mockDataService.selectedAnnotationId.set('m-sel');
 
     const marker = document.createElement('div');
@@ -557,7 +563,9 @@ describe('StellarMapPreviewComponent pointer state machine', () => {
       expect(component.effectiveShowDistance(ann)).toBeFalse();
       setGlobal({ showDistance: true });
       expect(component.effectiveShowDistance(ann)).toBeTrue();
-      expect(component.effectiveShowDistance({ ...ann, style: { showDistance: false } })).toBeFalse();
+      expect(
+        component.effectiveShowDistance({ ...ann, style: { showDistance: false } }),
+      ).toBeFalse();
     });
 
     it('formats the distance as a compact light-year string', () => {

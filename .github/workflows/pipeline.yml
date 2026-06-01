@@ -21,8 +21,13 @@ permissions:
   id-token: write
   packages: write
 
+# Dedupe CI runs per ref: a new push to a branch/PR cancels that branch's
+# in-progress run, but runs on *different* refs never cancel each other.
+# (A static group like "pages" here serialised every ref together, so a main
+# push could cancel an in-flight PR run and vice-versa.) GitHub Pages deploy
+# serialisation lives on the `deploy` job below, not here.
 concurrency:
-  group: "pages"
+  group: "${{ github.workflow }}-${{ github.ref }}"
   cancel-in-progress: true
 
 jobs:
@@ -178,6 +183,11 @@ jobs:
       github.ref == 'refs/heads/main' &&
       (startsWith(github.event.head_commit.message, 'chore(main): release') || startsWith(github.event.head_commit.message, 'feat(main): release'))
     runs-on: ubuntu-latest
+    # Serialise GitHub Pages deployments across refs without cancelling an
+    # in-progress deploy (the per-ref workflow concurrency only dedupes CI).
+    concurrency:
+      group: "pages"
+      cancel-in-progress: false
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

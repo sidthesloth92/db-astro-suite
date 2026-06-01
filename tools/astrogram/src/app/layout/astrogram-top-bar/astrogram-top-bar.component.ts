@@ -8,6 +8,7 @@ import {
   ASTROGRAM_LOGO_SRC,
   ASTROGRAM_TAGLINE,
   ASTROGRAM_TITLE,
+  ASTROGRAM_TITLE_ACCENT,
 } from '../../constants/branding.constants';
 
 /**
@@ -32,6 +33,8 @@ export class AstrogramTopBarComponent {
 
   /** Brand title (wordmark) forwarded to `<dba-ui-header>`. */
   readonly title = ASTROGRAM_TITLE;
+  /** Accent-coloured trailing portion of the wordmark ("gram"). */
+  readonly titleAccent = ASTROGRAM_TITLE_ACCENT;
   /** Brand tagline rendered on desktop next to the wordmark. */
   readonly tagline = ASTROGRAM_TAGLINE;
   /** Brand logo image path. */

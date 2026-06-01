@@ -8,7 +8,10 @@
       <img class="brand-logo" [src]="logoSrc()" [alt]="title() + ' Logo'" />
     }
     <div class="brand-text">
-      <span class="brand-title">{{ title() }}</span>
+      <span class="brand-title">@if (titleParts().accent) {<span
+          class="brand-title-base"
+          >{{ titleParts().base }}</span
+        ><span class="brand-title-accent">{{ titleParts().accent }}</span>} @else {{{ title() }}}</span>
       @if (version()) {
         <dba-ui-pill-badge tone="pink">v{{ version() }}</dba-ui-pill-badge>
       }

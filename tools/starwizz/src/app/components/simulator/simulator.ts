@@ -7,8 +7,14 @@ import {
   computed,
   effect,
   inject,
+  signal,
   viewChild,
 } from '@angular/core';
+import {
+  DIRECTION_VECTORS,
+  GALAXY_PAN_FACTOR,
+  MIN_SCALE,
+} from '../../constants/simulation.constant';
 import { SimulationService } from '../../services/simulation.service';
 import { ClearImageButton } from './clear-image-button/clear-image-button';
 import { HudOverlay } from './hud-overlay/hud-overlay';
@@ -84,9 +90,24 @@ export class Simulator implements AfterViewInit {
   private centerY = 0;
   private currentScale = 1.0;
   private currentRotation = 0;
+  private panX = 0;
+  private panY = 0;
   private starTexture: HTMLCanvasElement | null = null;
   private lastShootingStarSpawn = 0;
   private animationFrameId: number | null = null;
+
+  // Custom Path playback / authoring state
+  /** Timestamp (ms) the current A→B leg started, for constant-speed progress. */
+  private pathLegStart = 0;
+  /** Whether the current loop leg is travelling B→A (ping-pong). */
+  private pathReversed = false;
+  /** Tracks the playing flag across frames so we can detect a fresh start. */
+  private wasPlaying = false;
+  /** True while the user is dragging the preview to pan (path mode). */
+  protected readonly isDragging = signal(false);
+  /** Last pointer position (client px) during a pan drag. */
+  private lastPointerX = 0;
+  private lastPointerY = 0;
 
   /** Effect: start/stop MediaRecorder in response to recording state changes. */
   private readonly _recordingEffect = effect(() => {
@@ -102,8 +123,16 @@ export class Simulator implements AfterViewInit {
   private readonly _resetAndRecordEffect = effect(() => {
     const shouldResetAndRecord = this.simService.resetAndRecordRequested();
     if (shouldResetAndRecord) {
-      this.currentScale = 1.0;
+      this.currentScale = this.depthStartScale();
       this.currentRotation = 0;
+      this.panX = 0;
+      this.panY = 0;
+      // In path mode, restart the glide from A so the recording captures a clean A→B.
+      if (this.simService.isPathMode() && this.simService.canPlayPath()) {
+        this.pathReversed = false;
+        this.pathLegStart = performance.now();
+        this.simService.playPath();
+      }
       this.simService.resetAndRecordRequested.set(false);
       requestAnimationFrame(() => {
         this.renderFrame();
@@ -116,8 +145,17 @@ export class Simulator implements AfterViewInit {
   private readonly _restartEffect = effect(() => {
     const shouldRestart = this.simService.restartAnimationRequested();
     if (shouldRestart) {
-      this.currentScale = 1.0;
-      this.currentRotation = 0;
+      if (this.simService.isPathMode() && this.simService.pathFinalized()) {
+        // Restart the fixed path from A (keeps looping).
+        this.pathReversed = false;
+        this.pathLegStart = performance.now();
+        this.simService.playPath();
+      } else {
+        this.currentScale = this.depthStartScale();
+        this.currentRotation = 0;
+        this.panX = 0;
+        this.panY = 0;
+      }
       this.simService.restartAnimationRequested.set(false);
     }
   });
@@ -128,6 +166,27 @@ export class Simulator implements AfterViewInit {
     if (this.ctx) {
       this.setupCanvasDimensions(dims);
       this.resetSimulation();
+    }
+  });
+
+  /** Effect: grow/shrink the star field live when the star-count control changes. */
+  private readonly _starCountEffect = effect(() => {
+    this.simService.controls.starCount();
+    if (this.ctx) {
+      this.simService.adjustStarCount(this.width, this.height);
+    }
+  });
+
+  /**
+   * Effect: when the travel direction changes to a depth preset, initialise the
+   * zoom to that leg's starting scale so Backward begins zoomed (and zooms out)
+   * rather than snapping to max zoom on the first frame. Lateral presets and
+   * Custom Path manage their own zoom, so they're left untouched.
+   */
+  private readonly _directionEffect = effect(() => {
+    const dir = this.simService.travelDirection();
+    if (dir === 'forward' || dir === 'backward') {
+      this.currentScale = dir === 'backward' ? TARGET_SCALE : MIN_SCALE;
     }
   });
 
@@ -144,6 +203,8 @@ export class Simulator implements AfterViewInit {
     this.simService.clearImage();
     this.currentScale = 1.0;
     this.currentRotation = 0;
+    this.panX = 0;
+    this.panY = 0;
   }
 
   private init() {
@@ -180,8 +241,10 @@ export class Simulator implements AfterViewInit {
   };
 
   private resetSimulation() {
-    this.currentScale = 1.0;
+    this.currentScale = this.depthStartScale();
     this.currentRotation = 0;
+    this.panX = 0;
+    this.panY = 0;
     this.simService.resetStars();
     this.simService.loadingProgress.set('Re-initializing...');
 
@@ -227,17 +290,196 @@ export class Simulator implements AfterViewInit {
     this.renderFrame();
   };
 
-  private updateGlobalState() {
-    this.currentRotation += this.simService.getInternalValue('rotationRate');
+  /**
+   * Starting zoom for a depth preset: Backward begins zoomed in (then zooms
+   * out to wide), Forward begins wide (then zooms in) — so Backward is the
+   * exact mirror of Forward and never snaps to max zoom on entry.
+   */
+  private depthStartScale(): number {
+    return this.simService.travelDirection() === 'backward' ? TARGET_SCALE : MIN_SCALE;
+  }
 
-    if (this.currentScale < TARGET_SCALE) {
-      this.currentScale += this.simService.getInternalValue('zoomRate');
+  private updateGlobalState() {
+    if (this.simService.isPathMode()) {
+      this.updatePathState();
+      return;
+    }
+
+    const dir = DIRECTION_VECTORS[this.simService.travelDirection()];
+    const zoomStep = this.simService.getInternalValue('zoomRate');
+
+    if (dir.z < 0) {
+      // Forward — spin the vortex and zoom into the object, wrapping to MIN_SCALE.
+      this.currentRotation += this.simService.getInternalValue('rotationRate');
+      if (this.currentScale < TARGET_SCALE) {
+        this.currentScale += zoomStep;
+      } else {
+        this.currentScale = MIN_SCALE;
+      }
+    } else if (dir.z > 0) {
+      // Backward — spin the vortex and zoom out (recede), wrapping to TARGET_SCALE.
+      this.currentRotation += this.simService.getInternalValue('rotationRate');
+      if (this.currentScale > MIN_SCALE) {
+        this.currentScale -= zoomStep;
+      } else {
+        this.currentScale = TARGET_SCALE;
+      }
     } else {
-      this.currentScale = 1.0;
+      // Lateral travel — the vortex rotation no longer makes sense, so flatten
+      // it to 0 for a straight sideways glide. Zoom is held at its current value.
+      this.currentRotation = 0;
+    }
+
+    // Pan the galaxy backdrop (the slowest parallax layer) with the lateral
+    // component, tied to starSpeed so the DSO and stars stay proportional, then
+    // clamp to the overscan so no uncovered edge is exposed.
+    const lateralSpeed = this.simService.getInternalValue('starSpeed');
+    this.panX += dir.x * lateralSpeed * GALAXY_PAN_FACTOR;
+    this.panY += dir.y * lateralSpeed * GALAXY_PAN_FACTOR;
+    this.clampGalaxyPan();
+  }
+
+  /**
+   * Clamps panX/panY so the panned galaxy never exposes an uncovered edge.
+   * Overscan is measured in post-scale world space (the space the galaxy is
+   * drawn in), so the available pan shrinks as the zoom grows.
+   */
+  private clampGalaxyPan() {
+    const galaxyImage = this.simService.galaxyImage();
+    if (!galaxyImage || galaxyImage.naturalWidth === 0) {
+      return;
+    }
+
+    const scaleFactor = Math.max(
+      this.width / galaxyImage.naturalWidth,
+      this.height / galaxyImage.naturalHeight,
+    );
+    const drawWidth = galaxyImage.naturalWidth * scaleFactor;
+    const drawHeight = galaxyImage.naturalHeight * scaleFactor;
+
+    const limitX = Math.max(0, drawWidth / 2 - this.width / 2 / this.currentScale);
+    const limitY = Math.max(0, drawHeight / 2 - this.height / 2 / this.currentScale);
+
+    this.panX = Math.max(-limitX, Math.min(limitX, this.panX));
+    this.panY = Math.max(-limitY, Math.min(limitY, this.panY));
+  }
+
+  /**
+   * Custom Path frame update: advances the A→B glide when playing (or applies a
+   * gentle idle drift while framing), then syncs the render transform from the
+   * live camera. Rotation is always flat in path mode.
+   */
+  private updatePathState() {
+    this.currentRotation = 0;
+
+    const playing = this.simService.pathPlaying();
+    if (playing && !this.wasPlaying) {
+      // Playback just began — start the A→B timer on this exact frame so the
+      // first elapsed reading is ~0 (otherwise the glide snaps straight to B).
+      this.pathLegStart = performance.now();
+      this.pathReversed = false;
+    }
+    this.wasPlaying = playing;
+
+    if (playing) {
+      this.advancePath();
+    }
+
+    // Stars are self-driven from the Star Direction / Depth / Speed controls
+    // (see Star.update), so the path only manages the camera here.
+
+    const cam = this.simService.liveCamera();
+    this.currentScale = cam.scale;
+    this.panX = cam.panX;
+    this.panY = cam.panY;
+    this.clampGalaxyPan();
+  }
+
+  /**
+   * Advances the live camera one frame from A toward B at the user's constant
+   * speed, then loops by restarting from A (A→B again), not a reverse pass.
+   */
+  private advancePath() {
+    const start = this.simService.cameraStart();
+    const end = this.simService.cameraEnd();
+    if (!start || !end) {
+      this.simService.stopPath();
+      return;
+    }
+
+    const duration = Math.max(0.001, this.simService.pathDurationSeconds());
+    const elapsed = (performance.now() - this.pathLegStart) / 1000;
+    const t = Math.min(1, elapsed / duration);
+
+    this.simService.setLiveCamera({
+      panX: start.panX + (end.panX - start.panX) * t,
+      panY: start.panY + (end.panY - start.panY) * t,
+      scale: start.scale + (end.scale - start.scale) * t,
+    });
+
+    if (t >= 1) {
+      // We've reached B this frame (lerp at t=1 == end). Restart the timer so the
+      // next frame begins a fresh A→B leg — looping from the beginning without
+      // skipping B (don't overwrite to A here, or B would never render).
+      this.pathLegStart = performance.now();
     }
   }
 
+
+  /** Pointer down on the preview — begin a pan drag (path mode, not playing). */
+  protected onCanvasPointerDown(event: PointerEvent) {
+    if (!this.simService.isPathMode() || this.simService.pathFinalized()) {
+      return;
+    }
+    this.isDragging.set(true);
+    this.lastPointerX = event.clientX;
+    this.lastPointerY = event.clientY;
+    (event.target as HTMLElement).setPointerCapture?.(event.pointerId);
+  }
+
+  /** Pointer move — pan the live camera by the drag delta, in world units. */
+  protected onCanvasPointerMove(event: PointerEvent) {
+    if (!this.isDragging()) {
+      return;
+    }
+    const canvas = this.canvasRef().nativeElement;
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) {
+      return;
+    }
+    const dxCanvas = ((event.clientX - this.lastPointerX) * canvas.width) / rect.width;
+    const dyCanvas = ((event.clientY - this.lastPointerY) * canvas.height) / rect.height;
+    this.lastPointerX = event.clientX;
+    this.lastPointerY = event.clientY;
+
+    const cam = this.simService.liveCamera();
+    this.simService.updateLiveCamera({
+      panX: cam.panX + dxCanvas / cam.scale,
+      panY: cam.panY + dyCanvas / cam.scale,
+    });
+  }
+
+  /** Pointer up / leave — end the pan drag. */
+  protected onCanvasPointerUp() {
+    this.isDragging.set(false);
+  }
+
+  /** Wheel over the preview — zoom the live camera (path mode, not playing). */
+  protected onCanvasWheel(event: WheelEvent) {
+    if (!this.simService.isPathMode() || this.simService.pathFinalized()) {
+      return;
+    }
+    event.preventDefault();
+    const factor = event.deltaY < 0 ? 1.1 : 1 / 1.1;
+    this.simService.updateLiveCamera({ scale: this.simService.liveCamera().scale * factor });
+  }
+
   private handleShootingStarSpawning() {
+    // Shooting stars follow the current star motion; none when there's no motion.
+    if (!this.simService.hasStarMotion()) {
+      return;
+    }
+
     const now = Date.now();
     const timeSinceLastSpawn = (now - this.lastShootingStarSpawn) / 1000;
 
@@ -283,7 +525,15 @@ export class Simulator implements AfterViewInit {
     const drawWidth = galaxyImage.naturalWidth * scaleFactor;
     const drawHeight = galaxyImage.naturalHeight * scaleFactor;
 
-    this.ctx.drawImage(galaxyImage, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
+    // panX/panY shift the backdrop for lateral travel; stars carry their own
+    // parallax via their x/y, so the pan is applied to the galaxy only.
+    this.ctx.drawImage(
+      galaxyImage,
+      -drawWidth / 2 + this.panX,
+      -drawHeight / 2 + this.panY,
+      drawWidth,
+      drawHeight,
+    );
   }
 
   private drawStars() {

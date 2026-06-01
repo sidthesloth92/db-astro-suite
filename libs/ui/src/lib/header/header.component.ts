@@ -3,6 +3,7 @@ import {
   Component,
   DestroyRef,
   afterNextRender,
+  computed,
   inject,
   input,
   signal,
@@ -32,6 +33,13 @@ import { PillBadgeComponent } from '../pill-badge/pill-badge.component';
 export class HeaderComponent {
   /** Brand title text shown next to the logo. */
   title = input<string>('App Name');
+  /**
+   * Optional trailing portion of the title to render in the accent colour
+   * (e.g. `'GRAM'` for `'ASTROGRAM'`, `'WIZZ'` for `'STARWIZZ'`), with the
+   * leading portion shown in white. When empty or not a suffix of the title,
+   * the whole title renders in the accent colour as before.
+   */
+  titleAccent = input<string>('');
   /** Optional version string rendered in the pill next to the title. */
   version = input<string>('');
   /** Optional logo image URL rendered to the left of the title. */
@@ -47,6 +55,20 @@ export class HeaderComponent {
 
   /** Whether the viewport is currently below the mobile breakpoint. */
   readonly isMobile = signal<boolean>(false);
+
+  /**
+   * Title split into a white `base` and an accent-coloured `accent` suffix.
+   * `accent` is empty unless {@link titleAccent} is a non-empty suffix of the
+   * title — in which case the whole title falls back to the accent colour.
+   */
+  readonly titleParts = computed<{ base: string; accent: string }>(() => {
+    const title = this.title();
+    const accent = this.titleAccent();
+    if (accent && title.endsWith(accent)) {
+      return { base: title.slice(0, title.length - accent.length), accent };
+    }
+    return { base: title, accent: '' };
+  });
 
   /** GitHub glyph used by the optional GitHub icon button. */
   protected readonly githubIcon = githubIcon;

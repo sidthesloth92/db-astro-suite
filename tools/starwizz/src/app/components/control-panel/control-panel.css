@@ -88,10 +88,14 @@
 }
 
 .format-label-row,
-.slider-label-row {
+.slider-label-row,
+.record-aux {
   display: flex;
   align-items: center;
   gap: 6px;
+  /* Positioning context for the help tooltip so it spans the row (and never
+     overflows the panel, whose overflow-y:auto also clips horizontally). */
+  position: relative;
 }
 
 .row-value {
@@ -214,4 +218,75 @@
   font-family: var(--db-font-ui);
   font-size: 11px;
   color: var(--db-color-text-dim);
+}
+
+.path-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--db-color-border);
+  border-radius: 10px;
+  background: var(--db-color-surface-hi);
+}
+
+.path-hint {
+  margin: 0;
+  font-family: var(--db-font-ui);
+  font-size: 11px;
+  color: var(--db-color-text-dim);
+}
+
+.path-keyframes {
+  display: flex;
+  gap: 8px;
+}
+
+/* Help-icon tooltip — shows the control explanation on hover AND on
+   click/tap (the icon is focusable via tabindex). Text comes from the
+   element's `data-tip` attribute. The bubble is positioned against the row
+   (not the narrow icon) and capped at the row width, so it can never overflow
+   the panel — whose `overflow-y: auto` also clips the horizontal axis. */
+.help-icon::after {
+  content: attr(data-tip);
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 60;
+  width: auto;
+  max-width: 100%;
+  padding: 7px 9px;
+  border-radius: 6px;
+  background: var(--db-color-surface-hi);
+  border: 1px solid var(--db-color-border);
+  color: var(--db-color-text-primary);
+  font-family: var(--db-font-ui);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: normal;
+  text-transform: none;
+  text-align: left;
+  /* pre-line honours explicit "\n" in data-tip (for bulleted lists) while still
+     wrapping long lines. */
+  white-space: pre-line;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 120ms ease;
+  pointer-events: none;
+}
+
+.help-icon:hover::after,
+.help-icon:focus::after,
+.help-icon:focus-visible::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+.path-keyframes dba-ui-text-button {
+  flex: 1;
+  min-width: 0;
+  display: flex;
 }

@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.23.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.22.0...v1.23.0) (2026-06-01)
+
+
+### Features
+
+* **starwizz:** travel-direction controls and custom A→B camera path ([#58](https://github.com/sidthesloth92/db-astro-suite/issues/58)) ([422dab4](https://github.com/sidthesloth92/db-astro-suite/commit/422dab41ce547f79a803c737c74d08f87b575ad6))
+
+## [1.22.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.21.0...v1.22.0) (2026-05-31)
+
+
+### Features
+
+* **hub:** premium landing + tool-detail redesign with animated crescent logo ([#54](https://github.com/sidthesloth92/db-astro-suite/issues/54)) ([253b774](https://github.com/sidthesloth92/db-astro-suite/commit/253b774c64d42353776b047b34534928c377a389))
+
+## [1.21.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.20.0...v1.21.0) (2026-05-31)
+
+
+### Features
+
+* create designation key utilities for catalog management ([a1238b1](https://github.com/sidthesloth92/db-astro-suite/commit/a1238b19d265e60767d6bb57c3a356bc16a4200a))
+* enhance catalog merging logic for deep-sky objects ([a1238b1](https://github.com/sidthesloth92/db-astro-suite/commit/a1238b19d265e60767d6bb57c3a356bc16a4200a))
+* stellar-map pan & zoom, named-only declutter, and catalog identity/merge fixes ([#52](https://github.com/sidthesloth92/db-astro-suite/issues/52)) ([a1238b1](https://github.com/sidthesloth92/db-astro-suite/commit/a1238b19d265e60767d6bb57c3a356bc16a4200a))
+
 ## [1.20.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.19.2...v1.20.0) (2026-05-30)
 
 
