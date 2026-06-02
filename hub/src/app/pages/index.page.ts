@@ -33,8 +33,6 @@ import type { HubTool } from './hub-tool.types';
   ],
   templateUrl: './index.page.html',
   styleUrl: './index.page.css',
-  templateUrl: './index.page.html',
-  styleUrl: './index.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class HomePageComponent {

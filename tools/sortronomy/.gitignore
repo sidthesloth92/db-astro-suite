@@ -1,5 +1,0 @@
-# GoReleaser snapshot output
-dist/
-
-# Local-only dev binary
-sortronomy

@@ -1,6 +1,6 @@
 ---
 name: backend-api
-description: "Step-by-step workflow for building a Node.js ESM (Fastify/astrosolve) API endpoint or Go (sortronomy) feature in db-astro-suite. Use when: adding a route, creating a service, defining domain models, adding error classes, setting up startup config, or writing co-located tests. Covers file naming, API contract shape, domain error pattern, config pattern, and test structure."
+description: "Step-by-step workflow for building a Node.js ESM (Fastify/astrosolve) API endpoint or Go (astro-gen-go) feature in db-astro-suite. Use when: adding a route, creating a service, defining domain models, adding error classes, setting up startup config, or writing co-located tests. Covers file naming, API contract shape, domain error pattern, config pattern, and test structure."
 argument-hint: "Describe the API endpoint or Go feature you are building."
 ---
 
@@ -12,7 +12,7 @@ argument-hint: "Describe the API endpoint or Go feature you are building."
 - Creating a service with business logic
 - Defining domain models or DTOs
 - Adding domain error classes
-- Building a Go CLI feature in `tools/sortronomy/**`
+- Building a Go CLI feature in `tools/astro-gen-go/**`
 - Writing co-located tests
 
 ## Procedure (Node.js / Fastify)
@@ -160,7 +160,7 @@ Test behaviour, not implementation. Never test private internals.
 
 ---
 
-## Procedure (Go — `tools/sortronomy/**`)
+## Procedure (Go — `tools/astro-gen-go/**`)
 
 ### Step 1 — File Structure
 

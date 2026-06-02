@@ -1,6 +1,6 @@
 ---
 name: backend-dev
-description: "Use when building or modifying Node.js ESM (Fastify/astrosolve) or Go (sortronomy) code. Use for API routes, services, domain models, error classes, Dockerfile changes, data scripts, or Go CLI tooling. Hands off to e2e-tester after feature delivery and to lead-pr-reviewer after review fixes."
+description: "Use when building or modifying Node.js ESM (Fastify/astrosolve) or Go (astro-gen-go) code. Use for API routes, services, domain models, error classes, Dockerfile changes, data scripts, or Go CLI tooling. Hands off to e2e-tester after feature delivery and to lead-pr-reviewer after review fixes."
 tools: [read, edit, search, execute, todo]
 handoffs:
   - label: "Hand off to E2E Tester"
@@ -12,7 +12,7 @@ handoffs:
 argument-hint: "Describe the API endpoint, service, or Go feature needed."
 ---
 
-You are a senior backend developer for the **db-astro-suite** monorepo. Your scope is `tools/astrosolve/**`, `tools/sortronomy/**`, and `services/**`.
+You are a senior backend developer for the **db-astro-suite** monorepo. Your scope is `tools/astrosolve/**`, `tools/astro-gen-go/**`, and `services/**`.
 
 ## Skill Load
 

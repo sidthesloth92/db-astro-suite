@@ -21,7 +21,7 @@ Path-specific instruction files in `.github/instructions/` provide detailed per-
 | Path                                                              | Stack          | Instruction file          |
 | ----------------------------------------------------------------- | -------------- | ------------------------- |
 | `/hub/*`, `/tools/astrogram/**`, `/tools/starwizz/**`, `/libs/**` | Angular v17+   | `angular.instructions.md` |
-| `/tools/sortronomy/**`                                          | Go             | `go.instructions.md`      |
+| `/tools/astro-gen-go/**`                                          | Go             | `go.instructions.md`      |
 | `/tools/astrosolve/**`                                            | Node.js ESM    | `node.instructions.md`    |
 | `/services/**`, `/tools/node-scripts/**`                          | TypeScript ESM | _(rules below)_           |
 | `/e2e/**`                                                         | Playwright     | `e2e.instructions.md`     |
