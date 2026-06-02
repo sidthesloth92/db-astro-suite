@@ -1,50 +1,43 @@
 import { RouteMeta } from '@analogjs/router';
 import { DOCUMENT } from '@angular/common';
-import { ChangeDetectionStrategy, Component, afterNextRender, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import {
-  AnalyticsService,
-  CardComponent,
-  FooterComponent,
-  IconComponent,
-  StarryBackgroundComponent,
-  TextButtonComponent,
-  chevronLeftIcon,
-  chevronRightIcon,
-} from '@db-astro-suite/ui';
+  ChangeDetectionStrategy,
+  Component,
+  afterNextRender,
+  inject,
+  signal,
+} from '@angular/core';
+import { AnalyticsService } from '@db-astro-suite/ui';
+import { DemoFrameComponent } from '../../components/demo-frame/demo-frame.component';
+import { ToolDetailComponent } from '../../components/tool-detail/tool-detail.component';
+import { ASTROGRAM_DETAIL } from './astrogram-detail.constants';
 import { ASTROGRAM_LAUNCH_URL } from './tool.constants';
 
 /**
- * Astrogram tool page — restyled to the Direction B Polished theme.
- * Layout preserved; bespoke chrome (back link arrow, launch button) now
- * uses the shared libs/ui primitives.
+ * Astrogram tool page — premium redesign on the shared `ToolDetailComponent`.
+ * Provides the brand mark + demo media via content projection and keeps a
+ * click-to-expand lightbox for the plate-solved and exposure-card outputs.
  */
 @Component({
   selector: 'dba-hub-astrogram-tool',
   standalone: true,
-  imports: [
-    RouterLink,
-    CardComponent,
-    FooterComponent,
-    StarryBackgroundComponent,
-    TextButtonComponent,
-    IconComponent,
-  ],
+  imports: [ToolDetailComponent, DemoFrameComponent],
   templateUrl: './astrogram.page.html',
   styleUrl: './astrogram.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class AstroGramPage {
-  /** Public launch target — bound from the template as the anchor `href`. */
-  protected readonly launchUrl = ASTROGRAM_LAUNCH_URL;
-
-  /** Chevron-left glyph used inside the "RETURN TO HUB" back link. */
-  protected readonly chevronLeftIcon = chevronLeftIcon;
-  /** Chevron-right glyph used as the trailing icon on the Launch Tool CTA. */
-  protected readonly chevronRightIcon = chevronRightIcon;
+  /** Content driving the shared detail layout. */
+  protected readonly config = ASTROGRAM_DETAIL;
 
   /** Whether the demo lightbox is currently open. */
   protected readonly isLightboxOpen = signal(false);
+
+  /** Source of the image currently shown in the lightbox. */
+  protected readonly lightboxSrc = signal('');
+
+  /** Alt text for the image currently shown in the lightbox. */
+  protected readonly lightboxAlt = signal('');
 
   private readonly analytics = inject(AnalyticsService);
   private readonly document = inject(DOCUMENT);
@@ -60,8 +53,10 @@ export default class AstroGramPage {
     this.analytics.trackHubLaunchToolClicked('astrogram', ASTROGRAM_LAUNCH_URL);
   }
 
-  /** Opens the demo lightbox and locks body scroll. */
-  openLightbox(): void {
+  /** Opens the demo lightbox for the given image and locks body scroll. */
+  openLightbox(src: string, alt: string): void {
+    this.lightboxSrc.set(src);
+    this.lightboxAlt.set(alt);
     this.isLightboxOpen.set(true);
     this.document.body.style.overflow = 'hidden';
   }

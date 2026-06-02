@@ -28,7 +28,11 @@
         <span class="export-label">GENERATING...</span>
       </div>
     }
-    <div class="post-container db-glass-panel" #postContainer>
+    <div
+      class="post-container db-glass-panel"
+      [class.auto-frame]="aspectRatio() === 'auto'"
+      #postContainer
+    >
       <!-- The Card (Captured for Export) -->
       <div
         #cardElement
@@ -43,7 +47,11 @@
         [class.no-image]="!backgroundImage()"
       >
         <!-- Background -->
-        <div class="card-background">
+        <div
+          class="card-background"
+          [style.transform]="appliedContentTransform()"
+          [style.transform-origin]="'0 0'"
+        >
           @if (backgroundImage()) {
             <img
               [src]="backgroundImage()"
@@ -58,7 +66,11 @@
         </div>
 
         <!-- Content -->
-        <div class="card-overlay">
+        <div
+          class="card-overlay"
+          [style.transform]="appliedContentTransform()"
+          [style.transform-origin]="'0 0'"
+        >
           <ng-content select="[fullBleed]"></ng-content>
         </div>
 

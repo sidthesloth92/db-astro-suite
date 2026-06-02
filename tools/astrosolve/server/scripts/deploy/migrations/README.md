@@ -28,9 +28,9 @@ add it here as `0001-short-slug.md` (see "Adding a new migration" below).
   rows. Existing solves are not lost.
 - The catalog DB (`celestial.sqlite`) is regenerable and is rebuilt by the init
   script (`npm run init-local-catalog-db`) — it is not user data. It is built
-  **on the server**, automatically by the deploy pipeline (a resumable one-shot
-  `docker run` against the pulled image, before the API starts), like the
-  astrometry indexes.
+  **on the server, out-of-band** via `rebuild-catalog.sh` (detached), like the
+  astrometry indexes. Deploys never build it — they just pull + swap the
+  container; restart the API after a (re)build to pick up the new catalog.
 - `APP_DIR` is the value configured in the GitHub Actions `APP_DIR` variable
   (e.g. `/opt/astrosolve`). `IMAGE` is the pulled astrosolve image tag for the
   release you are deploying.

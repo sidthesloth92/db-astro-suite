@@ -1,96 +1,27 @@
-<dba-ui-starry-background>
-  <div class="content">
-    <nav class="top-nav">
-      <a routerLink="/" class="back-link">
-        <dba-ui-icon [def]="chevronLeftIcon" [size]="12" />
-        <span>RETURN TO HUB</span>
-      </a>
-      <div class="mission-id">Tool: File Grouper</div>
-    </nav>
-
-    <header class="tool-header">
-      <div>
-        <h1>file grouper</h1>
-        <p class="tagline">DATASET ORGANIZATION UTILITY</p>
+<dba-hub-tool-detail [config]="config" (primaryClicked)="onLaunch()">
+  <div preview>
+    <dba-hub-demo-frame label="zsh" status="CLI">
+      <div class="term">
+        <span class="term__prompt">$</span> go install …/tools/file-grouper&#64;latest<br />
+        <span class="term__prompt">$</span> file-grouper --organize-asiair ./raw-data<br />
+        <span class="term__dim">→ scanning 1,284 frames…</span>
       </div>
-      <dba-ui-text-button
-        label="Access Repository"
-        variant="primary"
-        size="md"
-        [href]="repoUrl"
-        (clicked)="onLaunch()"
-      >
-        <dba-ui-icon slot="trailing" [def]="chevronRightIcon" [size]="14" />
-      </dba-ui-text-button>
-    </header>
-
-    <div class="tool-grid">
-      <section class="briefing">
-        <dba-ui-card title="Overview">
-          <p>
-            File Grouper is a platform-agnostic Go utility designed to solve
-            the chaos of unstructured astrophotography datasets.
-            Specifically optimized for ASIAIR and similar capture systems,
-            it automates the tedious task of sorting thousands of frames
-            into a logical hierarchy.
-          </p>
-          <p>
-            A clean dataset is the foundation of high-quality processing.
-            File Grouper ensures your data is ready for calibration and
-            stacking before you even open your processing software.
-          </p>
-        </dba-ui-card>
-
-        <dba-ui-card title="Features">
-          <ul class="specs-list">
-            <li>
-              <strong>SENSOR CLASSIFICATION</strong>
-              <span
-                >Automatically group and organize images based on the camera
-                model and sensor type detected in metadata.</span
-              >
-            </li>
-            <li>
-              <strong>TEMPORAL SORTING</strong>
-              <span
-                >Efficiently group entire imaging sessions by precise dates,
-                keeping multi-night project data separate.</span
-              >
-            </li>
-            <li>
-              <strong>OBJECT TARGETING</strong>
-              <span
-                >Classify and folder frames by celestial object names,
-                separating your 'M42' from your 'Rosette' data
-                instantly.</span
-              >
-            </li>
-          </ul>
-        </dba-ui-card>
-      </section>
-
-      <section class="intelligence">
-        <dba-ui-card title="Setup & Usage">
-          <div class="protocol-step">
-            <span class="step-label">INSTALLATION</span>
-            <pre class="code-block"><code>go install github.com/sidthesloth92/db-astro-suite/tools/file-grouper&#64;latest</code></pre>
-          </div>
-          <div class="protocol-step">
-            <span class="step-label">EXECUTION</span>
-            <pre class="code-block"><code>file-grouper --organize-asiair ./raw-data</code></pre>
-          </div>
-
-          <div class="media-placeholder">
-            <div class="placeholder-icon">terminal</div>
-            <div class="placeholder-text">CLI execution diagram pending</div>
-            <div class="placeholder-subtext">
-              User to provide terminal output screenshot
-            </div>
-          </div>
-        </dba-ui-card>
-      </section>
-    </div>
-
-    <dba-ui-footer></dba-ui-footer>
+    </dba-hub-demo-frame>
   </div>
-</dba-ui-starry-background>
+
+  <div output>
+    <dba-hub-demo-frame label="./raw-data" status="Sorted">
+      <div class="term">
+        <span class="term__ok">✓ grouped 1,284 frames · 12 sets · 0.42s</span><br />
+        raw-data/<br />
+        &nbsp;├─ ASI2600MM/<br />
+        &nbsp;│&nbsp;&nbsp;├─ 2026-02-15/<br />
+        &nbsp;│&nbsp;&nbsp;│&nbsp;&nbsp;├─ <span class="term__prompt">Rosette</span>/<br />
+        &nbsp;│&nbsp;&nbsp;│&nbsp;&nbsp;└─ <span class="term__prompt">M42</span>/<br />
+        &nbsp;│&nbsp;&nbsp;└─ 2026-02-18/<br />
+        &nbsp;└─ ASI533MC/<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;└─ 2026-02-20/
+      </div>
+    </dba-hub-demo-frame>
+  </div>
+</dba-hub-tool-detail>

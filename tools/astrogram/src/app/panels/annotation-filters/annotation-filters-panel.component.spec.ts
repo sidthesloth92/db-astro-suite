@@ -26,4 +26,25 @@ describe('AnnotationFiltersPanelComponent', () => {
     fixture.componentInstance.setMaxMagnitude(11);
     expect(svc.stellarMapData().filters.maxStarMagnitude).toBe(11);
   });
+
+  it('toggles the "named objects only" declutter filter', () => {
+    const fixture = TestBed.createComponent(AnnotationFiltersPanelComponent);
+    fixture.detectChanges();
+    const initial = svc.stellarMapData().filters.onlyNamed;
+    fixture.componentInstance.toggle('onlyNamed');
+    expect(svc.stellarMapData().filters.onlyNamed).toBe(!initial);
+  });
+
+  it('toggles global label/magnitude/distance visibility via the Display section', () => {
+    const fixture = TestBed.createComponent(AnnotationFiltersPanelComponent);
+    fixture.detectChanges();
+
+    const labels = svc.stellarMapData().globalAnnotationSettings.showLabels;
+    fixture.componentInstance.toggleGlobal('showLabels');
+    expect(svc.stellarMapData().globalAnnotationSettings.showLabels).toBe(!labels);
+
+    const distance = svc.stellarMapData().globalAnnotationSettings.showDistance;
+    fixture.componentInstance.toggleGlobal('showDistance');
+    expect(svc.stellarMapData().globalAnnotationSettings.showDistance).toBe(!distance);
+  });
 });

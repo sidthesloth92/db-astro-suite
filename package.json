@@ -1,6 +1,6 @@
 {
   "name": "db-astro-suite",
-  "version": "1.19.1",
+  "version": "1.23.0",
   "private": true,
   "packageManager": "pnpm@9.15.0",
   "description": "A suite of Astro tools with Python backends and Go generators.",
@@ -11,7 +11,9 @@
     "dev:astrogram": "pnpm --filter @db-astro-suite/astrogram dev",
     "dev:astrosolve": "pnpm --filter @db-astro-suite/astrosolve-server dev",
     "start:astrosolve": "pnpm --filter @db-astro-suite/astrosolve-server start",
-    "build": "pnpm -r exec rm -rf dist && rm -rf dist && pnpm build:hub && pnpm build:starwizz && pnpm build:astrogram && pnpm build:merge",
+    "build": "pnpm -r exec rm -rf dist && rm -rf dist && pnpm sitemap && pnpm redirects && pnpm build:hub && pnpm build:starwizz && pnpm build:astrogram && pnpm build:merge",
+    "sitemap": "node scripts/generate-sitemap.mjs",
+    "redirects": "node scripts/generate-redirects.mjs",
     "test": "pnpm --filter @db-astro-suite/ui test && pnpm --filter @db-astro-suite/astrogram test",
     "postinstall": "playwright install chromium",
     "test:e2e": "playwright test",

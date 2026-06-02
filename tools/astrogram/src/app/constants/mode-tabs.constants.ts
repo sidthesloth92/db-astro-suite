@@ -5,8 +5,16 @@ export type ModeTabId = 'infographic' | 'stellar';
 
 /** Mode-tab options rendered in the preview toolbar's segmented tabs. */
 export const MODE_TAB_OPTIONS: readonly SegmentedTabOption[] = [
-  { id: 'infographic', label: 'Infographics' },
-  { id: 'stellar', label: 'Stellar map' },
+  {
+    id: 'infographic',
+    label: 'Infographics',
+    tooltip: 'Build an infographic card with your equipment, integration time and capture details.',
+  },
+  {
+    id: 'stellar',
+    label: 'Stellar map',
+    tooltip: 'Plate-solve an astrophoto and annotate the catalogued objects in the field.',
+  },
 ];
 
 /** Maps a tab id back to the `CardDataService.activeMode` value. */

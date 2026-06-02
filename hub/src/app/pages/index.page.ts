@@ -1,24 +1,24 @@
 import { RouteMeta } from '@analogjs/router';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   AnalyticsService,
   BlackHoleLoaderComponent,
-  CardComponent,
   FooterComponent,
   IconComponent,
-  PillBadgeComponent,
   StarryBackgroundComponent,
-  TextButtonComponent,
-  chevronRightIcon,
+  cpuIcon,
 } from '@db-astro-suite/ui';
+import { CrescentLogoComponent } from '../components/crescent-logo/crescent-logo.component';
+import packageJson from '../../../../package.json';
 import type { HubTool } from './hub-tool.types';
 
 /**
- * Hub home page — restyled to the Direction B Polished theme.
- * Layout is preserved; bespoke status pills / launch CTAs are replaced
- * by the libs/ui primitives (`PillBadge`, `TextButton`) so hub reads
- * as a sibling of the astrogram chrome.
+ * Hub home page — premium "DB Astro Suite" landing redesign.
+ * Leads with the animated crescent + ASTROSUITE wordmark lockup, then a
+ * restrained 3-up tool-card grid. The starry background + black-hole loader
+ * animation is preserved; colour earns its place (pink/cyan only on the
+ * wordmark, status dots, and accents).
  */
 @Component({
   selector: 'dba-hub-home-page',
@@ -26,12 +26,10 @@ import type { HubTool } from './hub-tool.types';
   imports: [
     RouterLink,
     BlackHoleLoaderComponent,
-    CardComponent,
     FooterComponent,
     StarryBackgroundComponent,
-    PillBadgeComponent,
-    TextButtonComponent,
     IconComponent,
+    CrescentLogoComponent,
   ],
   templateUrl: './index.page.html',
   styleUrl: './index.page.css',
@@ -42,23 +40,27 @@ import type { HubTool } from './hub-tool.types';
 export default class HomePageComponent {
   private readonly analytics = inject(AnalyticsService);
 
-  /** Chevron-right glyph rendered as the trailing icon on each Learn more CTA. */
-  protected readonly chevronRightIcon = chevronRightIcon;
+  /** CPU glyph used as the File Grouper CLI card icon. */
+  protected readonly cpuIcon = cpuIcon;
+
+  /** App version shown in the hero status pill (mirrors the footer). */
+  protected readonly version = packageJson.version;
+
+  /**
+   * Whether the black-hole background loader is shown. Held back until the
+   * crescent logo intro animation has settled so the two animations play in
+   * sequence (logo first, then background).
+   */
+  protected readonly showBackground = signal(false);
 
   /** Fires the hub tool card click analytics event. */
   onCardClick(tool: HubTool): void {
     this.analytics.trackHubToolCardClicked(tool, 'card');
   }
 
-  /**
-   * Fires the hub "learn more" link analytics event. The `event` is used
-   * to stop propagation so the parent mission-card's click handler /
-   * `[routerLink]` does not fire as well (otherwise we double-track the
-   * card click + double-trigger navigation).
-   */
-  onLearnMoreClick(event: Event, tool: HubTool): void {
-    event.stopPropagation();
-    this.analytics.trackHubToolCardClicked(tool, 'learn_more');
+  /** Reveals the background animation once the logo intro has finished. */
+  onLogoAnimationDone(): void {
+    this.showBackground.set(true);
   }
 }
 

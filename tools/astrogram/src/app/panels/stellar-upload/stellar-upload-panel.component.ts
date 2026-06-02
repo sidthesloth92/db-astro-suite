@@ -230,7 +230,9 @@ export class StellarUploadPanelComponent implements OnInit, OnDestroy {
 
           return {
             id: obj.entryId || obj.name,
-            label: obj.commonName || obj.name,
+            // Prefer a friendly common name, else the best designation (aliases
+            // arrive best-first from the backend), falling back to the raw name.
+            label: obj.commonName?.trim() || obj.aliases?.[0]?.name || obj.name,
             name: obj.name,
             commonName: obj.commonName,
             xPercent,
@@ -241,6 +243,7 @@ export class StellarUploadPanelComponent implements OnInit, OnDestroy {
             catalog: obj.catalog,
             type: obj.type,
             magnitude: obj.magnitude ?? undefined,
+            distanceLy: obj.distanceLy ?? undefined,
             aliases: obj.aliases?.map((al) => ({
               name: al.name,
               catalog: al.catalog,

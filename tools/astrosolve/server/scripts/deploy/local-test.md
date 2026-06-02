@@ -107,7 +107,7 @@ docker build -t ${LOCAL_IMAGE}:${IMAGE_TAG} tools/astrosolve/server
 ## 4. Transfer Init Scripts Into The VM
 
 ```bash
-DEPLOY_DIR="/root/astrosolve-deploy"
+DEPLOY_DIR="/opt/astrosolve/scripts"
 orb run -m astrosolve-test -u root mkdir -p "$DEPLOY_DIR"
 tar -cf - \
   -C tools/astrosolve/server/scripts/deploy \
@@ -123,10 +123,10 @@ tar -cf - \
 
 ```bash
 orb run -m astrosolve-test sudo bash -c "
-  chmod +x /root/astrosolve-deploy/*.sh
+  chmod +x /opt/astrosolve/scripts/*.sh
   DEPLOY_USER='${DEPLOY_USER}' \
   APP_DIR='${APP_DIR}' \
-  /root/astrosolve-deploy/1_server_init.sh
+  /opt/astrosolve/scripts/1_server_init.sh
 "
 ```
 

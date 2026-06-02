@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="DB Astro Suite">
+  <defs>
+    <mask id="crescent">
+      <circle cx="58" cy="60" r="42" fill="#fff" />
+      <circle cx="78" cy="60" r="38" fill="#000" />
+    </mask>
+  </defs>
+  <rect width="120" height="120" rx="22" fill="#05060A" />
+  <circle cx="58" cy="60" r="42" fill="#ff2d95" opacity="0.94" mask="url(#crescent)" />
+  <text x="65" y="68" text-anchor="middle" font-family="Verdana, Arial, sans-serif" font-weight="700" font-size="27" fill="#e9e9f2">D</text>
+  <text x="88" y="68" text-anchor="middle" font-family="Verdana, Arial, sans-serif" font-weight="700" font-size="27" fill="#e9e9f2">B</text>
+  <text x="55" y="80" text-anchor="start" font-family="Arial, sans-serif" font-weight="700" font-size="8" letter-spacing="0.5"><tspan fill="#e9e9f2">ASTRO</tspan><tspan fill="#ff2d95">SUITE</tspan></text>
+  <path d="M 96 28 L 98.6 38 L 108 41 L 98.6 44 L 96 54 L 93.4 44 L 84 41 L 93.4 38 Z" fill="#00E5FF" />
+  <path d="M 80 18 L 81 22 L 85 23 L 81 24 L 80 28 L 79 24 L 75 23 L 79 22 Z" fill="#e9e9f2" />
+  <path d="M 111 52 L 112 56 L 116 57 L 112 58 L 111 62 L 110 58 L 106 57 L 110 56 Z" fill="#00E5FF" />
+</svg>

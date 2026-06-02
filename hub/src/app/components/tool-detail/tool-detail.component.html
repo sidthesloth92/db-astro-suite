@@ -1,0 +1,195 @@
+<dba-ui-starry-background>
+  <div class="content">
+    <nav class="top-nav">
+      <a routerLink="/" class="back-link">
+        <dba-ui-icon [def]="chevronLeftIcon" [size]="12" />
+        <span>RETURN TO HUB</span>
+      </a>
+      <div class="mission-id">{{ config().missionLabel }}</div>
+    </nav>
+
+    <!-- HERO — description left, projected preview right -->
+    <header class="hero">
+      <div class="hero__lead">
+        <div class="hero__meta">
+          <span class="hero__mark"><ng-content select="[mark]" /></span>
+          <span class="status-pill" [class.status-pill--wip]="config().status === 'wip'">
+            <span class="status-pill__dot"></span>
+            {{ config().moduleLabel }} · {{ config().statusLabel }}
+          </span>
+        </div>
+        <h1 class="hero__title" [attr.aria-label]="config().name">
+          <span class="hero__title-accent">{{ config().titleAccent }}</span
+          >{{ config().titleRest }}
+        </h1>
+        <p class="hero__tagline">{{ config().tagline }}</p>
+        <p class="hero__desc">{{ config().description }}</p>
+        <div class="hero__actions">
+          <a
+            class="cta cta--primary"
+            [href]="config().primaryUrl"
+            [attr.target]="config().primaryExternal ? '_blank' : null"
+            [attr.rel]="config().primaryExternal ? 'noopener noreferrer' : null"
+            (click)="onPrimary()"
+          >
+            {{ config().primaryLabel }}
+            <dba-ui-icon [def]="chevronRightIcon" [size]="14" />
+          </a>
+          @if (config().secondaryUrl) {
+            <a
+              class="cta cta--ghost"
+              [href]="config().secondaryUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              (click)="onSecondary()"
+            >
+              {{ config().secondaryLabel }}
+            </a>
+          }
+        </div>
+      </div>
+
+      <div class="hero__preview">
+        <div class="kicker-row">
+          <span class="kicker"><span class="kicker__dot"></span>{{ config().previewKicker }}</span>
+          <span class="meta">{{ config().previewMeta }}</span>
+        </div>
+        <ng-content select="[preview]" />
+      </div>
+    </header>
+
+    <!-- STATS -->
+    <section class="stats" aria-label="Key metrics">
+      @for (s of config().stats; track s.label) {
+        <div class="stat">
+          <div class="stat__label">{{ s.label }}</div>
+          <div class="stat__value">{{ s.value }}</div>
+        </div>
+      }
+    </section>
+
+    <!-- ABOUT / OVERVIEW -->
+    <section class="section">
+      <div class="sec-head">
+        <div>
+          <span class="kicker"><span class="kicker__dot"></span>{{ config().aboutKicker }}</span>
+          @let aboutTitle = config().aboutTitle | dualTitle;
+          <h2 class="sec-head__title">
+            <span class="sec-head__accent">{{ aboutTitle[0] }}</span>{{ aboutTitle[1] }}
+          </h2>
+        </div>
+        @if (config().aboutMeta) {
+          <span class="meta">{{ config().aboutMeta }}</span>
+        }
+      </div>
+      <div class="about">
+        <div class="about__col">
+          @for (p of aboutLeft(); track $index) {
+            <p class="about__p">{{ p }}</p>
+          }
+        </div>
+        <div class="about__col">
+          @for (p of aboutRight(); track $index) {
+            <p class="about__p">{{ p }}</p>
+          }
+          @if (config().aboutPull) {
+            <blockquote class="about__pull">{{ config().aboutPull }}</blockquote>
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- WHAT IT DOES -->
+    <section class="section">
+      <div class="sec-head">
+        <div>
+          <span class="kicker"><span class="kicker__dot"></span>Section · 01</span>
+          @let whatTitle = 'WHAT IT DOES' | dualTitle;
+          <h2 class="sec-head__title">
+            <span class="sec-head__accent">{{ whatTitle[0] }}</span>{{ whatTitle[1] }}
+          </h2>
+        </div>
+        <span class="meta">{{ config().features.length }} CAPABILITIES</span>
+      </div>
+      <div class="features">
+        @for (f of config().features; track f.name) {
+          <article class="feature">
+            <div class="feature__icon">
+              <dba-ui-icon [def]="f.icon" [size]="20" />
+            </div>
+            <h3 class="feature__name">{{ f.name }}</h3>
+            <p class="feature__body">{{ f.body }}</p>
+          </article>
+        }
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="section">
+      <div class="sec-head">
+        <div>
+          <span class="kicker"><span class="kicker__dot"></span>Section · 02</span>
+          @let howTitle = 'HOW IT WORKS' | dualTitle;
+          <h2 class="sec-head__title">
+            <span class="sec-head__accent">{{ howTitle[0] }}</span>{{ howTitle[1] }}
+          </h2>
+        </div>
+        <span class="meta">{{ config().steps.length }} STEPS</span>
+      </div>
+      <ol class="steps">
+        @for (s of config().steps; track s.title; let i = $index) {
+          <li class="step">
+            <div class="step__num">{{ i + 1 < 10 ? '0' + (i + 1) : i + 1 }}</div>
+            <h4 class="step__title">{{ s.title }}</h4>
+            <p class="step__body">{{ s.body }}</p>
+          </li>
+        }
+      </ol>
+    </section>
+
+    <!-- OUTPUT -->
+    <section class="section">
+      <div class="sec-head">
+        <div>
+          <span class="kicker"><span class="kicker__dot"></span>{{ config().outputKicker }}</span>
+          @if (config().outputTitle; as rawOutputTitle) {
+            @let outputTitle = rawOutputTitle | dualTitle;
+            <h2 class="sec-head__title">
+              <span class="sec-head__accent">{{ outputTitle[0] }}</span>{{ outputTitle[1] }}
+            </h2>
+          }
+        </div>
+        @if (config().outputMeta) {
+          <span class="meta">{{ config().outputMeta }}</span>
+        }
+      </div>
+      <div class="output">
+        <ng-content select="[output]" />
+        @if (config().outputCaption) {
+          <p class="output__caption">{{ config().outputCaption }}</p>
+        }
+      </div>
+    </section>
+
+    <!-- CLOSING CTA -->
+    <a
+      class="closing"
+      [href]="config().primaryUrl"
+      [attr.target]="config().primaryExternal ? '_blank' : null"
+      [attr.rel]="config().primaryExternal ? 'noopener noreferrer' : null"
+      (click)="onPrimary()"
+    >
+      <div>
+        <span class="kicker"><span class="kicker__dot"></span>Ready</span>
+        <div class="closing__title">
+          {{ config().ctaTitle.before }}<span class="accent">{{ config().ctaTitle.accent }}</span
+          >{{ config().ctaTitle.after }}
+        </div>
+        <div class="closing__sub">{{ config().ctaSubtitle }}</div>
+      </div>
+      <span class="closing__cta">{{ config().primaryLabel }} <span aria-hidden="true">→</span></span>
+    </a>
+
+    <dba-ui-footer></dba-ui-footer>
+  </div>
+</dba-ui-starry-background>

@@ -7,6 +7,7 @@ import {
   InspectorSectionComponent,
   MicroSliderComponent,
   SwitchComponent,
+  TooltipDirective,
   rotateCcwIcon,
   tagIcon,
   targetIcon,
@@ -36,6 +37,7 @@ import { CardDataService } from '../../services/card-data.service';
     ColorSwatchInputComponent,
     SwitchComponent,
     IconComponent,
+    TooltipDirective,
   ],
   templateUrl: './annotation-selected-panel.component.html',
   styleUrls: ['./annotation-selected-panel.component.css'],
@@ -151,6 +153,16 @@ export class AnnotationSelectedPanelComponent {
     () => this.annotation()?.style?.showMagnitude ?? this.globalSettings().showMagnitude,
   );
 
+  /** Effective show-label toggle (override → global). */
+  readonly effectiveShowLabel = computed(
+    () => this.annotation()?.style?.showLabel ?? this.globalSettings().showLabels,
+  );
+
+  /** Effective show-distance toggle (override → global). */
+  readonly effectiveShowDistance = computed(
+    () => this.annotation()?.style?.showDistance ?? this.globalSettings().showDistance,
+  );
+
   /**
    * True when the selected annotation has any per-annotation overrides
    * set (label, size, colour, etc.). Drives the Revert button's enabled
@@ -180,6 +192,8 @@ export class AnnotationSelectedPanelComponent {
   readonly isFontSizeOverridden = this.isOverridden('fontSize');
   readonly isLabelOpacityOverridden = this.isOverridden('labelOpacity');
   readonly isShowMagOverridden = this.isOverridden('showMagnitude');
+  readonly isShowLabelOverridden = this.isOverridden('showLabel');
+  readonly isShowDistanceOverridden = this.isOverridden('showDistance');
 
   /** Patches the annotation style for the current selection. */
   updateStyle(patch: Partial<AnnotationStyle>): void {

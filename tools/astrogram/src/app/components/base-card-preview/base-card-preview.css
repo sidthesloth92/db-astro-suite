@@ -51,6 +51,17 @@
   min-width: 0;
 }
 
+/* Stellar (auto) mode sizes the card to the image's natural width, so the
+   whole container is scaled down hard (e.g. 0.44×). A flat 1px border would
+   render sub-pixel and disappear, leaving the card looking borderless against
+   the crisp (unscaled) header. Counter-scale the side/bottom border so it
+   stays visually ~1px. Scoped to `auto` so fixed-aspect cards (and their
+   visual snapshots) are unaffected. */
+.post-container.auto-frame {
+  border-width: calc(1px / var(--scale-factor, 1));
+  border-top-width: 0;
+}
+
 /* Export Processing Overlay */
 .export-overlay {
   position: absolute;
@@ -174,7 +185,11 @@
 .card.aspect-auto {
   height: var(--img-height, 600px);
   width: 100%; /* fill the post-container which handles min/max width */
-  overflow: visible; /* stellar map markers may bleed slightly at image edges */
+  /* Clip to the frame: when the stellar map is zoomed, the transformed
+     background + annotation layers scale past the card box. Their own
+     `overflow: hidden` only clips their children, so the frame itself must
+     clip them. At zoom 1 the layers are card-sized, so this is a no-op then. */
+  overflow: hidden;
 }
 
 /* Empty state: ensure the card has visible height so the upload overlay renders */

@@ -35,6 +35,8 @@ export interface CatalogObject {
   entryId?: string;
   commonName?: string;
   sizeArcmin?: number | null;
+  /** Distance to the object in light-years, when known. */
+  distanceLy?: number | null;
   /** All coincident designations for this position, best-name-first. */
   aliases?: ObjectAlias[];
   /** Distinct human-readable category labels (e.g. "Galaxy", "Star"). */

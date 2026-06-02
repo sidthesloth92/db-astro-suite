@@ -1,0 +1,21 @@
+<div class="frame">
+  <div class="frame__bar">
+    <span class="frame__dots" aria-hidden="true">
+      <i></i><i></i><i></i>
+    </span>
+    @if (label()) {
+      <span class="frame__label">{{ label() }}</span>
+    }
+    @if (status()) {
+      <span class="frame__status" [class.frame__status--live]="live()">
+        @if (live()) {
+          <span class="frame__status-dot" aria-hidden="true"></span>
+        }
+        {{ status() }}
+      </span>
+    }
+  </div>
+  <div class="frame__body">
+    <ng-content />
+  </div>
+</div>

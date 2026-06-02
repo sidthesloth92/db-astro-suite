@@ -86,6 +86,9 @@ export async function findObjectsInRadius(
         obj.entryId,
         obj.commonName,
         obj.sizeArcmin ?? null,
+        undefined, // aliases (assembled later by the merge)
+        undefined, // categories (assembled later by the merge)
+        obj.distanceLy ?? null,
       );
     });
 }

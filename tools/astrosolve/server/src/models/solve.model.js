@@ -60,6 +60,7 @@ export class CatalogObject {
    * @param {number | null} [sizeArcmin] - Angular size in arcminutes if known
    * @param {ObjectAlias[]} [aliases] - All coincident designations (incl. this one)
    * @param {string[]} [categories] - Distinct human-readable category labels
+   * @param {number | null} [distanceLy] - Distance in light-years if known
    */
   constructor(
     name,
@@ -74,6 +75,7 @@ export class CatalogObject {
     sizeArcmin,
     aliases,
     categories,
+    distanceLy,
   ) {
     this.name = name;
     this.type = type;
@@ -87,6 +89,7 @@ export class CatalogObject {
     this.sizeArcmin = sizeArcmin;
     this.aliases = aliases;
     this.categories = categories;
+    this.distanceLy = distanceLy;
   }
 }
 

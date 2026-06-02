@@ -88,7 +88,8 @@
 }
 
 .format-label-row,
-.slider-label-row {
+.slider-label-row,
+.record-aux {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -214,4 +215,32 @@
   font-family: var(--db-font-ui);
   font-size: 11px;
   color: var(--db-color-text-dim);
+}
+
+.path-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--db-color-border);
+  border-radius: 10px;
+  background: var(--db-color-surface-hi);
+}
+
+.path-hint {
+  margin: 0;
+  font-family: var(--db-font-ui);
+  font-size: 11px;
+  color: var(--db-color-text-dim);
+}
+
+.path-keyframes {
+  display: flex;
+  gap: 8px;
+}
+
+.path-keyframes dba-ui-text-button {
+  flex: 1;
+  min-width: 0;
+  display: flex;
 }

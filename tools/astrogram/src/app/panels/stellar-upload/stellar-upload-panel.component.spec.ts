@@ -25,6 +25,7 @@ const emptyMap: StellarMapData = {
   aspectRatio: 'auto',
   annotations: [],
   filters: {
+    onlyNamed: false,
     showMessier: true,
     showNGC: true,
     showIC: true,

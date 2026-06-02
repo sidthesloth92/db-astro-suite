@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { AnalyticsService } from '@db-astro-suite/ui';
 
 import { ControlPanel } from './control-panel';
 
@@ -8,7 +9,8 @@ describe('ControlPanel', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ControlPanel]
+      imports: [ControlPanel],
+      providers: [{ provide: AnalyticsService, useValue: {} }],
     })
     .compileComponents();
 

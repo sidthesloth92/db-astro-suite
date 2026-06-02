@@ -185,6 +185,15 @@ const config = Object.freeze({
    * Absolute path to the local celestial catalog SQLite database.
    */
   localCatalogDbPath: path.join(DATA_DIR, "local-catalog/celestial.sqlite"),
+
+  /**
+   * When true, the solve pipeline also queries the external SIMBAD service and
+   * merges its results with the local catalog. Defaults to FALSE: the local
+   * catalog now covers every object niche, and SIMBAD's sizeless cross-source
+   * rows were the root cause of marker fragmentation. Set SIMBAD_ENABLED=true
+   * to re-enable it as a supplementary source.
+   */
+  simbadEnabled: process.env.SIMBAD_ENABLED === "true",
 });
 
 export default config;

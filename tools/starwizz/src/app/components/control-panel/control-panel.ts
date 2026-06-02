@@ -5,25 +5,44 @@ import {
   SelectComponent,
   SwitchComponent,
   TextButtonComponent,
+  TooltipDirective,
   circleHelpIcon,
   rotateCcwIcon,
   type SelectItem,
 } from '@db-astro-suite/ui';
 import {
   CONTROLS,
+  DIRECTION_OPTIONS,
   FORMATS,
   FORMAT_GROUPS,
   FormatKey,
+  MAX_ZOOM,
+  MIN_SCALE,
+  PATH_DURATION_MAX,
+  PATH_DURATION_MIN,
+  PATH_SPEED_MAX,
+  PATH_SPEED_MIN,
+  PATH_SPEED_STEP,
+  STAR_ANGLE_MAX,
+  STAR_ANGLE_MIN,
+  STAR_ANGLE_STEP,
 } from '../../constants/simulation.constant';
-import { ControlKey } from '../../models/simulation.model';
+import { ControlKey, TravelDirection } from '../../models/simulation.model';
 import { SimulationService } from '../../services/simulation.service';
 
+/** Generic slider controls hidden while the cinematic Custom Path mode is active. */
+const PATH_HIDDEN_CONTROLS: ReadonlySet<ControlKey> = new Set<ControlKey>([
+  'zoomRate',
+  'rotationRate',
+  'shootingStarSpeed',
+]);
+
 /**
- * Starwizz control panel — sliders, format selector, animation
- * controls, and the recording trigger. All recording wiring (state
- * machine in `SimulationService`, including `toggleRecording`) is
- * preserved byte-identical from the previous implementation; only
- * the chrome is migrated to the Direction B Polished primitive family.
+ * Starwizz control panel — sliders, format selector, travel-direction /
+ * Custom Path controls, and the recording trigger. Recording wiring (the
+ * state machine in `SimulationService`, including `toggleRecording`) is
+ * preserved; the Custom Path section is shown only when the `path` direction
+ * is selected.
  */
 @Component({
   selector: 'dba-sw-control-panel',
@@ -34,6 +53,7 @@ import { SimulationService } from '../../services/simulation.service';
     SwitchComponent,
     TextButtonComponent,
     IconComponent,
+    TooltipDirective,
   ],
   templateUrl: './control-panel.html',
   styleUrl: './control-panel.css',
@@ -51,13 +71,42 @@ export class ControlPanel {
   /** Tooltip text shown on the help icon next to the format selector. */
   protected readonly formatHelp =
     'Output dimensions for the recorded video. 9:16 vertical is best for stories and reels; 16:9 horizontal is best for YouTube.';
+  /** Tooltip text shown on the help icon next to the direction selector. */
+  protected readonly directionHelp =
+    'How the camera moves. Forward/Backward fly into or away from the scene; Left/Right/Up/Down drift sideways with parallax; Custom Path (A→B) glides between two framings you set.';
+  /** Tooltip text shown on the help icon next to the Custom Path section. */
+  protected readonly pathHelp =
+    'Build a camera move between two framings:\n' +
+    '• Frame the start view — drag to pan, scroll/Zoom slider to zoom\n' +
+    '• Click "Set Start A" to save it\n' +
+    '• Reframe (pan/zoom) for the end view\n' +
+    '• Click "Set End B" to save it\n' +
+    '• Click "Set Path" — the camera glides A→B and loops\n' +
+    '• Tune Camera Speed or Duration to change the pace\n' +
+    '• "Reset Points" clears A & B; "Edit Path" re-opens them';
+  /** Tooltip for the Custom Path Camera Speed slider. */
+  protected readonly cameraSpeedHelp =
+    'How fast the camera travels from A to B. Linked to Duration — this is the cinematic move, separate from how fast the stars move (Star Speed).';
+  /** Tooltip for the Custom Path Duration slider. */
+  protected readonly durationHelp =
+    'Total time for the A→B camera move. Linked to Camera Speed.';
+  /** Tooltip text shown on the help icon next to the Sideways-drift control. */
+  protected readonly starDriftHelp =
+    'Stars normally fly in/out when the path zooms, or drift along the path when it pans. Turn this on to make the stars drift sideways at a custom angle instead.';
+
+  /**
+   * Whether the Sideways-drift control (toggle + angle slider) is shown. The
+   * feature stays fully wired; lateral drift is still derived from the A→B path
+   * regardless. Flip to `true` to expose the manual control again.
+   */
+  protected readonly showSidewaysDrift = false;
   /** Tooltip text shown on the help icon next to the "From beginning" switch. */
   protected readonly fromBeginningHelp =
-    'When enabled, the animation resets to its initial position (zoom = 1.0, rotation = 0) before recording starts.';
+    'When enabled, the animation resets to its initial position before recording starts.';
 
   /** Slider control metadata (label, min/max/step/precision, etc.). */
   readonly controlConfig = CONTROLS;
-  /** Stable list of control keys in render order. */
+  /** Stable list of all control keys in render order. */
   readonly controlNames = Object.keys(CONTROLS) as ControlKey[];
   /** Format descriptors keyed by FormatKey. */
   readonly formats = FORMATS;
@@ -66,6 +115,36 @@ export class ControlPanel {
     label: group.label,
     options: group.keys.map((key) => ({ label: FORMATS[key].label, value: key })),
   }));
+  /** Travel-direction options for the <dba-ui-select>. */
+  readonly directionOptions: readonly SelectItem[] = DIRECTION_OPTIONS;
+
+  // Custom Path slider bounds (exposed for template binding).
+  /** Zoom slider lower bound (image just covers the frame). */
+  readonly zoomMin = MIN_SCALE;
+  /** Zoom slider upper bound. */
+  readonly zoomMax = MAX_ZOOM;
+  /** Zoom slider step. */
+  readonly zoomStep = 0.05;
+  /** Travel-speed slider bounds/step (world px per second). */
+  readonly speedMin = PATH_SPEED_MIN;
+  readonly speedMax = PATH_SPEED_MAX;
+  readonly speedStep = PATH_SPEED_STEP;
+  /** Duration slider bounds/step (seconds). */
+  readonly durationMin = PATH_DURATION_MIN;
+  readonly durationMax = PATH_DURATION_MAX;
+  readonly durationStep = 0.5;
+  /** Sideways-drift angle slider bounds/step (degrees). */
+  readonly angleMin = STAR_ANGLE_MIN;
+  readonly angleMax = STAR_ANGLE_MAX;
+  readonly angleStep = STAR_ANGLE_STEP;
+
+  /** Control keys to render as sliders, filtered for the active mode. */
+  readonly visibleControlNames = computed<ControlKey[]>(() => {
+    if (!this.simService.isPathMode()) {
+      return this.controlNames;
+    }
+    return this.controlNames.filter((key) => !PATH_HIDDEN_CONTROLS.has(key));
+  });
 
   /** Label rendered inside the record button — varies with recording state. */
   readonly buttonText = computed<string>(() => {
@@ -84,10 +163,27 @@ export class ControlPanel {
   /** Current recording state mirrored as a data-attribute-friendly signal. */
   readonly recordingState = computed(() => this.simService.recordingState());
 
+  /** Live zoom of the framing the user is composing. */
+  readonly liveZoom = computed<number>(() => this.simService.liveCamera().scale);
+
+  /** Current travel speed (world px/sec), rounded for display. */
+  readonly speedValue = computed<number>(() => Math.round(this.simService.pathSpeed()));
+
+  /** Current A→B duration (seconds), derived from speed + distance, for display. */
+  readonly durationValue = computed<number>(
+    () => Math.round(this.simService.pathDurationSeconds() * 10) / 10,
+  );
+
   /** Updates the selected format after a select change. */
   updateFormat(value: string | number | boolean): void {
     this.simService.currentFormat.set(value as FormatKey);
   }
+
+  /** Updates the camera travel direction after a select change. */
+  updateDirection(value: string | number | boolean): void {
+    this.simService.updateDirection(value as TravelDirection);
+  }
+
 
   /** Forwards a slider change to the simulation service. */
   updateControlValue(control: ControlKey, value: number): void {
@@ -104,6 +200,58 @@ export class ControlPanel {
     const value = this.simService.getControlValue(control);
     const precision = this.controlConfig[control].precision ?? 0;
     return value.toFixed(precision);
+  }
+
+  // ==================== Custom Path controls ====================
+
+  /** Zooms the live framing (path mode). */
+  updateZoom(value: number): void {
+    this.simService.updateLiveCamera({ scale: value });
+  }
+
+  /** Sets the travel speed; the displayed duration recomputes from it. */
+  updateSpeed(value: number): void {
+    this.simService.pathSpeed.set(value);
+  }
+
+  /** Sets the duration; speed is derived (the linked side of the pair). */
+  updateDuration(value: number): void {
+    this.simService.setPathDuration(value);
+  }
+
+  /** Captures the current framing as Start (A). */
+  setStart(): void {
+    this.simService.setCameraStart();
+  }
+
+  /** Captures the current framing as End (B). */
+  setEnd(): void {
+    this.simService.setCameraEnd();
+  }
+
+  /** Fixes the path (locks A & B) and starts the continuous A↔B loop. */
+  fixPath(): void {
+    this.simService.finalizePath();
+  }
+
+  /** Unlocks the path so Start/End can be recaptured. */
+  editPath(): void {
+    this.simService.editPath();
+  }
+
+  /** Clears the path points (A & B) so the user can start over. */
+  resetPoints(): void {
+    this.simService.resetPath();
+  }
+
+  /** Toggles the optional sideways star drift. */
+  setStarLateral(on: boolean): void {
+    this.simService.setStarLateral(on);
+  }
+
+  /** Sets the sideways-drift angle (degrees). */
+  updateStarDirection(value: number): void {
+    this.simService.updateStarDirection(value);
   }
 
   /** Delegates to {@link SimulationService.toggleRecording}. */
