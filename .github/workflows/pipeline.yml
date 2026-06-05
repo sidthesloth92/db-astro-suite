@@ -162,6 +162,8 @@ jobs:
       release_created: ${{ steps.release.outputs.releases_created }}
       sortronomy_release_created: ${{ steps.release.outputs['tools/sortronomy--release_created'] }}
       sortronomy_tag: ${{ steps.release.outputs['tools/sortronomy--tag_name'] }}
+      celestory_release_created: ${{ steps.release.outputs['tools/celestory--release_created'] }}
+      celestory_tag: ${{ steps.release.outputs['tools/celestory--tag_name'] }}
     steps:
       # Uses a classic PAT with full `repo` scope. GITHUB_TOKEN gets silently
       # capped on the create-release endpoint on this repo (returns 403
@@ -198,6 +200,33 @@ jobs:
           version: latest
           args: release --clean
           workdir: tools/sortronomy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.TAP_PAT }}
+          SCOOP_TAP_GITHUB_TOKEN: ${{ secrets.TAP_PAT }}
+
+  release-celestory:
+    name: Release celestory
+    needs: release-please
+    if: needs.release-please.outputs.celestory_release_created == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          version: latest
+          args: release --clean
+          workdir: tools/celestory
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.TAP_PAT }}
