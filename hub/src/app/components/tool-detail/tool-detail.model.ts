@@ -27,6 +27,12 @@ export interface ToolDetailStep {
   readonly title: string;
   /** One-line explanation of the step. */
   readonly body: string;
+  /**
+   * When set, the step renders as a button that emits this id via the
+   * `stepAction` output — letting the host page react (e.g. open a dialog).
+   * Omit for a plain, non-interactive step.
+   */
+  readonly actionId?: string;
 }
 
 /**

@@ -1,7 +1,7 @@
 import { Locator, Page, expect } from "@playwright/test";
 
 /** Hub tool slugs — map 1:1 to `/tool/<slug>` URLs. */
-export type HubToolSlug = "astrogram" | "starwizz" | "file-grouper";
+export type HubToolSlug = "astrogram" | "starwizz" | "sortronomy";
 
 /**
  * Page Object for the three hub tool detail pages (`/tool/<slug>`). They share
@@ -23,7 +23,7 @@ export class HubToolPage {
     await expect(this.getHeroHeading()).toBeVisible();
   }
 
-  /** The single `<h1>` tool title (e.g. "ASTROGRAM", "FILE GROUPER"). */
+  /** The single `<h1>` tool title (e.g. "ASTROGRAM", "SORTRONOMY"). */
   getHeroHeading(): Locator {
     return this.page.getByRole("heading", { level: 1 });
   }

@@ -171,48 +171,68 @@ test.describe("Starwizz Tool Page", () => {
   });
 });
 
-test.describe("File Grouper Tool Page", () => {
+test.describe("Sortronomy Tool Page", () => {
   let hubTool: HubToolPage;
 
   test.beforeEach(async ({ page }) => {
     hubTool = new HubToolPage(page);
-    await hubTool.navigate("file-grouper");
+    await hubTool.navigate("sortronomy");
   });
 
-  test("renders the file-grouper hero heading and overview", async ({
+  test("renders the sortronomy hero heading and overview", async ({
     page,
   }) => {
-    await expect(hubTool.getHeroHeading()).toContainText("FILE GROUPER");
+    await expect(hubTool.getHeroHeading()).toContainText("SORTRONOMY");
+    await expect(hubTool.getSectionHeading(/What Sortronomy is/i)).toBeVisible();
     await expect(
-      hubTool.getSectionHeading(/What File Grouper is/i),
-    ).toBeVisible();
-    await expect(
-      page.getByText("File Grouper is a platform-agnostic", { exact: false }),
+      page.getByText("Sortronomy is a command-line wizard", {
+        exact: false,
+      }),
     ).toBeVisible();
   });
 
-  test("should render exactly three feature items", async () => {
-    await expect(hubTool.getFeatureHeadings()).toHaveCount(3);
+  test("should render exactly six feature items", async () => {
+    await expect(hubTool.getFeatureHeadings()).toHaveCount(6);
+  });
+
+  test("emphasises that it runs fully offline", async ({ page }) => {
+    await expect(
+      page.getByRole("heading", { name: "Fully offline" }),
+    ).toBeVisible();
+  });
+
+  test("opens an OS-specific install dialog from the Install step", async ({
+    page,
+  }) => {
+    await page.getByRole("button", { name: /Install/i }).first().click();
+    const dialog = page.getByRole("dialog", { name: "Install Sortronomy" });
+    await expect(dialog).toBeVisible();
+    await expect(
+      dialog.getByText("brew install --cask sidthesloth92/tap/sortronomy"),
+    ).toBeVisible();
+    await dialog.press("Escape");
+    await expect(dialog).toBeHidden();
   });
 
   test("exposes the access-repository CTA", async () => {
-    await expect(
-      hubTool.getPrimaryCta(/Access Repository/i),
-    ).toHaveAttribute("href", /github\.com.*file-grouper/);
+    await expect(hubTool.getPrimaryCta(/Access Repository/i)).toHaveAttribute(
+      "href",
+      /github\.com.*sortronomy/,
+    );
   });
 
   test("should expose the canonical, og, and twitter SEO meta tags", async ({
     page,
   }) => {
     await expect(page).toHaveTitle(
-      "File Grouper Tool - Dataset Organization Utility",
+      "Sortronomy - Organise Your FITS Captures Offline",
     );
 
     const ogTitle = await page.getAttribute(
       'meta[property="og:title"]',
       "content",
     );
-    expect(ogTitle).toBe("File Grouper - Organize Your Space Data");
+    expect(ogTitle).toBe("Sortronomy - Organize Your FITS Captures Offline");
 
     const description = await page.getAttribute(
       'meta[name="description"]',
@@ -228,11 +248,11 @@ test.describe("File Grouper Tool Page", () => {
     expect(twitterCard).toBe("summary_large_image");
 
     const canonical = await page.getAttribute('link[rel="canonical"]', "href");
-    expect(canonical).toBe("https://dbastrosuite.com/tool/file-grouper");
+    expect(canonical).toBe("https://dbastrosuite.com/tool/sortronomy");
   });
 
-  test("should visually match the file-grouper baseline", async ({ page }) => {
-    await expect(page).toHaveScreenshot("file-grouper-tool.png", {
+  test("should visually match the sortronomy baseline", async ({ page }) => {
+    await expect(page).toHaveScreenshot("sortronomy-tool.png", {
       fullPage: true,
       threshold: 0.2,
       timeout: 15000,
@@ -241,8 +261,9 @@ test.describe("File Grouper Tool Page", () => {
 });
 
 test.describe("Hub tool demo lightbox", () => {
-  // The file-grouper page uses CLI terminal blocks (no demo image / lightbox),
-  // so lightbox coverage is scoped to astrogram and starwizz.
+  // The sortronomy page currently uses placeholder media (no real demo image
+  // wired to a lightbox yet), so lightbox coverage stays scoped to astrogram
+  // and starwizz. TODO: extend to sortronomy once before/after screenshots land.
   const tools: ReadonlyArray<{
     slug: "astrogram" | "starwizz";
     expandButton: string;
