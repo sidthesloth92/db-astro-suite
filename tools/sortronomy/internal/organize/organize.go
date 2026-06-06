@@ -18,6 +18,7 @@ package organize
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -45,12 +46,16 @@ const DefaultSessionRolloverHour = 18
 
 // Options is the full set of user choices collected by the wizard.
 type Options struct {
-	SourceDir           string
-	OutputDir           string
-	GroupByFocal        bool
-	TagFilter           bool
-	Filter              FilterTag
-	SessionRolloverHour int // UTC hour, 0..23; 0 means "use default" (18)
+	SourceDir    string
+	OutputDir    string
+	GroupByFocal bool
+	TagFilter    bool
+	Filter       FilterTag
+	// GroupSession opts into rolling late captures into the next day's session
+	// folder (see SessionDate). When false, frames are filed under their literal
+	// UTC capture day.
+	GroupSession        bool
+	SessionRolloverHour int // UTC hour, 0..23; 0 means "use default" (18). Only applies when GroupSession is true.
 	Confirmed           bool
 }
 
@@ -71,11 +76,13 @@ type Skip struct {
 // Plan is the output of BuildPlan: an ordered list of files to copy, files
 // to skip with reasons, and aggregate diagnostics for the review screen.
 type Plan struct {
-	OutputDir  string
-	Entries    []Entry
-	Skips      []Skip
-	Programs   map[fits.Program]int
-	TotalFound int
+	OutputDir string
+	Entries   []Entry
+	Skips     []Skip
+	// SoftwareSeen tallies the capture-software label (recognized program name,
+	// or the raw creator string, or "Unknown") to file count, for the summary.
+	SoftwareSeen map[string]int
+	TotalFound   int
 }
 
 // FolderSummary aggregates Entry counts by destination directory for the
@@ -105,10 +112,36 @@ func (p Plan) FolderSummary() []FolderSummary {
 	return out
 }
 
+// softwareLabels formats a SoftwareSeen tally as "<label> (<count>)" entries,
+// sorted by count descending then label ascending for stable output.
+func softwareLabels(seen map[string]int) []string {
+	type entry struct {
+		label string
+		count int
+	}
+	entries := make([]entry, 0, len(seen))
+	for label, n := range seen {
+		entries = append(entries, entry{label: label, count: n})
+	}
+	sort.Slice(entries, func(i, j int) bool {
+		if entries[i].count != entries[j].count {
+			return entries[i].count > entries[j].count
+		}
+		return entries[i].label < entries[j].label
+	})
+	out := make([]string, len(entries))
+	for i, e := range entries {
+		out[i] = fmt.Sprintf("%s (%d)", e.label, e.count)
+	}
+	return out
+}
+
 // BuildPlan walks the source directory, reads each FITS header, and computes
 // destination paths. It does not copy any files. The returned Plan can be
-// shown to the user for review and then passed to ExecutePlan.
-func BuildPlan(opts Options) (Plan, error) {
+// shown to the user for review and then passed to ExecutePlan. Scan progress
+// is reported as a live line on a terminal (silent when output is piped) so
+// the header-reading phase isn't a blank wait.
+func BuildPlan(opts Options, log *slog.Logger) (Plan, error) {
 	if opts.SessionRolloverHour == 0 {
 		opts.SessionRolloverHour = DefaultSessionRolloverHour
 	}
@@ -118,35 +151,42 @@ func BuildPlan(opts Options) (Plan, error) {
 	}
 	opts.OutputDir = abs
 
+	fmt.Printf("Scanning %s …\n", opts.SourceDir)
 	files, err := walkFITS(opts.SourceDir)
 	if err != nil {
 		return Plan{}, err
 	}
 
 	plan := Plan{
-		OutputDir:  opts.OutputDir,
-		Programs:   map[fits.Program]int{},
-		TotalFound: len(files),
+		OutputDir:    opts.OutputDir,
+		SoftwareSeen: map[string]int{},
+		TotalFound:   len(files),
 	}
 
-	for _, src := range files {
+	prog := newProgressReporter(os.Stdout, os.Stdout.Fd(), len(files))
+	for i, src := range files {
+		prog.update(i+1, filepath.Base(src))
 		m, err := fits.ReadMetadata(src)
 		if err != nil {
 			plan.Skips = append(plan.Skips, Skip{Src: src, Reason: err.Error()})
+			log.Warn("skipped: unreadable FITS", "file", src, "reason", err.Error())
 			continue
 		}
-		plan.Programs[m.Program]++
+		plan.SoftwareSeen[m.SoftwareLabel()]++
 
 		applyFilenameFallback(src, &m)
 
 		dst, reason, ok := planDest(src, opts, m)
 		if !ok {
 			plan.Skips = append(plan.Skips, Skip{Src: src, Reason: reason})
+			log.Warn("skipped: incomplete metadata", "file", src, "reason", reason)
 			continue
 		}
+		log.Debug("planned", "file", src, "dst", dst)
 
 		plan.Entries = append(plan.Entries, Entry{Src: src, Dst: dst, Metadata: m})
 	}
+	prog.clear()
 
 	return plan, nil
 }
@@ -155,26 +195,34 @@ func BuildPlan(opts Options) (Plan, error) {
 // true) writes the FILTER keyword into each copied file. Errors during
 // per-file copy are surfaced inline and counted; the function returns an
 // error only if any file failed.
-func ExecutePlan(plan Plan, opts Options) error {
+func ExecutePlan(plan Plan, opts Options, log *slog.Logger) error {
 	if len(plan.Entries) == 0 {
 		fmt.Println("Nothing to do.")
 		return nil
 	}
+	log.Info("organize start",
+		"source", opts.SourceDir,
+		"output", plan.OutputDir,
+		"files", len(plan.Entries),
+		"groupByFocal", opts.GroupByFocal,
+		"groupSession", opts.GroupSession,
+		"tagFilter", opts.TagFilter)
 	fmt.Printf("Organizing %d file(s) under %s\n\n", len(plan.Entries), plan.OutputDir)
 
+	prog := newProgressReporter(os.Stdout, os.Stdout.Fd(), len(plan.Entries))
 	var copied, alreadyExisted, failed int
 	for i, e := range plan.Entries {
+		prog.update(i+1, filepath.Base(e.Src))
 		exists := fileExists(e.Dst)
 		if err := fsutil.CopyFile(e.Src, e.Dst); err != nil {
-			fmt.Fprintf(os.Stderr, "  [%d/%d] %s — copy error: %v\n",
-				i+1, len(plan.Entries), filepath.Base(e.Src), err)
+			prog.clear()
+			fmt.Fprintf(os.Stderr, "  %s — copy error: %v\n", filepath.Base(e.Src), err)
+			log.Error("copy failed", "file", e.Src, "dst", e.Dst, "err", err)
 			failed++
 			continue
 		}
 		if exists {
-			fmt.Printf("  [%d/%d] %s — already at %s, left alone\n",
-				i+1, len(plan.Entries), filepath.Base(e.Src),
-				displayDest(plan.OutputDir, e.Dst))
+			// Counted in the summary; no per-file line so the bar stays compact.
 			alreadyExisted++
 			continue
 		}
@@ -182,28 +230,27 @@ func ExecutePlan(plan Plan, opts Options) error {
 		// already-tagged destinations don't keep rewriting the header.
 		if opts.TagFilter {
 			if err := fits.WriteFilter(e.Dst, opts.Filter.Name, opts.Filter.Description); err != nil {
-				fmt.Fprintf(os.Stderr, "  [%d/%d] %s — FILTER write error: %v\n",
-					i+1, len(plan.Entries), filepath.Base(e.Dst), err)
+				prog.clear()
+				fmt.Fprintf(os.Stderr, "  %s — FILTER write error: %v\n", filepath.Base(e.Dst), err)
+				log.Error("filter write failed", "file", e.Dst, "err", err)
 				copied++
 				failed++
 				continue
 			}
 		}
-		fmt.Printf("  [%d/%d] %s → %s\n",
-			i+1, len(plan.Entries), filepath.Base(e.Src),
-			displayDest(plan.OutputDir, e.Dst))
 		copied++
 	}
+	prog.clear()
 
-	fmt.Println()
+	log.Info("organize complete",
+		"copied", copied,
+		"alreadyExisted", alreadyExisted,
+		"skipped", len(plan.Skips),
+		"failed", failed)
 	fmt.Printf("Done. Copied: %d   Already existed: %d   Skipped: %d   Failed: %d\n",
 		copied, alreadyExisted, len(plan.Skips), failed)
-	if len(plan.Programs) > 0 {
-		var labels []string
-		for p, n := range plan.Programs {
-			labels = append(labels, fmt.Sprintf("%s (%d)", p.DisplayName(), n))
-		}
-		fmt.Printf("Capture software seen: %s\n", strings.Join(labels, ", "))
+	if len(plan.SoftwareSeen) > 0 {
+		fmt.Printf("Capture software seen: %s\n", strings.Join(softwareLabels(plan.SoftwareSeen), ", "))
 	}
 	if failed > 0 {
 		return fmt.Errorf("%d file(s) failed", failed)
@@ -214,19 +261,21 @@ func ExecutePlan(plan Plan, opts Options) error {
 // Run is the convenience wrapper for callers that don't need a review step.
 // It is kept so existing tooling (cmd/inspect) continues to work; the
 // wizard now calls BuildPlan + ExecutePlan directly.
-func Run(opts Options) error {
-	plan, err := BuildPlan(opts)
+func Run(opts Options, log *slog.Logger) error {
+	plan, err := BuildPlan(opts, log)
 	if err != nil {
+		log.Error("scan failed", "source", opts.SourceDir, "err", err)
 		return err
 	}
 	if plan.TotalFound == 0 {
+		log.Info("no FITS files found", "source", opts.SourceDir)
 		fmt.Println("No FITS files found.")
 		return nil
 	}
 	for _, s := range plan.Skips {
 		fmt.Fprintf(os.Stderr, "  %s — skipped: %s\n", filepath.Base(s.Src), s.Reason)
 	}
-	return ExecutePlan(plan, opts)
+	return ExecutePlan(plan, opts, log)
 }
 
 // applyFilenameFallback mutates m to fill in missing header fields from
@@ -290,7 +339,7 @@ func planDest(src string, opts Options, m fits.Metadata) (string, string, bool) 
 		opts.GroupByFocal,
 		m.Target,
 		m.FrameType,
-		AdjustDate(m.DateObs, opts.SessionRolloverHour),
+		SessionDate(m.DateObs, opts.GroupSession, opts.SessionRolloverHour),
 		filterLabel,
 	)
 
@@ -345,14 +394,6 @@ func walkFITS(root string) ([]string, error) {
 func fileExists(p string) bool {
 	_, err := os.Stat(p)
 	return err == nil
-}
-
-func displayDest(outRoot, full string) string {
-	rel, err := filepath.Rel(outRoot, full)
-	if err != nil {
-		return full
-	}
-	return rel
 }
 
 func isCalibFrame(t string) bool {

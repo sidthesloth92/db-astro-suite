@@ -32,14 +32,15 @@ configuration, because every program writes the same `IMAGETYP`, `OBJECT`,
 - **Per-program normalization.** `"ZWO ASI2600MM Pro"` and `"ASI2600MM-Pro"`
   both fold to `2600MM` so the same camera under two capture programs
   doesn't fork your tree.
-- **18:00 session rollover.** A capture timestamp at or after 18:00 lands
-  in the _following_ day's folder — long imaging nights stay together.
-- **OSC filter tagging.** For one-shot-color cameras (or relabeling a mono
-  filter slot), opt in to a "tag a filter" step and Sortronomy writes
+- **Opt-in imaging-session grouping.** By default each frame is filed under
+  its literal capture day. Turn on "Group imaging session" and any capture
+  at or after your chosen cutoff hour rolls into the _following_ day's folder —
+  so a night that crosses midnight, plus the next morning's flats, stay
+  together.
+- **Set filter.** For one-shot-color cameras (or relabeling a mono
+  filter slot), opt in to the "set filter" step and Sortronomy writes
   `FILTER = "<name>"` with your description as the comment into each copied
   file, plus appends `_f_<name>` before the extension.
-- **Master-flat renamer.** A separate menu item renames master flats by the
-  substring after their last underscore.
 - **Idempotent.** Re-running on the same input doesn't overwrite anything
   already in place.
 
@@ -79,9 +80,15 @@ Just run it:
 sortronomy
 ```
 
-The wizard asks what you want to do, prompts for source / output directories,
-asks whether to group by focal length and whether to tag a filter, and
-confirms before doing anything.
+The wizard prompts for source / output directories, asks whether to group by
+focal length, whether to group the imaging session (rolling late captures into
+the next day), and whether to set a filter, then confirms before doing anything.
+
+To see the tool description and every option without launching the wizard:
+
+```bash
+sortronomy --help
+```
 
 For a one-off check that it's installed:
 
