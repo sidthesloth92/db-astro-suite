@@ -61,6 +61,33 @@ scoops:
     description: "Organize astrophotography FITS files by camera, target, date, and filter — from headers."
     license: "MIT"
 
+winget:
+  - name: sortronomy
+    publisher: sidthesloth92
+    package_identifier: sidthesloth92.Sortronomy
+    short_description: "Organize astrophotography FITS files by camera, target, date, and filter — from headers."
+    license: MIT
+    homepage: "https://github.com/sidthesloth92/db-astro-suite/tree/main/tools/sortronomy"
+    author: sidthesloth92
+    publisher_url: "https://dbastrosuite.com"
+    tags:
+      - astrophotography
+      - fits
+      - astronomy
+      - cli
+    repository:
+      owner: sidthesloth92
+      name: winget-pkgs
+      branch: "sortronomy-{{ .Version }}"
+      token: "{{ .Env.WINGET_GITHUB_TOKEN }}"
+      pull_request:
+        enabled: true
+        draft: false
+        base:
+          owner: microsoft
+          name: winget-pkgs
+          branch: master
+
 release:
   github:
     owner: sidthesloth92

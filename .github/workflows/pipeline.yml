@@ -190,7 +190,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version: '1.24'
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v6
@@ -202,6 +202,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.TAP_PAT }}
           SCOOP_TAP_GITHUB_TOKEN: ${{ secrets.TAP_PAT }}
+          WINGET_GITHUB_TOKEN: ${{ secrets.WINGET_PAT }}
 
   deploy:
     name: Deploy to GitHub Pages
