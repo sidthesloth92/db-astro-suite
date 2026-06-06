@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/sidthesloth92/db-astro-suite/tools/celestory/internal/cache"
-	"github.com/sidthesloth92/db-astro-suite/tools/celestory/internal/model"
+	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/cache"
+	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/model"
 )
 
 // maxDuplicateSetsPrinted caps how many duplicate sets are listed on the

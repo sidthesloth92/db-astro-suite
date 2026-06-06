@@ -4,7 +4,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/sidthesloth92/db-astro-suite/tools/celestory/internal/model"
+	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/model"
 )
 
 // Usage is one light frame's contribution to the equipment registry. The

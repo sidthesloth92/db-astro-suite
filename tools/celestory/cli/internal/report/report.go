@@ -7,7 +7,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/sidthesloth92/db-astro-suite/tools/celestory/internal/model"
+	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/model"
 )
 
 // WriteJSON writes the ledger as pretty-printed UTF-8 JSON to w. HTML escaping

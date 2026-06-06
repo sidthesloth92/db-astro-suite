@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/sidthesloth92/db-astro-suite/libs/astrofits"
-	"github.com/sidthesloth92/db-astro-suite/tools/celestory/internal/identity"
-	"github.com/sidthesloth92/db-astro-suite/tools/celestory/internal/scan"
+	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/identity"
+	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/scan"
 )
 
 // Filter labels used when a frame carries no usable FILTER keyword.

@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/sidthesloth92/db-astro-suite/libs/astrofits"
-	"github.com/sidthesloth92/db-astro-suite/tools/celestory/internal/model"
-	"github.com/sidthesloth92/db-astro-suite/tools/celestory/internal/scan"
+	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/model"
+	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/scan"
 )
 
 func frame(path, object, filter, frameType, camera string, exp float64, size int64, date time.Time) scan.Frame {

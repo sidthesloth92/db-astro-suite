@@ -9,14 +9,14 @@ import (
 	"time"
 
 	"github.com/sidthesloth92/db-astro-suite/libs/astrofits"
-	"github.com/sidthesloth92/db-astro-suite/tools/celestory/internal/aggregate"
-	"github.com/sidthesloth92/db-astro-suite/tools/celestory/internal/cache"
-	"github.com/sidthesloth92/db-astro-suite/tools/celestory/internal/config"
-	"github.com/sidthesloth92/db-astro-suite/tools/celestory/internal/model"
-	"github.com/sidthesloth92/db-astro-suite/tools/celestory/internal/report"
-	"github.com/sidthesloth92/db-astro-suite/tools/celestory/internal/scan"
-	"github.com/sidthesloth92/db-astro-suite/tools/celestory/internal/view"
-	"github.com/sidthesloth92/db-astro-suite/tools/celestory/internal/wizard"
+	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/aggregate"
+	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/cache"
+	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/config"
+	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/model"
+	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/report"
+	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/scan"
+	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/view"
+	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/wizard"
 )
 
 // defaultServePort is the preferred port for -serve; if it's busy the server

@@ -1,4 +1,4 @@
-module github.com/sidthesloth92/db-astro-suite/tools/celestory
+module github.com/sidthesloth92/db-astro-suite/tools/celestory/cli
 
 go 1.24.2
 
@@ -39,4 +39,4 @@ require (
 	golang.org/x/text v0.23.0 // indirect
 )
 
-replace github.com/sidthesloth92/db-astro-suite/libs/astrofits => ../../libs/astrofits
+replace github.com/sidthesloth92/db-astro-suite/libs/astrofits => ../../../libs/astrofits

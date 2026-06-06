@@ -4,9 +4,9 @@ import (
 	"sort"
 	"time"
 
-	"github.com/sidthesloth92/db-astro-suite/tools/celestory/internal/equipment"
-	"github.com/sidthesloth92/db-astro-suite/tools/celestory/internal/model"
-	"github.com/sidthesloth92/db-astro-suite/tools/celestory/internal/scan"
+	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/equipment"
+	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/model"
+	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/scan"
 )
 
 // SchemaVersion is the version of the JSON contract this build emits.

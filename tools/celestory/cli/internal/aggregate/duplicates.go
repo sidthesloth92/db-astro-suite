@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sidthesloth92/db-astro-suite/tools/celestory/internal/model"
+	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/model"
 )
 
 // DuplicateReport is the outcome of duplicate detection.
