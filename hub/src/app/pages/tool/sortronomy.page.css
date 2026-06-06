@@ -1,0 +1,197 @@
+@import './tool-media.css';
+
+/* Output section — before/after folder-structure screenshots side by side. */
+.output-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.output-pair__item {
+  margin: 0;
+  min-width: 0;
+}
+
+/* Dual-color sub-header above each screenshot — subordinate to the section title. */
+.output-pair__title {
+  margin: 0 0 14px;
+  font-family: var(--db-font-display-major);
+  font-weight: 600;
+  font-size: clamp(1.1rem, 2vw, 1.45rem);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--db-color-text-primary);
+}
+
+.output-pair__title-accent {
+  color: var(--db-color-neon-pink);
+}
+
+/*
+ * Placeholder shown inside a demo-frame until the real media (walkthrough
+ * video / before-after screenshots) is captured. Sized to roughly match a
+ * 16:9 capture so the layout doesn't shift when a real <img>/<video> lands.
+ */
+.media-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 220px;
+  padding: 28px 24px;
+  text-align: center;
+  background: var(--db-color-surface-bg);
+  border: 1px dashed var(--db-color-border);
+}
+
+.media-placeholder--video {
+  min-height: 300px;
+}
+
+.media-placeholder__title {
+  font-family: var(--db-font-display-major);
+  font-size: 0.95rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--db-color-text-dim);
+}
+
+.media-placeholder__hint {
+  max-width: 42ch;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--db-color-text-faint);
+}
+
+@media (max-width: 720px) {
+  .output-pair {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+/* ===== Install dialog (OS-specific install commands) ===== */
+.install-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.88);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  cursor: zoom-out;
+}
+
+.install-card {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  cursor: auto;
+  padding: 32px 30px;
+  background: var(--db-color-surface-raised);
+  border: 1px solid var(--db-color-border);
+  border-radius: var(--db-radius-lg);
+}
+
+.install-card__close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 0;
+  font-size: 16px;
+  color: var(--db-color-text-dim);
+  cursor: pointer;
+}
+
+.install-card__close:hover {
+  color: var(--db-color-text-primary);
+}
+
+.install-card__title {
+  margin: 0 0 6px;
+  font-family: var(--db-font-display-major);
+  font-weight: 600;
+  font-size: 1.4rem;
+  color: var(--db-color-text-primary);
+}
+
+.install-card__sub {
+  margin: 0 0 22px;
+  font-size: 0.9rem;
+  color: var(--db-color-text-dim);
+}
+
+.install-os {
+  padding: 16px 18px;
+  border: 1px solid var(--db-color-border);
+  border-radius: var(--db-radius-md);
+}
+
+.install-os + .install-os {
+  margin-top: 14px;
+}
+
+.install-os--match {
+  border-color: var(--db-color-cyan);
+}
+
+.install-os__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  font-family: var(--db-font-display-major);
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--db-color-text-primary);
+}
+
+.install-os__badge {
+  padding: 2px 8px;
+  font-family: var(--db-font-ui);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--db-color-cyan);
+  border: 1px solid var(--db-color-cyan);
+  border-radius: 999px;
+}
+
+.install-os__cmd {
+  margin: 0;
+  padding: 12px 14px;
+  overflow-x: auto;
+  background: var(--db-color-surface-bg);
+  border-radius: var(--db-radius-sm);
+  font-family: var(--db-font-mono-code);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--db-color-text-primary);
+}
+
+.install-os__note {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--db-color-text-dim);
+}
+
+.install-os__note a {
+  color: var(--db-color-text-link);
+}

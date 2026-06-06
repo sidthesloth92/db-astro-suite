@@ -33,14 +33,12 @@ import type { HubTool } from './hub-tool.types';
   ],
   templateUrl: './index.page.html',
   styleUrl: './index.page.css',
-  templateUrl: './index.page.html',
-  styleUrl: './index.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class HomePageComponent {
   private readonly analytics = inject(AnalyticsService);
 
-  /** CPU glyph used as the File Grouper CLI card icon. */
+  /** CPU glyph used as the Sortronomy CLI card icon. */
   protected readonly cpuIcon = cpuIcon;
 
   /** App version shown in the hero status pill (mirrors the footer). */

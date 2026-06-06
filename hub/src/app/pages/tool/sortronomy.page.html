@@ -1,0 +1,141 @@
+<dba-hub-tool-detail
+  [config]="config"
+  (primaryClicked)="onLaunch()"
+  (stepAction)="onStepAction($event)"
+>
+  <!--
+    TODO(logo): drop in a Sortronomy brand mark when one exists, e.g.
+    <img mark class="tool-mark" src="assets/img/sortronomy.png" alt="Sortronomy logo" />
+  -->
+
+  <div preview>
+    <!--
+      TODO(demo): replace this placeholder with the captured walkthrough, e.g.
+      <video class="demo-media" src="assets/img/sortronomy_demo.mp4" poster="…" controls></video>
+      or an animated GIF, once it has been recorded.
+    -->
+    <dba-hub-demo-frame label="sortronomy — walkthrough" status="Demo">
+      <div class="media-placeholder media-placeholder--video">
+        <span class="media-placeholder__title">Walkthrough demo coming soon</span>
+        <span class="media-placeholder__hint">
+          A short screen recording of the wizard: point it at a folder, confirm, and
+          watch the frames sort themselves — entirely on your machine.
+        </span>
+      </div>
+    </dba-hub-demo-frame>
+  </div>
+
+  <div output>
+    <div class="output-pair">
+      <figure class="output-pair__item">
+        <h3 class="output-pair__title">
+          <span class="output-pair__title-accent">Before</span> — raw dump
+        </h3>
+        <!--
+          TODO(screenshot): replace with a real "before" capture, e.g.
+          <dba-hub-demo-frame label="~/Captures (before)">
+            <img class="demo-media" src="assets/img/sortronomy_before.png"
+                 alt="A flat, unsorted folder of raw FITS frames before Sortronomy" />
+          </dba-hub-demo-frame>
+        -->
+        <dba-hub-demo-frame label="~/Captures (before)">
+          <div class="media-placeholder">
+            <span class="media-placeholder__title">Before screenshot coming soon</span>
+            <span class="media-placeholder__hint">
+              A flat folder of raw .fit frames straight from the capture software —
+              hundreds of files, no structure.
+            </span>
+          </div>
+        </dba-hub-demo-frame>
+      </figure>
+
+      <figure class="output-pair__item">
+        <h3 class="output-pair__title">
+          <span class="output-pair__title-accent">After</span> — organised tree
+        </h3>
+        <!--
+          TODO(screenshot): replace with a real "after" capture, e.g.
+          <dba-hub-demo-frame label="~/Organised (after)">
+            <img class="demo-media" src="assets/img/sortronomy_after.png"
+                 alt="The same frames sorted into camera / focal length / target / date folders" />
+          </dba-hub-demo-frame>
+        -->
+        <dba-hub-demo-frame label="~/Organised (after)">
+          <div class="media-placeholder">
+            <span class="media-placeholder__title">After screenshot coming soon</span>
+            <span class="media-placeholder__hint">
+              The same frames sorted into a camera → focal length → target → date tree,
+              ready for calibration and stacking.
+            </span>
+          </div>
+        </dba-hub-demo-frame>
+      </figure>
+    </div>
+  </div>
+</dba-hub-tool-detail>
+
+@if (isInstallOpen()) {
+  <div
+    class="install-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Install Sortronomy"
+    tabindex="-1"
+    (click)="closeInstall()"
+    (keydown.escape)="closeInstall()"
+  >
+    <div class="install-card" (click)="$event.stopPropagation()">
+      <button
+        type="button"
+        class="install-card__close"
+        aria-label="Close install instructions"
+        (click)="closeInstall()"
+      >
+        &#x2715;
+      </button>
+
+      <h2 class="install-card__title">Install Sortronomy</h2>
+      <p class="install-card__sub">Pick your platform — copy, paste, run.</p>
+
+      <div class="install-os" [class.install-os--match]="detectedOs() === 'mac'">
+        <div class="install-os__head">
+          macOS
+          @if (detectedOs() === 'mac') {
+            <span class="install-os__badge">Your system</span>
+          }
+        </div>
+        <pre class="install-os__cmd"><code>brew install --cask sidthesloth92/tap/sortronomy</code></pre>
+      </div>
+
+      <div class="install-os" [class.install-os--match]="detectedOs() === 'windows'">
+        <div class="install-os__head">
+          Windows
+          @if (detectedOs() === 'windows') {
+            <span class="install-os__badge">Your system</span>
+          }
+        </div>
+        <pre class="install-os__cmd"><code>scoop bucket add sidthesloth92 https://github.com/sidthesloth92/scoop-bucket
+scoop install sortronomy</code></pre>
+      </div>
+
+      <div class="install-os" [class.install-os--match]="detectedOs() === 'linux'">
+        <div class="install-os__head">
+          Linux
+          @if (detectedOs() === 'linux') {
+            <span class="install-os__badge">Your system</span>
+          }
+        </div>
+        <p class="install-os__note">
+          Grab the Linux build from the
+          <a
+            href="https://github.com/sidthesloth92/db-astro-suite/releases?q=sortronomy"
+            target="_blank"
+            rel="noopener noreferrer"
+            >releases page</a
+          >
+          and drop it on your <code>PATH</code>.
+        </p>
+      </div>
+    </div>
+  </div>
+}

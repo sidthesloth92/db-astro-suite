@@ -107,8 +107,8 @@
 
         <a
           class="tool-card tool-card--wip"
-          [routerLink]="['/tool/file-grouper']"
-          (click)="onCardClick('file-grouper')"
+          [routerLink]="['/tool/sortronomy']"
+          (click)="onCardClick('sortronomy')"
         >
           <div class="tool-card__head">
             <div class="tool-card__id">
@@ -116,7 +116,7 @@
                 <dba-ui-icon [def]="cpuIcon" [size]="22" />
               </span>
               <div>
-                <div class="tool-card__name">FILE GROUPER</div>
+                <div class="tool-card__name">SORTRONOMY</div>
                 <div class="tool-card__tag">CLI Utility</div>
               </div>
             </div>
@@ -126,14 +126,15 @@
           </div>
           <div class="tool-card__preview tool-card__preview--terminal">
             <code>
-              <span class="terminal__prompt">$</span> file-grouper ./asiair<br />
-              → scanning 1,284 frames<br />
-              <span class="terminal__ok">✓ grouped 12 sets · 0.42s</span>
+              <span class="terminal__prompt">$</span> sortronomy<br />
+              → reading FITS headers · 1,284 frames<br />
+              <span class="terminal__ok">✓ sorted 12 sets · offline · 0.42s</span>
             </code>
           </div>
           <p class="tool-card__desc">
-            A high-performance Go utility that automatically groups and
-            organizes ASIAIR image datasets by camera, date, and object.
+            An offline command-line wizard that organizes astrophotography FITS
+            files by camera, target, date, and filter — read straight from the
+            headers.
           </p>
           <span class="tool-card__more"
             >Learn more <span aria-hidden="true">›</span></span

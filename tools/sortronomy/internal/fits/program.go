@@ -44,6 +44,31 @@ func (p Program) DisplayName() string {
 	return "Unknown"
 }
 
+// SoftwareLabel is the human label for the capture software: the recognized
+// program's display name, else the raw creator string from the header, else
+// "Unknown". Used for the run summary so files whose software isn't in the
+// known list still show their real creator name instead of "Unknown".
+func (m Metadata) SoftwareLabel() string {
+	if m.Program != ProgramUnknown {
+		return m.Program.DisplayName()
+	}
+	if s := strings.TrimSpace(m.Software); s != "" {
+		return s
+	}
+	return "Unknown"
+}
+
+// readSoftware returns the first non-empty trimmed value among the standard
+// "who wrote this file" keywords, or "" when none are present.
+func readSoftware(hdr *fitsio.Header) string {
+	for _, key := range []string{"SWCREATE", "CREATOR", "PROGRAM"} {
+		if v := strings.TrimSpace(stringCard(hdr, key)); v != "" {
+			return v
+		}
+	}
+	return ""
+}
+
 // detectProgram inspects the standard "who wrote this file" header keywords
 // and returns a Program. Fallback is ProgramUnknown — ASIAIR conventions
 // are assumed downstream when this is the case (dominant user base).

@@ -5,11 +5,13 @@ package wizard
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"strconv"
 	"strings"
 
 	"github.com/charmbracelet/huh"
+	"github.com/charmbracelet/lipgloss"
 
 	"github.com/sidthesloth92/db-astro-suite/tools/sortronomy/internal/config"
 	"github.com/sidthesloth92/db-astro-suite/tools/sortronomy/internal/flats"
@@ -26,9 +28,22 @@ const (
 	reviewCancel   = "cancel"
 )
 
+// renameFlatsEnabled gates the "Rename master flats" flow and the top-level
+// action menu. Hidden for now — flip to true to restore both.
+const renameFlatsEnabled = false
+
 // Run shows the top-level menu and dispatches to the chosen flow.
-func Run() error {
-	cfg, _ := config.Load() // missing/corrupt → zero value; non-fatal
+func Run(log *slog.Logger) error {
+	cfg, err := config.Load() // missing/corrupt → zero value; non-fatal
+	if err != nil {
+		log.Warn("config load failed; using defaults", "err", err)
+	}
+
+	if !renameFlatsEnabled {
+		// Only the organize flow is available — skip the action menu and go
+		// straight to it.
+		return runOrganize(cfg, log)
+	}
 
 	action := ""
 	form := huh.NewForm(
@@ -49,7 +64,7 @@ func Run() error {
 
 	switch action {
 	case actionOrganize:
-		return runOrganize(cfg)
+		return runOrganize(cfg, log)
 	case actionRenameFlats:
 		return runRenameFlats(cfg)
 	case actionQuit:
@@ -59,7 +74,7 @@ func Run() error {
 	}
 }
 
-func runOrganize(cfg config.Config) error {
+func runOrganize(cfg config.Config, log *slog.Logger) error {
 	// Pre-fill paths and rollover hour from last run so the user can Enter
 	// through unchanged. A zero stored value (or first-run users) gets the
 	// hardcoded default.
@@ -93,7 +108,7 @@ func runOrganize(cfg config.Config) error {
 		}
 		switch decision {
 		case reviewContinue:
-			if err := organize.Run(opts); err != nil {
+			if err := organize.Run(opts, log); err != nil {
 				return err
 			}
 			// Persist the paths and rollover hour only after a successful run.
@@ -127,30 +142,42 @@ func organizeForm(opts *organize.Options, tagFilter *bool, rolloverHour *string)
 		huh.NewGroup(
 			huh.NewConfirm().
 				Title("Group by focal length?").
+				Description("Groups pictures by the camera's focal length. Handy when you use the same camera with telescopes of different focal lengths.").
 				Affirmative("Yes").
 				Negative("No").
-				Value(&opts.GroupByFocal),
-			huh.NewInput().
-				Title("Session date rollover hour (UTC, 0–23)").
-				Description("Captures at or after this UTC hour roll into the next day's folder.").
-				Value(rolloverHour).
-				Validate(validateRolloverHour),
+				Value(&opts.GroupByFocal).
+				WithButtonAlignment(lipgloss.Left),
 			huh.NewConfirm().
-				Title("Tag / override a filter for these images?").
+				Title("Group imaging session?").
+				Description("No groups frames by their actual capture day. Yes rolls frames captured after a cutoff hour into the next day's session, so a night crossing midnight (plus its morning flats) share one folder.").
+				Affirmative("Yes").
+				Negative("No").
+				Value(&opts.GroupSession).
+				WithButtonAlignment(lipgloss.Left),
+			huh.NewConfirm().
+				Title("Set the filter for these images?").
 				Description("Pick Yes for OSC, or to relabel a mono filter slot.").
 				Affirmative("Yes").
 				Negative("No").
-				Value(tagFilter),
+				Value(tagFilter).
+				WithButtonAlignment(lipgloss.Left),
 		),
 		huh.NewGroup(
 			huh.NewInput().
-				Title("Filter type (folder label, e.g. UVIR, OIII)").
+				Title("Session cutoff hour (0–23)").
+				Description("Frames captured at or after this hour roll into the next day's session. Helps apply the same flats to images from a previous night's session.").
+				Value(rolloverHour).
+				Validate(validateRolloverHour),
+		).WithHideFunc(func() bool { return !opts.GroupSession }),
+		huh.NewGroup(
+			huh.NewInput().
+				Title("Filter type (folder label, e.g. Ha / OIII)").
 				Value(&opts.Filter.Type),
 			huh.NewInput().
-				Title("Filter name (written to FITS FILTER header)").
+				Title("Filter name (FITS filter value, e.g. SV220)").
 				Value(&opts.Filter.Name),
 			huh.NewInput().
-				Title("Filter description (header comment)").
+				Title("Filter description (FITS filter description)").
 				Value(&opts.Filter.Description),
 		).WithHideFunc(func() bool { return !*tagFilter }),
 	)
@@ -166,7 +193,7 @@ func showOrganizeReview(opts organize.Options, decision *string) error {
 				Title("Review").
 				Description(desc).
 				Options(
-					huh.NewOption("Continue", reviewContinue),
+					huh.NewOption("Execute", reviewContinue),
 					huh.NewOption("Go back and edit", reviewEdit),
 					huh.NewOption("Cancel", reviewCancel),
 				).
@@ -180,15 +207,19 @@ func buildOrganizeReviewText(opts organize.Options) string {
 	fmt.Fprintf(&b, "Source:           %s\n", opts.SourceDir)
 	fmt.Fprintf(&b, "Output:           %s\n", opts.OutputDir)
 	fmt.Fprintf(&b, "Group by focal:   %s\n", yesNo(opts.GroupByFocal))
-	fmt.Fprintf(&b, "Rollover hour:    %02d:00 UTC\n", opts.SessionRolloverHour)
+	if opts.GroupSession {
+		fmt.Fprintf(&b, "Group session:    Yes — rolls at %02d:00\n", opts.SessionRolloverHour)
+	} else {
+		fmt.Fprintln(&b, "Group session:    No (filed by capture day)")
+	}
 	if opts.TagFilter {
 		if opts.Filter.Description != "" {
-			fmt.Fprintf(&b, "Tag filter:       Yes — %s (%s)\n", opts.Filter.Type, opts.Filter.Description)
+			fmt.Fprintf(&b, "Set filter:       Yes — %s (%s)\n", opts.Filter.Type, opts.Filter.Description)
 		} else {
-			fmt.Fprintf(&b, "Tag filter:       Yes — %s\n", opts.Filter.Type)
+			fmt.Fprintf(&b, "Set filter:       Yes — %s\n", opts.Filter.Type)
 		}
 	} else {
-		fmt.Fprintln(&b, "Tag filter:       No")
+		fmt.Fprintln(&b, "Set filter:       No")
 	}
 	return b.String()
 }
@@ -305,4 +336,3 @@ func yesNo(b bool) string {
 	}
 	return "No"
 }
-

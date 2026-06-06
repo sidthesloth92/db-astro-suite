@@ -15,6 +15,7 @@ import (
 	"strconv"
 
 	"github.com/sidthesloth92/db-astro-suite/tools/sortronomy/internal/fits"
+	"github.com/sidthesloth92/db-astro-suite/tools/sortronomy/internal/logger"
 	"github.com/sidthesloth92/db-astro-suite/tools/sortronomy/internal/organize"
 )
 
@@ -46,9 +47,10 @@ func main() {
 			SourceDir:           os.Args[2],
 			OutputDir:           os.Args[3],
 			GroupByFocal:        true,
+			GroupSession:        true,
 			SessionRolloverHour: optionalRollover(4),
 			Confirmed:           true,
-		})
+		}, logger.Discard())
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
@@ -62,6 +64,7 @@ func main() {
 			SourceDir:    os.Args[2],
 			OutputDir:    os.Args[3],
 			GroupByFocal: true,
+			GroupSession: true,
 			TagFilter:    true,
 			Filter: organize.FilterTag{
 				Type:        "UVIR",
@@ -69,7 +72,7 @@ func main() {
 				Description: "UV/IR cut",
 			},
 			Confirmed: true,
-		})
+		}, logger.Discard())
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)

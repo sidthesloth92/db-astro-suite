@@ -31,6 +31,7 @@ type Metadata struct {
 	BinningY  int       // YBINNING; 0 if missing
 	Temp      float64   // CCD-TEMP in °C
 	Program   Program   // detected capture software
+	Software  string    // raw creator string: first non-empty of SWCREATE/CREATOR/PROGRAM
 	RawValues map[string]string
 
 	// HasFocal is true when FOCALLEN was present in the header. The Focal
@@ -74,6 +75,7 @@ func ReadMetadata(path string) (Metadata, error) {
 	}
 
 	m.Program = detectProgram(hdr)
+	m.Software = readSoftware(hdr)
 	m.FrameType = normalizeFrameType(stringCard(hdr, "IMAGETYP"))
 
 	m.Target = strings.TrimSpace(stringCard(hdr, "OBJECT"))
