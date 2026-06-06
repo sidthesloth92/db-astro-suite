@@ -45,7 +45,7 @@ homebrew_casks:
     repository:
       owner: sidthesloth92
       name: homebrew-tap
-      token: "{{ .Env.RELEASE_PAT }}"
+      token: "{{ .Env.CLI_RELEASE_PAT }}"
     homepage: "https://github.com/sidthesloth92/db-astro-suite/tree/main/tools/sortronomy"
     description: "Organize astrophotography FITS files by camera, target, date, and filter — from headers."
     binaries:
@@ -56,7 +56,7 @@ scoops:
     repository:
       owner: sidthesloth92
       name: scoop-bucket
-      token: "{{ .Env.RELEASE_PAT }}"
+      token: "{{ .Env.CLI_RELEASE_PAT }}"
     homepage: "https://github.com/sidthesloth92/db-astro-suite/tree/main/tools/sortronomy"
     description: "Organize astrophotography FITS files by camera, target, date, and filter — from headers."
     license: "MIT"
@@ -79,7 +79,7 @@ winget:
       owner: sidthesloth92
       name: winget-pkgs
       branch: "sortronomy-{{ .Version }}"
-      token: "{{ .Env.RELEASE_PAT }}"
+      token: "{{ .Env.CLI_RELEASE_PAT }}"
       pull_request:
         enabled: true
         draft: false

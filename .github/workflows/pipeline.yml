@@ -200,7 +200,7 @@ jobs:
           workdir: tools/sortronomy
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_PAT: ${{ secrets.RELEASE_PAT }}
+          CLI_RELEASE_PAT: ${{ secrets.CLI_RELEASE_PAT }}
 
   deploy:
     name: Deploy to GitHub Pages
