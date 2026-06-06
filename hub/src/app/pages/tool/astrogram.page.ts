@@ -3,7 +3,6 @@ import { DOCUMENT } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  afterNextRender,
   inject,
   signal,
 } from '@angular/core';
@@ -43,9 +42,7 @@ export default class AstroGramPage {
   private readonly document = inject(DOCUMENT);
 
   constructor() {
-    afterNextRender(() =>
-      this.upsertCanonical('https://dbastrosuite.com/tool/astrogram'),
-    );
+    this.upsertCanonical('https://dbastrosuite.com/tool/astrogram');
   }
 
   /** Fires the hub launch-tool analytics event. */

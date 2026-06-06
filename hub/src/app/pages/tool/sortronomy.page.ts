@@ -3,7 +3,6 @@ import { DOCUMENT } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  afterNextRender,
   inject,
   signal,
 } from '@angular/core';
@@ -41,9 +40,7 @@ export default class SortronomyPageComponent {
   private readonly document = inject(DOCUMENT);
 
   constructor() {
-    afterNextRender(() =>
-      this.upsertCanonical('https://dbastrosuite.com/tool/sortronomy'),
-    );
+    this.upsertCanonical('https://dbastrosuite.com/tool/sortronomy');
   }
 
   /** Fires the hub launch-tool analytics event. */
