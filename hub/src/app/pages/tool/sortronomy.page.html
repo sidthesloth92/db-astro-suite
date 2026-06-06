@@ -31,21 +31,12 @@
         <h3 class="output-pair__title">
           <span class="output-pair__title-accent">Before</span> — raw dump
         </h3>
-        <!--
-          TODO(screenshot): replace with a real "before" capture, e.g.
-          <dba-hub-demo-frame label="~/Captures (before)">
-            <img class="demo-media" src="assets/img/sortronomy_before.png"
-                 alt="A flat, unsorted folder of raw FITS frames before Sortronomy" />
-          </dba-hub-demo-frame>
-        -->
         <dba-hub-demo-frame label="~/Captures (before)">
-          <div class="media-placeholder">
-            <span class="media-placeholder__title">Before screenshot coming soon</span>
-            <span class="media-placeholder__hint">
-              A flat folder of raw .fit frames straight from the capture software —
-              hundreds of files, no structure.
-            </span>
-          </div>
+          <pre
+            class="ascii-tree ascii-tree--before"
+            role="img"
+            aria-label="Before: a single flat folder holding over a thousand raw FITS frames with inconsistent names and no structure."
+          >{{ treeBefore }}</pre>
         </dba-hub-demo-frame>
       </figure>
 
@@ -53,24 +44,46 @@
         <h3 class="output-pair__title">
           <span class="output-pair__title-accent">After</span> — organised tree
         </h3>
-        <!--
-          TODO(screenshot): replace with a real "after" capture, e.g.
-          <dba-hub-demo-frame label="~/Organised (after)">
-            <img class="demo-media" src="assets/img/sortronomy_after.png"
-                 alt="The same frames sorted into camera / focal length / target / date folders" />
-          </dba-hub-demo-frame>
-        -->
         <dba-hub-demo-frame label="~/Organised (after)">
-          <div class="media-placeholder">
-            <span class="media-placeholder__title">After screenshot coming soon</span>
-            <span class="media-placeholder__hint">
-              The same frames sorted into a camera → focal length → target → date tree,
-              ready for calibration and stacking.
-            </span>
-          </div>
+          <pre
+            class="ascii-tree ascii-tree--after"
+            role="img"
+            aria-label="After: the same frames sorted by camera, focal length, target, session date, and filter. A mono camera gets one folder per narrowband filter; a one-shot-color camera gets a single OSC folder tagged with its filter; calibration frames are grouped separately."
+          >{{ treeAfter }}</pre>
         </dba-hub-demo-frame>
       </figure>
     </div>
+
+    <ul class="output-legend" aria-label="What Sortronomy classifies by">
+      <li class="output-legend__item">
+        <span class="output-legend__key">Camera</span>
+        <span class="output-legend__val">Normalised per rig — name variants fold into one</span>
+      </li>
+      <li class="output-legend__item">
+        <span class="output-legend__key">Focal length</span>
+        <span class="output-legend__val">Same sensor at a different scale stays separate</span>
+      </li>
+      <li class="output-legend__item">
+        <span class="output-legend__key">Target</span>
+        <span class="output-legend__val">Grouped by the OBJECT recorded in the header</span>
+      </li>
+      <li class="output-legend__item">
+        <span class="output-legend__key">Session date</span>
+        <span class="output-legend__val">Post-dusk frames roll into one night, past midnight</span>
+      </li>
+      <li class="output-legend__item">
+        <span class="output-legend__key">Mono filter</span>
+        <span class="output-legend__val">One folder per filter — Ha, OIII, SII, L, R, G, B</span>
+      </li>
+      <li class="output-legend__item">
+        <span class="output-legend__key">OSC tag</span>
+        <span class="output-legend__val">One-shot-colour frames tagged with their filter</span>
+      </li>
+      <li class="output-legend__item">
+        <span class="output-legend__key">Frame type</span>
+        <span class="output-legend__val">Lights, Darks, Flats, and Bias kept apart</span>
+      </li>
+    </ul>
   </div>
 </dba-hub-tool-detail>
 
