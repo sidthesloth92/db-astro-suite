@@ -56,42 +56,6 @@
 }
 
 /*
- * Legend below the before/after pair: names every dimension Sortronomy sorts
- * by (camera, focal length, target, date, mono filter, OSC tag, frame type).
- */
-.output-legend {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 10px 18px;
-  margin: 22px 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.output-legend__item {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding-left: 12px;
-  border-left: 2px solid var(--db-color-neon-pink);
-}
-
-.output-legend__key {
-  font-family: var(--db-font-display-major);
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--db-color-cyan);
-}
-
-.output-legend__val {
-  font-size: 0.82rem;
-  line-height: 1.5;
-  color: var(--db-color-text-dim);
-}
-
-/*
  * Placeholder shown inside a demo-frame until the real media (walkthrough
  * video / before-after screenshots) is captured. Sized to roughly match a
  * 16:9 capture so the layout doesn't shift when a real <img>/<video> lands.
