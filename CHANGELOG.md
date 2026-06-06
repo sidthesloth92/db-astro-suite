@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.25.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.24.0...v1.25.0) (2026-06-06)
+
+
+### Features
+
+* **starwizz:** redesign logo and brand assets — grad-core warp mark ([#64](https://github.com/sidthesloth92/db-astro-suite/issues/64)) ([6b684d0](https://github.com/sidthesloth92/db-astro-suite/commit/6b684d0dc8e04d0f8d88582903f8a14e7f2da4d1))
+
 ## [1.24.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.23.0...v1.24.0) (2026-06-01)
 
 
