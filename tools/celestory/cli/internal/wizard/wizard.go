@@ -31,8 +31,8 @@ func Run(defaults Choices) (Choices, bool, error) {
 				Value(&c.SourceDir).
 				Validate(validateExistingDir),
 			huh.NewInput().
-				Title("Where should I save the report?").
-				Description("ledger.json + celestory-stats.html are written here.").
+				Title("Where should I save ledger.json?").
+				Description("ledger.json is written here — upload it to the Celestory web app to visualise.").
 				Value(&c.OutputDir).
 				Validate(validateExistingDir),
 			huh.NewInput().

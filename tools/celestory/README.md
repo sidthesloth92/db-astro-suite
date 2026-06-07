@@ -5,7 +5,8 @@
 Point Celestory at a folder of captures and it recursively reads the **FITS
 headers** (never the pixel data), figures out every **object** you've imaged, the
 **equipment** and **filters** you used, and the **integration hours per object over
-time** — then writes a single `ledger.json` plus a self-contained HTML report.
+time** — then writes a single `ledger.json`. Upload it to the
+[Celestory web app](https://celestory.dbastrosuite.com) to chart your journey.
 
 Everything runs **locally**. Your files never leave your machine, and Celestory
 is **read-only** — it never moves, renames, or deletes anything.
@@ -37,9 +38,8 @@ scoop install celestory
 celestory
 ```
 
-The wizard asks which folder your images are in and where to save the report, then
-scans, writes `celestory-stats.html` + `ledger.json`, and opens the report in your
-browser.
+The wizard asks which folder your images are in and where to save `ledger.json`,
+then scans and writes it. Drop that file onto the Celestory web app to visualise.
 
 **Scriptable:**
 
@@ -49,22 +49,19 @@ celestory -input /path/to/captures -out /path/to/output
 
 ## See your stats
 
-The report is a **single self-contained HTML file** (`celestory-stats.html`) with
-your data baked in — no web server, nothing to shut down. Open it any time, move it,
-or send it to a friend; it works offline. There's a **Download JSON** button on the
-page.
-
-You can also drag-and-drop the `ledger.json` onto the Celestory web app at any
-time — it renders 100% in your browser.
+Open the [Celestory web app](https://celestory.dbastrosuite.com) and drop your
+`ledger.json` onto the page. It renders **100% in your browser** — nothing is
+uploaded, and your data never leaves your machine. From there you can explore your
+whole imaging journey and export gallery-grade cards to share.
 
 ## Where your files are saved
 
-By default both files land in the folder you ran the command from (the wizard lets
-you choose). Celestory prints the full path when it finishes, the browser's address
-bar shows the report's `file://` location, and `-out` overrides where they go:
+By default `ledger.json` lands in the folder you ran the command from (the wizard
+lets you choose). Celestory prints the full path when it finishes, and `-out`
+overrides where it goes:
 
-- `-out /some/dir` → writes `ledger.json` + `celestory-stats.html` into that dir.
-- `-out /some/dir/report.json` → names the JSON, HTML beside it.
+- `-out /some/dir` → writes `ledger.json` into that directory.
+- `-out /some/dir/ledger.json` → names the file directly.
 
 ## Flags
 
@@ -74,8 +71,6 @@ The interface is intentionally small — most runs need none of these.
 | ------------------- | ----------------------------------------------------------------- |
 | `-input <dir>`      | Folder of FITS captures to scan (omit to launch the wizard).      |
 | `-out <dir\|.json>` | Output directory or `.json` file. Default: current directory.     |
-| `-no-open`          | Don't open the report in a browser (it opens by default).         |
-| `-serve`            | Serve the report on `http://127.0.0.1:9292` (next free port if busy). |
 | `-rebuild-cache`    | Ignore the cache and re-parse every file, then rebuild it.        |
 | `-no-cache`         | Don't read or write the scan cache.                               |
 | `-verify-hash`      | Detect file changes by a FITS-header hash instead of size+mtime.  |
@@ -118,10 +113,12 @@ filter. Scope is FITS (`.fit`/`.fits`); a bad file is skipped, never fatal.
 
 ## Build from source
 
+The CLI lives in `tools/celestory/cli` (the web app is in `tools/celestory/app`):
+
 ```sh
-cd tools/celestory
+cd tools/celestory/cli
 go build -o celestory .
 ```
 
 The FITS-reading core lives in the shared module `libs/astrofits`, referenced via a
-`replace` directive in `go.mod`.
+`replace` directive in `tools/celestory/cli/go.mod`.

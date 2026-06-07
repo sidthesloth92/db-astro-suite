@@ -31,13 +31,3 @@ func WriteFile(path string, ledger model.Ledger) error {
 	defer f.Close()
 	return WriteJSON(f, ledger)
 }
-
-// Marshal returns the pretty-printed ledger JSON bytes (used to inline the
-// ledger into the self-contained HTML report).
-func Marshal(ledger model.Ledger) ([]byte, error) {
-	b, err := json.MarshalIndent(ledger, "", "  ")
-	if err != nil {
-		return nil, fmt.Errorf("marshal ledger: %w", err)
-	}
-	return b, nil
-}

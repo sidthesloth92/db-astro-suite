@@ -13,11 +13,15 @@ import (
 // terminal so a large library can't flood it.
 const maxDuplicateSetsPrinted = 20
 
+// webAppURL is the Celestory web app users drop their ledger.json onto to
+// visualise their journey — everything renders client-side, nothing is uploaded.
+const webAppURL = "https://celestory.dbastrosuite.com"
+
 func flagUsage() { flag.Usage() }
 
-// printRunSummary prints the headline stats, duplicate report, output paths,
-// and cache location after a run. Pass an empty htmlPath in serve mode.
-func printRunSummary(ledger model.Ledger, jsonPath, htmlPath string, c *cache.Cache) {
+// printRunSummary prints the headline stats, duplicate report, the ledger.json
+// path, the cache location, and how to visualise the result in the web app.
+func printRunSummary(ledger model.Ledger, jsonPath string, c *cache.Cache) {
 	s := ledger.Summary
 	fmt.Println()
 	fmt.Printf("Done — %d object(s) · %s total · %d night(s) · %d light frame(s)\n",
@@ -29,12 +33,12 @@ func printRunSummary(ledger model.Ledger, jsonPath, htmlPath string, c *cache.Ca
 	printDuplicates(ledger)
 
 	fmt.Println("\nSaved:", jsonPath)
-	if htmlPath != "" {
-		fmt.Println("Saved:", htmlPath)
-	}
 	if c != nil {
 		fmt.Println("Cache:", c.Path())
 	}
+
+	fmt.Printf("\nNext: open %s and drop your ledger.json to chart your journey —\n", webAppURL)
+	fmt.Println("it renders entirely in your browser; nothing is uploaded.")
 }
 
 func printDuplicates(ledger model.Ledger) {

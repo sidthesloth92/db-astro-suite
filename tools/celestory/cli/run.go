@@ -15,16 +15,11 @@ import (
 	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/model"
 	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/report"
 	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/scan"
-	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/view"
 	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/wizard"
 )
 
-// defaultServePort is the preferred port for -serve; if it's busy the server
-// falls back to any free port.
-const defaultServePort = 9292
-
 // run executes the full pipeline: resolve inputs → scan → aggregate → write
-// JSON + HTML → open/serve.
+// ledger.json. The result is uploaded to the Celestory web app to visualise.
 func run(f cliFlags) error {
 	if f.showConfig {
 		return showConfig(f)
@@ -57,7 +52,7 @@ func run(f cliFlags) error {
 		return errors.New("no folder given: pass -input <dir>, or run with no arguments for the guided wizard")
 	}
 
-	jsonPath, htmlPath, err := resolveOutputs(baseOut)
+	jsonPath, err := resolveOutputs(baseOut)
 	if err != nil {
 		return err
 	}
@@ -101,39 +96,8 @@ func run(f cliFlags) error {
 	if err := report.WriteFile(jsonPath, ledger); err != nil {
 		return err
 	}
-	ledgerJSON, err := report.Marshal(ledger)
-	if err != nil {
-		return err
-	}
-
-	shouldOpen := !f.noOpen
-
-	if f.serve {
-		url, wait, err := view.Serve(ctx, viewerHTML, ledgerJSON, defaultServePort)
-		if err != nil {
-			return err
-		}
-		printRunSummary(ledger, jsonPath, "", c)
-		fmt.Printf("\nServing stats at %s — press Ctrl+C to stop\n", url)
-		if shouldOpen {
-			_ = view.OpenInBrowser(url)
-		}
-		saveCache(c)
-		return wait()
-	}
-
-	if err := view.WriteReportFile(htmlPath, viewerHTML, ledgerJSON); err != nil {
-		return err
-	}
-	printRunSummary(ledger, jsonPath, htmlPath, c)
+	printRunSummary(ledger, jsonPath, c)
 	saveCache(c)
-
-	if shouldOpen {
-		if err := view.OpenInBrowser(htmlPath); err != nil {
-			fmt.Fprintln(os.Stderr, "could not open the browser automatically:", err)
-			fmt.Println("Open this file in your browser:", htmlPath)
-		}
-	}
 	return nil
 }
 

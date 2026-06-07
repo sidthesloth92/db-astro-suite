@@ -7,28 +7,25 @@ import (
 	"strings"
 )
 
-const (
-	jsonFileName = "ledger.json"
-	htmlFileName = "celestory-stats.html"
-)
+const jsonFileName = "ledger.json"
 
-// resolveOutputs decides where ledger.json and celestory-stats.html are
-// written. An empty out means the current working directory; a ".json" path
-// names the JSON (HTML beside it); anything else is treated as a directory.
-func resolveOutputs(out string) (jsonPath, htmlPath string, err error) {
+// resolveOutputs decides where ledger.json is written. An empty out means the
+// current working directory; a ".json" path names the file directly; anything
+// else is treated as a directory.
+func resolveOutputs(out string) (jsonPath string, err error) {
 	out = strings.TrimSpace(out)
 	if out == "" {
 		cwd, e := os.Getwd()
 		if e != nil {
-			return "", "", fmt.Errorf("determine working directory: %w", e)
+			return "", fmt.Errorf("determine working directory: %w", e)
 		}
-		return filepath.Join(cwd, jsonFileName), filepath.Join(cwd, htmlFileName), nil
+		return filepath.Join(cwd, jsonFileName), nil
 	}
 	if strings.EqualFold(filepath.Ext(out), ".json") {
-		return out, filepath.Join(filepath.Dir(out), htmlFileName), nil
+		return out, nil
 	}
 	if err := os.MkdirAll(out, 0o755); err != nil {
-		return "", "", fmt.Errorf("create output dir %s: %w", out, err)
+		return "", fmt.Errorf("create output dir %s: %w", out, err)
 	}
-	return filepath.Join(out, jsonFileName), filepath.Join(out, htmlFileName), nil
+	return filepath.Join(out, jsonFileName), nil
 }
