@@ -1,0 +1,13 @@
+:host {
+  display: inline-flex;
+  line-height: 0;
+}
+
+/* drop-shadow on the wrapper glows the whole injected SVG subtree without
+   needing ::ng-deep (the SVG is injected via innerHTML and is unscoped). */
+.mark {
+  display: inline-flex;
+  line-height: 0;
+  filter: drop-shadow(0 0 5px rgba(168, 85, 247, 0.35))
+    drop-shadow(0 0 14px rgba(255, 42, 123, 0.2));
+}
