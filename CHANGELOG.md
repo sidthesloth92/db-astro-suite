@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.25.1](https://github.com/sidthesloth92/db-astro-suite/compare/v1.25.0...v1.25.1) (2026-06-07)
+
+
+### Bug Fixes
+
+* **starwizz:** reset on clear, gate path stars, and tame shooting stars ([#68](https://github.com/sidthesloth92/db-astro-suite/issues/68)) ([a39f49c](https://github.com/sidthesloth92/db-astro-suite/commit/a39f49c4945ed3a957e8b081810ab8992288d608))
+
+## [1.25.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.24.0...v1.25.0) (2026-06-06)
+
+
+### Features
+
+* **starwizz:** redesign logo and brand assets — grad-core warp mark ([#64](https://github.com/sidthesloth92/db-astro-suite/issues/64)) ([6b684d0](https://github.com/sidthesloth92/db-astro-suite/commit/6b684d0dc8e04d0f8d88582903f8a14e7f2da4d1))
+
+## [1.24.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.23.0...v1.24.0) (2026-06-01)
+
+
+### Features
+
+* annotation Display controls, per-annotation hide, light-year distances, and catalog singularization ([#55](https://github.com/sidthesloth92/db-astro-suite/issues/55)) ([c68e783](https://github.com/sidthesloth92/db-astro-suite/commit/c68e7839459d666104339410a2f716a2361a60fc))
+* create designation key utilities for catalog management ([c68e783](https://github.com/sidthesloth92/db-astro-suite/commit/c68e7839459d666104339410a2f716a2361a60fc))
+* enhance catalog merging logic for deep-sky objects ([c68e783](https://github.com/sidthesloth92/db-astro-suite/commit/c68e7839459d666104339410a2f716a2361a60fc))
+
 ## [1.23.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.22.0...v1.23.0) (2026-06-01)
 
 

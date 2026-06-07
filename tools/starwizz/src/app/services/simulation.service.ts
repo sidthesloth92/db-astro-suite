@@ -1,6 +1,7 @@
 import { computed, inject, Injectable, signal, WritableSignal } from '@angular/core';
 import {
   CONTROLS,
+  DEFAULT_FORMAT,
   DEFAULT_GALAXY_URL,
   DIRECTION_STAR_DEFAULTS,
   FORMATS,
@@ -247,7 +248,7 @@ export class SimulationService {
    * Currently selected output format for the simulation canvas.
    * Affects canvas dimensions and output video size.
    */
-  currentFormat = signal<FormatKey>('reels');
+  currentFormat = signal<FormatKey>(DEFAULT_FORMAT);
 
   /**
    * Toggles the recording state machine — idle ↔ recording. Centralised here
@@ -290,6 +291,12 @@ export class SimulationService {
    * Stars are reused (object pooling) to avoid garbage collection during animation.
    */
   shootingStars = signal<ShootingStar[]>([]);
+
+  /**
+   * Whether shooting stars are rendered. When false they neither spawn nor draw,
+   * and any in-flight streaks are cleared. Restored to true on a full reset.
+   */
+  shootingStarsEnabled = signal<boolean>(true);
 
   // ==================== Private Recording State ====================
 
@@ -569,6 +576,7 @@ export class SimulationService {
     for (const key of Object.keys(this.controls) as ControlKey[]) {
       this.controls[key].set(CONTROLS[key].initial);
     }
+    this.shootingStarsEnabled.set(true);
     // Clear any custom path, then go through updateDirection so the star
     // direction/depth are reset to the 'forward' preset defaults too (a bare
     // travelDirection.set would leave the stars streaming the old way).
@@ -665,7 +673,10 @@ export class SimulationService {
   }
 
   /**
-   * Clears the currently loaded image and resets related state.
+   * Clears the currently loaded image and returns the whole simulation to its
+   * fresh-page state — image flags, output format, every control, the camera
+   * direction, any custom path, and the shooting-star toggle — so the next
+   * upload starts exactly as if the page had just loaded.
    * Called when user clicks the "Clear" button.
    */
   clearImage(): void {
@@ -673,7 +684,10 @@ export class SimulationService {
     this.isImageLoaded.set(false);
     this.userImage.set(null);
     this.galaxyImage.set(null);
-    this.resetPath();
+    this.currentFormat.set(DEFAULT_FORMAT);
+    // Restores all sliders, the shooting-star toggle, the custom path, and the
+    // forward star defaults (so the re-uploaded field animates immediately).
+    this.resetControlsToDefaults();
   }
 
   // ==================== Star Generation ====================

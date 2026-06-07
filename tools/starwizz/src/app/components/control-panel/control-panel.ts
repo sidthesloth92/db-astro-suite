@@ -103,6 +103,9 @@ export class ControlPanel {
   /** Tooltip text shown on the help icon next to the "From beginning" switch. */
   protected readonly fromBeginningHelp =
     'When enabled, the animation resets to its initial position before recording starts.';
+  /** Tooltip text shown on the help icon next to the "Shooting Stars" switch. */
+  protected readonly shootingStarsHelp =
+    'Turn the occasional shooting-star streaks on or off. When off, the Shooting Star Speed slider is hidden.';
 
   /** Slider control metadata (label, min/max/step/precision, etc.). */
   readonly controlConfig = CONTROLS;
@@ -138,12 +141,20 @@ export class ControlPanel {
   readonly angleMax = STAR_ANGLE_MAX;
   readonly angleStep = STAR_ANGLE_STEP;
 
-  /** Control keys to render as sliders, filtered for the active mode. */
+  /** Control keys to render as sliders, filtered for the active mode and toggles. */
   readonly visibleControlNames = computed<ControlKey[]>(() => {
-    if (!this.simService.isPathMode()) {
-      return this.controlNames;
-    }
-    return this.controlNames.filter((key) => !PATH_HIDDEN_CONTROLS.has(key));
+    const pathMode = this.simService.isPathMode();
+    const shootingStarsOn = this.simService.shootingStarsEnabled();
+    return this.controlNames.filter((key) => {
+      if (pathMode && PATH_HIDDEN_CONTROLS.has(key)) {
+        return false;
+      }
+      // The Shooting Star Speed slider is meaningless while shooting stars are off.
+      if (key === 'shootingStarSpeed' && !shootingStarsOn) {
+        return false;
+      }
+      return true;
+    });
   });
 
   /** Label rendered inside the record button — varies with recording state. */
