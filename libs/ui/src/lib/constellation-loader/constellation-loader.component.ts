@@ -1,209 +1,195 @@
-import { isPlatformBrowser } from "@angular/common";
+import { isPlatformBrowser } from '@angular/common';
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   ElementRef,
-  OnDestroy,
   PLATFORM_ID,
-  ViewChild,
+  afterNextRender,
   inject,
   input,
-} from "@angular/core";
+  viewChild,
+} from '@angular/core';
+import {
+  CL_EDGES,
+  CL_GRADIENT_ID,
+  CL_NODES,
+  CL_TIMING,
+} from './constellation-loader.constants';
+import {
+  buildConstellationMarkup,
+  edgeLength,
+} from './constellation-loader.util';
 
-interface Star {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  radius: number;
-  pulsePhase: number;
-  pulseSpeed: number;
-  color: "pink" | "cyan";
-}
-
+/**
+ * Branded loading indicator: the Astrogram constellation mark drawing itself
+ * in — edges trace on, nodes pop with an overshoot, the tagged reticles
+ * breathe, and twinkle stars settle — then the whole sequence loops. Used as
+ * the plate-solving overlay (fill) and the generic card spinner (sized).
+ *
+ * All DOM work happens browser-side in `afterNextRender`; on the server the
+ * `<svg>` stays empty (SSR-safe). Honours `prefers-reduced-motion` by snapping
+ * to the finished constellation instead of animating.
+ */
 @Component({
-  selector: "dba-ui-constellation-loader",
+  selector: 'dba-ui-constellation-loader',
   standalone: true,
-  templateUrl: "./constellation-loader.component.html",
-  styleUrls: ["./constellation-loader.component.css"],
+  templateUrl: './constellation-loader.component.html',
+  styleUrls: ['./constellation-loader.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { "[class.fill]": "fill()" },
+  host: { '[class.fill]': 'fill()' },
 })
-export class ConstellationLoaderComponent implements AfterViewInit, OnDestroy {
-  @ViewChild("starCanvas") canvasRef!: ElementRef<HTMLCanvasElement>;
-  @ViewChild("wrapper") wrapperRef!: ElementRef<HTMLDivElement>;
+export class ConstellationLoaderComponent {
+  /** Fixed width/height in px. Ignored when `fill` is true. */
+  readonly size = input<number>(100);
+  /** When true, the loader fills its container instead of using `size`. */
+  readonly fill = input<boolean>(false);
 
-  /** Fixed width/height in px. Ignored when fill=true. */
-  size = input<number>(100);
-  /** When true, the canvas fills its container and resizes with it. */
-  fill = input<boolean>(false);
+  /** Host `<svg>` the constellation is injected into and animated within. */
+  private readonly stage =
+    viewChild.required<ElementRef<SVGSVGElement>>('stage');
 
-  private platformId = inject(PLATFORM_ID);
-  private ctx: CanvasRenderingContext2D | null = null;
-  private stars: Star[] = [];
-  private rafId = 0;
-  private resizeObserver: ResizeObserver | null = null;
-  private currentW = 100;
-  private currentH = 100;
+  private readonly platformId = inject(PLATFORM_ID);
 
-  ngAfterViewInit(): void {
+  /** Live Web-Animations handles, cancelled on destroy / restart. */
+  private animations: Animation[] = [];
+  /** Timer that restarts the draw-in loop. */
+  private loopTimer: ReturnType<typeof setTimeout> | null = null;
+
+  constructor() {
+    afterNextRender(() => this.start());
+    inject(DestroyRef).onDestroy(() => this.stop());
+  }
+
+  /** Injects the constellation, then animates it (or snaps it, if reduced). */
+  private start(): void {
     if (!isPlatformBrowser(this.platformId)) return;
-    if (this.fill()) {
-      // Observe the wrapper div directly — it is sized by CSS (width/height: 100%)
-      this.resizeObserver = new ResizeObserver((entries) => {
-        const entry = entries[0];
-        const w = Math.round(entry.contentRect.width);
-        const h = Math.round(entry.contentRect.height);
-        if (w > 0 && h > 0 && (w !== this.currentW || h !== this.currentH)) {
-          this.currentW = w;
-          this.currentH = h;
-          const canvas = this.canvasRef.nativeElement;
-          canvas.width = w;
-          canvas.height = h;
-          // Do NOT set canvas.style dimensions — CSS handles display size in fill mode
-          this.initStars(w, h);
-        }
-      });
-      this.resizeObserver.observe(this.wrapperRef.nativeElement);
-    } else {
-      const s = this.size();
-      this.resize(s, s);
+    const svg = this.stage().nativeElement;
+    svg.innerHTML = buildConstellationMarkup(CL_GRADIENT_ID);
+    const prefersReduced = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches;
+    if (prefersReduced) {
+      this.snapToRest(svg);
+      return;
     }
-    this.ctx = this.canvasRef.nativeElement.getContext("2d");
-    this.loop();
+    this.animate(svg);
   }
 
-  ngOnDestroy(): void {
-    if (this.rafId) {
-      cancelAnimationFrame(this.rafId);
+  /** Cancels every running animation and the loop timer. */
+  private stop(): void {
+    for (const animation of this.animations) {
+      animation.cancel();
     }
-    if (this.resizeObserver) {
-      this.resizeObserver.disconnect();
+    this.animations = [];
+    if (this.loopTimer !== null) {
+      clearTimeout(this.loopTimer);
+      this.loopTimer = null;
     }
   }
 
-  private resize(w: number, h: number): void {
-    this.currentW = w;
-    this.currentH = h;
-    const canvas = this.canvasRef.nativeElement;
-    canvas.width = w;
-    canvas.height = h;
-    // Always pin display size in px — prevents any CSS from stretching it
-    canvas.style.width = `${w}px`;
-    canvas.style.height = `${h}px`;
-    this.initStars(w, h);
-  }
+  /** Runs one full draw-in pass and schedules the next. */
+  private animate(svg: SVGSVGElement): void {
+    this.stop();
+    const t = CL_TIMING;
 
-  private initStars(w: number, h: number): void {
-    this.stars = Array.from({ length: 28 }, () => ({
-      x: Math.random() * w,
-      y: Math.random() * h,
-      vx: (Math.random() - 0.5) * 0.5,
-      vy: (Math.random() - 0.5) * 0.5,
-      radius: Math.random() * 2.5 + 2,
-      pulsePhase: Math.random() * Math.PI * 2,
-      pulseSpeed: Math.random() * 0.03 + 0.015,
-      color: Math.random() < 0.5 ? "pink" : "cyan",
-    }));
-  }
-
-  private loop(): void {
-    this.rafId = requestAnimationFrame(() => this.loop());
-    this.draw();
-  }
-
-  private draw(): void {
-    const ctx = this.ctx;
-    if (!ctx) return;
-
-    const w = this.currentW;
-    const h = this.currentH;
-    // maxDist relative to the shorter dimension so density feels consistent
-    const maxDist = Math.min(w, h) * 0.45;
-
-    ctx.clearRect(0, 0, w, h);
-
-    // Move and bounce stars
-    for (const star of this.stars) {
-      star.x += star.vx;
-      star.y += star.vy;
-      if (star.x < 0) {
-        star.x = 0;
-        star.vx = Math.abs(star.vx);
-      }
-      if (star.x > w) {
-        star.x = w;
-        star.vx = -Math.abs(star.vx);
-      }
-      if (star.y < 0) {
-        star.y = 0;
-        star.vy = Math.abs(star.vy);
-      }
-      if (star.y > h) {
-        star.y = h;
-        star.vy = -Math.abs(star.vy);
-      }
-      star.pulsePhase += star.pulseSpeed;
-    }
-
-    // Draw connecting lines
-    for (let i = 0; i < this.stars.length; i++) {
-      for (let j = i + 1; j < this.stars.length; j++) {
-        const a = this.stars[i];
-        const b = this.stars[j];
-        const dx = a.x - b.x;
-        const dy = a.y - b.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < maxDist) {
-          const alpha = (1 - dist / maxDist) * 0.9;
-          ctx.beginPath();
-          ctx.moveTo(a.x, a.y);
-          ctx.lineTo(b.x, b.y);
-          // Use a gradient so the line blends between the two star colors
-          if (a.color === b.color) {
-            const rgb = a.color === "pink" ? "255, 45, 149" : "0, 243, 255";
-            ctx.strokeStyle = `rgba(${rgb}, ${alpha})`;
-          } else {
-            const grad = ctx.createLinearGradient(a.x, a.y, b.x, b.y);
-            grad.addColorStop(0, `rgba(255, 45, 149, ${alpha})`);
-            grad.addColorStop(1, `rgba(0, 243, 255, ${alpha})`);
-            ctx.strokeStyle = grad;
-          }
-          ctx.lineWidth = 1.5;
-          ctx.stroke();
-        }
-      }
-    }
-
-    // Draw stars
-    for (const star of this.stars) {
-      const pulse = Math.sin(star.pulsePhase) * 0.3 + 0.7;
-      const r = star.radius * pulse;
-      const rgb = star.color === "pink" ? "255, 45, 149" : "0, 243, 255";
-
-      // Soft glow halo
-      const grd = ctx.createRadialGradient(
-        star.x,
-        star.y,
-        0,
-        star.x,
-        star.y,
-        r * 6,
+    const lines = svg.querySelectorAll<SVGLineElement>('.cl-line');
+    const lineTotal = lines.length * t.lineStagger + t.lineDuration;
+    lines.forEach((line, i) => {
+      const [ai, bi] = CL_EDGES[i];
+      const len = edgeLength(CL_NODES[ai], CL_NODES[bi]);
+      this.animations.push(
+        line.animate(
+          [{ strokeDashoffset: len }, { strokeDashoffset: 0 }],
+          {
+            duration: t.lineDuration,
+            delay: i * t.lineStagger,
+            easing: 'cubic-bezier(.6,.1,.2,1)',
+            fill: 'forwards',
+          },
+        ),
       );
-      grd.addColorStop(0, `rgba(${rgb}, ${0.85 * pulse})`);
-      grd.addColorStop(0.35, `rgba(${rgb}, ${0.3 * pulse})`);
-      grd.addColorStop(1, `rgba(${rgb}, 0)`);
-      ctx.beginPath();
-      ctx.arc(star.x, star.y, r * 6, 0, Math.PI * 2);
-      ctx.fillStyle = grd;
-      ctx.fill();
+    });
 
-      // Bright core
-      ctx.beginPath();
-      ctx.arc(star.x, star.y, r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(255, 255, 255, ${pulse})`;
-      ctx.fill();
-    }
+    const nodes = svg.querySelectorAll<SVGGElement>('.cl-node');
+    nodes.forEach((node, i) => {
+      this.animations.push(
+        node.animate(
+          [
+            { transform: 'scale(0)' },
+            { transform: 'scale(1.18)', offset: 0.7 },
+            { transform: 'scale(1)' },
+          ],
+          {
+            duration: t.nodeDuration,
+            delay: lineTotal * 0.5 + i * t.nodeStagger,
+            easing: 'cubic-bezier(.34,1.56,.64,1)',
+            fill: 'forwards',
+          },
+        ),
+      );
+    });
+    const nodesEnd =
+      lineTotal * 0.5 + nodes.length * t.nodeStagger + t.nodeDuration;
+
+    const stars = svg.querySelectorAll<SVGCircleElement>('.cl-star');
+    stars.forEach((star, i) => {
+      const peak = 0.55 + Math.random() * 0.4;
+      star.style.transformBox = 'fill-box';
+      star.style.transformOrigin = 'center';
+      this.animations.push(
+        star.animate(
+          [
+            { opacity: 0, transform: 'scale(0.4)' },
+            { opacity: peak, transform: 'scale(1.25)', offset: 0.6 },
+            { opacity: peak * 0.85, transform: 'scale(1)' },
+          ],
+          {
+            duration: t.starDuration,
+            delay: nodesEnd + 60 + i * t.starStagger,
+            easing: 'ease-out',
+            fill: 'forwards',
+          },
+        ),
+      );
+    });
+
+    const rings = svg.querySelectorAll<SVGCircleElement>('.cl-ring');
+    rings.forEach((ring) => {
+      ring.style.transformBox = 'fill-box';
+      ring.style.transformOrigin = 'center';
+      this.animations.push(
+        ring.animate(
+          [
+            { opacity: 1, transform: 'scale(1)' },
+            { opacity: 0.55, transform: 'scale(1.14)' },
+            { opacity: 1, transform: 'scale(1)' },
+          ],
+          {
+            duration: t.ringDuration,
+            delay: lineTotal + 400,
+            iterations: Infinity,
+            easing: 'ease-in-out',
+          },
+        ),
+      );
+    });
+
+    const total =
+      nodesEnd + stars.length * t.starStagger + t.starDuration + t.loopTailPadding;
+    this.loopTimer = setTimeout(() => this.animate(svg), total);
+  }
+
+  /** Reduced-motion fallback: show the finished constellation, no animation. */
+  private snapToRest(svg: SVGSVGElement): void {
+    svg
+      .querySelectorAll<SVGLineElement>('.cl-line')
+      .forEach((line) => line.setAttribute('stroke-dashoffset', '0'));
+    svg
+      .querySelectorAll<SVGGElement>('.cl-node')
+      .forEach((node) => (node.style.transform = 'scale(1)'));
+    svg
+      .querySelectorAll<SVGCircleElement>('.cl-star')
+      .forEach((star) => star.setAttribute('opacity', '0.8'));
   }
 }

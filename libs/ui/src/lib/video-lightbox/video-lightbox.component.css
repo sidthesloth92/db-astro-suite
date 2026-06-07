@@ -1,0 +1,65 @@
+:host {
+  display: contents;
+}
+
+.vlb {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.88);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  cursor: zoom-out;
+  animation: vlb-in 160ms ease;
+}
+
+@keyframes vlb-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.vlb__video {
+  width: min(94vw, 880px);
+  max-width: 100%;
+  max-height: calc(100vh - 3rem);
+  height: auto;
+  object-fit: contain;
+  cursor: default;
+  outline: none;
+  box-shadow: 0 0 80px rgba(0, 0, 0, 0.9);
+}
+
+.vlb__close {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--db-color-text-primary);
+  font-size: 15px;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: background 180ms ease;
+}
+
+.vlb__close:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.vlb__close:focus-visible {
+  outline: 2px solid var(--db-color-cyan);
+  outline-offset: 2px;
+}

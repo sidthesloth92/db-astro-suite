@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  output,
+} from '@angular/core';
 import {
   IconComponent,
   MicroSliderComponent,
@@ -7,6 +13,7 @@ import {
   TextButtonComponent,
   TooltipDirective,
   circleHelpIcon,
+  playCircleIcon,
   rotateCcwIcon,
   type SelectItem,
 } from '@db-astro-suite/ui';
@@ -67,6 +74,11 @@ export class ControlPanel {
   protected readonly rotateCcwIcon = rotateCcwIcon;
   /** Circle-help glyph rendered next to each control as the tooltip affordance. */
   protected readonly circleHelpIcon = circleHelpIcon;
+  /** Play glyph for the "watch the demo" button in the panel header. */
+  protected readonly playCircleIcon = playCircleIcon;
+
+  /** Emitted when the user clicks the panel-header "watch the demo" button. */
+  readonly demoRequested = output<void>();
 
   /** Tooltip text shown on the help icon next to the format selector. */
   protected readonly formatHelp =
