@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  output,
+} from '@angular/core';
 import {
   IconComponent,
   MicroSliderComponent,
@@ -7,6 +13,7 @@ import {
   TextButtonComponent,
   TooltipDirective,
   circleHelpIcon,
+  playCircleIcon,
   rotateCcwIcon,
   type SelectItem,
 } from '@db-astro-suite/ui';
@@ -67,6 +74,11 @@ export class ControlPanel {
   protected readonly rotateCcwIcon = rotateCcwIcon;
   /** Circle-help glyph rendered next to each control as the tooltip affordance. */
   protected readonly circleHelpIcon = circleHelpIcon;
+  /** Play glyph for the "watch the demo" button in the panel header. */
+  protected readonly playCircleIcon = playCircleIcon;
+
+  /** Emitted when the user clicks the panel-header "watch the demo" button. */
+  readonly demoRequested = output<void>();
 
   /** Tooltip text shown on the help icon next to the format selector. */
   protected readonly formatHelp =
@@ -103,6 +115,9 @@ export class ControlPanel {
   /** Tooltip text shown on the help icon next to the "From beginning" switch. */
   protected readonly fromBeginningHelp =
     'When enabled, the animation resets to its initial position before recording starts.';
+  /** Tooltip text shown on the help icon next to the "Shooting Stars" switch. */
+  protected readonly shootingStarsHelp =
+    'Turn the occasional shooting-star streaks on or off. When off, the Shooting Star Speed slider is hidden.';
 
   /** Slider control metadata (label, min/max/step/precision, etc.). */
   readonly controlConfig = CONTROLS;
@@ -138,12 +153,20 @@ export class ControlPanel {
   readonly angleMax = STAR_ANGLE_MAX;
   readonly angleStep = STAR_ANGLE_STEP;
 
-  /** Control keys to render as sliders, filtered for the active mode. */
+  /** Control keys to render as sliders, filtered for the active mode and toggles. */
   readonly visibleControlNames = computed<ControlKey[]>(() => {
-    if (!this.simService.isPathMode()) {
-      return this.controlNames;
-    }
-    return this.controlNames.filter((key) => !PATH_HIDDEN_CONTROLS.has(key));
+    const pathMode = this.simService.isPathMode();
+    const shootingStarsOn = this.simService.shootingStarsEnabled();
+    return this.controlNames.filter((key) => {
+      if (pathMode && PATH_HIDDEN_CONTROLS.has(key)) {
+        return false;
+      }
+      // The Shooting Star Speed slider is meaningless while shooting stars are off.
+      if (key === 'shootingStarSpeed' && !shootingStarsOn) {
+        return false;
+      }
+      return true;
+    });
   });
 
   /** Label rendered inside the record button — varies with recording state. */

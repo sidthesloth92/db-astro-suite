@@ -1,11 +1,10 @@
-<div
-  #wrapper
-  class="constellation-loader"
-  [class.fill]="fill()"
+<svg
+  #stage
+  class="cl-svg"
+  viewBox="0 0 140 140"
   [style.width.px]="fill() ? null : size()"
   [style.height.px]="fill() ? null : size()"
   role="status"
   aria-label="Loading"
->
-  <canvas #starCanvas></canvas>
-</div>
+  aria-busy="true"
+></svg>

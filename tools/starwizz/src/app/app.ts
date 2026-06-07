@@ -5,6 +5,7 @@ import {
   HeaderComponent,
   IconButtonComponent,
   IconComponent,
+  VideoLightboxComponent,
   slidersIcon,
 } from '@db-astro-suite/ui';
 import packageJson from '../../../../package.json';
@@ -33,6 +34,7 @@ const SLIDER_TARGET_SELECTOR = 'dba-ui-micro-slider';
     FloatingSheetComponent,
     IconButtonComponent,
     IconComponent,
+    VideoLightboxComponent,
   ],
   templateUrl: './app.html',
   styleUrl: './app.css',
@@ -51,6 +53,9 @@ export class App {
 
   /** Whether the mobile floating sheet is currently expanded. */
   protected readonly sheetExpanded = signal(false);
+
+  /** Whether the "watch the demo" video lightbox is open. */
+  protected readonly isDemoOpen = signal(false);
 
   /** Whether the user is actively adjusting a control — drives the ghost-opacity state. */
   protected readonly isAdjusting = signal(false);

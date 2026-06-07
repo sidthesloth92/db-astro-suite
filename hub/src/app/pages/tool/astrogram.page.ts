@@ -7,6 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { AnalyticsService } from '@db-astro-suite/ui';
+import { AstroMarkComponent } from '../../components/astro-mark/astro-mark.component';
 import { DemoFrameComponent } from '../../components/demo-frame/demo-frame.component';
 import { ToolDetailComponent } from '../../components/tool-detail/tool-detail.component';
 import { ASTROGRAM_DETAIL } from './astrogram-detail.constants';
@@ -20,7 +21,7 @@ import { ASTROGRAM_LAUNCH_URL } from './tool.constants';
 @Component({
   selector: 'dba-hub-astrogram-tool',
   standalone: true,
-  imports: [ToolDetailComponent, DemoFrameComponent],
+  imports: [ToolDetailComponent, DemoFrameComponent, AstroMarkComponent],
   templateUrl: './astrogram.page.html',
   styleUrl: './astrogram.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

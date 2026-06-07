@@ -1,10 +1,10 @@
+import { STAR_DEPTH_FACTOR, STAR_LATERAL_FACTOR } from '../constants/simulation.constant';
 import { SimulationService } from '../services/simulation.service';
 import { StarDepth } from './simulation.model';
 
 /**
  * Shooting Star Specific Constants
  */
-const SHOOTING_STAR_SPEED_MULTIPLIER = 7;
 const TRAIL_LENGTH = 8;
 const CENTER_SPAWN_RATIO = 0.3;
 
@@ -100,18 +100,24 @@ export class ShootingStar {
       return;
     }
 
-    const speed = this.simService.controls.shootingStarSpeed() * SHOOTING_STAR_SPEED_MULTIPLIER;
+    // Speed is a multiple of the background star speed (the slider value), using
+    // the same depth/lateral factors as Star.update so the streak travels in the
+    // exact same direction as the field — just `multiplier`× faster.
+    const base =
+      this.simService.getInternalValue('starSpeed') * this.simService.controls.shootingStarSpeed();
+    const depthStep = base * STAR_DEPTH_FACTOR;
+    const lateralStep = base * STAR_LATERAL_FACTOR;
     const MAX_DEPTH = this.width;
 
     // Combined motion: radial depth (if any) + lateral drift (if any).
     if (this.depth === 'out') {
-      this.z -= speed;
+      this.z -= depthStep;
     } else if (this.depth === 'in') {
-      this.z += speed;
+      this.z += depthStep;
     }
     if (this.lateralOn) {
-      this.x += this.vx * speed;
-      this.y += this.vy * speed;
+      this.x += this.vx * lateralStep;
+      this.y += this.vy * lateralStep;
     }
 
     // Deactivate when it passes a depth boundary or its projected head leaves the frame.
@@ -123,8 +129,9 @@ export class ShootingStar {
     }
   }
 
-  /** Returns the star to the inactive pool. */
-  private deactivate() {
+  /** Returns the star to the inactive pool. Public so the simulator can clear
+   * any in-flight streak the instant shooting stars are disabled. */
+  deactivate() {
     this.isActive = false;
     this.trail = [];
   }

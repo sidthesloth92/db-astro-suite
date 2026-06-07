@@ -87,10 +87,10 @@ export interface ToolDetailConfig {
   /** Optional secondary (ghost) CTA href. */
   readonly secondaryUrl?: string;
 
-  /** Kicker above the hero preview slot, e.g. `'Demo · Walkthrough'`. */
+  /** Kicker above the hero preview slot, e.g. `'Demo'`. */
   readonly previewKicker: string;
-  /** Small meta beside the preview kicker, e.g. `'02:14'`. */
-  readonly previewMeta: string;
+  /** Optional small meta beside the preview kicker, e.g. `'02:14'`. */
+  readonly previewMeta?: string;
 
   /** Headline metrics for the stats strip (4 recommended). */
   readonly stats: readonly ToolDetailStat[];

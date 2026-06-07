@@ -58,6 +58,14 @@ export class HubToolPage {
     return this.page.getByAltText(altText);
   }
 
+  /**
+   * A demo video by its accessible label. The preview and output frames share
+   * one label, so callers get the first match (the hero preview frame).
+   */
+  getDemoVideo(label: string): Locator {
+    return this.page.getByLabel(label).first();
+  }
+
   /** Opens the demo lightbox via the "Expand …" button over the output media. */
   async openDemoLightbox(
     expandButtonName: string,

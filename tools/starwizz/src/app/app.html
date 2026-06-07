@@ -48,13 +48,26 @@
         (pointerup)="onAdjustEnd()"
         (pointercancel)="onAdjustEnd()"
       >
-        <dba-sw-control-panel class="in-sheet"></dba-sw-control-panel>
+        <dba-sw-control-panel
+          class="in-sheet"
+          (demoRequested)="isDemoOpen.set(true)"
+        ></dba-sw-control-panel>
       </dba-ui-floating-sheet>
     </main>
   } @else {
     <main class="sw-container">
       <dba-sw-simulator></dba-sw-simulator>
-      <dba-sw-control-panel></dba-sw-control-panel>
+      <dba-sw-control-panel
+        (demoRequested)="isDemoOpen.set(true)"
+      ></dba-sw-control-panel>
     </main>
   }
+
+  <dba-ui-video-lightbox
+    [open]="isDemoOpen()"
+    (openChange)="isDemoOpen.set($event)"
+    src="assets/img/sw_demo.mp4"
+    poster="assets/img/sw-demo-poster.jpg"
+    label="Starwizz demo"
+  />
 </div>
