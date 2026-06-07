@@ -1,6 +1,15 @@
 <section class="control-panel" aria-label="Starwizz simulation controls">
   <header class="panel-header">
     <h2 class="panel-title">System Controls</h2>
+    <button
+      type="button"
+      class="demo-button"
+      title="Watch a short demo of how Starwizz works"
+      (click)="demoRequested.emit()"
+    >
+      <dba-ui-icon [def]="playCircleIcon" [size]="14" />
+      <span>How to use</span>
+    </button>
   </header>
 
   <div class="format-row">

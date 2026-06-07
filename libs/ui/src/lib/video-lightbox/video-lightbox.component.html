@@ -1,0 +1,27 @@
+@if (open()) {
+  <div
+    #dialog
+    class="vlb"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="label()"
+    tabindex="-1"
+    (click)="close()"
+    (keydown.escape)="close()"
+  >
+    <button type="button" class="vlb__close" aria-label="Close" (click)="close()">
+      &#x2715;
+    </button>
+    <video
+      class="vlb__video"
+      controls
+      autoplay
+      loop
+      playsinline
+      [poster]="poster()"
+      (click)="$event.stopPropagation()"
+    >
+      <source [src]="src()" type="video/mp4" />
+    </video>
+  </div>
+}

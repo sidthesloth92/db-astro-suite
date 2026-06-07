@@ -5,7 +5,6 @@ import {
   Component,
   afterNextRender,
   inject,
-  signal,
 } from '@angular/core';
 import { AnalyticsService } from '@db-astro-suite/ui';
 import { DemoFrameComponent } from '../../components/demo-frame/demo-frame.component';
@@ -16,8 +15,7 @@ import { STARWIZZ_LAUNCH_URL } from './tool.constants';
 
 /**
  * Starwizz tool page — premium redesign on the shared `ToolDetailComponent`.
- * Provides the brand mark + starfield demo media via content projection and
- * keeps a click-to-expand lightbox for the output animation.
+ * Provides the brand mark + an embedded demo video via content projection.
  */
 @Component({
   selector: 'dba-hub-starwizz-tool',
@@ -31,9 +29,6 @@ export default class StarwizzPage {
   /** Content driving the shared detail layout. */
   protected readonly config = STARWIZZ_DETAIL;
 
-  /** Whether the demo lightbox is currently open. */
-  protected readonly isLightboxOpen = signal(false);
-
   private readonly analytics = inject(AnalyticsService);
   private readonly document = inject(DOCUMENT);
 
@@ -46,18 +41,6 @@ export default class StarwizzPage {
   /** Fires the hub launch-tool analytics event. */
   onLaunch(): void {
     this.analytics.trackHubLaunchToolClicked('starwizz', STARWIZZ_LAUNCH_URL);
-  }
-
-  /** Opens the demo lightbox and locks body scroll. */
-  openLightbox(): void {
-    this.isLightboxOpen.set(true);
-    this.document.body.style.overflow = 'hidden';
-  }
-
-  /** Closes the demo lightbox and restores body scroll. */
-  closeLightbox(): void {
-    this.isLightboxOpen.set(false);
-    this.document.body.style.overflow = '';
   }
 
   /** Ensures a `<link rel="canonical">` exists pointing at the supplied URL. */
