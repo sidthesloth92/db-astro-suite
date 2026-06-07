@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.25.1](https://github.com/sidthesloth92/db-astro-suite/compare/v1.25.0...v1.25.1) (2026-06-07)
+
+
+### Bug Fixes
+
+* **starwizz:** reset on clear, gate path stars, and tame shooting stars ([#68](https://github.com/sidthesloth92/db-astro-suite/issues/68)) ([a39f49c](https://github.com/sidthesloth92/db-astro-suite/commit/a39f49c4945ed3a957e8b081810ab8992288d608))
+
 ## [1.25.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.24.0...v1.25.0) (2026-06-06)
 
 
