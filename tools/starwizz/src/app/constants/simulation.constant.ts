@@ -27,6 +27,9 @@ export const FORMATS = {
 
 export type FormatKey = keyof typeof FORMATS;
 
+/** Default output format applied on first load and on a full reset (image clear). */
+export const DEFAULT_FORMAT: FormatKey = 'reels';
+
 /**
  * Format keys grouped by social-media platform, in dropdown render order.
  * Each platform becomes an `<optgroup>` header; nested keys map to options
@@ -64,11 +67,12 @@ export const CONTROLS: Record<ControlKey, ControlMetadata> = {
   },
   shootingStarSpeed: {
     label: 'Shooting Star Speed',
-    description: 'Controls how fast shooting stars streak across the screen.',
-    min: 0,
-    max: 5,
-    step: 0.1,
-    initial: 0.7,
+    description:
+      'How fast shooting stars streak, as a multiple of the background star speed — so they always travel in the same direction as the stars, just faster.',
+    min: 1,
+    max: 8,
+    step: 0.5,
+    initial: 4,
     precision: 1,
   },
   starSpeed: {
