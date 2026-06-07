@@ -17,9 +17,11 @@
 .cl-svg {
   display: block;
   overflow: visible;
-  /* Brand glow — purple + pink halo matching the constellation mark. */
-  filter: drop-shadow(0 0 6px rgba(168, 85, 247, 0.4))
-    drop-shadow(0 0 16px rgba(255, 42, 123, 0.2));
+  /* Themed glow — pink + cyan halo, following the active theme tokens. */
+  filter: drop-shadow(
+      0 0 6px color-mix(in srgb, var(--db-color-neon-pink) 40%, transparent)
+    )
+    drop-shadow(0 0 16px color-mix(in srgb, var(--db-color-cyan) 22%, transparent));
 }
 
 :host(.fill) .cl-svg {

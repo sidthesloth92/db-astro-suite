@@ -3,9 +3,8 @@
  * brand constellation (identical to the Astrogram phone-post mark) that draws
  * itself in as a plate-solving / loading indicator.
  *
- * The node coordinates and gradient stops are fixed brand-illustration data
- * (the logo's own colours), NOT themeable UI tokens — kept here so the loader
- * stays pixel-faithful to the mark.
+ * The node coordinates are fixed geometry; the colours bind to the shared
+ * theme tokens (see {@link CL_COLORS}) so the loader follows the active theme.
  */
 
 /** Constellation node coordinates, expressed in the 140×140 viewBox. */
@@ -33,16 +32,22 @@ export const CL_EDGES: readonly (readonly [number, number])[] = [
 /** Indices of the "big" tagged nodes — sparkle + cyan reticle ring. */
 export const CL_BIG: readonly number[] = [3, 1];
 
-/** Brand-illustration palette (gradient stops + cyan accent), not theme tokens. */
-export const CL_PALETTE = {
-  /** Diagonal gradient start (blue). */
-  blue: '#4f7cff',
-  /** Diagonal gradient mid (purple) — also the small-node halo. */
-  purple: '#a855f7',
-  /** Diagonal gradient end (pink). */
-  pink: '#ff2a7b',
-  /** Cyan reticle ring on the tagged nodes. */
-  cyan: '#19e6dd',
+/**
+ * Loader colours, bound to the shared theme tokens so the loader follows the
+ * active theme. Emitted into the SVG via inline `style` (presentation
+ * attributes can't resolve `var()`); `url(#grad)` strokes inherit the gradient.
+ */
+export const CL_COLORS = {
+  /** Connecting-line / orbit gradient start — themed blue. */
+  gradientFrom: 'var(--db-color-neon-blue)',
+  /** Connecting-line / orbit gradient end — themed pink. */
+  gradientTo: 'var(--db-color-neon-pink)',
+  /** Tagged-node reticle ring — themed cyan. */
+  reticle: 'var(--db-color-cyan)',
+  /** Soft halo behind plain nodes — themed pink. */
+  halo: 'var(--db-color-neon-pink)',
+  /** Star cores + sparkles. */
+  star: '#ffffff',
 } as const;
 
 /** Number of decorative twinkle stars that pop in once the net is drawn. */
