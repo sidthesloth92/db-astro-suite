@@ -68,4 +68,28 @@ describe('ShootingStar', () => {
 
     expect(star.isActive).toBe(false);
   });
+
+  it('should move proportionally to the background star speed (relative speed)', () => {
+    service.starDepth.set('out');
+    service.starLateralOn.set(false);
+    service.controls.shootingStarSpeed.set(2); // 2× the star speed
+
+    const measureDelta = (starSpeed: number): number => {
+      service.controls.starSpeed.set(starSpeed);
+      const star = spawned();
+      // Pin to a stable mid-frame position so only the depth step changes z.
+      star.x = 0;
+      star.y = 0;
+      star.z = WIDTH / 2;
+      const z0 = star.z;
+      star.update();
+      return z0 - star.z; // outward ⇒ positive
+    };
+
+    const slowDelta = measureDelta(0.5);
+    const fastDelta = measureDelta(10);
+
+    expect(slowDelta).toBeGreaterThan(0);
+    expect(fastDelta).toBeGreaterThan(slowDelta);
+  });
 });

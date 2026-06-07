@@ -208,6 +208,23 @@
     </div>
   }
 
+  <div class="record-aux">
+    <dba-ui-switch
+      ariaLabel="Shooting stars"
+      [checked]="simService.shootingStarsEnabled()"
+      (checkedChange)="simService.shootingStarsEnabled.set($event)"
+    ></dba-ui-switch>
+    <span class="record-aux-label">Shooting Stars</span>
+    <span
+      class="help-icon"
+      tabindex="0"
+      [dbaTooltip]="shootingStarsHelp"
+      [attr.aria-label]="shootingStarsHelp"
+    >
+      <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
+    </span>
+  </div>
+
   @for (control of visibleControlNames(); track control) {
     <div class="slider-row">
       <div class="slider-label-row">

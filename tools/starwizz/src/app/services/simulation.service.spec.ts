@@ -75,6 +75,52 @@ describe('SimulationService', () => {
       expect(service.cameraEnd()).toBeNull();
       expect(service.pathFinalized()).toBe(false);
     });
+
+    it('should re-enable shooting stars on reset', () => {
+      service.shootingStarsEnabled.set(false);
+
+      service.resetControlsToDefaults();
+
+      expect(service.shootingStarsEnabled()).toBe(true);
+    });
+  });
+
+  describe('clearImage', () => {
+    it('should return the whole simulation to its fresh-page state', () => {
+      // Drive the simulation well away from defaults first.
+      service.isImageLoaded.set(true);
+      service.isDefaultImage.set(true);
+      service.userImage.set('data:image/png;base64,abc');
+      service.currentFormat.set('youtube-4k');
+      service.controls.starCount.set(500);
+      service.shootingStarsEnabled.set(false);
+      service.updateDirection('path');
+      service.setCameraStart();
+      service.setCameraEnd();
+      service.finalizePath();
+
+      service.clearImage();
+
+      // Image flags cleared.
+      expect(service.isImageLoaded()).toBe(false);
+      expect(service.isDefaultImage()).toBe(false);
+      expect(service.userImage()).toBeNull();
+      expect(service.galaxyImage()).toBeNull();
+      // Output format back to the default.
+      expect(service.currentFormat()).toBe('reels');
+      // Controls + shooting-star toggle back to defaults.
+      expect(service.controls.starCount()).toBe(1000);
+      expect(service.shootingStarsEnabled()).toBe(true);
+      // Forward star motion restored so the next upload animates immediately.
+      expect(service.travelDirection()).toBe('forward');
+      expect(service.starDepth()).toBe('out');
+      expect(service.starLateralOn()).toBe(false);
+      expect(service.hasStarMotion()).toBe(true);
+      // Custom path cleared.
+      expect(service.cameraStart()).toBeNull();
+      expect(service.cameraEnd()).toBeNull();
+      expect(service.pathFinalized()).toBe(false);
+    });
   });
 
   describe('Custom Path (A→B)', () => {
