@@ -190,6 +190,15 @@ export class Simulator implements AfterViewInit {
     }
   });
 
+  /** Effect: clear every in-flight streak the instant shooting stars are disabled. */
+  private readonly _shootingStarsToggleEffect = effect(() => {
+    if (!this.simService.shootingStarsEnabled()) {
+      for (const star of this.simService.shootingStars()) {
+        star.deactivate();
+      }
+    }
+  });
+
   ngAfterViewInit() {
     this.init();
   }
@@ -475,6 +484,11 @@ export class Simulator implements AfterViewInit {
   }
 
   private handleShootingStarSpawning() {
+    // Disabled by the user — never spawn.
+    if (!this.simService.shootingStarsEnabled()) {
+      return;
+    }
+
     // Shooting stars follow the current star motion; none when there's no motion.
     if (!this.simService.hasStarMotion()) {
       return;
@@ -539,6 +553,11 @@ export class Simulator implements AfterViewInit {
   private drawStars() {
     if (!this.ctx || !this.simService.isImageLoaded()) return;
 
+    // While composing a Custom Path (before "Set Path"), hide the whole field so
+    // the user frames against a clean backdrop. The stars appear and start moving
+    // once the path is fixed (finalizePath derives the star motion).
+    if (this.simService.isPathMode() && !this.simService.pathFinalized()) return;
+
     const isMoving = this.simService.isImageLoaded();
 
     for (const star of this.simService.stars()) {
@@ -546,9 +565,11 @@ export class Simulator implements AfterViewInit {
       star.draw(this.ctx, this.width, this.currentScale, this.starTexture);
     }
 
-    for (const star of this.simService.shootingStars()) {
-      if (isMoving) star.update();
-      star.draw(this.ctx, this.width, this.currentScale, this.starTexture);
+    if (this.simService.shootingStarsEnabled()) {
+      for (const star of this.simService.shootingStars()) {
+        if (isMoving) star.update();
+        star.draw(this.ctx, this.width, this.currentScale, this.starTexture);
+      }
     }
   }
 }
