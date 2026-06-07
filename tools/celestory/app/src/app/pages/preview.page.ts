@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { AnimatedStarryBackgroundComponent } from '@db-astro-suite/ui';
 import { StoryStatsComponent } from '../components/story-stats/story-stats.component';
 import { PreviewStore } from '../services/preview-store.service';
 
@@ -10,7 +11,7 @@ import { PreviewStore } from '../services/preview-store.service';
 @Component({
   selector: 'dba-celestory-preview',
   standalone: true,
-  imports: [StoryStatsComponent, RouterLink],
+  imports: [StoryStatsComponent, RouterLink, AnimatedStarryBackgroundComponent],
   templateUrl: './preview.page.html',
   styleUrl: './preview.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

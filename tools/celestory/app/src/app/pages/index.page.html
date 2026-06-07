@@ -1,12 +1,12 @@
-<main class="landing" (drop)="onDrop($event)" (dragover)="onDragOver($event)">
-  <section class="hero">
-    <p class="kicker">CELESTORY · CLIENT-SIDE · NOTHING UPLOADED</p>
-    <h1 class="title">Chart your <em>year</em> under the stars.</h1>
-    <p class="lede">
-      Drop your <code>celestory.json</code> export here. Everything renders right in
-      your browser — your frames, gear and skies never leave this device.
-    </p>
+<dba-ui-animated-starry-background>
+  <div class="neb" aria-hidden="true"></div>
 
+  <main
+    class="landing"
+    (drop)="onDrop($event)"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave()"
+  >
     <input
       #fileInput
       type="file"
@@ -15,110 +15,314 @@
       (change)="onFileInput($event)"
     />
 
-    @if (error()) {
-      <p class="error" role="alert">{{ error() }}</p>
-    }
+    <!-- NAV -->
+    <nav class="top">
+      <div class="brand"><span class="glyph"></span><span class="name">Cele<b>story</b></span></div>
+      <div class="spacer"></div>
+      <a class="btn-mini" [href]="hubUrl">
+        DB Astro Suite
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8" /></svg>
+      </a>
+    </nav>
 
-    @switch (mode()) {
-      @case ('choice') {
-        <div class="choice">
-          <p class="choice__file">Loaded <strong>{{ fileName() }}</strong> — what next?</p>
-          <div class="choice__grid">
-            <button class="card-btn" type="button" (click)="chooseVisualise()">
-              <span class="card-btn__title">Visualise &amp; download</span>
-              <ul class="card-btn__list">
-                <li>Stays on your device · nothing uploaded</li>
-                <li>Explore your stats · grab a card</li>
-                <li>No link</li>
-              </ul>
-            </button>
-            <button class="card-btn card-btn--primary" type="button" (click)="startCreate()">
-              <span class="card-btn__title">Create your Celestory</span>
-              <ul class="card-btn__list">
-                <li>Pick a handle · get a shareable URL</li>
-                <li>Others can view it</li>
-                <li>You get a key to delete it</li>
-              </ul>
-            </button>
-          </div>
-          <button class="link-btn" type="button" (click)="reset()">Start over</button>
-        </div>
-      }
-      @case ('create') {
-        <form class="create" (submit)="$event.preventDefault(); submitCreate()">
-          <label class="create__label" for="handle">Choose your handle</label>
-          <div class="create__row">
-            <span class="create__prefix">celestory.dbastrosuite.com/</span>
-            <input
-              id="handle"
-              class="create__input"
-              type="text"
-              autocapitalize="off"
-              autocomplete="off"
-              spellcheck="false"
-              placeholder="your-handle"
-              [value]="handle()"
-              (input)="onHandleInput($event)"
-            />
-          </div>
-          <div class="actions">
-            <button class="btn btn--primary" type="submit" [disabled]="creating()">
-              {{ creating() ? 'Publishing…' : 'Publish' }}
-            </button>
-            <button class="btn btn--ghost" type="button" (click)="reset()">Cancel</button>
-          </div>
-          <p class="create__note">Only your summary stats are uploaded — never photos or raw files.</p>
-        </form>
-      }
-      @case ('created') {
-        <div class="created">
-          <p class="created__title">Your Celestory is live 🎉</p>
-          <a class="created__url" [href]="'/' + created()!.handle">
-            celestory.dbastrosuite.com/{{ created()!.handle }}
+    <div class="wrap">
+      <!-- HERO -->
+      <header class="hero">
+        <span class="kick eyebrow"><span class="d"></span>Open-source · runs on your machine</span>
+        <h1>Your journey under<br />the <em>stars</em>, charted.</h1>
+        <p class="lead">
+          Point Celestory at your light frames. It reads every sub, every filter, every year — and
+          renders a gallery-grade imaging journey, entirely in your browser.
+        </p>
+        <div class="cta-row">
+          <a class="btn-primary" href="#how">
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6" /></svg>
+            Get started
           </a>
-          <div class="created__key">
-            <p class="created__key-label">Your delete key — save it. It's the only way to remove your page, and we can't recover it.</p>
-            <code class="created__key-val">{{ created()!.key }}</code>
-          </div>
-          <div class="actions">
-            <a class="btn btn--primary" [href]="'/' + created()!.handle">View your page</a>
-            <button class="btn btn--ghost" type="button" (click)="reset()">Done</button>
-          </div>
-        </div>
-      }
-      @default {
-        <div class="actions">
-          <button class="btn btn--primary" type="button" (click)="fileInput.click()">
-            Choose file
-          </button>
-          <button class="btn btn--ghost" type="button" (click)="exploreSample()">
-            Explore sample data
+          <button class="btn-ghost" type="button" (click)="exploreSample()">
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" /><circle cx="12" cy="12" r="2.6" /></svg>
+            Explore the sample
           </button>
         </div>
-      }
-    }
-  </section>
+        <div class="or-row">
+          <span class="or-line"></span>
+          <span class="or-txt">or, if you already have a ledger</span>
+          <span class="or-line"></span>
+        </div>
+        <button
+          type="button"
+          class="drop-zone"
+          [class.over]="dragActive()"
+          (click)="fileInput.click()"
+          aria-label="Upload your ledger JSON"
+        >
+          <span class="dz-cloud">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4 4 0 0 1-.5-7.97 5.5 5.5 0 0 1 10.62-1.46A4.5 4.5 0 0 1 17 18h-1" /><path d="M12 21V11M8.5 14.5 12 11l3.5 3.5" /></svg>
+          </span>
+          <span class="dz-title">Upload your ledger</span>
+          <span class="dz-acc">Drop your ledger.json to chart your journey</span>
+          <span class="dz-hint">.json · exported by the Celestory CLI</span>
+        </button>
+        @if (error()) {
+          <p class="err" role="alert">⚠ {{ error() }}</p>
+        }
+        <p class="privacy">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>
+          Nothing is uploaded — your frames never leave this device
+        </p>
+      </header>
 
-  @if (mode() === 'idle') {
-    <section class="how">
-      <p class="kicker">BRING YOUR OWN SKY</p>
-      <h2 class="how__title">Generate your Celestory in two commands</h2>
-      <ol class="steps">
-        <li>
-          <span class="steps__n">01</span>
-          <span>Install the CLI (run on your computer)</span>
-          <code>brew install celestory/tap/celestory</code>
-        </li>
-        <li>
-          <span class="steps__n">02</span>
-          <span>Scan your captures — reads FITS headers locally, nothing is uploaded</span>
-          <code>celestory scan ~/Astrophotography -o celestory.json</code>
-        </li>
-        <li>
-          <span class="steps__n">03</span>
-          <span>Drop the file here &amp; share</span>
-        </li>
-      </ol>
-    </section>
+      <!-- STATUS — social proof, shown only once the community has real aggregates -->
+      @if (stats()?.storyCount) {
+        <section #statusSection class="status" aria-label="Celestory by the numbers">
+          <div class="frame">
+            <div class="lead-row"><span class="eyebrow">Charted with Celestory so far</span></div>
+            <div class="grid">
+              <div class="cell"><div class="cv">{{ photographers() }}</div><div class="ck">Astrophotographers</div></div>
+              <div class="cell"><div class="cv">{{ hours() }}</div><div class="ck">Hours integrated</div></div>
+              <div class="cell"><div class="cv">{{ objects() }}</div><div class="ck">Objects charted</div></div>
+              <div class="cell"><div class="cv">{{ frames() }}</div><div class="ck">Light frames</div></div>
+            </div>
+            <div class="foot">Updated nightly · counts are aggregate, never your data</div>
+          </div>
+        </section>
+      }
+
+      <!-- FEATURES -->
+      <section class="block" id="features">
+        <div class="chap"><span class="rule"></span><span class="lbl">Why Celestory</span></div>
+        <h2 class="sec">Features</h2>
+        <p class="sub">Built for the photons, not the cloud — every number is computed in your browser.</p>
+        <div class="feat">
+          <div class="fcard">
+            <div class="fi"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg></div>
+            <div class="fcard__body">
+              <h4>Yours, privately</h4>
+              <p>Everything runs client-side. Your light frames, gear and skies never touch a server — the JSON stays on your machine.</p>
+            </div>
+          </div>
+          <div class="fcard">
+            <div class="fi"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.4" /><circle cx="17" cy="6" r="2.4" /><circle cx="17" cy="18" r="2.4" /><path d="M8.1 10.9l6.8-3.8M8.1 13.1l6.8 3.8" /></svg></div>
+            <div class="fcard__body">
+              <h4>Made to share</h4>
+              <p>Gallery-grade cards and carousels in Observatory, Starfield and Nebula — sized for Instagram, Stories and X.</p>
+            </div>
+          </div>
+          <div class="fcard">
+            <div class="fi"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3" /><circle cx="12" cy="12" r="4.2" /></svg></div>
+            <div class="fcard__body">
+              <h4>Every photon counted</h4>
+              <p>Per-filter integration, nightly heat strips, multi-year object timelines and gear cross-links — the full account of your journey.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- HOW IT WORKS / GET STARTED -->
+      <section class="block" id="how">
+        <div class="chap"><span class="num">01</span><span class="rule"></span><span class="lbl">Get started</span></div>
+        <h2 class="sec">Three steps.</h2>
+        <p class="sub">From your captures to a shareable journey — a tiny local CLI plus this browser app. No account, no cloud.</p>
+
+        <div class="walk">
+          <!-- Step 1 -->
+          <div class="step">
+            <div class="step-inner">
+              <div class="step-text">
+                <div class="sh"><span class="sn">01</span><span class="st">Install &amp; scan your captures</span></div>
+                <div class="sd">Install the CLI, then point it at your captures — it reads your FITS headers and writes one <span class="mono">ledger.json</span>. Or just run <span class="mono">celestory</span> for a guided wizard.</div>
+                <div class="tabs" role="tablist">
+                  <button type="button" class="tab" [class.on]="installTool() === 'brew'" (click)="selectInstall('brew')">{{ installLabels.brew }}</button>
+                  <button type="button" class="tab" [class.on]="installTool() === 'scoop'" (click)="selectInstall('scoop')">{{ installLabels.scoop }}</button>
+                </div>
+                <div class="cmd"><span class="pr">$</span><code>{{ installCommand() }}</code><button type="button" class="copy" (click)="copy('install', installCommand())">{{ copied() === 'install' ? 'Copied' : 'Copy' }}</button></div>
+                <div class="cmd cmd--gap"><span class="pr">$</span><code>{{ scanCommand }}</code><button type="button" class="copy" (click)="copy('scan', scanCommand)">{{ copied() === 'scan' ? 'Copied' : 'Copy' }}</button></div>
+              </div>
+              <div class="step-demo">
+                <div class="term demo-term" aria-hidden="true">
+                  <div class="term-bar"><i></i><i></i><i></i></div>
+                  <div class="term-body">
+                    <div class="tline"><span class="pr">$</span> celestory -input ~/Astro<span class="cur"></span></div>
+                    <div class="tout">
+                      <div class="scanline"><span class="spin">⠋</span> reading headers…</div>
+                      <div class="bar"><i></i></div>
+                      <div class="cnt scancount">0 frames</div>
+                      <div class="doneline"><span class="ok">✓</span> 2,619 frames · 19 objects · 6 yrs → <span class="ledgerout">ledger.json</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="step">
+            <div class="step-inner">
+              <div class="step-text">
+                <div class="sh"><span class="sn">02</span><span class="st">Drop it into Celestory</span></div>
+                <div class="sd">Open the app and drag <span class="mono">ledger.json</span> onto the page. It's parsed right in your browser — nothing is uploaded.</div>
+                <button class="btn-ghost step-btn" type="button" (click)="fileInput.click()">
+                  <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M8 8l4-4 4 4" /><path d="M4 14v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" /></svg>
+                  Upload your ledger
+                </button>
+              </div>
+              <div class="step-demo">
+                <div class="brow demo-drop" aria-hidden="true">
+                  <div class="brow-bar"><i></i><i></i><i></i><span class="url">celestory.app</span></div>
+                  <div class="brow-body">
+                    <div class="drop-target">
+                      <span class="dt-ico"><svg class="ico dt-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M8 8l4-4 4 4" /><path d="M4 14v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" /></svg></span>
+                      <span class="dt-label">Drop your <span class="mono">ledger.json</span></span>
+                    </div>
+                    <div class="filechip drop-chip">ledger.json</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="step">
+            <div class="step-inner">
+              <div class="step-text">
+                <div class="sh"><span class="sn">03</span><span class="st">Preview &amp; share your journey</span></div>
+                <div class="sd">Your imaging journey renders instantly — share one season or your whole lifetime. Export gallery-grade cards and carousels for Instagram, Stories and X.</div>
+                <button class="btn-primary step-btn" type="button" (click)="exploreSample()">
+                  <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" /><circle cx="12" cy="12" r="2.6" /></svg>
+                  Visualize your Celestory
+                </button>
+              </div>
+              <div class="step-demo">
+                <div class="brow demo-render" aria-hidden="true">
+                  <div class="brow-bar"><i></i><i></i><i></i><span class="url">celestory.app</span></div>
+                  <div class="brow-body">
+                    <div class="mini-card render-card">
+                      <div class="mt">642h 18m</div>
+                      <div class="mk">Total integration · 2019–2025</div>
+                      <div class="mbars"><span></span><span></span><span></span><span></span><span></span></div>
+                    </div>
+                    <div class="share-burst">
+                      <span class="sbi" style="--sd: 0s"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="1.1" fill="currentColor" /></svg></span>
+                      <span class="sbi" style="--sd: 0.09s"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l16 16M20 4L4 20" /></svg></span>
+                      <span class="sbi" style="--sd: 0.18s"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M8 11l4 4 4-4" /><path d="M5 19h14" /></svg></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer>
+      <div class="brand"><span class="glyph"></span><span class="name">Cele<b>story</b></span></div>
+      <div>Charted in your browser · open-source · your data never leaves your machine</div>
+    </footer>
+
+    <!-- sticky mobile CTA -->
+    <div class="sticky">
+      <a class="btn-primary" href="#how">Make your own Celestory →</a>
+      <button class="btn-ghost share-only" type="button" (click)="share()" aria-label="Share">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.4" /><circle cx="17" cy="6" r="2.4" /><circle cx="17" cy="18" r="2.4" /><path d="M8.1 10.9l6.8-3.8M8.1 13.1l6.8 3.8" /></svg>
+      </button>
+    </div>
+  </main>
+
+  <!-- post-upload choice modal -->
+  @if (mode() !== 'idle') {
+    <div class="choice-overlay" (click)="onBackdrop($event)">
+      <div class="choice-modal" role="dialog" aria-modal="true">
+        <button class="cm-close" type="button" (click)="closeModal()" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
+        </button>
+
+        @switch (mode()) {
+          @case ('choice') {
+            <div class="cm-view">
+              <div class="cm-eyebrow">Celestory · client-side · nothing uploaded</div>
+              <div class="cm-lead">Loaded <b>{{ fileName() }}</b> — what next?</div>
+              <div class="cm-cards">
+                <button class="cm-card" type="button" (click)="chooseVisualise()">
+                  <h3>Visualise &amp; share</h3>
+                  <ul>
+                    <li><b>Explore your whole journey</b> right here in your browser</li>
+                    <li><b>Export poster &amp; story images</b> to download or post to social</li>
+                    <li><b>No public link</b> — it never leaves this device</li>
+                    <li><b>Nothing is saved</b> — your view resets when you close the tab</li>
+                  </ul>
+                  <span class="cm-go">Visualise &amp; share →</span>
+                </button>
+                <button class="cm-card rec" type="button" (click)="startCreate()">
+                  <span class="cm-tag">Shareable</span>
+                  <h3>Create your own Celestory</h3>
+                  <ul>
+                    <li><b>Pick a handle</b> and get a shareable URL</li>
+                    <li><b>Anyone can view it</b> — share with fellow astrophotographers</li>
+                    <li><b>You hold a delete key</b> to take it down anytime</li>
+                  </ul>
+                  <span class="cm-go">Create your Celestory →</span>
+                </button>
+              </div>
+              <button class="cm-start-over" type="button" (click)="reset()">Start over</button>
+            </div>
+          }
+          @default {
+            <div class="cm-view">
+              <div class="cm-eyebrow">Create your Celestory</div>
+              <div class="cm-lead">Pick a handle for your <b>imaging journey</b>.</div>
+
+              @if (created(); as result) {
+                <div class="cm-result">
+                  <div class="cm-done"><span class="cm-check">✓</span> Your Celestory is live</div>
+                  <div class="cm-row">
+                    <span class="cm-k">Shareable link</span>
+                    <div class="cm-copyrow">
+                      <code>{{ result.url }}</code>
+                      <button class="cm-copybtn" type="button" (click)="copy('url', result.url)">{{ copied() === 'url' ? 'Copied' : 'Copy' }}</button>
+                    </div>
+                  </div>
+                  <div class="cm-row">
+                    <span class="cm-k">Delete key — keep it safe, it's shown once</span>
+                    <div class="cm-copyrow">
+                      <code>{{ result.key }}</code>
+                      <button class="cm-copybtn" type="button" (click)="copy('key', result.key)">{{ copied() === 'key' ? 'Copied' : 'Copy' }}</button>
+                    </div>
+                  </div>
+                  <button class="btn-primary cm-publish" type="button" (click)="chooseVisualise()">Visualise my stats →</button>
+                </div>
+              } @else {
+                <form class="cm-form" (submit)="$event.preventDefault(); submitCreate()">
+                  <label class="cm-field">
+                    <span>Your handle</span>
+                    <div class="cm-handle">
+                      <span class="pfx">celestory.app/u/</span>
+                      <input
+                        type="text"
+                        placeholder="vera-c"
+                        autocomplete="off"
+                        autocapitalize="off"
+                        spellcheck="false"
+                        [value]="handle()"
+                        (input)="onHandleInput($event)"
+                      />
+                    </div>
+                  </label>
+                  @if (error()) {
+                    <p class="err" role="alert">⚠ {{ error() }}</p>
+                  }
+                  <button class="btn-primary cm-publish" type="submit" [disabled]="creating()">
+                    {{ creating() ? 'Publishing…' : 'Publish my Celestory' }}
+                  </button>
+                  <div class="cm-pubnote">Only your summary stats are uploaded — never your photos or raw files. Your link &amp; delete key are generated when you publish.</div>
+                </form>
+              }
+
+              <button class="cm-start-over" type="button" (click)="backToChoice()">← Back to options</button>
+            </div>
+          }
+        }
+      </div>
+    </div>
   }
-</main>
+</dba-ui-animated-starry-background>

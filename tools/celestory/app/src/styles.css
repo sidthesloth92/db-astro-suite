@@ -1,3 +1,6 @@
+/* Shared DB Astro Suite theme — design tokens + Orbitron/Outfit web fonts. */
+@import '@db-astro-suite/theme';
+
 :root {
   /* Celestory brand — deep space dark + teal accent. Mirrors the share-card mockup. */
   --c-bg: #0a0d12;
@@ -13,6 +16,10 @@
 
 * {
   box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 html,

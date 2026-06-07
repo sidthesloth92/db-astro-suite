@@ -1,26 +1,132 @@
+/**
+ * Preview page — DB Astro Suite skin (matches the Celestory landing): starfield
+ * backdrop, nebula wash, Celestory wordmark, neon-pink accents. Colours resolve
+ * from @db-astro-suite/theme tokens.
+ */
+:host {
+  display: block;
+}
+
+.neb {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(900px 620px at 82% -6%, color-mix(in srgb, var(--db-color-neon-pink) 12%, transparent), transparent 60%),
+    radial-gradient(820px 600px at 6% 8%, color-mix(in srgb, var(--db-color-cyan) 9%, transparent), transparent 62%);
+}
+
 .preview {
+  position: relative;
+  z-index: 2;
   max-width: 720px;
   margin: 0 auto;
-  padding: clamp(2rem, 6vw, 4rem) 1.25rem;
+  padding: clamp(0.5rem, 3vw, 1.5rem) 1.25rem clamp(3rem, 8vw, 5rem);
+}
+
+/* brand bar */
+.bar {
+  display: flex;
+  align-items: center;
+  padding: 14px 0 clamp(1.5rem, 5vw, 3rem);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  text-decoration: none;
+  color: var(--db-color-text-primary);
+}
+.glyph {
+  width: 28px;
+  height: 28px;
+  position: relative;
+  flex: none;
+}
+.glyph::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid var(--db-color-neon-pink);
+  box-shadow:
+    0 0 14px color-mix(in srgb, var(--db-color-neon-pink) 50%, transparent),
+    inset 0 0 9px color-mix(in srgb, var(--db-color-neon-pink) 30%, transparent);
+}
+.glyph::after {
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  top: 3px;
+  right: 2px;
+  background: var(--db-color-cyan);
+  box-shadow: 0 0 8px var(--db-color-cyan);
+}
+.name {
+  font-family: var(--db-font-display-major);
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: 0.005em;
+}
+.name b {
+  color: var(--db-color-neon-pink);
+  font-weight: 700;
 }
 
 .kicker {
-  font-family: var(--c-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.28em;
-  color: var(--c-muted);
+  font-family: var(--db-font-mono-code);
+  font-size: 11px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--db-color-text-faint);
   text-align: center;
-  margin: 0 0 1.5rem;
+  margin: 0 0 1.75rem;
 }
 
-.hint,
+.hint {
+  text-align: center;
+  color: var(--db-color-text-dim);
+  margin-top: 2.5rem;
+}
+.hint a {
+  color: var(--db-color-neon-pink);
+}
+
 .empty {
   text-align: center;
-  color: var(--c-muted);
-  margin-top: 2rem;
+  color: var(--db-color-text-dim);
+  padding: clamp(3rem, 12vw, 6rem) 0;
+  display: grid;
+  gap: 1.4rem;
+  justify-items: center;
 }
-
-.hint a,
-.empty a {
-  color: var(--c-accent);
+.empty p {
+  margin: 0;
+  font-size: 1.05rem;
+}
+.btn {
+  font-family: var(--db-font-display-major);
+  font-size: 14px;
+  line-height: 1;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--db-color-text-primary);
+  background: var(--db-color-neon-pink);
+  border: 1px solid transparent;
+  border-radius: 9px;
+  padding: 14px 26px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--db-color-neon-pink) 30%, transparent),
+    0 14px 40px color-mix(in srgb, var(--db-color-neon-pink) 22%, transparent);
+  transition: filter 0.15s;
+}
+.btn:hover {
+  filter: brightness(1.07);
 }

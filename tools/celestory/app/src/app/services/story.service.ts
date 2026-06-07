@@ -6,6 +6,7 @@ import type {
   CreateStoryResult,
   StoryDetails,
 } from '../models/api.model';
+import type { CommunityStats } from '../models/community-stats.model';
 import type { CelestoryLedger } from '../models/ledger.model';
 
 /** Stateless HTTP access to the Celestory story API. */
@@ -24,6 +25,13 @@ export class StoryService {
   getStory(handle: string): Observable<StoryDetails> {
     return this.http
       .get<ApiResponse<StoryDetails>>(`/api/v1/stories/${encodeURIComponent(handle)}`)
+      .pipe(map((response) => response.details));
+  }
+
+  /** Community aggregates for the landing counters — never any individual data. */
+  getCommunityStats(): Observable<CommunityStats> {
+    return this.http
+      .get<ApiResponse<CommunityStats>>('/api/v1/stats')
       .pipe(map((response) => response.details));
   }
 }

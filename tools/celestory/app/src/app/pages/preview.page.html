@@ -1,13 +1,25 @@
-<main class="preview">
-  @if (ledger(); as l) {
-    <p class="kicker">CELESTORY · PREVIEW · NOTHING UPLOADED</p>
-    <dba-story-stats [ledger]="l" />
-    <p class="hint">
-      Like it? <a routerLink="/">Create a shareable link →</a>
-    </p>
-  } @else {
-    <p class="empty">
-      Nothing to preview yet. <a routerLink="/">Start from your celestory.json →</a>
-    </p>
-  }
-</main>
+<dba-ui-animated-starry-background>
+  <div class="neb" aria-hidden="true"></div>
+
+  <main class="preview">
+    <header class="bar">
+      <a class="brand" routerLink="/">
+        <span class="glyph"></span>
+        <span class="name">Cele<b>story</b></span>
+      </a>
+    </header>
+
+    @if (ledger(); as l) {
+      <p class="kicker">Celestory · Preview · Nothing uploaded</p>
+      <dba-story-stats [ledger]="l" />
+      <p class="hint">
+        Like it? <a routerLink="/">Create a shareable link →</a>
+      </p>
+    } @else {
+      <div class="empty">
+        <p>Nothing to preview yet.</p>
+        <a class="btn" routerLink="/">Start from your ledger.json →</a>
+      </div>
+    }
+  </main>
+</dba-ui-animated-starry-background>

@@ -1,64 +1,87 @@
+/**
+ * Story stats — DB Astro Suite skin (matches the Celestory landing).
+ * Orbitron for the big figures, Fira Code for labels, surface cards and
+ * neon-pink accents. All colours resolve from @db-astro-suite/theme tokens.
+ */
+:host {
+  display: block;
+  font-family: var(--db-font-ui);
+}
+
 .stats {
   text-align: center;
 }
 
 .stats__kicker {
-  font-family: var(--c-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.28em;
-  color: var(--c-muted);
-  margin: 0 0 0.5rem;
+  font-family: var(--db-font-mono-code);
+  font-size: 11px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--db-color-text-faint);
+  margin: 0 0 0.6rem;
 }
 
 .stats__hero {
-  font-family: var(--c-serif);
-  font-weight: 400;
-  font-size: clamp(3rem, 14vw, 6rem);
+  font-family: var(--db-font-display);
+  font-weight: 700;
+  font-size: clamp(2.8rem, 13vw, 5.5rem);
   line-height: 1;
-  margin: 0 0 2rem;
-  color: var(--c-accent);
-  text-shadow: 0 0 40px rgba(122, 242, 200, 0.25);
+  letter-spacing: 0.01em;
+  margin: 0 0 2.2rem;
+  color: var(--db-color-neon-pink);
+  text-shadow: 0 0 42px color-mix(in srgb, var(--db-color-neon-pink) 45%, transparent);
 }
 
 .stats__strip {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: clamp(1.5rem, 8vw, 3.5rem);
-  margin-bottom: 3rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--db-color-border);
+  border: 1px solid var(--db-color-border);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 2.5rem;
 }
 
 .stat {
+  background: linear-gradient(180deg, var(--db-color-surface), var(--db-color-surface-raised));
+  padding: 1.4rem 0.75rem;
   display: grid;
-  gap: 0.35rem;
+  gap: 0.6rem;
+  justify-items: center;
 }
 
 .stat__num {
-  font-family: var(--c-serif);
-  font-size: clamp(1.8rem, 7vw, 2.6rem);
+  font-family: var(--db-font-display);
+  font-weight: 700;
+  font-size: clamp(1.5rem, 6vw, 2.2rem);
+  line-height: 1;
+  color: var(--db-color-text-primary);
 }
 
 .stat__label {
-  font-family: var(--c-mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.2em;
-  color: var(--c-muted);
+  font-family: var(--db-font-mono-code);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--db-color-text-faint);
 }
 
 .filters {
   text-align: left;
-  border: 1px solid var(--c-border);
-  border-radius: 16px;
-  background: var(--c-bg-elev);
-  padding: 1.25rem;
+  border: 1px solid var(--db-color-border);
+  border-radius: 14px;
+  background: linear-gradient(180deg, var(--db-color-surface), var(--db-color-surface-raised));
+  padding: 1.4rem;
 }
 
 .filters__title {
-  font-family: var(--c-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.24em;
-  color: var(--c-muted);
-  margin: 0 0 0.85rem;
+  font-family: var(--db-font-mono-code);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--db-color-text-faint);
+  margin: 0 0 1rem;
 }
 
 .filters__bar {
@@ -67,7 +90,7 @@
   border-radius: 6px;
   overflow: hidden;
   gap: 2px;
-  margin-bottom: 1rem;
+  margin-bottom: 1.1rem;
 }
 
 .filters__seg {
@@ -81,17 +104,18 @@
   padding: 0;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.55rem;
 }
 
 .filters__chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  border: 1px solid var(--c-border);
+  gap: 0.45rem;
+  border: 1px solid var(--db-color-border-strong);
   border-radius: 999px;
-  padding: 0.3rem 0.7rem;
+  padding: 0.35rem 0.75rem;
   font-size: 0.8rem;
+  background: color-mix(in srgb, var(--db-color-text-primary) 2%, transparent);
 }
 
 .filters__dot {
@@ -101,9 +125,10 @@
 }
 
 .filters__name {
-  font-family: var(--c-mono);
+  font-family: var(--db-font-mono-code);
+  color: var(--db-color-text-primary);
 }
 
 .filters__val {
-  color: var(--c-muted);
+  color: var(--db-color-text-dim);
 }
