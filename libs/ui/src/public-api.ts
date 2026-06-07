@@ -50,6 +50,7 @@ export * from "./lib/preview-context-bar/preview-context-bar.component";
 export * from "./lib/progress-ring/progress-ring.component";
 export * from "./lib/segmented-tabs/segmented-tabs.component";
 export * from "./lib/segmented-tabs/segmented-tabs.model";
+export * from "./lib/animated-starry-background/animated-starry-background.component";
 export * from "./lib/starry-background/starry-background.component";
 export * from "./lib/switch/switch.component";
 export * from "./lib/top-bar/top-bar.component";

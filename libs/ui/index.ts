@@ -44,6 +44,7 @@ export * from "./src/lib/preview-context-bar/preview-context-bar.component";
 export * from "./src/lib/progress-ring/progress-ring.component";
 export * from "./src/lib/segmented-tabs/segmented-tabs.component";
 export * from "./src/lib/segmented-tabs/segmented-tabs.model";
+export * from "./src/lib/animated-starry-background/animated-starry-background.component";
 export * from "./src/lib/starry-background/starry-background.component";
 export * from "./src/lib/switch/switch.component";
 export * from "./src/lib/top-bar/top-bar.component";
