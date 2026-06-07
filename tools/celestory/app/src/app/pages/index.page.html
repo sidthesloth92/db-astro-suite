@@ -1,0 +1,124 @@
+<main class="landing" (drop)="onDrop($event)" (dragover)="onDragOver($event)">
+  <section class="hero">
+    <p class="kicker">CELESTORY · CLIENT-SIDE · NOTHING UPLOADED</p>
+    <h1 class="title">Chart your <em>year</em> under the stars.</h1>
+    <p class="lede">
+      Drop your <code>celestory.json</code> export here. Everything renders right in
+      your browser — your frames, gear and skies never leave this device.
+    </p>
+
+    <input
+      #fileInput
+      type="file"
+      accept=".json,application/json"
+      hidden
+      (change)="onFileInput($event)"
+    />
+
+    @if (error()) {
+      <p class="error" role="alert">{{ error() }}</p>
+    }
+
+    @switch (mode()) {
+      @case ('choice') {
+        <div class="choice">
+          <p class="choice__file">Loaded <strong>{{ fileName() }}</strong> — what next?</p>
+          <div class="choice__grid">
+            <button class="card-btn" type="button" (click)="chooseVisualise()">
+              <span class="card-btn__title">Visualise &amp; download</span>
+              <ul class="card-btn__list">
+                <li>Stays on your device · nothing uploaded</li>
+                <li>Explore your stats · grab a card</li>
+                <li>No link</li>
+              </ul>
+            </button>
+            <button class="card-btn card-btn--primary" type="button" (click)="startCreate()">
+              <span class="card-btn__title">Create your Celestory</span>
+              <ul class="card-btn__list">
+                <li>Pick a handle · get a shareable URL</li>
+                <li>Others can view it</li>
+                <li>You get a key to delete it</li>
+              </ul>
+            </button>
+          </div>
+          <button class="link-btn" type="button" (click)="reset()">Start over</button>
+        </div>
+      }
+      @case ('create') {
+        <form class="create" (submit)="$event.preventDefault(); submitCreate()">
+          <label class="create__label" for="handle">Choose your handle</label>
+          <div class="create__row">
+            <span class="create__prefix">celestory.dbastrosuite.com/</span>
+            <input
+              id="handle"
+              class="create__input"
+              type="text"
+              autocapitalize="off"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="your-handle"
+              [value]="handle()"
+              (input)="onHandleInput($event)"
+            />
+          </div>
+          <div class="actions">
+            <button class="btn btn--primary" type="submit" [disabled]="creating()">
+              {{ creating() ? 'Publishing…' : 'Publish' }}
+            </button>
+            <button class="btn btn--ghost" type="button" (click)="reset()">Cancel</button>
+          </div>
+          <p class="create__note">Only your summary stats are uploaded — never photos or raw files.</p>
+        </form>
+      }
+      @case ('created') {
+        <div class="created">
+          <p class="created__title">Your Celestory is live 🎉</p>
+          <a class="created__url" [href]="'/' + created()!.handle">
+            celestory.dbastrosuite.com/{{ created()!.handle }}
+          </a>
+          <div class="created__key">
+            <p class="created__key-label">Your delete key — save it. It's the only way to remove your page, and we can't recover it.</p>
+            <code class="created__key-val">{{ created()!.key }}</code>
+          </div>
+          <div class="actions">
+            <a class="btn btn--primary" [href]="'/' + created()!.handle">View your page</a>
+            <button class="btn btn--ghost" type="button" (click)="reset()">Done</button>
+          </div>
+        </div>
+      }
+      @default {
+        <div class="actions">
+          <button class="btn btn--primary" type="button" (click)="fileInput.click()">
+            Choose file
+          </button>
+          <button class="btn btn--ghost" type="button" (click)="exploreSample()">
+            Explore sample data
+          </button>
+        </div>
+      }
+    }
+  </section>
+
+  @if (mode() === 'idle') {
+    <section class="how">
+      <p class="kicker">BRING YOUR OWN SKY</p>
+      <h2 class="how__title">Generate your Celestory in two commands</h2>
+      <ol class="steps">
+        <li>
+          <span class="steps__n">01</span>
+          <span>Install the CLI (run on your computer)</span>
+          <code>brew install celestory/tap/celestory</code>
+        </li>
+        <li>
+          <span class="steps__n">02</span>
+          <span>Scan your captures — reads FITS headers locally, nothing is uploaded</span>
+          <code>celestory scan ~/Astrophotography -o celestory.json</code>
+        </li>
+        <li>
+          <span class="steps__n">03</span>
+          <span>Drop the file here &amp; share</span>
+        </li>
+      </ol>
+    </section>
+  }
+</main>

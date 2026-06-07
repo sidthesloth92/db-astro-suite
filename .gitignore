@@ -41,3 +41,4 @@ tools/astrosolve/server/data/access-keys.sqlite
 astrogram_design
 .vercel
 .env*.local
+.env*

@@ -1,0 +1,26 @@
+.preview {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: clamp(2rem, 6vw, 4rem) 1.25rem;
+}
+
+.kicker {
+  font-family: var(--c-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.28em;
+  color: var(--c-muted);
+  text-align: center;
+  margin: 0 0 1.5rem;
+}
+
+.hint,
+.empty {
+  text-align: center;
+  color: var(--c-muted);
+  margin-top: 2rem;
+}
+
+.hint a,
+.empty a {
+  color: var(--c-accent);
+}

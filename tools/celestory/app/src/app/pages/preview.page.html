@@ -1,0 +1,13 @@
+<main class="preview">
+  @if (ledger(); as l) {
+    <p class="kicker">CELESTORY · PREVIEW · NOTHING UPLOADED</p>
+    <dba-story-stats [ledger]="l" />
+    <p class="hint">
+      Like it? <a routerLink="/">Create a shareable link →</a>
+    </p>
+  } @else {
+    <p class="empty">
+      Nothing to preview yet. <a routerLink="/">Start from your celestory.json →</a>
+    </p>
+  }
+</main>

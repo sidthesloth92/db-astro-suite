@@ -1,0 +1,17 @@
+<main class="portfolio">
+  @if (story(); as st) {
+    <p class="kicker">CELESTORY · YEAR IN REVIEW</p>
+    <h1 class="handle">{{ st.handle }}</h1>
+    <dba-story-stats [ledger]="st.ledger" />
+    <footer class="portfolio__foot">
+      <a class="cta" routerLink="/">Make your own Celestory →</a>
+    </footer>
+  } @else if (state().status === 'error') {
+    <p class="kicker">CELESTORY</p>
+    <p class="missing">
+      No Celestory at this handle. <a routerLink="/">Make your own →</a>
+    </p>
+  } @else {
+    <p class="loading">Loading…</p>
+  }
+</main>
