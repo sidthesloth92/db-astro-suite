@@ -64,15 +64,15 @@ test.describe("Astrogram Tool Page", () => {
 
   test("renders the uniform detail sections", async () => {
     await expect(hubTool.getHeroHeading()).toContainText("ASTROGRAM");
-    await expect(hubTool.getSectionHeading(/What Astrogram is/i)).toBeVisible();
-    await expect(hubTool.getSectionHeading("WHAT IT DOES")).toBeVisible();
+    await expect(hubTool.getSectionHeading(/Why Astrogram/i)).toBeVisible();
+    await expect(hubTool.getSectionHeading("FEATURES")).toBeVisible();
     await expect(hubTool.getSectionHeading("HOW IT WORKS")).toBeVisible();
-    await expect(hubTool.getSectionHeading(/The output/i)).toBeVisible();
+    await expect(hubTool.getSectionHeading(/OUTPUT/i)).toBeVisible();
   });
 
-  test("lists ten capabilities and six steps", async () => {
-    await expect(hubTool.getFeatureHeadings()).toHaveCount(10);
-    await expect(hubTool.getStepHeadings()).toHaveCount(6);
+  test("lists nine capabilities and four steps", async () => {
+    await expect(hubTool.getFeatureHeadings()).toHaveCount(9);
+    await expect(hubTool.getStepHeadings()).toHaveCount(4);
   });
 
   test("exposes the launch CTA and demo preview", async () => {
@@ -149,24 +149,24 @@ test.describe("Starwizz Tool Page", () => {
 
   test("renders the uniform detail sections", async () => {
     await expect(hubTool.getHeroHeading()).toContainText("STARWIZZ");
-    await expect(hubTool.getSectionHeading(/What Starwizz is/i)).toBeVisible();
-    await expect(hubTool.getSectionHeading("WHAT IT DOES")).toBeVisible();
+    await expect(hubTool.getSectionHeading(/Why Starwizz/i)).toBeVisible();
+    await expect(hubTool.getSectionHeading("FEATURES")).toBeVisible();
     await expect(hubTool.getSectionHeading("HOW IT WORKS")).toBeVisible();
-    await expect(hubTool.getSectionHeading(/The output/i)).toBeVisible();
+    await expect(hubTool.getSectionHeading(/OUTPUT/i)).toBeVisible();
   });
 
-  test("lists eight capabilities and five steps", async () => {
-    await expect(hubTool.getFeatureHeadings()).toHaveCount(8);
+  test("lists nine capabilities and five steps", async () => {
+    await expect(hubTool.getFeatureHeadings()).toHaveCount(9);
     await expect(hubTool.getStepHeadings()).toHaveCount(5);
   });
 
-  test("exposes the launch CTA and demo preview", async () => {
+  test("exposes the launch CTA and the demo video", async () => {
     await expect(hubTool.getPrimaryCta(/Launch Starwizz/i)).toHaveAttribute(
       "href",
       "/starwizz/",
     );
     await expect(
-      hubTool.getDemoImage("Starwizz starfield preview"),
+      hubTool.getDemoVideo("Starwizz cinematic starfield demo"),
     ).toBeVisible();
   });
 });
@@ -241,10 +241,11 @@ test.describe("File Grouper Tool Page", () => {
 });
 
 test.describe("Hub tool demo lightbox", () => {
-  // The file-grouper page uses CLI terminal blocks (no demo image / lightbox),
-  // so lightbox coverage is scoped to astrogram and starwizz.
+  // Only the astrogram output pair uses expandable images. The file-grouper
+  // page uses CLI terminal blocks and starwizz embeds a video demo, so neither
+  // has a lightbox — coverage is scoped to astrogram.
   const tools: ReadonlyArray<{
-    slug: "astrogram" | "starwizz";
+    slug: "astrogram";
     expandButton: string;
     lightbox: string;
   }> = [
@@ -253,11 +254,6 @@ test.describe("Hub tool demo lightbox", () => {
       expandButton: "Expand the plate-solved annotated image",
       lightbox:
         "Astrogram plate-solved annotated image with labelled objects and light-year distances",
-    },
-    {
-      slug: "starwizz",
-      expandButton: "Expand the custom camera path output",
-      lightbox: "Custom camera path preview",
     },
   ];
 
