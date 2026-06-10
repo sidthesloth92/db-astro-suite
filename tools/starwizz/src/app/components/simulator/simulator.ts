@@ -108,6 +108,16 @@ export class Simulator implements AfterViewInit {
   /** Last pointer position (client px) during a pan drag. */
   private lastPointerX = 0;
   private lastPointerY = 0;
+  /**
+   * Active pointers on the preview, keyed by pointerId (client px). Drives the
+   * single-finger pan vs. two-finger pinch-zoom split on touch devices, where
+   * there is no wheel event to zoom with.
+   */
+  private readonly activePointers = new Map<number, { x: number; y: number }>();
+  /** Finger spread (client px) captured when a two-finger pinch began. */
+  private pinchStartDistance = 0;
+  /** Live-camera scale captured when a two-finger pinch began. */
+  private pinchStartScale = 1;
 
   /** Effect: start/stop MediaRecorder in response to recording state changes. */
   private readonly _recordingEffect = effect(() => {
@@ -435,19 +445,43 @@ export class Simulator implements AfterViewInit {
   }
 
 
-  /** Pointer down on the preview — begin a pan drag (path mode, not playing). */
+  /**
+   * Pointer down on the preview — begin a pan drag with one finger, or switch to
+   * a pinch-zoom once a second finger lands (path mode, while authoring).
+   */
   protected onCanvasPointerDown(event: PointerEvent) {
     if (!this.simService.isPathMode() || this.simService.pathFinalized()) {
       return;
     }
+    (event.target as HTMLElement).setPointerCapture?.(event.pointerId);
+    this.activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+    if (this.activePointers.size >= 2) {
+      // Second finger down — stop panning and start a pinch-zoom.
+      this.isDragging.set(false);
+      this.beginPinch();
+      return;
+    }
+
     this.isDragging.set(true);
     this.lastPointerX = event.clientX;
     this.lastPointerY = event.clientY;
-    (event.target as HTMLElement).setPointerCapture?.(event.pointerId);
   }
 
-  /** Pointer move — pan the live camera by the drag delta, in world units. */
+  /**
+   * Pointer move — pinch-zoom the live camera with two fingers, otherwise pan it
+   * by the drag delta in world units.
+   */
   protected onCanvasPointerMove(event: PointerEvent) {
+    if (this.activePointers.has(event.pointerId)) {
+      this.activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    }
+
+    if (this.activePointers.size >= 2) {
+      this.applyPinchZoom();
+      return;
+    }
+
     if (!this.isDragging()) {
       return;
     }
@@ -468,9 +502,33 @@ export class Simulator implements AfterViewInit {
     });
   }
 
-  /** Pointer up / leave — end the pan drag. */
-  protected onCanvasPointerUp() {
-    this.isDragging.set(false);
+  /**
+   * Pointer up / leave / cancel — drop the lifted finger and resume the
+   * appropriate gesture: keep panning if one finger remains (a pinch that lost a
+   * finger), or go idle once none are left.
+   */
+  protected onCanvasPointerUp(event?: PointerEvent) {
+    if (event) {
+      this.activePointers.delete(event.pointerId);
+    } else {
+      this.activePointers.clear();
+    }
+
+    if (this.activePointers.size < 2) {
+      // No longer a two-finger gesture — forget the pinch baseline.
+      this.pinchStartDistance = 0;
+    }
+
+    if (this.activePointers.size === 1) {
+      // One finger left after a pinch — resume panning from its current spot so
+      // the camera doesn't jump on the next move.
+      const [remaining] = this.activePointers.values();
+      this.lastPointerX = remaining.x;
+      this.lastPointerY = remaining.y;
+      this.isDragging.set(true);
+    } else if (this.activePointers.size === 0) {
+      this.isDragging.set(false);
+    }
   }
 
   /** Wheel over the preview — zoom the live camera (path mode, not playing). */
@@ -481,6 +539,35 @@ export class Simulator implements AfterViewInit {
     event.preventDefault();
     const factor = event.deltaY < 0 ? 1.1 : 1 / 1.1;
     this.simService.updateLiveCamera({ scale: this.simService.liveCamera().scale * factor });
+  }
+
+  /** Capture the finger spread and camera scale at the start of a pinch. */
+  private beginPinch() {
+    this.pinchStartDistance = this.currentPointerDistance();
+    this.pinchStartScale = this.simService.liveCamera().scale;
+  }
+
+  /**
+   * Scale the live camera by the change in finger spread since the pinch began.
+   * The service clamps the result to the same bounds as wheel zoom, and — like
+   * wheel zoom — the scale is applied about the preview centre.
+   */
+  private applyPinchZoom() {
+    const distance = this.currentPointerDistance();
+    if (this.pinchStartDistance === 0 || distance === 0) {
+      return;
+    }
+    const factor = distance / this.pinchStartDistance;
+    this.simService.updateLiveCamera({ scale: this.pinchStartScale * factor });
+  }
+
+  /** Euclidean distance (client px) between the first two active pointers. */
+  private currentPointerDistance(): number {
+    const [a, b] = this.activePointers.values();
+    if (!a || !b) {
+      return 0;
+    }
+    return Math.hypot(b.x - a.x, b.y - a.y);
   }
 
   private handleShootingStarSpawning() {
