@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.26.1](https://github.com/sidthesloth92/db-astro-suite/compare/v1.26.0...v1.26.1) (2026-06-10)
+
+
+### Bug Fixes
+
+* **astrosolve:** fix queue slot leak — process-group kill + timeout backstop ([802d406](https://github.com/sidthesloth92/db-astro-suite/commit/802d4063243db1bc1dc3051c2fb6372dccdb4a2f))
+* **astrosolve:** fix queue slot leak — process-group kill + timeout backstop ([63487a4](https://github.com/sidthesloth92/db-astro-suite/commit/63487a49c1cbc5ffcf3b557eaacc7120c0f3e5e6))
+
 ## [1.26.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.25.1...v1.26.0) (2026-06-07)
 
 
