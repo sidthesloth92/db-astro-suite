@@ -1,1 +1,12 @@
 @import './tool-media.css';
+
+/*
+ * The Starwizz output clip is a vertical 9:16 video, so the shared full-width
+ * frame would let it dominate the page. Constrain the output frame to a
+ * portrait-friendly width and center it — fluid on mobile, capped on desktop.
+ */
+.output-frame {
+  display: block;
+  width: min(380px, 86vw);
+  margin: 0 auto;
+}
