@@ -1,5 +1,5 @@
 <dba-hub-tool-detail [config]="config" (primaryClicked)="onLaunch()">
-  <dba-hub-starwizz-mark mark class="tool-mark" [size]="72" [showText]="true" />
+  <img mark class="tool-mark" src="assets/img/sw.png" alt="Starwizz logo" />
 
   <div preview>
     <dba-hub-demo-frame label="starwizz.app" status="Live" [live]="true">
@@ -19,18 +19,18 @@
   </div>
 
   <div output>
-    <dba-hub-demo-frame label="starwizz.app" status="Looped">
+    <dba-hub-demo-frame class="output-frame" label="starwizz.app" status="Looped">
       <video
         class="demo-media"
-        width="1322"
-        height="720"
+        width="1080"
+        height="1920"
         controls
         playsinline
         preload="metadata"
-        poster="assets/img/sw-demo-poster.jpg"
-        aria-label="Starwizz cinematic starfield demo"
+        poster="assets/img/sw-output-poster.jpg"
+        aria-label="Starwizz custom camera path output"
       >
-        <source src="assets/img/sw_demo.mp4" type="video/mp4" />
+        <source src="assets/img/sw_output.mp4" type="video/mp4" />
       </video>
     </dba-hub-demo-frame>
   </div>
