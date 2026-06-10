@@ -27,7 +27,9 @@ export function recordEvent(dao, event, log) {
 export function outcomeFromStatus(statusCode) {
   if (statusCode >= 200 && statusCode < 300) return SolveEventOutcome.SUCCESS;
   if (statusCode === 401) return SolveEventOutcome.AUTH_FAILED;
+  if (statusCode === 499) return SolveEventOutcome.CLIENT_ABORTED;
   if (statusCode === 503) return SolveEventOutcome.QUEUE_FULL;
+  if (statusCode === 504) return SolveEventOutcome.SOLVE_TIMEOUT;
   if (statusCode >= 400 && statusCode < 500)
     return SolveEventOutcome.VALIDATION_ERROR;
   return SolveEventOutcome.INTERNAL_ERROR;
@@ -45,7 +47,9 @@ export function outcomeFromStatus(statusCode) {
 export function responseCodeFromStatus(statusCode) {
   if (statusCode >= 200 && statusCode < 300) return "SOLVE_SUCCESS";
   if (statusCode === 401) return "UNAUTHORIZED";
+  if (statusCode === 499) return "CLIENT_CLOSED_REQUEST";
   if (statusCode === 503) return "SERVER_BUSY";
+  if (statusCode === 504) return "SOLVE_TIMEOUT";
   if (statusCode >= 400 && statusCode < 500) return "VALIDATION_ERROR";
   return "SOLVE_FAILED";
 }
