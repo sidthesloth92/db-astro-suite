@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.27.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.26.2...v1.27.0) (2026-06-10)
+
+
+### Features
+
+* **starwizz:** recorded output clip + unified sw.png branding ([#76](https://github.com/sidthesloth92/db-astro-suite/issues/76)) ([a177134](https://github.com/sidthesloth92/db-astro-suite/commit/a1771346f2a21b4d52dd4e300ff844767c5f9e9f))
+
 ## [1.26.2](https://github.com/sidthesloth92/db-astro-suite/compare/v1.26.1...v1.26.2) (2026-06-10)
 
 
