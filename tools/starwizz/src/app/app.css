@@ -113,8 +113,8 @@
    */
   .sw-mobile-fab {
     position: fixed;
-    right: 16px;
-    bottom: 16px;
+    right: 24px;
+    bottom: 24px;
     z-index: 40;
     --db-icon-button-color: var(--db-color-text-primary);
     --db-icon-button-border-color: transparent;
