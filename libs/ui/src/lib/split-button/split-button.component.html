@@ -1,0 +1,49 @@
+<div class="split-button" [class.menu-up]="menuPlacement() === 'up'">
+  <button
+    type="button"
+    class="segment main"
+    [attr.data-state]="dataState()"
+    [disabled]="disabled()"
+    (click)="onMainClick()"
+  >
+    {{ label() }}
+  </button>
+  <button
+    type="button"
+    class="segment chevron"
+    aria-haspopup="menu"
+    [attr.data-state]="dataState()"
+    [attr.aria-expanded]="isMenuOpen()"
+    [attr.aria-label]="menuAriaLabel()"
+    [class.is-open]="isMenuOpen()"
+    [disabled]="disabled() || menuDisabled()"
+    (click)="onToggleMenu()"
+  >
+    <dba-ui-icon [def]="chevronIcon" [size]="14" />
+  </button>
+
+  @if (isMenuOpen()) {
+    <div class="menu" role="menu">
+      @for (item of menuItems(); track item.value) {
+        <button
+          type="button"
+          role="menuitemradio"
+          class="menu-item"
+          [attr.aria-checked]="item.value === selectedValue()"
+          [class.is-selected]="item.value === selectedValue()"
+          (click)="onItemSelect(item.value)"
+        >
+          <span class="menu-item-text">
+            <span class="menu-item-label">{{ item.label }}</span>
+            @if (item.description) {
+              <span class="menu-item-description">{{ item.description }}</span>
+            }
+          </span>
+          @if (item.detail) {
+            <span class="menu-item-detail">{{ item.detail }}</span>
+          }
+        </button>
+      }
+    </div>
+  }
+</div>

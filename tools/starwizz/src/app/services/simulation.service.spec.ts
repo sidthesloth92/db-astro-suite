@@ -345,4 +345,138 @@ describe('SimulationService', () => {
       expect(service.hasStarMotion()).toBe(false);
     });
   });
+
+  describe('Recording quality presets', () => {
+    it('should default to the Social Media preset', () => {
+      expect(service.recordingPreset()).toBe('social');
+    });
+
+    it('should derive the encoder bitrate from the format, fps and preset budget', () => {
+      // Default reels format (1080×1920), social: 60 fps × 0.10 bpp.
+      expect(service.recordingBitsPerSecond()).toBe(12_441_600);
+
+      service.recordingPreset.set('maximum');
+      expect(service.recordingBitsPerSecond()).toBe(18_662_400);
+
+      service.recordingPreset.set('compact');
+      expect(service.recordingBitsPerSecond()).toBe(4_354_560);
+
+      service.recordingPreset.set('social');
+      service.currentFormat.set('youtube-4k');
+      expect(service.recordingBitsPerSecond()).toBe(49_766_400);
+    });
+
+    it('should clamp small formats up to the minimum bitrate', () => {
+      service.currentFormat.set('youtube-720p');
+      service.recordingPreset.set('compact');
+
+      expect(service.recordingBitsPerSecond()).toBe(4_000_000);
+    });
+
+    it('should restore the default preset on clearImage', () => {
+      service.recordingPreset.set('maximum');
+
+      service.clearImage();
+
+      expect(service.recordingPreset()).toBe('social');
+    });
+  });
+
+  describe('startRecording', () => {
+    /** Constructor arguments captured by the MediaRecorder test double. */
+    let constructed: { stream: MediaStream; options?: MediaRecorderOptions }[];
+    /** Per-test predicate backing the static isTypeSupported double. */
+    let isTypeSupported: (type: string) => boolean;
+    let originalMediaRecorder: typeof MediaRecorder;
+    let canvas: HTMLCanvasElement;
+
+    class FakeMediaRecorder {
+      static isTypeSupported(type: string): boolean {
+        return isTypeSupported(type);
+      }
+      state: RecordingStateNative = 'inactive';
+      ondataavailable: ((e: BlobEvent) => void) | null = null;
+      onstop: (() => void) | null = null;
+      constructor(stream: MediaStream, options?: MediaRecorderOptions) {
+        constructed.push({ stream, options });
+      }
+      start(): void {
+        this.state = 'recording';
+      }
+      stop(): void {
+        this.state = 'inactive';
+      }
+    }
+    /** Alias for the native MediaRecorder state union (distinct from the app's RecordingState). */
+    type RecordingStateNative = 'inactive' | 'recording' | 'paused';
+
+    beforeEach(() => {
+      constructed = [];
+      isTypeSupported = () => true;
+      originalMediaRecorder = window.MediaRecorder;
+      // Test double swap: the fake matches the constructor/static surface the
+      // service touches, so the structural cast is safe here.
+      window.MediaRecorder = FakeMediaRecorder as unknown as typeof MediaRecorder;
+      canvas = document.createElement('canvas');
+      spyOn(canvas, 'captureStream').and.returnValue(new MediaStream());
+    });
+
+    afterEach(() => {
+      // Stops the fake recorder and clears the duration/auto-stop timers.
+      service.stopRecording();
+      window.MediaRecorder = originalMediaRecorder;
+    });
+
+    it('should prefer H.264 High-profile MP4 when the browser supports it', () => {
+      service.startRecording(canvas);
+
+      expect(constructed[0].options?.mimeType).toBe('video/mp4;codecs=avc1.640034');
+    });
+
+    it('should walk the codec ladder down to VP9 WebM when MP4 is unavailable', () => {
+      isTypeSupported = (type) => type === 'video/webm;codecs=vp9';
+
+      service.startRecording(canvas);
+
+      expect(constructed[0].options?.mimeType).toBe('video/webm;codecs=vp9');
+    });
+
+    it('should fall back to plain WebM when nothing is reported as supported', () => {
+      isTypeSupported = () => false;
+
+      service.startRecording(canvas);
+
+      expect(constructed[0].options?.mimeType).toBe('video/webm');
+    });
+
+    it('should pass the preset bitrate to the recorder', () => {
+      service.startRecording(canvas);
+
+      expect(constructed[0].options?.videoBitsPerSecond).toBe(service.recordingBitsPerSecond());
+      expect(constructed[0].options?.videoBitsPerSecond).toBe(12_441_600);
+    });
+
+    it('should capture the canvas at the preset frame rate', () => {
+      service.startRecording(canvas);
+      expect(canvas.captureStream).toHaveBeenCalledWith(60);
+
+      service.stopRecording();
+      service.recordingPreset.set('compact');
+      service.startRecording(canvas);
+      expect(canvas.captureStream).toHaveBeenCalledWith(30);
+    });
+
+    it('should reset to idle when the recorder cannot be created', () => {
+      spyOn(console, 'error');
+      isTypeSupported = () => {
+        throw new Error('boom');
+      };
+      service.recordingState.set('recording');
+
+      service.startRecording(canvas);
+
+      expect(service.recordingState()).toBe('idle');
+      expect(console.error).toHaveBeenCalled();
+    });
+  });
 });

@@ -27,13 +27,13 @@ test("Starwizz SEO meta tags and structured data are correct", async ({
   await page.goto("http://localhost:4200/starwizz/");
   await expect(page.locator("dba-sw-control-panel").first()).toBeVisible();
 
-  await expect(page).toHaveTitle("Starwizz - 4K Starfield & Galaxy Generator");
+  await expect(page).toHaveTitle("Starwizz - 4K Starfield Video Generator");
 
   const ogTitle = await page.getAttribute(
     'meta[property="og:title"]',
     "content",
   );
-  expect(ogTitle).toBe("Starwizz - 4K Starfield & Galaxy Generator");
+  expect(ogTitle).toBe("Starwizz - 4K Starfield Video Generator");
 
   const ogImage = await page.getAttribute(
     'meta[property="og:image"]',
