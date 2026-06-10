@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.26.2](https://github.com/sidthesloth92/db-astro-suite/compare/v1.26.1...v1.26.2) (2026-06-10)
+
+
+### Bug Fixes
+
+* **starwizz:** enable mobile pinch-zoom and enlarge the controls button ([#73](https://github.com/sidthesloth92/db-astro-suite/issues/73)) ([c1fb4c9](https://github.com/sidthesloth92/db-astro-suite/commit/c1fb4c9323e0c63e4d529f948693e9598957251e))
+
 ## [1.26.1](https://github.com/sidthesloth92/db-astro-suite/compare/v1.26.0...v1.26.1) (2026-06-10)
 
 
