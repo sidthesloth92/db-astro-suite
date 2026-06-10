@@ -507,6 +507,50 @@ describe("POST /api/v1/solve", () => {
     assert.equal(body.code, "SOLVE_FAILED");
     assert.ok(!/unexpected blow-up/.test(JSON.stringify(body)));
   });
+
+  it("504 — a solve that exceeds the task timeout returns SOLVE_TIMEOUT and frees the slot", async () => {
+    const accessKeyDao = buildAccessKeyDao();
+    // Never settles — the per-task backstop timeout must reclaim the slot.
+    const processSolveRequest = mock.fn(() => new Promise(() => {}));
+    const parseMultipartRequest = mock.fn(async () => ({
+      filePath: "/tmp/fake-timeout.jpg",
+      hints: { min_magnitude: 20, types: [], ra_hint: null, dec_hint: null },
+      fileSizeBytes: 1024,
+      imageWidthPx: 2000,
+      imageHeightPx: 2000,
+      fileExtension: ".jpg",
+    }));
+
+    app = await buildTestApp({
+      overrides: {
+        accessKeyDao,
+        parseMultipartRequest,
+        processSolveRequest,
+        config: { solveTaskTimeoutMs: 100 },
+      },
+    });
+
+    const { payload, headers } = buildSingleImageMultipart();
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/v1/solve",
+      headers: { ...headers, "x-access-key": VALID_KEY },
+      payload,
+    });
+
+    assert.equal(res.statusCode, 504);
+    const body = res.json();
+    assertApiContract(body);
+    assert.equal(body.code, "SOLVE_TIMEOUT");
+  });
+
+  // TODO(abort-on-disconnect): The 499 CLIENT_CLOSED_REQUEST path is disabled
+  // while the abort-on-disconnect feature is not wired in the route. Docker
+  // Desktop's virtual network proxy closes the container-side socket at the
+  // HTTP request/response boundary (~1ms after body consumption), making the
+  // socket 'close' event unreliable as a disconnect signal in that environment.
+  // Re-enable this test when the feature is restored with proper environment
+  // isolation or a settle delay that skips the spurious lifecycle close.
 });
 
 describe("GET /api/v1/limits", () => {

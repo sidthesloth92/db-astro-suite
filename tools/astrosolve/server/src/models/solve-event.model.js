@@ -13,6 +13,13 @@ export const SolveEventOutcome = Object.freeze({
   AUTH_FAILED: "auth_failed",
   QUEUE_FULL: "queue_full",
   INTERNAL_ERROR: "internal_error",
+  // A queued task exceeded the per-task backstop timeout and its slot was
+  // reclaimed (see config.solveTaskTimeoutMs). Distinct from SOLVE_FAILED so
+  // the dashboard can tell "solver gave up" from "solver never returned".
+  SOLVE_TIMEOUT: "solve_timeout",
+  // The client disconnected before the solve completed, so the request was
+  // aborted and its slot freed without sending a meaningful response.
+  CLIENT_ABORTED: "client_aborted",
 });
 
 /**
