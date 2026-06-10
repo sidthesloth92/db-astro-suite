@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.28.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.27.0...v1.28.0) (2026-06-10)
+
+
+### Features
+
+* add SplitButton component for enhanced action selection ([#78](https://github.com/sidthesloth92/db-astro-suite/issues/78)) ([6606e28](https://github.com/sidthesloth92/db-astro-suite/commit/6606e28e2909068835b3f7c79e20c95875ec6e15))
+
 ## [1.27.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.26.2...v1.27.0) (2026-06-10)
 
 
