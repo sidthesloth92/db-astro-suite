@@ -281,16 +281,20 @@
   </div>
 
   <div class="record-row">
-    <button
-      type="button"
-      class="record-button"
-      [attr.data-state]="recordingState()"
+    <dba-ui-split-button
+      class="record-split"
+      menuPlacement="up"
+      menuAriaLabel="Choose recording quality"
+      [label]="buttonText()"
+      [menuItems]="presetMenuItems()"
+      [selectedValue]="simService.recordingPreset()"
       [disabled]="isRecordDisabled()"
+      [menuDisabled]="isRecordingActive()"
+      [dataState]="recordingState()"
       [dbaTooltip]="'Record up to 30 seconds of the animation as a video file'"
-      (click)="toggleRecording()"
-    >
-      {{ buttonText() }}
-    </button>
+      (mainClick)="toggleRecording()"
+      (menuSelect)="selectPreset($event)"
+    ></dba-ui-split-button>
 
     <div class="record-aux">
       <dba-ui-switch

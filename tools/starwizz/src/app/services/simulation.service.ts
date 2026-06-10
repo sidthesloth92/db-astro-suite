@@ -13,7 +13,14 @@ import {
   PATH_SCALE_DISTANCE_WEIGHT,
   PATH_SPEED_DEFAULT,
 } from '../constants/simulation.constant';
+import {
+  DEFAULT_RECORDING_PRESET,
+  MAX_RECORDING_SECONDS,
+  RECORDING_MIME_TYPES,
+  RECORDING_PRESETS,
+} from '../constants/recording.constant';
 import { ShootingStar } from '../models/shooting-star.model';
+import { RecordingPreset } from '../models/recording.model';
 import {
   CameraKeyframe,
   ControlKey,
@@ -22,13 +29,8 @@ import {
   TravelDirection,
 } from '../models/simulation.model';
 import { Star } from '../models/star.model';
+import { computeRecordingBitsPerSecond } from '../utils/recording-size.util';
 import { AnalyticsService } from '@db-astro-suite/ui';
-
-/** Frame rate for video recording (frames per second) */
-const FRAME_RATE = 60;
-
-/** Maximum allowed recording duration in seconds before auto-stop */
-const MAX_RECORDING_SECONDS = 30;
 
 /** Size of the shooting star object pool for reuse */
 const NUM_SHOOTING_STARS = 10;
@@ -276,6 +278,21 @@ export class SimulationService {
   canvasDimensions = computed(() => {
     const format = this.currentFormat();
     return FORMATS[format];
+  });
+
+  /**
+   * Recording quality preset chosen from the record split-button menu.
+   * Bundles the capture frame rate and the encoder bitrate budget.
+   */
+  recordingPreset = signal<RecordingPreset>(DEFAULT_RECORDING_PRESET);
+
+  /**
+   * Encoder bitrate (bits per second) for the active preset at the selected
+   * format's resolution — passed to MediaRecorder as `videoBitsPerSecond`.
+   */
+  recordingBitsPerSecond = computed(() => {
+    const { width, height } = this.canvasDimensions();
+    return computeRecordingBitsPerSecond(width, height, RECORDING_PRESETS[this.recordingPreset()]);
   });
 
   // ==================== Star Collection Signals ====================
@@ -685,6 +702,7 @@ export class SimulationService {
     this.userImage.set(null);
     this.galaxyImage.set(null);
     this.currentFormat.set(DEFAULT_FORMAT);
+    this.recordingPreset.set(DEFAULT_RECORDING_PRESET);
     // Restores all sliders, the shooting-star toggle, the custom path, and the
     // forward star defaults (so the re-uploaded field animates immediately).
     this.resetControlsToDefaults();
@@ -828,15 +846,21 @@ export class SimulationService {
     this.videoChunks = [];
 
     try {
-      // Capture the canvas as a media stream
+      // Capture the canvas as a media stream at the preset's frame rate
       // captureStream() is not in the TypeScript lib.dom.d.ts typings (non-standard API); cast required
-      const stream = (canvas as any).captureStream(FRAME_RATE); // eslint-disable-line @typescript-eslint/no-explicit-any
+      const stream = (canvas as any).captureStream( // eslint-disable-line @typescript-eslint/no-explicit-any
+        RECORDING_PRESETS[this.recordingPreset()].fps,
+      );
 
       // Detect the best supported video format
       const mimeType = this.getSupportedMimeType();
 
-      // Initialize the MediaRecorder
-      this.mediaRecorder = new MediaRecorder(stream, { mimeType });
+      // Initialize the MediaRecorder with an explicit bitrate — without it the
+      // browser default (~2.5 Mbps) badly under-serves high-res/high-fps output
+      this.mediaRecorder = new MediaRecorder(stream, {
+        mimeType,
+        videoBitsPerSecond: this.recordingBitsPerSecond(),
+      });
       this.setupRecorderListeners(mimeType);
 
       // Start recording
@@ -881,14 +905,16 @@ export class SimulationService {
   }
 
   /**
-   * Detects the best supported video MIME type for the current browser.
-   * Prefers MP4 for wider compatibility, falls back to WebM.
+   * Detects the best supported video MIME type for the current browser by
+   * walking the {@link RECORDING_MIME_TYPES} ladder (H.264 High-profile MP4
+   * first for quality and social-media compatibility, WebM as the fallback).
    *
    * @returns The supported MIME type string
    */
   private getSupportedMimeType(): string {
-    const types = ['video/mp4; codecs="avc1.42E01E, mp4a.40.2"', 'video/mp4', 'video/webm'];
-    return types.find((type) => MediaRecorder.isTypeSupported(type)) || 'video/webm';
+    return (
+      RECORDING_MIME_TYPES.find((type) => MediaRecorder.isTypeSupported(type)) ?? 'video/webm'
+    );
   }
 
   /**
