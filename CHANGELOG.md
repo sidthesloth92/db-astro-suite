@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.29.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.28.0...v1.29.0) (2026-06-11)
+
+
+### Features
+
+* **starwizz:** mobile recording-quality selector ([#81](https://github.com/sidthesloth92/db-astro-suite/issues/81)) ([a476e1e](https://github.com/sidthesloth92/db-astro-suite/commit/a476e1ee3e99de1cdcbfc80cd9f3a3a12512ff0a))
+* **starwizz:** quality popup on the mobile record button ([#83](https://github.com/sidthesloth92/db-astro-suite/issues/83)) ([58b424f](https://github.com/sidthesloth92/db-astro-suite/commit/58b424fd6f998da49eab6e964ac5b97c831c470b))
+
 ## [1.28.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.27.0...v1.28.0) (2026-06-10)
 
 
