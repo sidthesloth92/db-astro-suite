@@ -11,6 +11,7 @@ import type { SegmentedTabOption } from './segmented-tabs.model';
       [options]="options"
       [value]="value()"
       [size]="'sm'"
+      [disabled]="disabled()"
       (valueChange)="onChange($event)"
     />
   `,
@@ -21,6 +22,7 @@ class HostComponent {
     { id: 'stellar', label: 'Stellar' },
   ];
   readonly value = signal('infographic');
+  readonly disabled = signal(false);
   emitted = '';
   onChange(next: string): void {
     this.emitted = next;
@@ -63,6 +65,18 @@ describe('SegmentedTabsComponent', () => {
     const tabs = (f.nativeElement as HTMLElement).querySelectorAll('.tab');
     f.componentInstance.emitted = '';
     (tabs[0] as HTMLButtonElement).click();
+    expect(f.componentInstance.emitted).toBe('');
+  });
+
+  it('should disable every tab and not emit when disabled is set', () => {
+    const f = fixture();
+    f.componentInstance.disabled.set(true);
+    f.detectChanges();
+    const tabs = (f.nativeElement as HTMLElement).querySelectorAll('.tab');
+    expect((tabs[0] as HTMLButtonElement).disabled).toBeTrue();
+    expect((tabs[1] as HTMLButtonElement).disabled).toBeTrue();
+    f.componentInstance.emitted = '';
+    (tabs[1] as HTMLButtonElement).click();
     expect(f.componentInstance.emitted).toBe('');
   });
 });
