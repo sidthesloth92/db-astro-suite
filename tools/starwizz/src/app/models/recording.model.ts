@@ -12,6 +12,8 @@ export type RecordingPreset = 'social' | 'maximum' | 'compact';
 export interface RecordingPresetMetadata {
   /** Short user-facing name shown on the record button and in the menu. */
   label: string;
+  /** Ultra-short name for the compact mobile pill selector (e.g. "Social"). */
+  shortLabel: string;
   /** One-line plain-English description shown under the label in the menu. */
   description: string;
   /**

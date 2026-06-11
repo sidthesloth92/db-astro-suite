@@ -16,6 +16,7 @@ export const DEFAULT_RECORDING_PRESET: RecordingPreset = 'social';
 export const RECORDING_PRESETS: Record<RecordingPreset, RecordingPresetMetadata> = {
   social: {
     label: 'Social Media',
+    shortLabel: 'Social',
     description:
       'Tuned for Instagram, TikTok & Shorts — high enough quality to survive their compression',
     fps: 60,
@@ -23,12 +24,14 @@ export const RECORDING_PRESETS: Record<RecordingPreset, RecordingPresetMetadata>
   },
   maximum: {
     label: 'Maximum Quality',
+    shortLabel: 'Max',
     description: 'Sharpest possible master copy — biggest file',
     fps: 60,
     bitsPerPixelPerFrame: 0.15,
   },
   compact: {
     label: 'Smaller File',
+    shortLabel: 'Smaller',
     description: 'Lighter and quicker to share — still smooth',
     fps: 30,
     bitsPerPixelPerFrame: 0.07,
@@ -40,6 +43,16 @@ export const RECORDING_PRESET_ORDER: readonly RecordingPreset[] = [
   'social',
   'maximum',
   'compact',
+];
+
+/**
+ * Preset keys in low→high quality order for the compact mobile pill selector,
+ * placing the default (`social`) in the middle so it reads as a quality dial.
+ */
+export const RECORDING_PRESET_TAB_ORDER: readonly RecordingPreset[] = [
+  'compact',
+  'social',
+  'maximum',
 ];
 
 /** Lower bitrate clamp — keeps small/slow formats from dipping into mud. */

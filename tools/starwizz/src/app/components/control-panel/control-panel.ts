@@ -8,6 +8,7 @@ import {
 import {
   IconComponent,
   MicroSliderComponent,
+  SegmentedTabsComponent,
   SelectComponent,
   SplitButtonComponent,
   SwitchComponent,
@@ -16,6 +17,7 @@ import {
   circleHelpIcon,
   playCircleIcon,
   rotateCcwIcon,
+  type SegmentedTabOption,
   type SelectItem,
   type SplitButtonMenuItem,
 } from '@db-astro-suite/ui';
@@ -23,6 +25,7 @@ import {
   MAX_RECORDING_SECONDS,
   RECORDING_PRESETS,
   RECORDING_PRESET_ORDER,
+  RECORDING_PRESET_TAB_ORDER,
 } from '../../constants/recording.constant';
 import {
   CONTROLS,
@@ -68,6 +71,7 @@ const PATH_HIDDEN_CONTROLS: ReadonlySet<ControlKey> = new Set<ControlKey>([
   standalone: true,
   imports: [
     MicroSliderComponent,
+    SegmentedTabsComponent,
     SelectComponent,
     SplitButtonComponent,
     SwitchComponent,
@@ -131,6 +135,9 @@ export class ControlPanel {
   /** Tooltip text shown on the help icon next to the "Shooting Stars" switch. */
   protected readonly shootingStarsHelp =
     'Turn the occasional shooting-star streaks on or off. When off, the Shooting Star Speed slider is hidden.';
+
+  /** Maximum recording length (seconds), shown next to the mobile quality pills. */
+  readonly maxRecordingSeconds = MAX_RECORDING_SECONDS;
 
   /** Slider control metadata (label, min/max/step/precision, etc.). */
   readonly controlConfig = CONTROLS;
@@ -219,6 +226,25 @@ export class ControlPanel {
         detail: `~${sizeMb} MB`,
       };
     });
+  });
+
+  /**
+   * Quality-preset pills for the compact mobile selector (the split-button
+   * menu is hidden in the mobile sheet). Low→high quality order; the tooltip
+   * carries the full preset description.
+   */
+  readonly presetTabs: readonly SegmentedTabOption[] = RECORDING_PRESET_TAB_ORDER.map((key) => ({
+    id: key,
+    label: RECORDING_PRESETS[key].shortLabel,
+    tooltip: RECORDING_PRESETS[key].description,
+  }));
+
+  /** Estimated file size (MB) of a full-length clip at the selected preset/format. */
+  readonly selectedPresetSizeMb = computed<number>(() => {
+    const { width, height } = this.simService.canvasDimensions();
+    const preset = RECORDING_PRESETS[this.simService.recordingPreset()];
+    const bitsPerSecond = computeRecordingBitsPerSecond(width, height, preset);
+    return estimateRecordingSizeMb(bitsPerSecond, MAX_RECORDING_SECONDS);
   });
 
   /** Current recording state mirrored as a data-attribute-friendly signal. */

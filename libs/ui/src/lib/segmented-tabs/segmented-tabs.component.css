@@ -15,6 +15,14 @@
   border-radius: 7px;
 }
 
+.group.is-disabled {
+  opacity: 0.45;
+}
+
+.group.is-disabled .tab {
+  cursor: not-allowed;
+}
+
 .tab {
   display: inline-flex;
   align-items: center;
