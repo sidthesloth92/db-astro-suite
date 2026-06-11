@@ -14,14 +14,40 @@
     <main class="sw-container sw-container--mobile">
       <dba-sw-simulator></dba-sw-simulator>
 
+      @if (isQualityPickerOpen()) {
+        <button
+          type="button"
+          class="sw-quality-backdrop"
+          aria-label="Close quality menu"
+          (click)="closeQualityPicker()"
+        ></button>
+        <div class="sw-quality-menu" role="menu" aria-label="Choose recording quality">
+          <span class="sw-quality-menu__title">Record quality · {{ maxRecordingSeconds }}s</span>
+          @for (item of qualityPickerItems(); track item.preset) {
+            <button
+              type="button"
+              role="menuitem"
+              class="sw-quality-item"
+              [class.is-recommended]="item.isRecommended"
+              (click)="chooseQualityAndRecord(item.preset)"
+            >
+              <span class="sw-quality-item__label">{{ item.label }}</span>
+              <span class="sw-quality-item__size">~{{ item.sizeMb }} MB</span>
+            </button>
+          }
+        </div>
+      }
+
       <button
         type="button"
         class="sw-mobile-record"
+        aria-haspopup="menu"
         [attr.data-state]="simService.recordingState()"
+        [attr.aria-expanded]="isQualityPickerOpen()"
         [disabled]="isMobileRecordDisabled()"
         [attr.title]="mobileRecordLabel()"
         [attr.aria-label]="mobileRecordLabel()"
-        (click)="simService.toggleRecording()"
+        (click)="onMobileRecordPress()"
       >
         <span class="sw-mobile-record__shape" aria-hidden="true"></span>
       </button>

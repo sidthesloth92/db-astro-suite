@@ -296,20 +296,6 @@
       (menuSelect)="selectPreset($event)"
     ></dba-ui-split-button>
 
-    <div class="record-quality-mobile">
-      <div class="slider-label-row">
-        <label class="row-label">Quality</label>
-        <span class="row-value">~{{ selectedPresetSizeMb() }} MB / {{ maxRecordingSeconds }}s</span>
-      </div>
-      <dba-ui-segmented-tabs
-        size="sm"
-        [options]="presetTabs"
-        [value]="simService.recordingPreset()"
-        [disabled]="isRecordingActive()"
-        (valueChange)="selectPreset($event)"
-      ></dba-ui-segmented-tabs>
-    </div>
-
     <div class="record-aux">
       <dba-ui-switch
         ariaLabel="Record from beginning"
