@@ -107,6 +107,105 @@
   }
 
   /*
+   * Quality popup — opens just above the record button when it is tapped
+   * while idle. Picking a row sets that quality and starts the recording.
+   */
+  .sw-quality-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 48;
+    border: none;
+    background: transparent;
+    cursor: default;
+  }
+
+  .sw-quality-menu {
+    position: fixed;
+    left: 50%;
+    bottom: 84px;
+    transform: translateX(-50%);
+    z-index: 52;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 200px;
+    padding: 8px;
+    border-radius: 14px;
+    background: rgba(11, 14, 22, 0.82);
+    border: 1px solid var(--db-color-border-strong);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    backdrop-filter: blur(18px) saturate(160%);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+    animation: sw-quality-rise 160ms ease;
+  }
+
+  @keyframes sw-quality-rise {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  }
+
+  .sw-quality-menu__title {
+    padding: 4px 8px 2px;
+    font: 600 10px/1.2 var(--db-font-ui);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--db-color-text-dim);
+  }
+
+  .sw-quality-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 44px;
+    padding: 8px 12px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    background: var(--db-color-surface-hi);
+    color: var(--db-color-text-primary);
+    cursor: pointer;
+    transition:
+      background 140ms ease,
+      border-color 140ms ease;
+  }
+
+  .sw-quality-item:hover,
+  .sw-quality-item:focus-visible {
+    background: var(--db-color-surface-raised);
+  }
+
+  .sw-quality-item:focus-visible {
+    outline: 2px solid var(--db-color-cyan);
+    outline-offset: 2px;
+  }
+
+  .sw-quality-item.is-recommended {
+    border-color: var(--db-color-border-active);
+    background: color-mix(in srgb, var(--db-color-neon-pink) 16%, transparent);
+  }
+
+  .sw-quality-item__label {
+    font: 600 13px/1 var(--db-font-ui);
+    letter-spacing: 0.02em;
+  }
+
+  .sw-quality-item__size {
+    font: 500 11px/1 var(--db-font-mono-code);
+    font-variant-numeric: tabular-nums;
+    color: var(--db-color-text-dim);
+  }
+
+  .sw-quality-item.is-recommended .sw-quality-item__size {
+    color: var(--db-color-text-primary);
+  }
+
+  /*
    * Sliders launcher — Instagram-style pill: small circular button with a
    * translucent dark background and a white glyph, anchored bottom-right
    * over the live simulation so it stays legible on any frame.

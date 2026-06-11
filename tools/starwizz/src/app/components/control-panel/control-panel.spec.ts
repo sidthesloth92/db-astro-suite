@@ -82,33 +82,4 @@ describe('ControlPanel', () => {
       expect(chevron?.disabled).toBeTrue();
     });
   });
-
-  describe('mobile quality pills', () => {
-    it('should offer the three presets low→high with short labels', () => {
-      expect(component.presetTabs.map((tab) => tab.id)).toEqual(['compact', 'social', 'maximum']);
-      expect(component.presetTabs.map((tab) => tab.label)).toEqual(['Smaller', 'Social', 'Max']);
-    });
-
-    it('should estimate the selected preset size for the current format', () => {
-      expect(component.selectedPresetSizeMb()).toBe(47); // reels, social default
-
-      component.selectPreset('compact');
-      expect(component.selectedPresetSizeMb()).toBe(16);
-
-      simService.currentFormat.set('youtube-4k');
-      expect(component.selectedPresetSizeMb()).toBe(65); // 4K compact
-    });
-
-    it('should render the pills only inside the mobile sheet', () => {
-      const desktopPills = (fixture.nativeElement as HTMLElement).querySelector(
-        '.record-quality-mobile dba-ui-segmented-tabs',
-      );
-      // Component renders but the .record-quality-mobile block is display:none on desktop.
-      expect(desktopPills).not.toBeNull();
-      expect(
-        (fixture.nativeElement as HTMLElement).querySelectorAll('.record-quality-mobile .tab')
-          .length,
-      ).toBe(3);
-    });
-  });
 });
