@@ -131,22 +131,22 @@ describe('App', () => {
       return (fixture.nativeElement as HTMLElement).querySelector('.sw-result-chip');
     }
 
-    it('should show the "Video ready" chip with the size after a recording is retained', () => {
+    it('should show a "Saved" confirmation chip with the size after a recording is retained', () => {
       renderMobile();
       expect(resultChip()).toBeNull();
 
       seedLastRecording();
 
-      expect(resultChip()?.textContent).toContain('Video ready · ~47 MB');
+      expect(resultChip()?.textContent).toContain('Saved · ~47 MB');
     });
 
-    it('should save the retained recording from the chip', () => {
+    it('should re-download the retained recording from the chip', () => {
       renderMobile();
       seedLastRecording();
       const save = spyOn(simService, 'saveLastRecording');
 
       (fixture.nativeElement as HTMLElement)
-        .querySelector<HTMLButtonElement>('.sw-result-chip__action')
+        .querySelector<HTMLButtonElement>('.sw-result-chip__icon')
         ?.click();
 
       expect(save).toHaveBeenCalled();

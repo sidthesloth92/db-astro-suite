@@ -255,11 +255,42 @@
   }
 
   .sw-result-chip__label {
-    margin-right: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-right: 4px;
     font: 500 11.5px/1 var(--db-font-ui);
     color: var(--db-color-text-dim);
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
+  }
+
+  .sw-result-chip__check {
+    color: var(--db-color-green);
+  }
+
+  .sw-result-chip__icon {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--db-color-text-dim);
+    cursor: pointer;
+    transition: color 140ms ease;
+  }
+
+  .sw-result-chip__icon:hover,
+  .sw-result-chip__icon:focus-visible {
+    color: var(--db-color-text-primary);
+  }
+
+  .sw-result-chip__icon:focus-visible {
+    outline: 2px solid var(--db-color-cyan);
+    outline-offset: 2px;
   }
 
   .sw-result-chip__action {

@@ -6,6 +6,8 @@ import {
   IconButtonComponent,
   IconComponent,
   VideoLightboxComponent,
+  checkIcon,
+  downloadIcon,
   slidersIcon,
 } from '@db-astro-suite/ui';
 import packageJson from '../../../../package.json';
@@ -74,6 +76,10 @@ export class App {
 
   /** Sliders glyph rendered inside the mobile "Controls" launcher button. */
   protected readonly slidersIcon = slidersIcon;
+  /** Check glyph confirming the recording saved in the "Video ready" chip. */
+  protected readonly checkIcon = checkIcon;
+  /** Download glyph for the chip's re-download (failed-download recovery) action. */
+  protected readonly downloadIcon = downloadIcon;
 
   /** Maximum recording length (seconds), shown in the quality popup title. */
   protected readonly maxRecordingSeconds = MAX_RECORDING_SECONDS;
