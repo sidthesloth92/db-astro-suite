@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.29.2](https://github.com/sidthesloth92/db-astro-suite/compare/v1.29.1...v1.29.2) (2026-06-12)
+
+
+### Bug Fixes
+
+* **starwizz:** resolution-matched H.264 levels, runtime codec fallback, deferred revoke + save/share recovery ([#86](https://github.com/sidthesloth92/db-astro-suite/issues/86)) ([bda056c](https://github.com/sidthesloth92/db-astro-suite/commit/bda056c53fac714171eb5483976b145df97aa662))
+
 ## [1.29.1](https://github.com/sidthesloth92/db-astro-suite/compare/v1.29.0...v1.29.1) (2026-06-12)
 
 
