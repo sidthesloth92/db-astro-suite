@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.29.1](https://github.com/sidthesloth92/db-astro-suite/compare/v1.29.0...v1.29.1) (2026-06-12)
+
+
+### Bug Fixes
+
+* **starwizz:** render preview in Safari by deriving wrapper width explicitly ([#84](https://github.com/sidthesloth92/db-astro-suite/issues/84)) ([9f95aaf](https://github.com/sidthesloth92/db-astro-suite/commit/9f95aaf7ee32f8d60ca0316a38aae61730531ee5))
+
 ## [1.29.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.28.0...v1.29.0) (2026-06-11)
 
 
