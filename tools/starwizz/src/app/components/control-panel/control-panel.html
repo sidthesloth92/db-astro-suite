@@ -296,6 +296,31 @@
       (menuSelect)="selectPreset($event)"
     ></dba-ui-split-button>
 
+    @if (simService.recordingError(); as recordingError) {
+      <p class="record-error" role="alert">{{ recordingError }}</p>
+    }
+
+    @if (simService.lastRecording(); as lastRecording) {
+      <div class="record-last">
+        <span class="record-last-label">Last video · ~{{ lastRecording.sizeMb }} MB</span>
+        <dba-ui-text-button
+          label="Save"
+          variant="secondary"
+          size="sm"
+          [dbaTooltip]="'Download the last recording again — useful if the automatic download failed'"
+          (clicked)="saveLastRecording()"
+        ></dba-ui-text-button>
+        @if (simService.canShareLastRecording()) {
+          <dba-ui-text-button
+            label="Share"
+            variant="secondary"
+            size="sm"
+            (clicked)="shareLastRecording()"
+          ></dba-ui-text-button>
+        }
+      </div>
+    }
+
     <div class="record-aux">
       <dba-ui-switch
         ariaLabel="Record from beginning"

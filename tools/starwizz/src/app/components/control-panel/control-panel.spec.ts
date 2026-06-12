@@ -82,4 +82,36 @@ describe('ControlPanel', () => {
       expect(chevron?.disabled).toBeTrue();
     });
   });
+
+  describe('recording error and last-video row', () => {
+    it('should show the recording error only when one is set', () => {
+      const host = fixture.nativeElement as HTMLElement;
+      expect(host.querySelector('.record-error')).toBeNull();
+
+      simService.recordingError.set('Recording produced no video — please try again.');
+      fixture.detectChanges();
+
+      expect(host.querySelector('.record-error')?.textContent).toContain(
+        'Recording produced no video',
+      );
+    });
+
+    it('should show the last-video row with size and a Save action when a recording is retained', () => {
+      const host = fixture.nativeElement as HTMLElement;
+      expect(host.querySelector('.record-last')).toBeNull();
+
+      simService.lastRecording.set({
+        blob: new Blob([new Uint8Array(8)]),
+        filename: 'starfield_starwizz_9_16_1080_1920.mp4',
+        mimeType: 'video/mp4',
+        sizeMb: 47,
+      });
+      fixture.detectChanges();
+
+      expect(host.querySelector('.record-last-label')?.textContent).toContain('~47 MB');
+      const save = spyOn(simService, 'saveLastRecording');
+      host.querySelector<HTMLButtonElement>('.record-last button')?.click();
+      expect(save).toHaveBeenCalled();
+    });
+  });
 });

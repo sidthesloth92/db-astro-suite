@@ -320,6 +320,16 @@ export class ControlPanel {
     this.simService.toggleRecording();
   }
 
+  /** Re-downloads the retained last recording (recovery for failed downloads). */
+  saveLastRecording(): void {
+    this.simService.saveLastRecording();
+  }
+
+  /** Opens the native share sheet for the retained last recording. */
+  shareLastRecording(): void {
+    void this.simService.shareLastRecording();
+  }
+
   /** Applies a quality preset chosen from the record split-button menu. */
   selectPreset(value: string): void {
     if (value in RECORDING_PRESETS) {

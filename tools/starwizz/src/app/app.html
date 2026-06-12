@@ -38,6 +38,34 @@
         </div>
       }
 
+      @if (simService.recordingError(); as recordingError) {
+        <p class="sw-record-error" role="alert">{{ recordingError }}</p>
+      }
+
+      @if (showResultChip() && !isQualityPickerOpen()) {
+        @if (simService.lastRecording(); as lastRecording) {
+          <div class="sw-result-chip" role="status">
+            <span class="sw-result-chip__label">Video ready · ~{{ lastRecording.sizeMb }} MB</span>
+            <button type="button" class="sw-result-chip__action" (click)="saveLastRecording()">
+              Save
+            </button>
+            @if (simService.canShareLastRecording()) {
+              <button type="button" class="sw-result-chip__action" (click)="shareLastRecording()">
+                Share
+              </button>
+            }
+            <button
+              type="button"
+              class="sw-result-chip__dismiss"
+              aria-label="Dismiss"
+              (click)="dismissResultChip()"
+            >
+              ✕
+            </button>
+          </div>
+        }
+      }
+
       <button
         type="button"
         class="sw-mobile-record"

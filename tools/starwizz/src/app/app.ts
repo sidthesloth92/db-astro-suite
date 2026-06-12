@@ -112,6 +112,20 @@ export class App {
     });
   });
 
+  /**
+   * Whether the user dismissed the "Video ready" chip. Reset whenever a new
+   * recording result lands, so each finished recording re-shows the chip.
+   */
+  protected readonly isResultChipDismissed = signal(false);
+
+  /** True when the mobile "Video ready" chip should render. */
+  protected readonly showResultChip = computed<boolean>(
+    () =>
+      this.simService.lastRecording() !== null &&
+      !this.isResultChipDismissed() &&
+      this.simService.recordingState() === 'idle',
+  );
+
   constructor() {
     let previousRecordingState = this.simService.recordingState();
     effect(() => {
@@ -121,6 +135,12 @@ export class App {
         this.isQualityPickerOpen.set(false);
       }
       previousRecordingState = current;
+    });
+    // Each new finished recording un-dismisses the chip.
+    effect(() => {
+      if (this.simService.lastRecording() !== null) {
+        this.isResultChipDismissed.set(false);
+      }
     });
   }
 
@@ -152,6 +172,21 @@ export class App {
     this.simService.recordingPreset.set(preset);
     this.isQualityPickerOpen.set(false);
     this.simService.toggleRecording();
+  }
+
+  /** Hides the "Video ready" chip until the next recording finishes. */
+  protected dismissResultChip(): void {
+    this.isResultChipDismissed.set(true);
+  }
+
+  /** Re-downloads the retained last recording (recovery for failed downloads). */
+  protected saveLastRecording(): void {
+    this.simService.saveLastRecording();
+  }
+
+  /** Opens the native share sheet for the retained last recording. */
+  protected shareLastRecording(): void {
+    void this.simService.shareLastRecording();
   }
 
   /**
