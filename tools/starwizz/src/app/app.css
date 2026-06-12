@@ -20,6 +20,10 @@
   width: 100%;
   padding: 0.75rem;
   overflow: hidden;
+  /* Size query container: lets the simulator derive its preview width from
+     this container's height (cqh) — WebKit doesn't transfer aspect-ratio
+     through a percentage height when computing intrinsic widths. */
+  container-type: size;
 }
 
 @media (max-width: 1079px) {
