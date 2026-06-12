@@ -116,5 +116,66 @@ describe('App', () => {
       expect(simService.recordingState()).toBe('idle');
       expect(menuItems().length).toBe(0);
     });
+
+    function seedLastRecording(): void {
+      simService.lastRecording.set({
+        blob: new Blob([new Uint8Array(8)]),
+        filename: 'starfield_starwizz_9_16_1080_1920.mp4',
+        mimeType: 'video/mp4',
+        sizeMb: 47,
+      });
+      fixture.detectChanges();
+    }
+
+    function resultChip(): HTMLElement | null {
+      return (fixture.nativeElement as HTMLElement).querySelector('.sw-result-chip');
+    }
+
+    it('should show a "Saved" confirmation chip with the size after a recording is retained', () => {
+      renderMobile();
+      expect(resultChip()).toBeNull();
+
+      seedLastRecording();
+
+      expect(resultChip()?.textContent).toContain('Saved · ~47 MB');
+    });
+
+    it('should re-download the retained recording from the chip', () => {
+      renderMobile();
+      seedLastRecording();
+      const save = spyOn(simService, 'saveLastRecording');
+
+      (fixture.nativeElement as HTMLElement)
+        .querySelector<HTMLButtonElement>('.sw-result-chip__icon')
+        ?.click();
+
+      expect(save).toHaveBeenCalled();
+    });
+
+    it('should dismiss the chip and re-show it for the next recording', () => {
+      renderMobile();
+      seedLastRecording();
+
+      (fixture.nativeElement as HTMLElement)
+        .querySelector<HTMLButtonElement>('.sw-result-chip__dismiss')
+        ?.click();
+      fixture.detectChanges();
+      expect(resultChip()).toBeNull();
+
+      // A new finished recording un-dismisses the chip.
+      seedLastRecording();
+      expect(resultChip()).not.toBeNull();
+    });
+
+    it('should show the recording error label when the service reports one', () => {
+      renderMobile();
+      const host = fixture.nativeElement as HTMLElement;
+      expect(host.querySelector('.sw-record-error')).toBeNull();
+
+      simService.recordingError.set('Recording is not supported on this device or browser.');
+      fixture.detectChanges();
+
+      expect(host.querySelector('.sw-record-error')?.textContent).toContain('not supported');
+    });
   });
 });

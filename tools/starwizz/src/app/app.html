@@ -38,6 +38,43 @@
         </div>
       }
 
+      @if (simService.recordingError(); as recordingError) {
+        <p class="sw-record-error" role="alert">{{ recordingError }}</p>
+      }
+
+      @if (showResultChip() && !isQualityPickerOpen()) {
+        @if (simService.lastRecording(); as lastRecording) {
+          <div class="sw-result-chip" role="status">
+            <span class="sw-result-chip__label">
+              <dba-ui-icon class="sw-result-chip__check" [def]="checkIcon" [size]="14" />
+              Saved · ~{{ lastRecording.sizeMb }} MB
+            </span>
+            @if (simService.canShareLastRecording()) {
+              <button type="button" class="sw-result-chip__action" (click)="shareLastRecording()">
+                Share
+              </button>
+            }
+            <button
+              type="button"
+              class="sw-result-chip__icon"
+              aria-label="Download again"
+              title="Didn't download? Tap to save again"
+              (click)="saveLastRecording()"
+            >
+              <dba-ui-icon [def]="downloadIcon" [size]="16" />
+            </button>
+            <button
+              type="button"
+              class="sw-result-chip__dismiss"
+              aria-label="Dismiss"
+              (click)="dismissResultChip()"
+            >
+              ✕
+            </button>
+          </div>
+        }
+      }
+
       <button
         type="button"
         class="sw-mobile-record"

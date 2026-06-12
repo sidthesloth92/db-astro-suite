@@ -66,16 +66,34 @@ export const MIN_VIDEO_BITS_PER_SECOND = 4_000_000;
 export const MAX_VIDEO_BITS_PER_SECOND = 80_000_000;
 
 /**
- * MediaRecorder MIME-type ladder, best first. H.264 High profile compresses
- * ~30% better than Baseline at the same quality; levels 5.2/5.1 cover 4K@60.
- * No audio codec is requested — the canvas capture stream has no audio track.
+ * MediaRecorder timeslice (ms). Chunked delivery serves two purposes: the
+ * first chunk's arrival proves the encoder is actually producing data (see
+ * the watchdog), and Chrome's MP4 muxer emits self-contained fragments that
+ * concatenate into a valid file.
  */
-export const RECORDING_MIME_TYPES: readonly string[] = [
-  'video/mp4;codecs=avc1.640034', // H.264 High @ L5.2 (4K@60)
-  'video/mp4;codecs=avc1.640033', // H.264 High @ L5.1
-  'video/mp4;codecs=avc1.4D4034', // H.264 Main @ L5.2
-  'video/mp4;codecs=avc1.42E034', // H.264 Constrained Baseline @ L5.2
-  'video/mp4',
-  'video/webm;codecs=vp9',
-  'video/webm',
-];
+export const RECORDING_TIMESLICE_MS = 1000;
+
+/**
+ * Delay (ms) before nudging the recorder with `requestData()` — a backstop
+ * for browsers that ignore the timeslice, so the watchdog still sees a chunk
+ * from a healthy encoder before it fires.
+ */
+export const RECORDING_REQUEST_DATA_NUDGE_MS = 1200;
+
+/**
+ * Watchdog deadline (ms): if no data chunk has arrived this long after
+ * `start()`, the active codec is treated as dead (permissive
+ * `isTypeSupported()` accepted a profile/level the device encoder rejects)
+ * and recording falls back to the next MIME-ladder rung.
+ */
+export const RECORDING_WATCHDOG_MS = 2500;
+
+/** User-facing error when every MIME-ladder rung failed to produce video. */
+export const RECORDING_ERROR_UNSUPPORTED =
+  'Recording is not supported on this device or browser.';
+
+/** User-facing error when a recording finished without producing any data. */
+export const RECORDING_ERROR_EMPTY = 'Recording produced no video — please try again.';
+
+/** User-facing error when the native share sheet fails to open or share. */
+export const RECORDING_ERROR_SHARE = 'Sharing failed — use Save instead.';
