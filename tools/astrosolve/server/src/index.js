@@ -1,6 +1,7 @@
 import fs from "fs";
 import Fastify from "fastify";
 import pino from "pino";
+import PQueue from "p-queue";
 import cors from "@fastify/cors";
 import helmet from "@fastify/helmet";
 import rateLimit from "@fastify/rate-limit";
@@ -14,6 +15,8 @@ import { SqliteAccessKeyDao } from "./dao/sqlite-access-key.dao.js";
 import { SqliteLocalCatalogDao } from "./dao/sqlite-local-catalog.dao.js";
 import { SqliteSolveEventDao } from "./dao/sqlite-solve-event.dao.js";
 import solveRoute from "./routes/solve.route.js";
+import { startUploadsSweeper } from "./utils/uploads-sweeper.util.js";
+import { startQueueWatchdog } from "./utils/queue-watchdog.util.js";
 
 // Sync destination so logs are written immediately and never sit in pino's
 // 4 KB buffer waiting for the next request — critical when running inside a
@@ -24,6 +27,11 @@ const fastify = Fastify({
     pino.destination({ sync: true }),
   ),
   trustProxy: config.trustProxy,
+  // Bound the time to receive a full request so a slow/stalled multipart upload
+  // (slowloris) cannot park a handler indefinitely. Leaving Fastify's default
+  // of 0 would *disable* Node's built-in request timeout. This caps receiving
+  // the request only, not handler/solve duration.
+  requestTimeout: config.requestTimeoutMs,
 });
 
 // Ensure the uploads directory exists before any file handling begins.
@@ -92,8 +100,38 @@ fastify.register(multipart, {
   },
 });
 
+// The concurrency queue is owned at the composition root so its lifecycle — and
+// the watchdog/sweeper that guard it — live in one place. The route still
+// falls back to creating its own queue when none is injected (tests).
+const solveQueue = new PQueue({ concurrency: config.queueConcurrency });
+
 // Register routes — pass DAO instances via plugin options (DI via Fastify plugin opts)
-fastify.register(solveRoute, { accessKeyDao, localCatalogDao, solveEventDao });
+fastify.register(solveRoute, {
+  accessKeyDao,
+  localCatalogDao,
+  solveEventDao,
+  solveQueue,
+});
+
+// Background guards: a periodic sweep removes orphaned upload temp files, and a
+// watchdog surfaces a wedged queue in the logs. Both use unref'd intervals and
+// are torn down on close so they never keep the process alive on their own.
+const stopUploadsSweeper = startUploadsSweeper({
+  dir: config.uploadsDir,
+  maxAgeMs: config.uploadsMaxAgeMs,
+  intervalMs: config.uploadsSweepIntervalMs,
+  log: fastify.log,
+});
+const stopQueueWatchdog = startQueueWatchdog({
+  queue: solveQueue,
+  concurrency: config.queueConcurrency,
+  intervalMs: config.queueWatchdogIntervalMs,
+  log: fastify.log,
+});
+fastify.addHook("onClose", async () => {
+  stopUploadsSweeper();
+  stopQueueWatchdog();
+});
 
 // Health check route — rate-limited separately at a higher threshold than
 // the solve endpoint so monitoring/uptime probes are not blocked, while

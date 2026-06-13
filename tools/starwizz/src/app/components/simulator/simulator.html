@@ -32,8 +32,9 @@
     [class.dragging]="isDragging()"
     (pointerdown)="onCanvasPointerDown($event)"
     (pointermove)="onCanvasPointerMove($event)"
-    (pointerup)="onCanvasPointerUp()"
-    (pointerleave)="onCanvasPointerUp()"
+    (pointerup)="onCanvasPointerUp($event)"
+    (pointercancel)="onCanvasPointerUp($event)"
+    (pointerleave)="onCanvasPointerUp($event)"
     (wheel)="onCanvasWheel($event)"
   ></canvas>
 </div>

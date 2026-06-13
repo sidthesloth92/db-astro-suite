@@ -37,6 +37,8 @@ export class SegmentedTabsComponent {
   value = input.required<string>();
   /** Visual size of the pill group. Defaults to `'md'`. */
   size = input<SegmentedTabsSize>('md');
+  /** Disables interaction and dims the whole group. */
+  disabled = input<boolean>(false);
   /**
    * Optional per-tab icon template. The template receives the
    * `SegmentedTabOption` as its `$implicit` context so callers can
@@ -49,6 +51,9 @@ export class SegmentedTabsComponent {
 
   /** Internal click handler — emits the selected option id. */
   onSelect(id: string): void {
+    if (this.disabled()) {
+      return;
+    }
     if (id !== this.value()) {
       this.valueChange.emit(id);
     }

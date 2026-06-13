@@ -20,6 +20,10 @@
   width: 100%;
   padding: 0.75rem;
   overflow: hidden;
+  /* Size query container: lets the simulator derive its preview width from
+     this container's height (cqh) — WebKit doesn't transfer aspect-ratio
+     through a percentage height when computing intrinsic widths. */
+  container-type: size;
 }
 
 @media (max-width: 1079px) {
@@ -107,14 +111,239 @@
   }
 
   /*
+   * Quality popup — opens just above the record button when it is tapped
+   * while idle. Picking a row sets that quality and starts the recording.
+   */
+  .sw-quality-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 48;
+    border: none;
+    background: transparent;
+    cursor: default;
+  }
+
+  .sw-quality-menu {
+    position: fixed;
+    left: 50%;
+    bottom: 84px;
+    transform: translateX(-50%);
+    z-index: 52;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 200px;
+    padding: 8px;
+    border-radius: 14px;
+    background: rgba(11, 14, 22, 0.82);
+    border: 1px solid var(--db-color-border-strong);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    backdrop-filter: blur(18px) saturate(160%);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+    animation: sw-quality-rise 160ms ease;
+  }
+
+  @keyframes sw-quality-rise {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  }
+
+  .sw-quality-menu__title {
+    padding: 4px 8px 2px;
+    font: 600 10px/1.2 var(--db-font-ui);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--db-color-text-dim);
+  }
+
+  .sw-quality-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 44px;
+    padding: 8px 12px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    background: var(--db-color-surface-hi);
+    color: var(--db-color-text-primary);
+    cursor: pointer;
+    transition:
+      background 140ms ease,
+      border-color 140ms ease;
+  }
+
+  .sw-quality-item:hover,
+  .sw-quality-item:focus-visible {
+    background: var(--db-color-surface-raised);
+  }
+
+  .sw-quality-item:focus-visible {
+    outline: 2px solid var(--db-color-cyan);
+    outline-offset: 2px;
+  }
+
+  .sw-quality-item.is-recommended {
+    border-color: var(--db-color-border-active);
+    background: color-mix(in srgb, var(--db-color-neon-pink) 16%, transparent);
+  }
+
+  .sw-quality-item__label {
+    font: 600 13px/1 var(--db-font-ui);
+    letter-spacing: 0.02em;
+  }
+
+  .sw-quality-item__size {
+    font: 500 11px/1 var(--db-font-mono-code);
+    font-variant-numeric: tabular-nums;
+    color: var(--db-color-text-dim);
+  }
+
+  .sw-quality-item.is-recommended .sw-quality-item__size {
+    color: var(--db-color-text-primary);
+  }
+
+  /*
+   * Post-recording surfaces anchored above the record button: an error label
+   * when recording failed, and the "Video ready" chip for re-save / share —
+   * recovery for downloads the browser dropped (the page gets no feedback
+   * from anchor downloads).
+   */
+  .sw-record-error {
+    position: fixed;
+    left: 50%;
+    bottom: 84px;
+    transform: translateX(-50%);
+    z-index: 49;
+    margin: 0;
+    max-width: min(320px, 86vw);
+    padding: 8px 14px;
+    border-radius: 10px;
+    background: rgba(11, 14, 22, 0.82);
+    border: 1px solid var(--db-color-red-soft);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    backdrop-filter: blur(18px) saturate(160%);
+    font: 500 11.5px/1.4 var(--db-font-ui);
+    text-align: center;
+    color: var(--db-color-text-error);
+  }
+
+  .sw-result-chip {
+    position: fixed;
+    left: 50%;
+    bottom: 84px;
+    transform: translateX(-50%);
+    z-index: 49;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    max-width: 92vw;
+    padding: 6px 6px 6px 14px;
+    border-radius: 999px;
+    background: rgba(11, 14, 22, 0.82);
+    border: 1px solid var(--db-color-border-strong);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    backdrop-filter: blur(18px) saturate(160%);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
+    animation: sw-quality-rise 160ms ease;
+  }
+
+  .sw-result-chip__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-right: 4px;
+    font: 500 11.5px/1 var(--db-font-ui);
+    color: var(--db-color-text-dim);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .sw-result-chip__check {
+    color: var(--db-color-green);
+  }
+
+  .sw-result-chip__icon {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--db-color-text-dim);
+    cursor: pointer;
+    transition: color 140ms ease;
+  }
+
+  .sw-result-chip__icon:hover,
+  .sw-result-chip__icon:focus-visible {
+    color: var(--db-color-text-primary);
+  }
+
+  .sw-result-chip__icon:focus-visible {
+    outline: 2px solid var(--db-color-cyan);
+    outline-offset: 2px;
+  }
+
+  .sw-result-chip__action {
+    min-height: 32px;
+    padding: 0 12px;
+    border: 1px solid var(--db-color-border-active);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--db-color-neon-pink) 16%, transparent);
+    color: var(--db-color-text-primary);
+    font: 600 11.5px/1 var(--db-font-ui);
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: background 140ms ease;
+  }
+
+  .sw-result-chip__action:hover,
+  .sw-result-chip__action:focus-visible {
+    background: color-mix(in srgb, var(--db-color-neon-pink) 28%, transparent);
+  }
+
+  .sw-result-chip__action:focus-visible,
+  .sw-result-chip__dismiss:focus-visible {
+    outline: 2px solid var(--db-color-cyan);
+    outline-offset: 2px;
+  }
+
+  .sw-result-chip__dismiss {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--db-color-text-dim);
+    font: 500 12px/1 var(--db-font-ui);
+    cursor: pointer;
+  }
+
+  .sw-result-chip__dismiss:hover {
+    color: var(--db-color-text-primary);
+  }
+
+  /*
    * Sliders launcher — Instagram-style pill: small circular button with a
    * translucent dark background and a white glyph, anchored bottom-right
    * over the live simulation so it stays legible on any frame.
    */
   .sw-mobile-fab {
     position: fixed;
-    right: 16px;
-    bottom: 16px;
+    right: 24px;
+    bottom: 24px;
     z-index: 40;
     --db-icon-button-color: var(--db-color-text-primary);
     --db-icon-button-border-color: transparent;

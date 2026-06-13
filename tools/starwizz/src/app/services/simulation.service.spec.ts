@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { discardPeriodicTasks, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { AnalyticsService } from '@db-astro-suite/ui';
 
 import { Star } from '../models/star.model';
@@ -9,10 +9,12 @@ const HEIGHT = 2000;
 
 describe('SimulationService', () => {
   let service: SimulationService;
+  let trackVideoGeneration: jasmine.Spy;
 
   beforeEach(() => {
+    trackVideoGeneration = jasmine.createSpy('trackVideoGeneration');
     TestBed.configureTestingModule({
-      providers: [{ provide: AnalyticsService, useValue: {} }],
+      providers: [{ provide: AnalyticsService, useValue: { trackVideoGeneration } }],
     });
     service = TestBed.inject(SimulationService);
   });
@@ -343,6 +345,381 @@ describe('SimulationService', () => {
       expect(service.starDepth()).toBe('none');
       expect(service.starLateralOn()).toBe(false);
       expect(service.hasStarMotion()).toBe(false);
+    });
+  });
+
+  describe('Recording quality presets', () => {
+    it('should default to the Social Media preset', () => {
+      expect(service.recordingPreset()).toBe('social');
+    });
+
+    it('should derive the encoder bitrate from the format, fps and preset budget', () => {
+      // Default reels format (1080×1920), social: 60 fps × 0.10 bpp.
+      expect(service.recordingBitsPerSecond()).toBe(12_441_600);
+
+      service.recordingPreset.set('maximum');
+      expect(service.recordingBitsPerSecond()).toBe(18_662_400);
+
+      service.recordingPreset.set('compact');
+      expect(service.recordingBitsPerSecond()).toBe(4_354_560);
+
+      service.recordingPreset.set('social');
+      service.currentFormat.set('youtube-4k');
+      expect(service.recordingBitsPerSecond()).toBe(49_766_400);
+    });
+
+    it('should clamp small formats up to the minimum bitrate', () => {
+      service.currentFormat.set('youtube-720p');
+      service.recordingPreset.set('compact');
+
+      expect(service.recordingBitsPerSecond()).toBe(4_000_000);
+    });
+
+    it('should restore the default preset on clearImage', () => {
+      service.recordingPreset.set('maximum');
+
+      service.clearImage();
+
+      expect(service.recordingPreset()).toBe('social');
+    });
+  });
+
+  describe('startRecording', () => {
+    /** Recorder instances created by the test double, in construction order. */
+    let recorders: FakeMediaRecorder[];
+    /** Per-test predicate backing the static isTypeSupported double. */
+    let isTypeSupported: (type: string) => boolean;
+    let originalMediaRecorder: typeof MediaRecorder;
+    let canvas: HTMLCanvasElement;
+
+    /** Alias for the native MediaRecorder state union (distinct from the app's RecordingState). */
+    type RecordingStateNative = 'inactive' | 'recording' | 'paused';
+
+    class FakeMediaRecorder {
+      static isTypeSupported(type: string): boolean {
+        return isTypeSupported(type);
+      }
+      state: RecordingStateNative = 'inactive';
+      ondataavailable: ((e: BlobEvent) => void) | null = null;
+      onstop: (() => void) | null = null;
+      onerror: ((e: Event) => void) | null = null;
+      timeslice: number | undefined;
+      requestDataCalls = 0;
+      constructor(
+        public stream: MediaStream,
+        public options?: MediaRecorderOptions,
+      ) {
+        recorders.push(this);
+      }
+      start(timeslice?: number): void {
+        this.timeslice = timeslice;
+        this.state = 'recording';
+      }
+      stop(): void {
+        this.state = 'inactive';
+      }
+      requestData(): void {
+        this.requestDataCalls += 1;
+      }
+      /** Delivers a data chunk of the given byte length to the service. */
+      emitChunk(bytes: number): void {
+        // Structural cast: the service only reads `data` off the event.
+        this.ondataavailable?.({ data: new Blob([new Uint8Array(bytes)]) } as BlobEvent);
+      }
+      /** Fires the runtime encoder-failure event. */
+      emitError(): void {
+        this.onerror?.(new Event('error'));
+      }
+      /** Fires the finalization event (as the browser does after stop()). */
+      emitStop(): void {
+        this.onstop?.();
+      }
+    }
+
+    /** Starts a recording the way production does: state first, then start. */
+    function startRecordingAsApp(): void {
+      service.recordingState.set('recording');
+      service.startRecording(canvas);
+    }
+
+    beforeEach(() => {
+      recorders = [];
+      isTypeSupported = () => true;
+      originalMediaRecorder = window.MediaRecorder;
+      // Test double swap: the fake matches the constructor/static surface the
+      // service touches, so the structural cast is safe here.
+      window.MediaRecorder = FakeMediaRecorder as unknown as typeof MediaRecorder;
+      canvas = document.createElement('canvas');
+      spyOn(canvas, 'captureStream').and.returnValue(new MediaStream());
+    });
+
+    afterEach(() => {
+      // Stops the fake recorder and clears all recording timers.
+      service.stopRecording();
+      service.ngOnDestroy();
+      window.MediaRecorder = originalMediaRecorder;
+    });
+
+    it('should request the minimum sufficient H.264 level for the format (L4.2 for reels@60)', () => {
+      service.startRecording(canvas);
+
+      expect(recorders[0].options?.mimeType).toBe('video/mp4;codecs=avc1.64002A');
+    });
+
+    it('should request Level 5.2 only for 4K@60 output', () => {
+      service.currentFormat.set('youtube-4k');
+
+      service.startRecording(canvas);
+
+      expect(recorders[0].options?.mimeType).toBe('video/mp4;codecs=avc1.640034');
+    });
+
+    it('should walk the codec ladder down to VP9 WebM when MP4 is unavailable', () => {
+      isTypeSupported = (type) => type === 'video/webm;codecs=vp9';
+
+      service.startRecording(canvas);
+
+      expect(recorders[0].options?.mimeType).toBe('video/webm;codecs=vp9');
+    });
+
+    it('should surface an error instead of recording when nothing is supported', () => {
+      spyOn(console, 'error');
+      isTypeSupported = () => false;
+      service.recordingState.set('recording');
+
+      service.startRecording(canvas);
+
+      expect(recorders.length).toBe(0);
+      expect(service.recordingState()).toBe('idle');
+      expect(service.recordingError()).not.toBeNull();
+    });
+
+    it('should pass the preset bitrate and timeslice to the recorder', () => {
+      service.startRecording(canvas);
+
+      expect(recorders[0].options?.videoBitsPerSecond).toBe(service.recordingBitsPerSecond());
+      expect(recorders[0].options?.videoBitsPerSecond).toBe(12_441_600);
+      expect(recorders[0].timeslice).toBe(1000);
+    });
+
+    it('should capture the canvas at the preset frame rate', () => {
+      service.startRecording(canvas);
+      expect(canvas.captureStream).toHaveBeenCalledWith(60);
+
+      service.stopRecording();
+      service.recordingPreset.set('compact');
+      service.startRecording(canvas);
+      expect(canvas.captureStream).toHaveBeenCalledWith(30);
+    });
+
+    it('should surface an error and go idle when codec detection throws', () => {
+      spyOn(console, 'error');
+      isTypeSupported = () => {
+        throw new Error('boom');
+      };
+      service.recordingState.set('recording');
+
+      service.startRecording(canvas);
+
+      expect(service.recordingState()).toBe('idle');
+      expect(service.recordingError()).not.toBeNull();
+      expect(console.error).toHaveBeenCalled();
+    });
+
+    describe('runtime codec fallback', () => {
+      it('should retry on the next rung when the encoder errors at runtime', () => {
+        startRecordingAsApp();
+        expect(recorders.length).toBe(1);
+
+        recorders[0].emitError();
+
+        expect(recorders.length).toBe(2);
+        expect(recorders[1].options?.mimeType).toBe('video/mp4;codecs=avc1.4D402A');
+        expect(service.recordingState()).toBe('recording');
+      });
+
+      it('should blacklist a failed codec for subsequent recordings', () => {
+        startRecordingAsApp();
+        recorders[0].emitError();
+
+        // Finish the fallback recording cleanly.
+        recorders[1].emitChunk(64);
+        service.stopRecording();
+        recorders[1].emitStop();
+
+        // The next recording skips the blacklisted High-profile rung entirely.
+        startRecordingAsApp();
+        expect(recorders[2].options?.mimeType).toBe('video/mp4;codecs=avc1.4D402A');
+      });
+
+      it('should fall back via the watchdog when no data ever arrives', fakeAsync(() => {
+        startRecordingAsApp();
+
+        tick(2500);
+
+        expect(recorders.length).toBe(2);
+        expect(service.recordingState()).toBe('recording');
+        service.stopRecording(); // cancel the fallback attempt's pending timers
+        discardPeriodicTasks();
+      }));
+
+      it('should NOT fall back when a chunk arrived before the watchdog', fakeAsync(() => {
+        startRecordingAsApp();
+        recorders[0].emitChunk(64);
+
+        tick(2500);
+
+        expect(recorders.length).toBe(1);
+        service.stopRecording();
+        discardPeriodicTasks();
+      }));
+
+      it('should nudge the recorder with requestData before the watchdog fires', fakeAsync(() => {
+        startRecordingAsApp();
+
+        tick(1200);
+
+        expect(recorders[0].requestDataCalls).toBe(1);
+        service.stopRecording(); // cancel the watchdog + auto-stop before leaving fakeAsync
+        discardPeriodicTasks();
+      }));
+
+      it('should give up visibly when every rung fails', () => {
+        spyOn(console, 'error');
+        startRecordingAsApp();
+        // Exhaust the whole 6-rung ladder.
+        for (let i = 0; i < 6; i++) {
+          recorders[i].emitError();
+        }
+
+        expect(recorders.length).toBe(6);
+        expect(service.recordingState()).toBe('idle');
+        expect(service.recordingError()).not.toBeNull();
+      });
+
+      it('should not fall back after the user stopped the recording', fakeAsync(() => {
+        startRecordingAsApp();
+        service.recordingState.set('idle');
+        service.stopRecording();
+
+        tick(2500);
+
+        expect(recorders.length).toBe(1);
+      }));
+
+      it('should request an animation restart on fallback when recording from beginning', () => {
+        service.recordFromBeginning.set(true);
+        startRecordingAsApp();
+        service.restartAnimationRequested.set(false);
+
+        recorders[0].emitError();
+
+        expect(service.restartAnimationRequested()).toBe(true);
+      });
+    });
+
+    describe('finalization and download', () => {
+      let createdUrls: string[];
+      let revokedUrls: string[];
+      let clickedAnchors: HTMLAnchorElement[];
+
+      beforeEach(() => {
+        createdUrls = [];
+        revokedUrls = [];
+        clickedAnchors = [];
+        spyOn(URL, 'createObjectURL').and.callFake(() => {
+          const url = `blob:fake-${createdUrls.length}`;
+          createdUrls.push(url);
+          return url;
+        });
+        spyOn(URL, 'revokeObjectURL').and.callFake((url: string) => {
+          revokedUrls.push(url);
+        });
+        spyOn(HTMLAnchorElement.prototype, 'click').and.callFake(function (this: HTMLAnchorElement) {
+          clickedAnchors.push(this);
+        });
+      });
+
+      function recordOnce(bytes: number): void {
+        startRecordingAsApp();
+        const recorder = recorders[recorders.length - 1];
+        if (bytes > 0) {
+          recorder.emitChunk(bytes);
+        }
+        service.stopRecording();
+        recorder.emitStop();
+      }
+
+      it('should download via a DOM-attached anchor without revoking the URL', () => {
+        recordOnce(2_000_000);
+
+        expect(createdUrls.length).toBe(1);
+        expect(clickedAnchors.length).toBe(1);
+        expect(revokedUrls.length).toBe(0); // deferred — crbug 827932
+        expect(service.recordingState()).toBe('idle');
+      });
+
+      it('should revoke the previous download URL when the next recording starts', () => {
+        recordOnce(2_000_000);
+
+        startRecordingAsApp();
+
+        expect(revokedUrls).toEqual(['blob:fake-0']);
+      });
+
+      it('should revoke the pending URL on service destroy', () => {
+        recordOnce(2_000_000);
+
+        service.ngOnDestroy();
+
+        expect(revokedUrls).toEqual(['blob:fake-0']);
+      });
+
+      it('should retain the finished recording for re-saving', () => {
+        recordOnce(2_000_000);
+
+        const last = service.lastRecording();
+        expect(last).not.toBeNull();
+        expect(last?.filename).toBe('starfield_starwizz_9_16_1080_1920.mp4');
+        expect(last?.sizeMb).toBe(2);
+      });
+
+      it('should surface an error and skip the download for an empty recording', () => {
+        spyOn(console, 'error');
+
+        recordOnce(0);
+
+        expect(createdUrls.length).toBe(0);
+        expect(clickedAnchors.length).toBe(0);
+        expect(service.recordingError()).not.toBeNull();
+        expect(service.lastRecording()).toBeNull();
+        expect(trackVideoGeneration).not.toHaveBeenCalled();
+      });
+
+      it('should track the video generation exactly as before on success', () => {
+        recordOnce(2_000_000);
+
+        expect(trackVideoGeneration).toHaveBeenCalledWith('starwizz-user', 'mp4');
+      });
+
+      it('should re-download the retained recording on saveLastRecording', () => {
+        recordOnce(2_000_000);
+
+        service.saveLastRecording();
+
+        expect(createdUrls.length).toBe(2);
+        expect(clickedAnchors.length).toBe(2);
+        // The first (pending) URL is released when the re-save mints a new one.
+        expect(revokedUrls).toEqual(['blob:fake-0']);
+      });
+
+      it('should clear the retained recording on clearImage', () => {
+        recordOnce(2_000_000);
+
+        service.clearImage();
+
+        expect(service.lastRecording()).toBeNull();
+      });
     });
   });
 });

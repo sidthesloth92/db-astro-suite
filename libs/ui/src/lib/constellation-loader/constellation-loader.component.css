@@ -1,36 +1,30 @@
-/* In fill mode the host stretches to fill its parent block flow */
+/* Sized mode: shrink-wrap and centre the fixed-size svg. */
+:host {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 0;
+}
+
+/* Fill mode: stretch to the host's container; the viewBox scales the art. */
 :host(.fill) {
   display: block;
   width: 100%;
   height: 100%;
 }
 
-.constellation-loader {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  flex-shrink: 0;
-  flex-grow: 0;
+.cl-svg {
+  display: block;
+  overflow: visible;
+  /* Themed glow — pink + cyan halo, following the active theme tokens. */
+  filter: drop-shadow(
+      0 0 6px color-mix(in srgb, var(--db-color-neon-pink) 40%, transparent)
+    )
+    drop-shadow(0 0 16px color-mix(in srgb, var(--db-color-cyan) 22%, transparent));
 }
 
-/* In fill mode use block flow so overflow:hidden clips the canvas (position:absolute escapes overflow clipping) */
-.constellation-loader.fill {
-  display: block;
+:host(.fill) .cl-svg {
   width: 100%;
   height: 100%;
-  overflow: hidden;
-}
-
-/* CSS controls display size in fill mode — no inline px from JS */
-.constellation-loader.fill canvas {
-  width: 100%;
-  height: 100%;
-}
-
-canvas {
-  display: block;
-  flex-shrink: 0;
-  max-width: none;
-  max-height: none;
 }

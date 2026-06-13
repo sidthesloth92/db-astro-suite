@@ -1,4 +1,4 @@
-import { computed, inject, Injectable, signal, WritableSignal } from '@angular/core';
+import { computed, inject, Injectable, OnDestroy, signal, WritableSignal } from '@angular/core';
 import {
   CONTROLS,
   DEFAULT_FORMAT,
@@ -13,7 +13,20 @@ import {
   PATH_SCALE_DISTANCE_WEIGHT,
   PATH_SPEED_DEFAULT,
 } from '../constants/simulation.constant';
+import {
+  DEFAULT_RECORDING_PRESET,
+  MAX_RECORDING_SECONDS,
+  RECORDING_ERROR_EMPTY,
+  RECORDING_ERROR_SHARE,
+  RECORDING_ERROR_UNSUPPORTED,
+  RECORDING_PRESETS,
+  RECORDING_REQUEST_DATA_NUDGE_MS,
+  RECORDING_TIMESLICE_MS,
+  RECORDING_WATCHDOG_MS,
+} from '../constants/recording.constant';
 import { ShootingStar } from '../models/shooting-star.model';
+import { RecordingPreset } from '../models/recording.model';
+import { RecordingResult } from '../models/recording-result.model';
 import {
   CameraKeyframe,
   ControlKey,
@@ -22,13 +35,9 @@ import {
   TravelDirection,
 } from '../models/simulation.model';
 import { Star } from '../models/star.model';
+import { buildRecordingMimeLadder } from '../utils/recording-mime.util';
+import { computeRecordingBitsPerSecond } from '../utils/recording-size.util';
 import { AnalyticsService } from '@db-astro-suite/ui';
-
-/** Frame rate for video recording (frames per second) */
-const FRAME_RATE = 60;
-
-/** Maximum allowed recording duration in seconds before auto-stop */
-const MAX_RECORDING_SECONDS = 30;
 
 /** Size of the shooting star object pool for reuse */
 const NUM_SHOOTING_STARS = 10;
@@ -68,7 +77,7 @@ const NUM_SHOOTING_STARS = 10;
 @Injectable({
   providedIn: 'root',
 })
-export class SimulationService {
+export class SimulationService implements OnDestroy {
   private analyticsService = inject(AnalyticsService);
 
   // ==================== Control Signals ====================
@@ -278,6 +287,47 @@ export class SimulationService {
     return FORMATS[format];
   });
 
+  /**
+   * Recording quality preset chosen from the record split-button menu.
+   * Bundles the capture frame rate and the encoder bitrate budget.
+   */
+  recordingPreset = signal<RecordingPreset>(DEFAULT_RECORDING_PRESET);
+
+  /**
+   * Encoder bitrate (bits per second) for the active preset at the selected
+   * format's resolution — passed to MediaRecorder as `videoBitsPerSecond`.
+   */
+  recordingBitsPerSecond = computed(() => {
+    const { width, height } = this.canvasDimensions();
+    return computeRecordingBitsPerSecond(width, height, RECORDING_PRESETS[this.recordingPreset()]);
+  });
+
+  /**
+   * User-facing recording error, or null when healthy. Set when every codec
+   * fell back without producing data, when a finished recording is empty, or
+   * when sharing fails. Cleared on the next recording attempt.
+   */
+  recordingError = signal<string | null>(null);
+
+  /**
+   * The most recent successfully finished recording, retained so the user can
+   * re-save (or share) it if the browser's automatic download failed. Replaced
+   * on each new recording; cleared on a full reset (image clear).
+   */
+  lastRecording = signal<RecordingResult | null>(null);
+
+  /**
+   * Whether the browser can hand {@link lastRecording} to the native share
+   * sheet (Web Share API Level 2 with file support).
+   */
+  canShareLastRecording = computed<boolean>(() => {
+    const recording = this.lastRecording();
+    if (!recording || typeof navigator === 'undefined' || !navigator.canShare) {
+      return false;
+    }
+    return navigator.canShare({ files: [this.toFile(recording)] });
+  });
+
   // ==================== Star Collection Signals ====================
 
   /**
@@ -311,6 +361,33 @@ export class SimulationService {
 
   /** Interval handle for updating recording duration counter */
   private timerInterval: ReturnType<typeof setInterval> | null = null;
+
+  /** Canvas being recorded — retained so a codec fallback can re-capture it. */
+  private recordingCanvas: HTMLCanvasElement | null = null;
+
+  /** MIME type of the in-flight recording attempt. */
+  private activeMimeType: string | null = null;
+
+  /**
+   * Codecs that accepted `isTypeSupported` but failed to produce data at
+   * runtime this session. Keys embed profile+level, so a blacklisted 1080p
+   * rung never poisons the 4K rungs (different level byte → different key).
+   */
+  private readonly failedMimeTypes = new Set<string>();
+
+  /** Watchdog handle — fires when no data chunk arrived in time. */
+  private watchdogTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  /** Handle for the `requestData()` nudge backstopping timeslice delivery. */
+  private requestDataTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  /**
+   * Object URL of the last downloaded recording. Deliberately NOT revoked at
+   * download time — Chrome-Android resolves blob downloads asynchronously and
+   * an immediate revoke races (and kills) the download (crbug 827932).
+   * Revoked when the next recording starts or the service is destroyed.
+   */
+  private pendingObjectUrl: string | null = null;
 
   /**
    * Unique ID for the current star generation batch.
@@ -685,6 +762,9 @@ export class SimulationService {
     this.userImage.set(null);
     this.galaxyImage.set(null);
     this.currentFormat.set(DEFAULT_FORMAT);
+    this.recordingPreset.set(DEFAULT_RECORDING_PRESET);
+    this.recordingError.set(null);
+    this.lastRecording.set(null);
     // Restores all sliders, the shooting-star toggle, the custom path, and the
     // forward star defaults (so the re-uploaded field animates immediately).
     this.resetControlsToDefaults();
@@ -812,48 +892,197 @@ export class SimulationService {
 
   /**
    * Starts video recording of the canvas simulation.
-   * Captures the canvas stream and initializes MediaRecorder.
    *
    * @param canvas - The HTMLCanvasElement to record
    *
    * @description
-   * - Captures canvas stream at configured frame rate
-   * - Detects best supported video codec (MP4 preferred, WebM fallback)
-   * - Sets up recording duration timer (updates every second)
-   * - Configures auto-stop at MAX_RECORDING_SECONDS
-   * - Handles errors gracefully by resetting to idle state
+   * Entry point of the recording state machine. Revokes the previous
+   * download's object URL (deferred from the last recording — see
+   * {@link pendingObjectUrl}), clears any prior error, then delegates to
+   * {@link attemptRecording}, which owns codec selection and runtime
+   * fallback when an encoder fails to deliver data.
    */
   startRecording(canvas: HTMLCanvasElement): void {
-    // Clear any previous recording chunks
+    if (this.pendingObjectUrl) {
+      URL.revokeObjectURL(this.pendingObjectUrl);
+      this.pendingObjectUrl = null;
+    }
+    this.recordingError.set(null);
+    this.recordingCanvas = canvas;
+    this.attemptRecording();
+  }
+
+  /**
+   * Starts one recording attempt on the best codec not yet known to be dead.
+   *
+   * `MediaRecorder.isTypeSupported()` is permissive — on Android it accepts
+   * profile/level combinations the device encoder then rejects at runtime —
+   * so every attempt is verified by a watchdog: if no data chunk arrives
+   * within {@link RECORDING_WATCHDOG_MS} (or the recorder errors), the codec
+   * is blacklisted for the session and the next ladder rung is tried.
+   */
+  private attemptRecording(): void {
     this.videoChunks = [];
+    const canvas = this.recordingCanvas;
+    let mimeType: string | null = null;
+    try {
+      mimeType = canvas ? this.nextSupportedMimeType() : null;
+    } catch (e) {
+      console.error('Error selecting recording codec:', e);
+    }
+    if (!canvas || mimeType === null) {
+      this.failAllMimeTypes();
+      return;
+    }
+    this.activeMimeType = mimeType;
 
     try {
-      // Capture the canvas as a media stream
-      // captureStream() is not in the TypeScript lib.dom.d.ts typings (non-standard API); cast required
-      const stream = (canvas as any).captureStream(FRAME_RATE); // eslint-disable-line @typescript-eslint/no-explicit-any
+      const fps = RECORDING_PRESETS[this.recordingPreset()].fps;
+      // captureStream() is taken fresh per attempt — broken encoders can
+      // leave a previous stream's track in a stale state on some devices.
+      const stream = canvas.captureStream(fps);
 
-      // Detect the best supported video format
-      const mimeType = this.getSupportedMimeType();
+      // Explicit bitrate — without it the browser default (~2.5 Mbps) badly
+      // under-serves high-res/high-fps output.
+      this.mediaRecorder = new MediaRecorder(stream, {
+        mimeType,
+        videoBitsPerSecond: this.recordingBitsPerSecond(),
+      });
+      this.setupRecorderListeners(this.mediaRecorder, mimeType);
 
-      // Initialize the MediaRecorder
-      this.mediaRecorder = new MediaRecorder(stream, { mimeType });
-      this.setupRecorderListeners(mimeType);
+      // Timeslice delivery: the first chunk's arrival is the encoder's
+      // proof-of-life signal, and chunks concatenate into a valid file.
+      this.mediaRecorder.start(RECORDING_TIMESLICE_MS);
 
-      // Start recording
-      this.mediaRecorder.start();
-
-      // Initialize and start the duration timer
+      // (Re)start the visible duration timer and the auto-stop per attempt,
+      // so the counter always matches actually-captured footage.
       this.recordingDuration.set(0);
+      this.clearRecordingTimers();
       this.timerInterval = setInterval(() => {
         this.recordingDuration.update((d) => d + 1);
       }, 1000);
-
-      // Set up auto-stop at max duration
       this.recordingTimeout = setTimeout(() => this.stopRecording(), MAX_RECORDING_SECONDS * 1000);
+      this.armEncoderWatchdog(this.mediaRecorder);
     } catch (e) {
-      console.error('Error starting recording:', e);
-      // Handle initialization errors (e.g., browser permission denied)
-      this.recordingState.set('idle');
+      console.error('Error starting recording attempt:', e);
+      this.handleEncoderFailure(this.mediaRecorder);
+    }
+  }
+
+  /**
+   * Picks the best MIME type for the current format/preset: the resolution-
+   * matched ladder (minimum sufficient H.264 level — over-asking breaks
+   * budget Android encoders), minus codecs already proven dead this session.
+   *
+   * @returns The MIME type to try, or null when nothing is left
+   */
+  private nextSupportedMimeType(): string | null {
+    const { width, height } = this.canvasDimensions();
+    const fps = RECORDING_PRESETS[this.recordingPreset()].fps;
+    const ladder = buildRecordingMimeLadder(width, height, fps, this.recordingBitsPerSecond());
+    return (
+      ladder
+        .filter((type) => !this.failedMimeTypes.has(type))
+        .find((type) => MediaRecorder.isTypeSupported(type)) ?? null
+    );
+  }
+
+  /**
+   * Arms the proof-of-life timers for a recording attempt: a `requestData()`
+   * nudge (backstop for browsers that ignore the timeslice) and the watchdog
+   * that declares the encoder dead when no chunk has arrived in time.
+   *
+   * @param recorder - The recorder this watchdog belongs to (identity-checked
+   *   on fire so a stale timer can never touch a newer attempt)
+   */
+  private armEncoderWatchdog(recorder: MediaRecorder): void {
+    this.requestDataTimeout = setTimeout(() => {
+      if (recorder === this.mediaRecorder && recorder.state === 'recording') {
+        recorder.requestData();
+      }
+    }, RECORDING_REQUEST_DATA_NUDGE_MS);
+
+    this.watchdogTimeout = setTimeout(() => {
+      if (recorder !== this.mediaRecorder || this.videoChunks.length > 0) {
+        return;
+      }
+      // A hidden tab paints no canvas frames — a healthy encoder legitimately
+      // produces nothing. Re-arm instead of falling back.
+      if (document.visibilityState === 'hidden') {
+        this.armEncoderWatchdog(recorder);
+        return;
+      }
+      this.handleEncoderFailure(recorder);
+    }, RECORDING_WATCHDOG_MS);
+  }
+
+  /**
+   * Handles a dead recording attempt (runtime `error` event, watchdog firing
+   * with zero chunks, or a throwing start): blacklists the codec for the
+   * session and retries on the next ladder rung, or gives up visibly when
+   * the ladder is exhausted. `recordingState` stays `'recording'` throughout
+   * a fallback so the simulator's recording effect does not re-fire.
+   *
+   * @param recorder - The recorder that failed (identity-checked)
+   */
+  private handleEncoderFailure(recorder: MediaRecorder | null): void {
+    if (this.recordingState() !== 'recording' || recorder !== this.mediaRecorder) {
+      return;
+    }
+    if (this.activeMimeType !== null) {
+      this.failedMimeTypes.add(this.activeMimeType);
+    }
+    // Detach handlers BEFORE stop() so the dead recorder's onstop never
+    // reaches the download path.
+    if (recorder) {
+      recorder.ondataavailable = null;
+      recorder.onstop = null;
+      recorder.onerror = null;
+      if (recorder.state !== 'inactive') {
+        recorder.stop();
+      }
+    }
+    this.clearRecordingTimers();
+    this.mediaRecorder = null;
+    this.videoChunks = [];
+
+    // Honor "record from beginning" on the retry too.
+    if (this.recordFromBeginning()) {
+      this.restartAnimationRequested.set(true);
+    }
+
+    // Try the next rung; attemptRecording fails-all when nothing is left.
+    this.attemptRecording();
+  }
+
+  /** Terminal failure: every codec rung is dead. Surface it — never silent. */
+  private failAllMimeTypes(): void {
+    console.error('Recording failed: no supported video codec produced data.');
+    this.recordingError.set(RECORDING_ERROR_UNSUPPORTED);
+    this.clearRecordingTimers();
+    this.mediaRecorder = null;
+    this.recordingCanvas = null;
+    this.activeMimeType = null;
+    this.recordingState.set('idle');
+  }
+
+  /** Clears the duration interval, auto-stop, watchdog, and nudge timers. */
+  private clearRecordingTimers(): void {
+    if (this.recordingTimeout) {
+      clearTimeout(this.recordingTimeout);
+      this.recordingTimeout = null;
+    }
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
+    if (this.watchdogTimeout) {
+      clearTimeout(this.watchdogTimeout);
+      this.watchdogTimeout = null;
+    }
+    if (this.requestDataTimeout) {
+      clearTimeout(this.requestDataTimeout);
+      this.requestDataTimeout = null;
     }
   }
 
@@ -865,50 +1094,89 @@ export class SimulationService {
     if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
       // Stop the recorder (will trigger onstop event)
       this.mediaRecorder.stop();
-
-      // Clear the auto-stop timeout
-      if (this.recordingTimeout) {
-        clearTimeout(this.recordingTimeout);
-        this.recordingTimeout = null;
-      }
-
-      // Clear the duration timer
-      if (this.timerInterval) {
-        clearInterval(this.timerInterval);
-        this.timerInterval = null;
-      }
+      this.clearRecordingTimers();
     }
   }
 
   /**
-   * Detects the best supported video MIME type for the current browser.
-   * Prefers MP4 for wider compatibility, falls back to WebM.
-   *
-   * @returns The supported MIME type string
+   * Re-saves the retained last recording via a fresh user-gesture download.
+   * Recovery path for failed automatic downloads — anchor downloads give the
+   * page no success/failure feedback, so the user is the only one who knows.
    */
-  private getSupportedMimeType(): string {
-    const types = ['video/mp4; codecs="avc1.42E01E, mp4a.40.2"', 'video/mp4', 'video/webm'];
-    return types.find((type) => MediaRecorder.isTypeSupported(type)) || 'video/webm';
+  saveLastRecording(): void {
+    const recording = this.lastRecording();
+    if (!recording) {
+      return;
+    }
+    if (this.pendingObjectUrl) {
+      URL.revokeObjectURL(this.pendingObjectUrl);
+    }
+    this.pendingObjectUrl = URL.createObjectURL(recording.blob);
+    this.triggerDownload(this.pendingObjectUrl, recording.filename);
   }
 
   /**
-   * Sets up event listeners for the MediaRecorder.
-   * Handles data collection and recording finalization.
+   * Hands the retained last recording to the native share sheet (save to
+   * gallery / share straight to social apps). Closing the sheet is not an
+   * error; real share failures surface via {@link recordingError}.
+   */
+  async shareLastRecording(): Promise<void> {
+    const recording = this.lastRecording();
+    if (!recording || !this.canShareLastRecording()) {
+      return;
+    }
+    try {
+      await navigator.share({ files: [this.toFile(recording)] });
+    } catch (e) {
+      if (e instanceof DOMException && e.name === 'AbortError') {
+        return; // User dismissed the share sheet.
+      }
+      console.error('Error sharing recording:', e);
+      this.recordingError.set(RECORDING_ERROR_SHARE);
+    }
+  }
+
+  /** Releases the deferred object URL and all recording timers on teardown. */
+  ngOnDestroy(): void {
+    if (this.pendingObjectUrl) {
+      URL.revokeObjectURL(this.pendingObjectUrl);
+      this.pendingObjectUrl = null;
+    }
+    this.clearRecordingTimers();
+  }
+
+  /**
+   * Sets up event listeners for a MediaRecorder attempt: chunk collection
+   * (the first chunk also disarms the watchdog), runtime-error fallback,
+   * and finalization.
    *
+   * @param recorder - The recorder to wire up
    * @param mimeType - The video MIME type for blob creation
    */
-  private setupRecorderListeners(mimeType: string): void {
-    if (!this.mediaRecorder) return;
-
-    // Collect video chunks as they become available
-    this.mediaRecorder.ondataavailable = (e) => {
+  private setupRecorderListeners(recorder: MediaRecorder, mimeType: string): void {
+    recorder.ondataavailable = (e) => {
       if (e.data.size > 0) {
         this.videoChunks.push(e.data);
+        // Proof of life — the encoder works; stand the watchdog down.
+        if (this.watchdogTimeout) {
+          clearTimeout(this.watchdogTimeout);
+          this.watchdogTimeout = null;
+        }
+        if (this.requestDataTimeout) {
+          clearTimeout(this.requestDataTimeout);
+          this.requestDataTimeout = null;
+        }
       }
     };
 
+    // Runtime encoder rejection (the permissive-isTypeSupported case) —
+    // previously unhandled, which silently produced 0-byte downloads.
+    recorder.onerror = () => {
+      this.handleEncoderFailure(recorder);
+    };
+
     // Handle recording completion
-    this.mediaRecorder.onstop = () => {
+    recorder.onstop = () => {
       this.handleRecordingStop(mimeType);
     };
   }
@@ -920,17 +1188,27 @@ export class SimulationService {
    * @param mimeType - The video MIME type for file extension detection
    *
    * @description
-   * - Creates a Blob from collected video chunks
-   * - Generates a temporary object URL for download
-   * - Creates and clicks a download link programmatically
-   * - Cleans up the object URL and resets recording state
+   * - Guards against empty recordings (surfaces an error instead of a dead download)
+   * - Retains the result in {@link lastRecording} for user-driven re-save/share
+   * - Downloads via a DOM-attached anchor; the object URL is deliberately NOT
+   *   revoked here — deferred to the next recording (see {@link pendingObjectUrl})
    */
   private handleRecordingStop(mimeType: string): void {
-    // Combine all chunks into a single video blob
+    // Combine all chunks into a single video blob, then drop the chunk
+    // array immediately to halve peak memory.
     const blob = new Blob(this.videoChunks, { type: mimeType });
+    this.videoChunks = [];
+    this.recordingState.set('idle');
+    this.mediaRecorder = null;
+    this.recordingCanvas = null;
+    this.activeMimeType = null;
 
-    // Create a temporary URL for the blob
-    const url = URL.createObjectURL(blob);
+    if (blob.size === 0) {
+      // Nothing was captured — a dead download would just confuse the user.
+      console.error('Recording finished with no data.');
+      this.recordingError.set(RECORDING_ERROR_EMPTY);
+      return;
+    }
 
     // Determine file extension based on format
     const extension = mimeType.includes('mp4') ? '.mp4' : '.webm';
@@ -944,20 +1222,47 @@ export class SimulationService {
     const aspectSlug = `${width / g}_${height / g}`;
     const filename = `starfield_starwizz_${aspectSlug}_${width}_${height}${extension}`;
 
-    // Trigger download via programmatic link click
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.click();
+    // Retain the result so the user can re-save/share if the automatic
+    // download fails (the page gets no feedback from anchor downloads).
+    this.lastRecording.set({
+      blob,
+      filename,
+      mimeType,
+      sizeMb: Math.round(blob.size / 1_000_000),
+    });
 
-    // Clean up
-    URL.revokeObjectURL(url);
-    this.recordingState.set('idle');
-    this.mediaRecorder = null;
+    this.pendingObjectUrl = URL.createObjectURL(blob);
+    this.triggerDownload(this.pendingObjectUrl, filename);
 
     // Track video generation event
     const videoFormat = extension.substring(1); // Remove leading dot
     this.analyticsService.trackVideoGeneration('starwizz-user', videoFormat);
+  }
+
+  /**
+   * Clicks a DOM-attached download anchor for the given object URL. The URL
+   * is NOT revoked here — Chrome-Android resolves blob downloads
+   * asynchronously and revoking immediately races (and kills) the download
+   * (crbug 827932).
+   *
+   * @param url - Object URL to download
+   * @param filename - Suggested filename
+   */
+  private triggerDownload(url: string, filename: string): void {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  /**
+   * Wraps a retained recording's blob as a File for the Web Share API.
+   * @param recording - The retained recording
+   */
+  private toFile(recording: RecordingResult): File {
+    return new File([recording.blob], recording.filename, { type: recording.mimeType });
   }
 
   /**

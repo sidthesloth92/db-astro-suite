@@ -56,17 +56,15 @@ export class ToolDetailComponent {
   /** Chevron-right glyph for the CTA buttons. */
   protected readonly chevronRightIcon = chevronRightIcon;
 
-  /** First half of the about paragraphs (left column). */
-  protected readonly aboutLeft = computed(() => {
-    const about = this.config().about;
-    return about.slice(0, Math.ceil(about.length / 2));
-  });
+  /** Feature count, zero-padded to two digits for the section meta. */
+  protected readonly featureCount = computed(() =>
+    String(this.config().features.length).padStart(2, '0'),
+  );
 
-  /** Second half of the about paragraphs (right column). */
-  protected readonly aboutRight = computed(() => {
-    const about = this.config().about;
-    return about.slice(Math.ceil(about.length / 2));
-  });
+  /** Step count, zero-padded to two digits for the section meta. */
+  protected readonly stepCount = computed(() =>
+    String(this.config().steps.length).padStart(2, '0'),
+  );
 
   /** Fires the primary CTA analytics event. */
   onPrimary(): void {

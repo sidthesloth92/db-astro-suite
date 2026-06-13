@@ -1,8 +1,8 @@
 <dba-ui-starry-background>
   @if (showBackground()) {
-    <div class="hero__loader" aria-hidden="true">
-      <dba-ui-black-hole-loader [fill]="true" />
-    </div>
+  <div class="hero__loader" aria-hidden="true">
+    <dba-ui-black-hole-loader [fill]="true" />
+  </div>
   }
   <main class="content">
     <header class="hero">
@@ -21,19 +21,19 @@
       <div class="hero__rule" aria-hidden="true"></div>
 
       <p class="hero__description" id="suite-description">
-        A professional collection of social-media focused astrophotography
-        tools built to get your space photos off your hard drive and onto
-        social media as cool, shareable videos and posts. Seamlessly
-        transform your captures into cinematic starfield animations with
-        Starwizz or professional Instagram exposure cards with Astrogram.
-        Spend less time processing data and more time capturing the cosmos.
+        A professional collection of social-media focused astrophotography tools
+        built to get your space photos off your hard drive and onto social media
+        as cool, shareable videos and posts. Seamlessly transform your captures
+        into cinematic starfield animations with Starwizz or professional
+        Instagram exposure cards with Astrogram. Spend less time processing data
+        and more time capturing the cosmos.
       </p>
     </header>
 
     <section class="tools" aria-labelledby="tools-title">
       <div class="tools__head">
         <span class="kicker"><span class="kicker__dot"></span>Tools</span>
-        <h2 id="tools-title" class="tools__count">03 tools · 02 ready</h2>
+        <h2 id="tools-title" class="tools__count">03 modules · 02 ready</h2>
       </div>
 
       <div class="tools__grid">
@@ -44,10 +44,16 @@
         >
           <div class="tool-card__head">
             <div class="tool-card__id">
-              <img class="tool-card__logo" src="assets/img/sw.png" alt="" />
+              <img
+                class="tool-card__logo"
+                src="assets/img/sw.png"
+                alt="Starwizz logo"
+                width="38"
+                height="38"
+              />
               <div>
                 <div class="tool-card__name">STARWIZZ</div>
-                <div class="tool-card__tag">Starfield Generator</div>
+                <div class="tool-card__tag">Cinematic Starfield Generator</div>
               </div>
             </div>
             <span class="status-pill">
@@ -55,16 +61,12 @@
             </span>
           </div>
           <div class="tool-card__preview">
-            <img
-              src="assets/img/sw_demo.gif"
-              alt="Starwizz starfield demo"
-              loading="lazy"
-            />
+            <dba-hub-live-starfield />
           </div>
           <p class="tool-card__desc">
-            Generate high-fidelity 4K starfield videos with custom A→B camera
-            paths, multi-format export, and surgical control over star count,
-            velocity, and rotation.
+            Create cinematic space animations from your own galaxy and nebula
+            images. Export stunning 4K videos in minutes — completely free and
+            browser-based.
           </p>
           <span class="tool-card__more"
             >Learn more <span aria-hidden="true">›</span></span
@@ -78,10 +80,10 @@
         >
           <div class="tool-card__head">
             <div class="tool-card__id">
-              <img class="tool-card__logo" src="assets/img/astrogram.png" alt="" />
+              <dba-hub-astro-mark class="tool-card__logo" [size]="38" />
               <div>
                 <div class="tool-card__name">ASTROGRAM</div>
-                <div class="tool-card__tag">Exposure cards + Stellar Map</div>
+                <div class="tool-card__tag">Exposure Cards & Stellar Maps</div>
               </div>
             </div>
             <span class="status-pill">
@@ -90,15 +92,15 @@
           </div>
           <div class="tool-card__preview">
             <img
-              src="assets/img/astrogram_demo.jpg"
+              src="assets/img/astrogram-infographic-example.jpg"
               alt="Astrogram exposure card demo"
               loading="lazy"
             />
           </div>
           <p class="tool-card__desc">
-            Turn your session into Instagram-ready exposure cards and an
-            interactive, plate-solved Stellar Map — every object named,
-            catalogued, and measured in light-years.
+            Transform your astrophotography session into a professional
+            infographic card, annotated sky map, and social-ready caption in
+            seconds.
           </p>
           <span class="tool-card__more"
             >Learn more <span aria-hidden="true">›</span></span

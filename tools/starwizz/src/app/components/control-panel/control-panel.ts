@@ -1,15 +1,29 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  output,
+} from '@angular/core';
 import {
   IconComponent,
   MicroSliderComponent,
   SelectComponent,
+  SplitButtonComponent,
   SwitchComponent,
   TextButtonComponent,
   TooltipDirective,
   circleHelpIcon,
+  playCircleIcon,
   rotateCcwIcon,
   type SelectItem,
+  type SplitButtonMenuItem,
 } from '@db-astro-suite/ui';
+import {
+  MAX_RECORDING_SECONDS,
+  RECORDING_PRESETS,
+  RECORDING_PRESET_ORDER,
+} from '../../constants/recording.constant';
 import {
   CONTROLS,
   DIRECTION_OPTIONS,
@@ -27,8 +41,13 @@ import {
   STAR_ANGLE_MIN,
   STAR_ANGLE_STEP,
 } from '../../constants/simulation.constant';
+import { RecordingPreset } from '../../models/recording.model';
 import { ControlKey, TravelDirection } from '../../models/simulation.model';
 import { SimulationService } from '../../services/simulation.service';
+import {
+  computeRecordingBitsPerSecond,
+  estimateRecordingSizeMb,
+} from '../../utils/recording-size.util';
 
 /** Generic slider controls hidden while the cinematic Custom Path mode is active. */
 const PATH_HIDDEN_CONTROLS: ReadonlySet<ControlKey> = new Set<ControlKey>([
@@ -50,6 +69,7 @@ const PATH_HIDDEN_CONTROLS: ReadonlySet<ControlKey> = new Set<ControlKey>([
   imports: [
     MicroSliderComponent,
     SelectComponent,
+    SplitButtonComponent,
     SwitchComponent,
     TextButtonComponent,
     IconComponent,
@@ -67,6 +87,11 @@ export class ControlPanel {
   protected readonly rotateCcwIcon = rotateCcwIcon;
   /** Circle-help glyph rendered next to each control as the tooltip affordance. */
   protected readonly circleHelpIcon = circleHelpIcon;
+  /** Play glyph for the "watch the demo" button in the panel header. */
+  protected readonly playCircleIcon = playCircleIcon;
+
+  /** Emitted when the user clicks the panel-header "watch the demo" button. */
+  readonly demoRequested = output<void>();
 
   /** Tooltip text shown on the help icon next to the format selector. */
   protected readonly formatHelp =
@@ -163,13 +188,38 @@ export class ControlPanel {
     const duration = this.simService.recordingDuration();
     if (state === 'recording') return `Recording... (${duration}s)`;
     if (state === 'processing') return 'Processing...';
-    return 'Start Recording (Max 30s)';
+    const preset = RECORDING_PRESETS[this.simService.recordingPreset()];
+    return `Start Recording · ${MAX_RECORDING_SECONDS}s · ${preset.label}`;
   });
 
   /** True when the record button is disabled (no image, mid-processing). */
   readonly isRecordDisabled = computed<boolean>(
     () => this.simService.recordingState() === 'processing' || !this.simService.isImageLoaded(),
   );
+
+  /** True while a recording session is running or finalising. */
+  readonly isRecordingActive = computed<boolean>(
+    () => this.simService.recordingState() !== 'idle',
+  );
+
+  /**
+   * Quality-preset rows for the record split-button menu, with a live file
+   * size estimate (full-length clip) for the currently selected format.
+   */
+  readonly presetMenuItems = computed<readonly SplitButtonMenuItem[]>(() => {
+    const { width, height } = this.simService.canvasDimensions();
+    return RECORDING_PRESET_ORDER.map((key) => {
+      const preset = RECORDING_PRESETS[key];
+      const bitsPerSecond = computeRecordingBitsPerSecond(width, height, preset);
+      const sizeMb = estimateRecordingSizeMb(bitsPerSecond, MAX_RECORDING_SECONDS);
+      return {
+        value: key,
+        label: preset.label,
+        description: preset.description,
+        detail: `~${sizeMb} MB`,
+      };
+    });
+  });
 
   /** Current recording state mirrored as a data-attribute-friendly signal. */
   readonly recordingState = computed(() => this.simService.recordingState());
@@ -268,6 +318,24 @@ export class ControlPanel {
   /** Delegates to {@link SimulationService.toggleRecording}. */
   toggleRecording(): void {
     this.simService.toggleRecording();
+  }
+
+  /** Re-downloads the retained last recording (recovery for failed downloads). */
+  saveLastRecording(): void {
+    this.simService.saveLastRecording();
+  }
+
+  /** Opens the native share sheet for the retained last recording. */
+  shareLastRecording(): void {
+    void this.simService.shareLastRecording();
+  }
+
+  /** Applies a quality preset chosen from the record split-button menu. */
+  selectPreset(value: string): void {
+    if (value in RECORDING_PRESETS) {
+      // Narrowing is safe: membership in RECORDING_PRESETS proves the key.
+      this.simService.recordingPreset.set(value as RecordingPreset);
+    }
   }
 
   /** Restarts the animation without entering a recording session. */

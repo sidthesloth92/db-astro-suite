@@ -85,9 +85,25 @@ export default async function (fastify, opts) {
         "request.analytics was not initialised; analytics will not be persisted for this request",
       );
     }
+
+    // Tracked at handler scope so the single `finally` can always delete the
+    // upload temp file on every exit path (success, error, timeout, abort,
+    // queue-full) rather than relying on the queued task body to run.
+    let filePath = null;
+    // abortOnClientDisconnect is intentionally not wired here: Docker Desktop's
+    // virtual network proxy closes the container-side socket at the HTTP
+    // request/response boundary (~1ms after body consumption), firing a
+    // spurious 'close' that aborts every solve before it starts. On a real
+    // Linux host the socket stays open and the feature works correctly — it
+    // should be re-enabled once tested outside Docker Desktop. The queue-slot
+    // leak is fixed by command-runner.util.js (process-group kill) and the
+    // per-task queue timeout backstop, which are independent of this feature.
+    const signal = new AbortController().signal;
+
     try {
       request.log.info("Parsing multipart request...");
       const upload = await parseMultipartRequest(request, config.uploadsDir);
+      filePath = upload.filePath;
       a.file_size_bytes = upload.fileSizeBytes;
       a.image_width_px = upload.imageWidthPx;
       a.image_height_px = upload.imageHeightPx;
@@ -95,12 +111,12 @@ export default async function (fastify, opts) {
       a.ra_hint_deg = upload.hints.ra_hint ?? null;
       a.dec_hint_deg = upload.hints.dec_hint ?? null;
 
-      const { filePath, hints } = upload;
+      const { hints } = upload;
+
       request.log.info(`Multipart parsed, starting queue for ${filePath}`);
 
       a.queue_depth_on_enqueue = solveQueue.size + solveQueue.pending;
       if (a.queue_depth_on_enqueue >= config.queueMaxSize) {
-        await fs.unlink(filePath).catch(() => {});
         a.outcome = SolveEventOutcome.QUEUE_FULL;
         a.response_code = "SERVER_BUSY";
         a.error_message = "Solver queue is full.";
@@ -115,29 +131,32 @@ export default async function (fastify, opts) {
       }
 
       const enqueuedAt = Date.now();
-      const result = await solveQueue.add(async () => {
-        a.queue_wait_ms = Date.now() - enqueuedAt;
-        try {
+      const result = await solveQueue.add(
+        async () => {
+          a.queue_wait_ms = Date.now() - enqueuedAt;
           request.log.info("Queue executing processSolveRequest...");
           const res = await processSolveRequest(
             filePath,
             hints,
             localCatalogDao,
             request.log,
+            signal,
           );
           request.log.info("processSolveRequest completed.");
           return res;
-        } finally {
-          await fs.unlink(filePath).catch((err) => {
-            if (err.code !== "ENOENT") {
-              request.log.error(
-                { err, filePath },
-                "Failed to delete uploaded file after processing",
-              );
-            }
-          });
-        }
-      });
+        },
+        // Backstop the slot: if a task ever fails to settle within this budget,
+        // p-queue reclaims its slot regardless (timeout > solveExecTimeoutMs so
+        // the clean astrometry-error path wins under normal operation).
+        // Note: signal is currently inert (abortOnClientDisconnect not wired —
+        // see comment above). The slot parameter is kept so re-wiring the feature
+        // requires only restoring that one call; no other changes are needed.
+        {
+          timeout: config.solveTaskTimeoutMs,
+          throwOnTimeout: true,
+          signal,
+        },
+      );
 
       // Copy solve + catalog metrics into analytics.
       const md = result.metadata;
@@ -200,6 +219,42 @@ export default async function (fastify, opts) {
         ),
       );
     } catch (e) {
+      // Client disconnected before we could respond — the signal already
+      // aborted the queued/running task and freed the slot. Nothing is
+      // listening, but we still resolve the handler so the analytics row is
+      // recorded with a CLIENT_ABORTED outcome.
+      if (signal.aborted) {
+        a.outcome = SolveEventOutcome.CLIENT_ABORTED;
+        a.response_code = "CLIENT_CLOSED_REQUEST";
+        a.error_message = "Client disconnected before the solve completed.";
+        request.log.warn("Solve request aborted: client disconnected");
+        return reply
+          .code(499)
+          .send(
+            new SolveErrorResponse(
+              "CLIENT_CLOSED_REQUEST",
+              "Client closed the request before the solve completed.",
+            ),
+          );
+      }
+
+      // Per-task backstop timeout fired — p-queue has already reclaimed the
+      // slot. Surface a 504 rather than a generic 500 so the cause is legible.
+      if (e?.name === "TimeoutError") {
+        a.outcome = SolveEventOutcome.SOLVE_TIMEOUT;
+        a.response_code = "SOLVE_TIMEOUT";
+        a.error_message = `Solve exceeded the ${config.solveTaskTimeoutMs} ms task budget.`;
+        request.log.error({ err: e }, "Solve task timed out (queue backstop)");
+        return reply
+          .code(504)
+          .send(
+            new SolveErrorResponse(
+              "SOLVE_TIMEOUT",
+              "The plate-solve took too long and was aborted. Please retry.",
+            ),
+          );
+      }
+
       // Always log the error first so a downstream analytics bookkeeping
       // failure can never swallow the original cause.
       if (e instanceof SolveError) {
@@ -264,6 +319,20 @@ export default async function (fastify, opts) {
             "Internal processing error during astrometry solving.",
           ),
         );
+    } finally {
+      // Single cleanup point for the upload temp file, covering every exit
+      // path. ENOENT is expected when a validation path already removed it;
+      // anything else is logged.
+      if (filePath) {
+        await fs.unlink(filePath).catch((err) => {
+          if (err.code !== "ENOENT") {
+            request.log.error(
+              { err, filePath },
+              "Failed to delete uploaded file after processing",
+            );
+          }
+        });
+      }
     }
   });
 }

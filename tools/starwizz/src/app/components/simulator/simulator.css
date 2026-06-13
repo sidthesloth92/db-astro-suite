@@ -11,9 +11,17 @@
 
 .simulation-wrapper {
   background: var(--db-color-space-black);
-  height: 100%;
+  /* WebKit-safe sizing: state the width explicitly and let aspect-ratio
+     derive the height. Deriving width from `height: 100%` collapses to 0
+     in Safari — WebKit doesn't transfer the ratio-derived size through a
+     percentage height when computing the host flex item's intrinsic width.
+     100cqh is the .sw-container content-box height; minus the host's
+     1rem padding it equals the height previously given by `height: 100%`. */
+  width: min(
+    calc((100cqh - 1rem) * var(--aspect-ratio-num, 0.5625)),
+    var(--format-width, 1080px)
+  );
   aspect-ratio: var(--aspect-ratio, 9/16);
-  -webkit-aspect-ratio: var(--aspect-ratio, 9/16);
   max-width: 100%;
   max-height: 100%;
   position: relative;

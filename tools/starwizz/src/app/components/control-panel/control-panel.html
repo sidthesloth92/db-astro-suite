@@ -1,6 +1,15 @@
 <section class="control-panel" aria-label="Starwizz simulation controls">
   <header class="panel-header">
     <h2 class="panel-title">System Controls</h2>
+    <button
+      type="button"
+      class="demo-button"
+      title="Watch a short demo of how Starwizz works"
+      (click)="demoRequested.emit()"
+    >
+      <dba-ui-icon [def]="playCircleIcon" [size]="14" />
+      <span>How to use</span>
+    </button>
   </header>
 
   <div class="format-row">
@@ -272,16 +281,45 @@
   </div>
 
   <div class="record-row">
-    <button
-      type="button"
-      class="record-button"
-      [attr.data-state]="recordingState()"
+    <dba-ui-split-button
+      class="record-split"
+      menuPlacement="up"
+      menuAriaLabel="Choose recording quality"
+      [label]="buttonText()"
+      [menuItems]="presetMenuItems()"
+      [selectedValue]="simService.recordingPreset()"
       [disabled]="isRecordDisabled()"
+      [menuDisabled]="isRecordingActive()"
+      [dataState]="recordingState()"
       [dbaTooltip]="'Record up to 30 seconds of the animation as a video file'"
-      (click)="toggleRecording()"
-    >
-      {{ buttonText() }}
-    </button>
+      (mainClick)="toggleRecording()"
+      (menuSelect)="selectPreset($event)"
+    ></dba-ui-split-button>
+
+    @if (simService.recordingError(); as recordingError) {
+      <p class="record-error" role="alert">{{ recordingError }}</p>
+    }
+
+    @if (simService.lastRecording(); as lastRecording) {
+      <div class="record-last">
+        <span class="record-last-label">Last video · ~{{ lastRecording.sizeMb }} MB</span>
+        <dba-ui-text-button
+          label="Save"
+          variant="secondary"
+          size="sm"
+          [dbaTooltip]="'Download the last recording again — useful if the automatic download failed'"
+          (clicked)="saveLastRecording()"
+        ></dba-ui-text-button>
+        @if (simService.canShareLastRecording()) {
+          <dba-ui-text-button
+            label="Share"
+            variant="secondary"
+            size="sm"
+            (clicked)="shareLastRecording()"
+          ></dba-ui-text-button>
+        }
+      </div>
+    }
 
     <div class="record-aux">
       <dba-ui-switch

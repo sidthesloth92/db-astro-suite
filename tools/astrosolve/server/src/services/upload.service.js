@@ -177,7 +177,15 @@ export async function parseMultipartRequest(request, uploadsDir) {
   const uniqueId = crypto.randomUUID();
   const filePath = path.join(uploadsDir, `${uniqueId}${ext}`);
 
-  await pipeline(data.file, createWriteStream(filePath));
+  // Stream to disk. A failure here (e.g. the multipart fileSize limit being
+  // exceeded mid-stream) must not leave a partial temp file behind, so unlink
+  // before re-throwing — the only cleanup path that covers the streaming phase.
+  try {
+    await pipeline(data.file, createWriteStream(filePath));
+  } catch (err) {
+    await fs.unlink(filePath).catch(() => {});
+    throw err;
+  }
 
   try {
     const stats = await fs.stat(filePath);

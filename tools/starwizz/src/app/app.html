@@ -14,14 +14,77 @@
     <main class="sw-container sw-container--mobile">
       <dba-sw-simulator></dba-sw-simulator>
 
+      @if (isQualityPickerOpen()) {
+        <button
+          type="button"
+          class="sw-quality-backdrop"
+          aria-label="Close quality menu"
+          (click)="closeQualityPicker()"
+        ></button>
+        <div class="sw-quality-menu" role="menu" aria-label="Choose recording quality">
+          <span class="sw-quality-menu__title">Record quality · {{ maxRecordingSeconds }}s</span>
+          @for (item of qualityPickerItems(); track item.preset) {
+            <button
+              type="button"
+              role="menuitem"
+              class="sw-quality-item"
+              [class.is-recommended]="item.isRecommended"
+              (click)="chooseQualityAndRecord(item.preset)"
+            >
+              <span class="sw-quality-item__label">{{ item.label }}</span>
+              <span class="sw-quality-item__size">~{{ item.sizeMb }} MB</span>
+            </button>
+          }
+        </div>
+      }
+
+      @if (simService.recordingError(); as recordingError) {
+        <p class="sw-record-error" role="alert">{{ recordingError }}</p>
+      }
+
+      @if (showResultChip() && !isQualityPickerOpen()) {
+        @if (simService.lastRecording(); as lastRecording) {
+          <div class="sw-result-chip" role="status">
+            <span class="sw-result-chip__label">
+              <dba-ui-icon class="sw-result-chip__check" [def]="checkIcon" [size]="14" />
+              Saved · ~{{ lastRecording.sizeMb }} MB
+            </span>
+            @if (simService.canShareLastRecording()) {
+              <button type="button" class="sw-result-chip__action" (click)="shareLastRecording()">
+                Share
+              </button>
+            }
+            <button
+              type="button"
+              class="sw-result-chip__icon"
+              aria-label="Download again"
+              title="Didn't download? Tap to save again"
+              (click)="saveLastRecording()"
+            >
+              <dba-ui-icon [def]="downloadIcon" [size]="16" />
+            </button>
+            <button
+              type="button"
+              class="sw-result-chip__dismiss"
+              aria-label="Dismiss"
+              (click)="dismissResultChip()"
+            >
+              ✕
+            </button>
+          </div>
+        }
+      }
+
       <button
         type="button"
         class="sw-mobile-record"
+        aria-haspopup="menu"
         [attr.data-state]="simService.recordingState()"
+        [attr.aria-expanded]="isQualityPickerOpen()"
         [disabled]="isMobileRecordDisabled()"
         [attr.title]="mobileRecordLabel()"
         [attr.aria-label]="mobileRecordLabel()"
-        (click)="simService.toggleRecording()"
+        (click)="onMobileRecordPress()"
       >
         <span class="sw-mobile-record__shape" aria-hidden="true"></span>
       </button>
@@ -30,11 +93,11 @@
         <dba-ui-icon-button
           class="sw-mobile-fab"
           accent="cyan"
-          [size]="40"
+          [size]="52"
           title="Open controls"
           (clicked)="toggleSheet()"
         >
-          <dba-ui-icon [def]="slidersIcon" [size]="18" />
+          <dba-ui-icon [def]="slidersIcon" [size]="24" />
         </dba-ui-icon-button>
       }
 
@@ -48,13 +111,26 @@
         (pointerup)="onAdjustEnd()"
         (pointercancel)="onAdjustEnd()"
       >
-        <dba-sw-control-panel class="in-sheet"></dba-sw-control-panel>
+        <dba-sw-control-panel
+          class="in-sheet"
+          (demoRequested)="isDemoOpen.set(true)"
+        ></dba-sw-control-panel>
       </dba-ui-floating-sheet>
     </main>
   } @else {
     <main class="sw-container">
       <dba-sw-simulator></dba-sw-simulator>
-      <dba-sw-control-panel></dba-sw-control-panel>
+      <dba-sw-control-panel
+        (demoRequested)="isDemoOpen.set(true)"
+      ></dba-sw-control-panel>
     </main>
   }
+
+  <dba-ui-video-lightbox
+    [open]="isDemoOpen()"
+    (openChange)="isDemoOpen.set($event)"
+    src="assets/img/sw_demo.mp4"
+    poster="assets/img/sw-demo-poster.jpg"
+    label="Starwizz demo"
+  />
 </div>

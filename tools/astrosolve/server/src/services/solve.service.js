@@ -91,6 +91,8 @@ function buildObjectBreakdown(objects) {
  * @param {Object} hints - Solving hints extracted from the request
  * @param {LocalCatalogDao | null} localCatalogDao - DAO for the local catalog
  * @param {Object} log - Fastify-compatible logger (request.log)
+ * @param {AbortSignal} [signal] - Aborts the underlying solve (and kills its
+ *   process group) when the client disconnects.
  * @returns {Promise<SolveResult & { solveStats: Object, catalogStats: Object, diagnostics: Object, objectBreakdown: Object }>}
  */
 export async function processSolveRequest(
@@ -98,13 +100,14 @@ export async function processSolveRequest(
   hints,
   localCatalogDao,
   log,
+  signal,
 ) {
   const warnings = [];
 
   // Step 1: Plate Solve using local Astrometry.net
   // On failure this throws AstrometryError, which the route handler
   // unpacks. On success it carries its own diagnostics payload.
-  const solveResult = await solveWithAstrometry(filePath, hints, log);
+  const solveResult = await solveWithAstrometry(filePath, hints, log, signal);
 
   // Step 2: Hybrid Search (Local + SIMBAD)
   // Size the search radius to the actual solved field: the half-diagonal of

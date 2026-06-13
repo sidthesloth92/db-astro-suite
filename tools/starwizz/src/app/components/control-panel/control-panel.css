@@ -53,7 +53,7 @@
   display: none;
 }
 
-:host(.in-sheet) .record-row > .record-button {
+:host(.in-sheet) .record-row > .record-split {
   display: none;
 }
 
@@ -78,6 +78,39 @@
   text-transform: uppercase;
   color: var(--db-color-neon-pink);
   text-shadow: 0 0 10px color-mix(in srgb, var(--db-color-neon-pink) 30%, transparent);
+}
+
+/* "How to use" demo trigger, pinned to the right of the panel header. */
+.demo-button {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border: 1px solid color-mix(in srgb, var(--db-color-cyan) 35%, transparent);
+  border-radius: 6px;
+  background: none;
+  color: var(--db-color-cyan);
+  font-family: var(--db-font-ui);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background 180ms ease,
+    border-color 180ms ease;
+}
+
+.demo-button:hover {
+  background: color-mix(in srgb, var(--db-color-cyan) 12%, transparent);
+  border-color: color-mix(in srgb, var(--db-color-cyan) 60%, transparent);
+}
+
+.demo-button:focus-visible {
+  outline: 2px solid var(--db-color-cyan);
+  outline-offset: 2px;
 }
 
 .format-row,
@@ -145,54 +178,32 @@
   border-top: 1px solid var(--db-color-border);
 }
 
-.record-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 16px;
-  background: var(--db-color-neon-pink);
-  border: none;
-  border-radius: 8px;
-  color: var(--db-color-text-primary);
-  font-family: var(--db-font-ui);
-  font-weight: 600;
-  font-size: 12.5px;
-  letter-spacing: 0.04em;
-  cursor: pointer;
-  box-shadow:
+/*
+ * The record control is the shared dba-ui-split-button, themed through its
+ * --dba-split-button-* custom properties so the recording state colours stay
+ * defined here without piercing the component.
+ */
+.record-split {
+  --dba-split-button-bg: var(--db-color-neon-pink);
+  --dba-split-button-color: var(--db-color-text-primary);
+  --dba-split-button-divider: color-mix(in srgb, var(--db-color-text-primary) 30%, transparent);
+  --dba-split-button-shadow:
     0 0 0 1px var(--db-color-neon-pink),
     0 4px 12px var(--db-color-pink-soft);
-  transition: all 180ms ease;
 }
 
-.record-button:hover:not(:disabled) {
-  filter: brightness(1.08);
-  transform: translateY(-1px);
-}
-
-.record-button:focus-visible {
-  outline: 2px solid var(--db-color-border-active);
-  outline-offset: 2px;
-}
-
-.record-button:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-.record-button[data-state='recording'] {
-  background: var(--db-color-orange);
-  box-shadow:
+.record-split[data-state='recording'] {
+  --dba-split-button-bg: var(--db-color-orange);
+  --dba-split-button-shadow:
     0 0 0 1px var(--db-color-orange),
     0 0 22px var(--db-color-pink-soft);
   animation: record-pulse 1.6s ease-in-out infinite;
 }
 
-.record-button[data-state='processing'] {
-  background: var(--db-color-surface-hi);
-  color: var(--db-color-text-dim);
-  box-shadow: none;
+.record-split[data-state='processing'] {
+  --dba-split-button-bg: var(--db-color-surface-hi);
+  --dba-split-button-color: var(--db-color-text-dim);
+  --dba-split-button-shadow: none;
 }
 
 @keyframes record-pulse {
@@ -203,6 +214,25 @@
   50% {
     opacity: 0.72;
   }
+}
+
+.record-error {
+  margin: 0;
+  font: 500 11px/1.4 var(--db-font-ui);
+  color: var(--db-color-text-error);
+}
+
+.record-last {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.record-last-label {
+  flex: 1;
+  font: 500 11px/1 var(--db-font-ui);
+  color: var(--db-color-text-dim);
+  font-variant-numeric: tabular-nums;
 }
 
 .record-aux {

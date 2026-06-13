@@ -1,17 +1,15 @@
-import { exec } from "child_process";
-import { promisify } from "util";
 import fs from "fs/promises";
 import path from "path";
+import config from "../config.js";
 import { AstrometryError } from "../models/errors.model.js";
 import { tail } from "../utils/diagnostics.util.js";
+import { runCommandWithTimeout } from "../utils/command-runner.util.js";
 import {
   FOV_PRESET,
   FOV_SCALE_RANGES,
   DOWNSAMPLE,
   SOLVE_DEPTH,
 } from "../constants/solve-field.constants.js";
-
-const execAsync = promisify(exec);
 
 /**
  * Executes the local Astrometry.net CLI (solve-field) to plate solve an image, extracts coordinates
@@ -20,9 +18,11 @@ const execAsync = promisify(exec);
  * @param {string} filePath - Absolute path to the uploaded image in the uploads directory
  * @param {Object} hints - Solving hints { pixel_size, focal_length, ra_hint, dec_hint }
  * @param {Object} log - Fastify-compatible logger (request.log)
+ * @param {AbortSignal} [signal] - Aborts the solve (and kills the process group)
+ *   when the client disconnects.
  * @returns {Promise<Object>} Solved WCS Metadata { ra, dec, scale, status, wcsData, solveStats }
  */
-export async function solveWithAstrometry(filePath, hints, log) {
+export async function solveWithAstrometry(filePath, hints, log, signal) {
   const fileExt = path.extname(filePath);
   const baseName = path.basename(filePath, fileExt);
   const dirName = path.dirname(filePath);
@@ -32,7 +32,7 @@ export async function solveWithAstrometry(filePath, hints, log) {
   try {
     log.info({ command }, "Executing astrometry solve-field");
     const { wcsData, stdout, stderr, durationMs, execError, wcsReadError } =
-      await executeAstrometryAndGetWcsData(command, wcsFilePath, log);
+      await executeAstrometryAndGetWcsData(command, wcsFilePath, log, signal);
 
     const solveStats = {
       duration_ms: durationMs,
@@ -216,6 +216,7 @@ export function createAstrometryCommand(filePath, hints) {
  * @param {string} command - The shell command to execute
  * @param {string} wcsFilePath - Expected path of the output .wcs file
  * @param {Object} log - Fastify-compatible logger
+ * @param {AbortSignal} [signal] - Aborts (and kills the process group) on client disconnect
  * @returns {Promise<{
  *   wcsData: string | null,
  *   stdout: string,
@@ -225,28 +226,23 @@ export function createAstrometryCommand(filePath, hints) {
  *   wcsReadError: Error | null,
  * }>}
  */
-async function executeAstrometryAndGetWcsData(command, wcsFilePath, log) {
-  const startedAt = Date.now();
-  let capturedStdout = "";
-  let capturedStderr = "";
-  let execError = null;
-  try {
-    const { stdout, stderr } = await execAsync(command, { timeout: 300_000 });
-    capturedStdout = stdout || "";
-    capturedStderr = stderr || "";
-    if (stdout) log.info({ stdout }, "solve-field stdout");
-    if (stderr) log.warn({ stderr }, "solve-field stderr");
-  } catch (err) {
-    execError = err;
-    capturedStdout = err.stdout ?? "";
-    capturedStderr = err.stderr ?? "";
+async function executeAstrometryAndGetWcsData(command, wcsFilePath, log, signal) {
+  // The runner never throws on solver-level problems and always settles — even
+  // when the timeout fires — because it kills the entire process group, so this
+  // function (and its queue slot) can never hang. See command-runner.util.js.
+  const { stdout, stderr, durationMs, execError } = await runCommandWithTimeout(
+    command,
+    { timeoutMs: config.solveExecTimeoutMs, signal, log },
+  );
+  if (execError) {
     log.error(
-      { err, stdout: err.stdout, stderr: err.stderr },
+      { err: execError, stdout, stderr },
       "solve-field process failed; checking for .wcs output anyway",
     );
+  } else {
+    if (stdout) log.info({ stdout }, "solve-field stdout");
+    if (stderr) log.warn({ stderr }, "solve-field stderr");
   }
-  const durationMs = Date.now() - startedAt;
-
   let wcsData = null;
   let wcsReadError = null;
   try {
@@ -257,8 +253,8 @@ async function executeAstrometryAndGetWcsData(command, wcsFilePath, log) {
 
   return {
     wcsData,
-    stdout: capturedStdout,
-    stderr: capturedStderr,
+    stdout,
+    stderr,
     durationMs,
     execError,
     wcsReadError,
