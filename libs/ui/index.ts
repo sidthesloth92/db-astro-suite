@@ -1,13 +1,8 @@
-export * from "./src/lib/accordion/accordion-item.component";
-export * from "./src/lib/accordion/accordion.component";
 export * from "./src/lib/black-hole-loader/black-hole-loader.component";
 export * from "./src/lib/card/card.component";
-export * from "./src/lib/checkbox/checkbox.component";
 export * from "./src/lib/constellation-loader/constellation-loader.component";
 export * from "./src/lib/footer/footer.component";
 export * from "./src/lib/header/header.component";
-export * from "./src/lib/input/input.component";
-export * from "./src/lib/neon-button/neon-button.component";
 export * from "./src/lib/select/select.component";
 export * from "./src/lib/select/select.model";
 export * from "./src/lib/text-button/text-button.component";
@@ -18,9 +13,6 @@ export * from "./src/lib/services/google-analytics.service";
 export * from "./src/lib/services/route-analytics.tracker";
 export * from "./src/lib/services/local-storage.service";
 export * from "./src/lib/services/storage.service";
-export * from "./src/lib/slider/slider.component";
-export * from "./src/lib/space-button/space-button.component";
-export * from "./src/lib/textarea/textarea.component";
 export * from "./src/lib/warp-speed-loader/warp-speed-loader.component";
 
 /* ----------------------------------------------------------------
