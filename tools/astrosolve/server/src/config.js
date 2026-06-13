@@ -54,6 +54,72 @@ const config = Object.freeze({
   queueMaxSize: parsePositiveInteger(process.env.ASTROSOLVE_QUEUE_MAX_SIZE, 10),
 
   /**
+   * Hard wall-clock timeout (ms) for a single `solve-field` invocation. When it
+   * elapses the runner kills the entire child process group (SIGKILL), so the
+   * awaited promise always settles and the queue slot is always reclaimed.
+   * Defaults to 5 minutes. Configure via ASTROSOLVE_SOLVE_EXEC_TIMEOUT_MS.
+   */
+  solveExecTimeoutMs: parsePositiveInteger(
+    process.env.ASTROSOLVE_SOLVE_EXEC_TIMEOUT_MS,
+    300_000,
+  ),
+
+  /**
+   * Per-task queue timeout (ms) — a backstop above {@link solveExecTimeoutMs}.
+   * If a queued task ever fails to settle within this window, p-queue reclaims
+   * the concurrency slot regardless. MUST be greater than solveExecTimeoutMs so
+   * the clean astrometry-error path wins under normal operation and this only
+   * fires as a true last resort. Defaults to 5.5 minutes. Configure via
+   * ASTROSOLVE_SOLVE_TASK_TIMEOUT_MS.
+   */
+  solveTaskTimeoutMs: parsePositiveInteger(
+    process.env.ASTROSOLVE_SOLVE_TASK_TIMEOUT_MS,
+    330_000,
+  ),
+
+  /**
+   * Maximum time (ms) the server will wait to receive a full request before
+   * aborting it (maps to Node's `server.requestTimeout`). Bounds slow/stalled
+   * multipart uploads (slowloris); does NOT limit handler/solve duration.
+   * Leaving Fastify's default of 0 would *disable* Node's built-in protection,
+   * so this is set explicitly. Defaults to 2 minutes. Configure via
+   * ASTROSOLVE_REQUEST_TIMEOUT_MS.
+   */
+  requestTimeoutMs: parsePositiveInteger(
+    process.env.ASTROSOLVE_REQUEST_TIMEOUT_MS,
+    120_000,
+  ),
+
+  /**
+   * Interval (ms) between sweeps of the uploads directory for orphaned temp
+   * files. Defaults to 5 minutes. Configure via ASTROSOLVE_UPLOADS_SWEEP_INTERVAL_MS.
+   */
+  uploadsSweepIntervalMs: parsePositiveInteger(
+    process.env.ASTROSOLVE_UPLOADS_SWEEP_INTERVAL_MS,
+    300_000,
+  ),
+
+  /**
+   * Age (ms) past which an uploads-directory file is considered orphaned and
+   * deleted by the sweeper. Set comfortably above the solve + task timeout so a
+   * legitimately in-flight upload is never removed. Defaults to 15 minutes.
+   * Configure via ASTROSOLVE_UPLOADS_MAX_AGE_MS.
+   */
+  uploadsMaxAgeMs: parsePositiveInteger(
+    process.env.ASTROSOLVE_UPLOADS_MAX_AGE_MS,
+    900_000,
+  ),
+
+  /**
+   * Interval (ms) between queue-depth health gauges logged by the watchdog.
+   * Defaults to 1 minute. Configure via ASTROSOLVE_QUEUE_WATCHDOG_INTERVAL_MS.
+   */
+  queueWatchdogIntervalMs: parsePositiveInteger(
+    process.env.ASTROSOLVE_QUEUE_WATCHDOG_INTERVAL_MS,
+    60_000,
+  ),
+
+  /**
    * When true, POST /api/v1/solve requires a valid x-access-key header.
    * Defaults to true. Only set to false if SOLVE_API_KEY_REQUIRED is explicitly
    * set to the string "false" in the environment.

@@ -1,5 +1,56 @@
 # Changelog
 
+## [1.29.2](https://github.com/sidthesloth92/db-astro-suite/compare/v1.29.1...v1.29.2) (2026-06-12)
+
+
+### Bug Fixes
+
+* **starwizz:** resolution-matched H.264 levels, runtime codec fallback, deferred revoke + save/share recovery ([#86](https://github.com/sidthesloth92/db-astro-suite/issues/86)) ([bda056c](https://github.com/sidthesloth92/db-astro-suite/commit/bda056c53fac714171eb5483976b145df97aa662))
+
+## [1.29.1](https://github.com/sidthesloth92/db-astro-suite/compare/v1.29.0...v1.29.1) (2026-06-12)
+
+
+### Bug Fixes
+
+* **starwizz:** render preview in Safari by deriving wrapper width explicitly ([#84](https://github.com/sidthesloth92/db-astro-suite/issues/84)) ([9f95aaf](https://github.com/sidthesloth92/db-astro-suite/commit/9f95aaf7ee32f8d60ca0316a38aae61730531ee5))
+
+## [1.29.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.28.0...v1.29.0) (2026-06-11)
+
+
+### Features
+
+* **starwizz:** mobile recording-quality selector ([#81](https://github.com/sidthesloth92/db-astro-suite/issues/81)) ([a476e1e](https://github.com/sidthesloth92/db-astro-suite/commit/a476e1ee3e99de1cdcbfc80cd9f3a3a12512ff0a))
+* **starwizz:** quality popup on the mobile record button ([#83](https://github.com/sidthesloth92/db-astro-suite/issues/83)) ([58b424f](https://github.com/sidthesloth92/db-astro-suite/commit/58b424fd6f998da49eab6e964ac5b97c831c470b))
+
+## [1.28.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.27.0...v1.28.0) (2026-06-10)
+
+
+### Features
+
+* add SplitButton component for enhanced action selection ([#78](https://github.com/sidthesloth92/db-astro-suite/issues/78)) ([6606e28](https://github.com/sidthesloth92/db-astro-suite/commit/6606e28e2909068835b3f7c79e20c95875ec6e15))
+
+## [1.27.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.26.2...v1.27.0) (2026-06-10)
+
+
+### Features
+
+* **starwizz:** recorded output clip + unified sw.png branding ([#76](https://github.com/sidthesloth92/db-astro-suite/issues/76)) ([a177134](https://github.com/sidthesloth92/db-astro-suite/commit/a1771346f2a21b4d52dd4e300ff844767c5f9e9f))
+
+## [1.26.2](https://github.com/sidthesloth92/db-astro-suite/compare/v1.26.1...v1.26.2) (2026-06-10)
+
+
+### Bug Fixes
+
+* **starwizz:** enable mobile pinch-zoom and enlarge the controls button ([#73](https://github.com/sidthesloth92/db-astro-suite/issues/73)) ([c1fb4c9](https://github.com/sidthesloth92/db-astro-suite/commit/c1fb4c9323e0c63e4d529f948693e9598957251e))
+
+## [1.26.1](https://github.com/sidthesloth92/db-astro-suite/compare/v1.26.0...v1.26.1) (2026-06-10)
+
+
+### Bug Fixes
+
+* **astrosolve:** fix queue slot leak — process-group kill + timeout backstop ([802d406](https://github.com/sidthesloth92/db-astro-suite/commit/802d4063243db1bc1dc3051c2fb6372dccdb4a2f))
+* **astrosolve:** fix queue slot leak — process-group kill + timeout backstop ([63487a4](https://github.com/sidthesloth92/db-astro-suite/commit/63487a49c1cbc5ffcf3b557eaacc7120c0f3e5e6))
+
 ## [1.26.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.25.1...v1.26.0) (2026-06-07)
 
 

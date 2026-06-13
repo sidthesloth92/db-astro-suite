@@ -26,6 +26,8 @@ export * from "./lib/services/models/gtag.model";
 export * from "./lib/services/storage.service";
 export * from "./lib/slider/slider.component";
 export * from "./lib/space-button/space-button.component";
+export * from "./lib/split-button/split-button.component";
+export * from "./lib/split-button/split-button.model";
 export * from "./lib/textarea/textarea.component";
 export * from "./lib/warp-speed-loader/warp-speed-loader.component";
 

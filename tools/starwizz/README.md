@@ -1,4 +1,4 @@
-# Starwizz - 4K Starfield & Galaxy Generator
+# Starwizz - 4K Starfield Video Generator
 
 **Starwizz** is a high-performance, browser-based 4K starfield and galaxy generator. Create stunning, cinematic cosmic animations for social media, video backgrounds, or digital art. Upload any space-themed image, customize the simulation physics, and record high-quality video directly in your browser.
 

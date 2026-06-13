@@ -33,4 +33,85 @@ describe('ControlPanel', () => {
 
     expect(component.visibleControlNames()).not.toContain('shootingStarSpeed');
   });
+
+  describe('record split-button', () => {
+    it('should show the default quality preset in the record button label', () => {
+      expect(component.buttonText()).toBe('Start Recording · 30s · Social Media');
+    });
+
+    it('should update the preset and label when a menu item is selected', () => {
+      component.selectPreset('compact');
+
+      expect(simService.recordingPreset()).toBe('compact');
+      expect(component.buttonText()).toBe('Start Recording · 30s · Smaller File');
+    });
+
+    it('should ignore unknown preset values', () => {
+      component.selectPreset('not-a-preset');
+
+      expect(simService.recordingPreset()).toBe('social');
+    });
+
+    it('should list every preset with a live size estimate for the selected format', () => {
+      expect(component.presetMenuItems().map((item) => item.detail)).toEqual([
+        '~47 MB',
+        '~70 MB',
+        '~16 MB',
+      ]);
+
+      simService.currentFormat.set('youtube-4k');
+
+      expect(component.presetMenuItems().map((item) => item.detail)).toEqual([
+        '~187 MB',
+        '~280 MB',
+        '~65 MB',
+      ]);
+    });
+
+    it('should disable the preset menu while recording', () => {
+      simService.isImageLoaded.set(true);
+      fixture.detectChanges();
+      const chevron = (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(
+        '.record-split .segment.chevron',
+      );
+      expect(chevron?.disabled).toBeFalse();
+
+      simService.recordingState.set('recording');
+      fixture.detectChanges();
+
+      expect(chevron?.disabled).toBeTrue();
+    });
+  });
+
+  describe('recording error and last-video row', () => {
+    it('should show the recording error only when one is set', () => {
+      const host = fixture.nativeElement as HTMLElement;
+      expect(host.querySelector('.record-error')).toBeNull();
+
+      simService.recordingError.set('Recording produced no video — please try again.');
+      fixture.detectChanges();
+
+      expect(host.querySelector('.record-error')?.textContent).toContain(
+        'Recording produced no video',
+      );
+    });
+
+    it('should show the last-video row with size and a Save action when a recording is retained', () => {
+      const host = fixture.nativeElement as HTMLElement;
+      expect(host.querySelector('.record-last')).toBeNull();
+
+      simService.lastRecording.set({
+        blob: new Blob([new Uint8Array(8)]),
+        filename: 'starfield_starwizz_9_16_1080_1920.mp4',
+        mimeType: 'video/mp4',
+        sizeMb: 47,
+      });
+      fixture.detectChanges();
+
+      expect(host.querySelector('.record-last-label')?.textContent).toContain('~47 MB');
+      const save = spyOn(simService, 'saveLastRecording');
+      host.querySelector<HTMLButtonElement>('.record-last button')?.click();
+      expect(save).toHaveBeenCalled();
+    });
+  });
 });

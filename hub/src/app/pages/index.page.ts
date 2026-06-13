@@ -11,7 +11,6 @@ import {
 } from '@db-astro-suite/ui';
 import { CrescentLogoComponent } from '../components/crescent-logo/crescent-logo.component';
 import { AstroMarkComponent } from '../components/astro-mark/astro-mark.component';
-import { StarwizzMarkComponent } from '../components/starwizz-mark/starwizz-mark.component';
 import { LiveStarfieldComponent } from '../components/live-starfield/live-starfield.component';
 import packageJson from '../../../../package.json';
 import type { HubTool } from './hub-tool.types';
@@ -34,7 +33,6 @@ import type { HubTool } from './hub-tool.types';
     IconComponent,
     CrescentLogoComponent,
     AstroMarkComponent,
-    StarwizzMarkComponent,
     LiveStarfieldComponent,
   ],
   templateUrl: './index.page.html',

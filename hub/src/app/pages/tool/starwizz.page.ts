@@ -7,7 +7,6 @@ import {
 } from '@angular/core';
 import { AnalyticsService } from '@db-astro-suite/ui';
 import { DemoFrameComponent } from '../../components/demo-frame/demo-frame.component';
-import { StarwizzMarkComponent } from '../../components/starwizz-mark/starwizz-mark.component';
 import { ToolDetailComponent } from '../../components/tool-detail/tool-detail.component';
 import { STARWIZZ_DETAIL } from './starwizz-detail.constants';
 import { STARWIZZ_LAUNCH_URL } from './tool.constants';
@@ -19,7 +18,7 @@ import { STARWIZZ_LAUNCH_URL } from './tool.constants';
 @Component({
   selector: 'dba-hub-starwizz-tool',
   standalone: true,
-  imports: [ToolDetailComponent, DemoFrameComponent, StarwizzMarkComponent],
+  imports: [ToolDetailComponent, DemoFrameComponent],
   templateUrl: './starwizz.page.html',
   styleUrl: './starwizz.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
