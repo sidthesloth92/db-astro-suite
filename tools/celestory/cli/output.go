@@ -7,9 +7,9 @@ import (
 	"strings"
 )
 
-const jsonFileName = "ledger.json"
+const jsonFileName = "celestory.json"
 
-// resolveOutputs decides where ledger.json is written. An empty out means the
+// resolveOutputs decides where celestory.json is written. An empty out means the
 // current working directory; a ".json" path names the file directly; anything
 // else is treated as a directory.
 func resolveOutputs(out string) (jsonPath string, err error) {

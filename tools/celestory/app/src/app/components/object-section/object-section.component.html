@@ -1,0 +1,49 @@
+<section class="objsec">
+  <div class="filters-row">
+    <label class="filter-sel">
+      <span class="fs-label">Objects</span>
+      <select [value]="cat()" (change)="onCat($event)">
+        <option value="All">All objects</option>
+        @for (c of categories(); track c.category) {
+          <option [value]="c.category">{{ c.category }} ({{ c.objectCount }})</option>
+        }
+      </select>
+    </label>
+    <label class="filter-sel">
+      <span class="fs-label">Equipment</span>
+      <select [value]="gear()" (change)="onGear($event)">
+        <option value="All">All equipment</option>
+        <optgroup label="Cameras">
+          @for (e of cameras(); track e.id) {
+            <option [value]="e.id">{{ e.displayName }}</option>
+          }
+        </optgroup>
+        <optgroup label="Optics">
+          @for (e of optics(); track e.id) {
+            <option [value]="e.id">{{ e.displayName }}</option>
+          }
+        </optgroup>
+      </select>
+    </label>
+    <label class="filter-sel">
+      <span class="fs-label">Year</span>
+      <select [value]="year()" (change)="onYear($event)">
+        <option value="All">All years</option>
+        @for (y of years(); track y) {
+          <option [value]="y">{{ y }}</option>
+        }
+      </select>
+    </label>
+    <span class="filter-count">{{ filtered().length }} of {{ ledger().objects.length }}</span>
+  </div>
+
+  @if (filtered().length === 0) {
+    <div class="empty-note">No objects match this filter.</div>
+  } @else {
+    <div class="objgrid">
+      @for (o of filtered(); track o.id) {
+        <dba-object-card [obj]="o" (open)="open.emit($event)" />
+      }
+    </div>
+  }
+</section>

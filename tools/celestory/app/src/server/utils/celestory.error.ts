@@ -34,6 +34,17 @@ export class LedgerValidationError extends CelestoryError {
   }
 }
 
+/** An anonymous attempt ping was missing its dedup identity. */
+export class PingIdentityError extends CelestoryError {
+  constructor() {
+    super(
+      'PING_IDENTITY_MISSING',
+      'An attempt ping requires both installId and dataFingerprint.',
+      400,
+    );
+  }
+}
+
 /** The requested handle is malformed or reserved. */
 export class InvalidHandleError extends CelestoryError {
   constructor(message: string, details: Record<string, unknown> = {}) {
@@ -63,6 +74,20 @@ export class StoryNotFoundError extends CelestoryError {
 export class InvalidKeyError extends CelestoryError {
   constructor() {
     super('KEY_INVALID', 'That key is incorrect.', 403);
+  }
+}
+
+/** A password was required (create/update) but missing or too short. */
+export class InvalidPasswordError extends CelestoryError {
+  constructor(message = 'A password of at least 6 characters is required.') {
+    super('PASSWORD_INVALID', message, 400);
+  }
+}
+
+/** The supplied password did not match the stored one (update). */
+export class BadPasswordError extends CelestoryError {
+  constructor() {
+    super('PASSWORD_INCORRECT', 'That password doesn’t match this profile.', 403);
   }
 }
 

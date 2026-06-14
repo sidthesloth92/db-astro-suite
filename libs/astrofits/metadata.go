@@ -15,6 +15,7 @@ import (
 var watchedKeys = []string{
 	"IMAGETYP", "FRAME", "IMGTYPE",
 	"OBJECT", "OBJNAME", "TARGET",
+	"OBJCTRA", "OBJCTDEC", "RA", "DEC", "CRVAL1", "CRVAL2",
 	"INSTRUME", "CAMERA",
 	"TELESCOP", "TELESCOPE", "OPTIC",
 	"FILTER", "FILTNAME", "FWHEEL",
@@ -23,6 +24,7 @@ var watchedKeys = []string{
 	"EXPTIME", "EXPOSURE", "EXP",
 	"GAIN", "XBINNING", "YBINNING", "CCD-TEMP", "CCDTEMP",
 	"BAYERPAT", "COLORTYP",
+	"STACKCNT", "NCOMBINE", "NIMAGES",
 	"SWCREATE", "CREATOR", "PROGRAM",
 }
 
@@ -37,6 +39,9 @@ type Metadata struct {
 	Telescope    string    // raw TELESCOP / optic name, trimmed; may be empty
 	Filter       string    // FILTER (or synonym), trimmed; may be empty
 	DateObs      time.Time // parsed DATE-OBS (or DATE fallback)
+	RA           float64   // J2000 right ascension in decimal degrees; valid only when HasCoords
+	Dec          float64   // J2000 declination in decimal degrees; valid only when HasCoords
+	HasCoords    bool      // true when a usable RA/Dec pair was found in the header
 	Focal        float64   // FOCALLEN in mm; 0 if missing
 	HasFocal     bool      // true when FOCALLEN was present
 	FRatio       float64   // FOCRATIO / FRATIO; 0 if missing
@@ -47,6 +52,7 @@ type Metadata struct {
 	BinningY     int       // YBINNING; 0 if missing
 	Temp         float64   // CCD-TEMP in °C
 	BayerPattern string    // BAYERPAT / COLORTYP; non-empty implies a one-shot-colour sensor
+	StackCount   int       // NCOMBINE / STACKCNT / NIMAGES; >1 marks a stacked master
 	Program      Program   // detected capture software
 	RawValues    map[string]string
 }
@@ -54,6 +60,13 @@ type Metadata struct {
 // IsOSC reports whether the frame came from a one-shot-colour (Bayer) sensor.
 func (m Metadata) IsOSC() bool {
 	return strings.TrimSpace(m.BayerPattern) != ""
+}
+
+// IsStacked reports whether the frame is a stacked/integrated master (more than
+// one sub combined) rather than a single sub-exposure. Such masters carry summed
+// exposure and must be excluded from integration counts.
+func (m Metadata) IsStacked() bool {
+	return m.StackCount > 1
 }
 
 // ReadMetadata opens a FITS file, reads its header (across HDUs, with synonym
@@ -115,6 +128,11 @@ func ReadMetadata(path string) (m Metadata, err error) {
 	if t, ok := parseDateObs(src.str("DATE-OBS", "DATE")); ok {
 		m.DateObs = t
 	}
+	if ra, dec, ok := celestialCoords(src); ok {
+		m.RA = ra
+		m.Dec = dec
+		m.HasCoords = true
+	}
 	if v, ok := src.float("FOCALLEN"); ok {
 		m.Focal = v
 		m.HasFocal = true
@@ -139,6 +157,9 @@ func ReadMetadata(path string) (m Metadata, err error) {
 	}
 	if v, ok := src.float("CCD-TEMP", "CCDTEMP"); ok {
 		m.Temp = v
+	}
+	if v, ok := src.intval("STACKCNT", "NCOMBINE", "NIMAGES"); ok {
+		m.StackCount = v
 	}
 
 	return m, nil

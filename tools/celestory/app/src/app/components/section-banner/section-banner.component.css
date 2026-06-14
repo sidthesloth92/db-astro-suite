@@ -1,0 +1,64 @@
+:host {
+  display: block;
+}
+.sb {
+  position: relative;
+  padding: 56px 0 18px;
+  overflow: hidden;
+}
+.sb-deco {
+  position: absolute;
+  top: 44px;
+  right: 0;
+  width: 200px;
+  height: 80px;
+  color: color-mix(in srgb, var(--db-color-neon-pink) 36%, transparent);
+  pointer-events: none;
+}
+.sb-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--db-font-mono-code);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--db-color-text-faint);
+}
+.sb-num {
+  color: var(--db-color-neon-pink);
+  font-weight: 600;
+}
+.sb-line {
+  width: 30px;
+  height: 1px;
+  background: color-mix(in srgb, var(--db-color-text-faint) 35%, transparent);
+}
+.sb-titlerow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 14px;
+}
+.sb-glyph {
+  color: var(--db-color-neon-pink);
+  line-height: 0;
+  filter: drop-shadow(0 0 12px color-mix(in srgb, var(--db-color-neon-pink) 45%, transparent));
+}
+.sb-title {
+  font-family: var(--db-font-display);
+  font-weight: 800;
+  font-size: clamp(28px, 6.6vw, 44px);
+  letter-spacing: 0.012em;
+  line-height: 1.04;
+  text-transform: uppercase;
+  color: var(--db-color-neon-pink);
+  text-shadow: 0 0 30px color-mix(in srgb, var(--db-color-neon-pink) 35%, transparent);
+  margin: 0;
+}
+.sb-sub {
+  font-family: var(--db-font-mono-code);
+  font-size: 12.5px;
+  color: var(--db-color-text-dim);
+  margin-top: 12px;
+}

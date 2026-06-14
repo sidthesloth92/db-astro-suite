@@ -1,0 +1,79 @@
+import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
+import type { CelestoryLedger, LedgerObject } from '../../models/ledger.model';
+import { ObjectCardComponent } from '../object-card/object-card.component';
+
+/** The "Objects" catalogue: category / equipment / year filters + a card grid. */
+@Component({
+  selector: 'dba-object-section',
+  standalone: true,
+  imports: [ObjectCardComponent],
+  templateUrl: './object-section.component.html',
+  styleUrl: './object-section.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class ObjectSectionComponent {
+  /** The ledger to browse. */
+  readonly ledger = input.required<CelestoryLedger>();
+  /** Emits an object id to open its detail. */
+  readonly open = output<string>();
+
+  /** Active filters. */
+  protected readonly cat = signal('All');
+  protected readonly gear = signal('All');
+  protected readonly year = signal('All');
+
+  /** Categories present (with counts). */
+  protected readonly categories = computed(() =>
+    this.ledger().summary.byCategory.filter((c) => c.objectCount > 0),
+  );
+  /** Cameras and optics for the equipment filter. */
+  protected readonly cameras = computed(() =>
+    this.ledger().equipment.filter((e) => e.kind.toLowerCase() === 'camera'),
+  );
+  protected readonly optics = computed(() =>
+    this.ledger().equipment.filter((e) => e.kind.toLowerCase() !== 'camera'),
+  );
+  /** Distinct imaging years. */
+  protected readonly years = computed(() => {
+    const set = new Set<number>();
+    for (const o of this.ledger().objects) {
+      for (const s of o.sessions) {
+        const y = +s.date.slice(0, 4);
+        if (y) {
+          set.add(y);
+        }
+      }
+    }
+    return [...set].sort((a, b) => a - b);
+  });
+
+  /** Objects passing the active filters. */
+  protected readonly filtered = computed<LedgerObject[]>(() => {
+    const c = this.cat();
+    const g = this.gear();
+    const y = this.year();
+    return this.ledger().objects.filter((o) => {
+      if (c !== 'All' && o.category !== c) {
+        return false;
+      }
+      if (g !== 'All' && !o.equipmentIds.includes(g)) {
+        return false;
+      }
+      if (y !== 'All' && !o.sessions.some((s) => s.date.slice(0, 4) === y)) {
+        return false;
+      }
+      return true;
+    });
+  });
+
+  /** Select handlers. */
+  onCat(event: Event): void {
+    this.cat.set((event.target as HTMLSelectElement).value);
+  }
+  onGear(event: Event): void {
+    this.gear.set((event.target as HTMLSelectElement).value);
+  }
+  onYear(event: Event): void {
+    this.year.set((event.target as HTMLSelectElement).value);
+  }
+}

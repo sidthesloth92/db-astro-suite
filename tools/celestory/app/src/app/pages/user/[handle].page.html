@@ -1,0 +1,23 @@
+@if (story(); as st) {
+  <dba-journey-view [state]="journeyState()" [ledger]="st.ledger" [handle]="st.handle" />
+} @else if (state().status === 'error') {
+  <dba-ui-constellation-field>
+    <div class="neb" aria-hidden="true"></div>
+    <main class="portfolio">
+      <header class="bar">
+        <a class="brand" routerLink="/">
+          <dba-celestory-wordmark />
+        </a>
+      </header>
+      <p class="missing">
+        No Celestory at this handle. <a routerLink="/">Make your own →</a>
+      </p>
+    </main>
+  </dba-ui-constellation-field>
+} @else {
+  <dba-ui-constellation-field>
+    <main class="portfolio">
+      <p class="loading">Loading…</p>
+    </main>
+  </dba-ui-constellation-field>
+}

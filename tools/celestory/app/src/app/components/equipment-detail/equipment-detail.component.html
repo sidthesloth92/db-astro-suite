@@ -1,0 +1,46 @@
+<section class="detail">
+  <div class="detail-top">
+    <button class="backlink" type="button" (click)="back.emit()">
+      <dba-cel-icon name="back" [size]="14" /> All equipment
+    </button>
+    <button class="sharebtn" type="button" (click)="showShare.set(true)">
+      <dba-cel-icon name="share" [size]="14" /> Share this gear
+    </button>
+  </div>
+
+  @if (showShare()) {
+    <dba-equipment-share-modal [equip]="equip()" [ledger]="ledger()" (closed)="showShare.set(false)" />
+  }
+
+  <div class="kindrow">
+    <dba-cel-icon [name]="icon()" [size]="15" />
+    <span>{{ equip().kind }}</span>
+  </div>
+  <h1>{{ equip().displayName }}</h1>
+  @if (detail()) {
+    <div class="edetail">{{ detail() }}</div>
+  }
+
+  <div class="dstats">
+    <div class="cell"><div class="k">Total integration</div><div class="v glow">{{ dur(equip().totalIntegrationSeconds) }}</div></div>
+    <div class="cell"><div class="k">Light frames</div><div class="v">{{ count(equip().lightFrameCount) }}</div></div>
+    <div class="cell"><div class="k">Objects</div><div class="v">{{ count(equip().objectCount) }}</div></div>
+    <div class="cell"><div class="k">Active range</div><div class="v v-sm">{{ range(equip().firstLight, equip().latestSession) }}</div></div>
+  </div>
+
+  <div class="dsection">
+    <div class="dsec-head">
+      <h2 class="dsec-title">Captured with this {{ isCamera() ? 'camera' : 'optic' }}</h2>
+      <span class="dsec-count">{{ objects().length }} objects</span>
+    </div>
+    @if (objects().length) {
+      <div class="objgrid">
+        @for (o of objects(); track o.id) {
+          <dba-object-card [obj]="o" (open)="openObject.emit($event)" />
+        }
+      </div>
+    } @else {
+      <div class="muted">No objects recorded for this equipment.</div>
+    }
+  </div>
+</section>

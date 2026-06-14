@@ -23,7 +23,10 @@ import (
 
 // SchemaVersion is the parser schema. Bump it whenever the metadata extraction
 // changes so cached entries from older builds are ignored.
-const SchemaVersion = 1
+//
+// v2: Metadata gained StackCount (stacked-master detection); older entries must
+// be re-parsed so masters are correctly excluded from integration.
+const SchemaVersion = 2
 
 // headerHashBytes is how many leading bytes are hashed in --verify-hash mode.
 // FITS headers are multiples of 2880 bytes; 32 KB comfortably covers a primary

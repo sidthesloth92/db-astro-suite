@@ -6,8 +6,10 @@ import {
 } from './ledger.constants';
 import type {
   EquipmentItem,
+  FilterIntegration,
   Ledger,
   ObjectTimeline,
+  Session,
   Summary,
 } from './ledger.types';
 
@@ -39,6 +41,34 @@ function str(record: Record<string, unknown>, field: string): string {
   return typeof value === 'string' ? value : '';
 }
 
+/** Validate a list of per-filter integration entries into a typed shape. */
+function validateFilters(value: unknown, field: string): FilterIntegration[] {
+  return Array.isArray(value)
+    ? (value as unknown[]).map((f) => {
+        const fr = asRecord(f, field);
+        return {
+          name: str(fr, 'name'),
+          seconds: num(fr, 'seconds'),
+          frames: num(fr, 'frames'),
+        };
+      })
+    : [];
+}
+
+/** Validate one per-night session into a typed shape. */
+function validateSession(value: unknown, field: string): Session {
+  const record = asRecord(value, field);
+  return {
+    date: str(record, 'date'),
+    integrationSeconds: num(record, 'integrationSeconds'),
+    lightFrameCount: num(record, 'lightFrameCount'),
+    filters: validateFilters(record['filters'], `${field}.filters`),
+    equipmentIds: Array.isArray(record['equipmentIds'])
+      ? (record['equipmentIds'] as unknown[]).map((e) => String(e))
+      : [],
+  };
+}
+
 /** Validate one object timeline entry into a typed shape. */
 function validateObject(value: unknown, index: number): ObjectTimeline {
   const record = asRecord(value, `objects[${index}]`);
@@ -60,20 +90,15 @@ function validateObject(value: unknown, index: number): ObjectTimeline {
     nightCount: num(record, 'nightCount'),
     firstLight: str(record, 'firstLight'),
     latestSession: str(record, 'latestSession'),
-    filters: Array.isArray(record['filters'])
-      ? (record['filters'] as unknown[]).map((f) => {
-          const fr = asRecord(f, `objects[${index}].filters`);
-          return {
-            name: str(fr, 'name'),
-            seconds: num(fr, 'seconds'),
-            frames: num(fr, 'frames'),
-          };
-        })
-      : [],
+    filters: validateFilters(record['filters'], `objects[${index}].filters`),
     equipmentIds: Array.isArray(record['equipmentIds'])
       ? (record['equipmentIds'] as unknown[]).map((e) => String(e))
       : [],
-    sessions: [],
+    sessions: Array.isArray(record['sessions'])
+      ? (record['sessions'] as unknown[]).map((s) =>
+          validateSession(s, `objects[${index}].sessions`),
+        )
+      : [],
     image: typeof record['image'] === 'string' ? record['image'] : null,
   };
 }
@@ -178,6 +203,8 @@ export function validateLedger(raw: unknown): Ledger {
   return {
     schemaVersion: SUPPORTED_SCHEMA_VERSION,
     generatedAt: str(root, 'generatedAt'),
+    installId: str(root, 'installId'),
+    dataFingerprint: str(root, 'dataFingerprint'),
     tool: {
       name: str(toolRecord, 'name'),
       version: str(toolRecord, 'version'),

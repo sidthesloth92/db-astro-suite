@@ -1,0 +1,23 @@
+<svg viewBox="0 0 300 44" fill="none" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+  <defs>
+    <linearGradient [attr.id]="uid" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" [attr.stop-color]="cyan" />
+      <stop offset="1" [attr.stop-color]="pink" />
+    </linearGradient>
+  </defs>
+  <line x1="30" y1="22" x2="270" y2="22" [attr.stroke]="'url(#' + uid + ')'" stroke-width="1.4" opacity="0.45" />
+  @for (ph of phases; track ph.cx) {
+    <circle [attr.cx]="ph.cx" [attr.cy]="ph.cy" [attr.r]="ph.r" fill="none" [attr.stroke]="ph.color" stroke-width="0.9" opacity="0.28" />
+    @switch (ph.mode) {
+      @case ('full') {
+        <circle [attr.cx]="ph.cx" [attr.cy]="ph.cy" [attr.r]="ph.r" [attr.fill]="ph.color" />
+      }
+      @case ('partial') {
+        <path [attr.d]="ph.d" [attr.fill]="ph.color" />
+      }
+      @case ('new') {
+        <circle [attr.cx]="ph.cx" [attr.cy]="ph.cy" [attr.r]="ph.r" fill="none" [attr.stroke]="ph.color" stroke-width="1.4" opacity="0.85" />
+      }
+    }
+  }
+</svg>

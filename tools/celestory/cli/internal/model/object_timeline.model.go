@@ -14,6 +14,8 @@ type ObjectTimeline struct {
 	NightCount              int                 `json:"nightCount"`
 	FirstLight              string              `json:"firstLight"`
 	LatestSession           string              `json:"latestSession"`
+	RA                      *float64            `json:"ra,omitempty"`  // J2000 right ascension, decimal degrees; null if unknown
+	Dec                     *float64            `json:"dec,omitempty"` // J2000 declination, decimal degrees; null if unknown
 	Filters                 []FilterIntegration `json:"filters"`
 	EquipmentIds            []string            `json:"equipmentIds"`
 	Sessions                []Session           `json:"sessions"`

@@ -46,6 +46,7 @@ export * from "./lib/segmented-tabs/segmented-tabs.component";
 export * from "./lib/segmented-tabs/segmented-tabs.model";
 export * from "./lib/animated-starry-background/animated-starry-background.component";
 export * from "./lib/starry-background/starry-background.component";
+export * from "./lib/constellation-field/constellation-field.component";
 export * from "./lib/switch/switch.component";
 export * from "./lib/top-bar/top-bar.component";
 export * from "./lib/video-lightbox/video-lightbox.component";

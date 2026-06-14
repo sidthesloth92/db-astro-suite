@@ -1,0 +1,77 @@
+<svg
+  [attr.width]="size()"
+  [attr.height]="height()"
+  [attr.viewBox]="geo().viewBox"
+  fill="none"
+  aria-hidden="true"
+>
+  <defs>
+    <linearGradient [attr.id]="uid" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" [attr.stop-color]="cyan" />
+      <stop offset="1" [attr.stop-color]="pink" />
+    </linearGradient>
+  </defs>
+  @for (p of geo().shapes; track $index) {
+    @switch (p.kind) {
+      @case ('rect') {
+        <rect
+          #shape
+          [attr.x]="p.x"
+          [attr.y]="p.y"
+          [attr.width]="p.w"
+          [attr.height]="p.h"
+          [attr.rx]="p.rx"
+          [attr.fill]="p.fill"
+          [attr.opacity]="p.opacity"
+        />
+      }
+      @case ('circle') {
+        <circle
+          #shape
+          [attr.cx]="p.cx"
+          [attr.cy]="p.cy"
+          [attr.r]="p.r"
+          [attr.fill]="p.fill ?? 'none'"
+          [attr.stroke]="p.stroke"
+          [attr.stroke-width]="p.sw"
+          [attr.opacity]="p.opacity"
+        />
+      }
+      @case ('path') {
+        <path
+          #shape
+          [attr.d]="p.d"
+          [attr.fill]="p.fill ?? 'none'"
+          [attr.stroke]="p.stroke"
+          [attr.stroke-width]="p.sw"
+          [attr.opacity]="p.opacity"
+        />
+      }
+      @case ('line') {
+        <line
+          #shape
+          [attr.x1]="p.x1"
+          [attr.y1]="p.y1"
+          [attr.x2]="p.x2"
+          [attr.y2]="p.y2"
+          [attr.stroke]="p.stroke"
+          [attr.stroke-width]="p.sw"
+          [attr.opacity]="p.opacity"
+          stroke-linecap="round"
+        />
+      }
+      @case ('gradline') {
+        <line
+          #shape
+          [attr.x1]="p.x1"
+          [attr.y1]="p.y1"
+          [attr.x2]="p.x2"
+          [attr.y2]="p.y2"
+          [attr.stroke]="'url(#' + uid + ')'"
+          [attr.stroke-width]="p.sw"
+          stroke-linecap="round"
+        />
+      }
+    }
+  }
+</svg>

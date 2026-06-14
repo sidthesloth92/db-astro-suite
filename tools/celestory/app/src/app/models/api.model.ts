@@ -14,20 +14,28 @@ export interface CreateStoryResult {
   key: string;
 }
 
-/** Denormalized headline stats returned with a story. */
-export interface StoryStats {
-  totalIntegrationSeconds: number;
-  objectCount: number;
-  nightCount: number;
-  lightFrameCount: number;
-  firstLight: string | null;
-  latestSession: string | null;
+/** Result of ③ Update — the public URL (handle + delete key are unchanged). */
+export interface UpdateStoryResult {
+  handle: string;
+  url: string;
 }
 
-/** A published story fetched by handle. */
+/**
+ * Anonymous attempt ping sent on visualise. Carries only the dedup identity and
+ * three headline integers — never a handle, never ledger contents.
+ */
+export interface AttemptPing {
+  installId: string;
+  dataFingerprint: string;
+  totalIntegrationSeconds: number;
+  lightFrameCount: number;
+  objectCount: number;
+}
+
+/** A published (or sample) story fetched by handle; headline stats live in the
+ * ledger's own summary block, so no separate stats payload is carried. */
 export interface StoryDetails {
   handle: string;
   ledger: CelestoryLedger;
-  stats: StoryStats;
   createdAt: string;
 }

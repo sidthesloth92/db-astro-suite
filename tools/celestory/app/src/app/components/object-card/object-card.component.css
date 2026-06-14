@@ -1,0 +1,63 @@
+:host {
+  display: block;
+}
+.ocard {
+  border: 1px solid color-mix(in srgb, var(--db-color-text-faint) 18%, transparent);
+  border-radius: 14px;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--db-color-surface-raised), color-mix(in srgb, var(--db-color-surface-raised) 60%, var(--db-color-surface-bg)));
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.12s;
+}
+.ocard:hover {
+  border-color: color-mix(in srgb, var(--db-color-neon-pink) 45%, transparent);
+  transform: translateY(-2px);
+}
+.othumb {
+  aspect-ratio: 16 / 10;
+}
+.obody {
+  padding: 15px 16px 17px;
+}
+.otitle {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.desig {
+  font-family: var(--db-font-mono-code);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--db-color-text-faint);
+}
+.nm {
+  font-family: var(--db-font-display-major);
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 1.15;
+}
+.otype {
+  font-family: var(--db-font-mono-code);
+  font-size: 11px;
+  color: var(--db-color-text-dim);
+  margin-top: 4px;
+}
+.ometa {
+  display: flex;
+  gap: 18px;
+  margin: 14px 0;
+}
+.k {
+  font-family: var(--db-font-mono-code);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--db-color-text-faint);
+}
+.v {
+  font-family: var(--db-font-display);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--db-color-text-primary);
+  margin-top: 4px;
+}

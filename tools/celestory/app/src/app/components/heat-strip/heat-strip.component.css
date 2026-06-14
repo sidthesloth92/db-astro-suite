@@ -1,0 +1,187 @@
+:host {
+  display: block;
+}
+.hs-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--db-color-neon-pink) 40%, transparent) transparent;
+}
+.hs-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+.hs-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.hs-scroll::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--db-color-neon-pink) 32%, transparent);
+  border-radius: 999px;
+}
+.hs-track {
+  position: relative;
+}
+.hs-base {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: color-mix(in srgb, var(--db-color-text-faint) 32%, transparent);
+}
+
+/* Month ticks */
+.hs-month {
+  position: absolute;
+  transform: translateX(-50%);
+}
+.hs-month::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -5px;
+  width: 1px;
+  height: 10px;
+  background: color-mix(in srgb, var(--db-color-text-faint) 26%, transparent);
+}
+.hs-month-lbl {
+  position: absolute;
+  left: 50%;
+  top: 10px;
+  transform: translateX(-50%);
+  font-family: var(--db-font-mono-code);
+  font-size: 9.5px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  color: var(--db-color-text-faint);
+}
+
+/* Ordinary night stems */
+.hs-node {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 10px;
+  transform: translateX(-50%);
+}
+.hs-stem {
+  position: absolute;
+  left: 50%;
+  width: 2px;
+  transform: translateX(-50%);
+  border-radius: 1px;
+  background: color-mix(in srgb, var(--db-color-neon-pink) 58%, transparent);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--db-color-neon-pink) 32%, transparent);
+  transition: background 0.12s;
+}
+.hs-stem.on {
+  background: var(--db-color-neon-pink);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--db-color-neon-pink) 70%, transparent);
+}
+
+/* Milestone callouts */
+.hs-ms {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.hs-ms-line {
+  position: absolute;
+  left: 50%;
+  width: 1.5px;
+  transform: translateX(-50%);
+  background: color-mix(in srgb, var(--ms) 55%, transparent);
+}
+.hs-ms-dot {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: var(--ms);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--ms) 80%, transparent);
+}
+.hs-ms-chip {
+  position: absolute;
+  transform: translateX(-50%);
+  pointer-events: none;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--ms) 50%, transparent);
+  background: color-mix(in srgb, var(--db-color-surface-bg) 82%, transparent);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--ms) 14%, transparent);
+  backdrop-filter: blur(3px);
+  white-space: nowrap;
+}
+.hs-ms-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.hs-ms-bdot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ms);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--ms) 70%, transparent);
+}
+.hs-ms-big {
+  font-family: var(--db-font-display-major);
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1;
+  color: var(--ms);
+}
+.hs-ms-small {
+  font-family: var(--db-font-mono-code);
+  font-size: 8.5px;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  color: var(--db-color-text-dim);
+}
+
+/* Hover tooltip */
+.hs-tip {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  z-index: 5;
+  pointer-events: none;
+  min-width: 130px;
+  white-space: nowrap;
+  padding: 9px 12px;
+  border-radius: 10px;
+  background: var(--db-color-surface-raised);
+  border: 1px solid color-mix(in srgb, var(--db-color-neon-pink) 30%, transparent);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5);
+}
+.t-date {
+  font-family: var(--db-font-mono-code);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  color: var(--db-color-text-faint);
+}
+.t-int {
+  font-family: var(--db-font-display);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--db-color-neon-pink);
+  margin: 2px 0;
+}
+.t-sub {
+  font-family: var(--db-font-mono-code);
+  font-size: 10px;
+  color: var(--db-color-text-dim);
+}
+.hs-cap,
+.hs-empty {
+  margin-top: 14px;
+  text-align: center;
+  font-family: var(--db-font-mono-code);
+  font-size: 11px;
+  color: var(--db-color-text-faint);
+}

@@ -1,7 +1,7 @@
 // Command celestory scans a folder of astrophotography FITS captures and
-// emits a per-object integration-timeline + equipment ledger (ledger.json).
+// emits a per-object integration-timeline + equipment ledger (celestory.json).
 // Run with no arguments for an interactive wizard, or pass -input for a
-// scriptable run. Upload the resulting ledger.json to the Celestory web app to
+// scriptable run. Upload the resulting celestory.json to the Celestory web app to
 // chart your journey. Read-only: it never modifies the scanned files.
 package main
 
@@ -23,6 +23,13 @@ type cliFlags struct {
 	showConfig   bool
 	verifyHash   bool
 	showVersion  bool
+	profile      string // configure the profile handle stamped into the ledger
+	profileSet   bool   // whether -profile was passed (distinguishes "" from absent)
+	prune        bool   // reconcile the scanned root (drop within-root deletions)
+	fresh        bool   // wipe the cumulative index, then rebuild from this scan
+	reset        bool   // wipe the cumulative index and exit
+	forget       string // drop a single root partition from the cumulative index
+	assumeYes    bool   // skip the confirmation prompt for destructive operations
 }
 
 func main() {
@@ -45,8 +52,27 @@ func parseFlags() cliFlags {
 	flag.BoolVar(&f.noCache, "no-cache", false, "do not read or write the scan cache")
 	flag.BoolVar(&f.showConfig, "config", false, "print the output, cache, and config locations, then exit")
 	flag.BoolVar(&f.verifyHash, "verify-hash", false, "detect changes by FITS-header hash instead of size+mtime")
+	flag.StringVar(&f.profile, "profile", "", "set your Celestory username (pre-fills publishing; stable owner anchor)")
+	flag.BoolVar(&f.prune, "prune", false, "reconcile the scanned folder: drop frames whose files were deleted from it")
+	flag.BoolVar(&f.fresh, "fresh", false, "wipe the cumulative library index, then rebuild from this scan")
+	flag.BoolVar(&f.reset, "reset", false, "wipe the cumulative library index and exit (FITS files are untouched)")
+	flag.StringVar(&f.forget, "forget", "", "drop a folder you no longer own from the cumulative library index")
+	flag.BoolVar(&f.assumeYes, "yes", false, "skip the confirmation prompt for -reset / -fresh / -forget")
 	flag.BoolVar(&f.showVersion, "v", false, "print version and exit")
 	flag.BoolVar(&f.showVersion, "version", false, "print version and exit")
 	flag.Parse()
+	f.profileSet = wasFlagPassed("profile")
 	return f
+}
+
+// wasFlagPassed reports whether the named flag was explicitly set on the command
+// line (so an empty -profile "" can clear a saved handle, distinct from absent).
+func wasFlagPassed(name string) bool {
+	found := false
+	flag.Visit(func(fl *flag.Flag) {
+		if fl.Name == name {
+			found = true
+		}
+	})
+	return found
 }

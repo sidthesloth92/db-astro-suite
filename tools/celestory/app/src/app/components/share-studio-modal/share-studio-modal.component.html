@@ -1,0 +1,236 @@
+<div class="overlay" (click)="onBackdrop($event)">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="ss-title">
+
+    <div class="studio">
+      <!-- LEFT: canvas preview panel -->
+      <div class="preview-panel">
+        <button class="back-btn" type="button" (click)="closed.emit()" aria-label="Back to all assets">
+          <svg viewBox="0 0 16 16" fill="none" width="14" height="14" aria-hidden="true">
+            <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          All assets
+        </button>
+
+        <div class="preview">
+          <canvas #cv class="card-canvas" aria-label="Share card preview"></canvas>
+          @if (mode() === 'carousel') {
+            <div class="pager">
+              <button class="pg-btn" type="button" (click)="prevSlide()" [disabled]="slideIndex() === 0" aria-label="Previous slide">‹</button>
+              <div class="dots">
+                @for (i of slides; track i) {
+                  <button
+                    class="dot"
+                    type="button"
+                    [class.on]="slideIndex() === i"
+                    (click)="goSlide(i)"
+                    [attr.aria-label]="'Slide ' + (i + 1)"
+                  ></button>
+                }
+              </div>
+              <button class="pg-btn" type="button" (click)="nextSlide()" [disabled]="slideIndex() === slideCount - 1" aria-label="Next slide">›</button>
+            </div>
+          }
+        </div>
+
+        <p class="canvas-caption">{{ selectedStory().label }}</p>
+      </div>
+
+      <!-- RIGHT: scrollable controls -->
+      <div class="controls">
+        <p class="ctrl-eyebrow">{{ modeLabel() }}</p>
+        <h2 id="ss-title" class="ctrl-title">{{ selectedStory().label }}</h2>
+        <p class="ctrl-desc">{{ selectedStory().description }}</p>
+
+        <!-- Story Type dropdown -->
+        <div class="grp">
+          <span class="grp-label">Story Type</span>
+          <div class="sel-wrap">
+            <select class="sel" [value]="storyType()" (change)="onStoryType($event)" aria-label="Story type">
+              @for (t of storyTypes; track t.id) {
+                <option [value]="t.id">{{ t.label }}</option>
+              }
+            </select>
+            <svg class="sel-caret" viewBox="0 0 12 12" fill="none" width="11" height="11" aria-hidden="true">
+              <path d="M3 4.5L6 7.5l3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Your name & handle — updates the slide identity live (and the portfolio hero) -->
+        <div class="grp grp-row">
+          <label class="grp-col">
+            <span class="grp-label">Your name</span>
+            <input
+              #idn
+              class="sel ss-id-input"
+              [value]="session.identity().name"
+              (input)="setIdentityName(idn.value)"
+              placeholder="Your name"
+              aria-label="Your name"
+            />
+          </label>
+          <label class="grp-col">
+            <span class="grp-label">Handle</span>
+            <input
+              #idh
+              class="sel ss-id-input"
+              [value]="session.identity().handle"
+              (input)="setIdentityHandle(idh.value)"
+              placeholder="handle"
+              aria-label="Your handle"
+            />
+          </label>
+        </div>
+
+        <!-- Timeframe -->
+        @if (availableYears().length) {
+          <div class="grp">
+            <span class="grp-label">Timeframe</span>
+            <div class="sel-wrap">
+              <select class="sel" [value]="yearFilter()" (change)="onYear($event)" aria-label="Timeframe">
+                <option value="all-time">All time</option>
+                @for (y of availableYears(); track y) {
+                  <option [value]="y.toString()">{{ y }}</option>
+                }
+              </select>
+              <svg class="sel-caret" viewBox="0 0 12 12" fill="none" width="11" height="11" aria-hidden="true">
+                <path d="M3 4.5L6 7.5l3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </div>
+        }
+
+        <!-- Theme: 16 named colour squares -->
+        <div class="grp">
+          <span class="grp-label">Theme</span>
+          <div class="theme-squares">
+            @for (t of themes; track t.id) {
+              <button
+                type="button"
+                class="tsq"
+                [class.on]="themeId() === t.id"
+                [style.background]="t.swatch"
+                (click)="selectTheme(t.id)"
+                [attr.aria-label]="t.label"
+                [title]="t.label"
+              ></button>
+            }
+          </div>
+        </div>
+
+        <!-- Format shape buttons -->
+        <div class="grp">
+          <span class="grp-label">Format</span>
+          <div class="formats">
+            @for (f of formats; track f.id) {
+              <button type="button" class="fmt" [class.on]="formatId() === f.id" (click)="selectFormat(f.id)">
+                <span class="fmt-ico">
+                  @switch (f.id) {
+                    @case ('square') {
+                      <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                        <rect x="3" y="3" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                      </svg>
+                    }
+                    @case ('story') {
+                      <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                        <rect x="5" y="1" width="10" height="18" rx="2.5" stroke="currentColor" stroke-width="1.5"/>
+                        <circle cx="10" cy="17" r="1" fill="currentColor" opacity="0.5"/>
+                      </svg>
+                    }
+                    @default {
+                      <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                        <rect x="1" y="5" width="18" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                      </svg>
+                    }
+                  }
+                </span>
+                <span class="fmt-info">
+                  <span class="fmt-name">{{ f.label }}</span>
+                  <span class="fmt-sub">{{ f.sub }}</span>
+                </span>
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions">
+          <!-- Download split button -->
+          <div class="dl-wrap">
+            <button class="btn-dl" type="button" (click)="downloadAs(dlFormat())">
+              <svg viewBox="0 0 16 16" fill="none" width="15" height="15" aria-hidden="true">
+                <path d="M8 1.5v9M4.5 7l3.5 4 3.5-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M2 13.5h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+              Download {{ dlFormat() === 'png' ? 'PNG' : 'JPEG' }}
+            </button>
+            <button class="btn-dl-caret" type="button" (click)="toggleDownloadMenu()" aria-label="Choose download format">
+              <svg viewBox="0 0 14 14" fill="none" width="13" height="13" aria-hidden="true">
+                <path d="M3 5l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            @if (showDownloadMenu()) {
+              <div class="dl-menu" role="menu">
+                <button type="button" class="dl-opt" [class.on]="dlFormat() === 'png'" (click)="setDlFormat('png')" role="menuitem">
+                  PNG <span class="dl-opt-sub">lossless</span>
+                </button>
+                <button type="button" class="dl-opt" [class.on]="dlFormat() === 'jpeg'" (click)="setDlFormat('jpeg')" role="menuitem">
+                  JPEG <span class="dl-opt-sub">smaller file</span>
+                </button>
+              </div>
+            }
+          </div>
+
+          <!-- Share button (line-style icon) -->
+          <button class="btn-share" type="button" (click)="share()">
+            <svg viewBox="0 0 16 16" fill="none" width="15" height="15" aria-hidden="true">
+              <path d="M8 10V2M5 5l3-3 3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M3 9v4a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+            Share
+          </button>
+
+          <!-- Copy to clipboard -->
+          <button class="btn-share" type="button" (click)="copy()" aria-label="Copy to clipboard">
+            <svg viewBox="0 0 16 16" fill="none" width="15" height="15" aria-hidden="true">
+              <rect x="5" y="5" width="9" height="9" rx="2" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M11 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h1" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+            Copy
+          </button>
+        </div>
+
+        @if (flash()) {
+          <p class="flash-msg" role="status">{{ flash() }}</p>
+        }
+
+        <!-- Published: invite sharing the public link -->
+        @if (isPublished()) {
+          <div class="share-link-row">
+            <span class="grp-label">Share your link</span>
+            <div class="dest-row">
+              @for (d of destinations; track d.short) {
+                <button class="dest" type="button" (click)="openDestination(d.url)" [title]="d.label" [attr.aria-label]="d.label">
+                  {{ d.short }}
+                </button>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Private: invite publishing first -->
+        @if (isPrivate()) {
+          <button class="btn-publish-cta" type="button" (click)="openPublish.emit()">
+            <svg viewBox="0 0 20 20" fill="none" width="16" height="16" aria-hidden="true">
+              <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M3 10h14M10 3c2 2 2 12 0 14M10 3c-2 2-2 12 0 14" stroke="currentColor" stroke-width="1.4"/>
+            </svg>
+            Publish &amp; claim your profile
+          </button>
+        }
+
+        <p class="footer-note">{{ currentFormatDims() }} · nothing leaves your device</p>
+      </div>
+    </div>
+  </div>
+</div>

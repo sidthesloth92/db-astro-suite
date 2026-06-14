@@ -1,0 +1,23 @@
+<article class="ocard" (click)="open.emit(obj().id)">
+  <div class="othumb"><dba-object-image [objectId]="obj().id" [category]="obj().category" [icon]="icon()" label="Add image" /></div>
+  <div class="obody">
+    <div class="otitle">
+      @if (obj().designation) {
+        <span class="desig">{{ obj().designation }}</span>
+      }
+      <span class="nm">{{ obj().displayName }}</span>
+    </div>
+    <div class="otype">{{ obj().type || obj().category }}</div>
+    <div class="ometa">
+      <div class="m">
+        <div class="k">Integration</div>
+        <div class="v">{{ dur(obj().totalIntegrationSeconds) }}</div>
+      </div>
+      <div class="m">
+        <div class="k">Frames</div>
+        <div class="v">{{ count(obj().lightFrameCount) }}</div>
+      </div>
+    </div>
+    <dba-filter-distribution [filters]="obj().filters" [legend]="false" />
+  </div>
+</article>

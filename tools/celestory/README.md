@@ -5,7 +5,7 @@
 Point Celestory at a folder of captures and it recursively reads the **FITS
 headers** (never the pixel data), figures out every **object** you've imaged, the
 **equipment** and **filters** you used, and the **integration hours per object over
-time** — then writes a single `ledger.json`. Upload it to the
+time** — then writes a single `celestory.json`. Upload it to the
 [Celestory web app](https://celestory.dbastrosuite.com) to chart your journey.
 
 Everything runs **locally**. Your files never leave your machine, and Celestory
@@ -38,7 +38,7 @@ scoop install celestory
 celestory
 ```
 
-The wizard asks which folder your images are in and where to save `ledger.json`,
+The wizard asks which folder your images are in and where to save `celestory.json`,
 then scans and writes it. Drop that file onto the Celestory web app to visualise.
 
 **Scriptable:**
@@ -50,18 +50,18 @@ celestory -input /path/to/captures -out /path/to/output
 ## See your stats
 
 Open the [Celestory web app](https://celestory.dbastrosuite.com) and drop your
-`ledger.json` onto the page. It renders **100% in your browser** — nothing is
+`celestory.json` onto the page. It renders **100% in your browser** — nothing is
 uploaded, and your data never leaves your machine. From there you can explore your
 whole imaging journey and export gallery-grade cards to share.
 
 ## Where your files are saved
 
-By default `ledger.json` lands in the folder you ran the command from (the wizard
+By default `celestory.json` lands in the folder you ran the command from (the wizard
 lets you choose). Celestory prints the full path when it finishes, and `-out`
 overrides where it goes:
 
-- `-out /some/dir` → writes `ledger.json` into that directory.
-- `-out /some/dir/ledger.json` → names the file directly.
+- `-out /some/dir` → writes `celestory.json` into that directory.
+- `-out /some/dir/celestory.json` → names the file directly.
 
 ## Flags
 
@@ -89,14 +89,14 @@ new/changed files are parsed. Re-runs drop from minutes to seconds.
 - `-rebuild-cache` re-parses everything and rebuilds the cache; `-no-cache` disables it entirely.
 - `-verify-hash` swaps the size+mtime check for a hash of the FITS header bytes (more
   certain, a little more I/O).
-- On the first interactive run you're asked where the cache should live (default: your
-  OS cache directory); the choice is remembered. `-config` prints the location.
+- The cache lives in your OS cache directory automatically — no setup needed. `-config`
+  prints its location (alongside your output and history-index paths).
 
 ## Duplicates
 
 If the same sub is sitting in two places (e.g. a working copy and a backup), it's
 **counted once** toward your integration and **reported** so you know — Celestory
-never deletes anything. Duplicates appear in `ledger.json → duplicates`, in the
+never deletes anything. Duplicates appear in `celestory.json → duplicates`, in the
 summary, and on the terminal.
 
 ## Supported capture programs

@@ -1,0 +1,125 @@
+<section class="detail">
+  <div class="detail-top">
+    @if (!embedded()) {
+      <button class="backlink" type="button" (click)="back.emit()">
+        <dba-cel-icon name="back" [size]="14" /> All objects
+      </button>
+    }
+    <button class="sharebtn" type="button" (click)="showShare.set(true)">
+      <dba-cel-icon name="share" [size]="14" /> Share this target
+    </button>
+  </div>
+
+  @if (showShare()) {
+    <dba-object-share-modal
+      [obj]="obj()"
+      [ledger]="ledger()"
+      (closed)="showShare.set(false)"
+    />
+  }
+
+  <div class="detail-head">
+    <div class="dhero"><dba-object-image [objectId]="obj().id" [category]="obj().category" [icon]="icon()" label="Click to add your image" /></div>
+    <div class="dtitle">
+      @if (obj().designation) {
+        <div class="desig">{{ obj().designation }}</div>
+      }
+      <h1>{{ obj().displayName }}</h1>
+      <div class="otype">{{ obj().type || obj().category }}</div>
+
+      @if (altaz(); as aa) {
+        <div class="dpos">
+          <span class="sky-updot" [class.up]="aa.alt > 0"></span>
+          {{ aa.alt > 0 ? 'Above horizon now' : 'Below the horizon' }}
+          <span class="sep">·</span> alt {{ round(aa.alt) }}° · az {{ round(aa.az) }}°
+        </div>
+      }
+
+      <div class="dstats">
+        <div class="cell"><div class="k">Total integration</div><div class="v glow">{{ dur(obj().totalIntegrationSeconds) }}</div></div>
+        <div class="cell"><div class="k">Light frames</div><div class="v">{{ count(obj().lightFrameCount) }}</div></div>
+        <div class="cell"><div class="k">First light</div><div class="v">{{ date(obj().firstLight) }}</div></div>
+        <div class="cell"><div class="k">Latest session</div><div class="v">{{ date(obj().latestSession) }}</div></div>
+      </div>
+
+      @if (obj().aliases.length) {
+        <div class="aliases">
+          @for (a of obj().aliases; track a) {
+            <span class="chip">{{ a }}</span>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="dsection">
+    <h2 class="dsec-title">Per-filter integration</h2>
+    <div class="panel">
+      @if (rows().length) {
+        <div class="fint-grid">
+          @for (f of rows(); track f.name) {
+            <div class="fint">
+              <div class="fint-top">
+                <span class="fint-label" [style.color]="f.color">{{ f.label }}</span>
+                <span class="fint-time">{{ dur(f.seconds) }}</span>
+              </div>
+              <div class="fint-track"><span class="fint-fill" [style.width.%]="f.frac * 100" [style.background]="f.color"></span></div>
+              <div class="fint-sub">@if (f.frames) {{{ count(f.frames) }} × {{ f.avg }}s · }{{ f.pct }}%</div>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="muted">No filter data recorded.</div>
+      }
+    </div>
+  </div>
+
+  <div class="dsection">
+    <h2 class="dsec-title">Equipment used</h2>
+    <div class="gearrow">
+      @for (e of gear(); track e.id) {
+        <button class="chip link" type="button" (click)="openEquipment.emit(e.id)">
+          <dba-cel-icon [name]="gearIcon(e)" [size]="13" /> {{ e.displayName }}
+        </button>
+      } @empty {
+        <span class="muted">No equipment recorded.</span>
+      }
+    </div>
+  </div>
+
+  <div class="dsection">
+    <div class="dsec-head">
+      <h2 class="dsec-title">Imaging sessions</h2>
+      <span class="dsec-count">{{ sessions().length }} nights</span>
+    </div>
+    @if (sessions().length) {
+      <div class="timeline">
+        <div class="track">
+          <div class="spine"></div>
+          @for (s of sessions(); track s.date) {
+            <div class="tnode">
+              <div class="tdot"></div>
+              <div class="tdate">{{ date(s.date) }}</div>
+              <div class="tint">{{ dur(s.integrationSeconds) }}</div>
+              <div class="tfilters">
+                @for (f of s.filters; track f.name) {
+                  <span class="tfc"><span class="tfdot" [style.background]="f.color"></span>{{ f.label }}</span>
+                }
+              </div>
+              @if (s.gearNames.length) {
+                <div class="tgear">
+                  @for (g of s.gearNames; track g) {
+                    <span>{{ g }}</span>
+                  }
+                </div>
+              }
+              <div class="tframes">{{ count(s.lightFrameCount) }} frames</div>
+            </div>
+          }
+        </div>
+      </div>
+    } @else {
+      <div class="muted">No sessions recorded.</div>
+    }
+  </div>
+</section>

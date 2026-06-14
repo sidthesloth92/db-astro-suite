@@ -1,17 +1,26 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { afterNextRender, ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { AnimatedStarryBackgroundComponent } from '@db-astro-suite/ui';
-import { StoryStatsComponent } from '../components/story-stats/story-stats.component';
+import { ConstellationFieldComponent } from '@db-astro-suite/ui';
+import { CelestoryWordmarkComponent } from '../components/celestory-wordmark/celestory-wordmark.component';
+import { JourneyViewComponent } from '../components/journey-view/journey-view.component';
+import { ProcessingRevealComponent } from '../components/processing-reveal/processing-reveal.component';
 import { PreviewStore } from '../services/preview-store.service';
 
 /**
- * ① Visualise — renders the staged ledger entirely client-side. Nothing was
- * uploaded; a hard reload clears the in-memory store and shows the empty state.
+ * Private Preview — renders the staged ledger entirely client-side in the shared
+ * journey shell (banner + actions). Nothing was uploaded; a hard reload clears
+ * the in-memory store and shows the empty state.
  */
 @Component({
   selector: 'dba-celestory-preview',
   standalone: true,
-  imports: [StoryStatsComponent, RouterLink, AnimatedStarryBackgroundComponent],
+  imports: [
+    RouterLink,
+    ConstellationFieldComponent,
+    JourneyViewComponent,
+    CelestoryWordmarkComponent,
+    ProcessingRevealComponent,
+  ],
   templateUrl: './preview.page.html',
   styleUrl: './preview.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -21,4 +30,15 @@ export default class PreviewPageComponent {
 
   /** The ledger staged by the landing page, or null on a fresh load. */
   protected readonly ledger = this.previewStore.ledger;
+  /** Plays the branded reveal once, right after an upload. */
+  protected readonly revealing = signal(false);
+
+  constructor() {
+    afterNextRender(() => {
+      if (this.previewStore.fresh() && this.ledger()) {
+        this.revealing.set(true);
+        this.previewStore.fresh.set(false);
+      }
+    });
+  }
 }

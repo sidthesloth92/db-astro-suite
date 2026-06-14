@@ -9,14 +9,25 @@ import (
 	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/scan"
 )
 
-// SchemaVersion is the version of the JSON contract this build emits.
-const SchemaVersion = 1
+// SchemaVersion is the version of the JSON contract this build emits. Bump it
+// whenever the celestory.json shape changes incompatibly so the web app can
+// detect ledgers from an older CLI and prompt the user to regenerate.
+//
+//	v2 — frame-fingerprint dedup + identity fields (installId/profileId/
+//	     dataFingerprint) + per-object ra/dec.
+const SchemaVersion = 2
 
-// Build is the top-level orchestrator: enrich → dedupe → per-object/equipment
-// rollups → summary → Ledger. Slices are always non-nil so the JSON arrays
-// render as [] rather than null.
+// Build is the top-level orchestrator for a single scan: enrich → assemble.
+// Slices are always non-nil so the JSON arrays render as [] rather than null.
 func Build(frames []scan.Frame, skipped []scan.Skipped, tool model.ToolInfo) model.Ledger {
 	lights, _ := Enrich(frames)
+	return Assemble(lights, skipped, tool)
+}
+
+// Assemble turns already-enriched light frames (e.g. the cumulative union across
+// every scanned disk) into the ledger: dedupe by FrameFP → per-object/equipment
+// rollups → summary → Ledger.
+func Assemble(lights []LightFrame, skipped []scan.Skipped, tool model.ToolInfo) model.Ledger {
 	dup := DetectDuplicates(lights)
 	objects := BuildObjects(dup.Deduped)
 	equip := equipment.BuildRegistry(toUsages(dup.Deduped))
@@ -99,6 +110,15 @@ func buildObject(frames []LightFrame) model.ObjectTimeline {
 		}
 	}
 
+	// Representative pointing: the first frame that carries coordinates.
+	var ra, dec *float64
+	for _, lf := range frames {
+		if lf.RA != nil && lf.Dec != nil {
+			ra, dec = lf.RA, lf.Dec
+			break
+		}
+	}
+
 	sessions := make([]model.Session, 0, len(nightOrder))
 	for _, k := range nightOrder {
 		sessions = append(sessions, buildSession(k, nights[k]))
@@ -123,6 +143,8 @@ func buildObject(frames []LightFrame) model.ObjectTimeline {
 		NightCount:              nightCount,
 		FirstLight:              dateString(first),
 		LatestSession:           dateString(last),
+		RA:                      ra,
+		Dec:                     dec,
 		Filters:                 filterIntegration(frames),
 		EquipmentIds:            sortedSet(equipIDs),
 		Sessions:                sessions,
@@ -138,24 +160,25 @@ func buildSession(key string, frames []LightFrame) model.Session {
 	return model.Session{
 		Date:               key,
 		IntegrationSeconds: total,
-		Frames:             len(frames),
+		LightFrameCount:    len(frames),
 		Filters:            filterIntegration(frames),
-		Equipment:          sessionEquipment(frames),
+		EquipmentIds:       sessionEquipmentIds(frames),
 	}
 }
 
-func sessionEquipment(frames []LightFrame) model.SessionEquipment {
+// sessionEquipmentIds derives the night's gear as ledger equipment ids, using the
+// same camera/optic identifiers an object carries so the web app resolves names.
+func sessionEquipmentIds(frames []LightFrame) []string {
+	ids := map[string]struct{}{}
 	for _, lf := range frames {
-		if lf.Camera != "" || lf.Telescope != "" || lf.Focal > 0 {
-			return model.SessionEquipment{
-				Camera:        lf.Camera,
-				Telescope:     lf.Telescope,
-				FocalLengthMm: lf.Focal,
-			}
+		if id := equipment.CameraID(lf.Camera); id != "" {
+			ids[id] = struct{}{}
+		}
+		if id := equipment.OpticID(lf.Telescope, lf.Focal); id != "" {
+			ids[id] = struct{}{}
 		}
 	}
-	head := frames[0]
-	return model.SessionEquipment{Camera: head.Camera, Telescope: head.Telescope, FocalLengthMm: head.Focal}
+	return sortedSet(ids)
 }
 
 // filterIntegration aggregates frames into per-filter seconds + frame counts,

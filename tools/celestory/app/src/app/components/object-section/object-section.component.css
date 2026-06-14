@@ -1,0 +1,66 @@
+:host {
+  display: block;
+}
+.filters-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+.filter-sel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.fs-label {
+  font-family: var(--db-font-mono-code);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--db-color-text-faint);
+}
+.filter-sel select {
+  font-family: var(--db-font-display-major);
+  font-size: 13px;
+  color: var(--db-color-text-primary);
+  background: var(--db-color-surface-raised);
+  border: 1px solid color-mix(in srgb, var(--db-color-text-faint) 30%, transparent);
+  border-radius: 9px;
+  padding: 9px 12px;
+  cursor: pointer;
+  min-width: 150px;
+}
+.filter-sel select:focus {
+  outline: none;
+  border-color: var(--db-color-cyan);
+}
+.filter-count {
+  margin-left: auto;
+  align-self: center;
+  font-family: var(--db-font-mono-code);
+  font-size: 12px;
+  color: var(--db-color-text-faint);
+}
+.objgrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+.empty-note {
+  text-align: center;
+  font-family: var(--db-font-mono-code);
+  font-size: 13px;
+  color: var(--db-color-text-faint);
+  padding: 40px 0;
+}
+@media (min-width: 560px) {
+  .objgrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 880px) {
+  .objgrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

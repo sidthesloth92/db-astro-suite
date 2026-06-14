@@ -1,0 +1,65 @@
+<div class="os-overlay" (mousedown)="onBackdrop($event)">
+  <div class="os-modal" role="dialog" aria-modal="true">
+    <button class="os-close" type="button" (click)="closed.emit()" aria-label="Close">
+      <dba-cel-icon name="back" [size]="18" />
+    </button>
+
+    <div class="os-preview">
+      <div class="os-frame" [style.aspect-ratio]="aspect()">
+        <canvas #cv class="os-canvas"></canvas>
+      </div>
+    </div>
+
+    <div class="os-controls">
+      <div class="os-head">
+        <span class="eyebrow">Gear card</span>
+        <h2>{{ equip().displayName }}</h2>
+        <p class="os-desc">
+          A shareable snapshot of this {{ isCamera() ? 'camera' : 'optic' }} — integration, frames, targets &amp;
+          the objects it captured.
+        </p>
+      </div>
+
+      <div class="grp">
+        <span class="grp-label">Theme</span>
+        <div class="os-swatches">
+          @for (t of themes; track t.id) {
+            <button
+              type="button"
+              class="os-sw"
+              [class.on]="themeId() === t.id"
+              [style.background]="t.swatch"
+              [title]="t.label"
+              [attr.aria-label]="t.label"
+              (click)="selectTheme(t.id)"
+            ></button>
+          }
+        </div>
+      </div>
+
+      <div class="grp">
+        <span class="grp-label">Format</span>
+        <div class="os-formats">
+          @for (f of formats; track f.id) {
+            <button type="button" class="os-fmt" [class.on]="formatId() === f.id" (click)="selectFormat(f.id)">
+              {{ f.label }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="os-actions">
+        <button class="os-dl" type="button" (click)="download()">
+          <dba-cel-icon name="download" [size]="15" /> {{ flash() || 'Download PNG' }}
+        </button>
+        <button class="os-act" type="button" (click)="share()" aria-label="Share">
+          <dba-cel-icon name="share" [size]="15" /> Share
+        </button>
+        <button class="os-act" type="button" (click)="copy()" aria-label="Copy to clipboard">
+          <dba-cel-icon name="copy" [size]="15" /> Copy
+        </button>
+      </div>
+      <p class="os-note">Rendered in your browser · nothing leaves your device</p>
+    </div>
+  </div>
+</div>

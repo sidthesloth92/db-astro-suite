@@ -10,6 +10,8 @@ type Resolved struct {
 	Aliases     []string // all known designations for the object
 	Type        *string  // fine type (e.g. "Spiral Galaxy"); nil if unresolved
 	Category    string   // coarse UI bucket; "Other" if unresolved
+	RA          *float64 // J2000 right ascension (decimal degrees); nil if unknown
+	Dec         *float64 // J2000 declination (decimal degrees); nil if unknown
 }
 
 // Resolve canonicalizes a raw OBJECT header value into a single identity,
@@ -77,5 +79,7 @@ func fromEntry(e *catalogEntry) Resolved {
 		Aliases:     aliases,
 		Type:        typ,
 		Category:    category,
+		RA:          e.RA,
+		Dec:         e.Dec,
 	}
 }

@@ -1,25 +1,24 @@
-<dba-ui-animated-starry-background>
-  <div class="neb" aria-hidden="true"></div>
-
-  <main class="preview">
-    <header class="bar">
-      <a class="brand" routerLink="/">
-        <span class="glyph"></span>
-        <span class="name">Cele<b>story</b></span>
-      </a>
-    </header>
-
-    @if (ledger(); as l) {
-      <p class="kicker">Celestory · Preview · Nothing uploaded</p>
-      <dba-story-stats [ledger]="l" />
-      <p class="hint">
-        Like it? <a routerLink="/">Create a shareable link →</a>
-      </p>
-    } @else {
+@if (ledger(); as l) {
+  <dba-journey-view state="preview" [ledger]="l" />
+  @if (revealing()) {
+    <dba-processing-reveal
+      [seconds]="l.summary.totalIntegrationSeconds"
+      (done)="revealing.set(false)"
+    />
+  }
+} @else {
+  <dba-ui-constellation-field>
+    <div class="neb" aria-hidden="true"></div>
+    <main class="preview">
+      <header class="bar">
+        <a class="brand" routerLink="/">
+          <dba-celestory-wordmark />
+        </a>
+      </header>
       <div class="empty">
         <p>Nothing to preview yet.</p>
-        <a class="btn" routerLink="/">Start from your ledger.json →</a>
+        <a class="btn" routerLink="/">Start from your celestory.json →</a>
       </div>
-    }
-  </main>
-</dba-ui-animated-starry-background>
+    </main>
+  </dba-ui-constellation-field>
+}

@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { BreakpointService } from '@db-astro-suite/ui';
-import { ConstellationFieldComponent } from './components/constellation-field/constellation-field';
+import { BreakpointService, ConstellationFieldComponent } from '@db-astro-suite/ui';
 import { DesktopShellComponent } from './layout/desktop-shell/desktop-shell.component';
 import { MobileShellComponent } from './layout/mobile-shell/mobile-shell.component';
 

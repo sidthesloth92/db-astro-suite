@@ -1,0 +1,37 @@
+:host {
+  display: block;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.cf-wrap {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background: var(--db-color-surface-bg);
+  overflow: hidden;
+}
+
+/* Viewport-fixed backdrop: the field stays put and fills the visible screen
+   while projected content scrolls over it. This keeps the star density and the
+   tagged anchor stars on-screen on pages taller than the viewport (without it,
+   an absolutely-positioned canvas stretches to the full content height and the
+   handful of anchor stars get scattered far below the fold). Sits behind the
+   content (z-index 0) and never intercepts pointer events — parallax is driven
+   by a window-level pointermove listener instead. */
+.cf-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.cf-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+}

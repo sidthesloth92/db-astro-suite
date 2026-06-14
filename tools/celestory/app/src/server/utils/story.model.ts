@@ -46,11 +46,25 @@ export interface ExtractedRows {
   filters: StoryFilterRow[];
 }
 
-/** Community aggregates for the landing page. */
+/** Community aggregates for the landing page, replayed from the upload log. */
 export interface CommunityStats {
-  storyCount: number;
+  /** Distinct owners (latest snapshot per profile id, else install id). */
+  attemptCount: number;
   totalIntegrationSeconds: number;
   objectCount: number;
-  nightCount: number;
   lightFrameCount: number;
+}
+
+/**
+ * One anonymous upload event appended to the log on visualise/publish. Carries
+ * no ledger contents — only the install anchor and three headline integers. The
+ * profile id is never read from the client; it is assigned server-side by the
+ * password-gated publish claim.
+ */
+export interface LedgerUpload {
+  installId: string;
+  dataFingerprint: string;
+  totalIntegrationSeconds: number;
+  lightFrameCount: number;
+  objectCount: number;
 }

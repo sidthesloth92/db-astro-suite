@@ -1,0 +1,248 @@
+/**
+ * Journey shell — DB Astro Suite skin (matches landing/preview). Bare-bones
+ * banner + actions layout; final design lands later. Theme tokens only.
+ */
+:host {
+  display: block;
+}
+
+.neb {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(900px 620px at 82% -6%, color-mix(in srgb, var(--db-color-neon-pink) 12%, transparent), transparent 60%),
+    radial-gradient(820px 600px at 6% 8%, color-mix(in srgb, var(--db-color-cyan) 9%, transparent), transparent 62%);
+}
+
+.journey {
+  position: relative;
+  z-index: 2;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: clamp(0.5rem, 3vw, 1.5rem) 1.25rem clamp(3rem, 8vw, 5rem);
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  padding: 14px 0 clamp(1rem, 4vw, 2rem);
+}
+.bar-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.bar-actions .btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  padding: 9px 14px;
+  text-decoration: none;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  text-decoration: none;
+  color: var(--db-color-text-primary);
+}
+.glyph {
+  width: 28px;
+  height: 28px;
+  position: relative;
+  flex: none;
+}
+.glyph::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid var(--db-color-neon-pink);
+  box-shadow:
+    0 0 14px color-mix(in srgb, var(--db-color-neon-pink) 50%, transparent),
+    inset 0 0 9px color-mix(in srgb, var(--db-color-neon-pink) 30%, transparent);
+}
+.glyph::after {
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  top: 3px;
+  right: 2px;
+  background: var(--db-color-cyan);
+  box-shadow: 0 0 8px var(--db-color-cyan);
+}
+.name {
+  font-family: var(--db-font-display-major);
+  font-size: 21px;
+  font-weight: 700;
+}
+.name b {
+  color: var(--db-color-neon-pink);
+}
+
+/* Banner */
+.banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9rem;
+  padding: 0.9rem 1.1rem;
+  border-radius: 12px;
+  margin-bottom: 1.1rem;
+  border: 1px solid color-mix(in srgb, var(--db-color-text-faint) 28%, transparent);
+  background: color-mix(in srgb, var(--db-color-text-faint) 8%, transparent);
+}
+.banner--demo {
+  border-color: color-mix(in srgb, var(--db-color-cyan) 40%, transparent);
+}
+.banner--preview {
+  border-color: color-mix(in srgb, var(--db-color-neon-pink) 40%, transparent);
+}
+.banner--published {
+  border-color: color-mix(in srgb, var(--db-color-cyan) 45%, transparent);
+  flex-direction: column;
+  align-items: stretch;
+}
+.banner-main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9rem;
+}
+.banner-token {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid color-mix(in srgb, var(--db-color-text-faint) 22%, transparent);
+}
+.banner-token-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--db-color-text-dim);
+}
+.banner-token-code {
+  font-family: var(--db-font-mono-code);
+  font-size: 12px;
+  color: var(--db-color-cyan);
+  background: color-mix(in srgb, var(--db-color-cyan) 10%, transparent);
+  padding: 4px 9px;
+  border-radius: 7px;
+  user-select: all;
+}
+.banner-token-copy {
+  font-size: 0.74rem;
+  color: var(--db-color-text-primary);
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--db-color-text-faint) 35%, transparent);
+  border-radius: 7px;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+.banner-token-hint {
+  font-size: 0.74rem;
+  color: var(--db-color-text-faint);
+}
+.banner-token-del {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.76rem;
+  color: var(--db-color-neon-pink);
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--db-color-neon-pink) 38%, transparent);
+  border-radius: 7px;
+  padding: 5px 11px;
+  cursor: pointer;
+}
+.banner--published .banner-actions .btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.banner-ico {
+  flex: none;
+  line-height: 0;
+  align-self: flex-start;
+  margin-top: 2px;
+}
+.banner--demo .banner-ico {
+  color: var(--db-color-cyan);
+}
+.banner--preview .banner-ico {
+  color: var(--db-color-neon-pink);
+}
+.banner--published .banner-ico {
+  color: var(--db-color-cyan);
+}
+.banner-txt {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+  flex: 1;
+}
+.banner-txt strong {
+  font-family: var(--db-font-display-major);
+  font-size: 0.95rem;
+}
+.banner-txt span {
+  color: var(--db-color-text-dim);
+  font-size: 0.85rem;
+}
+.banner-txt .url {
+  font-family: var(--db-font-mono-code);
+  font-size: 12px;
+  color: var(--db-color-cyan);
+  margin-top: 0.2rem;
+  overflow-x: auto;
+}
+.banner-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+/* Actions row */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 1.6rem;
+}
+
+.btn-primary,
+.btn-ghost {
+  font-family: var(--db-font-display-major);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: 9px;
+  padding: 11px 20px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-primary {
+  color: var(--db-color-text-primary);
+  background: var(--db-color-neon-pink);
+  border: 1px solid transparent;
+}
+.btn-ghost {
+  color: var(--db-color-text-primary);
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--db-color-text-faint) 40%, transparent);
+}

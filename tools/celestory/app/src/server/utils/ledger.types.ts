@@ -84,6 +84,10 @@ export interface ObjectTimeline {
   nightCount: number;
   firstLight: string;
   latestSession: string;
+  /** J2000 right ascension in decimal degrees; absent when unknown. */
+  ra?: number;
+  /** J2000 declination in decimal degrees; absent when unknown. */
+  dec?: number;
   filters: FilterIntegration[];
   equipmentIds: string[];
   sessions: Session[];
@@ -101,6 +105,10 @@ export interface Ledger {
   schemaVersion: number;
   generatedAt: string;
   tool: ToolInfo;
+  /** Stable per-install identity; empty for manual/legacy ledgers. */
+  installId: string;
+  /** Stable hash of the normalized data; empty for manual/legacy ledgers. */
+  dataFingerprint: string;
   summary: Summary;
   equipment: EquipmentItem[];
   objects: ObjectTimeline[];

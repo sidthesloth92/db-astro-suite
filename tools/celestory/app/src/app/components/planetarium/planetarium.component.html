@@ -1,0 +1,127 @@
+<div class="sky-root" #wrap>
+  <canvas class="sky-canvas" #cv></canvas>
+
+  <!-- targets overlay -->
+  <div class="sky-markers">
+    @for (t of targets(); track t.obj.id) {
+      <button
+        #marker
+        type="button"
+        class="sky-mk"
+        [style.--mk]="markerColor(t.obj)"
+        [title]="t.obj.displayName"
+        (click)="select(t.obj.id)"
+      >
+        <span class="sky-mk-thumb">
+          <span class="sky-mk-art">
+            <dba-object-image [objectId]="t.obj.id" [category]="t.obj.category" />
+          </span>
+        </span>
+        <span class="sky-mk-label">{{ t.obj.designation || t.obj.displayName }}</span>
+      </button>
+    }
+  </div>
+
+  <!-- top bar -->
+  <div class="sky-top">
+    <button class="sky-back" type="button" (click)="closed.emit()">
+      <dba-cel-icon name="back" [size]="15" /> Back to journey
+    </button>
+    <div class="sky-title">
+      <div class="sky-title-t">Your Universe</div>
+      <div class="sky-title-s">{{ dateStr() }}<span class="sep">·</span>{{ upCount() }} of {{ targets().length }} up now</div>
+    </div>
+
+    <!-- location -->
+    <div class="sky-loc">
+      <button class="sky-loc-btn" type="button" (click)="toggleLocation()">
+        <dba-cel-icon name="globe" [size]="13" />
+        <span>{{ locLabel(location()) }}</span>
+        @if (location().status === 'locating') {
+          <span class="sky-loc-dot locating"></span>
+        }
+      </button>
+      @if (locOpen()) {
+        <div class="sky-loc-pop">
+          <div class="sky-loc-row">
+            <label>
+              Latitude
+              <input [value]="latField()" (input)="latField.set($any($event.target).value)" inputmode="decimal" />
+            </label>
+            <label>
+              Longitude
+              <input [value]="lonField()" (input)="lonField.set($any($event.target).value)" inputmode="decimal" />
+            </label>
+          </div>
+          <label class="sky-loc-lab">
+            Place name (optional)
+            <input [value]="labelField()" (input)="labelField.set($any($event.target).value)" placeholder="Backyard, Tucson…" />
+          </label>
+          <div class="sky-loc-actions">
+            <button class="sky-loc-geo" type="button" (click)="locate()">
+              <dba-cel-icon name="globe" [size]="12" /> Use my location
+            </button>
+            <button class="sky-loc-save" type="button" (click)="saveLocation()">Save</button>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- controls -->
+  <div class="sky-ctrls">
+    <button type="button" (click)="zoom(1)" aria-label="Zoom out">−</button>
+    <button type="button" (click)="zoom(-1)" aria-label="Zoom in">+</button>
+    <button class="sky-reset" type="button" (click)="resetView()" aria-label="Reset view">
+      <dba-cel-icon name="globe" [size]="13" />
+    </button>
+    <button
+      class="sky-grid-toggle"
+      [class.on]="showGrid()"
+      type="button"
+      (click)="toggleGrid()"
+      aria-label="Toggle coordinate grid"
+      title="Coordinate grid"
+    >
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <path d="M3 9h18M3 15h18M9 3v18M15 3v18" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- legend -->
+  <div class="sky-legend">
+    <span><i class="lg horiz"></i> Horizon</span>
+    <span><i class="lg card"></i> Coordinate grid</span>
+    <span><i class="lg eq"></i> Celestial equator</span>
+    <span><i class="lg mer"></i> Meridian</span>
+  </div>
+
+  @if (hint()) {
+    <div class="sky-hint">Drag to look around · scroll to zoom · tap a target</div>
+  }
+
+  <!-- target popup: the full object page, embedded -->
+  @if (selected(); as t) {
+    <div class="sky-pop-wrap" (click)="closePopup()">
+      <div class="sky-pop sky-pop-detail" (click)="$event.stopPropagation()">
+        <div class="sky-pop-chrome">
+          <button class="sky-pop-x" type="button" (click)="closePopup()" aria-label="Close">
+            <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden="true">
+              <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+            </svg>
+          </button>
+        </div>
+        <div class="sky-pop-scroll">
+          <dba-object-detail
+            [obj]="t.obj"
+            [ledger]="ledger()"
+            [embedded]="true"
+            [altaz]="selectedAltAz()"
+            (openEquipment)="onOpenEquipment($event)"
+          />
+        </div>
+      </div>
+    </div>
+  }
+</div>

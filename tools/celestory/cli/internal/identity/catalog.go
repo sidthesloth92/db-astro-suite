@@ -24,6 +24,8 @@ type catalogEntry struct {
 	Category     string   `json:"category"`
 	Designations []string `json:"designations"`
 	AltNames     []string `json:"altNames"`
+	RA           *float64 `json:"ra,omitempty"`  // J2000 right ascension, decimal degrees
+	Dec          *float64 `json:"dec,omitempty"` // J2000 declination, decimal degrees
 }
 
 var (

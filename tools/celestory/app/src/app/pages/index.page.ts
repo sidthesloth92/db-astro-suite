@@ -1,5 +1,4 @@
-import { RouteMeta } from '@analogjs/router';
-import { HttpErrorResponse } from '@angular/common/http';
+import { RouteMeta } from "@analogjs/router";
 import {
   afterNextRender,
   ChangeDetectionStrategy,
@@ -11,45 +10,52 @@ import {
   inject,
   signal,
   viewChild,
-} from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { Router } from '@angular/router';
-import { AnimatedStarryBackgroundComponent } from '@db-astro-suite/ui';
-import { catchError, of } from 'rxjs';
-import type { CreateStoryResult } from '../models/api.model';
-import type { CommunityStats } from '../models/community-stats.model';
+} from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { Router } from "@angular/router";
+import { ConstellationFieldComponent } from "@db-astro-suite/ui";
+import { catchError, of } from "rxjs";
+import { CelestoryMarkComponent } from "../components/celestory-mark/celestory-mark.component";
+import { CelestoryWordmarkComponent } from "../components/celestory-wordmark/celestory-wordmark.component";
+import { UploadChoiceModalComponent } from "../components/upload-choice-modal/upload-choice-modal.component";
+import type { CommunityStats } from "../models/community-stats.model";
 import {
   HUB_URL,
   INSTALL_COMMANDS,
   INSTALL_LABELS,
   SCAN_COMMAND,
-} from '../models/landing.constants';
-import type { InstallTool, LandingMode } from '../models/landing.types';
-import type { CelestoryLedger } from '../models/ledger.model';
-import { SAMPLE_LEDGER } from '../models/sample-ledger.constants';
-import { PreviewStore } from '../services/preview-store.service';
-import { StoryService } from '../services/story.service';
-import { copyToClipboard } from '../utils/clipboard.util';
-import { formatCompact, formatCount } from '../utils/format.util';
+} from "../models/landing.constants";
+import type { InstallTool } from "../models/landing.types";
+import { SUPPORTED_LEDGER_SCHEMA_VERSION } from "../models/ledger.constants";
+import type { CelestoryLedger } from "../models/ledger.model";
+import { SAMPLE_HANDLE } from "../models/sample-ledger.constants";
+import { PreviewStore } from "../services/preview-store.service";
+import { StoryService } from "../services/story.service";
+import { copyToClipboard } from "../utils/clipboard.util";
+import { formatCompact, formatCount } from "../utils/format.util";
 
 /** Count-up animation duration, in milliseconds. */
 const COUNT_UP_MS = 1600;
 
 /**
- * Celestory landing + upload flow. Parses a dropped/chosen `ledger.json`
- * entirely client-side, then offers ① Visualise (hand off to /preview, nothing
- * uploaded) or ② Create (publish, get a URL + one-time key). Carries the
- * DB Astro Suite theme — animated starfield, neon-pink/cyan accents, and a
- * three-step "Get started" walkthrough.
+ * Celestory landing + upload flow (value-first). Parses a dropped/chosen
+ * `celestory.json` entirely client-side and routes straight to the Private
+ * Preview visualization — no intermediate decision. The secondary CTA opens the
+ * demo journey ("Vera"). Carries the DB Astro Suite theme — animated starfield,
+ * neon-pink/cyan accents, and a three-step "Get started" walkthrough.
  */
 @Component({
-  selector: 'dba-celestory-landing',
+  selector: "dba-celestory-landing",
   standalone: true,
-  imports: [AnimatedStarryBackgroundComponent],
-  templateUrl: './index.page.html',
-  styleUrl: './index.page.css',
+  imports: [
+    ConstellationFieldComponent,
+    CelestoryMarkComponent,
+    CelestoryWordmarkComponent,
+    UploadChoiceModalComponent,
+  ],
+  templateUrl: "./index.page.html",
+  styleUrl: "./index.page.css",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { '(document:keydown.escape)': 'onEscapeKey()' },
 })
 export default class LandingPageComponent {
   private readonly storyService = inject(StoryService);
@@ -57,27 +63,25 @@ export default class LandingPageComponent {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
-  /** Current step of the upload flow; drives the post-upload modal. */
-  protected readonly mode = signal<LandingMode>('idle');
   /** User-facing error message, or empty when there is none. */
-  protected readonly error = signal('');
-  /** Name of the loaded ledger file (or "sample data"). */
-  protected readonly fileName = signal('');
-  /** The chosen public handle for ② Create. */
-  protected readonly handle = signal('');
-  /** Whether a publish request is in flight. */
-  protected readonly creating = signal(false);
-  /** The created story (URL + one-time key), once published. */
-  protected readonly created = signal<CreateStoryResult | null>(null);
+  protected readonly error = signal("");
+  /** True between a successful parse and the navigation to the preview. */
+  protected readonly processing = signal(false);
   /** True while a file is being dragged over the page. */
   protected readonly dragActive = signal(false);
   /** Which copy button last flashed "Copied". */
-  protected readonly copied = signal('');
+  protected readonly copied = signal("");
+  /** Parsed ledger awaiting the visualise/create choice. */
+  protected readonly pendingLedger = signal<CelestoryLedger | null>(null);
+  /** Whether the post-upload "choose" modal is open. */
+  protected readonly showChoose = signal(false);
 
   /** Selected CLI install channel in the "Get started" walkthrough. */
-  protected readonly installTool = signal<InstallTool>('brew');
+  protected readonly installTool = signal<InstallTool>("brew");
   /** Install command for the selected channel. */
-  protected readonly installCommand = computed(() => INSTALL_COMMANDS[this.installTool()]);
+  protected readonly installCommand = computed(
+    () => INSTALL_COMMANDS[this.installTool()],
+  );
   /** Tab label per install channel. */
   protected readonly installLabels = INSTALL_LABELS;
   /** Scan command shown beneath the install command. */
@@ -97,35 +101,35 @@ export default class LandingPageComponent {
   private readonly progress = signal(0);
 
   /** The status section, observed so the count-up fires only when it scrolls in. */
-  private readonly statusSection = viewChild<ElementRef<HTMLElement>>('statusSection');
+  private readonly statusSection =
+    viewChild<ElementRef<HTMLElement>>("statusSection");
   /** True once the browser confirms motion is allowed and IntersectionObserver exists. */
   private readonly canAnimate = signal(false);
   /** Guards the one-shot observe/animate setup. */
   private animationStarted = false;
 
-  /** Animated "Astrophotographers" counter. */
-  protected readonly photographers = computed(() => {
+  /** Animated "Journeys charted" counter (deduped upload attempts). */
+  protected readonly journeys = computed(() => {
     const s = this.stats();
-    return s ? formatCount(s.storyCount * this.progress()) : '';
+    return s ? formatCount(s.attemptCount * this.progress()) : "";
   });
   /** Animated "Hours integrated" counter. */
   protected readonly hours = computed(() => {
     const s = this.stats();
-    return s ? formatCompact((s.totalIntegrationSeconds / 3600) * this.progress()) : '';
+    return s
+      ? formatCompact((s.totalIntegrationSeconds / 3600) * this.progress())
+      : "";
   });
   /** Animated "Objects charted" counter. */
   protected readonly objects = computed(() => {
     const s = this.stats();
-    return s ? formatCompact(s.objectCount * this.progress()) : '';
+    return s ? formatCompact(s.objectCount * this.progress()) : "";
   });
   /** Animated "Light frames" counter. */
   protected readonly frames = computed(() => {
     const s = this.stats();
-    return s ? formatCompact(s.lightFrameCount * this.progress()) : '';
+    return s ? formatCompact(s.lightFrameCount * this.progress()) : "";
   });
-
-  /** Parsed ledger held in memory (not rendered directly). */
-  private ledger: CelestoryLedger | null = null;
 
   /**
    * In the browser, decide how the count-up runs: with reduced-motion or no
@@ -134,9 +138,9 @@ export default class LandingPageComponent {
    */
   private readonly countUpHook = afterNextRender(() => {
     const prefersReduced =
-      typeof matchMedia !== 'undefined' &&
-      matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReduced || typeof IntersectionObserver === 'undefined') {
+      typeof matchMedia !== "undefined" &&
+      matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReduced || typeof IntersectionObserver === "undefined") {
       this.progress.set(1);
       return;
     }
@@ -197,76 +201,15 @@ export default class LandingPageComponent {
     this.dragActive.set(false);
   }
 
-  /**
-   * Loads the bundled sample ledger and jumps straight to the client-side
-   * preview — the choice modal is reserved for real uploads only.
-   */
+  /** Opens the bundled demo journey ("Vera") — the aspirational sample. */
   exploreSample(): void {
-    this.error.set('');
-    this.previewStore.ledger.set(SAMPLE_LEDGER);
-    void this.router.navigate(['/preview']);
-  }
-
-  /** Tracks the handle input. */
-  onHandleInput(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.handle.set(input.value);
+    this.error.set("");
+    void this.router.navigate(["/user", SAMPLE_HANDLE]);
   }
 
   /** Switches the displayed install channel. */
   selectInstall(tool: InstallTool): void {
     this.installTool.set(tool);
-  }
-
-  /** ① Visualise — stage the ledger and route to the client-side preview. */
-  chooseVisualise(): void {
-    if (!this.ledger) {
-      return;
-    }
-    this.previewStore.ledger.set(this.ledger);
-    void this.router.navigate(['/preview']);
-  }
-
-  /** Shows the handle form for ② Create. */
-  startCreate(): void {
-    this.error.set('');
-    this.mode.set('create');
-  }
-
-  /** Returns from the create form back to the two options. */
-  backToChoice(): void {
-    this.error.set('');
-    this.mode.set('choice');
-  }
-
-  /** ② Create — publish the ledger under the chosen handle. */
-  submitCreate(): void {
-    const handle = this.handle().trim().toLowerCase();
-    if (!this.ledger || !handle) {
-      return;
-    }
-    this.creating.set(true);
-    this.error.set('');
-    this.storyService.createStory(handle, this.ledger).subscribe({
-      next: (result) => {
-        this.creating.set(false);
-        this.created.set(result);
-        this.mode.set('created');
-      },
-      error: (err: HttpErrorResponse) => {
-        this.creating.set(false);
-        const code: unknown = err.error?.data?.code;
-        if (code === 'HANDLE_TAKEN') {
-          this.error.set('That handle is taken — try another.');
-        } else if (code === 'INVALID_HANDLE') {
-          this.error.set('Handles are 3–30 chars: lowercase letters, numbers and hyphens.');
-        } else if (code === 'INVALID_LEDGER') {
-          this.error.set('That file isn’t a valid ledger.json export.');
-        } else {
-          this.error.set('Something went wrong publishing. Please try again.');
-        }
-      },
-    });
   }
 
   /** Copies text and flashes a "Copied" state for the given key. */
@@ -278,7 +221,7 @@ export default class LandingPageComponent {
       this.copied.set(key);
       setTimeout(() => {
         if (this.copied() === key) {
-          this.copied.set('');
+          this.copied.set("");
         }
       }, 1400);
     });
@@ -286,12 +229,12 @@ export default class LandingPageComponent {
 
   /** Shares the page via the Web Share API, falling back to copying the URL. */
   share(): void {
-    if (typeof navigator === 'undefined' || typeof location === 'undefined') {
+    if (typeof navigator === "undefined" || typeof location === "undefined") {
       return;
     }
     const payload = {
-      title: 'Celestory',
-      text: 'Chart your astrophotography journey under the stars.',
+      title: "Celestory",
+      text: "Chart your astrophotography journey under the stars.",
       url: location.href,
     };
     if (navigator.share) {
@@ -302,56 +245,110 @@ export default class LandingPageComponent {
     }
   }
 
-  /** Closes the post-upload modal when the backdrop itself is clicked. */
-  onBackdrop(event: MouseEvent): void {
-    if (event.target === event.currentTarget) {
-      this.closeModal();
+  /**
+   * Fire a deduped anonymous attempt ping for a CLI-produced ledger. Manual or
+   * legacy ledgers (no identity) are skipped. Fire-and-forget — failures are
+   * swallowed so they never block the upload flow.
+   */
+  private recordAttempt(ledger: CelestoryLedger): void {
+    const installId = ledger.installId;
+    const dataFingerprint = ledger.dataFingerprint;
+    if (!installId || !dataFingerprint) {
+      return;
     }
+    this.storyService
+      .recordAttempt({
+        installId,
+        dataFingerprint,
+        totalIntegrationSeconds: ledger.summary.totalIntegrationSeconds,
+        lightFrameCount: ledger.summary.lightFrameCount,
+        objectCount: ledger.summary.objectCount,
+      })
+      .pipe(
+        catchError(() => of(undefined)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
   }
 
-  /** Closes the modal on Escape. */
-  onEscapeKey(): void {
-    if (this.mode() !== 'idle') {
-      this.closeModal();
+  /**
+   * Reads + parses a chosen/dropped file as a ledger, then (no decision) records
+   * the attempt, stages it, and routes straight to the Private Preview view.
+   */
+  /** "Visualize & Share" — browser-only, no online profile. */
+  chooseVisualize(): void {
+    this.proceed(false);
+  }
+  /** "Create your Celestory" — opens the publish flow on the portfolio. */
+  chooseCreate(): void {
+    this.proceed(true);
+  }
+  /** Dismiss the choose modal without proceeding. */
+  closeChoose(): void {
+    this.showChoose.set(false);
+    this.pendingLedger.set(null);
+  }
+  /** Stage the pending ledger and route to the Private Preview. */
+  private proceed(autoPublish: boolean): void {
+    const ledger = this.pendingLedger();
+    if (!ledger) {
+      return;
     }
+    this.recordAttempt(ledger);
+    this.previewStore.ledger.set(ledger);
+    this.previewStore.fresh.set(true);
+    this.previewStore.autoPublish.set(autoPublish);
+    this.showChoose.set(false);
+    void this.router.navigate(["/preview"]);
   }
 
-  /** Closes the modal and returns to the dropzone. */
-  closeModal(): void {
-    this.reset();
-  }
-
-  /** Resets back to the dropzone. */
-  reset(): void {
-    this.ledger = null;
-    this.created.set(null);
-    this.handle.set('');
-    this.fileName.set('');
-    this.error.set('');
-    this.mode.set('idle');
-  }
-
-  /** Reads + parses a chosen/dropped file as a ledger, or surfaces an error. */
   private readFile(file: File): void {
-    this.error.set('');
-    this.fileName.set(file.name);
+    this.error.set("");
+    this.processing.set(true);
     const reader = new FileReader();
     reader.onload = () => {
       try {
         // Parsed at the upload boundary, then shape-checked below.
         const parsed = JSON.parse(String(reader.result)) as CelestoryLedger;
-        if (!parsed || typeof parsed !== 'object' || !parsed.summary) {
-          throw new Error('not a Celestory export');
+        if (!parsed || typeof parsed !== "object" || !parsed.summary) {
+          throw new Error("not a Celestory export");
         }
-        this.ledger = parsed;
-        this.mode.set('choice');
+        // Reject ledgers from an older/newer CLI before rendering, so the user
+        // gets a clear "update & regenerate" prompt instead of a broken view.
+        if (parsed.schemaVersion != SUPPORTED_LEDGER_SCHEMA_VERSION) {
+          this.processing.set(false);
+          this.error.set(this.outdatedSchemaMessage(parsed));
+          return;
+        }
+        // Hold the parsed ledger and let the user choose visualise vs create.
+        this.pendingLedger.set(parsed);
+        this.processing.set(false);
+        this.showChoose.set(true);
       } catch {
-        this.error.set('That file isn’t a valid ledger.json export.');
-        this.mode.set('idle');
+        this.processing.set(false);
+        this.error.set("That file isn’t a valid celestory.json export.");
       }
     };
-    reader.onerror = () => this.error.set('Could not read that file.');
+    reader.onerror = () => {
+      this.processing.set(false);
+      this.error.set("Could not read that file.");
+    };
     reader.readAsText(file);
+  }
+
+  /**
+   * Build the message shown when a dropped ledger's schema version doesn't match
+   * what this app renders — almost always an older CLI. Surfaces the producing
+   * CLI version when present so the user knows what they ran.
+   */
+  private outdatedSchemaMessage(ledger: CelestoryLedger): string {
+    const usedVersion = ledger.tool?.version
+      ? ` (you used celestory ${ledger.tool.version})`
+      : "";
+    return (
+      `This celestory.json was made by an older Celestory CLI${usedVersion}. ` +
+      "Update to the latest version and re-scan your library to regenerate it."
+    );
   }
 
   /** Eases the counters from 0→target over COUNT_UP_MS. */
@@ -370,18 +367,21 @@ export default class LandingPageComponent {
 }
 
 export const routeMeta: RouteMeta = {
-  title: 'Celestory — Chart your journey under the stars',
+  title: "Celestory — Chart your journey under the stars",
   meta: [
     {
-      name: 'description',
+      name: "description",
       content:
-        'Point Celestory at your astrophotography light frames and get a gallery-grade chronicle of your imaging journey — every target, every filter, every photon, across every year — rendered entirely in your browser. Nothing is uploaded.',
+        "Point Celestory at your astrophotography light frames and get a gallery-grade chronicle of your imaging journey — every target, every filter, every photon, across every year — rendered entirely in your browser. Nothing is uploaded.",
     },
-    { property: 'og:title', content: 'Celestory — Chart your journey under the stars' },
     {
-      property: 'og:description',
+      property: "og:title",
+      content: "Celestory — Chart your journey under the stars",
+    },
+    {
+      property: "og:description",
       content:
-        'A privacy-first astrophotography journey. Your light frames never leave your machine — everything renders in your browser.',
+        "A privacy-first astrophotography journey. Your light frames never leave your machine — everything renders in your browser.",
     },
   ],
 };

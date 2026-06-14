@@ -4,14 +4,24 @@ package model
 
 // Ledger is the root document Celestory emits.
 type Ledger struct {
-	SchemaVersion int              `json:"schemaVersion"`
-	GeneratedAt   string           `json:"generatedAt"`
-	Tool          ToolInfo         `json:"tool"`
-	Summary       Summary          `json:"summary"`
-	Equipment     []EquipmentItem  `json:"equipment"`
-	Objects       []ObjectTimeline `json:"objects"`
-	Duplicates    []DuplicateSet   `json:"duplicates"`
-	Skipped       []SkippedEntry   `json:"skipped"`
+	SchemaVersion int      `json:"schemaVersion"`
+	GeneratedAt   string   `json:"generatedAt"`
+	Tool          ToolInfo `json:"tool"`
+	// InstallID is a stable random per-install identity (persisted in the config
+	// dir), used only for privacy-preserving, deduped attempt counting.
+	InstallID string `json:"installId"`
+	// ProfileID is the optional handle the user configured (`--profile`). When
+	// present it is the stabler owner anchor (pre-fills publish, dedups the same
+	// handle across machines); omitted (empty) falls back to InstallID.
+	ProfileID string `json:"profileId,omitempty"`
+	// DataFingerprint is a stable hash of the normalized data; together with the
+	// owner identity it lets the web app dedup repeat uploads of the same library.
+	DataFingerprint string           `json:"dataFingerprint"`
+	Summary         Summary          `json:"summary"`
+	Equipment       []EquipmentItem  `json:"equipment"`
+	Objects         []ObjectTimeline `json:"objects"`
+	Duplicates      []DuplicateSet   `json:"duplicates"`
+	Skipped         []SkippedEntry   `json:"skipped"`
 }
 
 // ToolInfo records which tool/version produced the ledger.

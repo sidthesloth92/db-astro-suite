@@ -1,0 +1,100 @@
+:host {
+  display: block;
+}
+.equip-group {
+  margin-bottom: 26px;
+}
+.gh {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  color: var(--db-color-text-dim);
+}
+.gh-ico {
+  color: var(--db-color-cyan);
+  line-height: 0;
+}
+.gh h3 {
+  font-family: var(--db-font-display-major);
+  font-weight: 600;
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0;
+  color: var(--db-color-text-primary);
+}
+.gh-c {
+  font-family: var(--db-font-mono-code);
+  font-size: 11px;
+  color: var(--db-color-text-faint);
+}
+.equip-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.erow {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) repeat(4, minmax(0, 1fr)) auto;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  text-align: left;
+  border: 1px solid color-mix(in srgb, var(--db-color-text-faint) 18%, transparent);
+  border-radius: 12px;
+  padding: 16px 18px;
+  background: linear-gradient(180deg, var(--db-color-surface-raised), color-mix(in srgb, var(--db-color-surface-raised) 60%, var(--db-color-surface-bg)));
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.erow:hover {
+  border-color: color-mix(in srgb, var(--db-color-neon-pink) 45%, transparent);
+}
+.ename {
+  font-family: var(--db-font-display-major);
+  font-weight: 600;
+  font-size: 16px;
+}
+.edetail {
+  font-family: var(--db-font-mono-code);
+  font-size: 11px;
+  color: var(--db-color-text-faint);
+  margin-top: 4px;
+}
+.ek {
+  font-family: var(--db-font-mono-code);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--db-color-text-faint);
+}
+.ev {
+  font-family: var(--db-font-display);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--db-color-text-primary);
+  margin-top: 5px;
+}
+.ev.glow {
+  color: var(--db-color-neon-pink);
+}
+.ev-sm {
+  font-size: 12px;
+  font-weight: 600;
+}
+.earrow {
+  color: var(--db-color-text-faint);
+  line-height: 0;
+}
+@media (max-width: 760px) {
+  .erow {
+    grid-template-columns: 1fr 1fr;
+  }
+  .earrow {
+    display: none;
+  }
+  .ename-cell {
+    grid-column: 1 / -1;
+  }
+}

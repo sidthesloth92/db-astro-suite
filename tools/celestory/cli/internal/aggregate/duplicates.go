@@ -2,8 +2,6 @@ package aggregate
 
 import (
 	"sort"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/model"
@@ -11,25 +9,22 @@ import (
 
 // DuplicateReport is the outcome of duplicate detection.
 type DuplicateReport struct {
-	Deduped     []LightFrame         // one frame per set + all singletons + undated
+	Deduped     []LightFrame         // one frame per set + all singletons
 	Sets        []model.DuplicateSet // each set of identical copies at >1 path
 	WastedBytes int64                // redundant disk used by the extra copies
 	FileCount   int                  // number of redundant copies (sum of len-1)
 }
 
-// DetectDuplicates finds copies of the same sub at different paths using an
-// acquisition-identity key (object + exact DATE-OBS + camera + filter + size)
-// that needs no content hashing. Undated frames can't be keyed reliably, so
-// they are passed through untouched. One frame per set is kept (the
-// lexicographically-first path); the rest are excluded from aggregation but
-// reported.
+// DetectDuplicates finds copies of the same sub at different paths using the
+// content/path-independent FrameFP as the identity key — so a sub copied to two
+// folders (or re-saved) is counted once regardless of filename, path, size, or
+// target label, while genuinely distinct exposures (different DATE-OBS) stay
+// separate. One frame per set is kept (the lexicographically-first path); the
+// rest are excluded from aggregation but reported.
 func DetectDuplicates(lights []LightFrame) DuplicateReport {
 	groups := map[string][]int{}
 	for i, lf := range lights {
-		if lf.Date.IsZero() {
-			continue
-		}
-		groups[dupKey(lf)] = append(groups[dupKey(lf)], i)
+		groups[lf.FrameFP] = append(groups[lf.FrameFP], i)
 	}
 
 	keys := make([]string, 0, len(groups))
@@ -60,7 +55,7 @@ func DetectDuplicates(lights []LightFrame) DuplicateReport {
 		}
 		rep.Sets = append(rep.Sets, model.DuplicateSet{
 			Designation: first.dupLabel(),
-			DateObs:     first.Date.UTC().Format(time.RFC3339),
+			DateObs:     dupDateObs(first.Date),
 			SizeBytes:   first.Size,
 			Paths:       paths,
 		})
@@ -83,12 +78,11 @@ func DetectDuplicates(lights []LightFrame) DuplicateReport {
 	return rep
 }
 
-func dupKey(lf LightFrame) string {
-	return strings.Join([]string{
-		lf.ObjectID,
-		lf.Date.UTC().Format(time.RFC3339Nano),
-		lf.Camera,
-		lf.Filter,
-		strconv.FormatInt(lf.Size, 10),
-	}, "|")
+// dupDateObs formats a frame's DATE-OBS for the duplicate report, or "" when the
+// frame was undated (identity came from the content fallback).
+func dupDateObs(t time.Time) string {
+	if t.IsZero() {
+		return ""
+	}
+	return t.UTC().Format(time.RFC3339)
 }

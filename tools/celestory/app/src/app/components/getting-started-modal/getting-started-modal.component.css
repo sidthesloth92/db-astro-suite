@@ -1,0 +1,250 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(8px);
+}
+
+.modal {
+  position: relative;
+  width: min(520px, 100%);
+  padding: clamp(1.5rem, 4vw, 2.25rem);
+  padding-top: 2rem;
+  border-radius: 18px;
+  background: #0b0b14;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 32px 90px rgba(0, 0, 0, 0.72);
+}
+
+.close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--db-color-text-dim);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.close:hover {
+  background: rgba(255, 255, 255, 0.11);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.eyebrow {
+  font-family: var(--db-font-mono-code);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--db-color-neon-pink);
+  margin: 0 0 0.5rem;
+}
+
+.title {
+  font-family: var(--db-font-display-major);
+  color: var(--db-color-text-primary);
+  margin: 0 0 0.35rem;
+  font-size: clamp(1.2rem, 3.5vw, 1.5rem);
+  font-weight: 700;
+  padding-right: 2.5rem;
+}
+
+.subtitle {
+  color: var(--db-color-text-dim);
+  margin: 0 0 1.5rem;
+  font-size: 0.9rem;
+}
+
+/* steps */
+.steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1.1rem;
+}
+
+.step {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+}
+
+.sn {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--db-font-mono-code);
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--db-color-neon-pink);
+  border: none;
+  margin-top: 1px;
+}
+
+.sbody {
+  min-width: 0;
+  flex: 1;
+}
+
+.sbody h3 {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  color: var(--db-color-text-primary);
+  font-weight: 600;
+}
+
+/* install tabs */
+.tabs {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.tab {
+  font-family: var(--db-font-mono-code);
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--db-color-text-dim);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: background 0.14s, border-color 0.14s, color 0.14s;
+}
+
+.tab.on {
+  color: var(--db-color-text-primary);
+  border-color: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* command box — only the code scrolls, not the whole modal */
+.cmd {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 9px;
+  padding: 9px 10px;
+}
+
+.cmd code {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--db-font-mono-code);
+  font-size: 12.5px;
+  color: var(--db-color-cyan);
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.cmd code::-webkit-scrollbar {
+  height: 3px;
+}
+
+.cmd code::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.cmd code::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+/* copy pill */
+.copy {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--db-font-mono-code);
+  font-size: 11px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--db-color-text-dim);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.14s, color 0.14s;
+}
+
+.copy:hover {
+  background: rgba(255, 255, 255, 0.13);
+  color: var(--db-color-text-primary);
+}
+
+.hint {
+  color: var(--db-color-text-dim);
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.mono {
+  font-family: var(--db-font-mono-code);
+  color: var(--db-color-text-primary);
+}
+
+/* bottom CTA — full-width, stacked, pill shape */
+.cta-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 1.6rem;
+}
+
+.btn-primary,
+.btn-ghost {
+  font-family: var(--db-font-display-major);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  padding: 13px 20px;
+  cursor: pointer;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+  transition: opacity 0.14s, background 0.14s;
+}
+
+.btn-primary {
+  color: var(--db-color-text-primary);
+  background: var(--db-color-neon-pink);
+  border: 1px solid transparent;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.btn-ghost {
+  color: var(--db-color-text-primary);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.1);
+}

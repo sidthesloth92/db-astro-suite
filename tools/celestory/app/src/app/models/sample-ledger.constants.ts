@@ -1,66 +1,13 @@
 import type { CelestoryLedger } from './ledger.model';
+import sampleLedger from './sample-celestory.json';
 
-/** A small, realistic sample ledger powering the "Explore sample data" button. */
-export const SAMPLE_LEDGER: CelestoryLedger = {
-  schemaVersion: 1,
-  summary: {
-    totalIntegrationSeconds: 672360,
-    objectCount: 19,
-    nightCount: 64,
-    lightFrameCount: 2619,
-    firstLight: '2025-02-01',
-    latestSession: '2026-05-06',
-    filters: [
-      { name: 'Hα', seconds: 144300 },
-      { name: 'OIII', seconds: 143400 },
-      { name: 'L', seconds: 137700 },
-      { name: 'SII', seconds: 70200 },
-      { name: 'R', seconds: 67200 },
-      { name: 'G', seconds: 60000 },
-      { name: 'B', seconds: 49560 },
-    ],
-  },
-  objects: [
-    {
-      id: 'm31',
-      displayName: 'Andromeda Galaxy',
-      designation: 'M 31',
-      category: 'Galaxy',
-      totalIntegrationSeconds: 9540,
-      lightFrameCount: 70,
-      nightCount: 3,
-    },
-    {
-      id: 'm27',
-      displayName: 'Dumbbell Nebula',
-      designation: 'M 27',
-      category: 'Planetary Nebula',
-      totalIntegrationSeconds: 72600,
-      lightFrameCount: 242,
-      nightCount: 6,
-    },
-    {
-      id: 'ngc2237',
-      displayName: 'Rosette Nebula',
-      designation: 'NGC 2237',
-      category: 'Nebula',
-      totalIntegrationSeconds: 151560,
-      lightFrameCount: 421,
-      nightCount: 9,
-    },
-  ],
-  equipment: [
-    {
-      id: 'cam-2600mm',
-      kind: 'camera',
-      displayName: 'ZWO ASI2600MM Pro',
-      totalIntegrationSeconds: 307380,
-    },
-    {
-      id: 'optic-esprit-120',
-      kind: 'optic',
-      displayName: 'Sky-Watcher Esprit 120',
-      totalIntegrationSeconds: 320700,
-    },
-  ],
-};
+/**
+ * A rich, decade-long sample ledger powering the "Explore Vera's Journey" button
+ * and the /user/vera demo showcase. Authored as JSON (the single source of truth,
+ * also published to /public for download) to the CelestoryLedger contract; the
+ * structural JSON import is assignable to the domain type with no cast.
+ */
+export const SAMPLE_LEDGER: CelestoryLedger = sampleLedger;
+
+/** The reserved handle the bundled demo journey ("Vera") renders under: /user/vera. */
+export const SAMPLE_HANDLE = 'vera';

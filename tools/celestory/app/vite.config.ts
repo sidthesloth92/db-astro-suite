@@ -34,5 +34,11 @@ export default defineConfig(({ mode }) => {
     ssr: {
       noExternal: ['@db-astro-suite/**', '@angular/**'],
     },
+    test: {
+      globals: true,
+      environment: 'node',
+      include: ['src/**/*.spec.ts'],
+      reporters: ['default'],
+    },
   };
 });

@@ -1,0 +1,78 @@
+<div class="overlay" (click)="onBackdrop($event)">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="gs-title">
+    <button class="close" type="button" (click)="closed.emit()" aria-label="Close">
+      <svg viewBox="0 0 12 12" fill="none" width="12" height="12" aria-hidden="true">
+        <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </button>
+
+    <p class="eyebrow">Get Started</p>
+    <h2 id="gs-title" class="title">Create Your Own Celestory</h2>
+    <p class="subtitle">Turn your astrophotography history into a living profile.</p>
+
+    <ol class="steps">
+      <li class="step">
+        <span class="sn">1</span>
+        <div class="sbody">
+          <h3>Install the CLI</h3>
+          <div class="tabs" role="tablist">
+            <button type="button" class="tab" [class.on]="installTool() === 'brew'" (click)="selectInstall('brew')">{{ installLabels.brew }}</button>
+            <button type="button" class="tab" [class.on]="installTool() === 'scoop'" (click)="selectInstall('scoop')">{{ installLabels.scoop }}</button>
+          </div>
+          <div class="cmd">
+            <code>{{ installCommand() }}</code>
+            <button type="button" class="copy" (click)="copy('install', installCommand())">
+              <svg viewBox="0 0 12 12" fill="none" width="11" height="11" aria-hidden="true">
+                <rect x="3.5" y="3.5" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.2"/>
+                <path d="M1.5 8.5V2a.5.5 0 0 1 .5-.5h6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+              </svg>
+              {{ copied() === 'install' ? 'Copied' : 'Copy' }}
+            </button>
+          </div>
+        </div>
+      </li>
+
+      <li class="step">
+        <span class="sn">2</span>
+        <div class="sbody">
+          <h3>Generate your ledger</h3>
+          <div class="cmd">
+            <code>{{ scanCommand }}</code>
+            <button type="button" class="copy" (click)="copy('scan', scanCommand)">
+              <svg viewBox="0 0 12 12" fill="none" width="11" height="11" aria-hidden="true">
+                <rect x="3.5" y="3.5" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.2"/>
+                <path d="M1.5 8.5V2a.5.5 0 0 1 .5-.5h6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+              </svg>
+              {{ copied() === 'scan' ? 'Copied' : 'Copy' }}
+            </button>
+          </div>
+        </div>
+      </li>
+
+      <li class="step">
+        <span class="sn">3</span>
+        <div class="sbody">
+          <h3>Upload your ledger</h3>
+          <p class="hint">Drop your <span class="mono">celestory.json</span> on the home page — explore your journey instantly.</p>
+        </div>
+      </li>
+    </ol>
+
+    <div class="cta-row">
+      <a class="btn-primary" routerLink="/" fragment="how" (click)="closed.emit()">
+        <svg viewBox="0 0 16 16" fill="none" width="14" height="14" aria-hidden="true">
+          <rect x="3" y="1" width="10" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M6 5h4M6 8h4M6 11h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+        View Installation Guide
+      </a>
+      <button class="btn-ghost" type="button" (click)="copy('install', installCommand())">
+        <svg viewBox="0 0 12 12" fill="none" width="12" height="12" aria-hidden="true">
+          <rect x="3.5" y="3.5" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.2"/>
+          <path d="M1.5 8.5V2a.5.5 0 0 1 .5-.5h6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+        {{ copied() === 'install' ? 'Copied ✓' : 'Copy Install Command' }}
+      </button>
+    </div>
+  </div>
+</div>

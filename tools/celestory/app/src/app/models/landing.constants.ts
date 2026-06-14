@@ -14,7 +14,7 @@ export const INSTALL_LABELS: Record<InstallTool, string> = {
 };
 
 /** The scan command, shown beneath the install command (CLI uses `-input`/`-out`). */
-export const SCAN_COMMAND = 'celestory -input ~/Astro -out ledger.json';
+export const SCAN_COMMAND = 'celestory -input ~/Astro -out celestory.json';
 
 /** The DB Astro Suite hub the nav links back to. */
 export const HUB_URL = 'https://dbastrosuite.com';

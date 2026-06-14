@@ -1,17 +1,12 @@
 package model
 
 // Session is one night of imaging on an object (the per-object timeline node).
+// EquipmentIds reference entries in the ledger's top-level equipment list, the
+// same identifiers an object carries — so the web app resolves gear by id.
 type Session struct {
 	Date               string              `json:"date"`
 	IntegrationSeconds float64             `json:"integrationSeconds"`
-	Frames             int                 `json:"frames"`
+	LightFrameCount    int                 `json:"lightFrameCount"`
 	Filters            []FilterIntegration `json:"filters"`
-	Equipment          SessionEquipment    `json:"equipment"`
-}
-
-// SessionEquipment is the fused rig used for a session (kept for per-night detail).
-type SessionEquipment struct {
-	Camera        string  `json:"camera"`
-	Telescope     string  `json:"telescope"`
-	FocalLengthMm float64 `json:"focalLengthMm"`
+	EquipmentIds       []string            `json:"equipmentIds"`
 }

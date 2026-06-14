@@ -1,0 +1,195 @@
+<div class="ob-overlay" (mousedown)="onBackdrop($event)">
+  <div class="ob-modal" role="dialog" aria-modal="true">
+    <button class="ob-close" type="button" (click)="closed.emit()" aria-label="Close">
+      <dba-cel-icon name="back" [size]="18" />
+    </button>
+
+    @switch (phase()) {
+      @case ('choose') {
+        <div class="ob-head">
+          <span class="eyebrow">Publish</span>
+          <h2>Publish Your Journey</h2>
+          <p>Are you creating a new profile or updating an existing one?</p>
+        </div>
+        <div class="ob-choose">
+          <button class="ob-choice" type="button" (click)="chooseCreate()">
+            <span class="ob-choice-ico"><dba-cel-icon name="rocket" [size]="20" /></span>
+            <span class="ob-choice-body">
+              <span class="ob-choice-t">Create a new profile</span>
+              <span class="ob-choice-d">Claim a fresh handle and set a password.</span>
+            </span>
+            <dba-cel-icon name="arrow" [size]="16" />
+          </button>
+          <button class="ob-choice" type="button" (click)="chooseUpdate()">
+            <span class="ob-choice-ico"><dba-cel-icon name="edit" [size]="20" /></span>
+            <span class="ob-choice-body">
+              <span class="ob-choice-t">Update an existing profile</span>
+              <span class="ob-choice-d">Sign in with your handle and password to republish.</span>
+            </span>
+            <dba-cel-icon name="arrow" [size]="16" />
+          </button>
+        </div>
+      }
+
+      @case ('claim') {
+        <div class="ob-head">
+          <span class="eyebrow">{{ intent() === 'update' ? 'Update profile' : 'New profile' }}</span>
+          <h2>{{ intent() === 'update' ? 'Update Your Journey' : 'Publish Your Journey' }}</h2>
+          <p>
+            {{
+              intent() === 'update'
+                ? 'Confirm your handle and password to republish your latest data.'
+                : 'Claim your handle and set a password to protect your profile.'
+            }}
+          </p>
+        </div>
+        @if (intent() !== 'update') {
+          <ul class="ob-benefits">
+            <li><dba-cel-icon name="check" [size]="15" /> Permanent URL</li>
+            <li><dba-cel-icon name="check" [size]="15" /> View from any device</li>
+            <li><dba-cel-icon name="check" [size]="15" /> Share with fellow astrophotographers</li>
+            <li><dba-cel-icon name="check" [size]="15" /> Update your profile anytime</li>
+          </ul>
+        }
+        <label class="ob-field-label">Handle</label>
+        <div class="ob-handle">
+          <span class="ob-handle-pfx">celestory.io/&#64;</span>
+          <input
+            #h
+            [value]="handle()"
+            (input)="onHandle(h.value)"
+            placeholder="username"
+            autocomplete="off"
+            spellcheck="false"
+            (keydown.enter)="submit()"
+          />
+        </div>
+        <label class="ob-field-label">{{ intent() === 'update' ? 'Password' : 'Set a password' }}</label>
+        <div class="ob-handle ob-pass">
+          <span class="ob-handle-pfx"><dba-cel-icon name="lock" [size]="15" /></span>
+          <input
+            #p
+            type="password"
+            [value]="password()"
+            (input)="onPassword(p.value)"
+            [placeholder]="intent() === 'update' ? 'Your profile password' : 'Create a password'"
+            [attr.autocomplete]="intent() === 'update' ? 'current-password' : 'new-password'"
+            (keydown.enter)="submit()"
+          />
+        </div>
+        @if (shrinkWarning()) {
+          <p class="ob-error" role="alert">{{ shrinkWarning() }}</p>
+          <button class="btn-primary ob-full" type="button" (click)="publishAnyway()" [disabled]="busy()">
+            <dba-cel-icon name="globe" [size]="15" /> Publish anyway
+          </button>
+          <button class="ob-back-link" type="button" (click)="cancelShrink()">
+            <dba-cel-icon name="back" [size]="14" /> Cancel
+          </button>
+        } @else {
+          @if (error()) {
+            <p class="ob-error" role="alert">{{ error() }}</p>
+          } @else {
+            <p class="ob-url-preview">{{ urlPreview() }}</p>
+          }
+          <button class="btn-primary ob-full" type="button" (click)="submit()" [disabled]="busy() || !clean()">
+            @if (busy()) {
+              {{ intent() === 'update' ? 'Updating…' : 'Claiming…' }}
+            } @else {
+              <dba-cel-icon [name]="intent() === 'update' ? 'globe' : 'rocket'" [size]="15" />
+              {{ intent() === 'update' ? 'Update Profile' : 'Claim Handle' }}
+            }
+          </button>
+          <button class="ob-back-link" type="button" (click)="backToChoose()">
+            <dba-cel-icon name="back" [size]="14" /> Back
+          </button>
+        }
+      }
+
+      @case ('delete') {
+        <div class="ob-danger-badge"><dba-cel-icon name="trash" [size]="24" /></div>
+        <div class="ob-head ob-head-center">
+          <span class="eyebrow">Delete profile</span>
+          <h2>Delete Your Online Profile</h2>
+          <p>
+            This permanently removes
+            <span class="mono">celestory.io/&#64;{{ clean() || currentHandle() }}</span>
+            from the web. Your local journey stays on this device.
+          </p>
+        </div>
+        <label class="ob-field-label">Paste your delete token to confirm</label>
+        <div class="ob-handle ob-pass">
+          <span class="ob-handle-pfx"><dba-cel-icon name="key" [size]="15" /></span>
+          <input
+            #d
+            [value]="deleteInput()"
+            (input)="onDeleteInput(d.value)"
+            placeholder="cel_del_xxxx-xxxx-xxxx"
+            autocomplete="off"
+            spellcheck="false"
+            (keydown.enter)="confirmDelete()"
+          />
+        </div>
+        @if (deleteError()) {
+          <p class="ob-error" role="alert">{{ deleteError() }}</p>
+        }
+        <button class="btn-danger ob-full" type="button" (click)="confirmDelete()" [disabled]="busy() || !deleteInput().trim()">
+          <dba-cel-icon name="trash" [size]="15" /> Delete Profile Permanently
+        </button>
+        <button class="ob-back-link" type="button" (click)="closed.emit()">
+          <dba-cel-icon name="back" [size]="14" /> Keep my profile
+        </button>
+      }
+
+      @case ('publishing') {
+        <div class="ob-publishing">
+          <div class="ob-orbit" aria-hidden="true">
+            <span class="ob-orbit-ring"></span>
+            <span class="ob-orbit-ring ob-orbit-ring-2"></span>
+            <span class="ob-planet"></span>
+            <span class="ob-rocket"><dba-cel-icon name="rocket" [size]="22" /></span>
+          </div>
+          <div class="ob-head ob-head-center">
+            <span class="eyebrow">Publishing</span>
+            <h2>{{ intent() === 'update' ? 'Updating Your Journey' : 'Launching Your Journey' }}</h2>
+            <p>Charting your sky onto the web…</p>
+          </div>
+          <div class="ob-progress"><span class="ob-progress-fill"></span></div>
+        </div>
+      }
+
+      @default {
+        <!-- live -->
+        <div class="ob-live-badge"><dba-cel-icon name="rocket" [size]="26" /></div>
+        <div class="ob-head ob-head-center">
+          <span class="eyebrow">Published</span>
+          <h2>Your Journey Is Live</h2>
+          <p>Share it anywhere — anyone with the link can explore your sky.</p>
+        </div>
+        <div class="ob-livelink">
+          <span class="mono">{{ urlPreview() }}</span>
+          <button class="ob-copy" type="button" (click)="copyLink()">
+            {{ copied() ? 'Copied' : 'Copy' }}
+          </button>
+        </div>
+        @if (deleteToken(); as token) {
+          <div class="ob-token">
+            <div class="ob-token-head">
+              <span class="ob-token-label"><dba-cel-icon name="key" [size]="14" /> Delete token</span>
+              <button class="ob-copy" type="button" (click)="copyToken()">
+                {{ tokenCopied() ? 'Copied' : 'Copy' }}
+              </button>
+            </div>
+            <code class="ob-token-code">{{ token }}</code>
+            <p class="ob-token-note">
+              Save this somewhere safe. It’s the only way to delete your online profile later —
+              we can’t recover it for you.
+            </p>
+          </div>
+        }
+        <button class="btn-primary ob-full" type="button" (click)="openProfile()">
+          <dba-cel-icon name="arrow" [size]="15" /> Open Profile
+        </button>
+      }
+    }
+  </div>
+</div>

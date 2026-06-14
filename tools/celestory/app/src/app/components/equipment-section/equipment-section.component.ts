@@ -1,0 +1,51 @@
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import type { CelestoryLedger, LedgerEquipment } from '../../models/ledger.model';
+import { formatCount, formatDuration } from '../../utils/format.util';
+import { fmtRange } from '../../utils/portfolio.util';
+import { CelIconComponent } from '../cel-icon/cel-icon.component';
+
+/** The "Equipment" rig: cameras and optics grouped, each a clickable stats row. */
+@Component({
+  selector: 'dba-equipment-section',
+  standalone: true,
+  imports: [CelIconComponent],
+  templateUrl: './equipment-section.component.html',
+  styleUrl: './equipment-section.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class EquipmentSectionComponent {
+  /** The ledger to browse. */
+  readonly ledger = input.required<CelestoryLedger>();
+  /** Emits an equipment id to open its detail. */
+  readonly open = output<string>();
+
+  /** Grouped gear. */
+  protected readonly cameras = computed(() =>
+    this.ledger().equipment.filter((e) => e.kind.toLowerCase() === 'camera'),
+  );
+  protected readonly optics = computed(() =>
+    this.ledger().equipment.filter((e) => e.kind.toLowerCase() !== 'camera'),
+  );
+
+  /** A spec line for optics (focal length / f-ratio). */
+  protected detail(e: LedgerEquipment): string {
+    const parts: string[] = [];
+    if (e.focalLengthMm) {
+      parts.push(`${e.focalLengthMm}mm`);
+    }
+    if (e.fRatio) {
+      parts.push(`f/${e.fRatio}`);
+    }
+    return parts.join(' · ');
+  }
+
+  protected dur(s: number): string {
+    return formatDuration(s);
+  }
+  protected count(n: number): string {
+    return formatCount(n);
+  }
+  protected range(a: string, b: string): string {
+    return fmtRange(a, b);
+  }
+}

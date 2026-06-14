@@ -5,10 +5,12 @@
 package aggregate
 
 import (
+	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/sidthesloth92/db-astro-suite/libs/astrofits"
+	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/fingerprint"
 	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/identity"
 	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/scan"
 )
@@ -23,6 +25,8 @@ const (
 type LightFrame struct {
 	Path        string
 	Size        int64
+	FrameFP     string // content/path-independent identity; the dedup key
+	WeakID      bool   // FrameFP came from the content fallback (undated frame)
 	ObjectID    string
 	DisplayName string
 	Designation string
@@ -36,16 +40,22 @@ type LightFrame struct {
 	FRatio      float64
 	Exposure    float64
 	Date        time.Time // zero when DATE-OBS was missing/unparseable
+	RA          *float64  // J2000 RA (deg): the frame's FITS coords, else the catalog fallback
+	Dec         *float64  // J2000 Dec (deg): the frame's FITS coords, else the catalog fallback
 }
 
-// Enrich drops calibration frames and resolves identity + filter for the rest,
-// returning the light frames plus the count of calibration frames excluded.
-func Enrich(frames []scan.Frame) (lights []LightFrame, droppedCalibration int) {
+// Enrich keeps only genuine single light sub-exposures: it drops calibration
+// frames (Flat/Dark/Bias) and stacked masters (which carry summed exposure and
+// would double-count their subs), resolves each remaining frame's object
+// identity + filter, and assigns its content/path-independent FrameFP (falling
+// back to a content hash for undated frames). It returns the light frames plus
+// the count of frames excluded.
+func Enrich(frames []scan.Frame) (lights []LightFrame, dropped int) {
 	lights = make([]LightFrame, 0, len(frames))
 	for _, f := range frames {
 		m := f.Meta
-		if astrofits.IsCalibration(m.FrameType) {
-			droppedCalibration++
+		if astrofits.IsCalibration(m.FrameType) || m.IsStacked() || looksStacked(f.Path) {
+			dropped++
 			continue
 		}
 		r := identity.Resolve(m.Target)
@@ -57,9 +67,13 @@ func Enrich(frames []scan.Frame) (lights []LightFrame, droppedCalibration int) {
 				filter = filterNone
 			}
 		}
+		fp, weak := frameIdentity(m, f.Path)
+		ra, dec := frameCoords(m, r)
 		lights = append(lights, LightFrame{
 			Path:        f.Path,
 			Size:        f.Size,
+			FrameFP:     fp,
+			WeakID:      weak,
 			ObjectID:    r.ID,
 			DisplayName: r.DisplayName,
 			Designation: r.Designation,
@@ -73,9 +87,51 @@ func Enrich(frames []scan.Frame) (lights []LightFrame, droppedCalibration int) {
 			FRatio:      m.FRatio,
 			Exposure:    m.Exposure,
 			Date:        m.DateObs,
+			RA:          ra,
+			Dec:         dec,
 		})
 	}
-	return lights, droppedCalibration
+	return lights, dropped
+}
+
+// frameIdentity returns the dedup fingerprint for a frame and whether it is a
+// weak (content-derived) identity. Dated frames use the header-based
+// FrameFingerprint; undated frames fall back to a content hash, and a last
+// resort of the path so a frame is always counted (never silently merged away).
+func frameIdentity(m astrofits.Metadata, path string) (fp string, weak bool) {
+	if fp, ok := fingerprint.FrameFingerprint(m); ok {
+		return fp, false
+	}
+	if fp, err := fingerprint.WeakFingerprint(path); err == nil {
+		return fp, true
+	}
+	return "p:" + path, true
+}
+
+// frameCoords resolves a frame's J2000 RA/Dec (decimal degrees): the FITS
+// header coordinates when the frame carried them, otherwise the resolved
+// catalog coordinates (the hybrid). Returns nil when neither source has coords.
+func frameCoords(m astrofits.Metadata, r identity.Resolved) (ra, dec *float64) {
+	if m.HasCoords {
+		raV, decV := m.RA, m.Dec
+		return &raV, &decV
+	}
+	return r.RA, r.Dec
+}
+
+// stackNameHints are filename markers of a stacked/integrated master that should
+// never count toward integration even when the header lacks a stack count.
+var stackNameHints = []string{"master", "stack", "integration"}
+
+// looksStacked reports whether a file's name marks it as a stacked master.
+func looksStacked(path string) bool {
+	name := strings.ToLower(filepath.Base(path))
+	for _, hint := range stackNameHints {
+		if strings.Contains(name, hint) {
+			return true
+		}
+	}
+	return false
 }
 
 func (lf LightFrame) dupLabel() string {

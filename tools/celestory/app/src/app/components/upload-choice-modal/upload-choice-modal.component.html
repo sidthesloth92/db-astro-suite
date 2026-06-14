@@ -1,0 +1,34 @@
+<div class="uc-overlay" (mousedown)="onBackdrop($event)">
+  <div class="uc-modal" role="dialog" aria-modal="true">
+    <button class="uc-close" type="button" (click)="closed.emit()" aria-label="Close">
+      <dba-cel-icon name="back" [size]="18" />
+    </button>
+    <div class="uc-head">
+      <span class="eyebrow">Your Celestory is ready</span>
+      <h2>How do you want to use it?</h2>
+      <p>Your data is parsed entirely in your browser. Choose what happens next.</p>
+    </div>
+    <div class="uc-choices">
+      <button class="uc-choice" type="button" (click)="visualize.emit()">
+        <span class="uc-ico"><dba-cel-icon name="eye" [size]="22" /></span>
+        <span class="uc-t">Visualize &amp; Share</span>
+        <ul class="uc-list">
+          <li><dba-cel-icon name="check" [size]="14" /> See your journey in the browser</li>
+          <li><dba-cel-icon name="check" [size]="14" /> Create poster &amp; story images to share</li>
+          <li><dba-cel-icon name="check" [size]="14" /> No online link, nothing uploaded</li>
+        </ul>
+        <span class="uc-note">Changes are lost when you close the browser.</span>
+      </button>
+      <button class="uc-choice uc-choice-primary" type="button" (click)="create.emit()">
+        <span class="uc-ico"><dba-cel-icon name="rocket" [size]="22" /></span>
+        <span class="uc-t">Create your Celestory</span>
+        <ul class="uc-list">
+          <li><dba-cel-icon name="check" [size]="14" /> A permanent, shareable URL</li>
+          <li><dba-cel-icon name="check" [size]="14" /> View from any device</li>
+          <li><dba-cel-icon name="check" [size]="14" /> Password-protected, update anytime</li>
+        </ul>
+        <span class="uc-note">You'll get a one-time token to delete it later.</span>
+      </button>
+    </div>
+  </div>
+</div>

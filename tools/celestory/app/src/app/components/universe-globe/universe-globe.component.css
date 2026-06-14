@@ -1,0 +1,124 @@
+/* UniverseGlobe entry portal. Ported from the Celestory design; brand accents
+   mapped to the app's theme tokens. */
+:host {
+  --cyan: var(--db-color-cyan);
+  --ink-3: var(--db-color-text-dim);
+  position: relative;
+  width: 100%;
+  margin: 34px 0 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 18px;
+  border-radius: 20px;
+  outline: none;
+  background: none;
+  border: none;
+}
+:host:focus-visible {
+  outline: 1px solid color-mix(in srgb, var(--db-color-neon-pink) 40%, transparent);
+  outline-offset: 4px;
+}
+.uglobe-stage {
+  position: relative;
+  width: 340px;
+  height: 340px;
+  flex: none;
+}
+.uglobe-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: pointer;
+}
+.uglobe-caption {
+  flex: 1 1 300px;
+  max-width: 420px;
+  min-width: 260px;
+}
+.uglobe-eyebrow {
+  font-family: var(--db-font-mono-code);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: 10px;
+}
+.uglobe-title {
+  font-family: var(--db-font-display);
+  font-size: clamp(28px, 4vw, 40px);
+  line-height: 1;
+  letter-spacing: -0.015em;
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  background: linear-gradient(
+    92deg,
+    #fff,
+    color-mix(in srgb, var(--db-color-cyan) 70%, #fff) 52%,
+    color-mix(in srgb, var(--db-color-neon-pink) 65%, #fff)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transition: filter 0.2s ease;
+}
+.uglobe-title::after {
+  content: '';
+  position: absolute;
+  left: 1px;
+  right: 1px;
+  bottom: -8px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--db-color-neon-pink), color-mix(in srgb, var(--db-color-cyan) 70%, #fff));
+  transform: scaleX(0.42);
+  transform-origin: left;
+  opacity: 0.5;
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.3, 1), opacity 0.2s ease;
+}
+:host:hover .uglobe-title::after,
+:host:focus-visible .uglobe-title::after {
+  transform: scaleX(1);
+  opacity: 1;
+}
+.uglobe-arrow {
+  -webkit-text-fill-color: var(--cyan);
+  color: var(--cyan);
+  font-size: 0.62em;
+  font-weight: 400;
+  transform: translateX(0);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  opacity: 0.8;
+}
+:host:hover .uglobe-title {
+  filter: brightness(1.08);
+}
+:host:hover .uglobe-arrow {
+  transform: translateX(5px);
+  opacity: 1;
+}
+.uglobe-sub {
+  margin-top: 13px;
+  color: var(--ink-3);
+  font-size: 14.5px;
+  line-height: 1.6;
+}
+@media (max-width: 720px) {
+  :host {
+    flex-direction: column;
+    gap: 6px;
+    text-align: center;
+  }
+  .uglobe-stage {
+    width: 280px;
+    height: 280px;
+  }
+  .uglobe-caption {
+    text-align: center;
+  }
+}

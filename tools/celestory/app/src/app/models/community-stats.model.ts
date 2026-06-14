@@ -4,9 +4,9 @@
  * never any individual ledger data.
  */
 export interface CommunityStats {
-  storyCount: number;
+  /** Distinct deduped upload attempts (install id + data fingerprint pairs). */
+  attemptCount: number;
   totalIntegrationSeconds: number;
   objectCount: number;
-  nightCount: number;
   lightFrameCount: number;
 }

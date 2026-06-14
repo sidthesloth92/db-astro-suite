@@ -5,15 +5,18 @@ import { normalizeHandle } from '../../../utils/handle';
 import { validateLedger } from '../../../utils/ledger-validate';
 import { extractRows } from '../../../utils/extract';
 import { generateKey, hashKey } from '../../../utils/key';
+import { hashPassword, MIN_PASSWORD_LENGTH } from '../../../utils/password';
 import { isUniqueViolation } from '../../../utils/pg-error';
+import { recordUpload, claimUploads } from '../../../utils/uploads';
 import { success, toErrorResponse } from '../../../utils/respond';
-import { HandleTakenError } from '../../../utils/celestory.error';
+import { HandleTakenError, InvalidPasswordError } from '../../../utils/celestory.error';
 import type { ExtractedRows } from '../../../utils/story.model';
 
 /** Persist the story row plus its child rows; returns the new story id. */
 async function persistStory(
   handle: string,
   keyHash: string,
+  passwordHash: string,
   ledgerJson: string,
   rows: ExtractedRows,
 ): Promise<string> {
@@ -22,11 +25,11 @@ async function persistStory(
 
   const inserted = await sql`
     INSERT INTO stories (
-      handle, key_hash, ledger_json,
+      handle, key_hash, password_hash, ledger_json,
       total_integration_seconds, object_count, night_count,
       light_frame_count, first_light, latest_session
     ) VALUES (
-      ${handle}, ${keyHash}, ${ledgerJson},
+      ${handle}, ${keyHash}, ${passwordHash}, ${ledgerJson},
       ${totals.totalIntegrationSeconds}, ${totals.objectCount}, ${totals.nightCount},
       ${totals.lightFrameCount}, ${totals.firstLight}, ${totals.latestSession}
     )
@@ -76,17 +79,22 @@ async function persistStory(
  */
 export default defineEventHandler(async (event) => {
   try {
-    const body = await readBody<{ ledger?: unknown; handle?: unknown }>(event);
+    const body = await readBody<{ ledger?: unknown; handle?: unknown; password?: unknown }>(event);
     const handle = normalizeHandle(body?.handle);
+    const password = typeof body?.password === 'string' ? body.password : '';
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      throw new InvalidPasswordError();
+    }
     const ledger = validateLedger(body?.ledger);
     const rows = extractRows(ledger);
 
     const key = generateKey();
     const keyHash = hashKey(key);
+    const passwordHash = await hashPassword(password);
     const ledgerJson = JSON.stringify(body?.ledger);
 
     try {
-      await persistStory(handle, keyHash, ledgerJson, rows);
+      await persistStory(handle, keyHash, passwordHash, ledgerJson, rows);
     } catch (dbError) {
       if (isUniqueViolation(dbError)) {
         throw new HandleTakenError(handle);
@@ -94,7 +102,22 @@ export default defineEventHandler(async (event) => {
       throw dbError;
     }
 
-    const url = `${config.publicBaseUrl.replace(/\/$/, '')}/${handle}`;
+    // Append the publish as an upload event (no-op if already logged during a
+    // prior visualise), then claim this install's anonymous events under the
+    // handle so their totals fold under the profile without double-counting.
+    // Identity is absent on manual/legacy ledgers.
+    if (ledger.installId && ledger.dataFingerprint) {
+      await recordUpload({
+        installId: ledger.installId,
+        dataFingerprint: ledger.dataFingerprint,
+        totalIntegrationSeconds: rows.totals.totalIntegrationSeconds,
+        lightFrameCount: rows.totals.lightFrameCount,
+        objectCount: rows.totals.objectCount,
+      });
+      await claimUploads(ledger.installId, handle);
+    }
+
+    const url = `${config.publicBaseUrl.replace(/\/$/, '')}/user/${handle}`;
     return success('STORY_CREATED', 'Your Celestory is live.', {
       url,
       handle,

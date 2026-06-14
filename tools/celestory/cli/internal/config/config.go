@@ -1,8 +1,10 @@
-// Package config persists small user preferences (currently the chosen cache
-// location) under the OS user-config directory.
+// Package config persists small user preferences (the chosen cache location and
+// a stable per-install id) under the OS user-config directory.
 package config
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -14,6 +16,30 @@ import (
 // Config holds Celestory's persisted preferences.
 type Config struct {
 	CacheDir string `json:"cacheDir"`
+	// LastInputDir is the folder scanned on the previous run, used to pre-fill the
+	// wizard so the user doesn't retype it each time.
+	LastInputDir string `json:"lastInputDir,omitempty"`
+	// LastOutputDir is where celestory.json was written on the previous run, used
+	// to pre-fill the wizard's output question.
+	LastOutputDir string `json:"lastOutputDir,omitempty"`
+	// InstallID is a stable random identity created on first run. It lives in the
+	// config dir (not the cache), so clearing the cache does not reset it. It is
+	// used only for privacy-preserving, deduped attempt counting on the web app.
+	InstallID string `json:"installId"`
+	// ProfileID is the optional handle the user configured via `--profile`. It is
+	// just an identifier (never a password): it pre-fills the publish form and
+	// acts as a stable owner anchor across machines. Empty until set.
+	ProfileID string `json:"profileId,omitempty"`
+}
+
+// SetProfileID persists the configured profile handle, preserving other prefs.
+func SetProfileID(handle string) error {
+	c, err := Load()
+	if err != nil {
+		return err
+	}
+	c.ProfileID = handle
+	return Save(c)
 }
 
 // Dir returns the Celestory config directory (e.g. ~/.config/celestory).
@@ -53,6 +79,37 @@ func Load() (Config, error) {
 		return Config{}, fmt.Errorf("parse config %s: %w", path, err)
 	}
 	return c, nil
+}
+
+// EnsureInstallID returns the persisted install id, creating and saving a fresh
+// random one on first use. Existing preferences (e.g. the cache dir) are
+// preserved. The id survives cache clears because it lives in the config file.
+func EnsureInstallID() (string, error) {
+	c, err := Load()
+	if err != nil {
+		return "", err
+	}
+	if c.InstallID != "" {
+		return c.InstallID, nil
+	}
+	id, err := newInstallID()
+	if err != nil {
+		return "", err
+	}
+	c.InstallID = id
+	if err := Save(c); err != nil {
+		return "", err
+	}
+	return id, nil
+}
+
+// newInstallID returns a 128-bit random, hex-encoded identifier.
+func newInstallID() (string, error) {
+	var b [16]byte
+	if _, err := rand.Read(b[:]); err != nil {
+		return "", fmt.Errorf("generate install id: %w", err)
+	}
+	return hex.EncodeToString(b[:]), nil
 }
 
 // Save writes the config, creating the directory if needed.

@@ -1,0 +1,9 @@
+<div class="ph">
+  <canvas #art class="oa-canvas" aria-hidden="true"></canvas>
+  <span class="pico" aria-hidden="true">
+    <dba-cel-icon [name]="icon()" [size]="26" />
+    @if (label()) {
+      <span class="plabel">{{ label() }}</span>
+    }
+  </span>
+</div>

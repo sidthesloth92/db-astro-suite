@@ -10,4 +10,8 @@ import type { CelestoryLedger } from '../models/ledger.model';
 export class PreviewStore {
   /** The ledger to visualise client-side, or null if none is staged. */
   readonly ledger = signal<CelestoryLedger | null>(null);
+  /** True right after an upload, so /preview plays the processing reveal once. */
+  readonly fresh = signal(false);
+  /** True when the user chose "Create" — /preview auto-opens the publish flow. */
+  readonly autoPublish = signal(false);
 }
