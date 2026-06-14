@@ -62,8 +62,6 @@ export class PublishModalComponent implements OnInit {
   protected readonly phase = signal<'claim' | 'publishing' | 'live' | 'delete'>(
     this.initialPhase() === 'delete' ? 'delete' : 'claim',
   );
-  /** Whether the user is creating a new profile or updating an existing one. */
-  protected readonly intent = signal<'create' | 'update'>('create');
 
   protected readonly handle = signal(this.currentHandle());
   protected readonly password = signal('');
@@ -80,6 +78,27 @@ export class PublishModalComponent implements OnInit {
 
   /** Cleaned handle for the URL preview. */
   protected readonly clean = computed(() => slugifyHandle(this.handle()));
+  /**
+   * The handle this device has already published (own profile), if any — from the
+   * current route, the persisted session, or a profileId baked into the ledger.
+   */
+  private readonly knownHandle = computed(() =>
+    slugifyHandle(
+      this.currentHandle() || this.session.publishedHandle() || this.ledger().profileId || '',
+    ),
+  );
+  /**
+   * True when the typed handle matches a profile already published from this
+   * device — i.e. "the user is already there". Publishing then replaces that
+   * profile's data, so the form switches to update mode (warning + password).
+   */
+  protected readonly exists = computed(
+    () => !!this.clean() && this.clean() === this.knownHandle(),
+  );
+  /** Derived intent: updating an existing profile vs creating a new one. */
+  protected readonly intent = computed<'create' | 'update'>(() =>
+    this.exists() ? 'update' : 'create',
+  );
   /** The live URL preview. */
   protected readonly urlPreview = computed(() => `celestory.io/@${this.clean() || 'username'}`);
   /** The delete token (minted key) for this device, if any. */
@@ -95,10 +114,9 @@ export class PublishModalComponent implements OnInit {
     if (this.initialPhase() === 'delete') {
       return;
     }
-    const known = this.currentHandle() || this.ledger().profileId || '';
+    const known = this.knownHandle();
     if (known) {
       this.handle.set(known);
-      this.intent.set('update');
     }
   }
 
@@ -119,7 +137,15 @@ export class PublishModalComponent implements OnInit {
       this.error.set('Choose a handle first.');
       return;
     }
-    if (password.length < 6) {
+    if (!password) {
+      this.error.set(
+        this.exists()
+          ? 'Enter the profile password to update it.'
+          : 'Set a password to protect your profile.',
+      );
+      return;
+    }
+    if (!this.exists() && password.length < 6) {
       this.error.set('Choose a password of at least 6 characters.');
       return;
     }

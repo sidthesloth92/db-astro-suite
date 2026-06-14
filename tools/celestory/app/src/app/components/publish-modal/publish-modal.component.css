@@ -121,6 +121,30 @@
   color: var(--db-color-cyan);
 }
 
+/* "handle already exists → will replace its data" warning */
+.ob-exists {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin: 6px 0 4px;
+  padding: 11px 13px;
+  border-radius: 11px;
+  border: 1px solid color-mix(in srgb, var(--db-color-orange) 32%, transparent);
+  background: color-mix(in srgb, var(--db-color-orange) 9%, transparent);
+  color: var(--db-color-text-dim);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.ob-exists b {
+  color: var(--db-color-text-primary);
+  font-weight: 600;
+}
+.ob-exists dba-cel-icon {
+  flex: none;
+  margin-top: 2px;
+  color: var(--db-color-orange);
+}
+
 .ob-field-label {
   display: block;
   font-family: var(--db-font-mono-code);

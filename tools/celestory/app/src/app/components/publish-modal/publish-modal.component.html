@@ -8,23 +8,15 @@
       @case ('claim') {
         <div class="ob-head">
           <span class="eyebrow">Publish</span>
-          <h2>{{ intent() === 'update' ? 'Update Your Journey' : 'Publish Your Journey' }}</h2>
-          <p>
-            {{
-              intent() === 'update'
-                ? 'Confirm your handle and password to republish your latest data.'
-                : 'Claim your handle and set a password. Re-uploading later with the same handle updates your page.'
-            }}
-          </p>
+          <h2>Publish Your Journey</h2>
+          <p>Claim your handle and set a password. Re-uploading later with the same handle updates your page.</p>
         </div>
-        @if (intent() !== 'update') {
-          <ul class="ob-benefits">
-            <li><dba-cel-icon name="check" [size]="15" /> Permanent URL</li>
-            <li><dba-cel-icon name="check" [size]="15" /> View from any device</li>
-            <li><dba-cel-icon name="check" [size]="15" /> Share with fellow astrophotographers</li>
-            <li><dba-cel-icon name="check" [size]="15" /> Update your profile anytime</li>
-          </ul>
-        }
+        <ul class="ob-benefits">
+          <li><dba-cel-icon name="check" [size]="15" /> Permanent URL</li>
+          <li><dba-cel-icon name="check" [size]="15" /> View from any device</li>
+          <li><dba-cel-icon name="check" [size]="15" /> Share with fellow astrophotographers</li>
+          <li><dba-cel-icon name="check" [size]="15" /> Update your profile anytime</li>
+        </ul>
         <label class="ob-field-label">Handle</label>
         <div class="ob-handle">
           <span class="ob-handle-pfx">celestory.io/&#64;</span>
@@ -38,7 +30,13 @@
             (keydown.enter)="submit()"
           />
         </div>
-        <label class="ob-field-label">{{ intent() === 'update' ? 'Password' : 'Set a password' }}</label>
+        @if (exists()) {
+          <div class="ob-exists" role="alert">
+            <dba-cel-icon name="globe" [size]="14" />
+            <span><b>&#64;{{ clean() }}</b> already exists — publishing will <b>replace its data</b>. Enter that profile’s password to update it.</span>
+          </div>
+        }
+        <label class="ob-field-label">{{ exists() ? 'Password' : 'Set a password' }}</label>
         <div class="ob-handle ob-pass">
           <span class="ob-handle-pfx"><dba-cel-icon name="lock" [size]="15" /></span>
           <input
@@ -46,8 +44,8 @@
             type="password"
             [value]="password()"
             (input)="onPassword(p.value)"
-            [placeholder]="intent() === 'update' ? 'Your profile password' : 'Create a password'"
-            [attr.autocomplete]="intent() === 'update' ? 'current-password' : 'new-password'"
+            [placeholder]="exists() ? 'Profile password' : 'Create a password'"
+            [attr.autocomplete]="exists() ? 'current-password' : 'new-password'"
             (keydown.enter)="submit()"
           />
         </div>
@@ -67,10 +65,10 @@
           }
           <button class="btn-primary ob-full" type="button" (click)="submit()" [disabled]="busy() || !clean()">
             @if (busy()) {
-              {{ intent() === 'update' ? 'Updating…' : 'Claiming…' }}
+              {{ exists() ? 'Updating…' : 'Claiming…' }}
             } @else {
-              <dba-cel-icon [name]="intent() === 'update' ? 'globe' : 'rocket'" [size]="15" />
-              {{ intent() === 'update' ? 'Update Profile' : 'Claim Username' }}
+              <dba-cel-icon [name]="exists() ? 'globe' : 'rocket'" [size]="15" />
+              {{ exists() ? 'Update Profile' : 'Claim Username' }}
             }
           </button>
         }
