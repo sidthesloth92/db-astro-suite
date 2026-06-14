@@ -1,0 +1,11 @@
+<svg viewBox="0 0 24 24" fill="none" [attr.aria-label]="glyph().name" role="img">
+  <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3" />
+  @switch (glyph().mode) {
+    @case ('full') {
+      <circle cx="12" cy="12" r="9" fill="currentColor" />
+    }
+    @case ('partial') {
+      <path [attr.d]="glyph().d" fill="currentColor" />
+    }
+  }
+</svg>

@@ -4,6 +4,7 @@ import type { CelIconName } from '../cel-icon/cel-icon.component';
 import type { FilterRow, SessionView } from '../../models/portfolio-view.types';
 import type { AltAz } from '../../models/sky.types';
 import { formatCount, formatDuration } from '../../utils/format.util';
+import { moonGlyphFor } from '../../utils/moon-phase.util';
 import {
   categoryIcon,
   equipNameMap,
@@ -12,6 +13,7 @@ import {
   sessionViews,
 } from '../../utils/portfolio.util';
 import { CelIconComponent } from '../cel-icon/cel-icon.component';
+import { MoonGlyphComponent } from '../moon-glyph/moon-glyph.component';
 import { ObjectImageComponent } from '../object-image/object-image.component';
 import { ObjectShareModalComponent } from '../object-share-modal/object-share-modal.component';
 
@@ -19,7 +21,7 @@ import { ObjectShareModalComponent } from '../object-share-modal/object-share-mo
 @Component({
   selector: 'dba-object-detail',
   standalone: true,
-  imports: [CelIconComponent, ObjectImageComponent, ObjectShareModalComponent],
+  imports: [CelIconComponent, MoonGlyphComponent, ObjectImageComponent, ObjectShareModalComponent],
   templateUrl: './object-detail.component.html',
   styleUrl: './object-detail.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -68,6 +70,10 @@ export class ObjectDetailComponent {
   }
   protected date(d: string): string {
     return fmtDate(d);
+  }
+  /** Lunar-phase name for a session date (e.g. "Waxing Gibbous"). */
+  protected moonName(d: string): string {
+    return moonGlyphFor(d).name;
   }
   /** camera/optic glyph for a gear chip. */
   protected gearIcon(e: LedgerEquipment): CelIconName {

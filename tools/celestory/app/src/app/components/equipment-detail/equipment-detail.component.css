@@ -4,9 +4,22 @@
 .detail-top {
   display: flex;
   align-items: center;
+  margin-bottom: 4px;
+}
+/* Title row: identity on the left, share action on the right (top-aligned). */
+.detail-head {
+  display: flex;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 18px;
   margin-bottom: 22px;
+}
+.detail-head-id {
+  min-width: 0;
+}
+.detail-head .sharebtn {
+  flex: none;
+  margin-top: 6px;
 }
 .backlink {
   display: inline-flex;

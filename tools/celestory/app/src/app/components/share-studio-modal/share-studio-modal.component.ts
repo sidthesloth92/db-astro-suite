@@ -127,6 +127,8 @@ export class ShareStudioModalComponent {
   protected readonly session = inject(SessionStore);
   /** Handle printed on the card: the edited identity wins, else the input. */
   private readonly effectiveHandle = computed(() => this.session.identity().handle || this.handle());
+  /** Handle shown in the left-panel claim bar (falls back to a placeholder). */
+  protected readonly displayHandle = computed(() => this.effectiveHandle());
   /** Display URL printed on the card. */
   private readonly displayUrl = computed(() =>
     this.effectiveHandle()

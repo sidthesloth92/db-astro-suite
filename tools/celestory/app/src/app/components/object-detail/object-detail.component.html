@@ -1,14 +1,11 @@
 <section class="detail">
-  <div class="detail-top">
-    @if (!embedded()) {
+  @if (!embedded()) {
+    <div class="detail-top">
       <button class="backlink" type="button" (click)="back.emit()">
         <dba-cel-icon name="back" [size]="14" /> All objects
       </button>
-    }
-    <button class="sharebtn" type="button" (click)="showShare.set(true)">
-      <dba-cel-icon name="share" [size]="14" /> Share this target
-    </button>
-  </div>
+    </div>
+  }
 
   @if (showShare()) {
     <dba-object-share-modal
@@ -21,11 +18,18 @@
   <div class="detail-head">
     <div class="dhero"><dba-object-image [objectId]="obj().id" [category]="obj().category" [icon]="icon()" label="Click to add your image" /></div>
     <div class="dtitle">
-      @if (obj().designation) {
-        <div class="desig">{{ obj().designation }}</div>
-      }
-      <h1>{{ obj().displayName }}</h1>
-      <div class="otype">{{ obj().type || obj().category }}</div>
+      <div class="dtitle-head">
+        <div class="dtitle-id">
+          @if (obj().designation) {
+            <div class="desig">{{ obj().designation }}</div>
+          }
+          <h1>{{ obj().displayName }}</h1>
+          <div class="otype">{{ obj().type || obj().category }}</div>
+        </div>
+        <button class="sharebtn" type="button" (click)="showShare.set(true)">
+          <dba-cel-icon name="share" [size]="14" /> Share this target
+        </button>
+      </div>
 
       @if (altaz(); as aa) {
         <div class="dpos">
@@ -99,7 +103,11 @@
           @for (s of sessions(); track s.date) {
             <div class="tnode">
               <div class="tdot"></div>
-              <div class="tdate">{{ date(s.date) }}</div>
+              <div class="tdate tdate-moon">
+                <dba-moon-glyph [date]="s.date" />
+                <span>{{ date(s.date) }}</span>
+              </div>
+              <div class="tmoon">{{ moonName(s.date) }}</div>
               <div class="tint">{{ dur(s.integrationSeconds) }}</div>
               <div class="tfilters">
                 @for (f of s.filters; track f.name) {

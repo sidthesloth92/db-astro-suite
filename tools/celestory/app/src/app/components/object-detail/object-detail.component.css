@@ -47,9 +47,21 @@
 .detail-top {
   display: flex;
   align-items: center;
+  margin-bottom: 18px;
+}
+/* Title row: identity on the left, share action on the right (top-aligned). */
+.dtitle-head {
+  display: flex;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 24px;
+  gap: 18px;
+}
+.dtitle-id {
+  min-width: 0;
+}
+.dtitle-head .sharebtn {
+  flex: none;
+  margin-top: 6px;
 }
 .backlink {
   display: inline-flex;
@@ -298,6 +310,18 @@
   font-family: var(--db-font-mono-code);
   font-size: 11px;
   color: var(--db-color-text-faint);
+}
+.tdate-moon {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.tmoon {
+  font-family: var(--db-font-mono-code);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--db-color-text-dim);
+  margin-top: 3px;
 }
 .tint {
   font-family: var(--db-font-display);

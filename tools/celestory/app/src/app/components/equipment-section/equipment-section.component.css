@@ -45,6 +45,9 @@
   border-radius: 12px;
   padding: 16px 18px;
   background: linear-gradient(180deg, var(--db-color-surface-raised), color-mix(in srgb, var(--db-color-surface-raised) 60%, var(--db-color-surface-bg)));
+  /* <button> resets color to the UA default (black); restore the theme ink so
+     name cells without an explicit colour inherit light text. */
+  color: var(--db-color-text-primary);
   cursor: pointer;
   transition: border-color 0.15s;
 }

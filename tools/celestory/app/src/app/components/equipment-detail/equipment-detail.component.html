@@ -3,23 +3,27 @@
     <button class="backlink" type="button" (click)="back.emit()">
       <dba-cel-icon name="back" [size]="14" /> All equipment
     </button>
-    <button class="sharebtn" type="button" (click)="showShare.set(true)">
-      <dba-cel-icon name="share" [size]="14" /> Share this gear
-    </button>
   </div>
 
   @if (showShare()) {
     <dba-equipment-share-modal [equip]="equip()" [ledger]="ledger()" (closed)="showShare.set(false)" />
   }
 
-  <div class="kindrow">
-    <dba-cel-icon [name]="icon()" [size]="15" />
-    <span>{{ equip().kind }}</span>
+  <div class="detail-head">
+    <div class="detail-head-id">
+      <div class="kindrow">
+        <dba-cel-icon [name]="icon()" [size]="15" />
+        <span>{{ equip().kind }}</span>
+      </div>
+      <h1>{{ equip().displayName }}</h1>
+      @if (detail()) {
+        <div class="edetail">{{ detail() }}</div>
+      }
+    </div>
+    <button class="sharebtn" type="button" (click)="showShare.set(true)">
+      <dba-cel-icon name="share" [size]="14" /> Share this gear
+    </button>
   </div>
-  <h1>{{ equip().displayName }}</h1>
-  @if (detail()) {
-    <div class="edetail">{{ detail() }}</div>
-  }
 
   <div class="dstats">
     <div class="cell"><div class="k">Total integration</div><div class="v glow">{{ dur(equip().totalIntegrationSeconds) }}</div></div>
