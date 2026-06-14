@@ -12,7 +12,7 @@ import {
   viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { Router } from "@angular/router";
+import { Router, RouterLink } from "@angular/router";
 import { ConstellationFieldComponent } from "@db-astro-suite/ui";
 import { catchError, of } from "rxjs";
 import { CelestoryMarkComponent } from "../components/celestory-mark/celestory-mark.component";
@@ -20,6 +20,7 @@ import { CelestoryWordmarkComponent } from "../components/celestory-wordmark/cel
 import { UploadChoiceModalComponent } from "../components/upload-choice-modal/upload-choice-modal.component";
 import type { CommunityStats } from "../models/community-stats.model";
 import {
+  GITHUB_URL,
   HUB_URL,
   INSTALL_COMMANDS,
   INSTALL_LABELS,
@@ -48,6 +49,7 @@ const COUNT_UP_MS = 1600;
   selector: "dba-celestory-landing",
   standalone: true,
   imports: [
+    RouterLink,
     ConstellationFieldComponent,
     CelestoryMarkComponent,
     CelestoryWordmarkComponent,
@@ -86,8 +88,12 @@ export default class LandingPageComponent {
   protected readonly installLabels = INSTALL_LABELS;
   /** Scan command shown beneath the install command. */
   protected readonly scanCommand = SCAN_COMMAND;
-  /** DB Astro Suite hub URL the nav links back to. */
+  /** DB Astro Suite hub URL the footer "Launch the app" links back to. */
   protected readonly hubUrl = HUB_URL;
+  /** Public source repository, linked from the nav + footer GitHub icons. */
+  protected readonly githubUrl = GITHUB_URL;
+  /** Current year, shown in the footer copyright line. */
+  protected readonly year = new Date().getFullYear();
 
   /** Live community aggregates for the counters; null until loaded / on error. */
   protected readonly stats = toSignal(

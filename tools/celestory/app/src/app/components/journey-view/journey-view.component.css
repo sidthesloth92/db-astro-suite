@@ -29,21 +29,6 @@
   align-items: center;
   padding: 14px 0 clamp(1rem, 4vw, 2rem);
 }
-.bar-actions {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-.bar-actions .btn-ghost {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  text-transform: none;
-  letter-spacing: 0.01em;
-  padding: 9px 14px;
-  text-decoration: none;
-}
 .brand {
   display: flex;
   align-items: center;
@@ -197,7 +182,10 @@
 }
 .banner-txt strong {
   font-family: var(--db-font-display-major);
-  font-size: 0.95rem;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.012em;
+  text-transform: uppercase;
 }
 .banner-txt span {
   color: var(--db-color-text-dim);
@@ -226,12 +214,12 @@
 
 .btn-primary,
 .btn-ghost {
-  font-family: var(--db-font-display-major);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  border-radius: 9px;
+  font-family: var(--db-font-ui);
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  border-radius: 999px;
   padding: 11px 20px;
   cursor: pointer;
   white-space: nowrap;

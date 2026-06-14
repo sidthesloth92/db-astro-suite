@@ -58,9 +58,9 @@ export class PublishModalComponent implements OnInit {
   /** Emits when the modal should close. */
   readonly closed = output<void>();
 
-  /** Current phase. */
-  protected readonly phase = signal<'choose' | 'claim' | 'publishing' | 'live' | 'delete'>(
-    this.initialPhase() === 'delete' ? 'delete' : 'choose',
+  /** Current phase. Opens straight on the single claim form (no create/update chooser). */
+  protected readonly phase = signal<'claim' | 'publishing' | 'live' | 'delete'>(
+    this.initialPhase() === 'delete' ? 'delete' : 'claim',
   );
   /** Whether the user is creating a new profile or updating an existing one. */
   protected readonly intent = signal<'create' | 'update'>('create');
@@ -86,9 +86,9 @@ export class PublishModalComponent implements OnInit {
   protected readonly deleteToken = this.session.deleteToken;
 
   /**
-   * Auto-route a returning user straight to the Update step: a configured
-   * profileId (or this device's published handle) means "continue your journey",
-   * not "create a profile". Read here (not in field initialisers) because the
+   * Detect a returning user so the single claim form republishes instead of
+   * creating: a configured profileId (or this device's published handle) means
+   * "continue your journey". Read here (not in field initialisers) because the
    * required `ledger` input is only available once inputs are bound.
    */
   ngOnInit(): void {
@@ -99,26 +99,7 @@ export class PublishModalComponent implements OnInit {
     if (known) {
       this.handle.set(known);
       this.intent.set('update');
-      this.phase.set('claim');
     }
-  }
-
-  /** Pick "create a new profile". */
-  chooseCreate(): void {
-    this.intent.set('create');
-    this.error.set('');
-    this.phase.set('claim');
-  }
-  /** Pick "update an existing profile". */
-  chooseUpdate(): void {
-    this.intent.set('update');
-    this.error.set('');
-    this.phase.set('claim');
-  }
-  /** Back to the choose step. */
-  backToChoose(): void {
-    this.error.set('');
-    this.phase.set('choose');
   }
 
   /** Track the handle input. */

@@ -20,6 +20,9 @@ export interface ShareDestination {
   url: string;
 }
 
+/** Top-level Share Studio asset kind, selected via the drawer's intent tabs. */
+export type ShareAssetKind = 'summary' | 'slides' | 'poster';
+
 /** A share-card theme id. Each theme bundles a fixed palette + background motif. */
 export type ShareThemeId =
   | 'dark'

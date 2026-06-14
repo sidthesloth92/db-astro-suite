@@ -15,6 +15,7 @@ import { slugifyHandle } from '../../utils/handle.util';
 import type { CelestoryLedger } from '../../models/ledger.model';
 import { STORY_TYPES } from '../../models/share.constants';
 import type {
+  ShareAssetKind,
   ShareCardData,
   ShareCarouselData,
   ShareFormatId,
@@ -77,6 +78,8 @@ export class ShareStudioModalComponent {
   protected readonly formats = SHARE_FORMAT_LIST;
   protected readonly storyTypes = STORY_TYPES;
 
+  /** Top-level asset kind tab (Summary Card / Story Slides / Poster). */
+  protected readonly kind = signal<ShareAssetKind>('summary');
   /** Current selections. */
   protected readonly themeId = signal<ShareThemeId>('dark');
   /** The motif painted for the selected theme (theme-driven, not a separate axis). */
@@ -112,11 +115,6 @@ export class ShareStudioModalComponent {
   /** The currently selected story type object. */
   protected readonly selectedStory = computed(
     () => STORY_TYPES.find((t) => t.id === this.storyType()) ?? STORY_TYPES[0],
-  );
-
-  /** Human-readable mode label for the eyebrow. */
-  protected readonly modeLabel = computed(() =>
-    this.mode() === 'carousel' ? 'Carousel' : 'Single Card',
   );
 
   /** Pixel dimensions of the current format. */
@@ -191,6 +189,25 @@ export class ShareStudioModalComponent {
     }
   });
 
+  /**
+   * Selects the top-level asset kind, applying sensible mode/format defaults:
+   * Summary Card → single summary, Story Slides → carousel, Poster → wide single.
+   */
+  selectKind(kind: ShareAssetKind): void {
+    this.kind.set(kind);
+    if (kind === 'slides') {
+      this.mode.set('carousel');
+      return;
+    }
+    this.mode.set('single');
+    this.storyType.set('journey-summary');
+    if (kind === 'poster') {
+      this.formatId.set('landscape');
+    } else if (this.formatId() === 'landscape') {
+      this.formatId.set('story');
+    }
+  }
+
   /** Selects a story type. */
   selectStoryType(id: string): void {
     this.storyType.set(id);
@@ -209,11 +226,6 @@ export class ShareStudioModalComponent {
   /** Story-type dropdown change. */
   onStoryType(event: Event): void {
     this.storyType.set((event.target as HTMLSelectElement).value);
-  }
-
-  /** Timeframe dropdown change. */
-  onYear(event: Event): void {
-    this.yearFilter.set((event.target as HTMLSelectElement).value);
   }
 
   /** Selects a format. */

@@ -28,7 +28,6 @@ import { ObjectSectionComponent } from '../object-section/object-section.compone
 import { PlanetariumComponent } from '../planetarium/planetarium.component';
 import { PublishModalComponent } from '../publish-modal/publish-modal.component';
 import { SectionBannerComponent } from '../section-banner/section-banner.component';
-import { ShareJourneyModalComponent } from '../share-journey-modal/share-journey-modal.component';
 import { ShareStudioModalComponent } from '../share-studio-modal/share-studio-modal.component';
 
 /**
@@ -53,7 +52,6 @@ import { ShareStudioModalComponent } from '../share-studio-modal/share-studio-mo
     ObjectDetailComponent,
     EquipmentDetailComponent,
     GettingStartedModalComponent,
-    ShareJourneyModalComponent,
     PublishModalComponent,
     ShareStudioModalComponent,
     PlanetariumComponent,
@@ -89,9 +87,9 @@ export class JourneyViewComponent {
 
   /** Modal visibility. */
   protected readonly showGettingStarted = signal(false);
-  protected readonly showShare = signal(false);
   protected readonly showPublish = signal(false);
-  protected readonly showStorySlides = signal(false);
+  /** The Share Studio drawer (opened directly from any "Share" action). */
+  protected readonly showStudio = signal(false);
   /** Flashes after a successful copy. */
   protected readonly copied = signal(false);
   /** Flashes after copying the delete token. */
@@ -221,9 +219,9 @@ export class JourneyViewComponent {
     }
   }
 
-  /** Opens the Share modal. */
+  /** Opens the Share Studio drawer directly. */
   openShare(): void {
-    this.showShare.set(true);
+    this.showStudio.set(true);
   }
   /** Opens the Publish modal directly (full flow). */
   openPublish(): void {
@@ -252,16 +250,6 @@ export class JourneyViewComponent {
   /** Opens the Getting Started modal (Demo state CTA). */
   openGettingStarted(): void {
     this.showGettingStarted.set(true);
-  }
-  /** Share → Publish hand-off. */
-  shareToPublish(): void {
-    this.showShare.set(false);
-    this.showPublish.set(true);
-  }
-  /** Share → Story-Slides hand-off. */
-  shareToStorySlides(): void {
-    this.showShare.set(false);
-    this.showStorySlides.set(true);
   }
 
   /** Publish succeeded: close the modal and enter the Published Profile state. */
@@ -315,12 +303,11 @@ export class JourneyViewComponent {
   /** Escape closes any open modal; with no modal open, it closes an open detail. */
   onEscape(): void {
     const anyModalOpen =
-      this.showGettingStarted() || this.showShare() || this.showPublish() || this.showStorySlides();
+      this.showGettingStarted() || this.showPublish() || this.showStudio();
     if (anyModalOpen) {
       this.showGettingStarted.set(false);
-      this.showShare.set(false);
       this.showPublish.set(false);
-      this.showStorySlides.set(false);
+      this.showStudio.set(false);
       return;
     }
     if (this.detail()) {

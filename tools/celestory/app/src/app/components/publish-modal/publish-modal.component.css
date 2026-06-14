@@ -50,6 +50,8 @@
 .ob-head h2 {
   font-family: var(--db-font-display-major);
   font-size: 1.5rem;
+  letter-spacing: 0.005em;
+  text-transform: none;
   margin: 0.4rem 0 0.35rem;
 }
 .ob-head p {

@@ -6,14 +6,6 @@
       <a class="brand" routerLink="/">
         <dba-celestory-wordmark [markSize]="30" [fontSize]="20" />
       </a>
-      <div class="bar-actions">
-        <button class="btn-ghost" type="button" (click)="openGettingStarted()" title="How to generate your data">
-          <dba-cel-icon name="terminal" [size]="13" /> How it works
-        </button>
-        <a class="btn-ghost" routerLink="/" title="Load a different ledger">
-          <dba-cel-icon name="upload" [size]="13" /> New file
-        </a>
-      </div>
     </header>
 
     <!-- State banner -->
@@ -107,14 +99,6 @@
   @if (showGettingStarted()) {
     <dba-getting-started-modal (closed)="showGettingStarted.set(false)" />
   }
-  @if (showShare()) {
-    <dba-share-journey-modal
-      [state]="state()"
-      (openStorySlides)="shareToStorySlides()"
-      (openPublish)="shareToPublish()"
-      (closed)="showShare.set(false)"
-    />
-  }
   @if (showPublish()) {
     <dba-publish-modal
       [ledger]="ledger()"
@@ -125,13 +109,13 @@
       (closed)="showPublish.set(false)"
     />
   }
-  @if (showStorySlides()) {
+  @if (showStudio()) {
     <dba-share-studio-modal
       [ledger]="ledger()"
       [handle]="handle()"
       [state]="state()"
-      (openPublish)="showStorySlides.set(false); openPublish()"
-      (closed)="showStorySlides.set(false)"
+      (openPublish)="showStudio.set(false); openPublish()"
+      (closed)="showStudio.set(false)"
     />
   }
 

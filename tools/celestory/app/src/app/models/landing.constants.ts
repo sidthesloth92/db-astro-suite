@@ -16,5 +16,8 @@ export const INSTALL_LABELS: Record<InstallTool, string> = {
 /** The scan command, shown beneath the install command (CLI uses `-input`/`-out`). */
 export const SCAN_COMMAND = 'celestory -input ~/Astro -out celestory.json';
 
-/** The DB Astro Suite hub the nav links back to. */
+/** The DB Astro Suite hub the footer "Launch the app" links back to. */
 export const HUB_URL = 'https://dbastrosuite.com';
+
+/** Public source repository, linked from the nav and footer GitHub icons. */
+export const GITHUB_URL = 'https://github.com/sidthesloth92/db-astro-suite';

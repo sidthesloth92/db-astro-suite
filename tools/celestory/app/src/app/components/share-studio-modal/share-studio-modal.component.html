@@ -4,11 +4,11 @@
     <div class="studio">
       <!-- LEFT: canvas preview panel -->
       <div class="preview-panel">
-        <button class="back-btn" type="button" (click)="closed.emit()" aria-label="Back to all assets">
+        <button class="back-btn" type="button" (click)="closed.emit()" aria-label="Close share studio">
           <svg viewBox="0 0 16 16" fill="none" width="14" height="14" aria-hidden="true">
-            <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          All assets
+          Close
         </button>
 
         <div class="preview">
@@ -37,9 +37,25 @@
 
       <!-- RIGHT: scrollable controls -->
       <div class="controls">
-        <p class="ctrl-eyebrow">{{ modeLabel() }}</p>
+        <p class="ctrl-eyebrow">Share Studio</p>
         <h2 id="ss-title" class="ctrl-title">{{ selectedStory().label }}</h2>
         <p class="ctrl-desc">{{ selectedStory().description }}</p>
+
+        <!-- Top-level asset kind tabs -->
+        <div class="kind-tabs" role="tablist" aria-label="Asset kind">
+          <button type="button" class="kind-tab" role="tab" [class.on]="kind() === 'summary'" [attr.aria-selected]="kind() === 'summary'" (click)="selectKind('summary')">
+            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="3" y="3" width="14" height="14" rx="2.5" stroke="currentColor" stroke-width="1.5"/></svg>
+            Summary Card
+          </button>
+          <button type="button" class="kind-tab" role="tab" [class.on]="kind() === 'slides'" [attr.aria-selected]="kind() === 'slides'" (click)="selectKind('slides')">
+            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="2" y="4" width="11" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M15.5 6v8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M18 7.5v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            Story Slides
+          </button>
+          <button type="button" class="kind-tab" role="tab" [class.on]="kind() === 'poster'" [attr.aria-selected]="kind() === 'poster'" (click)="selectKind('poster')">
+            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="2" y="4" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/></svg>
+            Poster
+          </button>
+        </div>
 
         <!-- Story Type dropdown -->
         <div class="grp">
@@ -82,20 +98,15 @@
           </label>
         </div>
 
-        <!-- Timeframe -->
+        <!-- Timeframe pills -->
         @if (availableYears().length) {
           <div class="grp">
             <span class="grp-label">Timeframe</span>
-            <div class="sel-wrap">
-              <select class="sel" [value]="yearFilter()" (change)="onYear($event)" aria-label="Timeframe">
-                <option value="all-time">All time</option>
-                @for (y of availableYears(); track y) {
-                  <option [value]="y.toString()">{{ y }}</option>
-                }
-              </select>
-              <svg class="sel-caret" viewBox="0 0 12 12" fill="none" width="11" height="11" aria-hidden="true">
-                <path d="M3 4.5L6 7.5l3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
+            <div class="tf-pills" role="group" aria-label="Timeframe">
+              <button type="button" class="tf-pill" [class.on]="yearFilter() === 'all-time'" (click)="selectYear('all-time')">All time</button>
+              @for (y of availableYears(); track y) {
+                <button type="button" class="tf-pill" [class.on]="yearFilter() === y.toString()" (click)="selectYear(y.toString())">{{ y }}</button>
+              }
             </div>
           </div>
         }

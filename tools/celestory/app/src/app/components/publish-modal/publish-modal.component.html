@@ -5,41 +5,15 @@
     </button>
 
     @switch (phase()) {
-      @case ('choose') {
-        <div class="ob-head">
-          <span class="eyebrow">Publish</span>
-          <h2>Publish Your Journey</h2>
-          <p>Are you creating a new profile or updating an existing one?</p>
-        </div>
-        <div class="ob-choose">
-          <button class="ob-choice" type="button" (click)="chooseCreate()">
-            <span class="ob-choice-ico"><dba-cel-icon name="rocket" [size]="20" /></span>
-            <span class="ob-choice-body">
-              <span class="ob-choice-t">Create a new profile</span>
-              <span class="ob-choice-d">Claim a fresh handle and set a password.</span>
-            </span>
-            <dba-cel-icon name="arrow" [size]="16" />
-          </button>
-          <button class="ob-choice" type="button" (click)="chooseUpdate()">
-            <span class="ob-choice-ico"><dba-cel-icon name="edit" [size]="20" /></span>
-            <span class="ob-choice-body">
-              <span class="ob-choice-t">Update an existing profile</span>
-              <span class="ob-choice-d">Sign in with your handle and password to republish.</span>
-            </span>
-            <dba-cel-icon name="arrow" [size]="16" />
-          </button>
-        </div>
-      }
-
       @case ('claim') {
         <div class="ob-head">
-          <span class="eyebrow">{{ intent() === 'update' ? 'Update profile' : 'New profile' }}</span>
+          <span class="eyebrow">Publish</span>
           <h2>{{ intent() === 'update' ? 'Update Your Journey' : 'Publish Your Journey' }}</h2>
           <p>
             {{
               intent() === 'update'
                 ? 'Confirm your handle and password to republish your latest data.'
-                : 'Claim your handle and set a password to protect your profile.'
+                : 'Claim your handle and set a password. Re-uploading later with the same handle updates your page.'
             }}
           </p>
         </div>
@@ -96,11 +70,8 @@
               {{ intent() === 'update' ? 'Updating…' : 'Claiming…' }}
             } @else {
               <dba-cel-icon [name]="intent() === 'update' ? 'globe' : 'rocket'" [size]="15" />
-              {{ intent() === 'update' ? 'Update Profile' : 'Claim Handle' }}
+              {{ intent() === 'update' ? 'Update Profile' : 'Claim Username' }}
             }
-          </button>
-          <button class="ob-back-link" type="button" (click)="backToChoose()">
-            <dba-cel-icon name="back" [size]="14" /> Back
           </button>
         }
       }
