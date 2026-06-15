@@ -34,6 +34,8 @@
   padding: 12px 10px;
   border-radius: 0 8px 8px 0;
   border-left: 1px solid var(--dba-split-button-divider, var(--db-color-border));
+  /* Falls back to the main segment bg; override for a distinct (e.g. darker) caret. */
+  background: var(--dba-split-button-chevron-bg, var(--dba-split-button-bg, var(--db-color-surface-hi)));
 }
 
 .segment.chevron dba-ui-icon {
