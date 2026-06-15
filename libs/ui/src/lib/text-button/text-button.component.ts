@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
@@ -37,7 +38,7 @@ export type TextButtonRouterLink = string | readonly unknown[] | null;
 @Component({
   selector: 'dba-ui-text-button',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, NgTemplateOutlet],
   templateUrl: './text-button.component.html',
   styleUrl: './text-button.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

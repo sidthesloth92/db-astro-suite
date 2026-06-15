@@ -1,3 +1,17 @@
+<!--
+  Single source of the projected content. Declaring the [slot=leading] /
+  [slot=trailing] ng-content slots once (here) and stamping this template via
+  ngTemplateOutlet in each render branch avoids the duplicate-ng-content trap:
+  Angular allocates a projection slot per *declared* ng-content, so repeating
+  the same selector across @switch branches projects the content into only one
+  (the first) branch and drops it everywhere else.
+-->
+<ng-template #content>
+  <ng-content select="[slot=leading]"></ng-content>
+  <span class="label">{{ label() }}</span>
+  <ng-content select="[slot=trailing]"></ng-content>
+</ng-template>
+
 @switch (renderMode()) {
   @case ('router') {
     <a
@@ -10,9 +24,7 @@
       [attr.tabindex]="disabled() ? -1 : null"
       (click)="onClick($event)"
     >
-      <ng-content select="[slot=leading]" />
-      <span class="label">{{ label() }}</span>
-      <ng-content select="[slot=trailing]" />
+      <ng-container [ngTemplateOutlet]="content" />
     </a>
   }
   @case ('href') {
@@ -28,9 +40,7 @@
       [attr.tabindex]="disabled() ? -1 : null"
       (click)="onClick($event)"
     >
-      <ng-content select="[slot=leading]" />
-      <span class="label">{{ label() }}</span>
-      <ng-content select="[slot=trailing]" />
+      <ng-container [ngTemplateOutlet]="content" />
     </a>
   }
   @default {
@@ -43,9 +53,7 @@
       [disabled]="disabled()"
       (click)="onClick($event)"
     >
-      <ng-content select="[slot=leading]" />
-      <span class="label">{{ label() }}</span>
-      <ng-content select="[slot=trailing]" />
+      <ng-container [ngTemplateOutlet]="content" />
     </button>
   }
 }
