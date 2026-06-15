@@ -17,7 +17,7 @@
             <strong>Viewing Demo Journey</strong>
             <span>Like what you see? Create your own Celestory in minutes.</span>
           </div>
-          <dba-ui-text-button variant="primary" label="Create Your Journey" (clicked)="openGettingStarted()">
+          <dba-ui-text-button variant="primary" label="Create Your Journey" (clicked)="goToInstall()">
             <dba-cel-icon slot="leading" name="rocket" [size]="14" />
           </dba-ui-text-button>
         </section>
@@ -104,9 +104,6 @@
   </main>
 
   <!-- Modals -->
-  @if (showGettingStarted()) {
-    <dba-getting-started-modal (closed)="showGettingStarted.set(false)" />
-  }
   @if (showPublish()) {
     <dba-publish-modal
       [ledger]="ledger()"

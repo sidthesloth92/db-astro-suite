@@ -22,7 +22,6 @@ import { CelIconComponent } from '../cel-icon/cel-icon.component';
 import { CelestoryWordmarkComponent } from '../celestory-wordmark/celestory-wordmark.component';
 import { EquipmentDetailComponent } from '../equipment-detail/equipment-detail.component';
 import { EquipmentSectionComponent } from '../equipment-section/equipment-section.component';
-import { GettingStartedModalComponent } from '../getting-started-modal/getting-started-modal.component';
 import { JourneyHeroComponent } from '../journey-hero/journey-hero.component';
 import { ObjectDetailComponent } from '../object-detail/object-detail.component';
 import { ObjectSectionComponent } from '../object-section/object-section.component';
@@ -53,7 +52,6 @@ import { ShareStudioModalComponent } from '../share-studio-modal/share-studio-mo
     EquipmentSectionComponent,
     ObjectDetailComponent,
     EquipmentDetailComponent,
-    GettingStartedModalComponent,
     PublishModalComponent,
     ShareStudioModalComponent,
     PlanetariumComponent,
@@ -88,7 +86,6 @@ export class JourneyViewComponent {
   readonly handle = input<string>('');
 
   /** Modal visibility. */
-  protected readonly showGettingStarted = signal(false);
   protected readonly showPublish = signal(false);
   /** The Share Studio drawer (opened directly from any "Share" action). */
   protected readonly showStudio = signal(false);
@@ -245,9 +242,9 @@ export class JourneyViewComponent {
       setTimeout(() => this.tokenCopied.set(false), 1400);
     });
   }
-  /** Opens the Getting Started modal (Demo state CTA). */
-  openGettingStarted(): void {
-    this.showGettingStarted.set(true);
+  /** Demo CTA: sends viewers to the landing page's installation section. */
+  goToInstall(): void {
+    void this.router.navigate(['/'], { fragment: 'how' });
   }
 
   /** Publish succeeded: close the modal and enter the Published Profile state. */
@@ -300,10 +297,8 @@ export class JourneyViewComponent {
 
   /** Escape closes any open modal; with no modal open, it closes an open detail. */
   onEscape(): void {
-    const anyModalOpen =
-      this.showGettingStarted() || this.showPublish() || this.showStudio();
+    const anyModalOpen = this.showPublish() || this.showStudio();
     if (anyModalOpen) {
-      this.showGettingStarted.set(false);
       this.showPublish.set(false);
       this.showStudio.set(false);
       return;
