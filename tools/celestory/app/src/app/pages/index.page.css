@@ -180,7 +180,7 @@ nav.top a.nlink:hover {
 header.hero {
   position: relative;
   text-align: center;
-  padding: 48px 0 36px;
+  padding: 28px 0 24px;
 }
 .hero .kick {
   display: inline-flex;
@@ -206,7 +206,7 @@ header.hero {
   align-items: center;
   justify-content: center;
   gap: clamp(12px, 2.4vw, 18px);
-  margin: 4px auto 26px;
+  margin: 4px auto 18px;
   flex-wrap: wrap;
 }
 .hero-mark dba-celestory-mark {
@@ -215,7 +215,7 @@ header.hero {
 .hero-wm {
   font-family: var(--db-font-display-major, var(--serif));
   font-weight: 700;
-  font-size: clamp(34px, 8.5vw, 58px);
+  font-size: clamp(26px, 6vw, 42px);
   letter-spacing: 0.01em;
   line-height: 1;
 }
@@ -227,10 +227,10 @@ header.hero {
 .hero-headline {
   font-family: var(--serif);
   font-weight: 700;
-  font-size: clamp(40px, 11vw, 82px);
+  font-size: clamp(34px, 8.5vw, 60px);
   line-height: 1.05;
   letter-spacing: -0.025em;
-  margin: 0 0 22px;
+  margin: 0 0 16px;
   /* Theme globally uppercases h1–h6; the design hero headline is mixed-case. */
   text-transform: none;
 }
@@ -243,7 +243,7 @@ header.hero {
   font-size: clamp(15px, 4.2vw, 19px);
   color: var(--ink-2);
   max-width: 600px;
-  margin: 0 auto 30px;
+  margin: 0 auto 22px;
   line-height: 1.6;
 }
 .hero .cta-row {
@@ -294,6 +294,7 @@ dba-ui-text-button.step-btn {
   -webkit-text-fill-color: transparent;
 }
 .or-txt {
+  margin-top: 24px;
   font-family: var(--mono);
   font-size: 12px;
   font-weight: 600;
@@ -1276,7 +1277,7 @@ footer .brand {
 }
 @media (min-width: 760px) {
   header.hero {
-    padding: 80px 0 56px;
+    padding: 44px 0 40px;
   }
   .nav-links {
     display: flex;

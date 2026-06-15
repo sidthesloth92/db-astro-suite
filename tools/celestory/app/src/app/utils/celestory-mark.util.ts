@@ -2,8 +2,8 @@
  * Builds the Celestory brand-mark geometry — an exact port of the canonical
  * design (Celestory Logo.html). The mark is a session-log crescent "C": a
  * deterministic dotted grid of your nights under the sky, forming the brand
- * initial, coloured by a random cyan↔pink scatter. The `full` variant cradles a
- * three-step moon-phase story riding a timeline spine (hero + primary mark); the
+ * initial, coloured by a random cyan↔pink scatter. The `full` variant pairs the
+ * crescent with a three-step moon-phase story (hero + primary mark); the
  * `icon` variant is the crescent alone (header, app icon, avatar). Same seed,
  * same dots. Each primitive carries optional launch-animation metadata
  * (role/rank/delay/seed) the static render ignores.
@@ -123,36 +123,6 @@ function phase(
   ];
 }
 
-/** Timeline spine: gradient line + nodes brightening toward "now" (a star). */
-function spine(x0: number, x1: number, y: number, nodes: number[]): MarkPrimitive[] {
-  const out: MarkPrimitive[] = [
-    { kind: 'gradline', x1: x0, y1: y, x2: x1, y2: y, sw: 2.2, role: 'spine', delay: 1120 },
-  ];
-  nodes.forEach((nx, i) => {
-    const t = i / (nodes.length - 1);
-    const col = hexLerp(MARK_CYAN, MARK_PINK, t);
-    const up = i % 2 === 0;
-    const ny = up ? y - 9 : y + 9;
-    const r = 1.8 + i * 0.6;
-    const delay = 1240 + i * 90;
-    const tag = (prim: MarkPrimitive): MarkPrimitive => ({ ...prim, role: 'node', delay });
-    out.push(tag({ kind: 'line', x1: nx, y1: y, x2: nx, y2: ny, stroke: col, sw: 1.2, opacity: 0.55 }));
-    if (i === nodes.length - 1) {
-      out.push(
-        tag({
-          kind: 'path',
-          d: `M${nx} ${ny - 6} l1.6 4.6 4.6 1.6 -4.6 1.6 -1.6 4.6 -1.6 -4.6 -4.6 -1.6 4.6 -1.6 z`,
-          fill: col,
-        }),
-      );
-    } else {
-      out.push(tag({ kind: 'circle', cx: nx, cy: ny, r, fill: col }));
-    }
-    out.push(tag({ kind: 'circle', cx: nx, cy: y, r: 1.8, fill: col }));
-  });
-  return out;
-}
-
 /** Build the geometry for the requested brand-mark variant. */
 export function buildMarkGeometry(variant: MarkVariant): MarkGeometry {
   if (variant === 'icon') {
@@ -168,14 +138,13 @@ export function buildMarkGeometry(variant: MarkVariant): MarkGeometry {
     [124, 1],
   ];
   return {
-    viewBox: '0 0 165 132',
-    heightRatio: 132 / 165,
+    viewBox: '0 0 138 104',
+    heightRatio: 104 / 138,
     shapes: [
       ...cells,
       ...phases.flatMap((d, i) =>
         phase(d[0], 50, 9, d[1], hexLerp(MARK_CYAN, MARK_PINK, 0.5 + i * 0.25), 700 + i * 140),
       ),
-      ...spine(14, 150, 112, [24, 52, 80, 108, 140]),
     ],
   };
 }
