@@ -24,19 +24,20 @@ import {
 import { IconButtonComponent, TextButtonComponent } from '@db-astro-suite/ui';
 import { buildShareModel } from '../../utils/share-model.util';
 import { SessionStore } from '../../services/session-store.service';
+import { slugifyHandle } from '../../utils/handle.util';
 import { copyCanvasToClipboard, shareCanvas } from '../../utils/share-export.util';
-import { CelIconComponent } from '../cel-icon/cel-icon.component';
 
 /**
- * Per-object Share — a live canvas studio scoped to ONE target. Pick a theme,
- * background motif and format, then download the card. Fully client-side.
+ * Per-object Share — a single-item scope of the shared Share Studio shell: a live
+ * canvas preview, identity, theme + format pickers and download / copy / share.
+ * Reuses the Share Studio stylesheet so it stays visually identical. Client-side.
  */
 @Component({
   selector: 'dba-object-share-modal',
   standalone: true,
-  imports: [TextButtonComponent, IconButtonComponent, CelIconComponent],
+  imports: [TextButtonComponent, IconButtonComponent],
   templateUrl: './object-share-modal.component.html',
-  styleUrl: './object-share-modal.component.css',
+  styleUrl: '../share-studio-modal/share-studio-modal.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { '(document:keydown.escape)': 'closed.emit()' },
 })
@@ -55,16 +56,36 @@ export class ObjectShareModalComponent {
   private readonly canvasRef = viewChild<ElementRef<HTMLCanvasElement>>('cv');
 
   /** Shared session identity (name / handle) printed on the card. */
-  private readonly session = inject(SessionStore);
+  protected readonly session = inject(SessionStore);
 
   /** Picker options. */
   protected readonly themes = SHARE_THEME_LIST;
   protected readonly formats = SHARE_FORMAT_LIST;
 
   /** Selections. */
-  protected readonly themeId = signal<ShareThemeId>('astro');
+  protected readonly themeId = signal<ShareThemeId>('star');
   protected readonly formatId = signal<ShareFormatId>('story');
   protected readonly flash = signal('');
+
+  /** Caption under the preview ("designation · name"). */
+  protected readonly caption = computed(() => {
+    const o = this.obj();
+    return o.designation ? `${o.designation}  ·  ${o.displayName}` : o.displayName;
+  });
+  /** Pixel dimensions of the current format, for the footer note. */
+  protected readonly currentFormatDims = computed(() => {
+    const f = SHARE_FORMATS[this.formatId()];
+    return `${f.w} × ${f.h}px`;
+  });
+
+  /** Update the shared identity name from the studio input. */
+  setIdentityName(value: string): void {
+    this.session.setIdentity({ ...this.session.identity(), name: value });
+  }
+  /** Update the shared identity handle from the studio input. */
+  setIdentityHandle(value: string): void {
+    this.session.setIdentity({ ...this.session.identity(), handle: slugifyHandle(value) });
+  }
 
   /** Render-ready model, with the edited identity (handle falls back to the input). */
   private readonly model = computed(() => {
@@ -75,11 +96,6 @@ export class ObjectShareModalComponent {
   private readonly shareObject = computed(() => {
     const id = this.obj().id;
     return this.model().objects.find((o) => o.id === id) ?? this.model().objects[0];
-  });
-  /** Aspect-ratio style for the preview frame. */
-  protected readonly aspect = computed(() => {
-    const f = SHARE_FORMATS[this.formatId()];
-    return `${f.w} / ${f.h}`;
   });
 
   private fontsReady: Promise<void> | null = null;

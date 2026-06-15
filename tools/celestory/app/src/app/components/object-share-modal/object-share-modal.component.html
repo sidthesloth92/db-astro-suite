@@ -1,61 +1,140 @@
-<div class="os-overlay" (mousedown)="onBackdrop($event)">
-  <div class="os-modal" role="dialog" aria-modal="true">
-    <dba-ui-icon-button class="os-close" accent="cyan" [size]="34" title="Close" (clicked)="closed.emit()">
-      <dba-cel-icon name="back" [size]="18" />
-    </dba-ui-icon-button>
+<div class="overlay" (click)="onBackdrop($event)">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="obj-share-title">
 
-    <div class="os-preview">
-      <div class="os-frame" [style.aspect-ratio]="aspect()">
-        <canvas #cv class="os-canvas"></canvas>
-      </div>
-    </div>
-
-    <div class="os-controls">
-      <div class="os-head">
-        <span class="eyebrow">Share this target</span>
-        <h2>{{ obj().displayName }}</h2>
-      </div>
-
-      <div class="grp">
-        <span class="grp-label">Theme</span>
-        <div class="os-swatches">
-          @for (t of themes; track t.id) {
-            <button
-              type="button"
-              class="os-sw"
-              [class.on]="themeId() === t.id"
-              [style.background]="t.swatch"
-              [title]="t.label"
-              [attr.aria-label]="t.label"
-              (click)="selectTheme(t.id)"
-            ></button>
-          }
+    <div class="studio">
+      <!-- LEFT: canvas preview -->
+      <div class="preview-panel">
+        <div class="preview" [attr.data-fmt]="formatId()">
+          <canvas #cv class="card-canvas" aria-label="Object share card preview"></canvas>
         </div>
+        <p class="canvas-caption">{{ caption() }}</p>
       </div>
 
-      <div class="grp">
-        <span class="grp-label">Format</span>
-        <div class="os-formats">
-          @for (f of formats; track f.id) {
-            <button type="button" class="os-fmt" [class.on]="formatId() === f.id" (click)="selectFormat(f.id)">
-              {{ f.label }}
-            </button>
-          }
+      <!-- RIGHT: scrollable controls -->
+      <div class="controls">
+        <dba-ui-icon-button class="close-btn" accent="cyan" [size]="34" title="Close" (clicked)="closed.emit()">
+          <svg viewBox="0 0 20 20" fill="none" width="16" height="16" aria-hidden="true">
+            <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+        </dba-ui-icon-button>
+
+        <div class="ctrl-head">
+          <p class="ctrl-eyebrow">Object card</p>
+          <h2 id="obj-share-title" class="ctrl-title">{{ obj().displayName }}</h2>
+          <p class="ctrl-desc">A shareable snapshot of this target — integration, frames, filters, gear &amp; first light.</p>
         </div>
-      </div>
 
-      <div class="os-actions">
-        <dba-ui-text-button class="os-dl" variant="primary" [label]="flash() || 'Download PNG'" (clicked)="download()">
-          <dba-cel-icon slot="leading" name="download" [size]="15" />
-        </dba-ui-text-button>
-        <dba-ui-text-button variant="secondary" label="Share" (clicked)="share()">
-          <dba-cel-icon slot="leading" name="share" [size]="15" />
-        </dba-ui-text-button>
-        <dba-ui-text-button variant="secondary" label="Copy" (clicked)="copy()">
-          <dba-cel-icon slot="leading" name="copy" [size]="15" />
-        </dba-ui-text-button>
+        <!-- Your name & handle — updates the shared identity live -->
+        <div class="grp grp-row">
+          <label class="grp-col">
+            <span class="grp-label">Your name</span>
+            <input
+              #idn
+              class="sel ss-id-input"
+              [value]="session.identity().name"
+              (input)="setIdentityName(idn.value)"
+              placeholder="Your name"
+              aria-label="Your name"
+            />
+          </label>
+          <label class="grp-col">
+            <span class="grp-label">Handle</span>
+            <input
+              #idh
+              class="sel ss-id-input"
+              [value]="session.identity().handle"
+              (input)="setIdentityHandle(idh.value)"
+              placeholder="handle"
+              aria-label="Your handle"
+            />
+          </label>
+        </div>
+
+        <!-- Theme: named, scrollable swatches -->
+        <div class="grp">
+          <span class="grp-label">Theme</span>
+          <div class="theme-row">
+            @for (t of themes; track t.id) {
+              <button
+                type="button"
+                class="tsw"
+                [class.on]="themeId() === t.id"
+                (click)="selectTheme(t.id)"
+                [attr.aria-label]="t.label"
+                [attr.aria-pressed]="themeId() === t.id"
+              >
+                <span class="tsw-chip" [style.background]="t.swatch"></span>
+                <span class="tsw-name">{{ t.label }}</span>
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Format shape buttons -->
+        <div class="grp">
+          <span class="grp-label">Format</span>
+          <div class="formats">
+            @for (f of formats; track f.id) {
+              <button type="button" class="fmt" [class.on]="formatId() === f.id" (click)="selectFormat(f.id)">
+                <span class="fmt-ico">
+                  @switch (f.id) {
+                    @case ('square') {
+                      <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                        <rect x="3" y="3" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                      </svg>
+                    }
+                    @case ('story') {
+                      <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                        <rect x="5" y="1" width="10" height="18" rx="2.5" stroke="currentColor" stroke-width="1.5"/>
+                        <circle cx="10" cy="17" r="1" fill="currentColor" opacity="0.5"/>
+                      </svg>
+                    }
+                    @default {
+                      <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                        <rect x="1" y="5" width="18" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                      </svg>
+                    }
+                  }
+                </span>
+                <span class="fmt-info">
+                  <span class="fmt-name">{{ f.label }}</span>
+                  <span class="fmt-sub">{{ f.sub }}</span>
+                </span>
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions">
+          <dba-ui-text-button variant="primary" label="Download PNG" (clicked)="download()">
+            <svg slot="leading" viewBox="0 0 16 16" fill="none" width="15" height="15" aria-hidden="true">
+              <path d="M8 2v8M5 7l3 3 3-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M3 13h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+          </dba-ui-text-button>
+
+          <dba-ui-text-button variant="secondary" label="Share" (clicked)="share()">
+            <svg slot="leading" viewBox="0 0 16 16" fill="none" width="15" height="15" aria-hidden="true">
+              <path d="M8 10V2M5 5l3-3 3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M3 9v4a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+          </dba-ui-text-button>
+
+          <dba-ui-text-button variant="secondary" label="Copy" (clicked)="copy()">
+            <svg slot="leading" viewBox="0 0 16 16" fill="none" width="15" height="15" aria-hidden="true">
+              <rect x="5" y="5" width="9" height="9" rx="2" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M11 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h1" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+          </dba-ui-text-button>
+        </div>
+
+        @if (flash()) {
+          <p class="flash-msg" role="status">{{ flash() }}</p>
+        }
+
+        <p class="footer-note">{{ currentFormatDims() }} · nothing leaves your device</p>
       </div>
-      <p class="os-note">Rendered in your browser · nothing leaves your device</p>
     </div>
   </div>
 </div>

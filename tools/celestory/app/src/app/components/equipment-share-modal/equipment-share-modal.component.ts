@@ -24,19 +24,20 @@ import {
 import { IconButtonComponent, TextButtonComponent } from '@db-astro-suite/ui';
 import { buildShareModel } from '../../utils/share-model.util';
 import { SessionStore } from '../../services/session-store.service';
+import { slugifyHandle } from '../../utils/handle.util';
 import { copyCanvasToClipboard, shareCanvas } from '../../utils/share-export.util';
-import { CelIconComponent } from '../cel-icon/cel-icon.component';
 
 /**
- * Per-equipment Share — a live canvas studio scoped to ONE piece of gear. Pick a
- * theme + format (story / square only) and download / copy / share. Client-side.
+ * Per-equipment Share — a single-item scope of the shared Share Studio shell: a
+ * live canvas preview, identity, theme + format (story / square only) and
+ * download / copy / share. Reuses the Share Studio stylesheet. Client-side.
  */
 @Component({
   selector: 'dba-equipment-share-modal',
   standalone: true,
-  imports: [TextButtonComponent, IconButtonComponent, CelIconComponent],
+  imports: [TextButtonComponent, IconButtonComponent],
   templateUrl: './equipment-share-modal.component.html',
-  styleUrl: './equipment-share-modal.component.css',
+  styleUrl: '../share-studio-modal/share-studio-modal.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { '(document:keydown.escape)': 'closed.emit()' },
 })
@@ -55,7 +56,7 @@ export class EquipmentShareModalComponent {
   private readonly canvasRef = viewChild<ElementRef<HTMLCanvasElement>>('cv');
 
   /** Shared session identity (name / handle) printed on the card. */
-  private readonly session = inject(SessionStore);
+  protected readonly session = inject(SessionStore);
 
   /** Picker options — equipment cards omit landscape. */
   protected readonly themes = SHARE_THEME_LIST;
@@ -69,6 +70,23 @@ export class EquipmentShareModalComponent {
   /** Whether this gear is a camera (tweaks the description copy). */
   protected readonly isCamera = computed(() => this.equip().kind.toLowerCase() === 'camera');
 
+  /** Caption under the preview ("kind · name"). */
+  protected readonly caption = computed(() => `${this.equip().kind}  ·  ${this.equip().displayName}`);
+  /** Pixel dimensions of the current format, for the footer note. */
+  protected readonly currentFormatDims = computed(() => {
+    const f = SHARE_FORMATS[this.formatId()];
+    return `${f.w} × ${f.h}px`;
+  });
+
+  /** Update the shared identity name from the studio input. */
+  setIdentityName(value: string): void {
+    this.session.setIdentity({ ...this.session.identity(), name: value });
+  }
+  /** Update the shared identity handle from the studio input. */
+  setIdentityHandle(value: string): void {
+    this.session.setIdentity({ ...this.session.identity(), handle: slugifyHandle(value) });
+  }
+
   /** Render-ready model, with the edited identity (handle falls back to the input). */
   private readonly model = computed(() => {
     const ident = this.session.identity();
@@ -78,11 +96,6 @@ export class EquipmentShareModalComponent {
   private readonly shareEquip = computed(() => {
     const id = this.equip().id;
     return this.model().equipment.find((e) => e.id === id) ?? this.model().equipment[0];
-  });
-  /** Aspect-ratio style for the preview frame. */
-  protected readonly aspect = computed(() => {
-    const f = SHARE_FORMATS[this.formatId()];
-    return `${f.w} / ${f.h}`;
   });
 
   private fontsReady: Promise<void> | null = null;
