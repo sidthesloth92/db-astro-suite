@@ -35,9 +35,9 @@
           @if (displayHandle()) {
             <span class="hero-handle">&#64;{{ displayHandle() }}</span>
           }
-          <button class="id-edit-btn" type="button" (click)="startEdit()" aria-label="Edit name and handle">
+          <dba-ui-icon-button class="id-edit-btn" accent="cyan" [size]="30" title="Edit name and handle" (clicked)="startEdit()">
             <dba-cel-icon name="edit" [size]="14" />
-          </button>
+          </dba-ui-icon-button>
         </div>
       }
     </div>
@@ -66,15 +66,13 @@
     </div>
 
     <div class="hero-actions">
-      <button class="btn-share" type="button" (click)="share.emit()">
-        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.4" /><circle cx="17" cy="6" r="2.4" /><circle cx="17" cy="18" r="2.4" /><path d="M8.1 10.9l6.8-3.8M8.1 13.1l6.8 3.8" /></svg>
-        Share Journey
-      </button>
+      <dba-ui-text-button variant="primary" size="lg" label="Share Journey" (clicked)="share.emit()">
+        <svg slot="leading" class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.4" /><circle cx="17" cy="6" r="2.4" /><circle cx="17" cy="18" r="2.4" /><path d="M8.1 10.9l6.8-3.8M8.1 13.1l6.8 3.8" /></svg>
+      </dba-ui-text-button>
       @if (state() === 'preview') {
-        <button class="btn-publish" type="button" (click)="publish.emit()">
-          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5" /><path d="M3.5 12h17M12 3.5c2.5 2.4 2.5 14.6 0 17M12 3.5c-2.5 2.4-2.5 14.6 0 17" /></svg>
-          Publish Journey
-        </button>
+        <dba-ui-text-button variant="secondary" size="lg" label="Publish Journey" (clicked)="publish.emit()">
+          <svg slot="leading" class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5" /><path d="M3.5 12h17M12 3.5c2.5 2.4 2.5 14.6 0 17M12 3.5c-2.5 2.4-2.5 14.6 0 17" /></svg>
+        </dba-ui-text-button>
       }
     </div>
   </div>

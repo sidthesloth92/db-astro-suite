@@ -12,18 +12,18 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { profileDisplayUrl } from '../../models/app.constants';
 import type { CelestoryLedger, LedgerEquipment } from '../../models/ledger.model';
-import type { EquipmentShareData, ShareFormatId, ShareThemeId } from '../../models/share.types';
+import type { ShareFormatId, ShareThemeId } from '../../models/share.types';
 import {
-  buildEquipmentShareData,
   ensureShareFonts,
   renderEquipmentShareCard,
   SHARE_FORMAT_LIST,
   SHARE_FORMATS,
   SHARE_THEME_LIST,
-  THEME_MOTIF,
 } from '../../utils/share-card.util';
+import { IconButtonComponent, TextButtonComponent } from '@db-astro-suite/ui';
+import { buildShareModel } from '../../utils/share-model.util';
+import { SessionStore } from '../../services/session-store.service';
 import { copyCanvasToClipboard, shareCanvas } from '../../utils/share-export.util';
 import { CelIconComponent } from '../cel-icon/cel-icon.component';
 
@@ -34,7 +34,7 @@ import { CelIconComponent } from '../cel-icon/cel-icon.component';
 @Component({
   selector: 'dba-equipment-share-modal',
   standalone: true,
-  imports: [CelIconComponent],
+  imports: [TextButtonComponent, IconButtonComponent, CelIconComponent],
   templateUrl: './equipment-share-modal.component.html',
   styleUrl: './equipment-share-modal.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -54,25 +54,31 @@ export class EquipmentShareModalComponent {
 
   private readonly canvasRef = viewChild<ElementRef<HTMLCanvasElement>>('cv');
 
+  /** Shared session identity (name / handle) printed on the card. */
+  private readonly session = inject(SessionStore);
+
   /** Picker options — equipment cards omit landscape. */
   protected readonly themes = SHARE_THEME_LIST;
   protected readonly formats = SHARE_FORMAT_LIST.filter((f) => f.id !== 'landscape');
 
   /** Selections. */
   protected readonly themeId = signal<ShareThemeId>('star');
-  /** The motif painted for the selected theme. */
-  protected readonly backgroundId = computed(() => THEME_MOTIF[this.themeId()]);
   protected readonly formatId = signal<ShareFormatId>('story');
   protected readonly flash = signal('');
 
   /** Whether this gear is a camera (tweaks the description copy). */
   protected readonly isCamera = computed(() => this.equip().kind.toLowerCase() === 'camera');
 
-  private readonly displayUrl = computed(() => profileDisplayUrl(this.handle()));
-  /** The equipment card data. */
-  protected readonly data = computed<EquipmentShareData>(() =>
-    buildEquipmentShareData(this.equip(), this.ledger(), this.displayUrl()),
-  );
+  /** Render-ready model, with the edited identity (handle falls back to the input). */
+  private readonly model = computed(() => {
+    const ident = this.session.identity();
+    return buildShareModel(this.ledger(), { name: ident.name, handle: ident.handle || this.handle() });
+  });
+  /** The matching render equipment for the input gear. */
+  private readonly shareEquip = computed(() => {
+    const id = this.equip().id;
+    return this.model().equipment.find((e) => e.id === id) ?? this.model().equipment[0];
+  });
   /** Aspect-ratio style for the preview frame. */
   protected readonly aspect = computed(() => {
     const f = SHARE_FORMATS[this.formatId()];
@@ -85,14 +91,14 @@ export class EquipmentShareModalComponent {
     effect(() => {
       const canvas = this.canvasRef()?.nativeElement;
       const themeId = this.themeId();
-      const backgroundId = this.backgroundId();
       const formatId = this.formatId();
-      const data = this.data();
-      if (!this.isBrowser || !canvas) {
+      const model = this.model();
+      const e = this.shareEquip();
+      if (!this.isBrowser || !canvas || !e) {
         return;
       }
       this.fontsReady ??= ensureShareFonts();
-      void this.fontsReady.then(() => renderEquipmentShareCard(canvas, themeId, backgroundId, formatId, data));
+      void this.fontsReady.then(() => renderEquipmentShareCard(canvas, model, e, themeId, formatId));
     });
   }
 

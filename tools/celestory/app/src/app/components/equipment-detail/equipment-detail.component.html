@@ -20,9 +20,9 @@
         <div class="edetail">{{ detail() }}</div>
       }
     </div>
-    <button class="sharebtn" type="button" (click)="showShare.set(true)">
-      <dba-cel-icon name="share" [size]="14" /> Share this gear
-    </button>
+    <dba-ui-text-button class="sharebtn" variant="secondary" label="Share this gear" (clicked)="showShare.set(true)">
+      <dba-cel-icon slot="leading" name="share" [size]="14" />
+    </dba-ui-text-button>
   </div>
 
   <div class="dstats">

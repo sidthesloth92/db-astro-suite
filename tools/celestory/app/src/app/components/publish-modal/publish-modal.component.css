@@ -23,15 +23,6 @@
   position: absolute;
   top: 12px;
   right: 12px;
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 9px;
-  border: 1px solid var(--db-color-border);
-  background: transparent;
-  color: var(--db-color-text-dim);
-  cursor: pointer;
 }
 
 .ob-head {
@@ -192,7 +183,7 @@
   margin: 0.6rem 0 0;
 }
 
-.btn-primary,
+/* destructive delete action — no lib variant exists, kept bespoke. */
 .btn-danger {
   display: inline-flex;
   align-items: center;
@@ -205,21 +196,15 @@
   padding: 0.8rem 1.2rem;
   border: 1px solid transparent;
   cursor: pointer;
-}
-.btn-primary {
   color: var(--db-color-text-primary);
-  background: var(--db-color-neon-pink);
+  background: var(--db-color-text-error);
 }
-.btn-danger {
-  color: #fff;
-  background: #c8324f;
-}
-.btn-primary:disabled,
 .btn-danger:disabled {
   opacity: 0.55;
   cursor: not-allowed;
 }
 .ob-full {
+  display: flex;
   width: 100%;
   margin-top: 1.1rem;
 }

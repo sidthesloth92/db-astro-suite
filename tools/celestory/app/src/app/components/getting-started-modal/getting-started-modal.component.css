@@ -24,21 +24,6 @@
   position: absolute;
   top: 16px;
   right: 16px;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--db-color-text-dim);
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
-}
-
-.close:hover {
-  background: rgba(255, 255, 255, 0.11);
-  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .eyebrow {
@@ -209,42 +194,7 @@
   margin-top: 1.6rem;
 }
 
-.btn-primary,
-.btn-ghost {
-  font-family: var(--db-font-display-major);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  border-radius: 999px;
-  padding: 13px 20px;
-  cursor: pointer;
-  text-decoration: none;
+.cta-row dba-ui-text-button {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
   width: 100%;
-  box-sizing: border-box;
-  transition: opacity 0.14s, background 0.14s;
-}
-
-.btn-primary {
-  color: var(--db-color-text-primary);
-  background: var(--db-color-neon-pink);
-  border: 1px solid transparent;
-}
-
-.btn-primary:hover {
-  opacity: 0.9;
-}
-
-.btn-ghost {
-  color: var(--db-color-text-primary);
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.btn-ghost:hover {
-  background: rgba(255, 255, 255, 0.1);
 }

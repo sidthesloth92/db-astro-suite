@@ -15,6 +15,7 @@ import {
   seasonCount,
   yearSpan,
 } from '../../utils/portfolio.util';
+import { IconButtonComponent, TextButtonComponent } from '@db-astro-suite/ui';
 import { CelIconComponent } from '../cel-icon/cel-icon.component';
 import { CelestoryWordmarkComponent } from '../celestory-wordmark/celestory-wordmark.component';
 import { FilterDistributionComponent } from '../filter-distribution/filter-distribution.component';
@@ -34,6 +35,8 @@ let heroUid = 0;
   selector: 'dba-journey-hero',
   standalone: true,
   imports: [
+    TextButtonComponent,
+    IconButtonComponent,
     CelIconComponent,
     CelestoryWordmarkComponent,
     MoonPhaseTimelineComponent,

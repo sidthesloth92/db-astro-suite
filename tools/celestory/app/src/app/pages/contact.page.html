@@ -51,10 +51,9 @@
             <div class="err">A message would be lovely.</div>
           </div>
 
-          <button class="btn-primary" type="submit">
-            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z" /></svg>
-            Send message
-          </button>
+          <dba-ui-text-button class="send-btn" variant="primary" size="lg" label="Send message" (clicked)="submit()">
+            <svg slot="leading" class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z" /></svg>
+          </dba-ui-text-button>
 
           @if (sent()) {
             <div class="sent show" role="status">

@@ -32,15 +32,6 @@
   top: 12px;
   right: 12px;
   z-index: 2;
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 9px;
-  border: 1px solid var(--db-color-border);
-  background: var(--db-color-surface);
-  color: var(--db-color-text-dim);
-  cursor: pointer;
 }
 .os-preview {
   display: grid;
@@ -139,40 +130,12 @@
   gap: 8px;
   flex-wrap: wrap;
 }
-.os-dl {
-  flex: 1 1 100%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-family: var(--db-font-display-major);
-  font-weight: 700;
-  color: var(--db-color-text-primary);
-  background: var(--db-color-neon-pink);
-  border: none;
-  border-radius: 10px;
-  padding: 0.8rem;
-  cursor: pointer;
-}
-.os-act {
+.os-actions dba-ui-text-button {
+  display: flex;
   flex: 1 1 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 0.7rem;
-  border-radius: 10px;
-  cursor: pointer;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid var(--db-color-border-strong);
-  color: var(--db-color-text-primary);
-  font-family: var(--db-font-display-major);
-  font-weight: 700;
-  font-size: 12.5px;
-  white-space: nowrap;
 }
-.os-act:hover {
-  background: rgba(255, 255, 255, 0.1);
+.os-actions .os-dl {
+  flex: 1 1 100%;
 }
 .os-note {
   font-size: 0.74rem;

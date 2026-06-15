@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, output } from '@angular/core';
+import { IconButtonComponent } from '@db-astro-suite/ui';
 import { CelIconComponent } from '../cel-icon/cel-icon.component';
 
 /**
@@ -10,7 +11,7 @@ import { CelIconComponent } from '../cel-icon/cel-icon.component';
 @Component({
   selector: 'dba-upload-choice-modal',
   standalone: true,
-  imports: [CelIconComponent],
+  imports: [IconButtonComponent, CelIconComponent],
   templateUrl: './upload-choice-modal.component.html',
   styleUrl: './upload-choice-modal.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

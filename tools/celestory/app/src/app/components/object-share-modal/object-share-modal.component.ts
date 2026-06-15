@@ -12,18 +12,18 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { profileDisplayUrl } from '../../models/app.constants';
 import type { CelestoryLedger, LedgerObject } from '../../models/ledger.model';
-import type { ObjectShareData, ShareFormatId, ShareThemeId } from '../../models/share.types';
+import type { ShareFormatId, ShareThemeId } from '../../models/share.types';
 import {
-  buildObjectShareData,
   ensureShareFonts,
   renderObjectShareCard,
   SHARE_FORMAT_LIST,
   SHARE_FORMATS,
   SHARE_THEME_LIST,
-  THEME_MOTIF,
 } from '../../utils/share-card.util';
+import { IconButtonComponent, TextButtonComponent } from '@db-astro-suite/ui';
+import { buildShareModel } from '../../utils/share-model.util';
+import { SessionStore } from '../../services/session-store.service';
 import { copyCanvasToClipboard, shareCanvas } from '../../utils/share-export.util';
 import { CelIconComponent } from '../cel-icon/cel-icon.component';
 
@@ -34,7 +34,7 @@ import { CelIconComponent } from '../cel-icon/cel-icon.component';
 @Component({
   selector: 'dba-object-share-modal',
   standalone: true,
-  imports: [CelIconComponent],
+  imports: [TextButtonComponent, IconButtonComponent, CelIconComponent],
   templateUrl: './object-share-modal.component.html',
   styleUrl: './object-share-modal.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -54,23 +54,28 @@ export class ObjectShareModalComponent {
 
   private readonly canvasRef = viewChild<ElementRef<HTMLCanvasElement>>('cv');
 
+  /** Shared session identity (name / handle) printed on the card. */
+  private readonly session = inject(SessionStore);
+
   /** Picker options. */
   protected readonly themes = SHARE_THEME_LIST;
   protected readonly formats = SHARE_FORMAT_LIST;
 
   /** Selections. */
   protected readonly themeId = signal<ShareThemeId>('astro');
-  /** The motif painted for the selected theme (theme-driven, not a separate axis). */
-  protected readonly backgroundId = computed(() => THEME_MOTIF[this.themeId()]);
   protected readonly formatId = signal<ShareFormatId>('story');
   protected readonly flash = signal('');
 
-  /** URL line for the card. */
-  private readonly displayUrl = computed(() => profileDisplayUrl(this.handle()));
-  /** The object card data. */
-  protected readonly data = computed<ObjectShareData>(() =>
-    buildObjectShareData(this.obj(), this.ledger(), this.displayUrl()),
-  );
+  /** Render-ready model, with the edited identity (handle falls back to the input). */
+  private readonly model = computed(() => {
+    const ident = this.session.identity();
+    return buildShareModel(this.ledger(), { name: ident.name, handle: ident.handle || this.handle() });
+  });
+  /** The matching render object for the input target. */
+  private readonly shareObject = computed(() => {
+    const id = this.obj().id;
+    return this.model().objects.find((o) => o.id === id) ?? this.model().objects[0];
+  });
   /** Aspect-ratio style for the preview frame. */
   protected readonly aspect = computed(() => {
     const f = SHARE_FORMATS[this.formatId()];
@@ -83,14 +88,14 @@ export class ObjectShareModalComponent {
     effect(() => {
       const canvas = this.canvasRef()?.nativeElement;
       const themeId = this.themeId();
-      const backgroundId = this.backgroundId();
       const formatId = this.formatId();
-      const data = this.data();
-      if (!this.isBrowser || !canvas) {
+      const model = this.model();
+      const o = this.shareObject();
+      if (!this.isBrowser || !canvas || !o) {
         return;
       }
       this.fontsReady ??= ensureShareFonts();
-      void this.fontsReady.then(() => renderObjectShareCard(canvas, themeId, backgroundId, formatId, data));
+      void this.fontsReady.then(() => renderObjectShareCard(canvas, model, o, themeId, formatId));
     });
   }
 

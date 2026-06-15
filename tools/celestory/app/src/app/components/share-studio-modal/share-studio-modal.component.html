@@ -8,7 +8,7 @@
           <canvas #cv class="card-canvas" aria-label="Share card preview"></canvas>
           @if (mode() === 'carousel') {
             <div class="pager">
-              <button class="pg-btn" type="button" (click)="prevSlide()" [disabled]="slideIndex() === 0" aria-label="Previous slide">‹</button>
+              <dba-ui-icon-button accent="cyan" [size]="30" title="Previous slide" [disabled]="slideIndex() === 0" (clicked)="prevSlide()">‹</dba-ui-icon-button>
               <div class="dots">
                 @for (i of slides; track i) {
                   <button
@@ -20,7 +20,7 @@
                   ></button>
                 }
               </div>
-              <button class="pg-btn" type="button" (click)="nextSlide()" [disabled]="slideIndex() === slideCount - 1" aria-label="Next slide">›</button>
+              <dba-ui-icon-button accent="cyan" [size]="30" title="Next slide" [disabled]="slideIndex() === slideCount - 1" (clicked)="nextSlide()">›</dba-ui-icon-button>
             </div>
           }
         </div>
@@ -39,10 +39,9 @@
                 </svg>
               </span>
               <span class="claim-url">{{ claimUrl() }}</span>
-              <button class="claim-btn" type="button" (click)="openPublish.emit()">
-                Claim
-                <svg viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M5 3l5 5-5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </button>
+              <dba-ui-text-button class="claim-btn" variant="secondary" size="sm" label="Claim" (clicked)="openPublish.emit()">
+                <svg slot="trailing" viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true"><path d="M5 3l5 5-5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </dba-ui-text-button>
             </div>
           </div>
         }
@@ -64,11 +63,11 @@
 
       <!-- RIGHT: scrollable controls -->
       <div class="controls">
-        <button class="close-btn" type="button" (click)="closed.emit()" aria-label="Close share studio">
+        <dba-ui-icon-button class="close-btn" accent="cyan" [size]="34" title="Close share studio" (clicked)="closed.emit()">
           <svg viewBox="0 0 20 20" fill="none" width="16" height="16" aria-hidden="true">
             <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
           </svg>
-        </button>
+        </dba-ui-icon-button>
 
         <p class="ctrl-eyebrow">Share Studio</p>
         <h2 id="ss-title" class="ctrl-title">{{ selectedStory().label }}</h2>
@@ -201,49 +200,30 @@
 
         <!-- Actions -->
         <div class="actions">
-          <!-- Download split button -->
-          <div class="dl-wrap">
-            <button class="btn-dl" type="button" (click)="downloadAs(dlFormat())">
-              <svg viewBox="0 0 16 16" fill="none" width="15" height="15" aria-hidden="true">
-                <path d="M8 1.5v9M4.5 7l3.5 4 3.5-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M2 13.5h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-              </svg>
-              Download {{ dlFormat() === 'png' ? 'PNG' : 'JPEG' }}
-            </button>
-            <button class="btn-dl-caret" type="button" (click)="toggleDownloadMenu()" aria-label="Choose download format">
-              <svg viewBox="0 0 14 14" fill="none" width="13" height="13" aria-hidden="true">
-                <path d="M3 5l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
-            @if (showDownloadMenu()) {
-              <div class="dl-menu" role="menu">
-                <button type="button" class="dl-opt" [class.on]="dlFormat() === 'png'" (click)="setDlFormat('png')" role="menuitem">
-                  PNG <span class="dl-opt-sub">lossless</span>
-                </button>
-                <button type="button" class="dl-opt" [class.on]="dlFormat() === 'jpeg'" (click)="setDlFormat('jpeg')" role="menuitem">
-                  JPEG <span class="dl-opt-sub">smaller file</span>
-                </button>
-              </div>
-            }
-          </div>
+          <dba-ui-split-button
+            class="dl-split"
+            [label]="'Download ' + (dlFormat() === 'png' ? 'PNG' : 'JPEG')"
+            [menuItems]="downloadMenu"
+            [selectedValue]="dlFormat()"
+            menuPlacement="up"
+            menuAriaLabel="Choose download format"
+            (mainClick)="downloadAs(dlFormat())"
+            (menuSelect)="setDlFormat($event)"
+          />
 
-          <!-- Share button (line-style icon) -->
-          <button class="btn-share" type="button" (click)="share()">
-            <svg viewBox="0 0 16 16" fill="none" width="15" height="15" aria-hidden="true">
+          <dba-ui-text-button variant="secondary" label="Share" (clicked)="share()">
+            <svg slot="leading" viewBox="0 0 16 16" fill="none" width="15" height="15" aria-hidden="true">
               <path d="M8 10V2M5 5l3-3 3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
               <path d="M3 9v4a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
             </svg>
-            Share
-          </button>
+          </dba-ui-text-button>
 
-          <!-- Copy to clipboard -->
-          <button class="btn-share" type="button" (click)="copy()" aria-label="Copy to clipboard">
-            <svg viewBox="0 0 16 16" fill="none" width="15" height="15" aria-hidden="true">
+          <dba-ui-text-button variant="secondary" label="Copy" (clicked)="copy()">
+            <svg slot="leading" viewBox="0 0 16 16" fill="none" width="15" height="15" aria-hidden="true">
               <rect x="5" y="5" width="9" height="9" rx="2" stroke="currentColor" stroke-width="1.5"/>
               <path d="M11 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h1" stroke="currentColor" stroke-width="1.5"/>
             </svg>
-            Copy
-          </button>
+          </dba-ui-text-button>
         </div>
 
         @if (flash()) {

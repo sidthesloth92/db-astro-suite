@@ -5,7 +5,7 @@ import { RouterLink } from '@angular/router';
 export type TextButtonVariant = 'primary' | 'secondary';
 
 /** Size preset supported by `TextButtonComponent`. */
-export type TextButtonSize = 'sm' | 'md';
+export type TextButtonSize = 'sm' | 'md' | 'lg';
 
 /** Acceptable shape for the `routerLink` input — matches Angular's `RouterLink`. */
 export type TextButtonRouterLink = string | readonly unknown[] | null;

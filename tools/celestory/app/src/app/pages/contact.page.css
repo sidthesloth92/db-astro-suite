@@ -224,34 +224,11 @@ main {
   display: block;
 }
 
-/* primary button */
-.btn-primary {
-  font-family: var(--serif);
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--ink);
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  background: var(--glow);
-  border: none;
-  cursor: pointer;
-  padding: 15px 26px;
-  border-radius: 9px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
+/* primary submit button (shared dba-ui-text-button, stretched full-width) */
+.send-btn {
+  display: flex;
   width: 100%;
   margin-top: 4px;
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--glow) 30%, transparent),
-    0 14px 40px color-mix(in srgb, var(--glow) 22%, transparent);
-  transition: filter 0.15s, transform 0.12s;
-}
-.btn-primary:hover {
-  filter: brightness(1.07);
-}
-.btn-primary:active {
-  transform: translateY(1px);
 }
 
 /* sent confirmation */

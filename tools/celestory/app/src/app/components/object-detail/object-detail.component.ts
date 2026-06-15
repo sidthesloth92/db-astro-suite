@@ -12,6 +12,7 @@ import {
   fmtDate,
   sessionViews,
 } from '../../utils/portfolio.util';
+import { TextButtonComponent } from '@db-astro-suite/ui';
 import { CelIconComponent } from '../cel-icon/cel-icon.component';
 import { MoonGlyphComponent } from '../moon-glyph/moon-glyph.component';
 import { ObjectImageComponent } from '../object-image/object-image.component';
@@ -21,7 +22,13 @@ import { ObjectShareModalComponent } from '../object-share-modal/object-share-mo
 @Component({
   selector: 'dba-object-detail',
   standalone: true,
-  imports: [CelIconComponent, MoonGlyphComponent, ObjectImageComponent, ObjectShareModalComponent],
+  imports: [
+    TextButtonComponent,
+    CelIconComponent,
+    MoonGlyphComponent,
+    ObjectImageComponent,
+    ObjectShareModalComponent,
+  ],
   templateUrl: './object-detail.component.html',
   styleUrl: './object-detail.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

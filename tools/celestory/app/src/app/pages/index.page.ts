@@ -13,7 +13,11 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { Router, RouterLink } from "@angular/router";
-import { ConstellationFieldComponent } from "@db-astro-suite/ui";
+import {
+  ConstellationFieldComponent,
+  IconButtonComponent,
+  TextButtonComponent,
+} from "@db-astro-suite/ui";
 import { catchError, of } from "rxjs";
 import { CelestoryMarkComponent } from "../components/celestory-mark/celestory-mark.component";
 import { CelestoryWordmarkComponent } from "../components/celestory-wordmark/celestory-wordmark.component";
@@ -51,6 +55,8 @@ const COUNT_UP_MS = 1600;
   imports: [
     RouterLink,
     ConstellationFieldComponent,
+    TextButtonComponent,
+    IconButtonComponent,
     CelestoryMarkComponent,
     CelestoryWordmarkComponent,
     UploadChoiceModalComponent,
@@ -211,6 +217,21 @@ export default class LandingPageComponent {
   exploreSample(): void {
     this.error.set("");
     void this.router.navigate(["/user", SAMPLE_HANDLE]);
+  }
+
+  /** Smooth-scrolls to the "Get started" steps section (replaces the #how anchor). */
+  scrollToHow(): void {
+    if (typeof document === "undefined") {
+      return;
+    }
+    document.getElementById("how")?.scrollIntoView({ behavior: "smooth" });
+  }
+
+  /** Opens an external URL in a new tab (GitHub link). */
+  openExternal(url: string): void {
+    if (typeof window !== "undefined") {
+      window.open(url, "_blank", "noopener");
+    }
   }
 
   /** Switches the displayed install channel. */

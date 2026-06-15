@@ -17,7 +17,7 @@
             <strong>Viewing Demo Journey</strong>
             <span>Like what you see? Create your own Celestory in minutes.</span>
           </div>
-          <button class="btn-primary" type="button" (click)="openGettingStarted()">Create Your Journey</button>
+          <dba-ui-text-button variant="primary" label="Create Your Journey" (clicked)="openGettingStarted()" />
         </section>
       }
       @case ('preview') {
@@ -27,7 +27,7 @@
             <strong>Private Preview</strong>
             <span>This journey is only visible on this device. Publish it to get a permanent URL.</span>
           </div>
-          <button class="btn-primary" type="button" (click)="openPublish()">Publish Journey</button>
+          <dba-ui-text-button variant="primary" label="Publish Journey" (clicked)="openPublish()" />
         </section>
       }
       @case ('published') {
@@ -40,8 +40,10 @@
               <code class="url">{{ profileUrl() }}</code>
             </div>
             <div class="banner-actions">
-              <button class="btn-ghost" type="button" (click)="copyLink()">{{ copied() ? 'Copied' : 'Copy Link' }}</button>
-              <button class="btn-primary" type="button" (click)="openShare()"><dba-cel-icon name="share" [size]="14" /> Share</button>
+              <dba-ui-text-button variant="secondary" [label]="copied() ? 'Copied' : 'Copy Link'" (clicked)="copyLink()" />
+              <dba-ui-text-button variant="primary" label="Share" (clicked)="openShare()">
+                <dba-cel-icon slot="leading" name="share" [size]="14" />
+              </dba-ui-text-button>
             </div>
           </div>
           @if (session.deleteToken(); as token) {

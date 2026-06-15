@@ -1,4 +1,11 @@
+import type { SplitButtonMenuItem } from '@db-astro-suite/ui';
 import type { ShareDestination, ShareOption } from './share.types';
+
+/** Download-format options for the share card's split download button. */
+export const DOWNLOAD_FORMAT_MENU: SplitButtonMenuItem[] = [
+  { value: 'png', label: 'PNG', description: 'lossless' },
+  { value: 'jpeg', label: 'JPEG', description: 'smaller file' },
+];
 
 /** Downloadable asset kinds in the Share modal's card grid. */
 export const ASSET_KINDS: ShareOption[] = [
@@ -22,17 +29,19 @@ export const ASSET_KINDS: ShareOption[] = [
   },
 ];
 
-/** Story types in the Share Studio flow. */
+/**
+ * Story types in the Share Studio flow. Each `id` is the canvas renderer's
+ * variant key, so the dropdown maps straight through to `renderShareCard`.
+ */
 export const STORY_TYPES: ShareOption[] = [
-  { id: 'journey-summary', label: 'Journey Summary', description: 'Your identity, hours & headline stats.' },
-  { id: 'year-in-review', label: 'Year In Review', description: 'One season, wrapped up.' },
-  { id: 'target-collection', label: 'Top Targets', description: 'Your most-imaged objects.' },
-  { id: 'timeline', label: 'Timeline', description: 'Every night, charted across the years.' },
-  { id: 'sky-dome', label: 'Sky Dome', description: 'Your targets plotted on an all-sky dome.' },
-  { id: 'moon-ribbon', label: 'Moon Phases', description: 'Your sessions across the lunar cycle.' },
-  { id: 'filter-spectrum', label: 'Filter Spectrum', description: 'Hours split across the emission spectrum.' },
-  { id: 'observatory-profile', label: 'Observatory Profile', description: 'Your rig & site at a glance.' },
-  { id: 'gear-loadout', label: 'Gear Loadout', description: 'Every instrument in your kit.' },
+  { id: 'summary', label: 'Journey Summary', description: 'Your identity, hours & headline stats' },
+  { id: 'year', label: 'Year In Review', description: 'One year, set in giant type' },
+  { id: 'timeline', label: 'Timeline', description: 'First light to your latest night' },
+  { id: 'targets', label: 'Top Targets', description: 'Your most-imaged objects' },
+  { id: 'spectrum', label: 'Filter Spectrum', description: 'Your light as emission lines' },
+  { id: 'skydome', label: 'Sky Dome', description: 'Your targets across the dome' },
+  { id: 'moons', label: 'Moon Phases', description: 'Your nights vs the lunar cycle' },
+  { id: 'equipment', label: 'Top Gear', description: 'The rig that did the work' },
 ];
 
 /** Timeframe options in the Story-Slides flow. */

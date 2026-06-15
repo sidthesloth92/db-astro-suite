@@ -1,8 +1,8 @@
 <div class="os-overlay" (mousedown)="onBackdrop($event)">
   <div class="os-modal" role="dialog" aria-modal="true">
-    <button class="os-close" type="button" (click)="closed.emit()" aria-label="Close">
+    <dba-ui-icon-button class="os-close" accent="cyan" [size]="34" title="Close" (clicked)="closed.emit()">
       <dba-cel-icon name="back" [size]="18" />
-    </button>
+    </dba-ui-icon-button>
 
     <div class="os-preview">
       <div class="os-frame" [style.aspect-ratio]="aspect()">
@@ -49,15 +49,15 @@
       </div>
 
       <div class="os-actions">
-        <button class="os-dl" type="button" (click)="download()">
-          <dba-cel-icon name="download" [size]="15" /> {{ flash() || 'Download PNG' }}
-        </button>
-        <button class="os-act" type="button" (click)="share()" aria-label="Share">
-          <dba-cel-icon name="share" [size]="15" /> Share
-        </button>
-        <button class="os-act" type="button" (click)="copy()" aria-label="Copy to clipboard">
-          <dba-cel-icon name="copy" [size]="15" /> Copy
-        </button>
+        <dba-ui-text-button class="os-dl" variant="primary" [label]="flash() || 'Download PNG'" (clicked)="download()">
+          <dba-cel-icon slot="leading" name="download" [size]="15" />
+        </dba-ui-text-button>
+        <dba-ui-text-button variant="secondary" label="Share" (clicked)="share()">
+          <dba-cel-icon slot="leading" name="share" [size]="15" />
+        </dba-ui-text-button>
+        <dba-ui-text-button variant="secondary" label="Copy" (clicked)="copy()">
+          <dba-cel-icon slot="leading" name="copy" [size]="15" />
+        </dba-ui-text-button>
       </div>
       <p class="os-note">Rendered in your browser · nothing leaves your device</p>
     </div>

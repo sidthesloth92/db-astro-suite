@@ -54,21 +54,6 @@
   font-size: 13px;
   color: var(--db-color-text-dim);
 }
-.id-edit-btn {
-  display: grid;
-  place-items: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 7px;
-  border: 1px solid var(--db-color-border);
-  background: transparent;
-  color: var(--db-color-text-dim);
-  cursor: pointer;
-}
-.id-edit-btn:hover {
-  border-color: var(--db-color-neon-pink);
-  color: var(--db-color-text-primary);
-}
 .id-edit {
   display: grid;
   gap: 0.6rem;
@@ -208,39 +193,6 @@
   gap: 12px;
   justify-content: center;
   margin-top: 26px;
-}
-.btn-share,
-.btn-publish {
-  font-family: var(--db-font-ui);
-  font-weight: 600;
-  font-size: 14px;
-  text-transform: none;
-  letter-spacing: 0.01em;
-  border-radius: 999px;
-  padding: 13px 24px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-}
-.btn-share {
-  color: var(--db-color-text-primary);
-  background: var(--db-color-neon-pink);
-  border: 1px solid transparent;
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--db-color-neon-pink) 30%, transparent),
-    0 14px 40px color-mix(in srgb, var(--db-color-neon-pink) 22%, transparent);
-}
-.btn-share:hover {
-  filter: brightness(1.07);
-}
-.btn-publish {
-  color: var(--db-color-text-primary);
-  background: transparent;
-  border: 1px solid color-mix(in srgb, var(--db-color-text-faint) 40%, transparent);
-}
-.btn-publish:hover {
-  border-color: var(--db-color-cyan);
 }
 .ico {
   width: 17px;

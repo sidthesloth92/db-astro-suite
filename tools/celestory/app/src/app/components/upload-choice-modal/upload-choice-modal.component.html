@@ -1,8 +1,8 @@
 <div class="uc-overlay" (mousedown)="onBackdrop($event)">
   <div class="uc-modal" role="dialog" aria-modal="true">
-    <button class="uc-close" type="button" (click)="closed.emit()" aria-label="Close">
+    <dba-ui-icon-button class="uc-close" accent="cyan" [size]="34" title="Close" (clicked)="closed.emit()">
       <dba-cel-icon name="back" [size]="18" />
-    </button>
+    </dba-ui-icon-button>
     <div class="uc-head">
       <span class="eyebrow">Your Celestory is ready</span>
       <h2>How do you want to use it?</h2>

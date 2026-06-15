@@ -10,31 +10,32 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import {
+  IconButtonComponent,
+  SplitButtonComponent,
+  TextButtonComponent,
+} from '@db-astro-suite/ui';
 import { profileDisplayUrl } from '../../models/app.constants';
 import { SessionStore } from '../../services/session-store.service';
 import { slugifyHandle } from '../../utils/handle.util';
 import type { CelestoryLedger } from '../../models/ledger.model';
-import { STORY_TYPES } from '../../models/share.constants';
+import { DOWNLOAD_FORMAT_MENU, STORY_TYPES } from '../../models/share.constants';
 import type {
   ShareAssetKind,
-  ShareCardData,
-  ShareCarouselData,
   ShareFormatId,
   ShareMode,
   ShareThemeId,
 } from '../../models/share.types';
-import { buildShareCarouselData, buildShareCardData } from '../../utils/portfolio.util';
 import {
   CAROUSEL_SLIDE_COUNT,
   ensureShareFonts,
   renderCarouselSlide,
   renderShareCard,
-  renderStoryCard,
   SHARE_FORMAT_LIST,
   SHARE_FORMATS,
   SHARE_THEME_LIST,
-  THEME_MOTIF,
 } from '../../utils/share-card.util';
+import { buildShareModel, scopeModelByYear } from '../../utils/share-model.util';
 import { copyCanvasToClipboard, shareCanvas } from '../../utils/share-export.util';
 import { SUGGESTED_DESTINATIONS } from '../../models/share.constants';
 import type { JourneyState } from '../../models/journey.types';
@@ -47,6 +48,7 @@ import type { JourneyState } from '../../models/journey.types';
 @Component({
   selector: 'dba-share-studio-modal',
   standalone: true,
+  imports: [TextButtonComponent, IconButtonComponent, SplitButtonComponent],
   templateUrl: './share-studio-modal.component.html',
   styleUrl: './share-studio-modal.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -83,13 +85,12 @@ export class ShareStudioModalComponent {
   protected readonly kind = signal<ShareAssetKind>('summary');
   /** Current selections. */
   protected readonly themeId = signal<ShareThemeId>('dark');
-  /** The motif painted for the selected theme (theme-driven, not a separate axis). */
-  protected readonly backgroundId = computed(() => THEME_MOTIF[this.themeId()]);
   protected readonly formatId = signal<ShareFormatId>('story');
-  protected readonly storyType = signal('journey-summary');
+  protected readonly storyType = signal('summary');
   protected readonly yearFilter = signal('all-time');
   protected readonly dlFormat = signal<'png' | 'jpeg'>('png');
-  protected readonly showDownloadMenu = signal(false);
+  /** Download-format menu for the split button. */
+  protected readonly downloadMenu = DOWNLOAD_FORMAT_MENU;
   /** Single card vs the multi-slide carousel. */
   protected readonly mode = signal<ShareMode>('single');
   /** Current carousel slide (0-based). */
@@ -132,19 +133,16 @@ export class ShareStudioModalComponent {
   protected readonly claimUrl = computed(() =>
     profileDisplayUrl(this.effectiveHandle() || 'yourhandle'),
   );
-  /** Display URL printed on the card. */
-  private readonly displayUrl = computed(() => profileDisplayUrl(this.effectiveHandle()));
-  /** Single-card data, with the edited display name applied live. */
-  protected readonly data = computed<ShareCardData>(() => {
-    const base = buildShareCardData(this.ledger(), this.effectiveHandle(), this.displayUrl());
-    const name = this.session.identity().name;
-    return name ? { ...base, name } : base;
+  /** Year scope from the timeframe pills ('all' or a calendar year). */
+  private readonly yearScope = computed<number | 'all'>(() => {
+    const y = this.yearFilter();
+    return y === 'all-time' ? 'all' : Number(y);
   });
-  /** Carousel data, with the edited display name applied live. */
-  protected readonly carouselData = computed<ShareCarouselData>(() => {
-    const base = buildShareCarouselData(this.ledger(), this.effectiveHandle(), this.displayUrl());
-    const name = this.session.identity().name;
-    return name ? { ...base, name } : base;
+  /** Render-ready model, scoped to the chosen timeframe, with the edited identity. */
+  protected readonly model = computed(() => {
+    const ident = this.session.identity();
+    const base = buildShareModel(this.ledger(), { name: ident.name, handle: this.effectiveHandle() });
+    return scopeModelByYear(base, this.yearScope());
   });
 
   /** Update the shared identity from the studio's name input. */
@@ -159,34 +157,23 @@ export class ShareStudioModalComponent {
   /** Cached font-readiness so we only await once. */
   private fontsReady: Promise<void> | null = null;
 
-  /** Re-paint whenever canvas, mode, theme, format, slide or data changes. */
+  /** Re-paint whenever canvas, mode, theme, format, slide or model changes. */
   private readonly repaint = effect(() => {
     const canvas = this.canvasRef()?.nativeElement;
     const mode = this.mode();
     const themeId = this.themeId();
-    const backgroundId = this.backgroundId();
     const formatId = this.formatId();
+    const model = this.model();
     if (!canvas) {
       return;
     }
     this.fontsReady ??= ensureShareFonts();
     if (mode === 'single') {
-      const story = this.storyType();
-      const data = this.data();
-      const cdata = this.carouselData();
-      void this.fontsReady.then(() => {
-        if (story === 'journey-summary') {
-          renderShareCard(canvas, themeId, backgroundId, formatId, data);
-        } else {
-          renderStoryCard(canvas, themeId, backgroundId, formatId, story, cdata);
-        }
-      });
+      const variant = this.storyType();
+      void this.fontsReady.then(() => renderShareCard(canvas, model, themeId, formatId, variant));
     } else {
       const index = this.slideIndex();
-      const cdata = this.carouselData();
-      void this.fontsReady.then(() =>
-        renderCarouselSlide(canvas, themeId, backgroundId, formatId, index, cdata),
-      );
+      void this.fontsReady.then(() => renderCarouselSlide(canvas, model, themeId, index, formatId));
     }
   });
 
@@ -198,10 +185,12 @@ export class ShareStudioModalComponent {
     this.kind.set(kind);
     if (kind === 'slides') {
       this.mode.set('carousel');
+      if (this.formatId() === 'landscape') {
+        this.formatId.set('story');
+      }
       return;
     }
     this.mode.set('single');
-    this.storyType.set('journey-summary');
     if (kind === 'poster') {
       this.formatId.set('landscape');
     } else if (this.formatId() === 'landscape') {
@@ -234,15 +223,9 @@ export class ShareStudioModalComponent {
     this.formatId.set(id);
   }
 
-  /** Switches the download format and closes the dropdown. */
-  setDlFormat(f: 'png' | 'jpeg'): void {
-    this.dlFormat.set(f);
-    this.showDownloadMenu.set(false);
-  }
-
-  /** Toggles the download-format dropdown. */
-  toggleDownloadMenu(): void {
-    this.showDownloadMenu.update((v) => !v);
+  /** Switches the active download format (from the split-button menu). */
+  setDlFormat(f: string): void {
+    this.dlFormat.set(f === 'jpeg' ? 'jpeg' : 'png');
   }
 
   /** Switches between single-card and carousel. */
@@ -283,7 +266,6 @@ export class ShareStudioModalComponent {
         a.download = `celestory-${this.themeId()}-${this.formatId()}.${format}`;
         a.click();
         URL.revokeObjectURL(url);
-        this.showDownloadMenu.set(false);
         this.flashMessage('Downloaded');
       },
       mime,
@@ -300,11 +282,10 @@ export class ShareStudioModalComponent {
     try {
       await (this.fontsReady ??= ensureShareFonts());
       const themeId = this.themeId();
-      const backgroundId = this.backgroundId();
       const formatId = this.formatId();
-      const data = this.carouselData();
+      const model = this.model();
       for (let i = 0; i < this.slideCount; i++) {
-        renderCarouselSlide(canvas, themeId, backgroundId, formatId, i, data);
+        renderCarouselSlide(canvas, model, themeId, i, formatId);
         await new Promise<void>((res) => {
           canvas.toBlob((blob) => {
             if (blob) {
@@ -320,7 +301,7 @@ export class ShareStudioModalComponent {
         });
         await new Promise((r) => setTimeout(r, 350));
       }
-      renderCarouselSlide(canvas, themeId, backgroundId, formatId, this.slideIndex(), data);
+      renderCarouselSlide(canvas, model, themeId, this.slideIndex(), formatId);
       this.flashMessage('Downloaded all');
     } catch {
       this.flashMessage('Download failed');

@@ -7,7 +7,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { ConstellationFieldComponent } from '@db-astro-suite/ui';
+import { ConstellationFieldComponent, TextButtonComponent } from '@db-astro-suite/ui';
 import { CelestoryWordmarkComponent } from '../components/celestory-wordmark/celestory-wordmark.component';
 import { CONTACT_EMAIL } from '../models/contact.constants';
 import { buildMailtoUrl } from '../utils/contact.util';
@@ -25,6 +25,7 @@ import { buildMailtoUrl } from '../utils/contact.util';
     ReactiveFormsModule,
     RouterLink,
     ConstellationFieldComponent,
+    TextButtonComponent,
     CelestoryWordmarkComponent,
   ],
   templateUrl: './contact.page.html',

@@ -20,6 +20,7 @@ import { StoryService } from '../../services/story.service';
 import { slugifyHandle } from '../../utils/handle.util';
 import { publishErrorMessage } from '../../utils/publish-error.util';
 import { publishShrinkWarning } from '../../utils/publish-shrink.util';
+import { IconButtonComponent, TextButtonComponent } from '@db-astro-suite/ui';
 import { copyToClipboard } from '../../utils/clipboard.util';
 import { CelIconComponent } from '../cel-icon/cel-icon.component';
 
@@ -34,7 +35,7 @@ import { CelIconComponent } from '../cel-icon/cel-icon.component';
 @Component({
   selector: 'dba-publish-modal',
   standalone: true,
-  imports: [CelIconComponent],
+  imports: [TextButtonComponent, IconButtonComponent, CelIconComponent],
   templateUrl: './publish-modal.component.html',
   styleUrl: './publish-modal.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -6,6 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { IconButtonComponent, TextButtonComponent } from '@db-astro-suite/ui';
 import {
   INSTALL_COMMANDS,
   INSTALL_LABELS,
@@ -22,7 +23,7 @@ import { copyToClipboard } from '../../utils/clipboard.util';
 @Component({
   selector: 'dba-getting-started-modal',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, TextButtonComponent, IconButtonComponent],
   templateUrl: './getting-started-modal.component.html',
   styleUrl: './getting-started-modal.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

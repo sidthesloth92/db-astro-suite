@@ -47,20 +47,6 @@
   top: 16px;
   right: 16px;
   z-index: 2;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: color-mix(in srgb, var(--db-color-text-primary) 5%, transparent);
-  border: 1px solid var(--db-color-border-strong);
-  color: var(--db-color-text-dim);
-  cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
-}
-.close-btn:hover {
-  color: var(--db-color-text-primary);
-  border-color: var(--db-color-cyan);
 }
 
 /* two-panel grid */
@@ -169,24 +155,6 @@
 }
 .claim-btn {
   flex: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--db-font-display-major);
-  font-weight: 700;
-  font-size: 12px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--db-color-neon-pink);
-  background: transparent;
-  border: 1px solid color-mix(in srgb, var(--db-color-neon-pink) 50%, transparent);
-  border-radius: 8px;
-  padding: 8px 14px;
-  cursor: pointer;
-  transition: background 0.14s;
-}
-.claim-btn:hover {
-  background: color-mix(in srgb, var(--db-color-neon-pink) 12%, transparent);
 }
 
 /* pager */
@@ -196,25 +164,6 @@
   justify-content: center;
   gap: 12px;
   margin-top: 14px;
-}
-
-.pg-btn {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: var(--db-color-text-primary);
-  font-size: 16px;
-  line-height: 1;
-  cursor: pointer;
-  display: grid;
-  place-items: center;
-}
-
-.pg-btn:disabled {
-  opacity: 0.3;
-  cursor: default;
 }
 
 .dots {
@@ -562,129 +511,15 @@
   gap: 8px;
   margin-top: auto;
   padding-top: 1rem;
-}
-
-/* download split button */
-.dl-wrap {
-  flex: 1;
-  position: relative;
-  display: flex;
-}
-
-.btn-dl {
-  flex: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  background: var(--db-color-neon-pink);
-  border: none;
-  border-radius: 10px 0 0 10px;
-  color: #fff;
-  font-family: var(--db-font-display-major);
-  font-size: 13px;
-  font-weight: 700;
-  padding: 12px 14px;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: opacity 0.14s;
-}
-
-.btn-dl:hover {
-  opacity: 0.9;
-}
-
-.btn-dl-caret {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  background: color-mix(in srgb, var(--db-color-neon-pink) 75%, black);
-  border: none;
-  border-left: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 0 10px 10px 0;
-  color: #fff;
-  cursor: pointer;
-  padding: 0;
-  transition: opacity 0.14s;
-}
-
-.btn-dl-caret:hover {
-  opacity: 0.85;
-}
-
-.dl-menu {
-  position: absolute;
-  bottom: calc(100% + 6px);
-  left: 0;
-  right: 36px;
-  background: #161624;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 10px;
-  overflow: hidden;
-  z-index: 10;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
-}
-
-.dl-opt {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 11px 14px;
-  background: transparent;
-  border: none;
-  color: var(--db-color-text-primary);
-  font-family: var(--db-font-display-major);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  text-align: left;
-  transition: background 0.12s;
-}
-
-.dl-opt + .dl-opt {
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.dl-opt:hover {
-  background: rgba(255, 255, 255, 0.06);
-}
-
-.dl-opt.on {
-  color: var(--db-color-neon-pink);
-}
-
-.dl-opt-sub {
-  font-family: var(--db-font-mono-code);
-  font-size: 11px;
-  color: var(--db-color-text-faint);
-  font-weight: 400;
-}
-
-/* share button */
-.btn-share {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 10px;
-  color: var(--db-color-text-primary);
-  font-family: var(--db-font-display-major);
-  font-size: 13px;
-  font-weight: 700;
-  padding: 12px 14px;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background 0.14s;
-}
-
-.btn-share:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.actions {
   flex-wrap: wrap;
+}
+/* download split spans the row; Share + Copy split the next row. */
+.dl-split {
+  flex: 1 1 100%;
+}
+.actions dba-ui-text-button {
+  display: flex;
+  flex: 1 1 0;
 }
 
 /* published: share-your-link row */

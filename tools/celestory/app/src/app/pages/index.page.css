@@ -172,26 +172,6 @@ nav.top a.nlink {
 nav.top a.nlink:hover {
   color: var(--ink);
 }
-/* nav GitHub icon link */
-.gh {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 40px;
-  color: var(--glow);
-  border: none;
-  background: none;
-  transition: color 0.15s, filter 0.15s;
-}
-.gh svg {
-  width: 22px;
-  height: 22px;
-}
-.gh:hover {
-  color: var(--ink);
-  filter: drop-shadow(0 0 10px var(--glow-50));
-}
 .nav-links {
   display: none;
 }
@@ -272,65 +252,13 @@ header.hero {
   gap: 12px;
   align-items: center;
 }
-.btn-primary {
-  font-family: var(--serif);
-  font-size: 14px;
-  line-height: 1;
-  font-weight: 700;
-  color: var(--ink);
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  background: var(--glow);
-  /* Transparent 1px border so the box height matches .btn-ghost exactly. */
-  border: 1px solid transparent;
-  cursor: pointer;
-  padding: 14px 26px;
-  border-radius: 9px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
+/* hero CTAs use the shared dba-ui-text-button; size the host for the layout. */
+.cta-row dba-ui-text-button {
   width: 100%;
   max-width: 330px;
-  text-decoration: none;
-  box-shadow: 0 0 0 1px var(--glow-30), 0 14px 40px color-mix(in srgb, var(--glow) 22%, transparent);
-  transition: filter 0.15s, transform 0.12s;
 }
-.btn-primary:hover {
-  filter: brightness(1.07);
-}
-.btn-primary:active {
-  transform: translateY(1px);
-}
-.btn-ghost {
-  font-family: var(--serif);
-  font-size: 14px;
-  line-height: 1;
-  font-weight: 700;
-  color: var(--ink);
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  background: transparent;
-  border: 1px solid var(--line-2);
-  cursor: pointer;
-  padding: 14px 26px;
-  border-radius: 9px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-  width: 100%;
-  max-width: 330px;
-  text-decoration: none;
-  transition: border-color 0.15s, color 0.15s;
-}
-.btn-ghost:hover {
-  border-color: var(--cyan);
-  color: var(--ink);
-}
-.step-btn {
+dba-ui-text-button.step-btn {
   margin-top: 16px;
-  width: auto;
 }
 .hero .privacy {
   margin-top: 14px;
@@ -1331,20 +1259,8 @@ footer .brand {
   display: flex;
   gap: 10px;
 }
-.sticky .btn-primary,
-.sticky .btn-ghost {
-  margin: 0;
-  padding: 13px 18px;
-  font-size: 14.5px;
-  max-width: none;
-}
-.sticky .btn-primary {
+.sticky-cta {
   flex: 1;
-}
-.sticky .share-only {
-  flex: none;
-  width: 52px;
-  padding: 13px;
 }
 
 /* responsive */
@@ -1353,8 +1269,7 @@ footer .brand {
     flex-direction: row;
     justify-content: center;
   }
-  .btn-primary,
-  .btn-ghost {
+  .cta-row dba-ui-text-button {
     width: auto;
   }
   .status .grid {

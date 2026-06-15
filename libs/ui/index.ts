@@ -25,6 +25,8 @@ export * from "./src/lib/color-swatch-input/color-swatch-input.component";
 export * from "./src/lib/data-row/data-row.component";
 export * from "./src/lib/floating-sheet/floating-sheet.component";
 export * from "./src/lib/icon-button/icon-button.component";
+export * from "./src/lib/split-button/split-button.component";
+export * from "./src/lib/split-button/split-button.model";
 export * from "./src/lib/icon-rail/icon-rail.component";
 export * from "./src/lib/icon-rail/icon-rail-item.component";
 export * from "./src/lib/inspector-field/inspector-field.component";

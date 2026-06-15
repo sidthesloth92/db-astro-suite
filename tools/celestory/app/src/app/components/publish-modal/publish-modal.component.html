@@ -1,8 +1,8 @@
 <div class="ob-overlay" (mousedown)="onBackdrop($event)">
   <div class="ob-modal" role="dialog" aria-modal="true">
-    <button class="ob-close" type="button" (click)="closed.emit()" aria-label="Close">
+    <dba-ui-icon-button class="ob-close" accent="cyan" [size]="34" title="Close" (clicked)="closed.emit()">
       <dba-cel-icon name="back" [size]="18" />
-    </button>
+    </dba-ui-icon-button>
 
     @switch (phase()) {
       @case ('claim') {
@@ -51,9 +51,9 @@
         </div>
         @if (shrinkWarning()) {
           <p class="ob-error" role="alert">{{ shrinkWarning() }}</p>
-          <button class="btn-primary ob-full" type="button" (click)="publishAnyway()" [disabled]="busy()">
-            <dba-cel-icon name="globe" [size]="15" /> Publish anyway
-          </button>
+          <dba-ui-text-button class="ob-full" variant="primary" size="lg" label="Publish anyway" [disabled]="busy()" (clicked)="publishAnyway()">
+            <dba-cel-icon slot="leading" name="globe" [size]="15" />
+          </dba-ui-text-button>
           <button class="ob-back-link" type="button" (click)="cancelShrink()">
             <dba-cel-icon name="back" [size]="14" /> Cancel
           </button>
@@ -63,14 +63,18 @@
           } @else {
             <p class="ob-url-preview">{{ urlPreview() }}</p>
           }
-          <button class="btn-primary ob-full" type="button" (click)="submit()" [disabled]="busy() || !clean()">
-            @if (busy()) {
-              {{ exists() ? 'Updating…' : 'Claiming…' }}
-            } @else {
-              <dba-cel-icon [name]="exists() ? 'globe' : 'rocket'" [size]="15" />
-              {{ exists() ? 'Update Profile' : 'Claim Username' }}
+          <dba-ui-text-button
+            class="ob-full"
+            variant="primary"
+            size="lg"
+            [label]="busy() ? (exists() ? 'Updating…' : 'Claiming…') : (exists() ? 'Update Profile' : 'Claim Username')"
+            [disabled]="busy() || !clean()"
+            (clicked)="submit()"
+          >
+            @if (!busy()) {
+              <dba-cel-icon slot="leading" [name]="exists() ? 'globe' : 'rocket'" [size]="15" />
             }
-          </button>
+          </dba-ui-text-button>
         }
       }
 
@@ -155,9 +159,9 @@
             </p>
           </div>
         }
-        <button class="btn-primary ob-full" type="button" (click)="openProfile()">
-          <dba-cel-icon name="arrow" [size]="15" /> Open Profile
-        </button>
+        <dba-ui-text-button class="ob-full" variant="primary" size="lg" label="Open Profile" (clicked)="openProfile()">
+          <dba-cel-icon slot="leading" name="arrow" [size]="15" />
+        </dba-ui-text-button>
       }
     }
   </div>

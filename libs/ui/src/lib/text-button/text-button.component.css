@@ -39,6 +39,11 @@
   font-size: 12.5px;
 }
 
+.text-button[data-size='lg'] {
+  padding: 13px 24px;
+  font-size: 14px;
+}
+
 .text-button[data-variant='primary'] {
   background: var(--db-color-neon-pink);
   color: var(--db-color-text-primary);

@@ -10,7 +10,7 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
-import { ConstellationFieldComponent } from '@db-astro-suite/ui';
+import { ConstellationFieldComponent, TextButtonComponent } from '@db-astro-suite/ui';
 import { profileUrl as buildProfileUrl } from '../../models/app.constants';
 import type { DetailRef, JourneyState } from '../../models/journey.types';
 import type { CelestoryLedger, LedgerEquipment, LedgerObject } from '../../models/ledger.model';
@@ -44,6 +44,7 @@ import { ShareStudioModalComponent } from '../share-studio-modal/share-studio-mo
   imports: [
     RouterLink,
     ConstellationFieldComponent,
+    TextButtonComponent,
     CelIconComponent,
     CelestoryWordmarkComponent,
     JourneyHeroComponent,

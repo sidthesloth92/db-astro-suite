@@ -76,24 +76,6 @@
   color: var(--db-color-text-dim);
   padding: 0;
 }
-.sharebtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  cursor: pointer;
-  font-family: var(--db-font-display-major);
-  font-weight: 700;
-  font-size: 12px;
-  letter-spacing: 0.04em;
-  color: var(--db-color-text-primary);
-  background: transparent;
-  border: 1px solid color-mix(in srgb, var(--db-color-neon-pink) 45%, transparent);
-  border-radius: 8px;
-  padding: 7px 14px;
-}
-.sharebtn:hover {
-  background: color-mix(in srgb, var(--db-color-neon-pink) 12%, transparent);
-}
 .backlink:hover {
   color: var(--db-color-cyan);
 }

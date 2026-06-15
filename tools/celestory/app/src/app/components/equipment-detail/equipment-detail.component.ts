@@ -3,6 +3,7 @@ import type { CelestoryLedger, LedgerEquipment, LedgerObject } from '../../model
 import type { CelIconName } from '../cel-icon/cel-icon.component';
 import { formatCount, formatDuration } from '../../utils/format.util';
 import { fmtRange } from '../../utils/portfolio.util';
+import { TextButtonComponent } from '@db-astro-suite/ui';
 import { CelIconComponent } from '../cel-icon/cel-icon.component';
 import { EquipmentShareModalComponent } from '../equipment-share-modal/equipment-share-modal.component';
 import { ObjectCardComponent } from '../object-card/object-card.component';
@@ -11,7 +12,7 @@ import { ObjectCardComponent } from '../object-card/object-card.component';
 @Component({
   selector: 'dba-equipment-detail',
   standalone: true,
-  imports: [CelIconComponent, ObjectCardComponent, EquipmentShareModalComponent],
+  imports: [TextButtonComponent, CelIconComponent, ObjectCardComponent, EquipmentShareModalComponent],
   templateUrl: './equipment-detail.component.html',
   styleUrl: './equipment-detail.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
