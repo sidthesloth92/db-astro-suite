@@ -12,6 +12,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { profileDisplayUrl } from '../../models/app.constants';
 import type { CelestoryLedger, LedgerObject } from '../../models/ledger.model';
 import type { ObjectShareData, ShareFormatId, ShareThemeId } from '../../models/share.types';
 import {
@@ -65,9 +66,7 @@ export class ObjectShareModalComponent {
   protected readonly flash = signal('');
 
   /** URL line for the card. */
-  private readonly displayUrl = computed(() =>
-    this.handle() ? `celestory.dbastrosuite.com/user/${this.handle()}` : 'celestory.dbastrosuite.com',
-  );
+  private readonly displayUrl = computed(() => profileDisplayUrl(this.handle()));
   /** The object card data. */
   protected readonly data = computed<ObjectShareData>(() =>
     buildObjectShareData(this.obj(), this.ledger(), this.displayUrl()),

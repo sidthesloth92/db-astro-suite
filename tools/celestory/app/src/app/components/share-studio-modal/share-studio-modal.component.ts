@@ -10,6 +10,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { profileDisplayUrl } from '../../models/app.constants';
 import { SessionStore } from '../../services/session-store.service';
 import { slugifyHandle } from '../../utils/handle.util';
 import type { CelestoryLedger } from '../../models/ledger.model';
@@ -127,14 +128,12 @@ export class ShareStudioModalComponent {
   protected readonly session = inject(SessionStore);
   /** Handle printed on the card: the edited identity wins, else the input. */
   private readonly effectiveHandle = computed(() => this.session.identity().handle || this.handle());
-  /** Handle shown in the left-panel claim bar (falls back to a placeholder). */
-  protected readonly displayHandle = computed(() => this.effectiveHandle());
-  /** Display URL printed on the card. */
-  private readonly displayUrl = computed(() =>
-    this.effectiveHandle()
-      ? `celestory.dbastrosuite.com/user/${this.effectiveHandle()}`
-      : 'celestory.dbastrosuite.com',
+  /** Canonical profile URL shown in the left-panel claim bar (with a placeholder). */
+  protected readonly claimUrl = computed(() =>
+    profileDisplayUrl(this.effectiveHandle() || 'yourhandle'),
   );
+  /** Display URL printed on the card. */
+  private readonly displayUrl = computed(() => profileDisplayUrl(this.effectiveHandle()));
   /** Single-card data, with the edited display name applied live. */
   protected readonly data = computed<ShareCardData>(() => {
     const base = buildShareCardData(this.ledger(), this.effectiveHandle(), this.displayUrl());

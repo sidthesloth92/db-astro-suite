@@ -11,6 +11,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 import { ConstellationFieldComponent } from '@db-astro-suite/ui';
+import { profileUrl as buildProfileUrl } from '../../models/app.constants';
 import type { DetailRef, JourneyState } from '../../models/journey.types';
 import type { CelestoryLedger, LedgerEquipment, LedgerObject } from '../../models/ledger.model';
 import { copyToClipboard } from '../../utils/clipboard.util';
@@ -155,11 +156,7 @@ export class JourneyViewComponent {
   });
 
   /** Canonical public URL of this profile (origin-aware, SSR-safe fallback). */
-  protected readonly profileUrl = computed(() => {
-    const origin =
-      typeof location !== 'undefined' ? location.origin : 'https://celestory.dbastrosuite.com';
-    return `${origin}/user/${this.handle()}`;
-  });
+  protected readonly profileUrl = computed(() => buildProfileUrl(this.handle()));
 
   /** Opens an object's detail (pushes a history entry). */
   openObject(id: string): void {

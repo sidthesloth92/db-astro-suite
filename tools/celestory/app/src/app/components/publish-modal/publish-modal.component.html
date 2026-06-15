@@ -19,7 +19,7 @@
         </ul>
         <label class="ob-field-label">Handle</label>
         <div class="ob-handle">
-          <span class="ob-handle-pfx">celestory.io/&#64;</span>
+          <span class="ob-handle-pfx">{{ host }}/user/</span>
           <input
             #h
             [value]="handle()"
@@ -81,7 +81,7 @@
           <h2>Delete Your Online Profile</h2>
           <p>
             This permanently removes
-            <span class="mono">celestory.io/&#64;{{ clean() || currentHandle() }}</span>
+            <span class="mono">{{ host }}/user/{{ clean() || currentHandle() }}</span>
             from the web. Your local journey stays on this device.
           </p>
         </div>

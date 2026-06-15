@@ -12,6 +12,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { profileDisplayUrl } from '../../models/app.constants';
 import type { CelestoryLedger, LedgerEquipment } from '../../models/ledger.model';
 import type { EquipmentShareData, ShareFormatId, ShareThemeId } from '../../models/share.types';
 import {
@@ -67,9 +68,7 @@ export class EquipmentShareModalComponent {
   /** Whether this gear is a camera (tweaks the description copy). */
   protected readonly isCamera = computed(() => this.equip().kind.toLowerCase() === 'camera');
 
-  private readonly displayUrl = computed(() =>
-    this.handle() ? `celestory.dbastrosuite.com/user/${this.handle()}` : 'celestory.dbastrosuite.com',
-  );
+  private readonly displayUrl = computed(() => profileDisplayUrl(this.handle()));
   /** The equipment card data. */
   protected readonly data = computed<EquipmentShareData>(() =>
     buildEquipmentShareData(this.equip(), this.ledger(), this.displayUrl()),

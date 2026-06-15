@@ -13,6 +13,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { Observable } from 'rxjs';
 import type { CreateStoryResult, UpdateStoryResult } from '../../models/api.model';
+import { PUBLIC_PROFILE_HOST, profileDisplayUrl, profileUrl } from '../../models/app.constants';
 import type { CelestoryLedger } from '../../models/ledger.model';
 import { SessionStore } from '../../services/session-store.service';
 import { StoryService } from '../../services/story.service';
@@ -87,20 +88,28 @@ export class PublishModalComponent implements OnInit {
       this.currentHandle() || this.session.publishedHandle() || this.ledger().profileId || '',
     ),
   );
+  /** A handle the server reported as already taken — lets the owner reclaim it with its password. */
+  private readonly takenHandle = signal('');
   /**
    * True when the typed handle matches a profile already published from this
-   * device — i.e. "the user is already there". Publishing then replaces that
-   * profile's data, so the form switches to update mode (warning + password).
+   * device — i.e. "the user is already there" — or one the server just reported
+   * as taken. Publishing then replaces that profile's data, so the form switches
+   * to update mode (warning + password).
    */
-  protected readonly exists = computed(
-    () => !!this.clean() && this.clean() === this.knownHandle(),
-  );
+  protected readonly exists = computed(() => {
+    const c = this.clean();
+    return !!c && (c === this.knownHandle() || c === this.takenHandle());
+  });
   /** Derived intent: updating an existing profile vs creating a new one. */
   protected readonly intent = computed<'create' | 'update'>(() =>
     this.exists() ? 'update' : 'create',
   );
-  /** The live URL preview. */
-  protected readonly urlPreview = computed(() => `celestory.io/@${this.clean() || 'username'}`);
+  /** Public host where the published profile lives (shown as the handle prefix). */
+  protected readonly host = PUBLIC_PROFILE_HOST;
+  /** Full canonical profile URL for the typed handle (used for copy/share). */
+  protected readonly profileLink = computed(() => profileUrl(this.clean()));
+  /** Display form of the profile URL shown in the modal (scheme stripped). */
+  protected readonly urlPreview = computed(() => profileDisplayUrl(this.clean() || 'username'));
   /** The delete token (minted key) for this device, if any. */
   protected readonly deleteToken = this.session.deleteToken;
 
@@ -123,6 +132,8 @@ export class PublishModalComponent implements OnInit {
   /** Track the handle input. */
   onHandle(value: string): void {
     this.handle.set(value);
+    // A different handle clears the prior "taken" recovery state.
+    this.takenHandle.set('');
   }
   /** Track the password input. */
   onPassword(value: string): void {
@@ -223,7 +234,16 @@ export class PublishModalComponent implements OnInit {
       },
       error: (err: HttpErrorResponse) => {
         this.busy.set(false);
-        this.error.set(publishErrorMessage(err.error?.code));
+        const code = err.error?.code;
+        // A create that collides with an existing handle: switch to update mode
+        // so the owner can reclaim it by entering its password (also recovers a
+        // handle orphaned by an earlier partial publish).
+        if (code === 'HANDLE_TAKEN' && !this.exists()) {
+          this.takenHandle.set(this.clean());
+          this.error.set('');
+        } else {
+          this.error.set(publishErrorMessage(code));
+        }
         this.phase.set('claim');
       },
     });
@@ -261,7 +281,7 @@ export class PublishModalComponent implements OnInit {
 
   /** Copy the live URL. */
   copyLink(): void {
-    void copyToClipboard(`https://${this.urlPreview()}`).then((ok) => {
+    void copyToClipboard(this.profileLink()).then((ok) => {
       if (ok) {
         this.copied.set(true);
         setTimeout(() => this.copied.set(false), 1400);

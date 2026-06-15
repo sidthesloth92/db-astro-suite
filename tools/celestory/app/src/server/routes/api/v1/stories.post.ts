@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { defineEventHandler, readBody } from 'h3';
 import { getDb } from '../../../utils/db';
 import { config } from '../../../utils/config';
@@ -12,7 +13,12 @@ import { success, toErrorResponse } from '../../../utils/respond';
 import { HandleTakenError, InvalidPasswordError } from '../../../utils/celestory.error';
 import type { ExtractedRows } from '../../../utils/story.model';
 
-/** Persist the story row plus its child rows; returns the new story id. */
+/**
+ * Persist the story row plus its child rows in a single transaction. The id is
+ * generated up front so the parent + all children batch atomically — a failure
+ * (including a duplicate handle) rolls everything back, so a failed publish can
+ * never leave an orphan story row that makes a retry report "handle taken".
+ */
 async function persistStory(
   handle: string,
   keyHash: string,
@@ -22,22 +28,19 @@ async function persistStory(
 ): Promise<string> {
   const sql = getDb();
   const { totals } = rows;
+  const storyId = randomUUID();
 
-  const inserted = await sql`
-    INSERT INTO stories (
-      handle, key_hash, password_hash, ledger_json,
-      total_integration_seconds, object_count, night_count,
-      light_frame_count, first_light, latest_session
-    ) VALUES (
-      ${handle}, ${keyHash}, ${passwordHash}, ${ledgerJson},
-      ${totals.totalIntegrationSeconds}, ${totals.objectCount}, ${totals.nightCount},
-      ${totals.lightFrameCount}, ${totals.firstLight}, ${totals.latestSession}
-    )
-    RETURNING id
-  `;
-  const storyId = String((inserted[0] as { id: string }).id);
-
-  const childQueries = [
+  await sql.transaction([
+    sql`
+      INSERT INTO stories (
+        id, handle, key_hash, password_hash, ledger_json,
+        total_integration_seconds, object_count, night_count,
+        light_frame_count, first_light, latest_session
+      ) VALUES (
+        ${storyId}, ${handle}, ${keyHash}, ${passwordHash}, ${ledgerJson},
+        ${totals.totalIntegrationSeconds}, ${totals.objectCount}, ${totals.nightCount},
+        ${totals.lightFrameCount}, ${totals.firstLight}, ${totals.latestSession}
+      )`,
     ...rows.objects.map(
       (o) => sql`
         INSERT INTO story_objects (
@@ -64,11 +67,7 @@ async function persistStory(
           ${storyId}, ${f.name}, ${f.seconds}, ${f.frames}
         )`,
     ),
-  ];
-
-  if (childQueries.length > 0) {
-    await sql.transaction(childQueries);
-  }
+  ]);
 
   return storyId;
 }
@@ -105,16 +104,23 @@ export default defineEventHandler(async (event) => {
     // Append the publish as an upload event (no-op if already logged during a
     // prior visualise), then claim this install's anonymous events under the
     // handle so their totals fold under the profile without double-counting.
-    // Identity is absent on manual/legacy ledgers.
+    // Identity is absent on manual/legacy ledgers. Best-effort: the profile is
+    // already persisted, so a bookkeeping failure must not fail the publish
+    // (which would orphan the story and break a retry as "handle taken").
     if (ledger.installId && ledger.dataFingerprint) {
-      await recordUpload({
-        installId: ledger.installId,
-        dataFingerprint: ledger.dataFingerprint,
-        totalIntegrationSeconds: rows.totals.totalIntegrationSeconds,
-        lightFrameCount: rows.totals.lightFrameCount,
-        objectCount: rows.totals.objectCount,
-      });
-      await claimUploads(ledger.installId, handle);
+      try {
+        await recordUpload({
+          installId: ledger.installId,
+          dataFingerprint: ledger.dataFingerprint,
+          totalIntegrationSeconds: rows.totals.totalIntegrationSeconds,
+          lightFrameCount: rows.totals.lightFrameCount,
+          objectCount: rows.totals.objectCount,
+        });
+        await claimUploads(ledger.installId, handle);
+      } catch (bookkeepingError) {
+        // Surfaced in the function logs; never propagated to the client.
+        console.error('publish upload bookkeeping failed (non-fatal):', bookkeepingError);
+      }
     }
 
     const url = `${config.publicBaseUrl.replace(/\/$/, '')}/user/${handle}`;
