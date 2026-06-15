@@ -31,6 +31,7 @@ export * from "./lib/bottom-nav/bottom-nav.component";
 export * from "./lib/bottom-nav/bottom-nav.model";
 export * from "./lib/color-swatch-input/color-swatch-input.component";
 export * from "./lib/data-row/data-row.component";
+export * from "./lib/feature-card/feature-card.component";
 export * from "./lib/floating-sheet/floating-sheet.component";
 export * from "./lib/icon-button/icon-button.component";
 export * from "./lib/icon-rail/icon-rail.component";
