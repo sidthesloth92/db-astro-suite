@@ -5,6 +5,7 @@ export type CelIconName =
   | 'galaxy'
   | 'camera'
   | 'optic'
+  | 'chart'
   | 'star'
   | 'back'
   | 'arrow'

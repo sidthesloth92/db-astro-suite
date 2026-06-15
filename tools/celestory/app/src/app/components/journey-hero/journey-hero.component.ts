@@ -1,12 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { BRAND_CYAN, BRAND_PINK } from '../../models/brand.constants';
-import type { DurationPart } from '../../models/duration.model';
 import type { JourneyState } from '../../models/journey.types';
 import type { CelestoryLedger } from '../../models/ledger.model';
 import type { HeatStripView, HeroIdentity, Highlight, YearSpan } from '../../models/portfolio-view.types';
 import { SessionStore } from '../../services/session-store.service';
 import { objectRaDec } from '../../utils/celestial.util';
-import { formatCount, formatDurationParts } from '../../utils/format.util';
+import { formatCount, formatDuration } from '../../utils/format.util';
 import { slugifyHandle } from '../../utils/handle.util';
 import {
   heatStrip,
@@ -21,6 +20,7 @@ import { CelestoryWordmarkComponent } from '../celestory-wordmark/celestory-word
 import { FilterDistributionComponent } from '../filter-distribution/filter-distribution.component';
 import { HeatStripComponent } from '../heat-strip/heat-strip.component';
 import { MoonPhaseTimelineComponent } from '../moon-phase-timeline/moon-phase-timeline.component';
+import { SectionBannerComponent } from '../section-banner/section-banner.component';
 import { UniverseGlobeComponent } from '../universe-globe/universe-globe.component';
 
 let heroUid = 0;
@@ -42,6 +42,7 @@ let heroUid = 0;
     MoonPhaseTimelineComponent,
     FilterDistributionComponent,
     HeatStripComponent,
+    SectionBannerComponent,
     UniverseGlobeComponent,
   ],
   templateUrl: './journey-hero.component.html',
@@ -77,8 +78,9 @@ export class JourneyHeroComponent {
   protected readonly identity = computed<HeroIdentity>(() => heroIdentity(this.ledger(), this.handle()));
   /** Display name/handle — the user's edited identity overrides the ledger's. */
   protected readonly displayName = computed(() => this.session.identity().name || this.identity().name);
-  protected readonly displayHandle = computed(
-    () => this.session.identity().handle || this.identity().handle,
+  /** Bare handle (no leading "@"); the template renders the "@" so we never double it. */
+  protected readonly displayHandle = computed(() =>
+    (this.session.identity().handle || this.identity().handle).replace(/^@+/, ''),
   );
   /** Possessive prefix for the "[Name]'s Celestory" lockup. */
   protected readonly lockupPrefix = computed(() => `${this.displayName()}'s`);
@@ -114,9 +116,15 @@ export class JourneyHeroComponent {
   protected readonly span = computed<YearSpan | null>(() => yearSpan(this.ledger()));
   /** Inclusive season count. */
   protected readonly seasons = computed<number | null>(() => seasonCount(this.ledger()));
-  /** Hero integration total, decomposed into y/mo/d/h/m segments. */
-  protected readonly heroTimeParts = computed<DurationPart[]>(() =>
-    formatDurationParts(this.ledger().summary.totalIntegrationSeconds),
+  /** Hero integration total as one dramatic hours+minutes figure, e.g. "642h 18m". */
+  protected readonly heroTime = computed<string>(() =>
+    formatDuration(this.ledger().summary.totalIntegrationSeconds),
+  );
+  /** Sub line for the "01 · Activity" section banner ("N nights · Xh Ym integrated"). */
+  protected readonly activitySub = computed<string>(
+    () =>
+      `${formatCount(this.ledger().summary.nightCount)} nights · ` +
+      `${formatDuration(this.ledger().summary.totalIntegrationSeconds)} integrated`,
   );
   /** Highlights of the journey. */
   protected readonly highlights = computed<Highlight[]>(() => highlights(this.ledger()));

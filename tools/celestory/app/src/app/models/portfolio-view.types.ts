@@ -100,6 +100,11 @@ export interface HeatNode extends HeatNight {
   up: boolean;
   stemTop: number;
   stemHeight: number;
+  /** True when this night carries a milestone — its stem renders taller/brighter. */
+  isMilestone: boolean;
+  /** Hover dot centre (px from track top) + diameter (px). */
+  dotTop: number;
+  dotSize: number;
 }
 
 /** A month gridline label on the heat strip. */
@@ -125,24 +130,23 @@ export interface HeatMilestone {
   small: string;
 }
 
-/** A milestone with resolved chip/connector geometry (px), for rendering. */
+/** A milestone with resolved pill/leader geometry, for rendering. */
 export interface PlacedMilestone {
   id: string;
-  leftPct: number;
   /** Accent color (hex), applied via the inline `--ms` custom property. */
   color: string;
   big: string;
   small: string;
-  /** Edge-clamped CSS `left` for the chip so it never overflows the track. */
-  chipLeft: string;
-  /** Chip top edge (px from track top). */
-  chipTop: number;
-  /** Connector line top edge + length (px). */
-  lineTop: number;
-  lineHeight: number;
-  /** Marker dot top edge + diameter (px). */
-  dotTop: number;
-  dotSize: number;
+  /** Pill centre as a percentage across the track (its lane-resolved slot). */
+  slotPct: number;
+  /** The night's true position as a percentage across the track. */
+  truePct: number;
+  /** Pill top edge (px from track top). */
+  pillTop: number;
+  /** Spike-tip marker dot centre (px from track top). */
+  nodeTop: number;
+  /** Right-angle "corridor" leader path, in the leaders SVG viewBox space. */
+  path: string;
 }
 
 /** The full heat-strip view-model. */

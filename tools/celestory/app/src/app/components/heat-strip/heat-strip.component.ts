@@ -13,29 +13,31 @@ import type { HeatNode, HeatStripView, PlacedMilestone } from '../../models/port
 import { formatCount, formatDuration } from '../../utils/format.util';
 import { edgeClampLeft } from '../../utils/heat-strip.util';
 import { fmtDate } from '../../utils/portfolio.util';
-
-const MONTH_PX = 66;
-const TRACK_HEIGHT = 290;
-const BASELINE = 188;
-const STEM_MIN = 16;
-const STEM_RANGE = 78;
-const MS_DOT_Y = 126;
-const MS_DOT_SIZE = 12;
-const CHIP_H = 32;
-const CHIP_W = 90;
-const MS_MIN_LIFT = 12;
-const MS_LANE_STEP = 38;
-/** Min gap (px) a centred chip keeps from either track edge before clamping. */
-const CHIP_EDGE = CHIP_W / 2 + 9;
-/** Min gap (px) the centred hover tooltip keeps from either track edge. */
-const TIP_EDGE = 96;
+import {
+  BASELINE,
+  LEADER_VBW,
+  MONTH_PX,
+  MS_CORRIDOR,
+  MS_CORRIDOR_STEP,
+  MS_GAP,
+  MS_STEM_MIN,
+  PILL_BH,
+  PILL_REF_W,
+  PILL_TOP,
+  STEM_MIN,
+  STEM_RANGE,
+  TIER_H,
+  TIP_EDGE,
+  TRACK_HEIGHT,
+} from './heat-strip-layout.constants';
 
 /**
- * Nightly-activity heat strip: a horizontally-scrollable, month-ticked baseline
- * with a thin stem per imaging night (alternating above/below, sized by that
- * night's integration). Notable nights — hours-logged, frame-count, Nth-object,
- * Nth-night and best-night milestones — surface as a dot + labelled chip lifted
- * into a collision-free lane. Hovering an ordinary night reveals its detail.
+ * Nightly-activity heat strip: a month-ticked baseline with one upward stem per
+ * imaging night (sized by that night's integration). Notable nights — hours,
+ * frames, Nth-object/night and best-night milestones — surface as labelled pills
+ * packed into two staggered tiers, each joined to its night's spike by a
+ * right-angle "corridor" leader. Hovering a night reveals its detail. The track
+ * scrolls horizontally when a long history would otherwise crowd the nights.
  */
 @Component({
   selector: 'dba-heat-strip',
@@ -68,60 +70,94 @@ export class HeatStripComponent {
   /** Track height + baseline for the template. */
   protected readonly trackHeight = TRACK_HEIGHT;
   protected readonly baseline = BASELINE;
-
-  /** Dates carrying a milestone — their stems are replaced by the callout. */
-  private readonly milestoneDates = computed<Set<string>>(
-    () => new Set(this.view().milestones.map((m) => m.date)),
-  );
+  /** Leaders SVG viewBox — percent×10 in x, track px in y. */
+  protected readonly leadersViewBox = `0 0 ${LEADER_VBW} ${TRACK_HEIGHT}`;
 
   /** Scrollable track width: one month-slot wide minimum, never below the panel. */
   protected readonly trackWidth = computed<string>(
     () => `max(100%, ${this.view().spanMonths * MONTH_PX}px)`,
   );
 
-  /** Ordinary nights (milestone nights are drawn as callouts instead). */
-  protected readonly nodes = computed<HeatNode[]>(() => {
-    const skip = this.milestoneDates();
-    return this.view()
-      .nights.filter((n) => !skip.has(n.date))
-      .map((n, i) => {
-        const up = i % 2 === 0;
-        const stemHeight = STEM_MIN + n.frac * STEM_RANGE;
-        return {
-          ...n,
-          up,
-          stemTop: up ? BASELINE - stemHeight : BASELINE,
-          stemHeight,
-        };
-      });
+  /** A night's intensity (0–1) keyed by ISO date — used to size milestone stems. */
+  private readonly fracByDate = computed<Map<string, number>>(() => {
+    const map = new Map<string, number>();
+    for (const n of this.view().nights) {
+      map.set(n.date, n.frac);
+    }
+    return map;
   });
 
-  /** Milestone callouts with lane-resolved chip/connector geometry. */
+  /** Stem length (px) for each milestone night — taller, with a floor for the leader. */
+  private readonly milestoneStem = computed<Map<string, number>>(() => {
+    const map = new Map<string, number>();
+    for (const m of this.view().milestones) {
+      const frac = this.fracByDate().get(m.date) ?? 0.5;
+      map.set(m.date, Math.max(MS_STEM_MIN, STEM_MIN + frac * STEM_RANGE));
+    }
+    return map;
+  });
+
+  /** Every night as an upward stem; milestone nights stand taller and brighter. */
+  protected readonly nodes = computed<HeatNode[]>(() => {
+    const stems = this.milestoneStem();
+    return this.view().nights.map((n) => {
+      const msStem = stems.get(n.date);
+      const stemHeight = msStem ?? STEM_MIN + n.frac * STEM_RANGE;
+      const dotTop = BASELINE - stemHeight;
+      return {
+        ...n,
+        up: true,
+        isMilestone: msStem != null,
+        stemTop: dotTop,
+        stemHeight,
+        dotTop,
+        dotSize: 6 + n.frac * 9,
+      };
+    });
+  });
+
+  /**
+   * Milestone pills packed into two staggered tiers (each placed on the tier
+   * that least displaces it from its night), with a right-angle corridor leader
+   * dropping from the pill to that night's spike tip.
+   */
   protected readonly placed = computed<PlacedMilestone[]>(() => {
-    const trackPx = Math.max(1, this.view().spanMonths * MONTH_PX);
+    const stems = this.milestoneStem();
     const sorted = [...this.view().milestones].sort((a, b) => a.leftPct - b.leftPct);
-    const laneRight: number[] = [];
+    const tierRight = [-Infinity, -Infinity];
     return sorted.map((m) => {
-      const xPx = (m.leftPct / 100) * trackPx;
-      const leftEdge = xPx - CHIP_W / 2;
-      let lane = 0;
-      while (lane < laneRight.length && laneRight[lane] > leftEdge - 6) {
-        lane += 1;
+      const truePct = Math.min(97, Math.max(3, m.leftPct));
+      const halfPct = ((Math.max(m.big.length, m.small.length) * 6.4 + 22) / PILL_REF_W) * 100 / 2;
+      let tier = 0;
+      let slotPct = truePct;
+      let bestDisplace = Infinity;
+      for (let t = 0; t < 2; t++) {
+        const candidate = Math.min(97 - halfPct, Math.max(truePct, tierRight[t] + MS_GAP + halfPct));
+        const displace = Math.abs(candidate - truePct);
+        if (displace < bestDisplace - 1e-6) {
+          bestDisplace = displace;
+          tier = t;
+          slotPct = candidate;
+        }
       }
-      laneRight[lane] = xPx + CHIP_W / 2;
-      const chipBottom = MS_DOT_Y - MS_MIN_LIFT - lane * MS_LANE_STEP;
+      tierRight[tier] = slotPct + halfPct;
+
+      const pillTop = PILL_TOP + tier * TIER_H;
+      const tipY = BASELINE - (stems.get(m.date) ?? MS_STEM_MIN);
+      const corridorY = MS_CORRIDOR + tier * MS_CORRIDOR_STEP;
+      const x1 = (slotPct * LEADER_VBW) / 100;
+      const x2 = (truePct * LEADER_VBW) / 100;
+      const y1 = pillTop + PILL_BH;
       return {
         id: `${m.date}-${m.kind}-${m.big}`,
-        leftPct: m.leftPct,
         color: MILESTONE_COLOR[m.kind],
         big: m.big,
         small: m.small,
-        chipLeft: edgeClampLeft(m.leftPct, CHIP_EDGE),
-        chipTop: chipBottom - CHIP_H,
-        lineTop: chipBottom,
-        lineHeight: Math.max(0, BASELINE - chipBottom),
-        dotTop: MS_DOT_Y - MS_DOT_SIZE / 2,
-        dotSize: MS_DOT_SIZE,
+        slotPct,
+        truePct,
+        pillTop,
+        nodeTop: tipY,
+        path: `M${x1} ${y1} L ${x1} ${corridorY} L ${x2} ${corridorY} L ${x2} ${tipY}`,
       };
     });
   });

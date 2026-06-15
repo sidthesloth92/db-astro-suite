@@ -26,36 +26,41 @@
   left: 0;
   right: 0;
   height: 1px;
-  background: color-mix(in srgb, var(--db-color-text-faint) 32%, transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--db-color-border-strong) 5%,
+    var(--db-color-border-strong) 95%,
+    transparent
+  );
 }
 
 /* Month ticks */
 .hs-month {
   position: absolute;
-  transform: translateX(-50%);
+  transform: translateY(-50%);
 }
 .hs-month::before {
   content: '';
   position: absolute;
-  left: 50%;
-  top: -5px;
+  left: 0;
+  top: 1px;
   width: 1px;
-  height: 10px;
-  background: color-mix(in srgb, var(--db-color-text-faint) 26%, transparent);
+  height: 9px;
+  background: var(--db-color-border-strong);
 }
 .hs-month-lbl {
   position: absolute;
-  left: 50%;
-  top: 10px;
-  transform: translateX(-50%);
+  left: 5px;
+  top: 6px;
   font-family: var(--db-font-mono-code);
-  font-size: 9.5px;
+  font-size: 10px;
   letter-spacing: 0.04em;
   white-space: nowrap;
-  color: var(--db-color-text-faint);
+  color: var(--db-color-text-primary);
 }
 
-/* Ordinary night stems */
+/* Night stems (all rise upward from the baseline) */
 .hs-node {
   position: absolute;
   top: 0;
@@ -66,83 +71,110 @@
 .hs-stem {
   position: absolute;
   left: 50%;
-  width: 2px;
+  width: 3px;
   transform: translateX(-50%);
-  border-radius: 1px;
-  background: color-mix(in srgb, var(--db-color-neon-pink) 58%, transparent);
-  box-shadow: 0 0 6px color-mix(in srgb, var(--db-color-neon-pink) 32%, transparent);
-  transition: background 0.12s;
+  border-radius: 3px;
+  background: linear-gradient(
+    0deg,
+    color-mix(in srgb, var(--db-color-neon-pink) 80%, transparent),
+    color-mix(in srgb, var(--db-color-neon-pink) 16%, transparent)
+  );
+  transition: filter 0.12s, width 0.12s, box-shadow 0.12s;
+}
+.hs-stem.ms {
+  width: 3.5px;
+  background: linear-gradient(
+    0deg,
+    color-mix(in srgb, var(--db-color-neon-pink) 95%, transparent),
+    color-mix(in srgb, var(--db-color-neon-pink) 40%, transparent)
+  );
+  box-shadow: 0 0 10px color-mix(in srgb, var(--db-color-neon-pink) 45%, transparent);
 }
 .hs-stem.on {
+  filter: brightness(1.6);
+  width: 4.5px;
+  box-shadow: 0 0 14px color-mix(in srgb, var(--db-color-neon-pink) 60%, transparent);
+}
+.hs-dot {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.6);
+  border-radius: 50%;
   background: var(--db-color-neon-pink);
-  box-shadow: 0 0 10px color-mix(in srgb, var(--db-color-neon-pink) 70%, transparent);
+  box-shadow: 0 0 0 3px var(--db-color-surface), 0 0 12px color-mix(in srgb, var(--db-color-neon-pink) 80%, transparent);
+  opacity: 0;
+  transition: opacity 0.12s, transform 0.12s;
+  z-index: 2;
+  pointer-events: none;
+}
+.hs-dot.on {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1.15);
 }
 
-/* Milestone callouts */
-.hs-ms {
+/* Milestone callouts: right-angle "corridor" leaders + two-tier pills */
+.hs-leaders {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 0;
-  transform: translateX(-50%);
+  inset: 0;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
+  z-index: 2;
+  overflow: visible;
 }
-.hs-ms-line {
+.hs-ms-node {
   position: absolute;
-  left: 50%;
-  width: 1.5px;
-  transform: translateX(-50%);
-  background: color-mix(in srgb, var(--ms) 55%, transparent);
-}
-.hs-ms-dot {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  border-radius: 50%;
-  background: var(--ms);
-  box-shadow: 0 0 10px color-mix(in srgb, var(--ms) 80%, transparent);
-}
-.hs-ms-chip {
-  position: absolute;
-  transform: translateX(-50%);
-  pointer-events: none;
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  padding: 6px 12px;
-  border-radius: 10px;
-  border: 1px solid color-mix(in srgb, var(--ms) 50%, transparent);
-  background: color-mix(in srgb, var(--db-color-surface-bg) 82%, transparent);
-  box-shadow: 0 8px 24px color-mix(in srgb, var(--ms) 14%, transparent);
-  backdrop-filter: blur(3px);
-  white-space: nowrap;
-}
-.hs-ms-row {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.hs-ms-bdot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
+  transform: translate(-50%, -50%);
   background: var(--ms);
-  box-shadow: 0 0 6px color-mix(in srgb, var(--ms) 70%, transparent);
+  box-shadow: 0 0 9px var(--ms);
+  z-index: 3;
+  pointer-events: none;
 }
-.hs-ms-big {
-  font-family: var(--db-font-display-major);
-  font-weight: 700;
-  font-size: 13px;
-  line-height: 1;
-  color: var(--ms);
-}
-.hs-ms-small {
+.hs-ms-pill {
+  position: absolute;
+  transform: translateX(-50%);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  white-space: nowrap;
   font-family: var(--db-font-mono-code);
-  font-size: 8.5px;
-  letter-spacing: 0.16em;
-  line-height: 1;
-  color: var(--db-color-text-dim);
+  color: var(--ms);
+  text-align: center;
+  line-height: 1.05;
+  background: var(--db-color-surface-raised);
+  border: 1px solid color-mix(in srgb, var(--ms) 50%, transparent);
+  border-radius: 9px;
+  padding: 4px 9px;
+  box-shadow: 0 6px 18px -10px rgba(0, 0, 0, 0.7);
+  z-index: 3;
+  pointer-events: none;
+}
+.hs-ms-v {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.hs-ms-v::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex: none;
+  background: var(--ms);
+  box-shadow: 0 0 6px var(--ms);
+}
+.hs-ms-d {
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--db-color-text-faint) 78%, transparent);
 }
 
 /* Hover tooltip */

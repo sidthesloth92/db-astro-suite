@@ -19,33 +19,45 @@
           <span
             class="hs-stem"
             [class.on]="hovered()?.date === n.date"
+            [class.ms]="n.isMilestone"
             [style.top.px]="n.stemTop"
             [style.height.px]="n.stemHeight"
+          ></span>
+          <span
+            class="hs-dot"
+            [class.on]="hovered()?.date === n.date"
+            [style.top.px]="n.dotTop"
+            [style.width.px]="n.dotSize"
+            [style.height.px]="n.dotSize"
           ></span>
         </div>
       }
 
+      <svg class="hs-leaders" [attr.viewBox]="leadersViewBox" preserveAspectRatio="none" aria-hidden="true">
+        @for (m of placed(); track m.id) {
+          <path
+            [attr.d]="m.path"
+            [attr.stroke]="m.color"
+            fill="none"
+            stroke-width="1.5"
+            stroke-linejoin="miter"
+            stroke-linecap="butt"
+            opacity="0.55"
+            vector-effect="non-scaling-stroke"
+          />
+        }
+      </svg>
+
       @for (m of placed(); track m.id) {
-        <div class="hs-ms" [style.left.%]="m.leftPct" [style.--ms]="m.color">
-          <span class="hs-ms-line" [style.top.px]="m.lineTop" [style.height.px]="m.lineHeight"></span>
-          <span
-            class="hs-ms-dot"
-            [style.top.px]="m.dotTop"
-            [style.width.px]="m.dotSize"
-            [style.height.px]="m.dotSize"
-          ></span>
-        </div>
-        <span class="hs-ms-chip" [style.--ms]="m.color" [style.left]="m.chipLeft" [style.top.px]="m.chipTop">
-          <span class="hs-ms-row">
-            <span class="hs-ms-bdot"></span>
-            <span class="hs-ms-big">{{ m.big }}</span>
-          </span>
-          <span class="hs-ms-small">{{ m.small }}</span>
+        <span class="hs-ms-node" [style.--ms]="m.color" [style.left.%]="m.truePct" [style.top.px]="m.nodeTop"></span>
+        <span class="hs-ms-pill" [style.--ms]="m.color" [style.left.%]="m.slotPct" [style.top.px]="m.pillTop">
+          <span class="hs-ms-v">{{ m.big }}</span>
+          <span class="hs-ms-d">{{ m.small }}</span>
         </span>
       }
 
       @if (hovered(); as h) {
-        <div class="hs-tip" [style.left]="tipLeft(h.leftPct)" [style.top.px]="(h.up ? h.stemTop : baseline) - 8">
+        <div class="hs-tip" [style.left]="tipLeft(h.leftPct)" [style.top.px]="h.stemTop - 8">
           <div class="t-date">{{ date(h.date) }}</div>
           <div class="t-int">{{ dur(h.integrationSeconds) }}</div>
           <div class="t-sub">{{ count(h.lightFrameCount) }} frames · {{ h.objectCount }} object{{ h.objectCount === 1 ? '' : 's' }}</div>

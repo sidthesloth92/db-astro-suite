@@ -53,11 +53,7 @@
 
     <div class="hero-rule"></div>
     <div class="hero-time-label eyebrow">Total integration</div>
-    <div class="hero-time">
-      @for (p of heroTimeParts(); track p.unit) {
-        <span class="ht-seg"><span class="ht-num">{{ p.value }}</span><span class="ht-unit">{{ p.unit }}</span></span>
-      }
-    </div>
+    <div class="hero-time">{{ heroTime() }}</div>
     <div class="hero-sub">
       @if (seasons(); as n) {
         <b>{{ n }} season{{ n === 1 ? '' : 's' }}</b> under the sky <span class="dot-sep">·</span>
@@ -111,6 +107,8 @@
   @if (hasSky()) {
     <dba-universe-globe [objects]="ledger().objects" (enter)="enterSky.emit()" />
   }
+
+  <dba-section-banner num="01" eyebrow="The Record" title="Activity" glyph="chart" [seed]="2" [sub]="activitySub()" />
 
   <div class="panel">
     <div class="panel-top">
