@@ -13,7 +13,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { Observable } from 'rxjs';
 import type { CreateStoryResult, UpdateStoryResult } from '../../models/api.model';
-import { PUBLIC_PROFILE_HOST, profileDisplayUrl, profileUrl } from '../../models/app.constants';
+import { appHost, profileDisplayUrl, profileUrl } from '../../models/app.constants';
 import type { CelestoryLedger } from '../../models/ledger.model';
 import { SessionStore } from '../../services/session-store.service';
 import { StoryService } from '../../services/story.service';
@@ -104,8 +104,8 @@ export class PublishModalComponent implements OnInit {
   protected readonly intent = computed<'create' | 'update'>(() =>
     this.exists() ? 'update' : 'create',
   );
-  /** Public host where the published profile lives (shown as the handle prefix). */
-  protected readonly host = PUBLIC_PROFILE_HOST;
+  /** Host the published profile lives on — the current app origin (shown as the handle prefix). */
+  protected readonly host = appHost();
   /** Full canonical profile URL for the typed handle (used for copy/share). */
   protected readonly profileLink = computed(() => profileUrl(this.clean()));
   /** Display form of the profile URL shown in the modal (scheme stripped). */
