@@ -5,6 +5,7 @@
       [routerLink]="routerLink()"
       [attr.data-variant]="variant()"
       [attr.data-size]="size()"
+      [attr.data-accent]="accent()"
       [attr.aria-disabled]="disabled() ? 'true' : null"
       [attr.tabindex]="disabled() ? -1 : null"
       (click)="onClick($event)"
@@ -22,6 +23,7 @@
       rel="noopener noreferrer"
       [attr.data-variant]="variant()"
       [attr.data-size]="size()"
+      [attr.data-accent]="accent()"
       [attr.aria-disabled]="disabled() ? 'true' : null"
       [attr.tabindex]="disabled() ? -1 : null"
       (click)="onClick($event)"
@@ -37,6 +39,7 @@
       class="text-button"
       [attr.data-variant]="variant()"
       [attr.data-size]="size()"
+      [attr.data-accent]="accent()"
       [disabled]="disabled()"
       (click)="onClick($event)"
     >
