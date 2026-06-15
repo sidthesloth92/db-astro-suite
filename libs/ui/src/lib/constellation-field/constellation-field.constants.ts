@@ -1,5 +1,5 @@
 /**
- * Tuning + palette for the astrogram living-constellation background field.
+ * Tuning + palette for the living-constellation background field.
  * The colours are fixed brand-illustration values (the logo palette), not
  * themeable UI tokens — kept here so the field matches the mark + loader.
  */

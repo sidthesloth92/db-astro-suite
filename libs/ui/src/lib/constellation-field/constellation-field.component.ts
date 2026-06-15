@@ -19,20 +19,20 @@ import {
 } from './constellation-field.util';
 
 /**
- * Full-bleed animated background for the astrogram app — a living
- * constellation field: drifting, twinkling stars that self-connect with
- * pink→purple→blue lines, gentle cursor parallax, and a few tagged anchor
- * stars with pulsing reticles + sparkles. Projected children render on top.
+ * Full-bleed animated background — a living constellation field: drifting,
+ * twinkling stars that self-connect with pink→purple→blue lines, gentle cursor
+ * parallax, and a few tagged anchor stars with pulsing reticles + sparkles.
+ * Projected children render on top. Shared across apps via `@db-astro-suite/ui`.
  *
  * The canvas loop runs outside Angular (no change detection per frame),
  * pauses when the tab is hidden, honours `prefers-reduced-motion` (single
  * static frame), and tears everything down on destroy.
  */
 @Component({
-  selector: 'dba-ag-constellation-field',
+  selector: 'dba-ui-constellation-field',
   standalone: true,
-  templateUrl: './constellation-field.html',
-  styleUrls: ['./constellation-field.css'],
+  templateUrl: './constellation-field.component.html',
+  styleUrl: './constellation-field.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ConstellationFieldComponent {
@@ -92,6 +92,10 @@ export class ConstellationFieldComponent {
 
   /** Cancels the loop and removes every listener / observer. */
   private teardown(): void {
+    // Nothing is wired up on the server (init() is browser-only), and the
+    // DestroyRef hook also runs during SSR teardown — so bail out before
+    // touching window/document, which do not exist there.
+    if (!isPlatformBrowser(this.platformId)) return;
     if (this.rafId) cancelAnimationFrame(this.rafId);
     this.resizeObserver?.disconnect();
     window.removeEventListener('pointermove', this.onPointerMove);

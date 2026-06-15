@@ -1,0 +1,54 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+/* Icon sits beside the text (square plate, left); heading + body stack on the right. */
+.fc {
+  box-sizing: border-box;
+  height: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 22px;
+  background: linear-gradient(180deg, var(--db-color-surface), var(--db-color-surface-raised));
+  border: 1px solid var(--db-color-border);
+  transition: border-color 200ms ease;
+}
+
+.fc:hover {
+  border-color: var(--db-color-border-active);
+}
+
+.fc__icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  color: var(--db-color-text-primary);
+  background: var(--db-color-surface-bg);
+  border: 1px solid var(--db-color-border-strong);
+}
+
+.fc__text {
+  /* Allow the body copy to wrap instead of overflowing the flex row. */
+  min-width: 0;
+}
+
+.fc__heading {
+  margin: 0 0 8px;
+  font-family: var(--db-font-display-major);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+  color: var(--db-color-text-primary);
+}
+
+.fc__body {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--db-color-text-dim);
+}
