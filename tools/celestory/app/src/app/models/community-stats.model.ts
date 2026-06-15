@@ -4,7 +4,11 @@
  * never any individual ledger data.
  */
 export interface CommunityStats {
-  /** Distinct deduped upload attempts (install id + data fingerprint pairs). */
+  /**
+   * Distinct owners (install id or claimed handle) who have charted a journey —
+   * the "Astrophotographers" counter. The stats endpoint already dedupes to the
+   * latest snapshot per owner, so this is a head-count, not a raw attempt total.
+   */
   attemptCount: number;
   totalIntegrationSeconds: number;
   objectCount: number;

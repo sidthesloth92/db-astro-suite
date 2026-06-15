@@ -15,6 +15,7 @@ import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { Router, RouterLink } from "@angular/router";
 import {
   ConstellationFieldComponent,
+  FeatureCardComponent,
   IconButtonComponent,
   TextButtonComponent,
 } from "@db-astro-suite/ui";
@@ -24,11 +25,15 @@ import { CelestoryWordmarkComponent } from "../components/celestory-wordmark/cel
 import { UploadChoiceModalComponent } from "../components/upload-choice-modal/upload-choice-modal.component";
 import type { CommunityStats } from "../models/community-stats.model";
 import {
+  ABOUT_URL,
+  ASTROGRAM_URL,
   GITHUB_URL,
   HUB_URL,
+  INSTAGRAM_URL,
   INSTALL_COMMANDS,
   INSTALL_LABELS,
   SCAN_COMMAND,
+  STARWIZZ_URL,
 } from "../models/landing.constants";
 import type { InstallTool } from "../models/landing.types";
 import { SUPPORTED_LEDGER_SCHEMA_VERSION } from "../models/ledger.constants";
@@ -55,6 +60,7 @@ const COUNT_UP_MS = 1600;
   imports: [
     RouterLink,
     ConstellationFieldComponent,
+    FeatureCardComponent,
     TextButtonComponent,
     IconButtonComponent,
     CelestoryMarkComponent,
@@ -94,10 +100,18 @@ export default class LandingPageComponent {
   protected readonly installLabels = INSTALL_LABELS;
   /** Scan command shown beneath the install command. */
   protected readonly scanCommand = SCAN_COMMAND;
-  /** DB Astro Suite hub URL the footer "Launch the app" links back to. */
+  /** DB Astro Suite hub URL the footer "All tools" link points back to. */
   protected readonly hubUrl = HUB_URL;
   /** Public source repository, linked from the nav + footer GitHub icons. */
   protected readonly githubUrl = GITHUB_URL;
+  /** Astrogram tool page, linked from the footer "DB Astro Suite" column. */
+  protected readonly astrogramUrl = ASTROGRAM_URL;
+  /** Starwizz tool page, linked from the footer "DB Astro Suite" column. */
+  protected readonly starwizzUrl = STARWIZZ_URL;
+  /** Author's personal site, linked from the footer "Connect" column. */
+  protected readonly aboutUrl = ABOUT_URL;
+  /** DB Astro Suite Instagram, linked from the footer "Connect" column. */
+  protected readonly instagramUrl = INSTAGRAM_URL;
   /** Current year, shown in the footer copyright line. */
   protected readonly year = new Date().getFullYear();
 
@@ -120,8 +134,8 @@ export default class LandingPageComponent {
   /** Guards the one-shot observe/animate setup. */
   private animationStarted = false;
 
-  /** Animated "Journeys charted" counter (deduped upload attempts). */
-  protected readonly journeys = computed(() => {
+  /** Animated "Astrophotographers" counter — distinct owners who have charted a journey. */
+  protected readonly photographers = computed(() => {
     const s = this.stats();
     return s ? formatCount(s.attemptCount * this.progress()) : "";
   });

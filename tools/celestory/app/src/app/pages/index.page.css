@@ -471,45 +471,31 @@ p.sub {
   margin: 0 0 26px;
 }
 
+/* story / why */
+.story-prose p {
+  color: var(--ink-2);
+  font-size: 16.5px;
+  line-height: 1.78;
+  margin: 0 0 18px;
+  text-wrap: pretty;
+}
+.story-prose p:last-child {
+  margin-bottom: 0;
+}
+.story-prose b {
+  color: var(--ink);
+  font-weight: 600;
+}
+.accent {
+  color: var(--glow);
+}
+
 /* features */
 .feat {
   display: grid;
   grid-template-columns: 1fr;
   gap: 14px;
   margin-top: 8px;
-}
-/* Feature tile — icon on top, then title + body (matches the design). */
-.fcard {
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 22px;
-  background: linear-gradient(180deg, var(--panel), var(--panel-2));
-}
-.fcard .fi {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  display: grid;
-  place-items: center;
-  margin-bottom: 16px;
-  background: var(--fill-2);
-  border: 1px solid var(--line-2);
-  color: var(--ink-2);
-}
-.fcard h4 {
-  font-family: var(--serif);
-  font-weight: 700;
-  font-size: 15px;
-  margin: 0 0 9px;
-  text-transform: uppercase;
-  letter-spacing: 0.045em;
-  color: var(--ink);
-}
-.fcard p {
-  color: var(--ink-3);
-  font-size: 14px;
-  line-height: 1.55;
-  margin: 0;
 }
 
 /* walkthrough steps */
@@ -1139,20 +1125,20 @@ footer {
   position: relative;
   z-index: 2;
   margin-top: 64px;
-  padding: 54px 20px 120px;
+  /* Horizontal gutter lives on .foot-inner / .foot-bot so footer content
+     lines up with the page content (.wrap) instead of sitting 20px left. */
+  padding: 54px 0 120px;
   border-top: 1px solid var(--line);
   background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--void) 55%, transparent));
 }
 .foot-inner {
   max-width: var(--maxw);
   margin: 0 auto;
+  padding: 0 20px;
   display: grid;
   grid-template-columns: 1.4fr 1fr 1fr;
   gap: 40px 32px;
   align-items: start;
-}
-.foot-brand {
-  grid-column: 1 / -1;
 }
 footer .brand {
   margin-bottom: 16px;
@@ -1215,7 +1201,7 @@ footer .brand {
 .foot-bot {
   max-width: var(--maxw);
   margin: 40px auto 0;
-  padding-top: 22px;
+  padding: 22px 20px 0;
   border-top: 1px solid var(--line-soft);
   display: flex;
   align-items: center;
@@ -1227,6 +1213,14 @@ footer .brand {
   letter-spacing: 0.04em;
   color: var(--ink-4);
 }
+.foot-bot a.foot-license {
+  color: var(--ink-3);
+  text-decoration: none;
+  transition: color 0.14s;
+}
+.foot-bot a.foot-license:hover {
+  color: var(--glow);
+}
 .foot-bot .made b {
   color: var(--glow);
   font-weight: 700;
@@ -1234,6 +1228,10 @@ footer .brand {
 @media (max-width: 720px) {
   .foot-inner {
     grid-template-columns: 1fr 1fr;
+  }
+  /* Brand stacks full-width above the two link columns only on small screens. */
+  .foot-brand {
+    grid-column: 1 / -1;
   }
   .foot-bot {
     justify-content: center;
