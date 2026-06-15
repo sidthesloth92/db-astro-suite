@@ -3,8 +3,8 @@ import type { ShareDestination, ShareOption } from './share.types';
 
 /** Download-format options for the share card's split download button. */
 export const DOWNLOAD_FORMAT_MENU: SplitButtonMenuItem[] = [
-  { value: 'png', label: 'PNG', description: 'lossless' },
-  { value: 'jpeg', label: 'JPEG', description: 'smaller file' },
+  { value: 'png', label: 'PNG', detail: 'lossless' },
+  { value: 'jpeg', label: 'JPEG', detail: 'smaller file' },
 ];
 
 /** Downloadable asset kinds in the Share modal's card grid. */

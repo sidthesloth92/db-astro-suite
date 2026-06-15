@@ -516,6 +516,12 @@
 /* download split spans the row; Share + Copy split the next row. */
 .dl-split {
   flex: 1 1 100%;
+  /* The original pink download look: pink main + darker pink caret. */
+  --dba-split-button-bg: var(--db-color-neon-pink);
+  --dba-split-button-chevron-bg: color-mix(in srgb, var(--db-color-neon-pink) 78%, black);
+  --dba-split-button-color: var(--db-color-text-primary);
+  --dba-split-button-divider: color-mix(in srgb, var(--db-color-text-primary) 25%, transparent);
+  --dba-split-button-shadow: none;
 }
 .actions dba-ui-text-button {
   display: flex;
