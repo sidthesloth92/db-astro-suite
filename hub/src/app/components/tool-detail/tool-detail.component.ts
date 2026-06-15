@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
+  FeatureCardComponent,
   FooterComponent,
   IconComponent,
   StarryBackgroundComponent,
@@ -34,6 +35,7 @@ import type { ToolDetailConfig } from './tool-detail.model';
     StarryBackgroundComponent,
     FooterComponent,
     IconComponent,
+    FeatureCardComponent,
     DualTitlePipe,
   ],
   templateUrl: './tool-detail.component.html',
