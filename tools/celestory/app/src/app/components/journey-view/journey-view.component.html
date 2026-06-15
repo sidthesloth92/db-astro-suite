@@ -17,7 +17,9 @@
             <strong>Viewing Demo Journey</strong>
             <span>Like what you see? Create your own Celestory in minutes.</span>
           </div>
-          <dba-ui-text-button variant="primary" label="Create Your Journey" (clicked)="openGettingStarted()" />
+          <dba-ui-text-button variant="primary" label="Create Your Journey" (clicked)="openGettingStarted()">
+            <dba-cel-icon slot="leading" name="rocket" [size]="14" />
+          </dba-ui-text-button>
         </section>
       }
       @case ('preview') {
@@ -27,7 +29,9 @@
             <strong>Private Preview</strong>
             <span>This journey is only visible on this device. Publish it to get a permanent URL.</span>
           </div>
-          <dba-ui-text-button variant="primary" label="Publish Journey" (clicked)="openPublish()" />
+          <dba-ui-text-button variant="primary" label="Publish Journey" (clicked)="openPublish()">
+            <dba-cel-icon slot="leading" name="globe" [size]="14" />
+          </dba-ui-text-button>
         </section>
       }
       @case ('published') {
@@ -40,7 +44,9 @@
               <code class="url">{{ profileUrl() }}</code>
             </div>
             <div class="banner-actions">
-              <dba-ui-text-button variant="secondary" [label]="copied() ? 'Copied' : 'Copy Link'" (clicked)="copyLink()" />
+              <dba-ui-text-button variant="secondary" [label]="copied() ? 'Copied' : 'Copy Link'" (clicked)="copyLink()">
+                <dba-cel-icon slot="leading" name="link" [size]="14" />
+              </dba-ui-text-button>
               <dba-ui-text-button variant="primary" label="Share" (clicked)="openShare()">
                 <dba-cel-icon slot="leading" name="share" [size]="14" />
               </dba-ui-text-button>
