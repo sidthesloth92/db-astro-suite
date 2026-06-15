@@ -1390,7 +1390,7 @@ function drawConstellationField(ctx: Ctx, W: number, H: number, t: ResolvedTheme
   const rnd = mkRand(seed || 77);
   const sc = Math.min(W, H) / 1080;
   const pts: { x: number; y: number; r: number; a: number }[] = [];
-  const n = Math.round(Math.min(92, (W * H) / 13500));
+  const n = Math.round(Math.min(54, (W * H) / 24000));
   for (let i = 0; i < n; i++) {
     pts.push({ x: rnd() * W, y: rnd() * H, r: (0.8 + rnd() * 1.9) * sc, a: 0.45 + rnd() * 0.5 });
   }
@@ -1400,7 +1400,7 @@ function drawConstellationField(ctx: Ctx, W: number, H: number, t: ResolvedTheme
     tagged.push({ x: (0.12 + 0.76 * rnd()) * W, y: (0.1 + 0.62 * rnd()) * H, col: i % 2 ? CYAN : PINK });
   }
   const nodes: { x: number; y: number }[] = [...pts, ...tagged];
-  const MAX = 178 * sc;
+  const MAX = 148 * sc;
   const MAX2 = MAX * MAX;
   const c = [255, 42, 123];
   const c2 = [25, 230, 221];
@@ -1417,7 +1417,7 @@ function drawConstellationField(ctx: Ctx, W: number, H: number, t: ResolvedTheme
         const d = Math.sqrt(d2);
         const al = 1 - d / MAX;
         const k = Math.max(0, Math.min(1, (a.x + b.x) / 2 / W));
-        ctx.strokeStyle = `rgba(${(c[0] + (c2[0] - c[0]) * k) | 0},${(c[1] + (c2[1] - c[1]) * k) | 0},${(c[2] + (c2[2] - c[2]) * k) | 0},${(al * 0.6).toFixed(3)})`;
+        ctx.strokeStyle = `rgba(${(c[0] + (c2[0] - c[0]) * k) | 0},${(c[1] + (c2[1] - c[1]) * k) | 0},${(c[2] + (c2[2] - c[2]) * k) | 0},${(al * 0.4).toFixed(3)})`;
         ctx.beginPath();
         ctx.moveTo(a.x, a.y);
         ctx.lineTo(b.x, b.y);

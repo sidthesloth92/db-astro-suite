@@ -12,7 +12,7 @@
 /* Centered two-panel studio modal. */
 .modal {
   position: relative;
-  width: min(1120px, 100%);
+  width: min(1040px, 100%);
   max-height: 92vh;
   overflow: hidden;
   border-radius: 20px;
@@ -54,16 +54,17 @@
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1.15fr 1fr;
   overflow: hidden;
 }
 
-/* ─── LEFT PANEL ──────────────────────────────────────────── */
+/* ─── LEFT PANEL (stage) ──────────────────────────────────── */
 .preview-panel {
   display: flex;
   flex-direction: column;
-  padding: 1.5rem;
-  background: #07070f;
+  justify-content: center;
+  padding: 40px;
+  background: #060911;
   border-right: 1px solid rgba(255, 255, 255, 0.06);
   overflow: hidden;
 }
@@ -97,17 +98,32 @@
   justify-content: center;
 }
 
+/* Card floats centred with a clear frame: capped at 62vh so there's always
+   space above/below within the 40px-padded stage (matches the design). */
 .card-canvas {
   display: block;
   max-width: 100%;
-  max-height: 100%;
+  max-height: 62vh;
+  width: auto;
   height: auto;
-  border-radius: 8px;
-  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.55);
+  border-radius: 12px;
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.6);
   object-fit: contain;
+}
+.preview[data-fmt='story'] .card-canvas {
+  height: 62vh;
+  width: auto;
+  max-width: 100%;
+}
+.preview[data-fmt='square'] .card-canvas,
+.preview[data-fmt='landscape'] .card-canvas {
+  width: 100%;
+  height: auto;
+  max-height: 62vh;
 }
 
 .canvas-caption {
+  flex: 0 0 auto;
   font-family: var(--db-font-mono-code);
   font-size: 11px;
   color: var(--db-color-text-faint);
@@ -116,8 +132,9 @@
   letter-spacing: 0.04em;
 }
 
-/* left-panel publish/claim + share-link block (below the card) */
+/* left-panel publish/claim + share-link block (below the card) — never clipped */
 .claim-block {
+  flex: 0 0 auto;
   margin-top: 18px;
 }
 .claim-label {
@@ -189,7 +206,14 @@
 /* ─── RIGHT PANEL ─────────────────────────────────────────── */
 .controls {
   overflow-y: auto;
-  padding: 1.5rem;
+  padding: 32px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* header group (eyebrow + title + desc) — tight internal rhythm */
+.ctrl-head {
   display: flex;
   flex-direction: column;
 }
@@ -228,15 +252,17 @@
 
 .ctrl-desc {
   color: var(--db-color-text-dim);
-  font-size: 0.875rem;
-  margin: 0 0 1.25rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  margin: 0;
 }
 
 /* top intent tabs: Summary Card / Story Slides / Poster */
 .kind-tabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 1.25rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+  margin: 0;
 }
 .kind-tab {
   flex: 1;
@@ -308,9 +334,9 @@
   font-weight: 600;
 }
 
-/* groups */
+/* groups (spacing handled by the .controls flex gap) */
 .grp {
-  margin-bottom: 1.2rem;
+  margin-bottom: 0;
 }
 
 .grp-label {
@@ -320,7 +346,7 @@
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--db-color-text-faint);
-  margin-bottom: 0.55rem;
+  margin-bottom: 0.45rem;
 }
 
 /* row of two dropdowns (Timeframe + Background) */
@@ -392,9 +418,9 @@
 /* theme: named, horizontally scrollable swatches */
 .theme-row {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   overflow-x: auto;
-  padding-bottom: 6px;
+  padding-bottom: 5px;
   scrollbar-width: thin;
 }
 .theme-row::-webkit-scrollbar {
@@ -405,32 +431,35 @@
   border-radius: 3px;
 }
 .tsw {
-  flex: none;
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   gap: 7px;
-  width: 84px;
+  width: 72px;
   padding: 0;
   background: none;
   border: none;
   cursor: pointer;
 }
 .tsw-chip {
-  width: 84px;
-  height: 60px;
-  border-radius: 12px;
-  border: 1px solid var(--db-color-border-strong);
-  transition: border-color 0.14s, box-shadow 0.14s;
+  width: 100%;
+  height: 50px;
+  border-radius: 10px;
+  border: 1.5px solid var(--db-color-border-strong);
+  transition: border-color 0.14s, box-shadow 0.14s, transform 0.12s;
 }
 .tsw-name {
   font-family: var(--db-font-ui);
-  font-size: 11.5px;
+  font-size: 11px;
+  font-weight: 500;
   color: var(--db-color-text-faint);
+  text-align: center;
   white-space: nowrap;
   transition: color 0.14s;
 }
 .tsw:hover .tsw-chip {
+  transform: translateY(-2px);
   border-color: color-mix(in srgb, var(--db-color-text-primary) 30%, transparent);
 }
 .tsw:hover .tsw-name {
@@ -505,17 +534,17 @@
   margin-top: 1px;
 }
 
-/* actions row */
+/* actions row — Download (wider, text-sized) + Share + Copy, all on one line */
 .actions {
   display: flex;
-  gap: 8px;
-  margin-top: auto;
-  padding-top: 1rem;
+  gap: 10px;
+  margin-top: 4px;
   flex-wrap: wrap;
+  align-items: stretch;
 }
-/* download split spans the row; Share + Copy split the next row. */
 .dl-split {
-  flex: 1 1 100%;
+  flex: 1 1 auto;
+  min-width: 0;
   /* The original pink download look: pink main + darker pink caret. */
   --dba-split-button-bg: var(--db-color-neon-pink);
   --dba-split-button-chevron-bg: color-mix(in srgb, var(--db-color-neon-pink) 78%, black);
@@ -525,7 +554,8 @@
 }
 .actions dba-ui-text-button {
   display: flex;
-  flex: 1 1 0;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 /* published: share-your-link row */
@@ -588,15 +618,16 @@
   font-size: 11px;
   color: var(--db-color-green);
   text-align: center;
-  margin: 0.5rem 0 0;
+  margin: 0;
 }
 
 .footer-note {
   font-family: var(--db-font-mono-code);
   font-size: 11px;
   color: var(--db-color-text-faint);
-  text-align: center;
-  margin: 0.4rem 0 0;
+  letter-spacing: 0.04em;
+  text-align: left;
+  margin: 0;
 }
 
 @media (max-width: 700px) {

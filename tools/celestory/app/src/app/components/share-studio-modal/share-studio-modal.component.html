@@ -4,7 +4,7 @@
     <div class="studio">
       <!-- LEFT: canvas preview + publish/share -->
       <div class="preview-panel">
-        <div class="preview">
+        <div class="preview" [attr.data-fmt]="formatId()">
           <canvas #cv class="card-canvas" aria-label="Share card preview"></canvas>
           @if (mode() === 'carousel') {
             <div class="pager">
@@ -69,9 +69,11 @@
           </svg>
         </dba-ui-icon-button>
 
-        <p class="ctrl-eyebrow">Share Studio</p>
-        <h2 id="ss-title" class="ctrl-title">{{ selectedStory().label }}</h2>
-        <p class="ctrl-desc">{{ selectedStory().description }}</p>
+        <div class="ctrl-head">
+          <p class="ctrl-eyebrow">Share Studio</p>
+          <h2 id="ss-title" class="ctrl-title">{{ selectedStory().label }}</h2>
+          <p class="ctrl-desc">{{ selectedStory().description }}</p>
+        </div>
 
         <!-- Top-level asset kind tabs -->
         <div class="kind-tabs" role="tablist" aria-label="Asset kind">
