@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/huh"
 	"github.com/charmbracelet/lipgloss"
 
@@ -257,8 +258,21 @@ func organizeForm(opts *organize.Options, tagFilter *bool, rolloverHour *string)
 				Description("A human-readable note stored as a comment alongside the FITS FILTER keyword, e.g. Svbony SV220 7nm Ha. Useful for identifying the exact filter model later. Leave blank to skip.").
 				Value(&opts.Filter.Description),
 		).WithHideFunc(func() bool { return !*tagFilter }),
-	)
+	).WithKeyMap(pathInputKeyMap())
 	return form.Run()
+}
+
+// pathInputKeyMap rebinds the Input field's keys so Tab accepts the path
+// autocompletion suggestion (shell-style) and Enter advances to the next field.
+// huh's default binds Tab to "next field", which validates the half-typed path
+// the user is still completing and surfaces a spurious "no such file or
+// directory" before they can accept the suggestion (whose default key, ctrl+e,
+// is not discoverable). All other field keybindings keep their defaults.
+func pathInputKeyMap() *huh.KeyMap {
+	km := huh.NewDefaultKeyMap()
+	km.Input.AcceptSuggestion = key.NewBinding(key.WithKeys("tab"), key.WithHelp("tab", "complete"))
+	km.Input.Next = key.NewBinding(key.WithKeys("enter"), key.WithHelp("enter", "next"))
+	return km
 }
 
 func showOrganizeReview(opts organize.Options, decision *string) error {
