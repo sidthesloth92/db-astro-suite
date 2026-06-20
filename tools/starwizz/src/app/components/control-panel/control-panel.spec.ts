@@ -26,12 +26,36 @@ describe('ControlPanel', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should hide the Shooting Star Speed slider when shooting stars are disabled', () => {
-    expect(component.visibleControlNames()).toContain('shootingStarSpeed');
+  it('should show the Shooting Star Speed slider only while shooting stars are enabled', () => {
+    expect(component.isShootingStarSpeedVisible()).toBeTrue();
 
     simService.shootingStarsEnabled.set(false);
 
-    expect(component.visibleControlNames()).not.toContain('shootingStarSpeed');
+    expect(component.isShootingStarSpeedVisible()).toBeFalse();
+  });
+
+  it('should hide the Shooting Star Speed slider in Custom Path mode', () => {
+    simService.updateDirection('path');
+
+    expect(component.isShootingStarSpeedVisible()).toBeFalse();
+  });
+
+  it('should collapse every star control when the starfield is removed', () => {
+    const host = fixture.nativeElement as HTMLElement;
+    const starsSection = host.querySelector('.stars-section');
+    expect(starsSection).not.toBeNull();
+    // Stars on: the field sliders and the Shooting Stars toggle live in the section.
+    expect(starsSection?.querySelectorAll('.slider-row').length).toBeGreaterThan(0);
+    expect(starsSection?.querySelector('.record-aux')).not.toBeNull();
+
+    simService.starsEnabled.set(false);
+    fixture.detectChanges();
+
+    // Stars off: the section header (with its master switch) stays, but all star
+    // controls are gone — leaving the user to focus on the camera/recording controls.
+    expect(host.querySelector('.stars-section')).not.toBeNull();
+    expect(host.querySelectorAll('.stars-section .slider-row').length).toBe(0);
+    expect(host.querySelector('.stars-section .record-aux')).toBeNull();
   });
 
   describe('record split-button', () => {
