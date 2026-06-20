@@ -1,12 +1,21 @@
--- Celestory Phase 1 schema
+-- Celestory schema — full from-scratch definition for a FRESH database.
+--
+-- This is the complete, final schema (no migrations / ALTERs / backfills). It is
+-- written for a database that has never been deployed: wipe with drop.sql, then
+-- apply this. Run order does not matter for children vs. parent — the parent
+-- (stories) is created first so the foreign keys resolve.
+--
+-- Usage:  psql "$DATABASE_URL" -f drop.sql && psql "$DATABASE_URL" -f schema.sql
+--
+-- gen_random_uuid() is built into PostgreSQL 13+ (Neon) — no extension needed.
 
-CREATE TABLE IF NOT EXISTS stories (
+-- ── Published profiles ────────────────────────────────────────────────────────
+-- One row per claimed handle. The full ledger blob is stored verbatim for
+-- rendering; headline totals are denormalized for cheap listing/sorting. The
+-- password gates updates/deletes and mints the owner session token.
+CREATE TABLE stories (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   handle TEXT UNIQUE NOT NULL,
-  -- Legacy one-time delete key hash. No longer written: management is now
-  -- authorized by the password (login) + a signed session token. Kept nullable
-  -- for backward compatibility with rows created before this change.
-  key_hash TEXT,
   password_hash TEXT,
   ledger_json TEXT NOT NULL,
   total_integration_seconds BIGINT,
@@ -18,7 +27,12 @@ CREATE TABLE IF NOT EXISTS stories (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS story_objects (
+-- ── Per-story child rows (denormalized from the ledger on publish) ────────────
+-- Rebuilt on every re-publish, so each handle always holds exactly one current
+-- snapshot. These power the community leaderboards, which rank PUBLISHED
+-- profiles only.
+
+CREATE TABLE story_objects (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   story_id UUID NOT NULL REFERENCES stories(id) ON DELETE CASCADE,
   object_id TEXT,
@@ -29,16 +43,22 @@ CREATE TABLE IF NOT EXISTS story_objects (
   night_count INT
 );
 
-CREATE TABLE IF NOT EXISTS story_equipment (
+-- equipment_id is the CLI's canonical cross-user join key (e.g. "cam-2600mm",
+-- "optic-redcat-51"); focal_length_mm / f_ratio power the optic-specs board.
+CREATE TABLE story_equipment (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   story_id UUID NOT NULL REFERENCES stories(id) ON DELETE CASCADE,
+  equipment_id TEXT,
   kind TEXT,
   display_name TEXT,
   normalized_key TEXT,
-  integration_seconds BIGINT
+  integration_seconds BIGINT,
+  light_frame_count INT,
+  focal_length_mm INT,
+  f_ratio REAL
 );
 
-CREATE TABLE IF NOT EXISTS story_filters (
+CREATE TABLE story_filters (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   story_id UUID NOT NULL REFERENCES stories(id) ON DELETE CASCADE,
   name TEXT,
@@ -46,34 +66,27 @@ CREATE TABLE IF NOT EXISTS story_filters (
   frames INT
 );
 
--- Anonymous, privacy-preserving append-only upload log. One row PER UPLOAD: an
--- unauthenticated visualise/upload always counts (repeats of the same file
--- included). Authenticated owners are deduped later by the publish claim +
--- latest-per-owner replay — never here — so they are not double-counted.
--- Holds no ledger contents — only the owner anchors + three headline integers.
---
--- install_id is always present and is NEVER overwritten (audit anchor).
--- profile_id is NULL while anonymous and is set ONLY by the password-gated
--- publish claim (never accepted from the raw upload payload). Community totals
--- are replayed as the latest row per owner = COALESCE(profile_id, install_id).
---
--- Migrate the legacy `ledger_pings` table (pre-rename) in place, preserving its
--- rows: rename the table + the created_at column, before the CREATE below turns
--- into a no-op. Idempotent; does nothing on a fresh database.
-DO $$
-BEGIN
-  IF EXISTS (SELECT 1 FROM information_schema.tables
-             WHERE table_schema = 'public' AND table_name = 'ledger_pings') THEN
-    ALTER TABLE ledger_pings RENAME TO ledger_uploads;
-  END IF;
-  IF EXISTS (SELECT 1 FROM information_schema.columns
-             WHERE table_schema = 'public' AND table_name = 'ledger_uploads'
-               AND column_name = 'created_at') THEN
-    ALTER TABLE ledger_uploads RENAME COLUMN created_at TO uploaded_at;
-  END IF;
-END $$;
+-- Per-object, per-month rollup powering the time/seasonality boards. `month` is
+-- the first day of the month, so one DATE column serves per-year, all-time, and
+-- seasonality (month-of-year) views.
+CREATE TABLE story_object_months (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  story_id UUID NOT NULL REFERENCES stories(id) ON DELETE CASCADE,
+  object_id TEXT,
+  designation TEXT,
+  category TEXT,
+  month DATE,
+  integration_seconds BIGINT,
+  light_frame_count INT
+);
 
-CREATE TABLE IF NOT EXISTS ledger_uploads (
+-- ── Anonymous upload log ──────────────────────────────────────────────────────
+-- Privacy-preserving, append-only. One row per upload (visualise or publish);
+-- holds no ledger contents — only the owner anchors + three headline integers.
+-- profile_id is NULL while anonymous and is set ONLY by the password-gated
+-- publish claim; community totals replay the latest row per
+-- COALESCE(profile_id, install_id).
+CREATE TABLE ledger_uploads (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   install_id TEXT NOT NULL,
   profile_id TEXT,
@@ -84,30 +97,15 @@ CREATE TABLE IF NOT EXISTS ledger_uploads (
   uploaded_at TIMESTAMP DEFAULT NOW()
 );
 
--- Backfill the claim column for databases migrated from the legacy ledger_pings
--- table (which had no profile_id). No-op once present.
-ALTER TABLE ledger_uploads ADD COLUMN IF NOT EXISTS profile_id TEXT;
-
--- Drop the legacy (install_id, data_fingerprint) uniqueness so every anonymous
--- upload is its own row (repeats of the same file count). Covers both the
--- original and the renamed-from-ledger_pings constraint names. No-op once gone.
-ALTER TABLE ledger_uploads DROP CONSTRAINT IF EXISTS ledger_uploads_install_id_data_fingerprint_key;
-ALTER TABLE ledger_uploads DROP CONSTRAINT IF EXISTS ledger_pings_install_id_data_fingerprint_key;
-
-CREATE INDEX IF NOT EXISTS idx_ledger_uploads_install ON ledger_uploads(install_id);
-CREATE INDEX IF NOT EXISTS idx_ledger_uploads_profile ON ledger_uploads(profile_id);
-
--- Password protects the profile: it gates updates and mints the login session
--- token that authorizes edit/delete. Backfill for databases created before
--- password support was added:
-ALTER TABLE stories ADD COLUMN IF NOT EXISTS password_hash TEXT;
-
--- Drop the legacy NOT NULL on key_hash: the one-time delete key is retired in
--- favour of password login + session tokens, so new rows no longer set it.
-ALTER TABLE stories ALTER COLUMN key_hash DROP NOT NULL;
-
-CREATE INDEX idx_stories_handle ON stories(handle);
-CREATE INDEX idx_story_objects_story_id ON story_objects(story_id);
-CREATE INDEX idx_story_objects_object_id ON story_objects(object_id);
-CREATE INDEX idx_story_equipment_story_id ON story_equipment(story_id);
-CREATE INDEX idx_story_filters_story_id ON story_filters(story_id);
+-- ── Indexes ───────────────────────────────────────────────────────────────────
+-- (stories.handle is already indexed by its UNIQUE constraint.)
+CREATE INDEX idx_story_objects_story_id        ON story_objects(story_id);
+CREATE INDEX idx_story_objects_object_id       ON story_objects(object_id);
+CREATE INDEX idx_story_equipment_story_id      ON story_equipment(story_id);
+CREATE INDEX idx_story_equipment_equipment_id  ON story_equipment(equipment_id);
+CREATE INDEX idx_story_filters_story_id        ON story_filters(story_id);
+CREATE INDEX idx_story_object_months_story_id  ON story_object_months(story_id);
+CREATE INDEX idx_story_object_months_month     ON story_object_months(month);
+CREATE INDEX idx_story_object_months_object_id ON story_object_months(object_id);
+CREATE INDEX idx_ledger_uploads_install        ON ledger_uploads(install_id);
+CREATE INDEX idx_ledger_uploads_profile        ON ledger_uploads(profile_id);

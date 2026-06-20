@@ -25,10 +25,17 @@ export interface StoryObjectRow {
 
 /** One row destined for the story_equipment table. */
 export interface StoryEquipmentRow {
+  /** Stable cross-user join key (the CLI's canonical equipment id). */
+  equipmentId: string;
   kind: string;
   displayName: string;
   normalizedKey: string;
   integrationSeconds: number;
+  lightFrameCount: number;
+  /** Optic focal length in mm; null for cameras / when unknown. */
+  focalLengthMm: number | null;
+  /** Optic focal ratio; null for cameras / when unknown. */
+  fRatio: number | null;
 }
 
 /** One row destined for the story_filters table. */
@@ -38,12 +45,24 @@ export interface StoryFilterRow {
   frames: number;
 }
 
+/** One per-object, per-month rollup row destined for story_object_months. */
+export interface StoryObjectMonthRow {
+  objectId: string;
+  designation: string;
+  category: string;
+  /** First day of the month, ISO `YYYY-MM-01`. */
+  month: string;
+  integrationSeconds: number;
+  lightFrameCount: number;
+}
+
 /** The full set of child rows derived from a ledger on create. */
 export interface ExtractedRows {
   totals: StoryTotals;
   objects: StoryObjectRow[];
   equipment: StoryEquipmentRow[];
   filters: StoryFilterRow[];
+  objectMonths: StoryObjectMonthRow[];
 }
 
 /** Community aggregates for the landing page, replayed from the upload log. */

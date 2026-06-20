@@ -61,6 +61,7 @@ export default defineEventHandler(async (event) => {
       sql`DELETE FROM story_objects WHERE story_id = ${storyId}`,
       sql`DELETE FROM story_equipment WHERE story_id = ${storyId}`,
       sql`DELETE FROM story_filters WHERE story_id = ${storyId}`,
+      sql`DELETE FROM story_object_months WHERE story_id = ${storyId}`,
       ...rows.objects.map(
         (o) => sql`
           INSERT INTO story_objects (
@@ -74,9 +75,11 @@ export default defineEventHandler(async (event) => {
       ...rows.equipment.map(
         (e) => sql`
           INSERT INTO story_equipment (
-            story_id, kind, display_name, normalized_key, integration_seconds
+            story_id, equipment_id, kind, display_name, normalized_key,
+            integration_seconds, light_frame_count, focal_length_mm, f_ratio
           ) VALUES (
-            ${storyId}, ${e.kind}, ${e.displayName}, ${e.normalizedKey}, ${e.integrationSeconds}
+            ${storyId}, ${e.equipmentId}, ${e.kind}, ${e.displayName}, ${e.normalizedKey},
+            ${e.integrationSeconds}, ${e.lightFrameCount}, ${e.focalLengthMm}, ${e.fRatio}
           )`,
       ),
       ...rows.filters.map(
@@ -85,6 +88,16 @@ export default defineEventHandler(async (event) => {
             story_id, name, seconds, frames
           ) VALUES (
             ${storyId}, ${f.name}, ${f.seconds}, ${f.frames}
+          )`,
+      ),
+      ...rows.objectMonths.map(
+        (m) => sql`
+          INSERT INTO story_object_months (
+            story_id, object_id, designation, category,
+            month, integration_seconds, light_frame_count
+          ) VALUES (
+            ${storyId}, ${m.objectId}, ${m.designation}, ${m.category},
+            ${m.month}, ${m.integrationSeconds}, ${m.lightFrameCount}
           )`,
       ),
     ];

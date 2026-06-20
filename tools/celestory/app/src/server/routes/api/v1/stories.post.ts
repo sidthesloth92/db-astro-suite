@@ -53,9 +53,11 @@ async function persistStory(
     ...rows.equipment.map(
       (e) => sql`
         INSERT INTO story_equipment (
-          story_id, kind, display_name, normalized_key, integration_seconds
+          story_id, equipment_id, kind, display_name, normalized_key,
+          integration_seconds, light_frame_count, focal_length_mm, f_ratio
         ) VALUES (
-          ${storyId}, ${e.kind}, ${e.displayName}, ${e.normalizedKey}, ${e.integrationSeconds}
+          ${storyId}, ${e.equipmentId}, ${e.kind}, ${e.displayName}, ${e.normalizedKey},
+          ${e.integrationSeconds}, ${e.lightFrameCount}, ${e.focalLengthMm}, ${e.fRatio}
         )`,
     ),
     ...rows.filters.map(
@@ -64,6 +66,16 @@ async function persistStory(
           story_id, name, seconds, frames
         ) VALUES (
           ${storyId}, ${f.name}, ${f.seconds}, ${f.frames}
+        )`,
+    ),
+    ...rows.objectMonths.map(
+      (m) => sql`
+        INSERT INTO story_object_months (
+          story_id, object_id, designation, category,
+          month, integration_seconds, light_frame_count
+        ) VALUES (
+          ${storyId}, ${m.objectId}, ${m.designation}, ${m.category},
+          ${m.month}, ${m.integrationSeconds}, ${m.lightFrameCount}
         )`,
     ),
   ]);

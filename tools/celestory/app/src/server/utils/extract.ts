@@ -3,6 +3,7 @@ import type {
   ExtractedRows,
   StoryEquipmentRow,
   StoryFilterRow,
+  StoryObjectMonthRow,
   StoryObjectRow,
   StoryTotals,
 } from './story.model';
@@ -10,6 +11,13 @@ import type {
 /** Lowercase, collapse whitespace — a stable key for grouping gear. */
 function normalizeKey(value: string): string {
   return value.trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+/** First day of the month for an ISO date, e.g. `2025-10-16` → `2025-10-01`.
+ * Returns '' for empty/malformed dates so the caller can skip them. */
+function monthStart(date: string): string {
+  const match = /^(\d{4})-(\d{2})/.exec(date.trim());
+  return match ? `${match[1]}-${match[2]}-01` : '';
 }
 
 /** Min of two ISO date strings, ignoring empties. */
@@ -72,11 +80,51 @@ function extractObjects(ledger: Ledger): StoryObjectRow[] {
 /** Build story_equipment rows from the ledger. */
 function extractEquipment(ledger: Ledger): StoryEquipmentRow[] {
   return ledger.equipment.map((item) => ({
+    equipmentId: item.id,
     kind: item.kind,
     displayName: item.displayName,
     normalizedKey: normalizeKey(item.displayName),
     integrationSeconds: item.totalIntegrationSeconds,
+    lightFrameCount: item.lightFrameCount,
+    focalLengthMm: item.focalLengthMm,
+    fRatio: item.fRatio,
   }));
+}
+
+/**
+ * Roll each object's per-night sessions up to one row per (object, month),
+ * powering the month/seasonality leaderboards. Sessions with no parseable date
+ * are skipped; integration and frames are summed within each month bucket.
+ */
+function extractObjectMonths(ledger: Ledger): StoryObjectMonthRow[] {
+  const buckets = new Map<string, StoryObjectMonthRow>();
+  for (const object of ledger.objects) {
+    const designation = object.designation || object.displayName;
+    for (const session of object.sessions) {
+      const month = monthStart(session.date);
+      if (!month) continue;
+      const key = `${object.id}|${month}`;
+      const existing = buckets.get(key);
+      if (existing) {
+        buckets.set(key, {
+          ...existing,
+          integrationSeconds:
+            existing.integrationSeconds + session.integrationSeconds,
+          lightFrameCount: existing.lightFrameCount + session.lightFrameCount,
+        });
+      } else {
+        buckets.set(key, {
+          objectId: object.id,
+          designation,
+          category: object.category,
+          month,
+          integrationSeconds: session.integrationSeconds,
+          lightFrameCount: session.lightFrameCount,
+        });
+      }
+    }
+  }
+  return [...buckets.values()];
 }
 
 /** Build story_filters rows from the ledger summary, merging by name. */
@@ -104,5 +152,6 @@ export function extractRows(ledger: Ledger): ExtractedRows {
     objects: extractObjects(ledger),
     equipment: extractEquipment(ledger),
     filters: extractFilters(ledger),
+    objectMonths: extractObjectMonths(ledger),
   };
 }
