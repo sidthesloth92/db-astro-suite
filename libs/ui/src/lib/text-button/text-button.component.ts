@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
@@ -5,7 +6,10 @@ import { RouterLink } from '@angular/router';
 export type TextButtonVariant = 'primary' | 'secondary';
 
 /** Size preset supported by `TextButtonComponent`. */
-export type TextButtonSize = 'sm' | 'md';
+export type TextButtonSize = 'sm' | 'md' | 'lg';
+
+/** Hover accent supported by `TextButtonComponent` (drives the secondary hover colour). */
+export type TextButtonAccent = 'pink' | 'cyan';
 
 /** Acceptable shape for the `routerLink` input — matches Angular's `RouterLink`. */
 export type TextButtonRouterLink = string | readonly unknown[] | null;
@@ -34,7 +38,7 @@ export type TextButtonRouterLink = string | readonly unknown[] | null;
 @Component({
   selector: 'dba-ui-text-button',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, NgTemplateOutlet],
   templateUrl: './text-button.component.html',
   styleUrl: './text-button.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -46,8 +50,10 @@ export class TextButtonComponent {
   variant = input<TextButtonVariant>('primary');
   /** Whether the button is disabled and non-interactive. Defaults to `false`. */
   disabled = input<boolean>(false);
-  /** Size preset (`'sm'` or `'md'`). Defaults to `'md'`. */
+  /** Size preset (`'sm'`, `'md'` or `'lg'`). Defaults to `'md'`. */
   size = input<TextButtonSize>('md');
+  /** Hover accent for the `secondary` variant. Defaults to `'pink'`. */
+  accent = input<TextButtonAccent>('pink');
   /**
    * When set, the component renders as `<a [routerLink]>` (internal
    * navigation) instead of `<button>`. Takes precedence over `href`.

@@ -108,13 +108,9 @@
       </div>
       <div class="features">
         @for (f of config().features; track f.name) {
-          <article class="feature">
-            <div class="feature__icon">
-              <dba-ui-icon [def]="f.icon" [size]="20" />
-            </div>
-            <h3 class="feature__name">{{ f.name }}</h3>
-            <p class="feature__body">{{ f.body }}</p>
-          </article>
+          <dba-ui-feature-card [heading]="f.name" [body]="f.body">
+            <dba-ui-icon [def]="f.icon" [size]="20" />
+          </dba-ui-feature-card>
         }
       </div>
     </section>

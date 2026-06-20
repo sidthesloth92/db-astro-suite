@@ -343,49 +343,6 @@
   margin-top: 2rem;
 }
 
-.feature {
-  background: var(--db-color-surface-raised);
-  border: 1px solid var(--db-color-border);
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  min-height: 188px;
-  transition: border-color 200ms ease;
-}
-
-.feature:hover {
-  border-color: var(--db-color-border-active);
-}
-
-.feature__icon {
-  width: 42px;
-  height: 42px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--db-color-border-strong);
-  background: var(--db-color-surface-bg);
-  color: var(--db-color-text-primary);
-}
-
-.feature__name {
-  font-family: var(--db-font-display-major);
-  font-weight: 600;
-  font-size: 14px;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  margin: 0;
-  color: var(--db-color-text-primary);
-}
-
-.feature__body {
-  margin: 0;
-  font-size: 13.5px;
-  line-height: 1.55;
-  color: var(--db-color-text-dim);
-}
-
 /* ===== Steps ===== */
 .steps {
   list-style: none;

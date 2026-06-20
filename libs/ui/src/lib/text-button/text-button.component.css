@@ -13,6 +13,8 @@
   font-family: var(--db-font-ui);
   font-weight: 600;
   line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
   transition: all 180ms cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid transparent;
   text-decoration: none;
@@ -39,12 +41,17 @@
   font-size: 12.5px;
 }
 
+.text-button[data-size='lg'] {
+  padding: 13px 24px;
+  font-size: 14px;
+}
+
 .text-button[data-variant='primary'] {
   background: var(--db-color-neon-pink);
   color: var(--db-color-text-primary);
-  box-shadow:
-    0 0 0 1px var(--db-color-neon-pink),
-    0 4px 12px var(--db-color-pink-soft);
+  /* No 0 0 0 1px ring: it sits outside the box and made the primary look
+     taller than the secondary. The soft drop shadow keeps the lift. */
+  box-shadow: 0 4px 12px var(--db-color-pink-soft);
 }
 
 .text-button[data-variant='primary']:hover:not(:disabled):not([aria-disabled='true']) {
@@ -58,10 +65,16 @@
   border-color: var(--db-color-border);
 }
 
-.text-button[data-variant='secondary']:hover:not(:disabled):not([aria-disabled='true']) {
-  color: var(--db-color-text-primary);
-  border-color: var(--db-color-border-strong);
-  background: var(--db-color-surface-raised);
+/* Secondary hover takes on the accent colour (pink by default, like the hub). */
+.text-button[data-variant='secondary'][data-accent='pink']:hover:not(:disabled):not([aria-disabled='true']) {
+  color: var(--db-color-neon-pink);
+  border-color: var(--db-color-neon-pink);
+  background: color-mix(in srgb, var(--db-color-neon-pink) 8%, transparent);
+}
+.text-button[data-variant='secondary'][data-accent='cyan']:hover:not(:disabled):not([aria-disabled='true']) {
+  color: var(--db-color-cyan);
+  border-color: var(--db-color-cyan);
+  background: color-mix(in srgb, var(--db-color-cyan) 8%, transparent);
 }
 
 .label {

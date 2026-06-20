@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.30.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.29.2...v1.30.0) (2026-06-15)
+
+
+### Features
+
+* **ui:** shared feature-card + starfield components, astrogram/hub adoption ([#88](https://github.com/sidthesloth92/db-astro-suite/issues/88)) ([45f2123](https://github.com/sidthesloth92/db-astro-suite/commit/45f21239618feb1d7441a298ae59c57131079ec6))
+
 ## [1.29.2](https://github.com/sidthesloth92/db-astro-suite/compare/v1.29.1...v1.29.2) (2026-06-12)
 
 
