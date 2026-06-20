@@ -44,7 +44,7 @@ func main() {
 			os.Exit(2)
 		}
 		err := organize.Run(organize.Options{
-			SourceDir:           os.Args[2],
+			InputDir:            os.Args[2],
 			OutputDir:           os.Args[3],
 			GroupByFocal:        true,
 			GroupSession:        true,
@@ -61,7 +61,7 @@ func main() {
 			os.Exit(2)
 		}
 		err := organize.Run(organize.Options{
-			SourceDir:    os.Args[2],
+			InputDir:     os.Args[2],
 			OutputDir:    os.Args[3],
 			GroupByFocal: true,
 			GroupSession: true,
