@@ -64,6 +64,18 @@ scoop bucket add sidthesloth92 https://github.com/sidthesloth92/scoop-bucket
 scoop install sortronomy
 ```
 
+### Windows (PowerShell, no Scoop)
+
+Downloads the latest release, verifies its checksum, and installs `sortronomy.exe`
+to `%LOCALAPPDATA%\Programs\Sortronomy` (added to your PATH):
+
+```powershell
+irm https://raw.githubusercontent.com/sidthesloth92/db-astro-suite/main/tools/sortronomy/install.ps1 | iex
+```
+
+Re-run the same command to upgrade. (Inspect [`install.ps1`](install.ps1) first if you'd
+rather not pipe a script straight into PowerShell.)
+
 ### Direct download
 
 Grab a pre-built archive from the [Releases page](https://github.com/sidthesloth92/db-astro-suite/releases?q=sortronomy).
