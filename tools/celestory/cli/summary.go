@@ -14,6 +14,9 @@ import (
 // terminal so a large library can't flood it.
 const maxDuplicateSetsPrinted = 20
 
+// maxSkippedFilesPrinted caps how many skipped files are listed on the terminal.
+const maxSkippedFilesPrinted = 20
+
 // webAppURL is the Celestory web app users drop their celestory.json onto to
 // visualise their journey — everything renders client-side, nothing is uploaded.
 const webAppURL = "https://celestory.dbastrosuite.com"
@@ -48,9 +51,7 @@ func printRunSummary(ledger model.Ledger, jsonPath string, outsideDupSets int) {
 	fmt.Printf("Done — %d object(s) · %s total · %d night(s) · %d light frame(s)\n",
 		s.ObjectCount, formatDuration(s.TotalIntegrationSeconds), s.NightCount, s.LightFrameCount)
 
-	if len(ledger.Skipped) > 0 {
-		fmt.Printf("Skipped %d unreadable file(s) (see celestory.json → skipped).\n", len(ledger.Skipped))
-	}
+	printSkipped(ledger)
 	printDuplicates(ledger, outsideDupSets)
 
 	fmt.Println("\nSaved:", jsonPath)
@@ -67,6 +68,31 @@ func printNextSteps() {
 	fmt.Printf("    %s  Drop your  %s  onto the page\n", stepNum.Render("2."), stepFile.Render("celestory.json"))
 	fmt.Printf("    %s  Explore your journey\n", stepNum.Render("3."))
 	fmt.Println("       " + stepDim.Render("It renders entirely in your browser — nothing is uploaded."))
+}
+
+// printSkipped lists files that could not be parsed (path + reason) on the
+// terminal only — these paths are never written to celestory.json, which is
+// uploaded; only the path-free count travels (summary.skippedFileCount).
+func printSkipped(ledger model.Ledger) {
+	skipped := ledger.Skipped
+	if len(skipped) == 0 {
+		return
+	}
+	fmt.Println()
+	fmt.Println("  " + dupHeader.Render(fmt.Sprintf("⚠ Skipped %s — couldn't be parsed",
+		countNoun(len(skipped), "file", "files"))))
+
+	limit := len(skipped)
+	if limit > maxSkippedFilesPrinted {
+		limit = maxSkippedFilesPrinted
+	}
+	for _, s := range skipped[:limit] {
+		fmt.Printf("      %s\n", dupDim.Render(s.Path))
+		fmt.Printf("        %s\n", dupDim.Render(s.Reason))
+	}
+	if len(skipped) > limit {
+		fmt.Println("\n    " + dupDim.Render(fmt.Sprintf("(+%d more)", len(skipped)-limit)))
+	}
 }
 
 // printDuplicates renders the duplicate report as a scannable, colour-coded

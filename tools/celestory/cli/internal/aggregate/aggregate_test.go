@@ -252,6 +252,22 @@ func TestOutsideRootDuplicateSetsCountsHidden(t *testing.T) {
 	}
 }
 
+func TestAssembleCountsSkipped(t *testing.T) {
+	skipped := []scan.Skipped{
+		{Path: "/a/x.fits", Reason: "bad header"},
+		{Path: "/a/y.fits", Reason: "unexpected EOF"},
+	}
+	led := Build(nil, skipped, model.ToolInfo{})
+	if led.Summary.SkippedFileCount != 2 {
+		t.Errorf("SkippedFileCount = %d, want 2", led.Summary.SkippedFileCount)
+	}
+	// At the aggregate layer the entries (with paths) are still present; stripping
+	// them for the uploaded file happens at write time in the CLI.
+	if len(led.Skipped) != 2 {
+		t.Errorf("ledger.Skipped len = %d, want 2 (stripping happens at write time)", len(led.Skipped))
+	}
+}
+
 func TestScopeToRootFiltersAndRetotals(t *testing.T) {
 	d := time.Date(2025, 8, 1, 22, 14, 3, 0, time.UTC)
 	frames := []scan.Frame{

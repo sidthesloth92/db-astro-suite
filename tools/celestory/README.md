@@ -116,7 +116,10 @@ filter. Scope is FITS (`.fit`/`.fits`); a bad file is skipped, never fatal.
 
 ## Privacy
 
-100% local. Nothing is uploaded. Read-only — your captures are never modified.
+100% local. Nothing is uploaded automatically. Read-only — your captures are never
+modified. And `celestory.json` carries **no local file paths**: the duplicate and
+skipped-file lists that reference paths are shown only on the terminal, so your
+folder layout never leaves your machine even when you upload the file.
 
 ## Build from source
 

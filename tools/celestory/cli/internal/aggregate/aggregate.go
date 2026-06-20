@@ -41,6 +41,9 @@ func Assemble(lights []LightFrame, skipped []scan.Skipped, tool model.ToolInfo, 
 	objects := BuildObjects(dup.Deduped)
 	equip := equipment.BuildRegistry(toUsages(dup.Deduped))
 	summary := Summarize(objects, dup.Deduped, view)
+	// The skipped paths are stripped from the persisted ledger (privacy), so the
+	// count is the only signal that survives the upload — carry it in the summary.
+	summary.SkippedFileCount = len(skipped)
 
 	return model.Ledger{
 		SchemaVersion: SchemaVersion,

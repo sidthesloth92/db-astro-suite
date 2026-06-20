@@ -40,6 +40,7 @@ type Summary struct {
 	LatestSession           string          `json:"latestSession"`
 	DuplicateFileCount      int             `json:"duplicateFileCount"`
 	DuplicateWastedBytes    int64           `json:"duplicateWastedBytes"`
+	SkippedFileCount        int             `json:"skippedFileCount"`
 	Filters                 []FilterTotal   `json:"filters"`
 	ByCategory              []CategoryStat  `json:"byCategory"`
 	Activity                []ActivityEntry `json:"activity"`
