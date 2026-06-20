@@ -91,7 +91,7 @@ export interface ShareModelObject {
 export interface ShareModelEquipment {
   /** Stable id. */
   id: string;
-  /** Gear kind ("Camera" / optic kind). */
+  /** Gear kind ("camera" / "telescope" / "mount"). */
   kind: string;
   /** Display name. */
   displayName: string;

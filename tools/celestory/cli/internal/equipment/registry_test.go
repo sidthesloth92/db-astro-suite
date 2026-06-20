@@ -5,10 +5,10 @@ import (
 	"time"
 )
 
-func TestBuildRegistryMountSeparatedFromOptic(t *testing.T) {
+func TestBuildRegistryMountSeparatedFromTelescope(t *testing.T) {
 	d := time.Date(2025, 8, 1, 22, 0, 0, 0, time.UTC)
 	// TELESCOP carries the mount name (EQMOD/ASCOM setup); FOCALLEN is the real
-	// optic spec.
+	// telescope spec.
 	usages := []Usage{
 		{ObjectID: "m31", CameraRaw: "ZWO ASI2600MM", Telescope: "EQMod Mount", Focal: 700, FRatio: 4.9, ExposureSeconds: 300, Date: d},
 		{ObjectID: "m31", CameraRaw: "ZWO ASI2600MM", Telescope: "EQMod Mount", Focal: 700, FRatio: 4.9, ExposureSeconds: 300, Date: d},
@@ -26,8 +26,8 @@ func TestBuildRegistryMountSeparatedFromOptic(t *testing.T) {
 	if kinds["mount"] != 1 {
 		t.Errorf("mount count = %d, want 1", kinds["mount"])
 	}
-	if kinds["optic"] != 0 {
-		t.Errorf("optic count = %d, want 0 (no unnamed optic for a mount)", kinds["optic"])
+	if kinds["telescope"] != 0 {
+		t.Errorf("telescope count = %d, want 0 (no unnamed telescope for a mount)", kinds["telescope"])
 	}
 
 	for _, e := range items {
@@ -46,7 +46,7 @@ func TestBuildRegistryMountSeparatedFromOptic(t *testing.T) {
 	}
 }
 
-func TestBuildRegistryRealScopeStaysOptic(t *testing.T) {
+func TestBuildRegistryRealScopeStaysTelescope(t *testing.T) {
 	d := time.Date(2025, 8, 1, 22, 0, 0, 0, time.UTC)
 	usages := []Usage{
 		{ObjectID: "m31", CameraRaw: "ZWO ASI2600MM", Telescope: "William Optics RedCat 51", Focal: 250, FRatio: 4.9, ExposureSeconds: 300, Date: d},
@@ -54,21 +54,21 @@ func TestBuildRegistryRealScopeStaysOptic(t *testing.T) {
 
 	items := BuildRegistry(usages)
 
-	var opticName string
-	var opticFocal *float64
+	var scopeName string
+	var scopeFocal *float64
 	for _, e := range items {
 		if e.Kind == "mount" {
 			t.Errorf("real scope must not produce a mount: %+v", e)
 		}
-		if e.Kind == "optic" {
-			opticName = e.DisplayName
-			opticFocal = e.FocalLengthMm
+		if e.Kind == "telescope" {
+			scopeName = e.DisplayName
+			scopeFocal = e.FocalLengthMm
 		}
 	}
-	if opticName != "William Optics RedCat 51" {
-		t.Errorf("optic displayName = %q, want 'William Optics RedCat 51'", opticName)
+	if scopeName != "William Optics RedCat 51" {
+		t.Errorf("telescope displayName = %q, want 'William Optics RedCat 51'", scopeName)
 	}
-	if opticFocal == nil || *opticFocal != 250 {
-		t.Errorf("optic focal = %v, want 250", opticFocal)
+	if scopeFocal == nil || *scopeFocal != 250 {
+		t.Errorf("telescope focal = %v, want 250", scopeFocal)
 	}
 }

@@ -31,10 +31,10 @@ export class EquipmentDetailComponent {
   /** Whether the per-equipment share modal is open. */
   protected readonly showShare = signal(false);
 
-  /** Lower-cased noun for this gear ('camera' | 'optic' | 'mount'). */
+  /** Lower-cased noun for this gear ('camera' | 'telescope' | 'mount'). */
   protected readonly kindNoun = computed<CelIconName>(() => {
     const kind = this.equip().kind.toLowerCase();
-    return kind === 'camera' || kind === 'mount' ? kind : 'optic';
+    return kind === 'camera' || kind === 'mount' ? kind : 'telescope';
   });
   /** Header glyph (matches the gear kind). */
   protected readonly icon = computed<CelIconName>(() => this.kindNoun());

@@ -44,7 +44,7 @@ CREATE TABLE story_objects (
 );
 
 -- equipment_id is the CLI's canonical cross-user join key (e.g. "cam-2600mm",
--- "optic-redcat-51"); focal_length_mm / f_ratio power the optic-specs board.
+-- "telescope-redcat-51"); focal_length_mm / f_ratio power the telescope-specs board.
 CREATE TABLE story_equipment (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   story_id UUID NOT NULL REFERENCES stories(id) ON DELETE CASCADE,

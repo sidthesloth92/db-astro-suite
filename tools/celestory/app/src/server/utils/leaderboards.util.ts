@@ -83,7 +83,7 @@ export function parseEquipmentMetric(value: unknown): EquipmentMetric {
   return pick(value, EQUIPMENT_METRICS, DEFAULT_EQUIPMENT_METRIC);
 }
 
-/** Parse the equipment kind filter (camera | optic). */
+/** Parse the equipment kind filter (camera | telescope). */
 export function parseEquipmentKind(value: unknown): EquipmentKind {
   return pick(value, EQUIPMENT_KINDS, DEFAULT_EQUIPMENT_KIND);
 }

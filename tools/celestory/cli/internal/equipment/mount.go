@@ -8,11 +8,11 @@ import (
 // FITS has no dedicated mount keyword, so a mount can only be recognised by the
 // text written into the TELESCOP header (EQMOD/ASCOM setups expose the mount as
 // the "Telescope" device). Detection is therefore a name heuristic. The whole
-// mount/optic split rests on the coverage of these patterns, so they live here,
+// mount/telescope split rests on the coverage of these patterns, so they live here,
 // centralised and easy to extend — adding a newly-seen mount is a one-line change.
 //
 // Matching is asymmetric on purpose: a value becomes a mount ONLY on a positive
-// match; everything else stays a telescope/optic (the standard meaning of
+// match; everything else stays a telescope (the standard meaning of
 // TELESCOP). So a real scope is never demoted to a mount, and the only residual
 // miss is an unlisted mount shown as a scope.
 
@@ -21,24 +21,24 @@ import (
 // (Sky-Watcher, Celestron, iOptron, Vixen, Takahashi, Astro-Physics) the bare
 // brand name is deliberately absent — those are matched by model family below.
 var mountSubstrings = []string{
-	"mount",                 // literal "...Mount"; also catches every "Paramount" model
-	"eqmod", "eqascom",      // SkyWatcher/Orion EQ ASCOM drivers — the most common ASCOM leak
+	"mount",            // literal "...Mount"; also catches every "Paramount" model
+	"eqmod", "eqascom", // SkyWatcher/Orion EQ ASCOM drivers — the most common ASCOM leak
 	"gsserver", "gs server", // Green Swamp Server (harmonic-mount control)
-	"onstep",                // OnStep / OnStepX DIY controllers
-	"synscan",               // SkyWatcher SynScan hand controller / app
-	"ioptron",               // iOptron (mounts only)
+	"onstep",                                          // OnStep / OnStepX DIY controllers
+	"synscan",                                         // SkyWatcher SynScan hand controller / app
+	"ioptron",                                         // iOptron (mounts only)
 	"skyguider", "skyhunter", "skytracker", "smarteq", // iOptron portable trackers
 	"star adventurer", "staradventurer", // SkyWatcher trackers (GTi / 2i / Mini)
-	"harmonic",         // generic harmonic-drive mount
-	"tracker",          // generic star tracker
-	"rainbow astro",    // Rainbow Astro (RST harmonic mounts)
-	"avalon",           // Avalon Instruments (mounts only)
-	"losmandy",         // Losmandy (mounts only)
-	"10micron",         // 10Micron (mounts only)
-	"nyx",              // Pegasus Astro NYX harmonic mount
-	"polarie",          // Vixen Polarie tracker
-	"move shoot move",  // MSM trackers
-	"benro polaris",    // Benro Polaris tracker
+	"harmonic",                                   // generic harmonic-drive mount
+	"tracker",                                    // generic star tracker
+	"rainbow astro",                              // Rainbow Astro (RST harmonic mounts)
+	"avalon",                                     // Avalon Instruments (mounts only)
+	"losmandy",                                   // Losmandy (mounts only)
+	"10micron",                                   // 10Micron (mounts only)
+	"nyx",                                        // Pegasus Astro NYX harmonic mount
+	"polarie",                                    // Vixen Polarie tracker
+	"move shoot move",                            // MSM trackers
+	"benro polaris",                              // Benro Polaris tracker
 	"wave 100", "wave100", "wave 150", "wave150", // SkyWatcher Wave harmonic mounts
 	"cq350", // SkyWatcher CQ350
 }
@@ -58,7 +58,7 @@ var mountCodeRe = regexp.MustCompile(`\b(` +
 	`em-?(11|200|400)|njp` + // Takahashi mounts (not their OTAs)
 	`)\w*`)
 
-// isMount reports whether a TELESCOP value names a mount rather than an optic.
+// isMount reports whether a TELESCOP value names a mount rather than a telescope.
 func isMount(name string) bool {
 	s := strings.ToLower(strings.TrimSpace(name))
 	if s == "" {

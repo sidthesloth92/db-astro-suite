@@ -141,7 +141,7 @@ export interface ObjectShareData {
 
 /** The data a single-equipment share card renders. */
 export interface EquipmentShareData {
-  /** Gear kind label ("Camera" / "Optic"). */
+  /** Gear kind label ("Camera" / "Telescope" / "Mount"). */
   kind: string;
   /** Gear display name. */
   name: string;

@@ -31,9 +31,9 @@ export type CategoryMetric = 'integration' | 'objects';
 export type EquipmentMetric = 'integration' | 'users' | 'frames';
 
 /** Which kind of gear the equipment board ranks. */
-export type EquipmentKind = 'camera' | 'optic';
+export type EquipmentKind = 'camera' | 'telescope';
 
-/** Ranking metric for the optic-specs board (`/leaderboards/specs`). */
+/** Ranking metric for the telescope-specs board (`/leaderboards/specs`). */
 export type SpecMetric = 'focalLength' | 'fRatio';
 
 /** Ranking metric for the filters board (`/leaderboards/filters`). */

@@ -43,7 +43,7 @@ export interface StorySession {
   lightFrameCount: number;
   filters: StoryFilterIntegration[];
   equipmentIds: string[];
-  /** Night's representative optic spec; null/absent when unknown (added 2026-06; absent on older stories). */
+  /** Night's representative telescope spec; null/absent when unknown (added 2026-06; absent on older stories). */
   focalLengthMm?: number | null;
   /** Night's representative f-ratio; null/absent when unknown. */
   fRatio?: number | null;
@@ -72,7 +72,7 @@ export interface StoryObject {
   image: string | null;
 }
 
-/** A distinct, listable piece of gear (a camera or an optic). */
+/** A distinct, listable piece of gear (a camera, a telescope, or a mount). */
 export interface StoryEquipment {
   id: string;
   kind: string;

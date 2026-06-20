@@ -4,7 +4,7 @@ import { parseLimit, parseSpecMetric } from '../../../../utils/leaderboards.util
 import { success, toErrorResponse } from '../../../../utils/respond';
 
 /**
- * Optic-specs leaderboard — most popular focal lengths or focal ratios across
+ * Telescope-specs leaderboard — most popular focal lengths or focal ratios across
  * the community, by distinct imagers (`?metric=focalLength|fRatio`, `?limit=`).
  */
 export default defineEventHandler(async (event) => {
@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
     const metric = parseSpecMetric(query['metric']);
     const limit = parseLimit(query['limit']);
     const entries = await topSpecs(metric, limit);
-    return success('LEADERBOARD', 'Optic specs leaderboard.', {
+    return success('LEADERBOARD', 'Telescope specs leaderboard.', {
       board: 'specs',
       metric,
       entries,

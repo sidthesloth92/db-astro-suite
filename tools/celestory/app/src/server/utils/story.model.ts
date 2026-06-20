@@ -32,9 +32,9 @@ export interface StoryEquipmentRow {
   normalizedKey: string;
   integrationSeconds: number;
   lightFrameCount: number;
-  /** Optic focal length in mm; null for cameras / when unknown. */
+  /** Telescope focal length in mm; null for cameras/mounts / when unknown. */
   focalLengthMm: number | null;
-  /** Optic focal ratio; null for cameras / when unknown. */
+  /** Telescope focal ratio; null for cameras/mounts / when unknown. */
   fRatio: number | null;
 }
 

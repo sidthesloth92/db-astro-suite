@@ -4,7 +4,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 export type CelIconName =
   | 'galaxy'
   | 'camera'
-  | 'optic'
+  | 'telescope'
   | 'mount'
   | 'chart'
   | 'star'

@@ -55,7 +55,7 @@ export const EQUIPMENT_METRICS: readonly EquipmentMetric[] = [
 ];
 export const DEFAULT_EQUIPMENT_METRIC: EquipmentMetric = 'integration';
 
-export const EQUIPMENT_KINDS: readonly EquipmentKind[] = ['camera', 'optic'];
+export const EQUIPMENT_KINDS: readonly EquipmentKind[] = ['camera', 'telescope'];
 export const DEFAULT_EQUIPMENT_KIND: EquipmentKind = 'camera';
 
 export const SPEC_METRICS: readonly SpecMetric[] = ['focalLength', 'fRatio'];

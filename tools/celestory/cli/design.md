@@ -221,10 +221,13 @@ in their own files per the repo's file-naming conventions.
 [registry.go](tools/celestory/cli/internal/equipment/registry.go)
 
 - Turns raw `INSTRUME`/`TELESCOP`/`FOCALLEN` values into stable equipment IDs
-  (`cam-2600mm`, `optic-redcat-51`, `optic-250mm`) and friendly display names.
+  (`cam-2600mm`, `telescope-redcat-51`, `telescope-250mm`, `mount-eqmod-mount`) and
+  friendly display names. A `TELESCOP` value recognised as a mount (name heuristic
+  in `mount.go`) becomes a `mount` instead of a `telescope`.
 - `BuildRegistry` collapses per-frame `Usage`s into a deduped list of distinct
-  cameras + optics, each with aggregate stats and a reverse index of the objects
-  shot with it (cameras listed before optics, then by integration descending).
+  cameras + telescopes + mounts, each with aggregate stats and a reverse index of
+  the objects shot with it (cameras before telescopes before mounts, then by
+  integration descending).
 
 ### 4.7 `internal/library` — cumulative, root-partitioned index
 [library.go](tools/celestory/cli/internal/library/library.go)

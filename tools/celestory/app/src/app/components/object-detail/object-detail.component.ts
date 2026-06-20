@@ -82,7 +82,7 @@ export class ObjectDetailComponent {
   protected moonName(d: string): string {
     return moonGlyphFor(d).name;
   }
-  /** camera/optic/mount glyph for a gear chip. */
+  /** camera/telescope/mount glyph for a gear chip. */
   protected gearIcon(e: StoryEquipment): CelIconName {
     const kind = e.kind.toLowerCase();
     if (kind === 'camera') {
@@ -91,6 +91,6 @@ export class ObjectDetailComponent {
     if (kind === 'mount') {
       return 'mount';
     }
-    return 'optic';
+    return 'telescope';
   }
 }

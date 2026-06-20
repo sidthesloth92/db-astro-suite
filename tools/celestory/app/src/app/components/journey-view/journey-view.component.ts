@@ -168,8 +168,13 @@ export class JourneyViewComponent {
   /** Equipment section sub line. */
   protected readonly equipmentSub = computed(() => {
     const equip = this.story().equipment;
-    const cameras = equip.filter((e) => e.kind.toLowerCase() === 'camera').length;
-    return `${formatCount(cameras)} cameras · ${formatCount(equip.length - cameras)} optics`;
+    const count = (k: string): number => equip.filter((e) => e.kind.toLowerCase() === k).length;
+    const parts = [`${formatCount(count('camera'))} cameras`, `${formatCount(count('telescope'))} telescopes`];
+    const mounts = count('mount');
+    if (mounts > 0) {
+      parts.push(`${formatCount(mounts)} mounts`);
+    }
+    return parts.join(' · ');
   });
 
   /** Canonical public URL of this profile (origin-aware, SSR-safe fallback). */

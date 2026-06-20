@@ -30,9 +30,10 @@ type accumulator struct {
 }
 
 // BuildRegistry collapses per-frame usages into a deduped list of distinct
-// cameras and optics, each with aggregate stats and the reverse index of
-// objects shot with it. Cameras are listed before optics; within a kind, items
-// are ordered by total integration descending (then display name).
+// cameras, telescopes, and mounts, each with aggregate stats and the reverse
+// index of objects shot with it. Cameras are listed before telescopes before
+// mounts; within a kind, items are ordered by total integration descending
+// (then display name).
 func BuildRegistry(usages []Usage) []model.EquipmentItem {
 	accs := map[string]*accumulator{}
 	var order []string
@@ -63,7 +64,7 @@ func BuildRegistry(usages []Usage) []model.EquipmentItem {
 				a.last = u.Date
 			}
 		}
-		if kind == "optic" {
+		if kind == "telescope" {
 			if a.focal == 0 && focal > 0 {
 				a.focal = focal
 			}
@@ -75,7 +76,7 @@ func BuildRegistry(usages []Usage) []model.EquipmentItem {
 
 	for _, u := range usages {
 		add(CameraID(u.CameraRaw), "camera", CameraDisplay(u.CameraRaw), 0, 0, u)
-		add(OpticID(u.Telescope, u.Focal), "optic", OpticDisplay(u.Telescope, u.Focal), u.Focal, u.FRatio, u)
+		add(TelescopeID(u.Telescope, u.Focal), "telescope", TelescopeDisplay(u.Telescope, u.Focal), u.Focal, u.FRatio, u)
 		add(MountID(u.Telescope), "mount", MountDisplay(u.Telescope), 0, 0, u)
 	}
 
@@ -86,7 +87,7 @@ func BuildRegistry(usages []Usage) []model.EquipmentItem {
 		a.item.ObjectIds = sortedKeys(a.objs)
 		a.item.FirstLight = dateString(a.first)
 		a.item.LatestSession = dateString(a.last)
-		if a.item.Kind == "optic" {
+		if a.item.Kind == "telescope" {
 			if a.focal > 0 {
 				f := a.focal
 				a.item.FocalLengthMm = &f
@@ -101,7 +102,7 @@ func BuildRegistry(usages []Usage) []model.EquipmentItem {
 
 	sort.SliceStable(items, func(i, j int) bool {
 		if items[i].Kind != items[j].Kind {
-			return kindRank(items[i].Kind) < kindRank(items[j].Kind) // camera, then optic, then mount
+			return kindRank(items[i].Kind) < kindRank(items[j].Kind) // camera, then telescope, then mount
 		}
 		if items[i].TotalIntegrationSeconds != items[j].TotalIntegrationSeconds {
 			return items[i].TotalIntegrationSeconds > items[j].TotalIntegrationSeconds
@@ -111,13 +112,13 @@ func BuildRegistry(usages []Usage) []model.EquipmentItem {
 	return items
 }
 
-// kindRank orders equipment kinds for a stable listing: cameras, then optics,
-// then mounts. Unknown kinds sort last.
+// kindRank orders equipment kinds for a stable listing: cameras, then
+// telescopes, then mounts. Unknown kinds sort last.
 func kindRank(kind string) int {
 	switch kind {
 	case "camera":
 		return 0
-	case "optic":
+	case "telescope":
 		return 1
 	case "mount":
 		return 2

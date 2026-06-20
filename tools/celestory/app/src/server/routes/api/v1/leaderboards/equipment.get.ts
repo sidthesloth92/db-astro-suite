@@ -8,8 +8,8 @@ import {
 import { success, toErrorResponse } from '../../../../utils/respond';
 
 /**
- * Equipment leaderboard — most popular cameras or optics across the community
- * (`?kind=camera|optic`, `?metric=integration|users|frames`, `?limit=`).
+ * Equipment leaderboard — most popular cameras or telescopes across the community
+ * (`?kind=camera|telescope`, `?metric=integration|users|frames`, `?limit=`).
  */
 export default defineEventHandler(async (event) => {
   try {

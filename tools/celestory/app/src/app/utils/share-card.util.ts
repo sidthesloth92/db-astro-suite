@@ -3502,7 +3502,7 @@ function equipmentSlide(ctx: Ctx, dims: SlideDims, model: ShareModel, t: Resolve
   const eq = model.equipment.slice().sort((a, b) => b.totalIntegrationSeconds - a.totalIntegrationSeconds);
   const nCam = eq.filter((e) => e.kind === 'Camera').length;
   const nOpt = eq.length - nCam;
-  slideHero(ctx, dims, t, `${slideIdx(dims)}GEAR USED`, fmtInt(eq.length), `${nCam} cameras   ·   ${nOpt} optics`);
+  slideHero(ctx, dims, t, `${slideIdx(dims)}GEAR USED`, fmtInt(eq.length), `${nCam} cameras   ·   ${nOpt} telescopes`);
   const rows: SlideRow[] = eq.slice(0, 5).map((e) => ({
     label: e.displayName,
     sub: e.kind,
@@ -3643,7 +3643,7 @@ function objGearList(model: ShareModel, o: ShareModelObject): ShareModelEquipmen
     .filter((e): e is ShareModelEquipment => !!e);
 }
 
-/** Returns the rig line (optic + camera) for an object. */
+/** Returns the rig line (telescope + camera) for an object. */
 function objRigLine(model: ShareModel, o: ShareModelObject): string[] {
   const gear = objGearList(model, o).slice().sort((a, b) => (b.totalIntegrationSeconds || 0) - (a.totalIntegrationSeconds || 0));
   const opt = gear.filter((e) => e.kind !== 'Camera')[0];

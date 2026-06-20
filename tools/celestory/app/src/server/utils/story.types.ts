@@ -39,7 +39,7 @@ export interface Session {
   lightFrameCount: number;
   filters: FilterIntegration[];
   equipmentIds: string[];
-  /** Night's representative optic spec; null when unknown. */
+  /** Night's representative telescope spec; null when unknown. */
   focalLengthMm: number | null;
   /** Night's representative f-ratio; null when unknown. */
   fRatio: number | null;
@@ -60,7 +60,7 @@ export interface Summary {
   activity: ActivityEntry[];
 }
 
-/** A distinct piece of gear (camera or optic) with aggregate stats. */
+/** A distinct piece of gear (camera, telescope, or mount) with aggregate stats. */
 export interface EquipmentItem {
   id: string;
   kind: string;

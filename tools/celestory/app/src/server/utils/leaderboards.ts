@@ -258,7 +258,7 @@ export async function topCategories(
   return entriesFrom(rows, 'objects', ['imagers', 'seconds']);
 }
 
-/** Most popular cameras or optics, ranked by the chosen equipment metric. */
+/** Most popular cameras or telescopes, ranked by the chosen equipment metric. */
 export async function topEquipment(
   kind: EquipmentKind,
   metric: EquipmentMetric,
@@ -293,7 +293,7 @@ export async function topEquipment(
   return entriesFrom(rows, 'seconds', ['users', 'frames']);
 }
 
-/** Most popular optic specs (focal length or focal ratio), by distinct imagers. */
+/** Most popular telescope specs (focal length or focal ratio), by distinct imagers. */
 export async function topSpecs(
   metric: SpecMetric,
   limit: number,
@@ -304,7 +304,7 @@ export async function topSpecs(
       SELECT ROUND(f_ratio::numeric, 1)::text AS key,
         ('f/' || ROUND(f_ratio::numeric, 1)::text) AS label,
         COUNT(DISTINCT story_id) AS value, SUM(integration_seconds) AS seconds
-      FROM story_equipment WHERE kind = 'optic' AND f_ratio IS NOT NULL
+      FROM story_equipment WHERE kind = 'telescope' AND f_ratio IS NOT NULL
       GROUP BY ROUND(f_ratio::numeric, 1)
       ORDER BY value DESC, seconds DESC LIMIT ${limit}`;
     return entriesFrom(rows, 'users', ['seconds']);
@@ -314,7 +314,7 @@ export async function topSpecs(
       (focal_length_mm::text || 'mm') AS label,
       COUNT(DISTINCT story_id) AS value,
       SUM(integration_seconds) AS seconds, focal_length_mm AS "focalLengthMm"
-    FROM story_equipment WHERE kind = 'optic' AND focal_length_mm IS NOT NULL
+    FROM story_equipment WHERE kind = 'telescope' AND focal_length_mm IS NOT NULL
     GROUP BY focal_length_mm ORDER BY value DESC, seconds DESC LIMIT ${limit}`;
   return entriesFrom(rows, 'users', ['seconds', 'focalLengthMm']);
 }

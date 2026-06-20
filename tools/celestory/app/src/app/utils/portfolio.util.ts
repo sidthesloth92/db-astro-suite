@@ -89,15 +89,42 @@ export function fmtRange(a: string, b: string): string {
   return `${fmtDate(a)} → ${fmtDate(b)}`;
 }
 
-/** Maps an object category to a glyph icon name (galaxy / star / optic). */
-export function categoryIcon(category: string): 'galaxy' | 'star' | 'optic' {
+/** Maps an object category to a glyph icon name (galaxy / star / telescope). */
+export function categoryIcon(category: string): 'galaxy' | 'star' | 'telescope' {
   if (category.includes('Galaxy')) {
     return 'galaxy';
   }
   if (category.includes('Cluster') || category === 'Star' || category === 'Comet') {
     return 'star';
   }
-  return 'optic';
+  return 'telescope';
+}
+
+/** Title-case label for a gear kind ("Camera" | "Telescope" | "Mount"). */
+function gearKindLabel(kind: string): string {
+  switch (kind.toLowerCase()) {
+    case 'camera':
+      return 'Camera';
+    case 'mount':
+      return 'Mount';
+    default:
+      return 'Telescope';
+  }
+}
+
+/** "N cameras · N telescopes[ · N mounts]" summary of a gear list (mounts shown only when present). */
+function gearSummaryLine(equipment: readonly { kind: string }[]): string {
+  const count = (k: string): number =>
+    equipment.filter((e) => e.kind.toLowerCase() === k).length;
+  const parts = [
+    `${formatCount(count('camera'))} cameras`,
+    `${formatCount(count('telescope'))} telescopes`,
+  ];
+  const mounts = count('mount');
+  if (mounts > 0) {
+    parts.push(`${formatCount(mounts)} mounts`);
+  }
+  return parts.join(' · ');
 }
 
 /** First→latest year span, or null. */
@@ -270,7 +297,7 @@ export function sessionViews(
     }));
 }
 
-/** Format a session's optic spec line ("250mm · f/4.9"); "" when unknown. */
+/** Format a session's telescope spec line ("250mm · f/4.9"); "" when unknown. */
 function sessionSpec(focalLengthMm: number | null, fRatio: number | null): string {
   const parts: string[] = [];
   if (focalLengthMm) {
@@ -324,7 +351,6 @@ export function buildShareCarouselData(
       : `${span.from}–${String(span.to).slice(2)}`
     : '';
   const cats = [...s.byCategory].filter((c) => c.objectCount > 0).sort((a, b) => b.objectCount - a.objectCount);
-  const nCam = story.equipment.filter((e) => e.kind.toLowerCase() === 'camera').length;
   const domeTargets: ShareDomeTarget[] = [];
   for (const o of [...story.objects].sort((a, b) => b.totalIntegrationSeconds - a.totalIntegrationSeconds)) {
     if (typeof o.ra === 'number' && typeof o.dec === 'number') {
@@ -357,7 +383,7 @@ export function buildShareCarouselData(
     equipmentCountStr: formatCount(story.equipment.length),
     nightsBigStr: formatCount(s.nightCount),
     subObjects: `unique targets across ${cats.length} categories`,
-    subEquip: `${formatCount(nCam)} cameras · ${formatCount(story.equipment.length - nCam)} optics`,
+    subEquip: gearSummaryLine(story.equipment),
     rangeStr: fmtRange(s.firstLight, s.latestSession),
     categories: cats.slice(0, 6).map((c) => ({
       label: c.category,
@@ -370,7 +396,7 @@ export function buildShareCarouselData(
       .slice(0, 6)
       .map((e) => ({
         label: e.displayName,
-        sub: e.kind.toLowerCase() === 'camera' ? 'Camera' : 'Optic',
+        sub: gearKindLabel(e.kind),
         valStr: formatDuration(e.totalIntegrationSeconds),
         value: e.totalIntegrationSeconds,
       })),

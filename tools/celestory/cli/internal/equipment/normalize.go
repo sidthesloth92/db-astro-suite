@@ -1,5 +1,5 @@
-// Package equipment turns the camera/optics fields read from FITS headers into
-// stable, listable equipment identities and builds the deduped equipment
+// Package equipment turns the camera/telescope fields read from FITS headers
+// into stable, listable equipment identities and builds the deduped equipment
 // registry (with a reverse index of the objects shot with each item).
 package equipment
 
@@ -36,11 +36,11 @@ func CameraID(raw string) string {
 	return "cam-" + strings.ToLower(compact)
 }
 
-// OpticDisplay returns a friendly optic name. Prefers the TELESCOP value;
-// falls back to a focal-length label; returns "" when neither is known. A
-// TELESCOP value recognised as a mount yields no optic (it is surfaced as a
-// mount instead) — no unnamed focal-length optic is synthesised for it.
-func OpticDisplay(telescope string, focal float64) string {
+// TelescopeDisplay returns a friendly telescope name. Prefers the TELESCOP
+// value; falls back to a focal-length label; returns "" when neither is known.
+// A TELESCOP value recognised as a mount yields no telescope (it is surfaced as
+// a mount instead) — no unnamed focal-length telescope is synthesised for it.
+func TelescopeDisplay(telescope string, focal float64) string {
 	telescope = strings.TrimSpace(telescope)
 	if isMount(telescope) {
 		return ""
@@ -49,24 +49,24 @@ func OpticDisplay(telescope string, focal float64) string {
 		return telescope
 	}
 	if focal > 0 {
-		return fmt.Sprintf("Unknown optic (%dmm)", int(math.Round(focal)))
+		return fmt.Sprintf("Unknown telescope (%dmm)", int(math.Round(focal)))
 	}
 	return ""
 }
 
-// OpticID returns a stable id like "optic-redcat-51" or "optic-250mm", or ""
-// when no optic is known. A TELESCOP value recognised as a mount yields no
-// optic id (see OpticDisplay).
-func OpticID(telescope string, focal float64) string {
+// TelescopeID returns a stable id like "telescope-redcat-51" or
+// "telescope-250mm", or "" when no telescope is known. A TELESCOP value
+// recognised as a mount yields no telescope id (see TelescopeDisplay).
+func TelescopeID(telescope string, focal float64) string {
 	telescope = strings.TrimSpace(telescope)
 	if isMount(telescope) {
 		return ""
 	}
 	if s := slug(telescope); s != "" {
-		return "optic-" + s
+		return "telescope-" + s
 	}
 	if focal > 0 {
-		return fmt.Sprintf("optic-%dmm", int(math.Round(focal)))
+		return fmt.Sprintf("telescope-%dmm", int(math.Round(focal)))
 	}
 	return ""
 }

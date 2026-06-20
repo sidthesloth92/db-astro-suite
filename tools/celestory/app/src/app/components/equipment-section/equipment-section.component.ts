@@ -4,7 +4,7 @@ import { formatCount, formatDuration } from '../../utils/format.util';
 import { fmtRange } from '../../utils/portfolio.util';
 import { CelIconComponent } from '../cel-icon/cel-icon.component';
 
-/** The "Equipment" rig: cameras and optics grouped, each a clickable stats row. */
+/** The "Equipment" rig: cameras, telescopes, and mounts grouped, each a clickable stats row. */
 @Component({
   selector: 'dba-equipment-section',
   standalone: true,
@@ -23,14 +23,14 @@ export class EquipmentSectionComponent {
   protected readonly cameras = computed(() =>
     this.story().equipment.filter((e) => e.kind.toLowerCase() === 'camera'),
   );
-  protected readonly optics = computed(() =>
-    this.story().equipment.filter((e) => e.kind.toLowerCase() === 'optic'),
+  protected readonly telescopes = computed(() =>
+    this.story().equipment.filter((e) => e.kind.toLowerCase() === 'telescope'),
   );
   protected readonly mounts = computed(() =>
     this.story().equipment.filter((e) => e.kind.toLowerCase() === 'mount'),
   );
 
-  /** A spec line for optics (focal length / f-ratio). */
+  /** A spec line for telescopes (focal length / f-ratio). */
   protected detail(e: StoryEquipment): string {
     const parts: string[] = [];
     if (e.focalLengthMm) {

@@ -13,7 +13,7 @@ function session(overrides: Record<string, unknown> = {}) {
   };
 }
 
-describe('sessionViews — optic spec line', () => {
+describe('sessionViews — telescope spec line', () => {
   it('formats focal length and f-ratio into a spec line', () => {
     const [view] = sessionViews([session({ focalLengthMm: 250, fRatio: 4.9 })], new Map());
     expect(view.spec).toBe('250mm · f/4.9');

@@ -54,7 +54,7 @@ function makeObject(overrides: Partial<ObjectTimeline> = {}): ObjectTimeline {
 }
 
 describe('extractRows — equipment', () => {
-  it('carries the canonical id, frame count and optic specs onto each row', () => {
+  it('carries the canonical id, frame count and telescope specs onto each row', () => {
     const camera: EquipmentItem = {
       id: 'cam-2600mm',
       kind: 'camera',
@@ -68,9 +68,9 @@ describe('extractRows — equipment', () => {
       latestSession: '2025-02-01',
       objectIds: ['m31'],
     };
-    const optic: EquipmentItem = {
-      id: 'optic-redcat-51',
-      kind: 'optic',
+    const telescope: EquipmentItem = {
+      id: 'telescope-redcat-51',
+      kind: 'telescope',
       displayName: 'RedCat 51',
       focalLengthMm: 250,
       fRatio: 4.9,
@@ -82,7 +82,7 @@ describe('extractRows — equipment', () => {
       objectIds: [],
     };
 
-    const { equipment } = extractRows(makeStory({ equipment: [camera, optic] }));
+    const { equipment } = extractRows(makeStory({ equipment: [camera, telescope] }));
 
     expect(equipment[0]).toMatchObject({
       equipmentId: 'cam-2600mm',
@@ -91,7 +91,7 @@ describe('extractRows — equipment', () => {
       fRatio: null,
     });
     expect(equipment[1]).toMatchObject({
-      equipmentId: 'optic-redcat-51',
+      equipmentId: 'telescope-redcat-51',
       lightFrameCount: 40,
       focalLengthMm: 250,
       fRatio: 4.9,

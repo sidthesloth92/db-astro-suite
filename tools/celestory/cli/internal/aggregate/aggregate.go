@@ -102,7 +102,7 @@ func buildObject(frames []LightFrame) model.ObjectTimeline {
 		if id := equipment.CameraID(lf.Camera); id != "" {
 			equipIDs[id] = struct{}{}
 		}
-		if id := equipment.OpticID(lf.Telescope, lf.Focal); id != "" {
+		if id := equipment.TelescopeID(lf.Telescope, lf.Focal); id != "" {
 			equipIDs[id] = struct{}{}
 		}
 		if id := equipment.MountID(lf.Telescope); id != "" {
@@ -185,15 +185,15 @@ func buildSession(key string, frames []LightFrame) model.Session {
 }
 
 // sessionEquipmentIds derives the night's gear as story equipment ids, using the
-// same camera/optic/mount identifiers an object carries so the web app resolves
-// names.
+// same camera/telescope/mount identifiers an object carries so the web app
+// resolves names.
 func sessionEquipmentIds(frames []LightFrame) []string {
 	ids := map[string]struct{}{}
 	for _, lf := range frames {
 		if id := equipment.CameraID(lf.Camera); id != "" {
 			ids[id] = struct{}{}
 		}
-		if id := equipment.OpticID(lf.Telescope, lf.Focal); id != "" {
+		if id := equipment.TelescopeID(lf.Telescope, lf.Focal); id != "" {
 			ids[id] = struct{}{}
 		}
 		if id := equipment.MountID(lf.Telescope); id != "" {
@@ -205,7 +205,7 @@ func sessionEquipmentIds(frames []LightFrame) []string {
 
 // sessionFocalRatio returns the night's representative focal length (mm) and
 // f-ratio — the values carrying the most integration time — or nil when unknown.
-// A night usually uses one optic; when it mixes optics the dominant one wins.
+// A night usually uses one telescope; when it mixes telescopes the dominant one wins.
 func sessionFocalRatio(frames []LightFrame) (focal, fratio *float64) {
 	focalSecs := map[float64]float64{}
 	fratioSecs := map[float64]float64{}

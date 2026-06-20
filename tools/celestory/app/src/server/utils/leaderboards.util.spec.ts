@@ -35,8 +35,8 @@ describe('metric/view/kind parsing', () => {
     expect(parseUserMetric('bogus')).toBe('integration');
     expect(parseObjectMetric('rarest')).toBe('rarest');
     expect(parseObjectMetric(undefined)).toBe('integration');
-    expect(parseEquipmentKind('optic')).toBe('optic');
-    expect(parseEquipmentKind('telescope')).toBe('camera');
+    expect(parseEquipmentKind('telescope')).toBe('telescope');
+    expect(parseEquipmentKind('optic')).toBe('camera');
     expect(parseMonthView('seasonality')).toBe('seasonality');
     expect(parseMonthView('')).toBe('absolute');
   });

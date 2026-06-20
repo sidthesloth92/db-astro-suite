@@ -26,12 +26,15 @@ export class ObjectSectionComponent {
   protected readonly categories = computed(() =>
     this.story().summary.byCategory.filter((c) => c.objectCount > 0),
   );
-  /** Cameras and optics for the equipment filter. */
+  /** Gear groups for the equipment filter. */
   protected readonly cameras = computed(() =>
     this.story().equipment.filter((e) => e.kind.toLowerCase() === 'camera'),
   );
-  protected readonly optics = computed(() =>
-    this.story().equipment.filter((e) => e.kind.toLowerCase() !== 'camera'),
+  protected readonly telescopes = computed(() =>
+    this.story().equipment.filter((e) => e.kind.toLowerCase() === 'telescope'),
+  );
+  protected readonly mounts = computed(() =>
+    this.story().equipment.filter((e) => e.kind.toLowerCase() === 'mount'),
   );
   /** Distinct imaging years. */
   protected readonly years = computed(() => {

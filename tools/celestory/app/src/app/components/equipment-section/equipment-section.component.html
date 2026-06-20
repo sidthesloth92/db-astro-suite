@@ -24,15 +24,15 @@
     </div>
   }
 
-  @if (optics().length) {
+  @if (telescopes().length) {
     <div class="equip-group">
       <div class="gh">
-        <span class="gh-ico"><dba-cel-icon name="optic" [size]="16" /></span>
-        <h3>Optics</h3>
-        <span class="gh-c">{{ optics().length }}</span>
+        <span class="gh-ico"><dba-cel-icon name="telescope" [size]="16" /></span>
+        <h3>Telescopes</h3>
+        <span class="gh-c">{{ telescopes().length }}</span>
       </div>
       <div class="equip-list">
-        @for (e of optics(); track e.id) {
+        @for (e of telescopes(); track e.id) {
           <button class="erow" type="button" (click)="open.emit(e.id)">
             <div class="ename-cell">
               <div class="ename">{{ e.displayName }}</div>

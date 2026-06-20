@@ -36,9 +36,9 @@ func TestIsMount(t *testing.T) {
 		}
 	}
 
-	// Real optics — especially dual-line brands that also make mounts — must NOT
-	// be demoted to mounts.
-	optics := []string{
+	// Real telescopes — especially dual-line brands that also make mounts — must
+	// NOT be demoted to mounts.
+	telescopes := []string{
 		"William Optics RedCat 51",
 		"GSO RC8",
 		"Sky-Watcher Esprit 100",
@@ -50,9 +50,9 @@ func TestIsMount(t *testing.T) {
 		"",
 		"   ",
 	}
-	for _, o := range optics {
+	for _, o := range telescopes {
 		if isMount(o) {
-			t.Errorf("isMount(%q) = true, want false (optic)", o)
+			t.Errorf("isMount(%q) = true, want false (telescope)", o)
 		}
 	}
 }
@@ -64,26 +64,26 @@ func TestMountIDAndDisplay(t *testing.T) {
 	if got := MountDisplay("  EQMod Mount  "); got != "EQMod Mount" {
 		t.Errorf("MountDisplay = %q, want trimmed 'EQMod Mount'", got)
 	}
-	// A real optic yields no mount identity.
+	// A real telescope yields no mount identity.
 	if got := MountID("William Optics RedCat 51"); got != "" {
-		t.Errorf("MountID(optic) = %q, want empty", got)
+		t.Errorf("MountID(telescope) = %q, want empty", got)
 	}
 	if got := MountDisplay("GSO RC8"); got != "" {
-		t.Errorf("MountDisplay(optic) = %q, want empty", got)
+		t.Errorf("MountDisplay(telescope) = %q, want empty", got)
 	}
 }
 
-func TestOpticSuppressedForMount(t *testing.T) {
-	// When TELESCOP holds a mount, no optic is synthesised even though a focal
+func TestTelescopeSuppressedForMount(t *testing.T) {
+	// When TELESCOP holds a mount, no telescope is synthesised even though a focal
 	// length is present — the focal length surfaces on sessions instead.
-	if id := OpticID("EQMod Mount", 700); id != "" {
-		t.Errorf("OpticID(mount, focal) = %q, want empty (no optic for a mount)", id)
+	if id := TelescopeID("EQMod Mount", 700); id != "" {
+		t.Errorf("TelescopeID(mount, focal) = %q, want empty (no telescope for a mount)", id)
 	}
-	if name := OpticDisplay("EQMod Mount", 700); name != "" {
-		t.Errorf("OpticDisplay(mount, focal) = %q, want empty", name)
+	if name := TelescopeDisplay("EQMod Mount", 700); name != "" {
+		t.Errorf("TelescopeDisplay(mount, focal) = %q, want empty", name)
 	}
-	// A genuine scope still becomes an optic.
-	if id := OpticID("William Optics RedCat 51", 250); id != "optic-william-optics-redcat-51" {
-		t.Errorf("OpticID(scope) = %q, want optic-william-optics-redcat-51", id)
+	// A genuine scope still becomes a telescope.
+	if id := TelescopeID("William Optics RedCat 51", 250); id != "telescope-william-optics-redcat-51" {
+		t.Errorf("TelescopeID(scope) = %q, want telescope-william-optics-redcat-51", id)
 	}
 }
