@@ -25,7 +25,7 @@ func light(path, fp string, exp float64, date time.Time) aggregate.LightFrame {
 }
 
 func assembled(idx *Index) model.Ledger {
-	return aggregate.Assemble(idx.Union(), nil, model.ToolInfo{})
+	return aggregate.Assemble(idx.Union(), nil, model.ToolInfo{}, "")
 }
 
 func TestCumulativeMergePreservesAndDedups(t *testing.T) {
@@ -70,7 +70,8 @@ func TestUnpluggedDiskKeepsItsFrames(t *testing.T) {
 	idx, _ := Open(t.TempDir())
 	idx.Merge("/big", []aggregate.LightFrame{light("/big/l1.fits", "fp1", 300, d1)}, false)
 
-	// Re-run scanning only the (now empty / unplugged) small disk, append-only.
+	// Re-run scanning only the (now empty / unplugged) small disk: a scan of one
+	// folder must never touch another folder's partition.
 	idx.Merge("/small", nil, false)
 
 	if got := assembled(idx).Summary.TotalIntegrationSeconds; got != 300 {
@@ -78,7 +79,7 @@ func TestUnpluggedDiskKeepsItsFrames(t *testing.T) {
 	}
 }
 
-func TestPruneReconcilesOnlyTheScannedRoot(t *testing.T) {
+func TestRescanReconcilesOnlyTheScannedRoot(t *testing.T) {
 	d1 := time.Date(2025, 8, 1, 22, 0, 0, 0, time.UTC)
 	d2 := time.Date(2025, 8, 1, 22, 5, 0, 0, time.UTC)
 	d3 := time.Date(2025, 8, 2, 22, 0, 0, 0, time.UTC)
@@ -90,15 +91,15 @@ func TestPruneReconcilesOnlyTheScannedRoot(t *testing.T) {
 	}, false)
 	idx.Merge("/small", []aggregate.LightFrame{light("/small/l3.fits", "fp3", 300, d3)}, false)
 
-	// User deletes l3 from the small disk and re-scans WITH prune.
-	idx.Merge("/small", nil, true)
+	// User deletes l3 from the small disk and re-scans it (default current-state).
+	idx.Merge("/small", nil, false)
 
 	led := assembled(idx)
 	if led.Summary.LightFrameCount != 2 {
-		t.Errorf("prune should drop the deleted small-disk sub; frames = %d, want 2", led.Summary.LightFrameCount)
+		t.Errorf("re-scan should drop the deleted small-disk sub; frames = %d, want 2", led.Summary.LightFrameCount)
 	}
 	if led.Summary.TotalIntegrationSeconds != 600 {
-		t.Errorf("big disk must be untouched by pruning small; total = %v, want 600", led.Summary.TotalIntegrationSeconds)
+		t.Errorf("big disk must be untouched by reconciling small; total = %v, want 600", led.Summary.TotalIntegrationSeconds)
 	}
 }
 
@@ -146,7 +147,7 @@ func TestDeletedDuplicateCopyClearsOnRescan(t *testing.T) {
 	}
 }
 
-func TestDeletedUniqueSubStaysCountedAppendOnly(t *testing.T) {
+func TestDeletedUniqueSubStaysCountedWithKeepDeleted(t *testing.T) {
 	d1 := time.Date(2025, 8, 1, 22, 0, 0, 0, time.UTC)
 	d2 := time.Date(2025, 8, 1, 22, 5, 0, 0, time.UTC)
 	idx, _ := Open(t.TempDir())
@@ -156,14 +157,36 @@ func TestDeletedUniqueSubStaysCountedAppendOnly(t *testing.T) {
 		light("/data/l2.fits", "fp2", 300, d2),
 	}, false)
 
-	// User deletes a UNIQUE sub (its only copy) and re-scans append-only: culling
-	// a sub must not silently un-count the photons.
+	// User deletes a UNIQUE sub (its only copy) and re-scans with keepDeleted:
+	// culling a processed sub must not silently un-count the photons.
+	idx.Merge("/data", []aggregate.LightFrame{
+		light("/data/l1.fits", "fp1", 300, d1),
+	}, true)
+
+	if got := assembled(idx).Summary.TotalIntegrationSeconds; got != 600 {
+		t.Errorf("keepDeleted must retain the deleted unique sub; total = %v, want 600", got)
+	}
+}
+
+func TestDeletedUniqueSubDroppedByDefault(t *testing.T) {
+	d1 := time.Date(2025, 8, 1, 22, 0, 0, 0, time.UTC)
+	d2 := time.Date(2025, 8, 1, 22, 5, 0, 0, time.UTC)
+	idx, _ := Open(t.TempDir())
+
+	idx.Merge("/data", []aggregate.LightFrame{
+		light("/data/l1.fits", "fp1", 300, d1),
+		light("/data/l2.fits", "fp2", 300, d2),
+	}, false)
+
+	// Default current-state: the folder mirrors its files, so a deleted sub goes.
 	idx.Merge("/data", []aggregate.LightFrame{
 		light("/data/l1.fits", "fp1", 300, d1),
 	}, false)
 
-	if got := assembled(idx).Summary.TotalIntegrationSeconds; got != 600 {
-		t.Errorf("append-only must retain the deleted unique sub; total = %v, want 600 (use -prune to drop it)", got)
+	led := assembled(idx)
+	if led.Summary.LightFrameCount != 1 || led.Summary.TotalIntegrationSeconds != 300 {
+		t.Errorf("default re-scan must drop the deleted sub; frames=%d total=%v, want 1/300",
+			led.Summary.LightFrameCount, led.Summary.TotalIntegrationSeconds)
 	}
 }
 

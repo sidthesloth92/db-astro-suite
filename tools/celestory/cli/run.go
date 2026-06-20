@@ -147,9 +147,22 @@ func run(f cliFlags) error {
 		}
 		idx.Reset()
 	}
-	idx.Merge(sourceDir, lights, f.prune)
+	idx.Merge(sourceDir, lights, f.keepDeleted)
 
-	ledger := aggregate.Assemble(idx.Union(), res.Skipped, model.ToolInfo{Name: "celestory", Version: version})
+	// Scope the duplicate report to the folder just scanned (unless -all-duplicates):
+	// a set sitting entirely on another, possibly-disconnected disk isn't actionable
+	// from this run. Integration totals stay full-library regardless.
+	dupRoot := ""
+	if !f.allDuplicates {
+		if abs, absErr := filepath.Abs(sourceDir); absErr == nil {
+			dupRoot = abs
+		} else {
+			dupRoot = sourceDir
+		}
+	}
+	union := idx.Union()
+	ledger := aggregate.Assemble(union, res.Skipped, model.ToolInfo{Name: "celestory", Version: version}, dupRoot)
+	hiddenDupSets := aggregate.OutsideRootDuplicateSets(union, dupRoot)
 
 	// Stamp a stable, privacy-preserving identity for deduped attempt counting.
 	if installID, idErr := config.EnsureInstallID(); idErr == nil {
@@ -165,7 +178,7 @@ func run(f cliFlags) error {
 	if err := report.WriteFile(jsonPath, ledger); err != nil {
 		return err
 	}
-	printRunSummary(ledger, jsonPath, c)
+	printRunSummary(ledger, jsonPath, hiddenDupSets)
 	saveCache(c)
 	if err := idx.Save(); err != nil {
 		fmt.Fprintln(os.Stderr, "warning: could not write library index:", err)

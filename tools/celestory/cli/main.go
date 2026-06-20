@@ -16,20 +16,21 @@ var version = "dev"
 
 // cliFlags holds the parsed command-line flags.
 type cliFlags struct {
-	input        string
-	out          string
-	rebuildCache bool
-	noCache      bool
-	showConfig   bool
-	verifyHash   bool
-	showVersion  bool
-	profile      string // configure the profile handle stamped into the ledger
-	profileSet   bool   // whether -profile was passed (distinguishes "" from absent)
-	prune        bool   // reconcile the scanned root (drop within-root deletions)
-	fresh        bool   // wipe the cumulative index, then rebuild from this scan
-	reset        bool   // wipe the cumulative index and exit
-	forget       string // drop a single root partition from the cumulative index
-	assumeYes    bool   // skip the confirmation prompt for destructive operations
+	input         string
+	out           string
+	rebuildCache  bool
+	noCache       bool
+	showConfig    bool
+	verifyHash    bool
+	showVersion   bool
+	profile       string // configure the profile handle stamped into the ledger
+	profileSet    bool   // whether -profile was passed (distinguishes "" from absent)
+	allDuplicates bool   // report duplicates across the whole library, not just the scan
+	keepDeleted   bool   // keep frames whose files were deleted from the scanned folder
+	fresh         bool   // wipe the cumulative index, then rebuild from this scan
+	reset         bool   // wipe the cumulative index and exit
+	forget        string // drop a single root partition from the cumulative index
+	assumeYes     bool   // skip the confirmation prompt for destructive operations
 }
 
 func main() {
@@ -53,7 +54,8 @@ func parseFlags() cliFlags {
 	flag.BoolVar(&f.showConfig, "config", false, "print the output, cache, and config locations, then exit")
 	flag.BoolVar(&f.verifyHash, "verify-hash", false, "detect changes by FITS-header hash instead of size+mtime")
 	flag.StringVar(&f.profile, "profile", "", "set your Celestory username (pre-fills publishing; stable owner anchor)")
-	flag.BoolVar(&f.prune, "prune", false, "reconcile the scanned folder: drop frames whose files were deleted from it")
+	flag.BoolVar(&f.allDuplicates, "all-duplicates", false, "report duplicates across your whole library, not just the scanned folder")
+	flag.BoolVar(&f.keepDeleted, "keep-deleted", false, "keep frames whose files were deleted from the scanned folder (don't un-count culled subs)")
 	flag.BoolVar(&f.fresh, "fresh", false, "wipe the cumulative library index, then rebuild from this scan")
 	flag.BoolVar(&f.reset, "reset", false, "wipe the cumulative library index and exit (FITS files are untouched)")
 	flag.StringVar(&f.forget, "forget", "", "drop a folder you no longer own from the cumulative library index")

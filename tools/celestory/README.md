@@ -99,6 +99,12 @@ If the same sub is sitting in two places (e.g. a working copy and a backup), it'
 never deletes anything. Duplicates appear in `celestory.json → duplicates`, in the
 summary, and on the terminal.
 
+By default the report is **scoped to the folder you scanned** — a set with a copy in
+that folder (even if its twin lives on another disk) is shown; sets sitting entirely
+on other, possibly-disconnected folders are not, since you can't act on them from this
+run. Pass `-all-duplicates` for the whole-library view. (Your integration totals are
+always deduped across the whole library, regardless of this flag.)
+
 ## Supported capture programs
 
 Reads FITS from **N.I.N.A., ASIAIR, SharpCap, Ekos/KStars, Sequence Generator Pro,

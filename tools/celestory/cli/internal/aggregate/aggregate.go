@@ -19,19 +19,28 @@ const SchemaVersion = 2
 
 // Build is the top-level orchestrator for a single scan: enrich → assemble.
 // Slices are always non-nil so the JSON arrays render as [] rather than null.
+// It reports every duplicate (whole-library view); pass a dupRoot to Assemble to
+// scope the report to a folder.
 func Build(frames []scan.Frame, skipped []scan.Skipped, tool model.ToolInfo) model.Ledger {
 	lights, _ := Enrich(frames)
-	return Assemble(lights, skipped, tool)
+	return Assemble(lights, skipped, tool, "")
 }
 
 // Assemble turns already-enriched light frames (e.g. the cumulative union across
 // every scanned disk) into the ledger: dedupe by FrameFP → per-object/equipment
 // rollups → summary → Ledger.
-func Assemble(lights []LightFrame, skipped []scan.Skipped, tool model.ToolInfo) model.Ledger {
+//
+// Integration is always deduped across the full input, so totals reflect the
+// whole library. The duplicate report, however, is scoped to dupRoot when it is
+// non-empty (only sets with a copy under that folder), so a run reports the
+// duplicates of the folder it scanned rather than every disk ever seen; pass ""
+// for the whole-library report.
+func Assemble(lights []LightFrame, skipped []scan.Skipped, tool model.ToolInfo, dupRoot string) model.Ledger {
 	dup := DetectDuplicates(lights)
+	view := dup.ScopeToRoot(dupRoot)
 	objects := BuildObjects(dup.Deduped)
 	equip := equipment.BuildRegistry(toUsages(dup.Deduped))
-	summary := Summarize(objects, dup.Deduped, dup)
+	summary := Summarize(objects, dup.Deduped, view)
 
 	return model.Ledger{
 		SchemaVersion: SchemaVersion,
@@ -40,7 +49,7 @@ func Assemble(lights []LightFrame, skipped []scan.Skipped, tool model.ToolInfo) 
 		Summary:       summary,
 		Equipment:     equip,
 		Objects:       objects,
-		Duplicates:    dup.Sets,
+		Duplicates:    view.Sets,
 		Skipped:       toSkipped(skipped),
 	}
 }

@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/charmbracelet/lipgloss"
-	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/cache"
 	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/model"
 )
 
@@ -39,9 +38,11 @@ var (
 
 func flagUsage() { flag.Usage() }
 
-// printRunSummary prints the headline stats, duplicate report, the celestory.json
-// path, the cache location, and how to visualise the result in the web app.
-func printRunSummary(ledger model.Ledger, jsonPath string, c *cache.Cache) {
+// printRunSummary prints the headline stats, the folder-scoped duplicate report
+// (plus a hint when more duplicates exist elsewhere), the celestory.json path, and
+// how to visualise the result in the web app. outsideDupSets is how many duplicate
+// sets the scoping hid (0 with -all-duplicates or when nothing is hidden).
+func printRunSummary(ledger model.Ledger, jsonPath string, outsideDupSets int) {
 	s := ledger.Summary
 	fmt.Println()
 	fmt.Printf("Done — %d object(s) · %s total · %d night(s) · %d light frame(s)\n",
@@ -50,12 +51,9 @@ func printRunSummary(ledger model.Ledger, jsonPath string, c *cache.Cache) {
 	if len(ledger.Skipped) > 0 {
 		fmt.Printf("Skipped %d unreadable file(s) (see celestory.json → skipped).\n", len(ledger.Skipped))
 	}
-	printDuplicates(ledger)
+	printDuplicates(ledger, outsideDupSets)
 
 	fmt.Println("\nSaved:", jsonPath)
-	if c != nil {
-		fmt.Println("Cache:", c.Path())
-	}
 
 	printNextSteps()
 }
@@ -73,10 +71,13 @@ func printNextSteps() {
 
 // printDuplicates renders the duplicate report as a scannable, colour-coded
 // list: one block per set with a ✓ keep / ✗ delete marker on each path, so the
-// user can see at a glance exactly which copies are safe to remove.
-func printDuplicates(ledger model.Ledger) {
+// user can see at a glance exactly which copies are safe to remove. outsideDupSets
+// is how many duplicate sets the folder scoping hid; when non-zero it appends an
+// obvious hint pointing at -all-duplicates.
+func printDuplicates(ledger model.Ledger, outsideDupSets int) {
 	dups := ledger.Duplicates
 	if len(dups) == 0 {
+		printOutsideDuplicatesHint(outsideDupSets)
 		return
 	}
 	s := ledger.Summary
@@ -108,6 +109,23 @@ func printDuplicates(ledger model.Ledger) {
 
 	fmt.Println()
 	fmt.Println("    " + dupDim.Render("Tip: delete the ✗ copies, then re-run celestory — these clear automatically."))
+
+	printOutsideDuplicatesHint(outsideDupSets)
+}
+
+// printOutsideDuplicatesHint flags duplicate sets elsewhere in the library that
+// this folder-scoped run did not list, and points the user at -all-duplicates.
+func printOutsideDuplicatesHint(sets int) {
+	if sets <= 0 {
+		return
+	}
+	fmt.Println()
+	fmt.Println("  " + dupHeader.Render(fmt.Sprintf("⚠ %s elsewhere in your library",
+		countNoun(sets, "more duplicate set", "more duplicate sets"))))
+	fmt.Printf("    %s %s %s\n",
+		dupDim.Render("Not in the folder you scanned — re-run with"),
+		dupKeep.Render("-all-duplicates"),
+		dupDim.Render("to see them."))
 }
 
 // dupHeading builds the one-line summary for a duplicate set: object · date · size.

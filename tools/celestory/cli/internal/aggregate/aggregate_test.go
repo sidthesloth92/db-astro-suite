@@ -189,6 +189,96 @@ func TestDistinctSubsNotFlaggedAsDuplicates(t *testing.T) {
 	}
 }
 
+func TestAssembleScopesDuplicatesToFolder(t *testing.T) {
+	d1 := time.Date(2025, 8, 1, 22, 14, 3, 0, time.UTC)
+	d2 := time.Date(2025, 8, 2, 22, 14, 3, 0, time.UTC)
+	// A sub backed up across folderA and folderB (a cross-folder duplicate), plus a
+	// separate duplicate sitting entirely inside folderC.
+	frames := []scan.Frame{
+		frame("/folderA/sub.fits", "M31", "Ha", "Light", "ZWO ASI2600MM", 300, 52000000, d1),
+		frame("/folderB/sub.fits", "M31", "Ha", "Light", "ZWO ASI2600MM", 300, 52000000, d1),
+		frame("/folderC/a.fits", "M31", "Ha", "Light", "ZWO ASI2600MM", 300, 41000000, d2),
+		frame("/folderC/b.fits", "M31", "Ha", "Light", "ZWO ASI2600MM", 300, 41000000, d2),
+	}
+	lights, _ := Enrich(frames)
+
+	// Scoped to folderA: only the set touching folderA is reported (folderC hidden),
+	// but both exposures are still deduped and counted once.
+	scoped := Assemble(lights, nil, model.ToolInfo{}, "/folderA")
+	if len(scoped.Duplicates) != 1 {
+		t.Fatalf("scoped duplicate sets = %d, want 1 (folderC set hidden)", len(scoped.Duplicates))
+	}
+	if scoped.Summary.DuplicateFileCount != 1 {
+		t.Errorf("scoped DuplicateFileCount = %d, want 1", scoped.Summary.DuplicateFileCount)
+	}
+	if scoped.Summary.LightFrameCount != 2 || scoped.Summary.TotalIntegrationSeconds != 600 {
+		t.Errorf("integration must stay full-library; frames=%d total=%v, want 2/600",
+			scoped.Summary.LightFrameCount, scoped.Summary.TotalIntegrationSeconds)
+	}
+
+	// Whole-library view ("") reports both duplicate sets; integration is identical.
+	all := Assemble(lights, nil, model.ToolInfo{}, "")
+	if len(all.Duplicates) != 2 {
+		t.Errorf("whole-library duplicate sets = %d, want 2", len(all.Duplicates))
+	}
+	if all.Summary.DuplicateFileCount != 2 {
+		t.Errorf("whole-library DuplicateFileCount = %d, want 2", all.Summary.DuplicateFileCount)
+	}
+	if all.Summary.LightFrameCount != 2 || all.Summary.TotalIntegrationSeconds != 600 {
+		t.Errorf("integration identical scoped vs all; frames=%d total=%v, want 2/600",
+			all.Summary.LightFrameCount, all.Summary.TotalIntegrationSeconds)
+	}
+}
+
+func TestOutsideRootDuplicateSetsCountsHidden(t *testing.T) {
+	d1 := time.Date(2025, 8, 1, 22, 14, 3, 0, time.UTC)
+	d2 := time.Date(2025, 8, 2, 22, 14, 3, 0, time.UTC)
+	frames := []scan.Frame{
+		frame("/folderA/sub.fits", "M31", "Ha", "Light", "ZWO ASI2600MM", 300, 52000000, d1),
+		frame("/folderB/sub.fits", "M31", "Ha", "Light", "ZWO ASI2600MM", 300, 52000000, d1),
+		frame("/folderC/a.fits", "M31", "Ha", "Light", "ZWO ASI2600MM", 300, 41000000, d2),
+		frame("/folderC/b.fits", "M31", "Ha", "Light", "ZWO ASI2600MM", 300, 41000000, d2),
+	}
+	lights, _ := Enrich(frames)
+
+	if got := OutsideRootDuplicateSets(lights, "/folderA"); got != 1 {
+		t.Errorf("scoped to folderA hides the folderC set; got %d, want 1", got)
+	}
+	if got := OutsideRootDuplicateSets(lights, "/folderC"); got != 1 {
+		t.Errorf("scoped to folderC hides the A/B set; got %d, want 1", got)
+	}
+	if got := OutsideRootDuplicateSets(lights, ""); got != 0 {
+		t.Errorf("whole-library view hides nothing; got %d, want 0", got)
+	}
+}
+
+func TestScopeToRootFiltersAndRetotals(t *testing.T) {
+	d := time.Date(2025, 8, 1, 22, 14, 3, 0, time.UTC)
+	frames := []scan.Frame{
+		frame("/folderA/sub.fits", "M31", "Ha", "Light", "ZWO ASI2600MM", 300, 52000000, d),
+		frame("/folderB/sub.fits", "M31", "Ha", "Light", "ZWO ASI2600MM", 300, 52000000, d),
+	}
+	lights, _ := Enrich(frames)
+	rep := DetectDuplicates(lights)
+	if len(rep.Sets) != 1 || rep.FileCount != 1 {
+		t.Fatalf("setup: sets=%d fileCount=%d, want 1/1", len(rep.Sets), rep.FileCount)
+	}
+
+	if got := rep.ScopeToRoot(""); len(got.Sets) != 1 {
+		t.Errorf("empty root must pass through; sets=%d, want 1", len(got.Sets))
+	}
+	none := rep.ScopeToRoot("/elsewhere")
+	if len(none.Sets) != 0 || none.FileCount != 0 || none.WastedBytes != 0 {
+		t.Errorf("non-matching root must drop the set; sets=%d fileCount=%d wasted=%d",
+			len(none.Sets), none.FileCount, none.WastedBytes)
+	}
+	hit := rep.ScopeToRoot("/folderB")
+	if len(hit.Sets) != 1 || hit.FileCount != 1 || hit.WastedBytes != 52000000 {
+		t.Errorf("matching root keeps set; sets=%d fileCount=%d wasted=%d, want 1/1/52000000",
+			len(hit.Sets), hit.FileCount, hit.WastedBytes)
+	}
+}
+
 func TestUndatedFrameStillCounts(t *testing.T) {
 	frames := []scan.Frame{
 		frame("/a/u1.fits", "M42", "OSC", "Light", "ZWO ASI2600MC", 120, 2000, time.Time{}),

@@ -1,8 +1,8 @@
 // Package library is Celestory's cumulative, root-partitioned record of every
 // light frame it has indexed, deduped by FrameFP. It lives in the CLI data dir,
 // separate from the per-root parse cache, so scanning one disk never forgets
-// another: re-scanning the daily disk merges its new subs into the union while
-// the portfolio disk's frames (last seen on another run) stay counted.
+// another: re-scanning a folder reconciles it to its current files while every
+// other disk's frames (last seen on another run) stay counted.
 //
 // Layout (persisted as library.json):
 //   - folders: folderAbs -> { fileRel -> frameFP }  (which files a disk holds)
@@ -113,17 +113,17 @@ func (i *Index) load() error {
 
 // Merge folds a fresh scan of root into the index.
 //
-// New files are always added. Vanished files are handled in two ways:
-//   - A vanished path whose frame is still held by another live path (this scan
-//     or another root) was a redundant duplicate the user cleaned up, so its
-//     stale path is dropped — clearing the phantom duplicate without changing any
-//     total (the frame is still counted via the surviving copy).
-//   - A vanished path that is the LAST copy of its frame is KEPT (append-only):
-//     culling or unplugging a sub must not silently un-count the photons.
+// By default the scanned folder is reconciled to exactly its current files: a
+// file deleted from the folder is dropped from this partition, so the folder's
+// record always mirrors what is on disk. Other folders are never touched, so a
+// disconnected disk keeps its frames; a frame deleted here still counts while
+// another folder holds the same exposure.
 //
-// When prune is true the root's partition is reconciled to exactly this scan,
-// dropping even last-copy frames. Other roots are never touched.
-func (i *Index) Merge(rootAbs string, lights []aggregate.LightFrame, prune bool) {
+// With keepDeleted the legacy append-only behavior applies instead: a vanished
+// path is dropped only when its frame still survives elsewhere (a removed
+// duplicate copy); a vanished path that is the LAST copy of its frame is KEPT,
+// so culling a processed sub never silently un-counts its photons.
+func (i *Index) Merge(rootAbs string, lights []aggregate.LightFrame, keepDeleted bool) {
 	rootAbs = absOrSelf(rootAbs)
 	current := map[string]string{}
 	for _, lf := range lights {
@@ -133,9 +133,9 @@ func (i *Index) Merge(rootAbs string, lights []aggregate.LightFrame, prune bool)
 	}
 
 	switch {
-	case prune || i.Folders[rootAbs] == nil:
-		// Full reconcile, or the first scan of this root: the partition is
-		// exactly what this scan found.
+	case !keepDeleted || i.Folders[rootAbs] == nil:
+		// Current-state reconcile (the default), or the first scan of this root:
+		// the partition is exactly what this scan found.
 		i.Folders[rootAbs] = current
 	default:
 		i.Folders[rootAbs] = i.reconcileAppendOnly(rootAbs, current)
