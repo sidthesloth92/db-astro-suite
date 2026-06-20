@@ -571,6 +571,11 @@ export class Simulator implements AfterViewInit {
   }
 
   private handleShootingStarSpawning() {
+    // Whole starfield removed by the user — never spawn.
+    if (!this.simService.starsEnabled()) {
+      return;
+    }
+
     // Disabled by the user — never spawn.
     if (!this.simService.shootingStarsEnabled()) {
       return;
@@ -639,6 +644,10 @@ export class Simulator implements AfterViewInit {
 
   private drawStars() {
     if (!this.ctx || !this.simService.isImageLoaded()) return;
+
+    // Master switch off — record the galaxy backdrop alone, no background stars
+    // and no shooting stars (drawGalaxyBackground still runs, so it keeps moving).
+    if (!this.simService.starsEnabled()) return;
 
     // While composing a Custom Path (before "Set Path"), hide the whole field so
     // the user frames against a clean backdrop. The stars appear and start moving

@@ -45,6 +45,22 @@ describe('ShootingStar', () => {
     expect(star.z).toBeGreaterThan(z0);
   });
 
+  it('should spawn receding streaks spread wider than approaching ones so they cross the frame', () => {
+    spyOn(Math, 'random').and.returnValue(0.95); // push each spawn toward its spread edge
+
+    service.starDepth.set('out');
+    const approaching = spawned();
+    const approachingSpread = Math.abs(approaching.x) / approaching.z;
+
+    service.starDepth.set('in');
+    const receding = spawned();
+    const recedingSpread = Math.abs(receding.x) / receding.z;
+
+    // Receding ('in') streaks start much wider so they streak inward across the
+    // frame instead of being born and dying in a tight central cluster.
+    expect(recedingSpread).toBeGreaterThan(approachingSpread);
+  });
+
   it('should streak laterally when lateral drift is active', () => {
     service.starDepth.set('none');
     service.starLateralOn.set(true);

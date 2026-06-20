@@ -217,32 +217,16 @@
     </div>
   }
 
-  <div class="record-aux">
-    <dba-ui-switch
-      ariaLabel="Shooting stars"
-      [checked]="simService.shootingStarsEnabled()"
-      (checkedChange)="simService.shootingStarsEnabled.set($event)"
-    ></dba-ui-switch>
-    <span class="record-aux-label">Shooting Stars</span>
-    <span
-      class="help-icon"
-      tabindex="0"
-      [dbaTooltip]="shootingStarsHelp"
-      [attr.aria-label]="shootingStarsHelp"
-    >
-      <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
-    </span>
-  </div>
-
-  @for (control of visibleControlNames(); track control) {
+  <!-- Reusable slider-row markup, instantiated once per visible control key. -->
+  <ng-template #sliderRow let-control>
     <div class="slider-row">
       <div class="slider-label-row">
-        <label class="row-label">{{ controlConfig[control].label }}</label>
+        <label class="row-label">{{ controlMeta(control).label }}</label>
         <span
           class="help-icon"
           tabindex="0"
-          [dbaTooltip]="controlConfig[control].description"
-          [attr.aria-label]="controlConfig[control].description"
+          [dbaTooltip]="controlMeta(control).description"
+          [attr.aria-label]="controlMeta(control).description"
         >
           <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
         </span>
@@ -250,14 +234,77 @@
       </div>
       <dba-ui-micro-slider
         [value]="getControlValue(control)"
-        [min]="controlConfig[control].min"
-        [max]="controlConfig[control].max"
-        [step]="controlConfig[control].step"
+        [min]="controlMeta(control).min"
+        [max]="controlMeta(control).max"
+        [step]="controlMeta(control).step"
         [showReadout]="false"
         (valueChange)="updateControlValue(control, $event)"
       ></dba-ui-micro-slider>
     </div>
+  </ng-template>
+
+  <!-- Camera / scene sliders (Zoom & Rotation Speed) — independent of the stars. -->
+  @for (control of cameraControlNames(); track control) {
+    <ng-container
+      [ngTemplateOutlet]="sliderRow"
+      [ngTemplateOutletContext]="{ $implicit: control }"
+    ></ng-container>
   }
+
+  <!-- Stars: master switch plus every star-related control, grouped together. -->
+  <div class="stars-section">
+    <div class="stars-section-header">
+      <div class="format-label-row">
+        <label class="row-label">Stars</label>
+        <span
+          class="help-icon"
+          tabindex="0"
+          [dbaTooltip]="starsHelp"
+          [attr.aria-label]="starsHelp"
+        >
+          <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
+        </span>
+      </div>
+      <dba-ui-switch
+        ariaLabel="Show stars"
+        [checked]="simService.starsEnabled()"
+        (checkedChange)="simService.starsEnabled.set($event)"
+      ></dba-ui-switch>
+    </div>
+
+    @if (simService.starsEnabled()) {
+      @for (control of starFieldControlNames(); track control) {
+        <ng-container
+          [ngTemplateOutlet]="sliderRow"
+          [ngTemplateOutletContext]="{ $implicit: control }"
+        ></ng-container>
+      }
+
+      <div class="record-aux">
+        <dba-ui-switch
+          ariaLabel="Shooting stars"
+          [checked]="simService.shootingStarsEnabled()"
+          (checkedChange)="simService.shootingStarsEnabled.set($event)"
+        ></dba-ui-switch>
+        <span class="record-aux-label">Shooting Stars</span>
+        <span
+          class="help-icon"
+          tabindex="0"
+          [dbaTooltip]="shootingStarsHelp"
+          [attr.aria-label]="shootingStarsHelp"
+        >
+          <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
+        </span>
+      </div>
+
+      @if (isShootingStarSpeedVisible()) {
+        <ng-container
+          [ngTemplateOutlet]="sliderRow"
+          [ngTemplateOutletContext]="{ $implicit: 'shootingStarSpeed' }"
+        ></ng-container>
+      }
+    }
+  </div>
 
   <div class="panel-actions">
     <dba-ui-text-button

@@ -1,5 +1,6 @@
 import { computed, inject, Injectable, OnDestroy, signal, WritableSignal } from '@angular/core';
 import {
+  ASSUMED_FPS,
   CONTROLS,
   DEFAULT_FORMAT,
   DEFAULT_GALAXY_URL,
@@ -12,6 +13,7 @@ import {
   PATH_DURATION_MIN,
   PATH_SCALE_DISTANCE_WEIGHT,
   PATH_SPEED_DEFAULT,
+  PATH_STAR_SPEED_FACTOR,
 } from '../constants/simulation.constant';
 import {
   DEFAULT_RECORDING_PRESET,
@@ -348,6 +350,13 @@ export class SimulationService implements OnDestroy {
    */
   shootingStarsEnabled = signal<boolean>(true);
 
+  /**
+   * Master switch for the whole starfield. When false the background stars and
+   * shooting stars neither update nor draw — only the animated galaxy backdrop
+   * remains — and all star controls are hidden. Restored to true on a full reset.
+   */
+  starsEnabled = signal<boolean>(true);
+
   // ==================== Private Recording State ====================
 
   /** MediaRecorder instance for capturing canvas stream */
@@ -416,6 +425,24 @@ export class SimulationService implements OnDestroy {
     const uiValue = this.controls[control]();
     const multiplier = CONTROLS[control].internalMultiplier ?? 1;
     return uiValue * multiplier;
+  }
+
+  /**
+   * Per-frame motion speed (internal units) for the background star field, read
+   * by the `Star` model each frame. In a fixed Custom Path the field tracks the
+   * camera's path pace — so the stars drift with the glide instead of stalling at
+   * the (camera-independent) Star Speed rate — with the Star Speed slider acting
+   * as a relative multiplier around its default. Every other mode uses the
+   * slider's absolute internal value. (Shooting stars deliberately keep their own
+   * slider-based speed for a steady, visible streak rate.)
+   */
+  getStarMotionSpeed(): number {
+    if (!this.isPathMode() || !this.pathFinalized()) {
+      return this.getInternalValue('starSpeed');
+    }
+    const cameraPacePerFrame = this.pathSpeed() / ASSUMED_FPS;
+    const sliderFactor = this.controls.starSpeed() / CONTROLS['starSpeed'].initial;
+    return cameraPacePerFrame * PATH_STAR_SPEED_FACTOR * sliderFactor;
   }
 
   /**
@@ -609,8 +636,20 @@ export class SimulationService implements OnDestroy {
       return;
     }
     this.applyPathStarDefaults();
+    // Clear any streaks still in flight from the previous direction — they were
+    // frozen mid-authoring and would otherwise resume with stale motion (e.g. a
+    // radial 'forward' streak) that contradicts the freshly-derived path motion.
+    // Fresh ones respawn with the correct depth + lateral drift.
+    this.deactivateShootingStars();
     this.pathFinalized.set(true);
     this.playPath();
+  }
+
+  /** Deactivates every in-flight shooting star so the pool can respawn fresh. */
+  private deactivateShootingStars(): void {
+    for (const star of this.shootingStars()) {
+      star.deactivate();
+    }
   }
 
   /** Unlocks the path for re-composition (stops the loop, keeps A & B). */
@@ -654,6 +693,7 @@ export class SimulationService implements OnDestroy {
       this.controls[key].set(CONTROLS[key].initial);
     }
     this.shootingStarsEnabled.set(true);
+    this.starsEnabled.set(true);
     // Clear any custom path, then go through updateDirection so the star
     // direction/depth are reset to the 'forward' preset defaults too (a bare
     // travelDirection.set would leave the stars streaming the old way).

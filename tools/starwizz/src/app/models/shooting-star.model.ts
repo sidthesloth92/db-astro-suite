@@ -6,7 +6,20 @@ import { StarDepth } from './simulation.model';
  * Shooting Star Specific Constants
  */
 const TRAIL_LENGTH = 8;
+/**
+ * Projected spawn spread (fraction of the frame) for approaching ('out') and
+ * lateral streaks: they start near the centre and flare outward as they near
+ * the camera, so a tight spawn reads as a clean burst from the vanishing point.
+ */
 const CENTER_SPAWN_RATIO = 0.3;
+/**
+ * Wider spawn spread for receding ('in') streaks. Near-camera objects fill the
+ * view, so receding streaks must start spread across the frame and streak inward
+ * toward the vanishing point — with the tight {@link CENTER_SPAWN_RATIO} they
+ * would instead be born and die in a small central cluster. Kept just under the
+ * half-frame so a fresh streak isn't immediately culled as off-screen.
+ */
+const RECEDING_SPAWN_RATIO = 0.9;
 
 /**
  * @class ShootingStar
@@ -58,9 +71,13 @@ export class ShootingStar {
       this.z = MAX_DEPTH * 0.3 + Math.random() * MAX_DEPTH * 0.3;
     }
 
-    // Spread proportional to depth so the projected spawn sits near centre at any z.
-    this.x = (Math.random() - 0.5) * this.z * CENTER_SPAWN_RATIO;
-    this.y = (Math.random() - 0.5) * this.z * CENTER_SPAWN_RATIO;
+    // Spread proportional to depth so the projected spawn spans a constant
+    // fraction of the frame at any z. Receding streaks spawn wide (they start
+    // near the camera, filling the view, then streak inward); approaching and
+    // lateral streaks spawn tight at the centre and fan outward / drift across.
+    const spreadRatio = this.depth === 'in' ? RECEDING_SPAWN_RATIO : CENTER_SPAWN_RATIO;
+    this.x = (Math.random() - 0.5) * this.z * spreadRatio;
+    this.y = (Math.random() - 0.5) * this.z * spreadRatio;
 
     if (this.lateralOn) {
       const radians = (this.simService.starDirectionDeg() * Math.PI) / 180;
@@ -100,9 +117,11 @@ export class ShootingStar {
       return;
     }
 
-    // Speed is a multiple of the background star speed (the slider value), using
-    // the same depth/lateral factors as Star.update so the streak travels in the
-    // exact same direction as the field — just `multiplier`× faster.
+    // Speed is a multiple of the Star Speed slider, using the same depth/lateral
+    // factors as Star.update so the streak travels in the exact same direction as
+    // the field — just `multiplier`× faster. Deliberately NOT the path-coupled
+    // speed: streaks keep a steady, visible pace (and stay plentiful) regardless
+    // of the camera glide, which already drives their direction.
     const base =
       this.simService.getInternalValue('starSpeed') * this.simService.controls.shootingStarSpeed();
     const depthStep = base * STAR_DEPTH_FACTOR;

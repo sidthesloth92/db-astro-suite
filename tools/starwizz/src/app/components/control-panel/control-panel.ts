@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -25,6 +26,7 @@ import {
   RECORDING_PRESET_ORDER,
 } from '../../constants/recording.constant';
 import {
+  CAMERA_CONTROL_KEYS,
   CONTROLS,
   DIRECTION_OPTIONS,
   FORMATS,
@@ -40,9 +42,10 @@ import {
   STAR_ANGLE_MAX,
   STAR_ANGLE_MIN,
   STAR_ANGLE_STEP,
+  STAR_FIELD_CONTROL_KEYS,
 } from '../../constants/simulation.constant';
 import { RecordingPreset } from '../../models/recording.model';
-import { ControlKey, TravelDirection } from '../../models/simulation.model';
+import { ControlKey, ControlMetadata, TravelDirection } from '../../models/simulation.model';
 import { SimulationService } from '../../services/simulation.service';
 import {
   computeRecordingBitsPerSecond,
@@ -67,6 +70,7 @@ const PATH_HIDDEN_CONTROLS: ReadonlySet<ControlKey> = new Set<ControlKey>([
   selector: 'dba-sw-control-panel',
   standalone: true,
   imports: [
+    NgTemplateOutlet,
     MicroSliderComponent,
     SelectComponent,
     SplitButtonComponent,
@@ -131,11 +135,12 @@ export class ControlPanel {
   /** Tooltip text shown on the help icon next to the "Shooting Stars" switch. */
   protected readonly shootingStarsHelp =
     'Turn the occasional shooting-star streaks on or off. When off, the Shooting Star Speed slider is hidden.';
+  /** Tooltip text shown on the help icon next to the master "Stars" switch. */
+  protected readonly starsHelp =
+    'Turn the whole starfield off to record just the background animation. Hides all star controls and removes both background and shooting stars when off.';
 
   /** Slider control metadata (label, min/max/step/precision, etc.). */
   readonly controlConfig = CONTROLS;
-  /** Stable list of all control keys in render order. */
-  readonly controlNames = Object.keys(CONTROLS) as ControlKey[];
   /** Format descriptors keyed by FormatKey. */
   readonly formats = FORMATS;
   /** Format groups mapped to <dba-ui-select> optgroups. */
@@ -166,21 +171,28 @@ export class ControlPanel {
   readonly angleMax = STAR_ANGLE_MAX;
   readonly angleStep = STAR_ANGLE_STEP;
 
-  /** Control keys to render as sliders, filtered for the active mode and toggles. */
-  readonly visibleControlNames = computed<ControlKey[]>(() => {
+  /**
+   * Camera/scene slider keys to render (Zoom/Rotation Speed). Hidden in Custom
+   * Path mode, where the path section supplies its own zoom/speed controls.
+   */
+  readonly cameraControlNames = computed<ControlKey[]>(() => {
     const pathMode = this.simService.isPathMode();
-    const shootingStarsOn = this.simService.shootingStarsEnabled();
-    return this.controlNames.filter((key) => {
-      if (pathMode && PATH_HIDDEN_CONTROLS.has(key)) {
-        return false;
-      }
-      // The Shooting Star Speed slider is meaningless while shooting stars are off.
-      if (key === 'shootingStarSpeed' && !shootingStarsOn) {
-        return false;
-      }
-      return true;
-    });
+    return CAMERA_CONTROL_KEYS.filter((key) => !(pathMode && PATH_HIDDEN_CONTROLS.has(key)));
   });
+
+  /**
+   * Background-starfield slider keys to render inside the "Stars" section
+   * (Star Speed, Size, Count). Shown whenever the starfield is enabled.
+   */
+  readonly starFieldControlNames = computed<ControlKey[]>(() => [...STAR_FIELD_CONTROL_KEYS]);
+
+  /**
+   * Whether the Shooting Star Speed slider is shown — only while shooting stars
+   * are enabled and not in Custom Path mode (where it is path-hidden).
+   */
+  readonly isShootingStarSpeedVisible = computed<boolean>(
+    () => this.simService.shootingStarsEnabled() && !this.simService.isPathMode(),
+  );
 
   /** Label rendered inside the record button — varies with recording state. */
   readonly buttonText = computed<string>(() => {
@@ -254,6 +266,11 @@ export class ControlPanel {
   /** Reads the current value of a slider control. */
   getControlValue(control: ControlKey): number {
     return this.simService.getControlValue(control);
+  }
+
+  /** Slider metadata (label/description/min/max/step) for a control key. */
+  controlMeta(control: ControlKey): ControlMetadata {
+    return this.controlConfig[control];
   }
 
   /** Formatted value rendered alongside the slider label, respecting per-control precision. */
