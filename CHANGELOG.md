@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.31.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.30.0...v1.31.0) (2026-06-20)
+
+
+### Features
+
+* **starwizz:** add remove-stars toggle, group star controls, and fix Custom Path star motion ([#90](https://github.com/sidthesloth92/db-astro-suite/issues/90)) ([abd50cb](https://github.com/sidthesloth92/db-astro-suite/commit/abd50cb6f2910734f04823802df6bac024d6b75f))
+
 ## [1.30.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.29.2...v1.30.0) (2026-06-15)
 
 
