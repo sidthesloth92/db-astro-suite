@@ -24,7 +24,7 @@ func light(path, fp string, exp float64, date time.Time) aggregate.LightFrame {
 	}
 }
 
-func assembled(idx *Index) model.Ledger {
+func assembled(idx *Index) model.Story {
 	return aggregate.Assemble(idx.Union(), nil, model.ToolInfo{}, "")
 }
 

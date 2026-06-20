@@ -104,7 +104,7 @@ export function yearLabel(firstLight: string, latestSession: string): string {
   return y1 === y2 ? String(y1) : `${y1}–${String(y2).slice(2)}`;
 }
 
-/** Map of ledger filter display names to canonical share-card filter keys. */
+/** Map of story filter display names to canonical share-card filter keys. */
 const NAME_TO_KEY: Readonly<Record<string, ShareFilterKey>> = {
   'Hα': 'Ha',
   Ha: 'Ha',
@@ -125,7 +125,7 @@ const NAME_TO_KEY: Readonly<Record<string, ShareFilterKey>> = {
   RGB: 'RGB',
 };
 
-/** Maps a ledger filter display name to a canonical share-card key, or null. */
+/** Maps a story filter display name to a canonical share-card key, or null. */
 export function filterKeyOf(name: string): ShareFilterKey | null {
   return NAME_TO_KEY[name] ?? NAME_TO_KEY[name?.trim()] ?? null;
 }

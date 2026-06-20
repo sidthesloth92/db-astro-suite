@@ -4,7 +4,7 @@ import {
   computed,
   input,
 } from '@angular/core';
-import type { CelestoryLedger } from '../../models/ledger.model';
+import type { CelestoryStory } from '../../models/story.model';
 import { filterColor } from '../../utils/filter-color.util';
 import { formatCount, formatDuration } from '../../utils/format.util';
 
@@ -19,7 +19,7 @@ interface FilterBar {
 /**
  * Presentational stats renderer — the hero integration number, the
  * objects/nights/frames strip, and the filter distribution. Driven entirely by
- * a `ledger` input so it works in both the client-side preview and the SSR
+ * a `story` input so it works in both the client-side preview and the SSR
  * portfolio page.
  */
 @Component({
@@ -30,28 +30,28 @@ interface FilterBar {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StoryStatsComponent {
-  /** The ledger to render. */
-  readonly ledger = input.required<CelestoryLedger>();
+  /** The story to render. */
+  readonly story = input.required<CelestoryStory>();
 
   /** Hero total integration, formatted as "186h 46m". */
   protected readonly heroIntegration = computed(() =>
-    formatDuration(this.ledger().summary.totalIntegrationSeconds),
+    formatDuration(this.story().summary.totalIntegrationSeconds),
   );
 
   /** Objects / nights / frames, formatted. */
   protected readonly objectCount = computed(() =>
-    formatCount(this.ledger().summary.objectCount),
+    formatCount(this.story().summary.objectCount),
   );
   protected readonly nightCount = computed(() =>
-    formatCount(this.ledger().summary.nightCount),
+    formatCount(this.story().summary.nightCount),
   );
   protected readonly frameCount = computed(() =>
-    formatCount(this.ledger().summary.lightFrameCount),
+    formatCount(this.story().summary.lightFrameCount),
   );
 
   /** Filter distribution as proportional bar segments. */
   protected readonly filters = computed<FilterBar[]>(() => {
-    const filters = this.ledger().summary.filters;
+    const filters = this.story().summary.filters;
     const total = filters.reduce((sum, f) => sum + f.seconds, 0) || 1;
     return filters.map((f) => ({
       name: f.name,

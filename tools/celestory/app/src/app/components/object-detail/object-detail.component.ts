@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
-import type { CelestoryLedger, LedgerEquipment, LedgerObject } from '../../models/ledger.model';
+import type { CelestoryStory, StoryEquipment, StoryObject } from '../../models/story.model';
 import type { CelIconName } from '../cel-icon/cel-icon.component';
 import type { FilterRow, SessionView } from '../../models/portfolio-view.types';
 import type { AltAz } from '../../models/sky.types';
@@ -36,9 +36,9 @@ import { ObjectShareModalComponent } from '../object-share-modal/object-share-mo
 })
 export class ObjectDetailComponent {
   /** The object to show. */
-  readonly obj = input.required<LedgerObject>();
-  /** The full ledger (for equipment resolution). */
-  readonly ledger = input.required<CelestoryLedger>();
+  readonly obj = input.required<StoryObject>();
+  /** The full story (for equipment resolution). */
+  readonly story = input.required<CelestoryStory>();
   /** Rendered inside the planetarium popup (hides the back link, compacts the head). */
   readonly embedded = input<boolean>(false);
   /** Current horizontal position, when shown from the planetarium. */
@@ -57,13 +57,13 @@ export class ObjectDetailComponent {
   /** Per-filter integration rows. */
   protected readonly rows = computed<FilterRow[]>(() => filterRows(this.obj().filters));
   /** Equipment used (resolved). */
-  protected readonly gear = computed<LedgerEquipment[]>(() => {
-    const byId = new Map(this.ledger().equipment.map((e) => [e.id, e] as const));
-    return this.obj().equipmentIds.map((id) => byId.get(id)).filter((e): e is LedgerEquipment => !!e);
+  protected readonly gear = computed<StoryEquipment[]>(() => {
+    const byId = new Map(this.story().equipment.map((e) => [e.id, e] as const));
+    return this.obj().equipmentIds.map((id) => byId.get(id)).filter((e): e is StoryEquipment => !!e);
   });
   /** Session timeline view-models. */
   protected readonly sessions = computed<SessionView[]>(() =>
-    sessionViews(this.obj().sessions, equipNameMap(this.ledger())),
+    sessionViews(this.obj().sessions, equipNameMap(this.story())),
   );
 
   protected dur(s: number): string {
@@ -83,7 +83,7 @@ export class ObjectDetailComponent {
     return moonGlyphFor(d).name;
   }
   /** camera/optic glyph for a gear chip. */
-  protected gearIcon(e: LedgerEquipment): CelIconName {
+  protected gearIcon(e: StoryEquipment): CelIconName {
     return e.kind.toLowerCase() === 'camera' ? 'camera' : 'optic';
   }
 }

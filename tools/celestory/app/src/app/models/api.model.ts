@@ -1,4 +1,4 @@
-import type { CelestoryLedger } from './ledger.model';
+import type { CelestoryStory } from './story.model';
 
 /** Standard API envelope: { code, message, details }. */
 export interface ApiResponse<T> {
@@ -37,7 +37,7 @@ export interface StoryAuth {
 
 /**
  * Anonymous attempt ping sent on visualise. Carries only the dedup identity and
- * three headline integers — never a handle, never ledger contents.
+ * three headline integers — never a handle, never story contents.
  */
 export interface AttemptPing {
   installId: string;
@@ -48,9 +48,9 @@ export interface AttemptPing {
 }
 
 /** A published (or sample) story fetched by handle; headline stats live in the
- * ledger's own summary block, so no separate stats payload is carried. */
+ * story's own summary block, so no separate stats payload is carried. */
 export interface StoryDetails {
   handle: string;
-  ledger: CelestoryLedger;
+  story: CelestoryStory;
   createdAt: string;
 }

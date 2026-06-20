@@ -1,5 +1,5 @@
-@if (story(); as st) {
-  <dba-journey-view state="published" [ledger]="st.ledger" [handle]="st.handle" (updated)="refresh()" />
+@if (profile(); as st) {
+  <dba-journey-view state="published" [story]="st.story" [handle]="st.handle" (updated)="refresh()" />
 } @else if (state().status === 'error') {
   <dba-ui-constellation-field>
     <div class="neb" aria-hidden="true"></div>

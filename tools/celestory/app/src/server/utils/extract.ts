@@ -1,4 +1,4 @@
-import type { Ledger } from './ledger.types';
+import type { Story } from './story.types';
 import type {
   ExtractedRows,
   StoryEquipmentRow,
@@ -36,15 +36,15 @@ function latest(a: string | null, b: string): string | null {
 
 /**
  * Recompute headline totals from the validated objects/activity rather than
- * trusting the ledger's own summary block (integrity + anti-fabrication).
+ * trusting the story's own summary block (integrity + anti-fabrication).
  */
-function recomputeTotals(ledger: Ledger): StoryTotals {
+function recomputeTotals(story: Story): StoryTotals {
   let totalIntegrationSeconds = 0;
   let lightFrameCount = 0;
   let firstLight: string | null = null;
   let latestSession: string | null = null;
 
-  for (const object of ledger.objects) {
+  for (const object of story.objects) {
     totalIntegrationSeconds += object.totalIntegrationSeconds;
     lightFrameCount += object.lightFrameCount;
     firstLight = earliest(firstLight, object.firstLight);
@@ -52,12 +52,12 @@ function recomputeTotals(ledger: Ledger): StoryTotals {
   }
 
   const nightCount = new Set(
-    ledger.summary.activity.map((a) => a.date).filter(Boolean),
+    story.summary.activity.map((a) => a.date).filter(Boolean),
   ).size;
 
   return {
     totalIntegrationSeconds,
-    objectCount: ledger.objects.length,
+    objectCount: story.objects.length,
     nightCount,
     lightFrameCount,
     firstLight,
@@ -65,9 +65,9 @@ function recomputeTotals(ledger: Ledger): StoryTotals {
   };
 }
 
-/** Build story_objects rows from the ledger. */
-function extractObjects(ledger: Ledger): StoryObjectRow[] {
-  return ledger.objects.map((object) => ({
+/** Build story_objects rows from the story. */
+function extractObjects(story: Story): StoryObjectRow[] {
+  return story.objects.map((object) => ({
     objectId: object.id,
     designation: object.designation || object.displayName,
     category: object.category,
@@ -77,9 +77,9 @@ function extractObjects(ledger: Ledger): StoryObjectRow[] {
   }));
 }
 
-/** Build story_equipment rows from the ledger. */
-function extractEquipment(ledger: Ledger): StoryEquipmentRow[] {
-  return ledger.equipment.map((item) => ({
+/** Build story_equipment rows from the story. */
+function extractEquipment(story: Story): StoryEquipmentRow[] {
+  return story.equipment.map((item) => ({
     equipmentId: item.id,
     kind: item.kind,
     displayName: item.displayName,
@@ -96,9 +96,9 @@ function extractEquipment(ledger: Ledger): StoryEquipmentRow[] {
  * powering the month/seasonality leaderboards. Sessions with no parseable date
  * are skipped; integration and frames are summed within each month bucket.
  */
-function extractObjectMonths(ledger: Ledger): StoryObjectMonthRow[] {
+function extractObjectMonths(story: Story): StoryObjectMonthRow[] {
   const buckets = new Map<string, StoryObjectMonthRow>();
-  for (const object of ledger.objects) {
+  for (const object of story.objects) {
     const designation = object.designation || object.displayName;
     for (const session of object.sessions) {
       const month = monthStart(session.date);
@@ -127,15 +127,15 @@ function extractObjectMonths(ledger: Ledger): StoryObjectMonthRow[] {
   return [...buckets.values()];
 }
 
-/** Build story_filters rows from the ledger summary, merging by name. */
-function extractFilters(ledger: Ledger): StoryFilterRow[] {
+/** Build story_filters rows from the story summary, merging by name. */
+function extractFilters(story: Story): StoryFilterRow[] {
   const frames = new Map<string, number>();
-  for (const object of ledger.objects) {
+  for (const object of story.objects) {
     for (const filter of object.filters) {
       frames.set(filter.name, (frames.get(filter.name) ?? 0) + filter.frames);
     }
   }
-  return ledger.summary.filters.map((filter) => ({
+  return story.summary.filters.map((filter) => ({
     name: filter.name,
     seconds: filter.seconds,
     frames: frames.get(filter.name) ?? 0,
@@ -144,14 +144,14 @@ function extractFilters(ledger: Ledger): StoryFilterRow[] {
 
 /**
  * Derive all denormalized totals and child rows persisted alongside a story
- * on create. The raw ledger blob is still stored verbatim for rendering.
+ * on create. The raw story blob is still stored verbatim for rendering.
  */
-export function extractRows(ledger: Ledger): ExtractedRows {
+export function extractRows(story: Story): ExtractedRows {
   return {
-    totals: recomputeTotals(ledger),
-    objects: extractObjects(ledger),
-    equipment: extractEquipment(ledger),
-    filters: extractFilters(ledger),
-    objectMonths: extractObjectMonths(ledger),
+    totals: recomputeTotals(story),
+    objects: extractObjects(story),
+    equipment: extractEquipment(story),
+    filters: extractFilters(story),
+    objectMonths: extractObjectMonths(story),
   };
 }

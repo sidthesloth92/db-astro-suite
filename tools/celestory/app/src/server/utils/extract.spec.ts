@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { extractRows } from './extract';
-import type { EquipmentItem, Ledger, ObjectTimeline } from './ledger.types';
+import type { EquipmentItem, Story, ObjectTimeline } from './story.types';
 
-/** A minimal valid server-side Ledger, overridable per test. */
-function makeLedger(overrides: Partial<Ledger> = {}): Ledger {
+/** A minimal valid server-side Story, overridable per test. */
+function makeStory(overrides: Partial<Story> = {}): Story {
   return {
     schemaVersion: 2,
     generatedAt: '2026-06-19T00:00:00Z',
@@ -82,7 +82,7 @@ describe('extractRows — equipment', () => {
       objectIds: [],
     };
 
-    const { equipment } = extractRows(makeLedger({ equipment: [camera, optic] }));
+    const { equipment } = extractRows(makeStory({ equipment: [camera, optic] }));
 
     expect(equipment[0]).toMatchObject({
       equipmentId: 'cam-2600mm',
@@ -109,7 +109,7 @@ describe('extractRows — object months', () => {
       ],
     });
 
-    const { objectMonths } = extractRows(makeLedger({ objects: [object] }));
+    const { objectMonths } = extractRows(makeStory({ objects: [object] }));
 
     expect(objectMonths).toHaveLength(2);
     const september = objectMonths.find((m) => m.month === '2025-09-01');
@@ -132,7 +132,7 @@ describe('extractRows — object months', () => {
       ],
     });
 
-    const { objectMonths } = extractRows(makeLedger({ objects: [object] }));
+    const { objectMonths } = extractRows(makeStory({ objects: [object] }));
 
     expect(objectMonths).toHaveLength(1);
     expect(objectMonths[0]).toMatchObject({ month: '2025-10-01', integrationSeconds: 100 });
@@ -148,7 +148,7 @@ describe('extractRows — object months', () => {
       ],
     });
 
-    const { objectMonths } = extractRows(makeLedger({ objects: [object] }));
+    const { objectMonths } = extractRows(makeStory({ objects: [object] }));
 
     expect(objectMonths[0].designation).toBe('Backyard Nebula');
   });

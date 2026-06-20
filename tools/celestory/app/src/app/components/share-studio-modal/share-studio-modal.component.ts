@@ -18,7 +18,7 @@ import {
 import { profileDisplayUrl } from '../../models/app.constants';
 import { SessionStore } from '../../services/session-store.service';
 import { slugifyHandle } from '../../utils/handle.util';
-import type { CelestoryLedger } from '../../models/ledger.model';
+import type { CelestoryStory } from '../../models/story.model';
 import { DOWNLOAD_FORMAT_MENU, STORY_TYPES } from '../../models/share.constants';
 import type {
   ShareAssetKind,
@@ -54,8 +54,8 @@ import type { JourneyState } from '../../models/journey.types';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShareStudioModalComponent {
-  /** The ledger to render. */
-  readonly ledger = input.required<CelestoryLedger>();
+  /** The story to render. */
+  readonly story = input.required<CelestoryStory>();
   /** The public handle (for the card's URL line). */
   readonly handle = input<string>('');
   /** Journey state — gates the published social row / private publish CTA. */
@@ -105,7 +105,7 @@ export class ShareStudioModalComponent {
   /** Years derived from the summary activity log, descending. */
   protected readonly availableYears = computed(() => {
     const years = new Set<number>();
-    for (const a of this.ledger().summary.activity ?? []) {
+    for (const a of this.story().summary.activity ?? []) {
       const y = parseInt(a.date.slice(0, 4), 10);
       if (!isNaN(y)) {
         years.add(y);
@@ -141,7 +141,7 @@ export class ShareStudioModalComponent {
   /** Render-ready model, scoped to the chosen timeframe, with the edited identity. */
   protected readonly model = computed(() => {
     const ident = this.session.identity();
-    const base = buildShareModel(this.ledger(), { name: ident.name, handle: this.effectiveHandle() });
+    const base = buildShareModel(this.story(), { name: ident.name, handle: this.effectiveHandle() });
     return scopeModelByYear(base, this.yearScope());
   });
 

@@ -1,13 +1,13 @@
 /**
  * The anonymous upload event log. Each visualise/publish appends one compact
- * event (install anchor + three headline integers), deduped on
- * (installId, dataFingerprint). Community totals are replayed as the latest
- * event per owner. The profile id is never read from the client payload — it is
- * assigned only by the password-gated publish claim.
+ * event (install anchor + three headline integers) — append-only, never deduped
+ * on insert. Community totals replay each claimed owner once (their latest
+ * snapshot) plus every anonymous upload. The profile id is never read from the
+ * client payload — it is assigned only by the password-gated publish claim.
  */
 import { getDb } from './db';
 import { PingIdentityError } from './celestory.error';
-import type { CommunityStats, LedgerUpload } from './story.model';
+import type { CommunityStats, StoryUpload } from './story.model';
 
 /** Read a finite, non-negative integer from a record field, defaulting to 0. */
 function intField(record: Record<string, unknown>, field: string): number {
@@ -24,11 +24,11 @@ function strField(record: Record<string, unknown>, field: string): string {
 }
 
 /**
- * Validate an unknown request body into a LedgerUpload. Throws PingIdentityError
- * when the dedup identity (installId + dataFingerprint) is absent. Any
+ * Validate an unknown request body into a StoryUpload. Throws PingIdentityError
+ * when the upload identity (installId + dataFingerprint) is absent. Any
  * client-supplied profile id is deliberately ignored.
  */
-export function parseUpload(raw: unknown): LedgerUpload {
+export function parseUpload(raw: unknown): StoryUpload {
   const record =
     raw !== null && typeof raw === 'object' && !Array.isArray(raw)
       ? (raw as Record<string, unknown>)
@@ -54,10 +54,10 @@ export function parseUpload(raw: unknown): LedgerUpload {
  * and the latest-per-owner replay then collapses an authenticated owner's rows
  * so they are not double-counted.
  */
-export async function recordUpload(upload: LedgerUpload): Promise<void> {
+export async function recordUpload(upload: StoryUpload): Promise<void> {
   const sql = getDb();
   await sql`
-    INSERT INTO ledger_uploads (
+    INSERT INTO story_uploads (
       install_id, data_fingerprint,
       total_integration_seconds, light_frame_count, object_count
     ) VALUES (
@@ -78,7 +78,7 @@ export async function claimUploads(installId: string, handle: string): Promise<v
   }
   const sql = getDb();
   await sql`
-    UPDATE ledger_uploads
+    UPDATE story_uploads
     SET profile_id = ${handle}
     WHERE install_id = ${installId} AND profile_id IS NULL
   `;
@@ -90,7 +90,7 @@ export async function claimUploads(installId: string, handle: string): Promise<v
  * double-counted) plus every anonymous upload (each unauthenticated upload is
  * its own journey). `chartedCount` is the counted-set row count; the hour/object/
  * frame totals are its sums. `liveCount` is the published-profile count, read
- * separately from `stories`. No per-user ledger data is read.
+ * separately from `stories`. No per-user story data is read.
  */
 export async function communityStats(): Promise<CommunityStats> {
   const sql = getDb();
@@ -100,13 +100,13 @@ export async function communityStats(): Promise<CommunityStats> {
       FROM (
         SELECT DISTINCT ON (profile_id)
           total_integration_seconds, object_count, light_frame_count
-        FROM ledger_uploads
+        FROM story_uploads
         WHERE profile_id IS NOT NULL
         ORDER BY profile_id, uploaded_at DESC
       ) claimed
       UNION ALL
       SELECT total_integration_seconds, object_count, light_frame_count
-      FROM ledger_uploads
+      FROM story_uploads
       WHERE profile_id IS NULL
     )
     SELECT

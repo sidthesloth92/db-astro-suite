@@ -88,21 +88,21 @@
     @if (detailObject(); as o) {
       <dba-object-detail
         [obj]="o"
-        [ledger]="ledger()"
+        [story]="story()"
         (back)="closeDetail()"
         (openEquipment)="openEquipment($event)"
       />
     } @else if (detailEquip(); as e) {
       <dba-equipment-detail
         [equip]="e"
-        [ledger]="ledger()"
+        [story]="story()"
         (back)="closeDetail()"
         (openObject)="openObject($event)"
       />
     } @else {
       <!-- Single flowing page: hero → Objects → Equipment -->
       <dba-journey-hero
-        [ledger]="ledger()"
+        [story]="story()"
         [handle]="handle()"
         [state]="state()"
         (share)="openShare()"
@@ -112,17 +112,17 @@
       />
 
       <dba-section-banner num="02" eyebrow="The Catalogue" title="Objects" glyph="galaxy" [seed]="4" [sub]="objectsSub()" />
-      <dba-object-section [ledger]="ledger()" (open)="openObject($event)" />
+      <dba-object-section [story]="story()" (open)="openObject($event)" />
 
       <dba-section-banner num="03" eyebrow="The Rig" title="Equipment" glyph="camera" [seed]="9" [sub]="equipmentSub()" />
-      <dba-equipment-section [ledger]="ledger()" (open)="openEquipment($event)" />
+      <dba-equipment-section [story]="story()" (open)="openEquipment($event)" />
     }
   </main>
 
   <!-- Modals -->
   @if (showPublish()) {
     <dba-publish-modal
-      [ledger]="ledger()"
+      [story]="story()"
       [currentHandle]="handle()"
       [initialPhase]="publishPhase()"
       (published)="onPublished($event)"
@@ -139,7 +139,7 @@
   }
   @if (showStudio()) {
     <dba-share-studio-modal
-      [ledger]="ledger()"
+      [story]="story()"
       [handle]="handle()"
       [state]="state()"
       (openPublish)="openPublish()"
@@ -150,7 +150,7 @@
   <!-- Full-screen planetarium ("View My Universe") -->
   @if (showSky()) {
     <dba-planetarium
-      [ledger]="ledger()"
+      [story]="story()"
       (closed)="closeSky()"
       (openEquipment)="skyToEquipment($event)"
     />

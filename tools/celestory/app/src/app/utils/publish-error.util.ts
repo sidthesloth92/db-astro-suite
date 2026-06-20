@@ -9,7 +9,7 @@ export function publishErrorMessage(code: unknown): string {
       return 'Choose a password of at least 6 characters.';
     case 'PASSWORD_INCORRECT':
       return 'That password doesn’t match this profile.';
-    case 'LEDGER_INVALID':
+    case 'STORY_INVALID':
       return 'That file isn’t a valid celestory.json export.';
     case 'STORY_NOT_FOUND':
       return 'No profile found for that handle.';

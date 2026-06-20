@@ -1,5 +1,5 @@
 // Command celestory scans a folder of astrophotography FITS captures and
-// emits a per-object integration-timeline + equipment ledger (celestory.json).
+// emits a per-object integration timeline + equipment breakdown (celestory.json).
 // Run with no arguments for an interactive wizard, or pass -input for a
 // scriptable run. Upload the resulting celestory.json to the Celestory web app to
 // chart your journey. Read-only: it never modifies the scanned files.
@@ -23,7 +23,7 @@ type cliFlags struct {
 	showConfig    bool
 	verifyHash    bool
 	showVersion   bool
-	profile       string // configure the profile handle stamped into the ledger
+	profile       string // configure the profile handle stamped into the story
 	profileSet    bool   // whether -profile was passed (distinguishes "" from absent)
 	allDuplicates bool   // report duplicates across the whole library, not just the scan
 	keepDeleted   bool   // keep frames whose files were deleted from the scanned folder

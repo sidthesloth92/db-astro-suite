@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import type { CelestoryLedger, LedgerEquipment } from '../../models/ledger.model';
+import type { CelestoryStory, StoryEquipment } from '../../models/story.model';
 import { formatCount, formatDuration } from '../../utils/format.util';
 import { fmtRange } from '../../utils/portfolio.util';
 import { CelIconComponent } from '../cel-icon/cel-icon.component';
@@ -14,21 +14,21 @@ import { CelIconComponent } from '../cel-icon/cel-icon.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EquipmentSectionComponent {
-  /** The ledger to browse. */
-  readonly ledger = input.required<CelestoryLedger>();
+  /** The story to browse. */
+  readonly story = input.required<CelestoryStory>();
   /** Emits an equipment id to open its detail. */
   readonly open = output<string>();
 
   /** Grouped gear. */
   protected readonly cameras = computed(() =>
-    this.ledger().equipment.filter((e) => e.kind.toLowerCase() === 'camera'),
+    this.story().equipment.filter((e) => e.kind.toLowerCase() === 'camera'),
   );
   protected readonly optics = computed(() =>
-    this.ledger().equipment.filter((e) => e.kind.toLowerCase() !== 'camera'),
+    this.story().equipment.filter((e) => e.kind.toLowerCase() !== 'camera'),
   );
 
   /** A spec line for optics (focal length / f-ratio). */
-  protected detail(e: LedgerEquipment): string {
+  protected detail(e: StoryEquipment): string {
     const parts: string[] = [];
     if (e.focalLengthMm) {
       parts.push(`${e.focalLengthMm}mm`);

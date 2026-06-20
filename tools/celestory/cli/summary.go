@@ -45,14 +45,14 @@ func flagUsage() { flag.Usage() }
 // (plus a hint when more duplicates exist elsewhere), the celestory.json path, and
 // how to visualise the result in the web app. outsideDupSets is how many duplicate
 // sets the scoping hid (0 with -all-duplicates or when nothing is hidden).
-func printRunSummary(ledger model.Ledger, jsonPath string, outsideDupSets int) {
-	s := ledger.Summary
+func printRunSummary(story model.Story, jsonPath string, outsideDupSets int) {
+	s := story.Summary
 	fmt.Println()
 	fmt.Printf("Done — %d object(s) · %s total · %d night(s) · %d light frame(s)\n",
 		s.ObjectCount, formatDuration(s.TotalIntegrationSeconds), s.NightCount, s.LightFrameCount)
 
-	printSkipped(ledger)
-	printDuplicates(ledger, outsideDupSets)
+	printSkipped(story)
+	printDuplicates(story, outsideDupSets)
 
 	fmt.Println("\nSaved:", jsonPath)
 
@@ -73,8 +73,8 @@ func printNextSteps() {
 // printSkipped lists files that could not be parsed (path + reason) on the
 // terminal only — these paths are never written to celestory.json, which is
 // uploaded; only the path-free count travels (summary.skippedFileCount).
-func printSkipped(ledger model.Ledger) {
-	skipped := ledger.Skipped
+func printSkipped(story model.Story) {
+	skipped := story.Skipped
 	if len(skipped) == 0 {
 		return
 	}
@@ -100,13 +100,13 @@ func printSkipped(ledger model.Ledger) {
 // user can see at a glance exactly which copies are safe to remove. outsideDupSets
 // is how many duplicate sets the folder scoping hid; when non-zero it appends an
 // obvious hint pointing at -all-duplicates.
-func printDuplicates(ledger model.Ledger, outsideDupSets int) {
-	dups := ledger.Duplicates
+func printDuplicates(story model.Story, outsideDupSets int) {
+	dups := story.Duplicates
 	if len(dups) == 0 {
 		printOutsideDuplicatesHint(outsideDupSets)
 		return
 	}
-	s := ledger.Summary
+	s := story.Summary
 
 	fmt.Println()
 	fmt.Println("  " + dupHeader.Render(fmt.Sprintf("⚠ Duplicates — %d set(s), %s (~%s reclaimable)",

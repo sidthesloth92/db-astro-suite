@@ -1,5 +1,5 @@
 /**
- * TypeScript mirror of the schema-v1 Ledger JSON the Celestory CLI emits.
+ * TypeScript mirror of the schema-v1 Story JSON the Celestory CLI emits.
  * Source of truth: tools/celestory/cli/internal/model/*.model.go
  */
 
@@ -94,20 +94,20 @@ export interface ObjectTimeline {
   image: string | null;
 }
 
-/** Records which tool/version produced the ledger. */
+/** Records which tool/version produced the story. */
 export interface ToolInfo {
   name: string;
   version: string;
 }
 
 /** The root document the CLI emits and the web app consumes. */
-export interface Ledger {
+export interface Story {
   schemaVersion: number;
   generatedAt: string;
   tool: ToolInfo;
-  /** Stable per-install identity; empty for manual/legacy ledgers. */
+  /** Stable per-install identity; empty for manual/legacy storys. */
   installId: string;
-  /** Stable hash of the normalized data; empty for manual/legacy ledgers. */
+  /** Stable hash of the normalized data; empty for manual/legacy storys. */
   dataFingerprint: string;
   summary: Summary;
   equipment: EquipmentItem[];

@@ -1,27 +1,27 @@
 /**
- * Client-side view of the Celestory ledger — the full schema-v1 contract the
+ * Client-side view of the Celestory story — the full schema-v1 contract the
  * CLI emits and the web app consumes. Mirrors the server contract
- * (src/server/utils/ledger.types.ts) and the CLI source of truth
+ * (src/server/utils/story.types.ts) and the CLI source of truth
  * (tools/celestory/cli/internal/model/*.model.go). The current UI renders only
  * the `summary` subset; the richer arrays (objects, equipment, sessions,
  * activity) are carried for the upcoming gallery/timeline views.
  */
 
 /** Per-filter integration within an object or a single session. */
-export interface LedgerFilterIntegration {
+export interface StoryFilterIntegration {
   name: string;
   seconds: number;
   frames: number;
 }
 
 /** A filter total at the summary level (no frame count). */
-export interface LedgerFilterTotal {
+export interface StoryFilterTotal {
   name: string;
   seconds: number;
 }
 
 /** Per-category breakdown (Galaxy, Nebula, …). */
-export interface LedgerCategoryStat {
+export interface StoryCategoryStat {
   category: string;
   objectCount: number;
   integrationSeconds: number;
@@ -29,7 +29,7 @@ export interface LedgerCategoryStat {
 }
 
 /** One night of activity across all objects (global timeline). */
-export interface LedgerActivityEntry {
+export interface StoryActivityEntry {
   date: string;
   integrationSeconds: number;
   lightFrameCount: number;
@@ -37,16 +37,16 @@ export interface LedgerActivityEntry {
 }
 
 /** One per-night session for a single object (the per-object timeline node). */
-export interface LedgerSession {
+export interface StorySession {
   date: string;
   integrationSeconds: number;
   lightFrameCount: number;
-  filters: LedgerFilterIntegration[];
+  filters: StoryFilterIntegration[];
   equipmentIds: string[];
 }
 
 /** One imaged target with aggregated totals and per-night timeline. */
-export interface LedgerObject {
+export interface StoryObject {
   id: string;
   displayName: string;
   designation: string;
@@ -62,14 +62,14 @@ export interface LedgerObject {
   ra?: number;
   /** J2000 declination in decimal degrees; absent when unknown. */
   dec?: number;
-  filters: LedgerFilterIntegration[];
+  filters: StoryFilterIntegration[];
   equipmentIds: string[];
-  sessions: LedgerSession[];
+  sessions: StorySession[];
   image: string | null;
 }
 
 /** A distinct, listable piece of gear (a camera or an optic). */
-export interface LedgerEquipment {
+export interface StoryEquipment {
   id: string;
   kind: string;
   displayName: string;
@@ -84,7 +84,7 @@ export interface LedgerEquipment {
 }
 
 /** Hero/summary rollup powering the hero band and filter chips. */
-export interface LedgerSummary {
+export interface StorySummary {
   totalIntegrationSeconds: number;
   objectCount: number;
   nightCount: number;
@@ -93,35 +93,35 @@ export interface LedgerSummary {
   latestSession: string;
   duplicateFileCount: number;
   duplicateWastedBytes: number;
-  filters: LedgerFilterTotal[];
-  byCategory: LedgerCategoryStat[];
-  activity: LedgerActivityEntry[];
+  filters: StoryFilterTotal[];
+  byCategory: StoryCategoryStat[];
+  activity: StoryActivityEntry[];
 }
 
-/** Records which tool/version produced the ledger. */
-export interface LedgerToolInfo {
+/** Records which tool/version produced the story. */
+export interface StoryToolInfo {
   name: string;
   version: string;
 }
 
-/** The root ledger document the CLI emits and the web app consumes. */
-export interface CelestoryLedger {
+/** The root story document the CLI emits and the web app consumes. */
+export interface CelestoryStory {
   schemaVersion: number;
   generatedAt: string;
-  tool: LedgerToolInfo;
+  tool: StoryToolInfo;
   /** Observer display name (optionally "Name — Place"); blank if unknown. */
   observer?: string;
   /** Imaging site / location line; blank if unknown. */
   site?: string;
-  /** Stable per-install identity, present on CLI-produced ledgers. */
+  /** Stable per-install identity, present on CLI-produced storys. */
   installId?: string;
   /** Configured profile handle, when the user set one via `celestory --profile`. */
   profileId?: string;
-  /** Stable hash of the normalized data, present on CLI-produced ledgers. */
+  /** Stable hash of the normalized data, present on CLI-produced storys. */
   dataFingerprint?: string;
-  summary: LedgerSummary;
-  objects: LedgerObject[];
-  equipment: LedgerEquipment[];
+  summary: StorySummary;
+  objects: StoryObject[];
+  equipment: StoryEquipment[];
   duplicates?: unknown[];
   skipped?: unknown[];
 }

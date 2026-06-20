@@ -1,4 +1,4 @@
-/** View-models derived from a CelestoryLedger for the portfolio hero + sections. */
+/** View-models derived from a CelestoryStory for the portfolio hero + sections. */
 
 /** One decorative star node in a constellation. */
 export interface StarNode {

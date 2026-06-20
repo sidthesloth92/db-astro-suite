@@ -1,16 +1,16 @@
 /**
- * Adapter: projects a `CelestoryLedger` (plus the editable viewer identity) into
+ * Adapter: projects a `CelestoryStory` (plus the editable viewer identity) into
  * the render-ready `ShareModel` the canvas renderer consumes. Keeps all
- * ledger-shape knowledge out of the renderer so the renderer can be a faithful
+ * story-shape knowledge out of the renderer so the renderer can be a faithful
  * port of the design source.
  */
 import type {
-  CelestoryLedger,
-  LedgerEquipment,
-  LedgerFilterIntegration,
-  LedgerFilterTotal,
-  LedgerObject,
-} from '../models/ledger.model';
+  CelestoryStory,
+  StoryEquipment,
+  StoryFilterIntegration,
+  StoryFilterTotal,
+  StoryObject,
+} from '../models/story.model';
 import type {
   ShareFilterDistribution,
   ShareIdentity,
@@ -21,7 +21,7 @@ import type {
 import { filterKeyOf, parseDate } from './share-format.util';
 
 /** Folds an array of `{ name, seconds }` filter totals into a keyed distribution. */
-function toDistribution(rows: readonly (LedgerFilterTotal | LedgerFilterIntegration)[]): ShareFilterDistribution {
+function toDistribution(rows: readonly (StoryFilterTotal | StoryFilterIntegration)[]): ShareFilterDistribution {
   const dist: ShareFilterDistribution = {};
   for (const row of rows) {
     const key = filterKeyOf(row.name);
@@ -34,7 +34,7 @@ function toDistribution(rows: readonly (LedgerFilterTotal | LedgerFilterIntegrat
 }
 
 /** Builds the spec-detail line for a piece of gear (e.g. "540mm · f/5.4"). */
-function equipmentDetail(equip: LedgerEquipment): string {
+function equipmentDetail(equip: StoryEquipment): string {
   const specs: string[] = [];
   if (equip.focalLengthMm) {
     specs.push(`${equip.focalLengthMm}mm`);
@@ -45,8 +45,8 @@ function equipmentDetail(equip: LedgerEquipment): string {
   return specs.join(' · ');
 }
 
-/** Projects one ledger object into a render-ready share object. */
-function toShareObject(obj: LedgerObject): ShareModelObject {
+/** Projects one story object into a render-ready share object. */
+function toShareObject(obj: StoryObject): ShareModelObject {
   return {
     id: obj.id,
     displayName: obj.displayName,
@@ -67,8 +67,8 @@ function toShareObject(obj: LedgerObject): ShareModelObject {
   };
 }
 
-/** Projects one ledger equipment item into a render-ready share equipment. */
-function toShareEquipment(equip: LedgerEquipment): ShareModelEquipment {
+/** Projects one story equipment item into a render-ready share equipment. */
+function toShareEquipment(equip: StoryEquipment): ShareModelEquipment {
   return {
     id: equip.id,
     kind: equip.kind,
@@ -83,9 +83,9 @@ function toShareEquipment(equip: LedgerEquipment): ShareModelEquipment {
   };
 }
 
-/** Builds the render-ready `ShareModel` from a ledger and the viewer identity. */
-export function buildShareModel(ledger: CelestoryLedger, identity: ShareIdentity): ShareModel {
-  const summary = ledger.summary;
+/** Builds the render-ready `ShareModel` from a story and the viewer identity. */
+export function buildShareModel(story: CelestoryStory, identity: ShareIdentity): ShareModel {
+  const summary = story.summary;
   const byCategory: Record<string, { count: number; seconds: number }> = {};
   for (const cat of summary.byCategory ?? []) {
     byCategory[cat.category] = { count: cat.objectCount, seconds: cat.integrationSeconds };
@@ -95,7 +95,7 @@ export function buildShareModel(ledger: CelestoryLedger, identity: ShareIdentity
     .sort((a, b) => (parseDate(a.date)?.getTime() ?? 0) - (parseDate(b.date)?.getTime() ?? 0));
 
   return {
-    observer: ledger.observer ?? '',
+    observer: story.observer ?? '',
     identity,
     summary: {
       totalIntegrationSeconds: summary.totalIntegrationSeconds,
@@ -108,8 +108,8 @@ export function buildShareModel(ledger: CelestoryLedger, identity: ShareIdentity
       activity,
       byCategory,
     },
-    objects: (ledger.objects ?? []).map(toShareObject),
-    equipment: (ledger.equipment ?? []).map(toShareEquipment),
+    objects: (story.objects ?? []).map(toShareObject),
+    equipment: (story.equipment ?? []).map(toShareEquipment),
   };
 }
 

@@ -239,7 +239,7 @@ export const EXTRA_STARS: StarTuple[] = [
 
 /**
  * Fallback equatorial coordinates [raDeg, decDeg] for popular deep-sky targets,
- * so ledgers that don't carry RA/Dec still light up the sky. Keyed by a
+ * so storys that don't carry RA/Dec still light up the sky. Keyed by a
  * normalised designation (lowercased, alphanumerics only).
  */
 export const OBJECT_COORDS: Record<string, readonly [number, number]> = {

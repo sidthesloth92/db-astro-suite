@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
-import type { CelestoryLedger, LedgerEquipment, LedgerObject } from '../../models/ledger.model';
+import type { CelestoryStory, StoryEquipment, StoryObject } from '../../models/story.model';
 import type { CelIconName } from '../cel-icon/cel-icon.component';
 import { formatCount, formatDuration } from '../../utils/format.util';
 import { fmtRange } from '../../utils/portfolio.util';
@@ -19,9 +19,9 @@ import { ObjectCardComponent } from '../object-card/object-card.component';
 })
 export class EquipmentDetailComponent {
   /** The equipment to show. */
-  readonly equip = input.required<LedgerEquipment>();
-  /** The full ledger (to resolve captured objects). */
-  readonly ledger = input.required<CelestoryLedger>();
+  readonly equip = input.required<StoryEquipment>();
+  /** The full story (to resolve captured objects). */
+  readonly story = input.required<CelestoryStory>();
 
   /** Return to the equipment list. */
   readonly back = output<void>();
@@ -36,11 +36,11 @@ export class EquipmentDetailComponent {
   /** Header glyph. */
   protected readonly icon = computed<CelIconName>(() => (this.isCamera() ? 'camera' : 'optic'));
   /** Captured objects, busiest first. */
-  protected readonly objects = computed<LedgerObject[]>(() => {
-    const byId = new Map(this.ledger().objects.map((o) => [o.id, o] as const));
+  protected readonly objects = computed<StoryObject[]>(() => {
+    const byId = new Map(this.story().objects.map((o) => [o.id, o] as const));
     return this.equip()
       .objectIds.map((id) => byId.get(id))
-      .filter((o): o is LedgerObject => !!o)
+      .filter((o): o is StoryObject => !!o)
       .sort((a, b) => b.totalIntegrationSeconds - a.totalIntegrationSeconds);
   });
 

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import type { LedgerObject } from '../../models/ledger.model';
+import type { StoryObject } from '../../models/story.model';
 import { formatCount, formatDuration } from '../../utils/format.util';
 import { categoryIcon } from '../../utils/portfolio.util';
 import type { CelIconName } from '../cel-icon/cel-icon.component';
@@ -17,7 +17,7 @@ import { ObjectImageComponent } from '../object-image/object-image.component';
 })
 export class ObjectCardComponent {
   /** The object to render. */
-  readonly obj = input.required<LedgerObject>();
+  readonly obj = input.required<StoryObject>();
   /** Emits the object id when the card is opened. */
   readonly open = output<string>();
 

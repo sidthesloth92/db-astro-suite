@@ -1,7 +1,7 @@
 /**
  * Community aggregates powering the landing "Charted with Celestory so far"
  * counters. Mirrors the `/api/v1/stats` response — aggregate counts only,
- * never any individual ledger data.
+ * never any individual story data.
  */
 export interface CommunityStats {
   /**

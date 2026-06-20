@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import type { LedgerFilterTotal } from '../../models/ledger.model';
+import type { StoryFilterTotal } from '../../models/story.model';
 import type { FilterSlice } from '../../models/portfolio-view.types';
 import { formatDuration } from '../../utils/format.util';
 import { filterSlices } from '../../utils/portfolio.util';
@@ -14,7 +14,7 @@ import { filterSlices } from '../../utils/portfolio.util';
 })
 export class FilterDistributionComponent {
   /** Summary-level per-filter totals. */
-  readonly filters = input.required<readonly LedgerFilterTotal[]>();
+  readonly filters = input.required<readonly StoryFilterTotal[]>();
   /** Whether to show the labelled legend beneath the bar. */
   readonly legend = input<boolean>(true);
 

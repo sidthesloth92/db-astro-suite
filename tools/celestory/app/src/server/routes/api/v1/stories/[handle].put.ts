@@ -2,7 +2,7 @@ import { defineEventHandler, getHeader, getRouterParam, readBody } from 'h3';
 import { getDb } from '../../../../utils/db';
 import { config } from '../../../../utils/config';
 import { normalizeHandle } from '../../../../utils/handle';
-import { validateLedger } from '../../../../utils/ledger-validate';
+import { validateStory } from '../../../../utils/story-validate';
 import { extractRows } from '../../../../utils/extract';
 import { verifyPassword } from '../../../../utils/password';
 import { authorizeSession, extractBearer, signSession } from '../../../../utils/session-token';
@@ -11,21 +11,21 @@ import { success, toErrorResponse } from '../../../../utils/respond';
 import { BadPasswordError, StoryNotFoundError } from '../../../../utils/celestory.error';
 
 /**
- * ③ Update — re-publish an existing handle with a fresh ledger. Authorized by a
+ * ③ Update — re-publish an existing handle with a fresh story. Authorized by a
  * management session token (logged-in owner) OR the profile password (landing
- * re-upload flow); then replaces the ledger + recomputed totals and rebuilds
+ * re-upload flow); then replaces the story + recomputed totals and rebuilds
  * the child rows in a single transaction. The handle is unchanged; a fresh
  * session token is returned so the owner stays logged in.
  */
 export default defineEventHandler(async (event) => {
   try {
     const handle = normalizeHandle(getRouterParam(event, 'handle'));
-    const body = await readBody<{ ledger?: unknown; password?: unknown }>(event);
+    const body = await readBody<{ story?: unknown; password?: unknown }>(event);
     const password = typeof body?.password === 'string' ? body.password : '';
     const token = extractBearer(getHeader(event, 'authorization'));
-    const ledger = validateLedger(body?.ledger);
-    const rows = extractRows(ledger);
-    const ledgerJson = JSON.stringify(body?.ledger);
+    const story = validateStory(body?.story);
+    const rows = extractRows(story);
+    const storyJson = JSON.stringify(body?.story);
 
     const sql = getDb();
     const found = await sql`
@@ -46,7 +46,7 @@ export default defineEventHandler(async (event) => {
     const { totals } = rows;
     await sql`
       UPDATE stories SET
-        ledger_json = ${ledgerJson},
+        story_json = ${storyJson},
         total_integration_seconds = ${totals.totalIntegrationSeconds},
         object_count = ${totals.objectCount},
         night_count = ${totals.nightCount},
@@ -108,16 +108,16 @@ export default defineEventHandler(async (event) => {
     // folds its totals under the profile. Best-effort: the profile is already
     // updated, so a bookkeeping failure must never fail the update (mirrors the
     // create path).
-    if (ledger.installId && ledger.dataFingerprint) {
+    if (story.installId && story.dataFingerprint) {
       try {
         await recordUpload({
-          installId: ledger.installId,
-          dataFingerprint: ledger.dataFingerprint,
+          installId: story.installId,
+          dataFingerprint: story.dataFingerprint,
           totalIntegrationSeconds: totals.totalIntegrationSeconds,
           lightFrameCount: totals.lightFrameCount,
           objectCount: totals.objectCount,
         });
-        await claimUploads(ledger.installId, handle);
+        await claimUploads(story.installId, handle);
       } catch (bookkeepingError) {
         // Surfaced in the function logs; never propagated to the client.
         console.error('update upload bookkeeping failed (non-fatal):', bookkeepingError);

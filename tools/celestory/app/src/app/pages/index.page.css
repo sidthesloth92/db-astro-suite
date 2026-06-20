@@ -693,7 +693,7 @@ p.sub {
 .tline .pr {
   color: var(--glow);
 }
-.ledgerout {
+.storyout {
   color: var(--ink-2);
 }
 .cur {

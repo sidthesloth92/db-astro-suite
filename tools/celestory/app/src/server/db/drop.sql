@@ -11,7 +11,8 @@ DROP TABLE IF EXISTS story_object_months CASCADE;
 DROP TABLE IF EXISTS story_objects CASCADE;
 DROP TABLE IF EXISTS story_equipment CASCADE;
 DROP TABLE IF EXISTS story_filters CASCADE;
+DROP TABLE IF EXISTS story_uploads CASCADE;
+-- Legacy pre-rename names of story_uploads, in case an old DB is being wiped.
 DROP TABLE IF EXISTS ledger_uploads CASCADE;
--- Legacy pre-rename name of ledger_uploads, in case an old DB is being wiped.
 DROP TABLE IF EXISTS ledger_pings CASCADE;
 DROP TABLE IF EXISTS stories CASCADE;

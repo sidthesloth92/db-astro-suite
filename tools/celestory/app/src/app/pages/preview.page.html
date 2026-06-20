@@ -1,5 +1,5 @@
-@if (ledger(); as l) {
-  <dba-journey-view state="preview" [ledger]="l" />
+@if (story(); as l) {
+  <dba-journey-view state="preview" [story]="l" />
   @if (revealing()) {
     <dba-processing-reveal
       [seconds]="l.summary.totalIntegrationSeconds"

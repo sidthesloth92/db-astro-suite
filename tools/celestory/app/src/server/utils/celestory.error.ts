@@ -27,14 +27,14 @@ export class CelestoryError extends Error {
   }
 }
 
-/** The uploaded ledger failed strict schema validation. */
-export class LedgerValidationError extends CelestoryError {
+/** The uploaded story failed strict schema validation. */
+export class StoryValidationError extends CelestoryError {
   constructor(message: string, details: Record<string, unknown> = {}) {
-    super('LEDGER_INVALID', message, 422, details);
+    super('STORY_INVALID', message, 422, details);
   }
 }
 
-/** An anonymous attempt ping was missing its dedup identity. */
+/** An anonymous attempt ping was missing its upload identity. */
 export class PingIdentityError extends CelestoryError {
   constructor() {
     super(

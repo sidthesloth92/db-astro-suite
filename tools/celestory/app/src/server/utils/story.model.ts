@@ -3,7 +3,7 @@
  * rows. Kept separate from route/util files per the file-naming conventions.
  */
 
-/** Denormalized headline totals extracted from a ledger on create. */
+/** Denormalized headline totals extracted from a story on create. */
 export interface StoryTotals {
   totalIntegrationSeconds: number;
   objectCount: number;
@@ -56,7 +56,7 @@ export interface StoryObjectMonthRow {
   lightFrameCount: number;
 }
 
-/** The full set of child rows derived from a ledger on create. */
+/** The full set of child rows derived from a story on create. */
 export interface ExtractedRows {
   totals: StoryTotals;
   objects: StoryObjectRow[];
@@ -78,11 +78,11 @@ export interface CommunityStats {
 
 /**
  * One anonymous upload event appended to the log on visualise/publish. Carries
- * no ledger contents — only the install anchor and three headline integers. The
+ * no story contents — only the install anchor and three headline integers. The
  * profile id is never read from the client; it is assigned server-side by the
  * password-gated publish claim.
  */
-export interface LedgerUpload {
+export interface StoryUpload {
   installId: string;
   dataFingerprint: string;
   totalIntegrationSeconds: number;

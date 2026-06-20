@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
-import type { CelestoryLedger, LedgerObject } from '../../models/ledger.model';
+import type { CelestoryStory, StoryObject } from '../../models/story.model';
 import { ObjectCardComponent } from '../object-card/object-card.component';
 
 /** The "Objects" catalogue: category / equipment / year filters + a card grid. */
@@ -12,8 +12,8 @@ import { ObjectCardComponent } from '../object-card/object-card.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ObjectSectionComponent {
-  /** The ledger to browse. */
-  readonly ledger = input.required<CelestoryLedger>();
+  /** The story to browse. */
+  readonly story = input.required<CelestoryStory>();
   /** Emits an object id to open its detail. */
   readonly open = output<string>();
 
@@ -24,19 +24,19 @@ export class ObjectSectionComponent {
 
   /** Categories present (with counts). */
   protected readonly categories = computed(() =>
-    this.ledger().summary.byCategory.filter((c) => c.objectCount > 0),
+    this.story().summary.byCategory.filter((c) => c.objectCount > 0),
   );
   /** Cameras and optics for the equipment filter. */
   protected readonly cameras = computed(() =>
-    this.ledger().equipment.filter((e) => e.kind.toLowerCase() === 'camera'),
+    this.story().equipment.filter((e) => e.kind.toLowerCase() === 'camera'),
   );
   protected readonly optics = computed(() =>
-    this.ledger().equipment.filter((e) => e.kind.toLowerCase() !== 'camera'),
+    this.story().equipment.filter((e) => e.kind.toLowerCase() !== 'camera'),
   );
   /** Distinct imaging years. */
   protected readonly years = computed(() => {
     const set = new Set<number>();
-    for (const o of this.ledger().objects) {
+    for (const o of this.story().objects) {
       for (const s of o.sessions) {
         const y = +s.date.slice(0, 4);
         if (y) {
@@ -48,11 +48,11 @@ export class ObjectSectionComponent {
   });
 
   /** Objects passing the active filters. */
-  protected readonly filtered = computed<LedgerObject[]>(() => {
+  protected readonly filtered = computed<StoryObject[]>(() => {
     const c = this.cat();
     const g = this.gear();
     const y = this.year();
-    return this.ledger().objects.filter((o) => {
+    return this.story().objects.filter((o) => {
       if (c !== 'All' && o.category !== c) {
         return false;
       }

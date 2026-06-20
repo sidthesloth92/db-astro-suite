@@ -14,7 +14,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { Observable } from 'rxjs';
 import type { CreateStoryResult, UpdateStoryResult } from '../../models/api.model';
 import { appHost, profileDisplayUrl, profileUrl } from '../../models/app.constants';
-import type { CelestoryLedger } from '../../models/ledger.model';
+import type { CelestoryStory } from '../../models/story.model';
 import { SessionStore } from '../../services/session-store.service';
 import { StoryService } from '../../services/story.service';
 import { slugifyHandle } from '../../utils/handle.util';
@@ -27,7 +27,7 @@ import { CelIconComponent } from '../cel-icon/cel-icon.component';
 /**
  * Publish flow — claim (handle + password) → publishing → live (permanent URL) →
  * delete (type the handle to confirm). Creating sets a password; updating
- * verifies it and re-publishes the staged ledger. Create/update both return a
+ * verifies it and re-publishes the staged story. Create/update both return a
  * management session token recorded via `SessionStore`, so the publisher lands
  * in owner mode; delete is authorized by that token. Fully wired to the story API.
  */
@@ -45,8 +45,8 @@ export class PublishModalComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   protected readonly session = inject(SessionStore);
 
-  /** The staged ledger to publish. */
-  readonly ledger = input.required<CelestoryLedger>();
+  /** The staged story to publish. */
+  readonly story = input.required<CelestoryStory>();
   /** The current handle (set when already published), prefilled in the form. */
   readonly currentHandle = input<string>('');
   /** Open straight to a phase ('delete'); '' starts the normal flow. */
@@ -81,11 +81,11 @@ export class PublishModalComponent implements OnInit {
   protected readonly clean = computed(() => slugifyHandle(this.handle()));
   /**
    * The handle this device has already published (own profile), if any — from the
-   * current route, the persisted session, or a profileId baked into the ledger.
+   * current route, the persisted session, or a profileId baked into the story.
    */
   private readonly knownHandle = computed(() =>
     slugifyHandle(
-      this.currentHandle() || this.session.ownerHandle() || this.ledger().profileId || '',
+      this.currentHandle() || this.session.ownerHandle() || this.story().profileId || '',
     ),
   );
   /** A handle the server reported as already taken — lets the owner reclaim it with its password. */
@@ -128,7 +128,7 @@ export class PublishModalComponent implements OnInit {
    * Detect a returning user so the single claim form republishes instead of
    * creating: a configured profileId (or this device's published handle) means
    * "continue your journey". Read here (not in field initialisers) because the
-   * required `ledger` input is only available once inputs are bound.
+   * required `story` input is only available once inputs are bound.
    */
   ngOnInit(): void {
     if (this.initialPhase() === 'delete') {
@@ -234,7 +234,7 @@ export class PublishModalComponent implements OnInit {
   }
 
   /**
-   * Before an update, fetch the live profile's totals and warn if this ledger has
+   * Before an update, fetch the live profile's totals and warn if this story has
    * less integration/frames (likely a partial-library device). On any fetch error
    * (e.g. handle not found yet) we proceed — the update call surfaces the error.
    */
@@ -244,9 +244,9 @@ export class PublishModalComponent implements OnInit {
       .getStory(handle)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (story) => {
+        next: (profile) => {
           this.busy.set(false);
-          const warn = publishShrinkWarning(this.ledger().summary, story.ledger.summary);
+          const warn = publishShrinkWarning(this.story().summary, profile.story.summary);
           if (warn) {
             this.shrinkWarning.set(warn);
             return;
@@ -272,8 +272,8 @@ export class PublishModalComponent implements OnInit {
     const mode = forceMode ?? this.intent();
     const request$: Observable<CreateStoryResult | UpdateStoryResult> =
       mode === 'update'
-        ? this.storyService.updateStory(handle, this.ledger(), { password })
-        : this.storyService.createStory(handle, password, this.ledger());
+        ? this.storyService.updateStory(handle, this.story(), { password })
+        : this.storyService.createStory(handle, password, this.story());
     request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (result) => {
         // Both create and update return a management session token: the

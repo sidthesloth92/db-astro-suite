@@ -37,12 +37,12 @@ import {
   STARWIZZ_URL,
 } from "../models/landing.constants";
 import type { InstallTool } from "../models/landing.types";
-import type { CelestoryLedger } from "../models/ledger.model";
+import type { CelestoryStory } from "../models/story.model";
 import { PreviewStore } from "../services/preview-store.service";
 import { StoryService } from "../services/story.service";
 import { copyToClipboard } from "../utils/clipboard.util";
 import { formatCompact, formatCount } from "../utils/format.util";
-import { readLedgerFile } from "../utils/read-ledger.util";
+import { readStoryFile } from "../utils/read-story.util";
 
 /** Count-up animation duration, in milliseconds. */
 const COUNT_UP_MS = 1600;
@@ -86,8 +86,8 @@ export default class LandingPageComponent {
   protected readonly dragActive = signal(false);
   /** Which copy button last flashed "Copied". */
   protected readonly copied = signal("");
-  /** Parsed ledger awaiting the visualise/create choice. */
-  protected readonly pendingLedger = signal<CelestoryLedger | null>(null);
+  /** Parsed story awaiting the visualise/create choice. */
+  protected readonly pendingStory = signal<CelestoryStory | null>(null);
   /** Whether the post-upload "choose" modal is open. */
   protected readonly showChoose = signal(false);
   /** Whether the publish (claim handle) modal is open directly on the landing. */
@@ -294,13 +294,13 @@ export default class LandingPageComponent {
   }
 
   /**
-   * Fire a deduped anonymous attempt ping for a CLI-produced ledger. Manual or
-   * legacy ledgers (no identity) are skipped. Fire-and-forget — failures are
+   * Fire a deduped anonymous attempt ping for a CLI-produced story. Manual or
+   * legacy storys (no identity) are skipped. Fire-and-forget — failures are
    * swallowed so they never block the upload flow.
    */
-  private recordAttempt(ledger: CelestoryLedger): void {
-    const installId = ledger.installId;
-    const dataFingerprint = ledger.dataFingerprint;
+  private recordAttempt(story: CelestoryStory): void {
+    const installId = story.installId;
+    const dataFingerprint = story.dataFingerprint;
     if (!installId || !dataFingerprint) {
       return;
     }
@@ -308,9 +308,9 @@ export default class LandingPageComponent {
       .recordAttempt({
         installId,
         dataFingerprint,
-        totalIntegrationSeconds: ledger.summary.totalIntegrationSeconds,
-        lightFrameCount: ledger.summary.lightFrameCount,
-        objectCount: ledger.summary.objectCount,
+        totalIntegrationSeconds: story.summary.totalIntegrationSeconds,
+        lightFrameCount: story.summary.lightFrameCount,
+        objectCount: story.summary.objectCount,
       })
       .pipe(
         catchError(() => of(undefined)),
@@ -320,7 +320,7 @@ export default class LandingPageComponent {
   }
 
   /**
-   * Reads + parses a chosen/dropped file as a ledger, then (no decision) records
+   * Reads + parses a chosen/dropped file as a story, then (no decision) records
    * the attempt, stages it, and routes straight to the Private Preview view.
    */
   /** "Visualize & Share" — browser-only, no online profile. */
@@ -333,11 +333,11 @@ export default class LandingPageComponent {
    * claim → launch animation → live → open-profile sequence from here.
    */
   chooseCreate(): void {
-    const ledger = this.pendingLedger();
-    if (!ledger) {
+    const story = this.pendingStory();
+    if (!story) {
       return;
     }
-    this.recordAttempt(ledger);
+    this.recordAttempt(story);
     this.showChoose.set(false);
     this.showPublish.set(true);
   }
@@ -350,24 +350,24 @@ export default class LandingPageComponent {
   onPublished(handle: string): void {
     void this.router.navigate(["/user", handle]);
   }
-  /** Close the publish modal, discarding the staged ledger. */
+  /** Close the publish modal, discarding the staged story. */
   closePublish(): void {
     this.showPublish.set(false);
-    this.pendingLedger.set(null);
+    this.pendingStory.set(null);
   }
   /** Dismiss the choose modal without proceeding. */
   closeChoose(): void {
     this.showChoose.set(false);
-    this.pendingLedger.set(null);
+    this.pendingStory.set(null);
   }
-  /** Stage the pending ledger and route to the Private Preview. */
+  /** Stage the pending story and route to the Private Preview. */
   private proceed(autoPublish: boolean): void {
-    const ledger = this.pendingLedger();
-    if (!ledger) {
+    const story = this.pendingStory();
+    if (!story) {
       return;
     }
-    this.recordAttempt(ledger);
-    this.previewStore.ledger.set(ledger);
+    this.recordAttempt(story);
+    this.previewStore.story.set(story);
     this.previewStore.fresh.set(true);
     this.previewStore.autoPublish.set(autoPublish);
     this.showChoose.set(false);
@@ -377,14 +377,14 @@ export default class LandingPageComponent {
   private async readFile(file: File): Promise<void> {
     this.error.set("");
     this.processing.set(true);
-    const result = await readLedgerFile(file);
+    const result = await readStoryFile(file);
     this.processing.set(false);
     if (!result.ok) {
       this.error.set(result.error);
       return;
     }
-    // Hold the parsed ledger and let the user choose visualise vs create.
-    this.pendingLedger.set(result.ledger);
+    // Hold the parsed story and let the user choose visualise vs create.
+    this.pendingStory.set(result.story);
     this.showChoose.set(true);
   }
 

@@ -5,7 +5,7 @@ import { success, toErrorResponse } from '../../../../utils/respond';
 import { StoryNotFoundError } from '../../../../utils/celestory.error';
 
 /**
- * Return the stored ledger blob for a handle so the portfolio page can render
+ * Return the stored story blob for a handle so the portfolio page can render
  * it. The blob is the source of truth; denormalized columns are for stats.
  */
 export default defineEventHandler(async (event) => {
@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
     const sql = getDb();
 
     const rows = await sql`
-      SELECT handle, ledger_json, created_at
+      SELECT handle, story_json, created_at
       FROM stories
       WHERE handle = ${handle}
       LIMIT 1
@@ -26,14 +26,14 @@ export default defineEventHandler(async (event) => {
 
     const row = rows[0] as {
       handle: string;
-      ledger_json: string;
+      story_json: string;
       created_at: string;
     };
 
     return success('STORY_FOUND', 'Story found.', {
       handle: row.handle,
       createdAt: row.created_at,
-      ledger: JSON.parse(row.ledger_json) as unknown,
+      story: JSON.parse(row.story_json) as unknown,
     });
   } catch (error) {
     return toErrorResponse(event, error);

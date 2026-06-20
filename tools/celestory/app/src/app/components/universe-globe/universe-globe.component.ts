@@ -9,7 +9,7 @@ import {
   output,
   viewChild,
 } from '@angular/core';
-import type { LedgerObject } from '../../models/ledger.model';
+import type { StoryObject } from '../../models/story.model';
 import { UniverseGlobeRenderer } from '../../utils/universe-globe-renderer.util';
 
 /**
@@ -38,7 +38,7 @@ export class UniverseGlobeComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   /** Imaged objects (those carrying RA/Dec are plotted on the globe). */
-  readonly objects = input.required<LedgerObject[]>();
+  readonly objects = input.required<StoryObject[]>();
 
   /** Enter the planetarium. */
   readonly enter = output<void>();

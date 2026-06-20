@@ -10,14 +10,14 @@
 -- gen_random_uuid() is built into PostgreSQL 13+ (Neon) — no extension needed.
 
 -- ── Published profiles ────────────────────────────────────────────────────────
--- One row per claimed handle. The full ledger blob is stored verbatim for
+-- One row per claimed handle. The full story blob is stored verbatim for
 -- rendering; headline totals are denormalized for cheap listing/sorting. The
 -- password gates updates/deletes and mints the owner session token.
 CREATE TABLE stories (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   handle TEXT UNIQUE NOT NULL,
   password_hash TEXT,
-  ledger_json TEXT NOT NULL,
+  story_json TEXT NOT NULL,
   total_integration_seconds BIGINT,
   object_count INT,
   night_count INT,
@@ -27,7 +27,7 @@ CREATE TABLE stories (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
--- ── Per-story child rows (denormalized from the ledger on publish) ────────────
+-- ── Per-story child rows (denormalized from the story on publish) ─────────────
 -- Rebuilt on every re-publish, so each handle always holds exactly one current
 -- snapshot. These power the community leaderboards, which rank PUBLISHED
 -- profiles only.
@@ -81,12 +81,12 @@ CREATE TABLE story_object_months (
 );
 
 -- ── Anonymous upload log ──────────────────────────────────────────────────────
--- Privacy-preserving, append-only. One row per upload (visualise or publish);
--- holds no ledger contents — only the owner anchors + three headline integers.
--- profile_id is NULL while anonymous and is set ONLY by the password-gated
--- publish claim; community totals replay the latest row per
--- COALESCE(profile_id, install_id).
-CREATE TABLE ledger_uploads (
+-- Privacy-preserving, append-only — one row per upload (visualise or publish),
+-- never deduped on insert. Holds no story contents — only the owner anchors +
+-- three headline integers. profile_id is NULL while anonymous and is set ONLY by
+-- the password-gated publish claim; community totals count each claimed owner
+-- once (latest snapshot) plus every anonymous upload.
+CREATE TABLE story_uploads (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   install_id TEXT NOT NULL,
   profile_id TEXT,
@@ -107,5 +107,5 @@ CREATE INDEX idx_story_filters_story_id        ON story_filters(story_id);
 CREATE INDEX idx_story_object_months_story_id  ON story_object_months(story_id);
 CREATE INDEX idx_story_object_months_month     ON story_object_months(month);
 CREATE INDEX idx_story_object_months_object_id ON story_object_months(object_id);
-CREATE INDEX idx_ledger_uploads_install        ON ledger_uploads(install_id);
-CREATE INDEX idx_ledger_uploads_profile        ON ledger_uploads(profile_id);
+CREATE INDEX idx_story_uploads_install         ON story_uploads(install_id);
+CREATE INDEX idx_story_uploads_profile         ON story_uploads(profile_id);

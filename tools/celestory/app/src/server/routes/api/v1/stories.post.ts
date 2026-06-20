@@ -3,7 +3,7 @@ import { defineEventHandler, readBody } from 'h3';
 import { getDb } from '../../../utils/db';
 import { config } from '../../../utils/config';
 import { normalizeHandle } from '../../../utils/handle';
-import { validateLedger } from '../../../utils/ledger-validate';
+import { validateStory } from '../../../utils/story-validate';
 import { extractRows } from '../../../utils/extract';
 import { signSession } from '../../../utils/session-token';
 import { hashPassword, MIN_PASSWORD_LENGTH } from '../../../utils/password';
@@ -22,7 +22,7 @@ import type { ExtractedRows } from '../../../utils/story.model';
 async function persistStory(
   handle: string,
   passwordHash: string,
-  ledgerJson: string,
+  storyJson: string,
   rows: ExtractedRows,
 ): Promise<string> {
   const sql = getDb();
@@ -32,11 +32,11 @@ async function persistStory(
   await sql.transaction([
     sql`
       INSERT INTO stories (
-        id, handle, password_hash, ledger_json,
+        id, handle, password_hash, story_json,
         total_integration_seconds, object_count, night_count,
         light_frame_count, first_light, latest_session
       ) VALUES (
-        ${storyId}, ${handle}, ${passwordHash}, ${ledgerJson},
+        ${storyId}, ${handle}, ${passwordHash}, ${storyJson},
         ${totals.totalIntegrationSeconds}, ${totals.objectCount}, ${totals.nightCount},
         ${totals.lightFrameCount}, ${totals.firstLight}, ${totals.latestSession}
       )`,
@@ -84,27 +84,27 @@ async function persistStory(
 }
 
 /**
- * ② Create — validate the uploaded ledger, claim the handle (password-protected),
+ * ② Create — validate the uploaded story, claim the handle (password-protected),
  * persist the story and its child rows, and return the shareable URL plus a
  * management session token so the publisher lands directly in owner mode.
  */
 export default defineEventHandler(async (event) => {
   try {
-    const body = await readBody<{ ledger?: unknown; handle?: unknown; password?: unknown }>(event);
+    const body = await readBody<{ story?: unknown; handle?: unknown; password?: unknown }>(event);
     const handle = normalizeHandle(body?.handle);
     const password = typeof body?.password === 'string' ? body.password : '';
     if (password.length < MIN_PASSWORD_LENGTH) {
       throw new InvalidPasswordError();
     }
-    const ledger = validateLedger(body?.ledger);
-    const rows = extractRows(ledger);
+    const story = validateStory(body?.story);
+    const rows = extractRows(story);
 
     const passwordHash = await hashPassword(password);
-    const ledgerJson = JSON.stringify(body?.ledger);
+    const storyJson = JSON.stringify(body?.story);
 
     let storyId: string;
     try {
-      storyId = await persistStory(handle, passwordHash, ledgerJson, rows);
+      storyId = await persistStory(handle, passwordHash, storyJson, rows);
     } catch (dbError) {
       if (isUniqueViolation(dbError)) {
         throw new HandleTakenError(handle);
@@ -115,19 +115,19 @@ export default defineEventHandler(async (event) => {
     // Append the publish as an upload event (no-op if already logged during a
     // prior visualise), then claim this install's anonymous events under the
     // handle so their totals fold under the profile without double-counting.
-    // Identity is absent on manual/legacy ledgers. Best-effort: the profile is
+    // Identity is absent on manual/legacy storys. Best-effort: the profile is
     // already persisted, so a bookkeeping failure must not fail the publish
     // (which would orphan the story and break a retry as "handle taken").
-    if (ledger.installId && ledger.dataFingerprint) {
+    if (story.installId && story.dataFingerprint) {
       try {
         await recordUpload({
-          installId: ledger.installId,
-          dataFingerprint: ledger.dataFingerprint,
+          installId: story.installId,
+          dataFingerprint: story.dataFingerprint,
           totalIntegrationSeconds: rows.totals.totalIntegrationSeconds,
           lightFrameCount: rows.totals.lightFrameCount,
           objectCount: rows.totals.objectCount,
         });
-        await claimUploads(ledger.installId, handle);
+        await claimUploads(story.installId, handle);
       } catch (bookkeepingError) {
         // Surfaced in the function logs; never propagated to the client.
         console.error('publish upload bookkeeping failed (non-fatal):', bookkeepingError);

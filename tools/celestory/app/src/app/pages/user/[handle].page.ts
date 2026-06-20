@@ -24,7 +24,7 @@ import { formatHours } from '../../utils/format.util';
  * Public profile at /user/<handle>. Renders the shared journey shell in the
  * Published state for the handle's story loaded from the API (SSR-friendly); an
  * unknown handle shows the missing state. Sets per-handle OpenGraph meta (from the
- * ledger summary) so shared links unfurl well. (The bundled demo lives at /demo.)
+ * story summary) so shared links unfurl well. (The bundled demo lives at /demo.)
  */
 @Component({
   selector: 'dba-celestory-portfolio',
@@ -62,7 +62,7 @@ export default class PortfolioPageComponent {
       map(([params]) => params.get('handle') ?? ''),
       switchMap((handle) =>
         this.storyService.getStory(handle).pipe(
-          map((story): PortfolioState => ({ status: 'loaded', story })),
+          map((profile): PortfolioState => ({ status: 'loaded', profile })),
           catchError(() => of<PortfolioState>({ status: 'error' })),
           startWith<PortfolioState>({ status: 'loading' }),
         ),
@@ -76,15 +76,15 @@ export default class PortfolioPageComponent {
     this.reloadTick.update((n) => n + 1);
   }
 
-  /** The loaded story, or null while loading / on error. */
-  protected readonly story = computed<StoryDetails | null>(() => {
+  /** The loaded profile, or null while loading / on error. */
+  protected readonly profile = computed<StoryDetails | null>(() => {
     const state = this.state();
-    return state.status === 'loaded' ? state.story : null;
+    return state.status === 'loaded' ? state.profile : null;
   });
 
   /** Total integration seconds for the reveal's hours count-up (0 until loaded). */
   protected readonly introSeconds = computed(
-    () => this.story()?.ledger.summary.totalIntegrationSeconds ?? 0,
+    () => this.profile()?.story.summary.totalIntegrationSeconds ?? 0,
   );
 
   constructor() {
@@ -95,9 +95,9 @@ export default class PortfolioPageComponent {
 
     // Apply per-handle OG meta once the story resolves (runs during SSR too).
     effect(() => {
-      const story = this.story();
-      if (story) {
-        this.applyMeta(story);
+      const profile = this.profile();
+      if (profile) {
+        this.applyMeta(profile);
       }
     });
   }
@@ -107,11 +107,11 @@ export default class PortfolioPageComponent {
     this.introActive.set(false);
   }
 
-  /** Sets the document title + OG/description tags from the ledger summary. */
-  private applyMeta(story: StoryDetails): void {
-    const summary = story.ledger.summary;
+  /** Sets the document title + OG/description tags from the story summary. */
+  private applyMeta(profile: StoryDetails): void {
+    const summary = profile.story.summary;
     const hours = formatHours(summary.totalIntegrationSeconds);
-    const title = `${story.handle} · ${hours}h under the stars — Celestory`;
+    const title = `${profile.handle} · ${hours}h under the stars — Celestory`;
     const description = `${summary.objectCount} targets · ${hours}h integration · ${summary.nightCount} nights imaged.`;
     this.title.setTitle(title);
     this.meta.updateTag({ property: 'og:title', content: title });

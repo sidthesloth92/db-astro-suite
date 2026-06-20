@@ -1,4 +1,4 @@
-import type { LedgerObject } from './ledger.model';
+import type { StoryObject } from './story.model';
 
 /** An RGB colour triple used for canvas star/cloud tinting. */
 export type RgbColor = [number, number, number];
@@ -151,7 +151,7 @@ export interface SkyLocation {
 
 /** A user target plotted in the planetarium (object + its current alt/az + ENU vector). */
 export interface SkyTarget {
-  obj: LedgerObject;
+  obj: StoryObject;
   v: EnuVector;
   alt: number;
   az: number;

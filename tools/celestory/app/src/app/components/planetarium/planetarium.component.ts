@@ -15,7 +15,7 @@ import {
   viewChild,
   viewChildren,
 } from '@angular/core';
-import type { CelestoryLedger, LedgerObject } from '../../models/ledger.model';
+import type { CelestoryStory, StoryObject } from '../../models/story.model';
 import { initialCamera } from '../../models/sky.constants';
 import type { AltAz, SkyLocation, SkyTarget } from '../../models/sky.types';
 import { altAzToVec, catColor, objectRaDec, raDecToAltAz } from '../../utils/celestial.util';
@@ -45,8 +45,8 @@ export class PlanetariumComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly locationStore = inject(SkyLocationStore);
 
-  /** The full ledger (objects with RA/Dec are plotted; equipment for the popup). */
-  readonly ledger = input.required<CelestoryLedger>();
+  /** The full story (objects with RA/Dec are plotted; equipment for the popup). */
+  readonly story = input.required<CelestoryStory>();
 
   /** Close the planetarium and return to the journey. */
   readonly closed = output<void>();
@@ -85,7 +85,7 @@ export class PlanetariumComponent {
   protected readonly targets = computed<SkyTarget[]>(() => {
     const loc = this.location();
     const out: SkyTarget[] = [];
-    for (const o of this.ledger().objects) {
+    for (const o of this.story().objects) {
       const coords = objectRaDec(o);
       if (!coords) {
         continue;
@@ -162,7 +162,7 @@ export class PlanetariumComponent {
   }
 
   /** Marker accent colour for a target. */
-  protected markerColor(obj: LedgerObject): string {
+  protected markerColor(obj: StoryObject): string {
     return catColor(obj.category);
   }
 

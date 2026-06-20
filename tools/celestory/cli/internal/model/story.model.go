@@ -2,8 +2,8 @@
 // schema-v1 JSON contract the web UI consumes. One concept per file.
 package model
 
-// Ledger is the root document Celestory emits.
-type Ledger struct {
+// Story is the root document Celestory emits.
+type Story struct {
 	SchemaVersion int      `json:"schemaVersion"`
 	GeneratedAt   string   `json:"generatedAt"`
 	Tool          ToolInfo `json:"tool"`
@@ -24,7 +24,7 @@ type Ledger struct {
 	Skipped         []SkippedEntry   `json:"skipped"`
 }
 
-// ToolInfo records which tool/version produced the ledger.
+// ToolInfo records which tool/version produced the story.
 type ToolInfo struct {
 	Name    string `json:"name"`
 	Version string `json:"version"`

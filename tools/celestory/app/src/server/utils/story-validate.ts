@@ -1,22 +1,22 @@
-import { LedgerValidationError } from './celestory.error';
+import { StoryValidationError } from './celestory.error';
 import {
   MAX_EQUIPMENT,
   MAX_OBJECTS,
   SUPPORTED_SCHEMA_VERSION,
-} from './ledger.constants';
+} from './story.constants';
 import type {
   EquipmentItem,
   FilterIntegration,
-  Ledger,
+  Story,
   ObjectTimeline,
   Session,
   Summary,
-} from './ledger.types';
+} from './story.types';
 
 /** Narrow an unknown value to a plain object, or throw. */
 function asRecord(value: unknown, field: string): Record<string, unknown> {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) {
-    throw new LedgerValidationError(`Expected "${field}" to be an object.`);
+    throw new StoryValidationError(`Expected "${field}" to be an object.`);
   }
   return value as Record<string, unknown>;
 }
@@ -24,7 +24,7 @@ function asRecord(value: unknown, field: string): Record<string, unknown> {
 /** Narrow an unknown value to an array, or throw. */
 function asArray(value: unknown, field: string): unknown[] {
   if (!Array.isArray(value)) {
-    throw new LedgerValidationError(`Expected "${field}" to be an array.`);
+    throw new StoryValidationError(`Expected "${field}" to be an array.`);
   }
   return value;
 }
@@ -74,7 +74,7 @@ function validateObject(value: unknown, index: number): ObjectTimeline {
   const record = asRecord(value, `objects[${index}]`);
   const id = str(record, 'id');
   if (!id) {
-    throw new LedgerValidationError(`objects[${index}] is missing "id".`);
+    throw new StoryValidationError(`objects[${index}] is missing "id".`);
   }
   return {
     id,
@@ -172,15 +172,15 @@ function validateSummary(value: unknown): Summary {
 }
 
 /**
- * Strictly validate a parsed request body as a schema-v1 Ledger. Throws
- * LedgerValidationError on any structural breach or unsupported version.
+ * Strictly validate a parsed request body as a schema-v1 Story. Throws
+ * StoryValidationError on any structural breach or unsupported version.
  */
-export function validateLedger(raw: unknown): Ledger {
-  const root = asRecord(raw, 'ledger');
+export function validateStory(raw: unknown): Story {
+  const root = asRecord(raw, 'story');
 
   const schemaVersion = root['schemaVersion'];
   if (schemaVersion !== SUPPORTED_SCHEMA_VERSION) {
-    throw new LedgerValidationError(
+    throw new StoryValidationError(
       `Unsupported schemaVersion. Expected ${SUPPORTED_SCHEMA_VERSION}.`,
       { received: schemaVersion },
     );
@@ -188,12 +188,12 @@ export function validateLedger(raw: unknown): Ledger {
 
   const objectsRaw = asArray(root['objects'], 'objects');
   if (objectsRaw.length > MAX_OBJECTS) {
-    throw new LedgerValidationError(`Too many objects (max ${MAX_OBJECTS}).`);
+    throw new StoryValidationError(`Too many objects (max ${MAX_OBJECTS}).`);
   }
 
   const equipmentRaw = asArray(root['equipment'], 'equipment');
   if (equipmentRaw.length > MAX_EQUIPMENT) {
-    throw new LedgerValidationError(
+    throw new StoryValidationError(
       `Too much equipment (max ${MAX_EQUIPMENT}).`,
     );
   }

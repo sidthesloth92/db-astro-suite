@@ -1,5 +1,5 @@
 /**
- * Pure selectors that turn a CelestoryLedger into the hero/section view-models:
+ * Pure selectors that turn a CelestoryStory into the hero/section view-models:
  * identity, year span, highlights, filter distribution and the activity heat
  * strip. No rendering, no side effects.
  */
@@ -10,7 +10,7 @@ import {
   MILESTONE_NIGHTS,
   MILESTONE_OBJECTS,
 } from '../models/heat-milestone.constants';
-import type { CelestoryLedger, LedgerActivityEntry, LedgerFilterTotal } from '../models/ledger.model';
+import type { CelestoryStory, StoryActivityEntry, StoryFilterTotal } from '../models/story.model';
 import type {
   FilterRow,
   FilterSlice,
@@ -101,26 +101,26 @@ export function categoryIcon(category: string): 'galaxy' | 'star' | 'optic' {
 }
 
 /** First→latest year span, or null. */
-export function yearSpan(ledger: CelestoryLedger): YearSpan | null {
-  const from = ymd(ledger.summary.firstLight)?.y;
-  const to = ymd(ledger.summary.latestSession)?.y;
+export function yearSpan(story: CelestoryStory): YearSpan | null {
+  const from = ymd(story.summary.firstLight)?.y;
+  const to = ymd(story.summary.latestSession)?.y;
   return from && to ? { from, to } : null;
 }
 
 /** Number of seasons (inclusive year span), or null. */
-export function seasonCount(ledger: CelestoryLedger): number | null {
-  const span = yearSpan(ledger);
+export function seasonCount(story: CelestoryStory): number | null {
+  const span = yearSpan(story);
   return span ? span.to - span.from + 1 : null;
 }
 
 /**
- * Resolve the hero identity. Prefers the ledger's observer/site, then the
+ * Resolve the hero identity. Prefers the story's observer/site, then the
  * published handle, then a friendly fallback.
  */
-export function heroIdentity(ledger: CelestoryLedger, handle: string): HeroIdentity {
-  const observerParts = (ledger.observer || '').split('—').map((s) => s.trim());
-  const name = observerParts[0] || ledger.observer || (handle ? handle : 'Astrophotographer');
-  const place = observerParts[1] || ledger.site || '';
+export function heroIdentity(story: CelestoryStory, handle: string): HeroIdentity {
+  const observerParts = (story.observer || '').split('—').map((s) => s.trim());
+  const name = observerParts[0] || story.observer || (handle ? handle : 'Astrophotographer');
+  const place = observerParts[1] || story.site || '';
   const firstName = name.split(' ')[0];
   return {
     name,
@@ -131,12 +131,12 @@ export function heroIdentity(ledger: CelestoryLedger, handle: string): HeroIdent
 }
 
 /** The "Highlights of the journey" cards. */
-export function highlights(ledger: CelestoryLedger): Highlight[] {
+export function highlights(story: CelestoryStory): Highlight[] {
   const out: Highlight[] = [];
-  const objects = ledger.objects;
-  const activity = ledger.summary.activity;
+  const objects = story.objects;
+  const activity = story.summary.activity;
 
-  const top = objects.reduce<CelestoryLedger['objects'][number] | null>(
+  const top = objects.reduce<CelestoryStory['objects'][number] | null>(
     (best, o) => (!best || o.totalIntegrationSeconds > best.totalIntegrationSeconds ? o : best),
     null,
   );
@@ -150,7 +150,7 @@ export function highlights(ledger: CelestoryLedger): Highlight[] {
     });
   }
 
-  const bigNight = activity.reduce<CelestoryLedger['summary']['activity'][number] | null>(
+  const bigNight = activity.reduce<CelestoryStory['summary']['activity'][number] | null>(
     (best, a) => (!best || a.integrationSeconds > best.integrationSeconds ? a : best),
     null,
   );
@@ -165,7 +165,7 @@ export function highlights(ledger: CelestoryLedger): Highlight[] {
 
   let topFilter = '';
   let topFilterSecs = 0;
-  for (const f of ledger.summary.filters) {
+  for (const f of story.summary.filters) {
     if (f.seconds > topFilterSecs) {
       topFilterSecs = f.seconds;
       topFilter = f.name;
@@ -210,7 +210,7 @@ export function highlights(ledger: CelestoryLedger): Highlight[] {
 }
 
 /** Proportional filter-distribution slices, in canonical order. */
-export function filterSlices(filters: readonly LedgerFilterTotal[]): FilterSlice[] {
+export function filterSlices(filters: readonly StoryFilterTotal[]): FilterSlice[] {
   const byName = new Map(filters.map((f) => [f.name, f.seconds]));
   const ordered = [
     ...FILTER_ORDER.filter((n) => (byName.get(n) ?? 0) > 0),
@@ -268,21 +268,21 @@ export function sessionViews(
 }
 
 /** A map of equipment id → display name. */
-export function equipNameMap(ledger: CelestoryLedger): Map<string, string> {
-  return new Map(ledger.equipment.map((e) => [e.id, e.displayName]));
+export function equipNameMap(story: CelestoryStory): Map<string, string> {
+  return new Map(story.equipment.map((e) => [e.id, e.displayName]));
 }
 
-/** Build the data a share card renders from the ledger. */
-export function buildShareCardData(ledger: CelestoryLedger, handle: string, displayUrl: string): ShareCardData {
-  const s = ledger.summary;
-  const span = yearSpan(ledger);
+/** Build the data a share card renders from the story. */
+export function buildShareCardData(story: CelestoryStory, handle: string, displayUrl: string): ShareCardData {
+  const s = story.summary;
+  const span = yearSpan(story);
   const yearLabel = span
     ? span.from === span.to
       ? `${span.from}`
       : `${span.from}–${String(span.to).slice(2)}`
     : '';
   return {
-    name: heroIdentity(ledger, handle).name,
+    name: heroIdentity(story, handle).name,
     yearLabel,
     heroTime: formatDuration(s.totalIntegrationSeconds),
     stats: [
@@ -297,21 +297,21 @@ export function buildShareCardData(ledger: CelestoryLedger, handle: string, disp
 
 /** Build the data the 6-slide share carousel renders. */
 export function buildShareCarouselData(
-  ledger: CelestoryLedger,
+  story: CelestoryStory,
   handle: string,
   displayUrl: string,
 ): ShareCarouselData {
-  const s = ledger.summary;
-  const span = yearSpan(ledger);
+  const s = story.summary;
+  const span = yearSpan(story);
   const yearLabel = span
     ? span.from === span.to
       ? `${span.from}`
       : `${span.from}–${String(span.to).slice(2)}`
     : '';
   const cats = [...s.byCategory].filter((c) => c.objectCount > 0).sort((a, b) => b.objectCount - a.objectCount);
-  const nCam = ledger.equipment.filter((e) => e.kind.toLowerCase() === 'camera').length;
+  const nCam = story.equipment.filter((e) => e.kind.toLowerCase() === 'camera').length;
   const domeTargets: ShareDomeTarget[] = [];
-  for (const o of [...ledger.objects].sort((a, b) => b.totalIntegrationSeconds - a.totalIntegrationSeconds)) {
+  for (const o of [...story.objects].sort((a, b) => b.totalIntegrationSeconds - a.totalIntegrationSeconds)) {
     if (typeof o.ra === 'number' && typeof o.dec === 'number') {
       domeTargets.push({
         label: o.designation || o.displayName,
@@ -331,7 +331,7 @@ export function buildShareCarouselData(
     ...s.filters.filter((f) => !FILTER_ORDER.includes(f.name) && f.seconds > 0).map((f) => f.name),
   ];
   return {
-    name: heroIdentity(ledger, handle).name,
+    name: heroIdentity(story, handle).name,
     yearLabel,
     inReview: yearLabel.includes('–') ? 'IN REVIEW' : 'YEAR IN REVIEW',
     heroTime: formatDuration(s.totalIntegrationSeconds),
@@ -339,10 +339,10 @@ export function buildShareCarouselData(
     objectsStr: formatCount(s.objectCount),
     nightsStr: formatCount(s.nightCount),
     objectCountStr: formatCount(s.objectCount),
-    equipmentCountStr: formatCount(ledger.equipment.length),
+    equipmentCountStr: formatCount(story.equipment.length),
     nightsBigStr: formatCount(s.nightCount),
     subObjects: `unique targets across ${cats.length} categories`,
-    subEquip: `${formatCount(nCam)} cameras · ${formatCount(ledger.equipment.length - nCam)} optics`,
+    subEquip: `${formatCount(nCam)} cameras · ${formatCount(story.equipment.length - nCam)} optics`,
     rangeStr: fmtRange(s.firstLight, s.latestSession),
     categories: cats.slice(0, 6).map((c) => ({
       label: c.category,
@@ -350,7 +350,7 @@ export function buildShareCarouselData(
       valStr: formatCount(c.objectCount),
       value: c.objectCount,
     })),
-    equipment: [...ledger.equipment]
+    equipment: [...story.equipment]
       .sort((a, b) => b.totalIntegrationSeconds - a.totalIntegrationSeconds)
       .slice(0, 6)
       .map((e) => ({
@@ -359,7 +359,7 @@ export function buildShareCarouselData(
         valStr: formatDuration(e.totalIntegrationSeconds),
         value: e.totalIntegrationSeconds,
       })),
-    topTargets: [...ledger.objects]
+    topTargets: [...story.objects]
       .sort((a, b) => b.totalIntegrationSeconds - a.totalIntegrationSeconds)
       .slice(0, 6)
       .map((o) => ({
@@ -376,8 +376,8 @@ export function buildShareCarouselData(
 }
 
 /** The activity heat-strip view-model (night dots + month ticks + caption). */
-export function heatStrip(ledger: CelestoryLedger): HeatStripView {
-  const activity = [...ledger.summary.activity].sort((a, b) => a.date.localeCompare(b.date));
+export function heatStrip(story: CelestoryStory): HeatStripView {
+  const activity = [...story.summary.activity].sort((a, b) => a.date.localeCompare(b.date));
   if (activity.length === 0) {
     return { nights: [], months: [], milestones: [], spanMonths: 1, caption: 'No session activity recorded.' };
   }
@@ -436,7 +436,7 @@ export function heatStrip(ledger: CelestoryLedger): HeatStripView {
  * night. Each milestone is pinned to the night it occurred on.
  */
 function buildMilestones(
-  activity: LedgerActivityEntry[],
+  activity: StoryActivityEntry[],
   start: string,
   span: number,
 ): HeatMilestone[] {

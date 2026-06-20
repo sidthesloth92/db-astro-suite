@@ -6,7 +6,7 @@
   </div>
 
   @if (showShare()) {
-    <dba-equipment-share-modal [equip]="equip()" [ledger]="ledger()" (closed)="showShare.set(false)" />
+    <dba-equipment-share-modal [equip]="equip()" [story]="story()" (closed)="showShare.set(false)" />
   }
 
   <div class="detail-head">

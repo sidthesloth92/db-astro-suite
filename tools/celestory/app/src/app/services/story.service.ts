@@ -11,31 +11,31 @@ import type {
   UpdateStoryResult,
 } from '../models/api.model';
 import type { CommunityStats } from '../models/community-stats.model';
-import type { CelestoryLedger } from '../models/ledger.model';
+import type { CelestoryStory } from '../models/story.model';
 
 /** Stateless HTTP access to the Celestory story API. */
 @Injectable({ providedIn: 'root' })
 export class StoryService {
   private readonly http = inject(HttpClient);
 
-  /** ② Create — publish a ledger under a handle (password-protected); returns URL + owner session token. */
+  /** ② Create — publish a story under a handle (password-protected); returns URL + owner session token. */
   createStory(
     handle: string,
     password: string,
-    ledger: CelestoryLedger,
+    story: CelestoryStory,
   ): Observable<CreateStoryResult> {
     return this.http
-      .post<ApiResponse<CreateStoryResult>>('/api/v1/stories', { handle, password, ledger })
+      .post<ApiResponse<CreateStoryResult>>('/api/v1/stories', { handle, password, story })
       .pipe(map((response) => response.details));
   }
 
-  /** ③ Update — re-publish an existing handle's ledger, authorized by token (owner) or password. */
+  /** ③ Update — re-publish an existing handle's story, authorized by token (owner) or password. */
   updateStory(
     handle: string,
-    ledger: CelestoryLedger,
+    story: CelestoryStory,
     auth: StoryAuth,
   ): Observable<UpdateStoryResult> {
-    const body = auth.password ? { ledger, password: auth.password } : { ledger };
+    const body = auth.password ? { story, password: auth.password } : { story };
     return this.http
       .put<ApiResponse<UpdateStoryResult>>(
         `/api/v1/stories/${encodeURIComponent(handle)}`,

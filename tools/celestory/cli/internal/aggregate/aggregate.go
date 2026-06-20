@@ -11,7 +11,7 @@ import (
 
 // SchemaVersion is the version of the JSON contract this build emits. Bump it
 // whenever the celestory.json shape changes incompatibly so the web app can
-// detect ledgers from an older CLI and prompt the user to regenerate.
+// detect files from an older CLI and prompt the user to regenerate.
 //
 //	v2 — frame-fingerprint dedup + identity fields (installId/profileId/
 //	     dataFingerprint) + per-object ra/dec.
@@ -21,31 +21,31 @@ const SchemaVersion = 2
 // Slices are always non-nil so the JSON arrays render as [] rather than null.
 // It reports every duplicate (whole-library view); pass a dupRoot to Assemble to
 // scope the report to a folder.
-func Build(frames []scan.Frame, skipped []scan.Skipped, tool model.ToolInfo) model.Ledger {
+func Build(frames []scan.Frame, skipped []scan.Skipped, tool model.ToolInfo) model.Story {
 	lights, _ := Enrich(frames)
 	return Assemble(lights, skipped, tool, "")
 }
 
 // Assemble turns already-enriched light frames (e.g. the cumulative union across
-// every scanned disk) into the ledger: dedupe by FrameFP → per-object/equipment
-// rollups → summary → Ledger.
+// every scanned disk) into the story: dedupe by FrameFP → per-object/equipment
+// rollups → summary → Story.
 //
 // Integration is always deduped across the full input, so totals reflect the
 // whole library. The duplicate report, however, is scoped to dupRoot when it is
 // non-empty (only sets with a copy under that folder), so a run reports the
 // duplicates of the folder it scanned rather than every disk ever seen; pass ""
 // for the whole-library report.
-func Assemble(lights []LightFrame, skipped []scan.Skipped, tool model.ToolInfo, dupRoot string) model.Ledger {
+func Assemble(lights []LightFrame, skipped []scan.Skipped, tool model.ToolInfo, dupRoot string) model.Story {
 	dup := DetectDuplicates(lights)
 	view := dup.ScopeToRoot(dupRoot)
 	objects := BuildObjects(dup.Deduped)
 	equip := equipment.BuildRegistry(toUsages(dup.Deduped))
 	summary := Summarize(objects, dup.Deduped, view)
-	// The skipped paths are stripped from the persisted ledger (privacy), so the
+	// The skipped paths are stripped from the persisted story (privacy), so the
 	// count is the only signal that survives the upload — carry it in the summary.
 	summary.SkippedFileCount = len(skipped)
 
-	return model.Ledger{
+	return model.Story{
 		SchemaVersion: SchemaVersion,
 		GeneratedAt:   time.Now().UTC().Format(time.RFC3339),
 		Tool:          tool,
@@ -178,7 +178,7 @@ func buildSession(key string, frames []LightFrame) model.Session {
 	}
 }
 
-// sessionEquipmentIds derives the night's gear as ledger equipment ids, using the
+// sessionEquipmentIds derives the night's gear as story equipment ids, using the
 // same camera/optic identifiers an object carries so the web app resolves names.
 func sessionEquipmentIds(frames []LightFrame) []string {
 	ids := map[string]struct{}{}

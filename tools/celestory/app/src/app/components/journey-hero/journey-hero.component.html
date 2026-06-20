@@ -74,13 +74,13 @@
   </div>
 
   <div class="metrics">
-    <div class="mtile"><div class="mv">{{ count(ledger().summary.objectCount) }}</div><div class="mk">Objects</div></div>
+    <div class="mtile"><div class="mv">{{ count(story().summary.objectCount) }}</div><div class="mk">Objects</div></div>
     <div class="mdiv"></div>
-    <div class="mtile"><div class="mv">{{ count(ledger().summary.nightCount) }}</div><div class="mk">Nights imaged</div></div>
+    <div class="mtile"><div class="mv">{{ count(story().summary.nightCount) }}</div><div class="mk">Nights imaged</div></div>
     <div class="mdiv"></div>
-    <div class="mtile"><div class="mv">{{ count(ledger().summary.lightFrameCount) }}</div><div class="mk">Light frames</div></div>
+    <div class="mtile"><div class="mv">{{ count(story().summary.lightFrameCount) }}</div><div class="mk">Light frames</div></div>
     <div class="mdiv"></div>
-    <div class="mtile"><div class="mv">{{ count(ledger().equipment.length) }}</div><div class="mk">Equipment</div></div>
+    <div class="mtile"><div class="mv">{{ count(story().equipment.length) }}</div><div class="mk">Equipment</div></div>
   </div>
 
   <div class="hl-head">
@@ -105,7 +105,7 @@
   </div>
 
   @if (hasSky()) {
-    <dba-universe-globe [objects]="ledger().objects" (enter)="enterSky.emit()" />
+    <dba-universe-globe [objects]="story().objects" (enter)="enterSky.emit()" />
   }
 
   <dba-section-banner num="01" eyebrow="The Record" title="Activity" glyph="chart" [seed]="2" [sub]="activitySub()" />
@@ -115,7 +115,7 @@
       <span class="eyebrow">Filter distribution</span>
       <span class="panel-sub">by integration time</span>
     </div>
-    <dba-filter-distribution [filters]="ledger().summary.filters" />
+    <dba-filter-distribution [filters]="story().summary.filters" />
   </div>
 
   <div class="panel">

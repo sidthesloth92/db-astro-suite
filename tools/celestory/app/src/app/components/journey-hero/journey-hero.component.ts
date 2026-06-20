@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { BRAND_CYAN, BRAND_PINK } from '../../models/brand.constants';
 import type { JourneyState } from '../../models/journey.types';
-import type { CelestoryLedger } from '../../models/ledger.model';
+import type { CelestoryStory } from '../../models/story.model';
 import type { HeatStripView, HeroIdentity, Highlight, YearSpan } from '../../models/portfolio-view.types';
 import { SessionStore } from '../../services/session-store.service';
 import { objectRaDec } from '../../utils/celestial.util';
@@ -52,8 +52,8 @@ let heroUid = 0;
 export class JourneyHeroComponent {
   /** Editable identity, persisted + shared with the Share Studio. */
   protected readonly session = inject(SessionStore);
-  /** The ledger to render. */
-  readonly ledger = input.required<CelestoryLedger>();
+  /** The story to render. */
+  readonly story = input.required<CelestoryStory>();
   /** The public handle (empty in Private Preview). */
   readonly handle = input<string>('');
   /** Current journey state — gates the Publish action. */
@@ -74,9 +74,9 @@ export class JourneyHeroComponent {
   protected readonly cyan = BRAND_CYAN;
   protected readonly pink = BRAND_PINK;
 
-  /** Resolved identity (from the ledger). */
-  protected readonly identity = computed<HeroIdentity>(() => heroIdentity(this.ledger(), this.handle()));
-  /** Display name/handle — the user's edited identity overrides the ledger's. */
+  /** Resolved identity (from the story). */
+  protected readonly identity = computed<HeroIdentity>(() => heroIdentity(this.story(), this.handle()));
+  /** Display name/handle — the user's edited identity overrides the story's. */
   protected readonly displayName = computed(() => this.session.identity().name || this.identity().name);
   /** Bare handle (no leading "@"); the template renders the "@" so we never double it. */
   protected readonly displayHandle = computed(() =>
@@ -113,25 +113,25 @@ export class JourneyHeroComponent {
     this.editHandle.set(value);
   }
   /** First→latest year span. */
-  protected readonly span = computed<YearSpan | null>(() => yearSpan(this.ledger()));
+  protected readonly span = computed<YearSpan | null>(() => yearSpan(this.story()));
   /** Inclusive season count. */
-  protected readonly seasons = computed<number | null>(() => seasonCount(this.ledger()));
+  protected readonly seasons = computed<number | null>(() => seasonCount(this.story()));
   /** Hero integration total as one dramatic hours+minutes figure, e.g. "642h 18m". */
   protected readonly heroTime = computed<string>(() =>
-    formatDuration(this.ledger().summary.totalIntegrationSeconds),
+    formatDuration(this.story().summary.totalIntegrationSeconds),
   );
   /** Sub line for the "01 · Activity" section banner ("N nights · Xh Ym integrated"). */
   protected readonly activitySub = computed<string>(
     () =>
-      `${formatCount(this.ledger().summary.nightCount)} nights · ` +
-      `${formatDuration(this.ledger().summary.totalIntegrationSeconds)} integrated`,
+      `${formatCount(this.story().summary.nightCount)} nights · ` +
+      `${formatDuration(this.story().summary.totalIntegrationSeconds)} integrated`,
   );
   /** Highlights of the journey. */
-  protected readonly highlights = computed<Highlight[]>(() => highlights(this.ledger()));
+  protected readonly highlights = computed<Highlight[]>(() => highlights(this.story()));
   /** Heat-strip view-model. */
-  protected readonly heat = computed<HeatStripView>(() => heatStrip(this.ledger()));
+  protected readonly heat = computed<HeatStripView>(() => heatStrip(this.story()));
   /** Whether any imaged object resolves to sky coordinates (gates the universe globe). */
-  protected readonly hasSky = computed(() => this.ledger().objects.some((o) => objectRaDec(o) != null));
+  protected readonly hasSky = computed(() => this.story().objects.some((o) => objectRaDec(o) != null));
 
   /** Thousands-separated integer for the template. */
   protected count(n: number): string {

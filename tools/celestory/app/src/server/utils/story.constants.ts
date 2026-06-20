@@ -1,7 +1,7 @@
-/** Limits and supported versions for uploaded ledgers. */
+/** Limits and supported versions for uploaded storys. */
 
 /** The only schema version the platform currently accepts. Bump in lockstep
- * with the CLI's aggregate.SchemaVersion; older ledgers are rejected so the
+ * with the CLI's aggregate.SchemaVersion; older storys are rejected so the
  * user is prompted to regenerate with the latest CLI. */
 export const SUPPORTED_SCHEMA_VERSION = 2;
 

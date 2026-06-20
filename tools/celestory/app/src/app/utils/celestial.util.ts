@@ -291,7 +291,7 @@ export interface CoordCandidate {
 
 /**
  * Resolve an object's RA/Dec: its own coordinates if present, else a fallback
- * looked up from the catalogue by designation / name / aliases. Lets ledgers
+ * looked up from the catalogue by designation / name / aliases. Lets storys
  * that don't carry coordinates still light up the sky.
  */
 export function objectRaDec(obj: CoordCandidate): readonly [number, number] | null {

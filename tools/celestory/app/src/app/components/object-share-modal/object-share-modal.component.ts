@@ -12,7 +12,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import type { CelestoryLedger, LedgerObject } from '../../models/ledger.model';
+import type { CelestoryStory, StoryObject } from '../../models/story.model';
 import type { ShareFormatId, ShareThemeId } from '../../models/share.types';
 import {
   ensureShareFonts,
@@ -45,9 +45,9 @@ export class ObjectShareModalComponent {
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   /** The object to render. */
-  readonly obj = input.required<LedgerObject>();
-  /** The full ledger (resolves equipment names). */
-  readonly ledger = input.required<CelestoryLedger>();
+  readonly obj = input.required<StoryObject>();
+  /** The full story (resolves equipment names). */
+  readonly story = input.required<CelestoryStory>();
   /** Public handle for the card's URL line. */
   readonly handle = input<string>('');
   /** Emits when the modal should close. */
@@ -90,7 +90,7 @@ export class ObjectShareModalComponent {
   /** Render-ready model, with the edited identity (handle falls back to the input). */
   private readonly model = computed(() => {
     const ident = this.session.identity();
-    return buildShareModel(this.ledger(), { name: ident.name, handle: ident.handle || this.handle() });
+    return buildShareModel(this.story(), { name: ident.name, handle: ident.handle || this.handle() });
   });
   /** The matching render object for the input target. */
   private readonly shareObject = computed(() => {

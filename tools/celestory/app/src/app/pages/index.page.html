@@ -153,7 +153,7 @@
                       <div class="scanline"><span class="spin">⠋</span> reading headers…</div>
                       <div class="bar"><i></i></div>
                       <div class="cnt scancount">0 frames</div>
-                      <div class="doneline"><span class="ok">✓</span> 2,619 frames · 19 objects · 6 yrs → <span class="ledgerout">celestory.json</span></div>
+                      <div class="doneline"><span class="ok">✓</span> 2,619 frames · 19 objects · 6 yrs → <span class="storyout">celestory.json</span></div>
                     </div>
                   </div>
                 </div>
@@ -296,9 +296,9 @@
     />
   }
 
-  @if (showPublish() && pendingLedger(); as l) {
+  @if (showPublish() && pendingStory(); as l) {
     <dba-publish-modal
-      [ledger]="l"
+      [story]="l"
       (published)="onPublished($event)"
       (closed)="closePublish()"
     />

@@ -1,7 +1,7 @@
 package model
 
 // Session is one night of imaging on an object (the per-object timeline node).
-// EquipmentIds reference entries in the ledger's top-level equipment list, the
+// EquipmentIds reference entries in the story's top-level equipment list, the
 // same identifiers an object carries — so the web app resolves gear by id.
 type Session struct {
 	Date               string              `json:"date"`

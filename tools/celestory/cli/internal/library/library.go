@@ -8,7 +8,7 @@
 //   - folders: folderAbs -> { fileRel -> frameFP }  (which files a disk holds)
 //   - frames:  frameFP -> frameRecord               (the data each frame contributes)
 //
-// The ledger is built from Union(), the deduped set across all partitions, not
+// The story is built from Union(), the deduped set across all partitions, not
 // from any single scan.
 package library
 

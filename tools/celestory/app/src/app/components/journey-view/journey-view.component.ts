@@ -18,11 +18,11 @@ import { profileDisplayUrl, profileUrl as buildProfileUrl } from '../../models/a
 import type { DetailRef, JourneyState } from '../../models/journey.types';
 import type { SocialShareLink } from '../../models/social-share.model';
 import { socialShareLinks } from '../../utils/social-share.util';
-import type { CelestoryLedger, LedgerEquipment, LedgerObject } from '../../models/ledger.model';
+import type { CelestoryStory, StoryEquipment, StoryObject } from '../../models/story.model';
 import { copyToClipboard } from '../../utils/clipboard.util';
 import { formatCount, formatHours } from '../../utils/format.util';
 import { publishErrorMessage } from '../../utils/publish-error.util';
-import { readLedgerFile } from '../../utils/read-ledger.util';
+import { readStoryFile } from '../../utils/read-story.util';
 import { PreviewStore } from '../../services/preview-store.service';
 import { SessionStore } from '../../services/session-store.service';
 import { StoryService } from '../../services/story.service';
@@ -92,8 +92,8 @@ export class JourneyViewComponent {
 
   /** Which state to present (banner + actions). */
   readonly state = input.required<JourneyState>();
-  /** The ledger to visualize. */
-  readonly ledger = input.required<CelestoryLedger>();
+  /** The story to visualize. */
+  readonly story = input.required<CelestoryStory>();
   /** The handle (empty for Private Preview). */
   readonly handle = input<string>('');
 
@@ -143,31 +143,31 @@ export class JourneyViewComponent {
   });
 
   /** The resolved object detail, or null. */
-  protected readonly detailObject = computed<LedgerObject | null>(() => {
+  protected readonly detailObject = computed<StoryObject | null>(() => {
     const d = this.detail();
     if (d?.kind !== 'object') {
       return null;
     }
-    return this.ledger().objects.find((o) => o.id === d.id) ?? null;
+    return this.story().objects.find((o) => o.id === d.id) ?? null;
   });
   /** The resolved equipment detail, or null. */
-  protected readonly detailEquip = computed<LedgerEquipment | null>(() => {
+  protected readonly detailEquip = computed<StoryEquipment | null>(() => {
     const d = this.detail();
     if (d?.kind !== 'equipment') {
       return null;
     }
-    return this.ledger().equipment.find((e) => e.id === d.id) ?? null;
+    return this.story().equipment.find((e) => e.id === d.id) ?? null;
   });
 
   /** Objects section sub line. */
   protected readonly objectsSub = computed(() => {
-    const objects = this.ledger().objects;
+    const objects = this.story().objects;
     const seconds = objects.reduce((s, o) => s + o.totalIntegrationSeconds, 0);
     return `${formatCount(objects.length)} targets · ${formatHours(seconds)}h captured`;
   });
   /** Equipment section sub line. */
   protected readonly equipmentSub = computed(() => {
-    const equip = this.ledger().equipment;
+    const equip = this.story().equipment;
     const cameras = equip.filter((e) => e.kind.toLowerCase() === 'camera').length;
     return `${formatCount(cameras)} cameras · ${formatCount(equip.length - cameras)} optics`;
   });
@@ -266,7 +266,7 @@ export class JourneyViewComponent {
     this.session.clearOwner();
   }
   /**
-   * Owner edit: re-upload a fresh ledger for the current handle, authorized by
+   * Owner edit: re-upload a fresh story for the current handle, authorized by
    * the management session token, then ask the host to re-fetch the profile.
    */
   onEditFile(event: Event): void {
@@ -279,14 +279,14 @@ export class JourneyViewComponent {
     }
     this.editError.set('');
     this.editBusy.set(true);
-    void readLedgerFile(file).then((result) => {
+    void readStoryFile(file).then((result) => {
       if (!result.ok) {
         this.editBusy.set(false);
         this.editError.set(result.error);
         return;
       }
       this.storyService
-        .updateStory(this.handle(), result.ledger, { token })
+        .updateStory(this.handle(), result.story, { token })
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (res) => {
@@ -317,7 +317,7 @@ export class JourneyViewComponent {
   onUnpublished(): void {
     this.showPublish.set(false);
     // Back to the staged preview if one exists (preview→publish→delete), else home.
-    void this.router.navigate([this.previewStore.ledger() ? '/preview' : '/']);
+    void this.router.navigate([this.previewStore.story() ? '/preview' : '/']);
   }
 
   /** Copies the public profile URL and flashes feedback. */

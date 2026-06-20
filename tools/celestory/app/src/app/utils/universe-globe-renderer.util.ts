@@ -5,7 +5,7 @@
  * `afterNextRender`. Ported from the Celestory design.
  */
 import { BRAND_PINK } from '../models/brand.constants';
-import type { LedgerObject } from '../models/ledger.model';
+import type { StoryObject } from '../models/story.model';
 import type { Vec3 } from '../models/sky.types';
 import { D2R, objectRaDec } from './celestial.util';
 
@@ -37,7 +37,7 @@ export class UniverseGlobeRenderer {
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
-    objects: readonly LedgerObject[],
+    objects: readonly StoryObject[],
     private readonly isHovered: () => boolean,
   ) {
     const ctx = canvas.getContext('2d');

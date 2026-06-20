@@ -869,7 +869,7 @@ function drawFilmNegBg(ctx: Ctx, w: number, h: number, seed: number): void {
   ctx.textAlign = 'left';
 }
 
-/** Observer's Log — ruled ledger paper with margin line and stamp. */
+/** Observer's Log — ruled story paper with margin line and stamp. */
 function drawObsLogBg(ctx: Ctx, w: number, h: number): void {
   const sc = Math.max(w, h) / 1080;
   const g = ctx.createLinearGradient(0, 0, w, h);

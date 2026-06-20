@@ -1,6 +1,6 @@
 /**
  * The rich `model` every Celestory share card renders from — a render-ready
- * projection of the ledger plus the editable viewer identity. Mirrors the
+ * projection of the story plus the editable viewer identity. Mirrors the
  * shape the design source (`Celestory/js/share-card.jsx`) consumes so the
  * canvas renderer can be a faithful, pixel-accurate port.
  */

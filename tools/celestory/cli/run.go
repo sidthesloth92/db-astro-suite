@@ -133,7 +133,7 @@ func run(f cliFlags) error {
 		return nil
 	}
 
-	// Fold this scan into the cumulative library index, then build the ledger
+	// Fold this scan into the cumulative library index, then build the story
 	// from the union across every disk ever scanned — not just this folder.
 	lights, _ := aggregate.Enrich(res.Frames)
 	idx, err := library.Open(libraryDir())
@@ -161,31 +161,31 @@ func run(f cliFlags) error {
 		}
 	}
 	union := idx.Union()
-	ledger := aggregate.Assemble(union, res.Skipped, model.ToolInfo{Name: "celestory", Version: version}, dupRoot)
+	story := aggregate.Assemble(union, res.Skipped, model.ToolInfo{Name: "celestory", Version: version}, dupRoot)
 	hiddenDupSets := aggregate.OutsideRootDuplicateSets(union, dupRoot)
 
 	// Stamp a stable, privacy-preserving identity for deduped attempt counting.
 	if installID, idErr := config.EnsureInstallID(); idErr == nil {
-		ledger.InstallID = installID
+		story.InstallID = installID
 	} else {
 		fmt.Fprintln(os.Stderr, "warning: could not read install id:", idErr)
 	}
 	if cfg, cErr := config.Load(); cErr == nil {
-		ledger.ProfileID = cfg.ProfileID
+		story.ProfileID = cfg.ProfileID
 	}
-	ledger.DataFingerprint = fingerprint.Compute(ledger)
+	story.DataFingerprint = fingerprint.Compute(story)
 
 	// celestory.json is uploaded to the web app, so it must not carry local file
 	// paths. The duplicate sets and the skipped-file list both hold paths — write a
 	// copy with them cleared (the path-free counts stay in the summary); the full
 	// per-file reports are still shown on the terminal, where paths are safe.
-	persisted := ledger
+	persisted := story
 	persisted.Duplicates = []model.DuplicateSet{}
 	persisted.Skipped = []model.SkippedEntry{}
 	if err := report.WriteFile(jsonPath, persisted); err != nil {
 		return err
 	}
-	printRunSummary(ledger, jsonPath, hiddenDupSets)
+	printRunSummary(story, jsonPath, hiddenDupSets)
 	saveCache(c)
 	if err := idx.Save(); err != nil {
 		fmt.Fprintln(os.Stderr, "warning: could not write library index:", err)
