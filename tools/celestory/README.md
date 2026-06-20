@@ -65,17 +65,50 @@ overrides where it goes:
 
 ## Flags
 
-The interface is intentionally small — most runs need none of these.
+The interface is intentionally small — most runs need none of these. They're
+grouped below by what they touch.
 
-| Flag                | Description                                                         |
-| ------------------- | ----------------------------------------------------------------- |
-| `-input <dir>`      | Folder of FITS captures to scan (omit to launch the wizard).      |
-| `-out <dir\|.json>` | Output directory or `.json` file. Default: current directory.     |
-| `-rebuild-cache`    | Ignore the cache and re-parse every file, then rebuild it.        |
-| `-no-cache`         | Don't read or write the scan cache.                               |
-| `-verify-hash`      | Detect file changes by a FITS-header hash instead of size+mtime.  |
-| `-config`           | Print the output, cache, and config locations, then exit.         |
-| `-v`, `-version`    | Print the version and exit.                                       |
+**Scanning**
+
+| Flag                | Description                                                    |
+| ------------------- | ------------------------------------------------------------- |
+| `-input <dir>`      | Folder of FITS captures to scan (omit to launch the wizard).  |
+| `-out <dir\|.json>` | Output directory or `.json` file. Default: current directory. |
+
+**Cache** (re-scan speed — see [How the cache works](#how-the-cache-works))
+
+| Flag             | Description                                                       |
+| ---------------- | ---------------------------------------------------------------- |
+| `-rebuild-cache` | Ignore the cache and re-parse every file, then rebuild it.       |
+| `-no-cache`      | Don't read or write the scan cache.                              |
+| `-verify-hash`   | Detect file changes by a FITS-header hash instead of size+mtime. |
+
+**Duplicates** (see [Duplicates](#duplicates))
+
+| Flag              | Description                                                              |
+| ----------------- | ----------------------------------------------------------------------- |
+| `-all-duplicates` | Report duplicates across your whole library, not just the scanned folder. |
+
+**Library history** — Celestory keeps a cumulative index of every folder you've
+scanned, so your totals stay correct even when a disk is disconnected. These flags
+maintain it. None of them ever touch your FITS files, and the destructive ones ask
+for confirmation first (`-yes` skips the prompt for scripts).
+
+| Flag            | Description                                                                       |
+| --------------- | -------------------------------------------------------------------------------- |
+| `-fresh`        | Wipe the cumulative library index, then rebuild it from this scan.               |
+| `-reset`        | Wipe the cumulative library index and exit.                                      |
+| `-forget <dir>` | Drop a folder you no longer own from the cumulative library index.               |
+| `-keep-deleted` | Keep frames whose files were deleted from the scanned folder (don't un-count culled subs). |
+| `-yes`          | Skip the confirmation prompt for `-reset` / `-fresh` / `-forget`.                |
+
+**Identity & info**
+
+| Flag              | Description                                                                         |
+| ----------------- | ---------------------------------------------------------------------------------- |
+| `-profile <name>` | Save your Celestory username (pre-fills publishing; a stable owner anchor across machines). Pass `-profile ""` to clear it. |
+| `-config`         | Print the output, cache, and config locations, then exit.                          |
+| `-v`, `-version`  | Print the version and exit.                                                         |
 
 It always parses headers using all your CPU cores.
 
