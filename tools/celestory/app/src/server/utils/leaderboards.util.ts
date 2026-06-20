@@ -12,6 +12,7 @@ import {
   DEFAULT_LIMIT,
   DEFAULT_MONTH_VIEW,
   DEFAULT_OBJECT_METRIC,
+  DEFAULT_SCOPE,
   DEFAULT_SPEC_METRIC,
   DEFAULT_USER_METRIC,
   EQUIPMENT_KINDS,
@@ -21,6 +22,7 @@ import {
   MONTH_VIEWS,
   NARROWBAND_FILTER_FRAGMENTS,
   OBJECT_METRICS,
+  SCOPES,
   SPEC_METRICS,
   USER_METRICS,
 } from './leaderboards.constants';
@@ -32,6 +34,7 @@ import type {
   MonthView,
   ObjectMetric,
   Palette,
+  Scope,
   SpecMetric,
   UserMetric,
 } from './leaderboards.types';
@@ -101,6 +104,11 @@ export function parseFilterMetric(value: unknown): FilterMetric {
 /** Parse the months-board view (absolute | seasonality). */
 export function parseMonthView(value: unknown): MonthView {
   return pick(value, MONTH_VIEWS, DEFAULT_MONTH_VIEW);
+}
+
+/** Parse the time-window scope (all | year | month). */
+export function parseScope(value: unknown): Scope {
+  return pick(value, SCOPES, DEFAULT_SCOPE);
 }
 
 /** Parse a 4-digit year filter, or null (= all years) when absent/invalid. */

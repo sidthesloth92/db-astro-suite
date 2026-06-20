@@ -1,7 +1,9 @@
 import type { Story } from './story.types';
 import type {
   ExtractedRows,
+  StoryEquipmentMonthRow,
   StoryEquipmentRow,
+  StoryFilterMonthRow,
   StoryFilterRow,
   StoryObjectMonthRow,
   StoryObjectRow,
@@ -82,6 +84,7 @@ function extractEquipment(story: Story): StoryEquipmentRow[] {
   return story.equipment.map((item) => ({
     equipmentId: item.id,
     kind: item.kind,
+    subtype: item.subtype,
     displayName: item.displayName,
     normalizedKey: normalizeKey(item.displayName),
     integrationSeconds: item.totalIntegrationSeconds,
@@ -127,6 +130,69 @@ function extractObjectMonths(story: Story): StoryObjectMonthRow[] {
   return [...buckets.values()];
 }
 
+/**
+ * Roll each object's per-night session filters up to one row per (filter, month),
+ * powering the time-windowed filters board. Sessions with no parseable date are
+ * skipped; seconds and frames are summed within each (name, month) bucket.
+ */
+function extractFilterMonths(story: Story): StoryFilterMonthRow[] {
+  const buckets = new Map<string, StoryFilterMonthRow>();
+  for (const object of story.objects) {
+    for (const session of object.sessions) {
+      const month = monthStart(session.date);
+      if (!month) continue;
+      for (const filter of session.filters) {
+        const key = `${filter.name}|${month}`;
+        const existing = buckets.get(key);
+        if (existing) {
+          existing.seconds += filter.seconds;
+          existing.frames += filter.frames;
+        } else {
+          buckets.set(key, {
+            name: filter.name,
+            month,
+            seconds: filter.seconds,
+            frames: filter.frames,
+          });
+        }
+      }
+    }
+  }
+  return [...buckets.values()];
+}
+
+/**
+ * Roll each object's per-night sessions up to one row per (equipment, month),
+ * powering the time-windowed equipment boards. Every gear id used on a night is
+ * attributed that night's integration and frames (a session usually shares one
+ * rig); join story_equipment for kind/subtype/display_name.
+ */
+function extractEquipmentMonths(story: Story): StoryEquipmentMonthRow[] {
+  const buckets = new Map<string, StoryEquipmentMonthRow>();
+  for (const object of story.objects) {
+    for (const session of object.sessions) {
+      const month = monthStart(session.date);
+      if (!month) continue;
+      for (const equipmentId of session.equipmentIds) {
+        const key = `${equipmentId}|${month}`;
+        const existing = buckets.get(key);
+        if (existing) {
+          existing.integrationSeconds += session.integrationSeconds;
+          existing.lightFrameCount += session.lightFrameCount;
+        } else {
+          buckets.set(key, {
+            equipmentId,
+            month,
+            integrationSeconds: session.integrationSeconds,
+            lightFrameCount: session.lightFrameCount,
+          });
+        }
+      }
+    }
+  }
+  return [...buckets.values()];
+}
+
 /** Build story_filters rows from the story summary, merging by name. */
 function extractFilters(story: Story): StoryFilterRow[] {
   const frames = new Map<string, number>();
@@ -153,5 +219,7 @@ export function extractRows(story: Story): ExtractedRows {
     equipment: extractEquipment(story),
     filters: extractFilters(story),
     objectMonths: extractObjectMonths(story),
+    filterMonths: extractFilterMonths(story),
+    equipmentMonths: extractEquipmentMonths(story),
   };
 }

@@ -76,6 +76,8 @@ export interface StoryObject {
 export interface StoryEquipment {
   id: string;
   kind: string;
+  /** Equipment sub-type (mono/colour/dslr, harmonic/equatorial/tracker, refractor/sct/…); '' when unknown. */
+  subtype: string;
   displayName: string;
   focalLengthMm: number | null;
   fRatio: number | null;

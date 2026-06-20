@@ -112,6 +112,7 @@ function validateEquipment(value: unknown, index: number): EquipmentItem {
   return {
     id: str(record, 'id'),
     kind: str(record, 'kind'),
+    subtype: typeof record['subtype'] === 'string' ? record['subtype'] : '',
     displayName: str(record, 'displayName'),
     focalLengthMm:
       typeof record['focalLengthMm'] === 'number'

@@ -6416,6 +6416,7 @@
     {
       "id": "cam-canon600d",
       "kind": "camera",
+      "subtype": "dslr",
       "displayName": "Canon EOS 600D (modded)",
       "focalLengthMm": null,
       "fRatio": null,
@@ -6434,6 +6435,7 @@
     {
       "id": "cam-294mc",
       "kind": "camera",
+      "subtype": "colour",
       "displayName": "ZWO ASI294MC Pro",
       "focalLengthMm": null,
       "fRatio": null,
@@ -6452,6 +6454,7 @@
     {
       "id": "cam-1600mm",
       "kind": "camera",
+      "subtype": "mono",
       "displayName": "ZWO ASI1600MM Pro",
       "focalLengthMm": null,
       "fRatio": null,
@@ -6474,6 +6477,7 @@
     {
       "id": "cam-2600mm",
       "kind": "camera",
+      "subtype": "mono",
       "displayName": "ZWO ASI2600MM Pro",
       "focalLengthMm": null,
       "fRatio": null,
@@ -6499,6 +6503,7 @@
     {
       "id": "cam-2600mc",
       "kind": "camera",
+      "subtype": "colour",
       "displayName": "ZWO ASI2600MC Pro",
       "focalLengthMm": null,
       "fRatio": null,
@@ -6517,6 +6522,7 @@
     {
       "id": "cam-6200mm",
       "kind": "camera",
+      "subtype": "mono",
       "displayName": "ZWO ASI6200MM Pro",
       "focalLengthMm": null,
       "fRatio": null,
@@ -6536,6 +6542,7 @@
     {
       "id": "telescope-samyang135",
       "kind": "telescope",
+      "subtype": "refractor",
       "displayName": "Samyang 135mm f/2",
       "focalLengthMm": 135,
       "fRatio": 2,
@@ -6551,6 +6558,7 @@
     {
       "id": "telescope-evostar72",
       "kind": "telescope",
+      "subtype": "refractor",
       "displayName": "Sky-Watcher Evostar 72ED",
       "focalLengthMm": 420,
       "fRatio": 5.8,
@@ -6568,6 +6576,7 @@
     {
       "id": "telescope-redcat51",
       "kind": "telescope",
+      "subtype": "refractor",
       "displayName": "William Optics RedCat 51",
       "focalLengthMm": 250,
       "fRatio": 4.9,
@@ -6586,6 +6595,7 @@
     {
       "id": "telescope-esprit100",
       "kind": "telescope",
+      "subtype": "refractor",
       "displayName": "Sky-Watcher Esprit 100",
       "focalLengthMm": 550,
       "fRatio": 5.5,
@@ -6611,6 +6621,7 @@
     {
       "id": "telescope-esprit120",
       "kind": "telescope",
+      "subtype": "refractor",
       "displayName": "Sky-Watcher Esprit 120",
       "focalLengthMm": 840,
       "fRatio": 7,
@@ -6629,6 +6640,7 @@
     {
       "id": "telescope-newt8",
       "kind": "telescope",
+      "subtype": "newtonian",
       "displayName": "Sky-Watcher Quattro 200P",
       "focalLengthMm": 800,
       "fRatio": 4,
@@ -6647,6 +6659,7 @@
     {
       "id": "telescope-rc8",
       "kind": "telescope",
+      "subtype": "",
       "displayName": "GSO RC8",
       "focalLengthMm": 1624,
       "fRatio": 8,
@@ -6667,6 +6680,7 @@
     {
       "id": "telescope-edge925",
       "kind": "telescope",
+      "subtype": "sct",
       "displayName": "Celestron EdgeHD 925",
       "focalLengthMm": 2350,
       "fRatio": 10,
@@ -6684,6 +6698,7 @@
     {
       "id": "mount-eqmod-mount",
       "kind": "mount",
+      "subtype": "equatorial",
       "displayName": "EQMod Mount",
       "focalLengthMm": null,
       "fRatio": null,

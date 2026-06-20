@@ -31,7 +31,10 @@ export type CategoryMetric = 'integration' | 'objects';
 export type EquipmentMetric = 'integration' | 'users' | 'frames';
 
 /** Which kind of gear the equipment board ranks. */
-export type EquipmentKind = 'camera' | 'telescope';
+export type EquipmentKind = 'camera' | 'telescope' | 'mount';
+
+/** Time window applied to a board: all-time, current calendar year, or month. */
+export type Scope = 'all' | 'year' | 'month';
 
 /** Ranking metric for the telescope-specs board (`/leaderboards/specs`). */
 export type SpecMetric = 'focalLength' | 'fRatio';

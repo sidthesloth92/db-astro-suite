@@ -7,6 +7,7 @@ import {
   parseMonth,
   parseMonthView,
   parseObjectMetric,
+  parseScope,
   parseUserMetric,
   parseYear,
 } from './leaderboards.util';
@@ -36,9 +37,20 @@ describe('metric/view/kind parsing', () => {
     expect(parseObjectMetric('rarest')).toBe('rarest');
     expect(parseObjectMetric(undefined)).toBe('integration');
     expect(parseEquipmentKind('telescope')).toBe('telescope');
+    expect(parseEquipmentKind('mount')).toBe('mount');
     expect(parseEquipmentKind('optic')).toBe('camera');
     expect(parseMonthView('seasonality')).toBe('seasonality');
     expect(parseMonthView('')).toBe('absolute');
+  });
+});
+
+describe('parseScope', () => {
+  it('accepts the allowed scopes and defaults to all-time otherwise', () => {
+    expect(parseScope('year')).toBe('year');
+    expect(parseScope('month')).toBe('month');
+    expect(parseScope('all')).toBe('all');
+    expect(parseScope(undefined)).toBe('all');
+    expect(parseScope('decade')).toBe('all');
   });
 });
 

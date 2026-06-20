@@ -62,6 +62,8 @@ export default defineEventHandler(async (event) => {
       sql`DELETE FROM story_equipment WHERE story_id = ${storyId}`,
       sql`DELETE FROM story_filters WHERE story_id = ${storyId}`,
       sql`DELETE FROM story_object_months WHERE story_id = ${storyId}`,
+      sql`DELETE FROM story_filter_months WHERE story_id = ${storyId}`,
+      sql`DELETE FROM story_equipment_months WHERE story_id = ${storyId}`,
       ...rows.objects.map(
         (o) => sql`
           INSERT INTO story_objects (
@@ -75,10 +77,10 @@ export default defineEventHandler(async (event) => {
       ...rows.equipment.map(
         (e) => sql`
           INSERT INTO story_equipment (
-            story_id, equipment_id, kind, display_name, normalized_key,
+            story_id, equipment_id, kind, subtype, display_name, normalized_key,
             integration_seconds, light_frame_count, focal_length_mm, f_ratio
           ) VALUES (
-            ${storyId}, ${e.equipmentId}, ${e.kind}, ${e.displayName}, ${e.normalizedKey},
+            ${storyId}, ${e.equipmentId}, ${e.kind}, ${e.subtype}, ${e.displayName}, ${e.normalizedKey},
             ${e.integrationSeconds}, ${e.lightFrameCount}, ${e.focalLengthMm}, ${e.fRatio}
           )`,
       ),
@@ -98,6 +100,22 @@ export default defineEventHandler(async (event) => {
           ) VALUES (
             ${storyId}, ${m.objectId}, ${m.designation}, ${m.category},
             ${m.month}, ${m.integrationSeconds}, ${m.lightFrameCount}
+          )`,
+      ),
+      ...rows.filterMonths.map(
+        (m) => sql`
+          INSERT INTO story_filter_months (
+            story_id, name, month, seconds, frames
+          ) VALUES (
+            ${storyId}, ${m.name}, ${m.month}, ${m.seconds}, ${m.frames}
+          )`,
+      ),
+      ...rows.equipmentMonths.map(
+        (m) => sql`
+          INSERT INTO story_equipment_months (
+            story_id, equipment_id, month, integration_seconds, light_frame_count
+          ) VALUES (
+            ${storyId}, ${m.equipmentId}, ${m.month}, ${m.integrationSeconds}, ${m.lightFrameCount}
           )`,
       ),
     ];

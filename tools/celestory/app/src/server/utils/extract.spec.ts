@@ -58,6 +58,7 @@ describe('extractRows — equipment', () => {
     const camera: EquipmentItem = {
       id: 'cam-2600mm',
       kind: 'camera',
+      subtype: 'mono',
       displayName: 'ZWO ASI2600MM Air',
       focalLengthMm: null,
       fRatio: null,
@@ -71,6 +72,7 @@ describe('extractRows — equipment', () => {
     const telescope: EquipmentItem = {
       id: 'telescope-redcat-51',
       kind: 'telescope',
+      subtype: 'refractor',
       displayName: 'RedCat 51',
       focalLengthMm: 250,
       fRatio: 4.9,

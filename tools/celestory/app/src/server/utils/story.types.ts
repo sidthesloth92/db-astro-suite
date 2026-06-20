@@ -64,6 +64,8 @@ export interface Summary {
 export interface EquipmentItem {
   id: string;
   kind: string;
+  /** Equipment sub-type (mono/colour/dslr, harmonic/equatorial/tracker, refractor/sct/…); '' when unknown. */
+  subtype: string;
   displayName: string;
   focalLengthMm: number | null;
   fRatio: number | null;

@@ -405,6 +405,7 @@ func toUsages(lights []LightFrame) []equipment.Usage {
 			Telescope:       lf.Telescope,
 			Focal:           lf.Focal,
 			FRatio:          lf.FRatio,
+			IsOSC:           lf.IsOSC,
 			ExposureSeconds: lf.Exposure,
 			Date:            lf.Date,
 		})

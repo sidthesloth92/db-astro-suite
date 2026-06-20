@@ -50,6 +50,7 @@ CREATE TABLE story_equipment (
   story_id UUID NOT NULL REFERENCES stories(id) ON DELETE CASCADE,
   equipment_id TEXT,
   kind TEXT,
+  subtype TEXT,
   display_name TEXT,
   normalized_key TEXT,
   integration_seconds BIGINT,
@@ -75,6 +76,29 @@ CREATE TABLE story_object_months (
   object_id TEXT,
   designation TEXT,
   category TEXT,
+  month DATE,
+  integration_seconds BIGINT,
+  light_frame_count INT
+);
+
+-- Per-filter, per-month rollup powering the time-windowed filters board. Built
+-- from each object's per-night sessions (session.filters), bucketed by month.
+CREATE TABLE story_filter_months (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  story_id UUID NOT NULL REFERENCES stories(id) ON DELETE CASCADE,
+  name TEXT,
+  month DATE,
+  seconds BIGINT,
+  frames INT
+);
+
+-- Per-equipment, per-month rollup powering the time-windowed equipment boards
+-- (cameras/telescopes/mounts). Built from each session's equipmentIds, bucketed
+-- by month; join story_equipment for the kind/subtype/display_name.
+CREATE TABLE story_equipment_months (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  story_id UUID NOT NULL REFERENCES stories(id) ON DELETE CASCADE,
+  equipment_id TEXT,
   month DATE,
   integration_seconds BIGINT,
   light_frame_count INT
@@ -107,5 +131,10 @@ CREATE INDEX idx_story_filters_story_id        ON story_filters(story_id);
 CREATE INDEX idx_story_object_months_story_id  ON story_object_months(story_id);
 CREATE INDEX idx_story_object_months_month     ON story_object_months(month);
 CREATE INDEX idx_story_object_months_object_id ON story_object_months(object_id);
+CREATE INDEX idx_story_filter_months_story_id    ON story_filter_months(story_id);
+CREATE INDEX idx_story_filter_months_month       ON story_filter_months(month);
+CREATE INDEX idx_story_equipment_months_story_id ON story_equipment_months(story_id);
+CREATE INDEX idx_story_equipment_months_month    ON story_equipment_months(month);
+CREATE INDEX idx_story_equipment_months_equip_id ON story_equipment_months(equipment_id);
 CREATE INDEX idx_story_uploads_install         ON story_uploads(install_id);
 CREATE INDEX idx_story_uploads_profile         ON story_uploads(profile_id);

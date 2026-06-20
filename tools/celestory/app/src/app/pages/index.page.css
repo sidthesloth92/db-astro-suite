@@ -172,6 +172,15 @@ nav.top a.nlink {
 nav.top a.nlink:hover {
   color: var(--ink);
 }
+nav.top a.nlink--lb {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+nav.top a.nlink--lb .ico {
+  width: 16px;
+  height: 16px;
+}
 .nav-links {
   display: none;
 }

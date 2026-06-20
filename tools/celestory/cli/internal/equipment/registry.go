@@ -16,6 +16,7 @@ type Usage struct {
 	Telescope       string
 	Focal           float64
 	FRatio          float64
+	IsOSC           bool // one-shot-colour sensor — drives camera sub-type classification
 	ExposureSeconds float64
 	Date            time.Time
 }
@@ -38,18 +39,23 @@ func BuildRegistry(usages []Usage) []model.EquipmentItem {
 	accs := map[string]*accumulator{}
 	var order []string
 
-	add := func(id, kind, display string, focal, fratio float64, u Usage) {
+	add := func(id, kind, display, subtype string, focal, fratio float64, u Usage) {
 		if id == "" {
 			return
 		}
 		a := accs[id]
 		if a == nil {
 			a = &accumulator{
-				item: model.EquipmentItem{ID: id, Kind: kind, DisplayName: display},
+				item: model.EquipmentItem{ID: id, Kind: kind, Subtype: subtype, DisplayName: display},
 				objs: map[string]struct{}{},
 			}
 			accs[id] = a
 			order = append(order, id)
+		}
+		// Upgrade an unknown sub-type if a later frame classifies it (e.g. a frame
+		// that carries the Bayer signal an earlier one lacked).
+		if a.item.Subtype == "" && subtype != "" {
+			a.item.Subtype = subtype
 		}
 		a.item.TotalIntegrationSeconds += u.ExposureSeconds
 		a.item.LightFrameCount++
@@ -75,9 +81,9 @@ func BuildRegistry(usages []Usage) []model.EquipmentItem {
 	}
 
 	for _, u := range usages {
-		add(CameraID(u.CameraRaw), "camera", CameraDisplay(u.CameraRaw), 0, 0, u)
-		add(TelescopeID(u.Telescope, u.Focal), "telescope", TelescopeDisplay(u.Telescope, u.Focal), u.Focal, u.FRatio, u)
-		add(MountID(u.Telescope), "mount", MountDisplay(u.Telescope), 0, 0, u)
+		add(CameraID(u.CameraRaw), "camera", CameraDisplay(u.CameraRaw), CameraSubtype(u.CameraRaw, u.IsOSC), 0, 0, u)
+		add(TelescopeID(u.Telescope, u.Focal), "telescope", TelescopeDisplay(u.Telescope, u.Focal), TelescopeSubtype(u.Telescope), u.Focal, u.FRatio, u)
+		add(MountID(u.Telescope), "mount", MountDisplay(u.Telescope), MountSubtype(u.Telescope), 0, 0, u)
 	}
 
 	items := make([]model.EquipmentItem, 0, len(order))

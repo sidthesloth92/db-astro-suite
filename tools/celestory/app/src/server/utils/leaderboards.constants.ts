@@ -10,6 +10,7 @@ import type {
   FilterMetric,
   MonthView,
   ObjectMetric,
+  Scope,
   SpecMetric,
   UserMetric,
 } from './leaderboards.types';
@@ -55,8 +56,16 @@ export const EQUIPMENT_METRICS: readonly EquipmentMetric[] = [
 ];
 export const DEFAULT_EQUIPMENT_METRIC: EquipmentMetric = 'integration';
 
-export const EQUIPMENT_KINDS: readonly EquipmentKind[] = ['camera', 'telescope'];
+export const EQUIPMENT_KINDS: readonly EquipmentKind[] = [
+  'camera',
+  'telescope',
+  'mount',
+];
 export const DEFAULT_EQUIPMENT_KIND: EquipmentKind = 'camera';
+
+/** Allowed time-window scopes for any board. */
+export const SCOPES: readonly Scope[] = ['all', 'year', 'month'];
+export const DEFAULT_SCOPE: Scope = 'all';
 
 export const SPEC_METRICS: readonly SpecMetric[] = ['focalLength', 'fRatio'];
 export const DEFAULT_SPEC_METRIC: SpecMetric = 'focalLength';
@@ -70,6 +79,28 @@ export const DEFAULT_FILTER_METRIC: FilterMetric = 'seconds';
 
 export const MONTH_VIEWS: readonly MonthView[] = ['absolute', 'seasonality'];
 export const DEFAULT_MONTH_VIEW: MonthView = 'absolute';
+
+/** Render-ready tag labels for equipment sub-types (server maps these, not the UI). */
+export const SUBTYPE_LABELS: Readonly<Record<string, string>> = {
+  mono: 'Mono',
+  colour: 'Colour',
+  color: 'Colour',
+  dslr: 'DSLR',
+  harmonic: 'Harmonic',
+  equatorial: 'Equatorial',
+  tracker: 'Tracker',
+  refractor: 'Refractor',
+  sct: 'SCT',
+  newtonian: 'Newtonian',
+  maksutov: 'Maksutov',
+  astrograph: 'Astrograph',
+};
+
+/** Render-ready tag labels for the filter palette buckets. */
+export const PALETTE_LABELS: Readonly<Record<string, string>> = {
+  narrowband: 'Narrowband',
+  broadband: 'Broadband',
+};
 
 /** Short month names indexed 1..12 (index 0 unused) for seasonality labels. */
 export const MONTH_NAMES: readonly string[] = [

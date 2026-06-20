@@ -28,6 +28,8 @@ export interface StoryEquipmentRow {
   /** Stable cross-user join key (the CLI's canonical equipment id). */
   equipmentId: string;
   kind: string;
+  /** Equipment sub-type (mono/colour/dslr, harmonic/equatorial/tracker, …); '' when unknown. */
+  subtype: string;
   displayName: string;
   normalizedKey: string;
   integrationSeconds: number;
@@ -56,6 +58,24 @@ export interface StoryObjectMonthRow {
   lightFrameCount: number;
 }
 
+/** One per-filter, per-month rollup row destined for story_filter_months. */
+export interface StoryFilterMonthRow {
+  name: string;
+  /** First day of the month, ISO `YYYY-MM-01`. */
+  month: string;
+  seconds: number;
+  frames: number;
+}
+
+/** One per-equipment, per-month rollup row destined for story_equipment_months. */
+export interface StoryEquipmentMonthRow {
+  equipmentId: string;
+  /** First day of the month, ISO `YYYY-MM-01`. */
+  month: string;
+  integrationSeconds: number;
+  lightFrameCount: number;
+}
+
 /** The full set of child rows derived from a story on create. */
 export interface ExtractedRows {
   totals: StoryTotals;
@@ -63,6 +83,8 @@ export interface ExtractedRows {
   equipment: StoryEquipmentRow[];
   filters: StoryFilterRow[];
   objectMonths: StoryObjectMonthRow[];
+  filterMonths: StoryFilterMonthRow[];
+  equipmentMonths: StoryEquipmentMonthRow[];
 }
 
 /** Community aggregates for the landing page, replayed from the upload log. */

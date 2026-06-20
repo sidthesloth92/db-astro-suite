@@ -61,6 +61,13 @@ export class HandleTakenError extends CelestoryError {
   }
 }
 
+/** The requested leaderboard board id is not one of the known boards. */
+export class UnknownBoardError extends CelestoryError {
+  constructor(id: string) {
+    super('BOARD_UNKNOWN', `Unknown leaderboard board "${id}".`, 404, { id });
+  }
+}
+
 /** No story exists for the given handle. */
 export class StoryNotFoundError extends CelestoryError {
   constructor(handle: string) {

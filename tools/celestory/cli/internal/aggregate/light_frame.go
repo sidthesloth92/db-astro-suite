@@ -38,6 +38,7 @@ type LightFrame struct {
 	Telescope   string
 	Focal       float64
 	FRatio      float64
+	IsOSC       bool // one-shot-colour (Bayer) sensor — used for camera sub-type classification
 	Exposure    float64
 	Date        time.Time // zero when DATE-OBS was missing/unparseable
 	RA          *float64  // J2000 RA (deg): the frame's FITS coords, else the catalog fallback
@@ -85,6 +86,7 @@ func Enrich(frames []scan.Frame) (lights []LightFrame, dropped int) {
 			Telescope:   strings.TrimSpace(m.Telescope),
 			Focal:       m.Focal,
 			FRatio:      m.FRatio,
+			IsOSC:       m.IsOSC(),
 			Exposure:    m.Exposure,
 			Date:        m.DateObs,
 			RA:          ra,
