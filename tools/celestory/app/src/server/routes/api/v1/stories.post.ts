@@ -5,7 +5,7 @@ import { config } from '../../../utils/config';
 import { normalizeHandle } from '../../../utils/handle';
 import { validateLedger } from '../../../utils/ledger-validate';
 import { extractRows } from '../../../utils/extract';
-import { generateKey, hashKey } from '../../../utils/key';
+import { signSession } from '../../../utils/session-token';
 import { hashPassword, MIN_PASSWORD_LENGTH } from '../../../utils/password';
 import { isUniqueViolation } from '../../../utils/pg-error';
 import { recordUpload, claimUploads } from '../../../utils/uploads';
@@ -21,7 +21,6 @@ import type { ExtractedRows } from '../../../utils/story.model';
  */
 async function persistStory(
   handle: string,
-  keyHash: string,
   passwordHash: string,
   ledgerJson: string,
   rows: ExtractedRows,
@@ -33,11 +32,11 @@ async function persistStory(
   await sql.transaction([
     sql`
       INSERT INTO stories (
-        id, handle, key_hash, password_hash, ledger_json,
+        id, handle, password_hash, ledger_json,
         total_integration_seconds, object_count, night_count,
         light_frame_count, first_light, latest_session
       ) VALUES (
-        ${storyId}, ${handle}, ${keyHash}, ${passwordHash}, ${ledgerJson},
+        ${storyId}, ${handle}, ${passwordHash}, ${ledgerJson},
         ${totals.totalIntegrationSeconds}, ${totals.objectCount}, ${totals.nightCount},
         ${totals.lightFrameCount}, ${totals.firstLight}, ${totals.latestSession}
       )`,
@@ -73,8 +72,9 @@ async function persistStory(
 }
 
 /**
- * ② Create — validate the uploaded ledger, mint a unique handle + one-time
- * key, persist the story and its child rows, and return the shareable URL.
+ * ② Create — validate the uploaded ledger, claim the handle (password-protected),
+ * persist the story and its child rows, and return the shareable URL plus a
+ * management session token so the publisher lands directly in owner mode.
  */
 export default defineEventHandler(async (event) => {
   try {
@@ -87,13 +87,12 @@ export default defineEventHandler(async (event) => {
     const ledger = validateLedger(body?.ledger);
     const rows = extractRows(ledger);
 
-    const key = generateKey();
-    const keyHash = hashKey(key);
     const passwordHash = await hashPassword(password);
     const ledgerJson = JSON.stringify(body?.ledger);
 
+    let storyId: string;
     try {
-      await persistStory(handle, keyHash, passwordHash, ledgerJson, rows);
+      storyId = await persistStory(handle, passwordHash, ledgerJson, rows);
     } catch (dbError) {
       if (isUniqueViolation(dbError)) {
         throw new HandleTakenError(handle);
@@ -127,7 +126,7 @@ export default defineEventHandler(async (event) => {
     return success('STORY_CREATED', 'Your Celestory is live.', {
       url,
       handle,
-      key,
+      token: signSession(handle, storyId),
     });
   } catch (error) {
     return toErrorResponse(event, error);

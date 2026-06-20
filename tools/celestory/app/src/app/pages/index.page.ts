@@ -23,6 +23,7 @@ import { catchError, of } from "rxjs";
 import { CelestoryMarkComponent } from "../components/celestory-mark/celestory-mark.component";
 import { CelestoryWordmarkComponent } from "../components/celestory-wordmark/celestory-wordmark.component";
 import { UploadChoiceModalComponent } from "../components/upload-choice-modal/upload-choice-modal.component";
+import { PublishModalComponent } from "../components/publish-modal/publish-modal.component";
 import type { CommunityStats } from "../models/community-stats.model";
 import {
   ABOUT_URL,
@@ -36,13 +37,12 @@ import {
   STARWIZZ_URL,
 } from "../models/landing.constants";
 import type { InstallTool } from "../models/landing.types";
-import { SUPPORTED_LEDGER_SCHEMA_VERSION } from "../models/ledger.constants";
 import type { CelestoryLedger } from "../models/ledger.model";
-import { SAMPLE_HANDLE } from "../models/sample-ledger.constants";
 import { PreviewStore } from "../services/preview-store.service";
 import { StoryService } from "../services/story.service";
 import { copyToClipboard } from "../utils/clipboard.util";
 import { formatCompact, formatCount } from "../utils/format.util";
+import { readLedgerFile } from "../utils/read-ledger.util";
 
 /** Count-up animation duration, in milliseconds. */
 const COUNT_UP_MS = 1600;
@@ -66,6 +66,7 @@ const COUNT_UP_MS = 1600;
     CelestoryMarkComponent,
     CelestoryWordmarkComponent,
     UploadChoiceModalComponent,
+    PublishModalComponent,
   ],
   templateUrl: "./index.page.html",
   styleUrl: "./index.page.css",
@@ -89,6 +90,8 @@ export default class LandingPageComponent {
   protected readonly pendingLedger = signal<CelestoryLedger | null>(null);
   /** Whether the post-upload "choose" modal is open. */
   protected readonly showChoose = signal(false);
+  /** Whether the publish (claim handle) modal is open directly on the landing. */
+  protected readonly showPublish = signal(false);
 
   /** Selected CLI install channel in the "Get started" walkthrough. */
   protected readonly installTool = signal<InstallTool>("brew");
@@ -134,28 +137,28 @@ export default class LandingPageComponent {
   /** Guards the one-shot observe/animate setup. */
   private animationStarted = false;
 
-  /** Animated "Astrophotographers" counter — distinct owners who have charted a journey. */
-  protected readonly photographers = computed(() => {
-    const s = this.stats();
-    return s ? formatCount(s.attemptCount * this.progress()) : "";
-  });
+  /** Animated "Celestories charted" counter — every resolved upload, auth + unauth. */
+  protected readonly charted = computed(() =>
+    formatCount((this.stats()?.chartedCount ?? 0) * this.progress()),
+  );
+  /** Animated "Live Celestories" counter — online, published profiles. */
+  protected readonly live = computed(() =>
+    formatCount((this.stats()?.liveCount ?? 0) * this.progress()),
+  );
   /** Animated "Hours integrated" counter. */
-  protected readonly hours = computed(() => {
-    const s = this.stats();
-    return s
-      ? formatCompact((s.totalIntegrationSeconds / 3600) * this.progress())
-      : "";
-  });
+  protected readonly hours = computed(() =>
+    formatCompact(
+      ((this.stats()?.totalIntegrationSeconds ?? 0) / 3600) * this.progress(),
+    ),
+  );
   /** Animated "Objects charted" counter. */
-  protected readonly objects = computed(() => {
-    const s = this.stats();
-    return s ? formatCompact(s.objectCount * this.progress()) : "";
-  });
+  protected readonly objects = computed(() =>
+    formatCompact((this.stats()?.objectCount ?? 0) * this.progress()),
+  );
   /** Animated "Light frames" counter. */
-  protected readonly frames = computed(() => {
-    const s = this.stats();
-    return s ? formatCompact(s.lightFrameCount * this.progress()) : "";
-  });
+  protected readonly frames = computed(() =>
+    formatCompact((this.stats()?.lightFrameCount ?? 0) * this.progress()),
+  );
 
   /**
    * In the browser, decide how the count-up runs: with reduced-motion or no
@@ -201,8 +204,12 @@ export default class LandingPageComponent {
     // event.target is the file input element at this DOM boundary.
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
+    // Clear the value so re-selecting the SAME file fires `change` again —
+    // otherwise re-picking the same file after closing the choose modal (or any
+    // earlier pick) is a silent no-op because the input value is unchanged.
+    input.value = "";
     if (file) {
-      this.readFile(file);
+      void this.readFile(file);
     }
   }
 
@@ -212,7 +219,7 @@ export default class LandingPageComponent {
     this.dragActive.set(false);
     const file = event.dataTransfer?.files?.[0];
     if (file) {
-      this.readFile(file);
+      void this.readFile(file);
     }
   }
 
@@ -227,10 +234,10 @@ export default class LandingPageComponent {
     this.dragActive.set(false);
   }
 
-  /** Opens the bundled demo journey ("Vera") — the aspirational sample. */
+  /** Opens the bundled demo journey ("Vera") at /demo — the aspirational sample. */
   exploreSample(): void {
     this.error.set("");
-    void this.router.navigate(["/user", SAMPLE_HANDLE]);
+    void this.router.navigate(["/demo"]);
   }
 
   /** Smooth-scrolls to the "Get started" steps section (replaces the #how anchor). */
@@ -320,9 +327,33 @@ export default class LandingPageComponent {
   chooseVisualize(): void {
     this.proceed(false);
   }
-  /** "Create your Celestory" — opens the publish flow on the portfolio. */
+  /**
+   * "Create your Celestory" — open the claim-handle dialog instantly, right on
+   * the landing (no navigation/journey render first). The publish modal owns the
+   * claim → launch animation → live → open-profile sequence from here.
+   */
   chooseCreate(): void {
-    this.proceed(true);
+    const ledger = this.pendingLedger();
+    if (!ledger) {
+      return;
+    }
+    this.recordAttempt(ledger);
+    this.showChoose.set(false);
+    this.showPublish.set(true);
+  }
+  /**
+   * After a successful publish, open the new live profile. The modal is left
+   * mounted (covering the landing) until the route swap completes, so the landing
+   * never flashes while the lazy profile route loads; the profile page then plays
+   * the branded reveal as its loading screen.
+   */
+  onPublished(handle: string): void {
+    void this.router.navigate(["/user", handle]);
+  }
+  /** Close the publish modal, discarding the staged ledger. */
+  closePublish(): void {
+    this.showPublish.set(false);
+    this.pendingLedger.set(null);
   }
   /** Dismiss the choose modal without proceeding. */
   closeChoose(): void {
@@ -343,53 +374,18 @@ export default class LandingPageComponent {
     void this.router.navigate(["/preview"]);
   }
 
-  private readFile(file: File): void {
+  private async readFile(file: File): Promise<void> {
     this.error.set("");
     this.processing.set(true);
-    const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        // Parsed at the upload boundary, then shape-checked below.
-        const parsed = JSON.parse(String(reader.result)) as CelestoryLedger;
-        if (!parsed || typeof parsed !== "object" || !parsed.summary) {
-          throw new Error("not a Celestory export");
-        }
-        // Reject ledgers from an older/newer CLI before rendering, so the user
-        // gets a clear "update & regenerate" prompt instead of a broken view.
-        if (parsed.schemaVersion != SUPPORTED_LEDGER_SCHEMA_VERSION) {
-          this.processing.set(false);
-          this.error.set(this.outdatedSchemaMessage(parsed));
-          return;
-        }
-        // Hold the parsed ledger and let the user choose visualise vs create.
-        this.pendingLedger.set(parsed);
-        this.processing.set(false);
-        this.showChoose.set(true);
-      } catch {
-        this.processing.set(false);
-        this.error.set("That file isn’t a valid celestory.json export.");
-      }
-    };
-    reader.onerror = () => {
-      this.processing.set(false);
-      this.error.set("Could not read that file.");
-    };
-    reader.readAsText(file);
-  }
-
-  /**
-   * Build the message shown when a dropped ledger's schema version doesn't match
-   * what this app renders — almost always an older CLI. Surfaces the producing
-   * CLI version when present so the user knows what they ran.
-   */
-  private outdatedSchemaMessage(ledger: CelestoryLedger): string {
-    const usedVersion = ledger.tool?.version
-      ? ` (you used celestory ${ledger.tool.version})`
-      : "";
-    return (
-      `This celestory.json was made by an older Celestory CLI${usedVersion}. ` +
-      "Update to the latest version and re-scan your library to regenerate it."
-    );
+    const result = await readLedgerFile(file);
+    this.processing.set(false);
+    if (!result.ok) {
+      this.error.set(result.error);
+      return;
+    }
+    // Hold the parsed ledger and let the user choose visualise vs create.
+    this.pendingLedger.set(result.ledger);
+    this.showChoose.set(true);
   }
 
   /** Eases the counters from 0→target over COUNT_UP_MS. */

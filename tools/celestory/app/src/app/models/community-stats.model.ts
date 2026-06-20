@@ -5,11 +5,13 @@
  */
 export interface CommunityStats {
   /**
-   * Distinct owners (install id or claimed handle) who have charted a journey —
-   * the "Astrophotographers" counter. The stats endpoint already dedupes to the
-   * latest snapshot per owner, so this is a head-count, not a raw attempt total.
+   * Celestories charted — every resolved upload (visualise or publish): each
+   * claimed owner counted once at their latest snapshot, plus every anonymous
+   * upload as its own journey.
    */
-  attemptCount: number;
+  chartedCount: number;
+  /** Online, live published profiles ("Live Celestories"). */
+  liveCount: number;
   totalIntegrationSeconds: number;
   objectCount: number;
   lightFrameCount: number;

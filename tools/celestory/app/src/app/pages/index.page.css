@@ -406,8 +406,8 @@ section.status {
   color: var(--ink);
   letter-spacing: 0.01em;
 }
-.status .cell:first-child .cv,
-.status .cell:nth-child(4) .cv {
+.status .cell:nth-child(1) .cv,
+.status .cell:nth-child(2) .cv {
   color: var(--glow);
 }
 .status .ck {
@@ -1272,7 +1272,7 @@ footer .brand {
     width: auto;
   }
   .status .grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
   }
 }
 @media (min-width: 760px) {

@@ -3,11 +3,13 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  effect,
   ElementRef,
   inject,
   input,
   output,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import { BRAND_CYAN, BRAND_PINK } from '../../models/brand.constants';
@@ -45,36 +47,59 @@ export class ProcessingRevealComponent {
   protected readonly lines = ['Reading light frames', 'Mapping targets & sessions', 'Charting your journey'];
 
   private rafId = 0;
+  private hoursRaf = 0;
   private readonly timers: ReturnType<typeof setTimeout>[] = [];
 
   constructor() {
-    afterNextRender(() => this.run());
+    // Steps, fade, completion and the constellation run on a fixed schedule from
+    // mount. The hours count-up is driven separately so a late-arriving `seconds`
+    // (the profile page mounts the reveal before its story has loaded) still
+    // animates to the real total. When seconds is known at mount (Visualize), it
+    // animates immediately — identical to before.
+    afterNextRender(() => this.startTimeline());
+    effect(() => this.animateHours(Math.round(this.seconds() / 3600)));
     this.destroyRef.onDestroy(() => {
       if (this.rafId) {
         cancelAnimationFrame(this.rafId);
+      }
+      if (this.hoursRaf) {
+        cancelAnimationFrame(this.hoursRaf);
       }
       this.timers.forEach((t) => clearTimeout(t));
     });
   }
 
-  private run(): void {
-    const target = Math.round(this.seconds() / 3600);
-    const t0 = performance.now();
-    const tick = (now: number): void => {
-      const k = Math.min(1, (now - t0) / 1500);
-      this.hours.set(Math.round((1 - Math.pow(1 - k, 3)) * target));
-      if (k < 1) {
-        this.rafId = requestAnimationFrame(tick);
-      }
-    };
-    this.rafId = requestAnimationFrame(tick);
-
+  private startTimeline(): void {
     this.timers.push(setTimeout(() => this.step.set(1), 900));
     this.timers.push(setTimeout(() => this.step.set(2), 1500));
     this.timers.push(setTimeout(() => this.out.set(true), 2700));
     this.timers.push(setTimeout(() => this.done.emit(), 3200));
 
     this.drawConstellation();
+  }
+
+  /** Ease the displayed hours from their current value to a (possibly late) target. */
+  private animateHours(target: number): void {
+    if (typeof requestAnimationFrame === 'undefined') {
+      this.hours.set(target);
+      return;
+    }
+    if (this.hoursRaf) {
+      cancelAnimationFrame(this.hoursRaf);
+    }
+    const from = untracked(() => this.hours());
+    if (target === from) {
+      return;
+    }
+    const t0 = performance.now();
+    const tick = (now: number): void => {
+      const k = Math.min(1, (now - t0) / 1500);
+      this.hours.set(Math.round(from + (target - from) * (1 - Math.pow(1 - k, 3))));
+      if (k < 1) {
+        this.hoursRaf = requestAnimationFrame(tick);
+      }
+    };
+    this.hoursRaf = requestAnimationFrame(tick);
   }
 
   private drawConstellation(): void {

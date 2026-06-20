@@ -9,6 +9,7 @@ export type CelIconName =
   | 'star'
   | 'back'
   | 'arrow'
+  | 'close'
   | 'share'
   | 'globe'
   | 'lock'

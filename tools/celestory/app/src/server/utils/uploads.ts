@@ -48,9 +48,11 @@ export function parseUpload(raw: unknown): LedgerUpload {
 }
 
 /**
- * Append an upload event, deduped on (install_id, data_fingerprint). A repeat
- * upload of the same data from the same install is a no-op. profile_id is left
- * NULL — only the publish claim attaches a handle.
+ * Append an upload event — one row per upload, never deduped here. An
+ * unauthenticated visualise/upload always counts (a repeat of the same file
+ * included). profile_id is left NULL; only the publish claim attaches a handle,
+ * and the latest-per-owner replay then collapses an authenticated owner's rows
+ * so they are not double-counted.
  */
 export async function recordUpload(upload: LedgerUpload): Promise<void> {
   const sql = getDb();
@@ -62,7 +64,6 @@ export async function recordUpload(upload: LedgerUpload): Promise<void> {
       ${upload.installId}, ${upload.dataFingerprint},
       ${upload.totalIntegrationSeconds}, ${upload.lightFrameCount}, ${upload.objectCount}
     )
-    ON CONFLICT (install_id, data_fingerprint) DO NOTHING
   `;
 }
 
@@ -84,33 +85,48 @@ export async function claimUploads(installId: string, handle: string): Promise<v
 }
 
 /**
- * Replay the community totals: the latest event per owner
- * (COALESCE(profile_id, install_id)), summed. Idempotent and rebuildable —
- * adding frames and re-uploading replaces an owner's snapshot, never doubles it.
+ * Replay the community totals from the upload log. The "counted set" is every
+ * claimed owner once (their latest snapshot — authenticated users are never
+ * double-counted) plus every anonymous upload (each unauthenticated upload is
+ * its own journey). `chartedCount` is the counted-set row count; the hour/object/
+ * frame totals are its sums. `liveCount` is the published-profile count, read
+ * separately from `stories`. No per-user ledger data is read.
  */
 export async function communityStats(): Promise<CommunityStats> {
   const sql = getDb();
   const rows = await sql`
+    WITH counted AS (
+      SELECT total_integration_seconds, object_count, light_frame_count
+      FROM (
+        SELECT DISTINCT ON (profile_id)
+          total_integration_seconds, object_count, light_frame_count
+        FROM ledger_uploads
+        WHERE profile_id IS NOT NULL
+        ORDER BY profile_id, uploaded_at DESC
+      ) claimed
+      UNION ALL
+      SELECT total_integration_seconds, object_count, light_frame_count
+      FROM ledger_uploads
+      WHERE profile_id IS NULL
+    )
     SELECT
-      COUNT(*)::int AS attempt_count,
+      COUNT(*)::int AS charted_count,
       COALESCE(SUM(total_integration_seconds), 0)::bigint AS total_integration_seconds,
       COALESCE(SUM(object_count), 0)::int AS object_count,
       COALESCE(SUM(light_frame_count), 0)::int AS light_frame_count
-    FROM (
-      SELECT DISTINCT ON (COALESCE(profile_id, install_id))
-        total_integration_seconds, object_count, light_frame_count
-      FROM ledger_uploads
-      ORDER BY COALESCE(profile_id, install_id), uploaded_at DESC
-    ) latest
+    FROM counted
   `;
+  const live = await sql`SELECT COUNT(*)::int AS live_count FROM stories`;
   const row = rows[0] as {
-    attempt_count: number;
+    charted_count: number;
     total_integration_seconds: string | number;
     object_count: number;
     light_frame_count: number;
   };
+  const liveRow = live[0] as { live_count: number };
   return {
-    attemptCount: row.attempt_count,
+    chartedCount: row.charted_count,
+    liveCount: liveRow.live_count,
     totalIntegrationSeconds: Number(row.total_integration_seconds),
     objectCount: row.object_count,
     lightFrameCount: row.light_frame_count,

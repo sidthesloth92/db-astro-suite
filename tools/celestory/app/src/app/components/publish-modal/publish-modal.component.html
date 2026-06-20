@@ -1,7 +1,7 @@
 <div class="ob-overlay" (mousedown)="onBackdrop($event)">
   <div class="ob-modal" role="dialog" aria-modal="true">
     <dba-ui-icon-button class="ob-close" accent="cyan" [size]="34" title="Close" (clicked)="closed.emit()">
-      <dba-cel-icon name="back" [size]="18" />
+      <dba-cel-icon name="close" [size]="18" />
     </dba-ui-icon-button>
 
     @switch (phase()) {
@@ -60,8 +60,6 @@
         } @else {
           @if (error()) {
             <p class="ob-error" role="alert">{{ error() }}</p>
-          } @else {
-            <p class="ob-url-preview">{{ urlPreview() }}</p>
           }
           <dba-ui-text-button
             class="ob-full"
@@ -85,27 +83,27 @@
           <h2>Delete Your Online Profile</h2>
           <p>
             This permanently removes
-            <span class="mono">{{ host }}/user/{{ clean() || currentHandle() }}</span>
+            <span class="mono">{{ host }}/user/{{ targetHandle() }}</span>
             from the web. Your local journey stays on this device.
           </p>
         </div>
-        <label class="ob-field-label">Paste your delete token to confirm</label>
+        <label class="ob-field-label">Enter your password to confirm</label>
         <div class="ob-handle ob-pass">
-          <span class="ob-handle-pfx"><dba-cel-icon name="key" [size]="15" /></span>
+          <span class="ob-handle-pfx"><dba-cel-icon name="lock" [size]="15" /></span>
           <input
             #d
-            [value]="deleteInput()"
-            (input)="onDeleteInput(d.value)"
-            placeholder="cel_del_xxxx-xxxx-xxxx"
-            autocomplete="off"
-            spellcheck="false"
+            type="password"
+            [value]="deletePassword()"
+            (input)="onDeletePassword(d.value)"
+            placeholder="Profile password"
+            autocomplete="current-password"
             (keydown.enter)="confirmDelete()"
           />
         </div>
         @if (deleteError()) {
           <p class="ob-error" role="alert">{{ deleteError() }}</p>
         }
-        <button class="btn-danger ob-full" type="button" (click)="confirmDelete()" [disabled]="busy() || !deleteInput().trim()">
+        <button class="btn-danger ob-full" type="button" (click)="confirmDelete()" [disabled]="busy() || !canDelete()">
           <dba-cel-icon name="trash" [size]="15" /> Delete Profile Permanently
         </button>
         <button class="ob-back-link" type="button" (click)="closed.emit()">
@@ -144,21 +142,9 @@
             {{ copied() ? 'Copied' : 'Copy' }}
           </button>
         </div>
-        @if (deleteToken(); as token) {
-          <div class="ob-token">
-            <div class="ob-token-head">
-              <span class="ob-token-label"><dba-cel-icon name="key" [size]="14" /> Delete token</span>
-              <button class="ob-copy" type="button" (click)="copyToken()">
-                {{ tokenCopied() ? 'Copied' : 'Copy' }}
-              </button>
-            </div>
-            <code class="ob-token-code">{{ token }}</code>
-            <p class="ob-token-note">
-              Save this somewhere safe. It’s the only way to delete your online profile later —
-              we can’t recover it for you.
-            </p>
-          </div>
-        }
+        <p class="ob-token-note ob-live-note">
+          You’re logged in as the owner on this tab — open your profile to edit or delete it anytime.
+        </p>
         <dba-ui-text-button class="ob-full" variant="primary" size="lg" label="Open Profile" (clicked)="openProfile()">
           <dba-cel-icon slot="leading" name="arrow" [size]="15" />
         </dba-ui-text-button>

@@ -48,8 +48,10 @@ export interface ExtractedRows {
 
 /** Community aggregates for the landing page, replayed from the upload log. */
 export interface CommunityStats {
-  /** Distinct owners (latest snapshot per profile id, else install id). */
-  attemptCount: number;
+  /** Celestories charted: every claimed owner (latest snapshot) + every anonymous upload. */
+  chartedCount: number;
+  /** Online, live published profiles (the `stories` table count). */
+  liveCount: number;
   totalIntegrationSeconds: number;
   objectCount: number;
   lightFrameCount: number;

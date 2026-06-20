@@ -72,8 +72,11 @@
   color: var(--db-color-neon-pink);
 }
 
-/* Banner */
+/* Banner — pinned to the top of the viewport while the journey scrolls. */
 .banner {
+  position: sticky;
+  top: 0.6rem;
+  z-index: 5;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -83,7 +86,9 @@
   border-radius: 12px;
   margin-bottom: 1.1rem;
   border: 1px solid color-mix(in srgb, var(--db-color-text-faint) 28%, transparent);
-  background: color-mix(in srgb, var(--db-color-text-faint) 8%, transparent);
+  background: color-mix(in srgb, var(--db-color-surface-raised) 90%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 .banner--demo {
   border-color: color-mix(in srgb, var(--db-color-cyan) 40%, transparent);
@@ -103,7 +108,8 @@
   justify-content: space-between;
   gap: 0.9rem;
 }
-.banner-token {
+/* Owner-mode action row (visible only when logged in as the owner). */
+.banner-owner {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -112,47 +118,67 @@
   padding-top: 0.85rem;
   border-top: 1px solid color-mix(in srgb, var(--db-color-text-faint) 22%, transparent);
 }
-.banner-token-label {
+.banner-owner-label {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   font-size: 0.78rem;
-  color: var(--db-color-text-dim);
-}
-.banner-token-code {
-  font-family: var(--db-font-mono-code);
-  font-size: 12px;
   color: var(--db-color-cyan);
-  background: color-mix(in srgb, var(--db-color-cyan) 10%, transparent);
-  padding: 4px 9px;
-  border-radius: 7px;
-  user-select: all;
 }
-.banner-token-copy {
-  font-size: 0.74rem;
-  color: var(--db-color-text-primary);
-  background: transparent;
-  border: 1px solid color-mix(in srgb, var(--db-color-text-faint) 35%, transparent);
-  border-radius: 7px;
-  padding: 4px 10px;
-  cursor: pointer;
-}
-.banner-token-hint {
-  font-size: 0.74rem;
-  color: var(--db-color-text-faint);
-}
-.banner-token-del {
-  margin-left: auto;
+.banner-owner-act,
+.banner-owner-del,
+.banner-owner-out {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   font-size: 0.76rem;
-  color: var(--db-color-neon-pink);
   background: transparent;
-  border: 1px solid color-mix(in srgb, var(--db-color-neon-pink) 38%, transparent);
   border-radius: 7px;
   padding: 5px 11px;
   cursor: pointer;
+}
+.banner-owner-act {
+  margin-left: auto;
+  color: var(--db-color-text-primary);
+  border: 1px solid color-mix(in srgb, var(--db-color-cyan) 40%, transparent);
+}
+.banner-owner-act:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.banner-owner-del {
+  color: var(--db-color-neon-pink);
+  border: 1px solid color-mix(in srgb, var(--db-color-neon-pink) 38%, transparent);
+}
+.banner-owner-out {
+  color: var(--db-color-text-dim);
+  border: 1px solid color-mix(in srgb, var(--db-color-text-faint) 30%, transparent);
+}
+.banner-owner-err {
+  flex-basis: 100%;
+  font-size: 0.76rem;
+  color: var(--db-color-neon-pink);
+}
+/* "Manage this profile" entry shown to visitors / logged-out owners. */
+.banner-manage {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 0.7rem;
+  font-size: 0.76rem;
+  color: var(--db-color-text-dim);
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+.banner-manage:hover {
+  color: var(--db-color-cyan);
+}
+/* Shown on its own to visitors (no published banner above it). */
+.banner-manage--solo {
+  margin-bottom: 1.1rem;
 }
 .banner-ico {
   flex: none;
@@ -186,17 +212,44 @@
   color: var(--db-color-text-dim);
   font-size: 0.85rem;
 }
-.banner-txt .url {
+.banner-url {
   font-family: var(--db-font-mono-code);
-  font-size: 12px;
   color: var(--db-color-cyan);
-  margin-top: 0.2rem;
-  overflow-x: auto;
+  text-decoration: none;
 }
-.banner-actions {
+.banner-url:hover {
+  text-decoration: underline;
+}
+/* Share row: copy-link + social platforms + the Share button. */
+.banner-share {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.45rem;
+  align-items: center;
+  gap: 0.4rem;
+}
+.share-btn {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  color: var(--db-color-text-dim);
+  background: color-mix(in srgb, var(--db-color-text-faint) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--db-color-text-faint) 22%, transparent);
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.share-btn:hover {
+  color: var(--db-color-cyan);
+  border-color: color-mix(in srgb, var(--db-color-cyan) 50%, transparent);
+  background: color-mix(in srgb, var(--db-color-cyan) 10%, transparent);
+}
+.share-glyph {
+  font-family: var(--db-font-mono-code);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
 }
 
 /* Actions row */

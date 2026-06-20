@@ -1,9 +1,12 @@
-/** A published profile recorded on this device. */
-export interface PublishedSession {
-  /** The claimed public handle. */
+/** Which web-storage area a value is persisted to. */
+export type StorageKind = 'session' | 'local';
+
+/** An authenticated owner session, scoped to one browser tab. */
+export interface OwnerSession {
+  /** The handle this session can manage (edit/delete). */
   handle: string;
-  /** One-time delete token (server-minted capability key). */
-  deleteToken: string;
+  /** Signed management session token presented as a Bearer credential. */
+  token: string;
 }
 
 /** The editable viewer identity, shared between the portfolio hero and Share Studio. */

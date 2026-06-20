@@ -35,37 +35,53 @@
         </section>
       }
       @case ('published') {
-        <section class="banner banner--published">
-          <div class="banner-main">
-            <span class="banner-ico"><dba-cel-icon name="globe" [size]="17" /></span>
-            <div class="banner-txt">
-              <strong>Journey Published</strong>
-              <span>Your profile is now publicly available.</span>
-              <code class="url">{{ profileUrl() }}</code>
+        @if (session.isOwnerOf(handle())) {
+          <section class="banner banner--published">
+            <div class="banner-main">
+              <span class="banner-ico"><dba-cel-icon name="globe" [size]="17" /></span>
+              <div class="banner-txt">
+                <strong>Journey Published</strong>
+                <span>Your profile is live at
+                  <a class="banner-url" [href]="profileUrl()" target="_blank" rel="noopener">{{ profileDisplay() }}</a>
+                </span>
+              </div>
+              <div class="banner-share">
+                <button class="share-btn" type="button" [title]="copied() ? 'Copied' : 'Copy link'" (click)="copyLink()">
+                  <dba-cel-icon [name]="copied() ? 'check' : 'link'" [size]="15" />
+                </button>
+                @for (s of socialLinks(); track s.id) {
+                  <a class="share-btn share-social" [href]="s.href" target="_blank" rel="noopener noreferrer" [title]="'Share on ' + s.name">
+                    <span class="share-glyph">{{ s.glyph }}</span>
+                  </a>
+                }
+                <dba-ui-text-button variant="primary" label="Share" (clicked)="openShare()">
+                  <dba-cel-icon slot="leading" name="share" [size]="14" />
+                </dba-ui-text-button>
+              </div>
             </div>
-            <div class="banner-actions">
-              <dba-ui-text-button variant="secondary" [label]="copied() ? 'Copied' : 'Copy Link'" (clicked)="copyLink()">
-                <dba-cel-icon slot="leading" name="link" [size]="14" />
-              </dba-ui-text-button>
-              <dba-ui-text-button variant="primary" label="Share" (clicked)="openShare()">
-                <dba-cel-icon slot="leading" name="share" [size]="14" />
-              </dba-ui-text-button>
-            </div>
-          </div>
-          @if (session.deleteToken(); as token) {
-            <div class="banner-token">
-              <span class="banner-token-label"><dba-cel-icon name="key" [size]="13" /> Delete token</span>
-              <code class="banner-token-code">{{ token }}</code>
-              <button class="banner-token-copy" type="button" (click)="copyToken()">
-                {{ tokenCopied() ? 'Copied' : 'Copy' }}
+            <div class="banner-owner">
+              <span class="banner-owner-label"><dba-cel-icon name="lock" [size]="13" /> Only you see these controls — visitors just see your story.</span>
+              <button class="banner-owner-act" type="button" [disabled]="editBusy()" (click)="editInput.click()">
+                <dba-cel-icon name="upload" [size]="13" /> {{ editBusy() ? 'Updating…' : 'Update with a new file' }}
               </button>
-              <span class="banner-token-hint">Use it anytime to delete your online profile.</span>
-              <button class="banner-token-del" type="button" (click)="openPublishDelete()">
+              <button class="banner-owner-del" type="button" (click)="openPublishDelete()">
                 <dba-cel-icon name="trash" [size]="13" /> Delete profile
               </button>
+              <button class="banner-owner-out" type="button" (click)="logout()">
+                <dba-cel-icon name="back" [size]="13" /> Log out
+              </button>
+              @if (editError()) {
+                <span class="banner-owner-err" role="alert">{{ editError() }}</span>
+              }
             </div>
-          }
-        </section>
+            <input #editInput type="file" accept="application/json,.json" hidden (change)="onEditFile($event)" />
+          </section>
+        } @else {
+          <!-- Visitors / logged-out owners: no owner banner, just a quiet login entry. -->
+          <button class="banner-manage banner-manage--solo" type="button" (click)="openLogin()">
+            <dba-cel-icon name="lock" [size]="13" /> Manage this profile
+          </button>
+        }
       }
     }
 
@@ -112,6 +128,13 @@
       (published)="onPublished($event)"
       (unpublished)="onUnpublished()"
       (closed)="showPublish.set(false)"
+    />
+  }
+  @if (showLogin()) {
+    <dba-owner-login-modal
+      [handle]="handle()"
+      (authenticated)="onAuthenticated()"
+      (closed)="showLogin.set(false)"
     />
   }
   @if (showStudio()) {

@@ -36,7 +36,12 @@ export default class PreviewPageComponent {
   constructor() {
     afterNextRender(() => {
       if (this.previewStore.fresh() && this.ledger()) {
-        this.revealing.set(true);
+        // The "Create" flow opens the publish modal first (the full-screen
+        // reveal would hide it), so the branded reveal plays only on the
+        // visualize-only path. Read before journey-view consumes autoPublish.
+        if (!this.previewStore.autoPublish()) {
+          this.revealing.set(true);
+        }
         this.previewStore.fresh.set(false);
       }
     });

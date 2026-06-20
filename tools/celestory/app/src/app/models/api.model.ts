@@ -7,17 +7,32 @@ export interface ApiResponse<T> {
   details: T;
 }
 
-/** Result of ② Create — the public URL + one-time key. */
+/** Result of ② Create — the public URL + a management session token (owner mode). */
 export interface CreateStoryResult {
   handle: string;
   url: string;
-  key: string;
+  token: string;
 }
 
-/** Result of ③ Update — the public URL (handle + delete key are unchanged). */
+/** Result of ③ Update — the public URL + a refreshed management session token. */
 export interface UpdateStoryResult {
   handle: string;
   url: string;
+  token: string;
+}
+
+/** Result of owner login — a management session token for the handle. */
+export interface LoginResult {
+  token: string;
+}
+
+/**
+ * Authorization for a story mutation (update/delete): a logged-in owner's
+ * management `token` (preferred) or the profile `password` (landing re-upload).
+ */
+export interface StoryAuth {
+  token?: string;
+  password?: string;
 }
 
 /**

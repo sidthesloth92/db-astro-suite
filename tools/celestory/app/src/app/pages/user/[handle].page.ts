@@ -1,29 +1,30 @@
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   computed,
   effect,
   inject,
+  signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Meta, Title } from '@angular/platform-browser';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ConstellationFieldComponent } from '@db-astro-suite/ui';
-import { catchError, map, of, startWith, switchMap } from 'rxjs';
+import { catchError, combineLatest, map, of, startWith, switchMap } from 'rxjs';
 import { CelestoryWordmarkComponent } from '../../components/celestory-wordmark/celestory-wordmark.component';
 import { JourneyViewComponent } from '../../components/journey-view/journey-view.component';
+import { ProcessingRevealComponent } from '../../components/processing-reveal/processing-reveal.component';
 import type { StoryDetails } from '../../models/api.model';
-import type { JourneyState } from '../../models/journey.types';
 import type { PortfolioState } from '../../models/portfolio.types';
-import { SAMPLE_HANDLE, SAMPLE_LEDGER } from '../../models/sample-ledger.constants';
 import { StoryService } from '../../services/story.service';
 import { formatHours } from '../../utils/format.util';
 
 /**
  * Public profile at /user/<handle>. Renders the shared journey shell in the
- * Demo state for /user/vera (bundled sample, no network call) or the Published
- * state for any other handle (loaded from the API, SSR-friendly). Sets per-handle
- * OpenGraph meta (from the ledger summary) so shared links unfurl well.
+ * Published state for the handle's story loaded from the API (SSR-friendly); an
+ * unknown handle shows the missing state. Sets per-handle OpenGraph meta (from the
+ * ledger summary) so shared links unfurl well. (The bundled demo lives at /demo.)
  */
 @Component({
   selector: 'dba-celestory-portfolio',
@@ -33,6 +34,7 @@ import { formatHours } from '../../utils/format.util';
     ConstellationFieldComponent,
     JourneyViewComponent,
     CelestoryWordmarkComponent,
+    ProcessingRevealComponent,
   ],
   templateUrl: './[handle].page.html',
   styleUrl: './[handle].page.css',
@@ -44,29 +46,35 @@ export default class PortfolioPageComponent {
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
 
-  /** The bundled demo journey, served reload-safe at /user/vera. */
-  private readonly sampleStory: StoryDetails = {
-    handle: SAMPLE_HANDLE,
-    ledger: SAMPLE_LEDGER,
-    createdAt: SAMPLE_LEDGER.generatedAt,
-  };
+  /** Bumped to re-fetch the profile after an owner edit (re-upload). */
+  private readonly reloadTick = signal(0);
 
-  /** Load state for the resolved handle. */
+  /**
+   * Plays the branded reveal once as the page's loading/intro screen (browser
+   * only — SSR renders the content directly for crawlers). Shown on every direct
+   * visit, not just the publish hand-off, so the URL always opens with the reveal.
+   */
+  protected readonly introActive = signal(false);
+
+  /** Load state for the resolved handle (from the API), re-running on reload. */
   protected readonly state = toSignal(
-    this.route.paramMap.pipe(
-      map((params) => params.get('handle') ?? ''),
+    combineLatest([this.route.paramMap, toObservable(this.reloadTick)]).pipe(
+      map(([params]) => params.get('handle') ?? ''),
       switchMap((handle) =>
-        handle === SAMPLE_HANDLE
-          ? of<PortfolioState>({ status: 'loaded', story: this.sampleStory })
-          : this.storyService.getStory(handle).pipe(
-              map((story): PortfolioState => ({ status: 'loaded', story })),
-              catchError(() => of<PortfolioState>({ status: 'error' })),
-              startWith<PortfolioState>({ status: 'loading' }),
-            ),
+        this.storyService.getStory(handle).pipe(
+          map((story): PortfolioState => ({ status: 'loaded', story })),
+          catchError(() => of<PortfolioState>({ status: 'error' })),
+          startWith<PortfolioState>({ status: 'loading' }),
+        ),
       ),
     ),
     { initialValue: { status: 'loading' } satisfies PortfolioState },
   );
+
+  /** Re-fetch the profile after a successful owner edit. */
+  protected refresh(): void {
+    this.reloadTick.update((n) => n + 1);
+  }
 
   /** The loaded story, or null while loading / on error. */
   protected readonly story = computed<StoryDetails | null>(() => {
@@ -74,15 +82,17 @@ export default class PortfolioPageComponent {
     return state.status === 'loaded' ? state.story : null;
   });
 
-  /** Whether the bundled demo is being shown. */
-  protected readonly isSample = computed(() => this.story()?.handle === SAMPLE_HANDLE);
-
-  /** Journey state for the shared shell: Demo for the sample, else Published. */
-  protected readonly journeyState = computed<JourneyState>(() =>
-    this.isSample() ? 'demo' : 'published',
+  /** Total integration seconds for the reveal's hours count-up (0 until loaded). */
+  protected readonly introSeconds = computed(
+    () => this.story()?.ledger.summary.totalIntegrationSeconds ?? 0,
   );
 
   constructor() {
+    // Arm the reveal once on the browser (post-hydration), so SSR/crawlers still
+    // get the content directly. It then plays as the loading screen and its hours
+    // count-up fills in when the story resolves.
+    afterNextRender(() => this.introActive.set(true));
+
     // Apply per-handle OG meta once the story resolves (runs during SSR too).
     effect(() => {
       const story = this.story();
@@ -90,6 +100,11 @@ export default class PortfolioPageComponent {
         this.applyMeta(story);
       }
     });
+  }
+
+  /** The reveal finished — drop the intro overlay to show the profile beneath. */
+  protected onIntroDone(): void {
+    this.introActive.set(false);
   }
 
   /** Sets the document title + OG/description tags from the ledger summary. */

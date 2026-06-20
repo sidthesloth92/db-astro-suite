@@ -70,10 +70,10 @@ export class StoryNotFoundError extends CelestoryError {
   }
 }
 
-/** The supplied delete key did not match. */
-export class InvalidKeyError extends CelestoryError {
+/** No valid owner session token was presented for a management action. */
+export class SessionInvalidError extends CelestoryError {
   constructor() {
-    super('KEY_INVALID', 'That key is incorrect.', 403);
+    super('SESSION_INVALID', 'Please log in to manage this profile.', 403);
   }
 }
 

@@ -171,12 +171,6 @@
   font-size: 0.95rem;
   padding: 0.7rem 0.75rem 0.7rem 0;
 }
-.ob-url-preview {
-  font-family: var(--db-font-mono-code);
-  font-size: 0.8rem;
-  color: var(--db-color-cyan);
-  margin: 0.6rem 0 0;
-}
 .ob-error {
   color: var(--db-color-neon-pink);
   font-size: 0.82rem;

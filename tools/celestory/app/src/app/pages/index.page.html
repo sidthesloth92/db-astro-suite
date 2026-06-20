@@ -71,21 +71,20 @@
         </p>
       </header>
 
-      <!-- STATUS — social proof, shown only once the community has real aggregates -->
-      @if (stats()?.attemptCount) {
-        <section #statusSection class="status" aria-label="Celestory by the numbers">
-          <div class="frame">
-            <div class="lead-row"><span class="eyebrow">Charted with Celestory so far</span></div>
-            <div class="grid">
-              <div class="cell"><div class="cv">{{ photographers() }}</div><div class="ck">Astrophotographers</div></div>
-              <div class="cell"><div class="cv">{{ hours() }}</div><div class="ck">Hours integrated</div></div>
-              <div class="cell"><div class="cv">{{ objects() }}</div><div class="ck">Objects charted</div></div>
-              <div class="cell"><div class="cv">{{ frames() }}</div><div class="ck">Light frames</div></div>
-            </div>
-            <div class="foot">Updated nightly · counts are aggregate, never your data</div>
+      <!-- STATUS — community social proof; live aggregates, with a representative baseline until /api/v1/stats responds -->
+      <section #statusSection class="status" aria-label="Celestory by the numbers">
+        <div class="frame">
+          <div class="lead-row"><span class="eyebrow">Charted with Celestory so far</span></div>
+          <div class="grid">
+            <div class="cell"><div class="cv">{{ charted() }}</div><div class="ck">Celestories charted</div></div>
+            <div class="cell"><div class="cv">{{ live() }}</div><div class="ck">Live Celestories</div></div>
+            <div class="cell"><div class="cv">{{ hours() }}</div><div class="ck">Hours integrated</div></div>
+            <div class="cell"><div class="cv">{{ objects() }}</div><div class="ck">Objects charted</div></div>
+            <div class="cell"><div class="cv">{{ frames() }}</div><div class="ck">Light frames</div></div>
           </div>
-        </section>
-      }
+          <div class="foot">Updated nightly · counts are aggregate, never your data</div>
+        </div>
+      </section>
 
       <!-- WHY / STORY -->
       <section class="block" id="story">
@@ -294,6 +293,14 @@
       (visualize)="chooseVisualize()"
       (create)="chooseCreate()"
       (closed)="closeChoose()"
+    />
+  }
+
+  @if (showPublish() && pendingLedger(); as l) {
+    <dba-publish-modal
+      [ledger]="l"
+      (published)="onPublished($event)"
+      (closed)="closePublish()"
     />
   }
 </dba-ui-constellation-field>

@@ -1,26 +1,29 @@
 import { inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { IDENTITY_KEY, SESSION_KEY } from '../models/session.constants';
-import type { PublishedSession, ViewerIdentity } from '../models/session.types';
+import { IDENTITY_KEY, OWNER_SESSION_KEY } from '../models/session.constants';
+import type { OwnerSession, StorageKind, ViewerIdentity } from '../models/session.types';
 
 /**
- * Client-side session + identity for the Celestory app. Holds the published
- * profile's handle + one-time delete token (shown in the published banner so the
- * owner can delete later) and the editable viewer identity (display name +
- * handle) shared between the portfolio hero editor and the Share Studio.
+ * Client-side owner session + viewer identity for the Celestory app.
  *
- * SSR-safe: reads/writes `localStorage` only in the browser. Nothing here is a
- * security boundary — the delete token is the server-minted capability key.
+ * The owner session (handle + management token) lives in `sessionStorage`, so
+ * owner mode survives a refresh within the same tab but resets when the tab is
+ * closed or the profile URL is opened fresh — visitors (and the owner on a new
+ * tab) always start on the public view until they log in. The editable viewer
+ * identity (display name + handle) lives in `localStorage`, shared app-wide.
+ *
+ * SSR-safe: touches web storage only in the browser. Nothing here is a security
+ * boundary — the token is the server-signed capability and is verified server-side.
  */
 @Injectable({ providedIn: 'root' })
 export class SessionStore {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
 
-  /** Published handle for this device, or null. */
-  readonly publishedHandle = signal<string | null>(null);
-  /** One-time delete token (server-minted key), or null. */
-  readonly deleteToken = signal<string | null>(null);
+  /** Handle the current tab is authenticated to manage, or null. */
+  readonly ownerHandle = signal<string | null>(null);
+  /** Management session token for the current tab, or null. */
+  readonly token = signal<string | null>(null);
   /** Editable viewer identity (display name + handle). */
   readonly identity = signal<ViewerIdentity>({ name: '', handle: '' });
 
@@ -31,64 +34,73 @@ export class SessionStore {
     this.restore();
   }
 
-  /** Record a freshly published profile (handle + delete token). */
-  setPublished(session: PublishedSession): void {
-    this.publishedHandle.set(session.handle);
-    this.deleteToken.set(session.deleteToken);
-    this.persist(SESSION_KEY, session);
+  /** True when this tab is logged in as the owner of `handle`. */
+  isOwnerOf(handle: string): boolean {
+    return !!handle && this.ownerHandle() === handle && !!this.token();
   }
 
-  /** Clear the published session (after a successful delete). */
-  clearPublished(): void {
-    this.publishedHandle.set(null);
-    this.deleteToken.set(null);
-    this.remove(SESSION_KEY);
+  /** Record an authenticated owner session for this tab. */
+  setOwner(session: OwnerSession): void {
+    this.ownerHandle.set(session.handle);
+    this.token.set(session.token);
+    this.persist(OWNER_SESSION_KEY, session, 'session');
+  }
+
+  /** Clear the owner session (logout / after a successful delete). */
+  clearOwner(): void {
+    this.ownerHandle.set(null);
+    this.token.set(null);
+    this.remove(OWNER_SESSION_KEY, 'session');
   }
 
   /** Update the editable viewer identity (persisted, shared app-wide). */
   setIdentity(identity: ViewerIdentity): void {
     this.identity.set(identity);
-    this.persist(IDENTITY_KEY, identity);
+    this.persist(IDENTITY_KEY, identity, 'local');
   }
 
   private restore(): void {
-    const session = this.read<PublishedSession>(SESSION_KEY);
-    if (session?.handle) {
-      this.publishedHandle.set(session.handle);
-      this.deleteToken.set(session.deleteToken ?? null);
+    const owner = this.read<OwnerSession>(OWNER_SESSION_KEY, 'session');
+    if (owner?.handle && owner?.token) {
+      this.ownerHandle.set(owner.handle);
+      this.token.set(owner.token);
     }
-    const identity = this.read<ViewerIdentity>(IDENTITY_KEY);
+    const identity = this.read<ViewerIdentity>(IDENTITY_KEY, 'local');
     if (identity) {
       this.identity.set({ name: identity.name ?? '', handle: identity.handle ?? '' });
     }
   }
 
-  private read<T>(key: string): T | null {
+  private area(kind: StorageKind): Storage {
+    return kind === 'session' ? sessionStorage : localStorage;
+  }
+
+  private read<T>(key: string, kind: StorageKind): T | null {
     try {
-      const raw = localStorage.getItem(key);
+      const raw = this.area(kind).getItem(key);
       return raw ? (JSON.parse(raw) as T) : null;
     } catch {
       return null;
     }
   }
 
-  private persist(key: string, value: unknown): void {
+  private persist(key: string, value: unknown, kind: StorageKind): void {
     if (!this.isBrowser) {
       return;
     }
     try {
-      localStorage.setItem(key, JSON.stringify(value));
+      this.area(kind).setItem(key, JSON.stringify(value));
     } catch {
       // Storage unavailable (private mode / quota) — non-fatal.
     }
   }
 
-  private remove(key: string): void {
+  private remove(key: string, kind: StorageKind): void {
     if (!this.isBrowser) {
       return;
     }
     try {
-      localStorage.removeItem(key);
+      this.area(kind).removeItem(key);
     } catch {
       // Non-fatal.
     }

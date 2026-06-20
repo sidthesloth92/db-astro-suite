@@ -13,8 +13,8 @@ export function publishErrorMessage(code: unknown): string {
       return 'That file isn’t a valid celestory.json export.';
     case 'STORY_NOT_FOUND':
       return 'No profile found for that handle.';
-    case 'KEY_INVALID':
-      return 'That delete token doesn’t match.';
+    case 'SESSION_INVALID':
+      return 'Your session expired — please log in again.';
     default:
       return 'Something went wrong. Please try again.';
   }

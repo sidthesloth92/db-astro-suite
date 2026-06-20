@@ -1,23 +1,31 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   afterNextRender,
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   inject,
   input,
+  output,
   signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 import { ConstellationFieldComponent, TextButtonComponent } from '@db-astro-suite/ui';
-import { profileUrl as buildProfileUrl } from '../../models/app.constants';
+import { profileDisplayUrl, profileUrl as buildProfileUrl } from '../../models/app.constants';
 import type { DetailRef, JourneyState } from '../../models/journey.types';
+import type { SocialShareLink } from '../../models/social-share.model';
+import { socialShareLinks } from '../../utils/social-share.util';
 import type { CelestoryLedger, LedgerEquipment, LedgerObject } from '../../models/ledger.model';
 import { copyToClipboard } from '../../utils/clipboard.util';
 import { formatCount, formatHours } from '../../utils/format.util';
+import { publishErrorMessage } from '../../utils/publish-error.util';
+import { readLedgerFile } from '../../utils/read-ledger.util';
 import { PreviewStore } from '../../services/preview-store.service';
 import { SessionStore } from '../../services/session-store.service';
+import { StoryService } from '../../services/story.service';
 import { CelIconComponent } from '../cel-icon/cel-icon.component';
 import { CelestoryWordmarkComponent } from '../celestory-wordmark/celestory-wordmark.component';
 import { EquipmentDetailComponent } from '../equipment-detail/equipment-detail.component';
@@ -25,13 +33,14 @@ import { EquipmentSectionComponent } from '../equipment-section/equipment-sectio
 import { JourneyHeroComponent } from '../journey-hero/journey-hero.component';
 import { ObjectDetailComponent } from '../object-detail/object-detail.component';
 import { ObjectSectionComponent } from '../object-section/object-section.component';
+import { OwnerLoginModalComponent } from '../owner-login-modal/owner-login-modal.component';
 import { PlanetariumComponent } from '../planetarium/planetarium.component';
 import { PublishModalComponent } from '../publish-modal/publish-modal.component';
 import { SectionBannerComponent } from '../section-banner/section-banner.component';
 import { ShareStudioModalComponent } from '../share-studio-modal/share-studio-modal.component';
 
 /**
- * Shared journey shell rendered by /preview (Private Preview), /user/vera (Demo)
+ * Shared journey shell rendered by /preview (Private Preview), /demo (Demo)
  * and /user/<handle> (Published). Renders a single flowing page — journey hero,
  * Objects catalogue, Equipment rig — or an in-page object/equipment detail. The
  * top banner + actions vary by state. Hosts the Getting Started, Share, Publish
@@ -53,6 +62,7 @@ import { ShareStudioModalComponent } from '../share-studio-modal/share-studio-mo
     ObjectDetailComponent,
     EquipmentDetailComponent,
     PublishModalComponent,
+    OwnerLoginModalComponent,
     ShareStudioModalComponent,
     PlanetariumComponent,
   ],
@@ -64,9 +74,11 @@ import { ShareStudioModalComponent } from '../share-studio-modal/share-studio-mo
 export class JourneyViewComponent {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  /** Client-side session: holds the delete token shown in the published banner. */
+  /** Per-tab owner session: gates the Edit/Delete controls in the published banner. */
   protected readonly session = inject(SessionStore);
   private readonly previewStore = inject(PreviewStore);
+  private readonly storyService = inject(StoryService);
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
     // If the user picked "Create your Celestory" on upload, open publish on arrival.
@@ -85,14 +97,21 @@ export class JourneyViewComponent {
   /** The handle (empty for Private Preview). */
   readonly handle = input<string>('');
 
+  /** Emitted after a successful owner edit so the host re-fetches the profile. */
+  readonly updated = output<void>();
+
   /** Modal visibility. */
   protected readonly showPublish = signal(false);
+  /** The owner-login modal (opened from the "Manage this profile" link). */
+  protected readonly showLogin = signal(false);
   /** The Share Studio drawer (opened directly from any "Share" action). */
   protected readonly showStudio = signal(false);
   /** Flashes after a successful copy. */
   protected readonly copied = signal(false);
-  /** Flashes after copying the delete token. */
-  protected readonly tokenCopied = signal(false);
+  /** True while an owner edit (re-upload) is in flight. */
+  protected readonly editBusy = signal(false);
+  /** User-facing error from an owner edit, or empty. */
+  protected readonly editError = signal('');
   /** Which phase to open the publish modal in ('' = full flow, 'delete' = delete confirm). */
   protected readonly publishPhase = signal<'' | 'delete'>('');
 
@@ -155,6 +174,12 @@ export class JourneyViewComponent {
 
   /** Canonical public URL of this profile (origin-aware, SSR-safe fallback). */
   protected readonly profileUrl = computed(() => buildProfileUrl(this.handle()));
+  /** Display form of the profile URL (no scheme) shown in the published banner. */
+  protected readonly profileDisplay = computed(() => profileDisplayUrl(this.handle()));
+  /** Social-platform share links for the published banner's share row. */
+  protected readonly socialLinks = computed<SocialShareLink[]>(() =>
+    socialShareLinks(this.profileUrl()),
+  );
 
   /** Opens an object's detail (pushes a history entry). */
   openObject(id: string): void {
@@ -228,18 +253,53 @@ export class JourneyViewComponent {
     this.publishPhase.set('delete');
     this.showPublish.set(true);
   }
-  /** Copies the one-time delete token and flashes feedback. */
-  copyToken(): void {
-    const token = this.session.deleteToken();
-    if (!token) {
+  /** Opens the owner-login modal (verify password to unlock Edit/Delete). */
+  openLogin(): void {
+    this.showLogin.set(true);
+  }
+  /** Owner authenticated: close the login modal (the banner reveals owner controls). */
+  onAuthenticated(): void {
+    this.showLogin.set(false);
+  }
+  /** Ends owner mode for this tab (returns the page to the public view). */
+  logout(): void {
+    this.session.clearOwner();
+  }
+  /**
+   * Owner edit: re-upload a fresh ledger for the current handle, authorized by
+   * the management session token, then ask the host to re-fetch the profile.
+   */
+  onEditFile(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    const token = this.session.token();
+    if (!file || !token) {
       return;
     }
-    void copyToClipboard(token).then((ok) => {
-      if (!ok) {
+    this.editError.set('');
+    this.editBusy.set(true);
+    void readLedgerFile(file).then((result) => {
+      if (!result.ok) {
+        this.editBusy.set(false);
+        this.editError.set(result.error);
         return;
       }
-      this.tokenCopied.set(true);
-      setTimeout(() => this.tokenCopied.set(false), 1400);
+      this.storyService
+        .updateStory(this.handle(), result.ledger, { token })
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (res) => {
+            this.editBusy.set(false);
+            // Keep the owner session fresh with the rotated token.
+            this.session.setOwner({ handle: this.handle(), token: res.token });
+            this.updated.emit();
+          },
+          error: (err: HttpErrorResponse) => {
+            this.editBusy.set(false);
+            this.editError.set(publishErrorMessage(err.error?.code));
+          },
+        });
     });
   }
   /** Demo CTA: sends viewers to the landing page's installation section. */
@@ -253,10 +313,11 @@ export class JourneyViewComponent {
     void this.router.navigate(['/user', handle]);
   }
 
-  /** Profile deleted: close the modal and return to the Private Preview. */
+  /** Profile deleted: close the modal and leave the (now-gone) profile page. */
   onUnpublished(): void {
     this.showPublish.set(false);
-    void this.router.navigate(['/preview']);
+    // Back to the staged preview if one exists (preview→publish→delete), else home.
+    void this.router.navigate([this.previewStore.ledger() ? '/preview' : '/']);
   }
 
   /** Copies the public profile URL and flashes feedback. */
@@ -297,10 +358,11 @@ export class JourneyViewComponent {
 
   /** Escape closes any open modal; with no modal open, it closes an open detail. */
   onEscape(): void {
-    const anyModalOpen = this.showPublish() || this.showStudio();
+    const anyModalOpen = this.showPublish() || this.showStudio() || this.showLogin();
     if (anyModalOpen) {
       this.showPublish.set(false);
       this.showStudio.set(false);
+      this.showLogin.set(false);
       return;
     }
     if (this.detail()) {

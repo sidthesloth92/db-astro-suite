@@ -1,25 +1,28 @@
-import { defineEventHandler, getRouterParam, readBody } from 'h3';
+import { defineEventHandler, getHeader, getRouterParam, readBody } from 'h3';
 import { getDb } from '../../../../utils/db';
 import { config } from '../../../../utils/config';
 import { normalizeHandle } from '../../../../utils/handle';
 import { validateLedger } from '../../../../utils/ledger-validate';
 import { extractRows } from '../../../../utils/extract';
 import { verifyPassword } from '../../../../utils/password';
+import { authorizeSession, extractBearer, signSession } from '../../../../utils/session-token';
 import { recordUpload, claimUploads } from '../../../../utils/uploads';
 import { success, toErrorResponse } from '../../../../utils/respond';
 import { BadPasswordError, StoryNotFoundError } from '../../../../utils/celestory.error';
 
 /**
- * ③ Update — re-publish an existing handle with a fresh ledger. Verifies the
- * profile password (scrypt), then replaces the ledger + recomputed totals and
- * rebuilds the child rows in a single transaction. The handle and delete key
- * are unchanged.
+ * ③ Update — re-publish an existing handle with a fresh ledger. Authorized by a
+ * management session token (logged-in owner) OR the profile password (landing
+ * re-upload flow); then replaces the ledger + recomputed totals and rebuilds
+ * the child rows in a single transaction. The handle is unchanged; a fresh
+ * session token is returned so the owner stays logged in.
  */
 export default defineEventHandler(async (event) => {
   try {
     const handle = normalizeHandle(getRouterParam(event, 'handle'));
     const body = await readBody<{ ledger?: unknown; password?: unknown }>(event);
     const password = typeof body?.password === 'string' ? body.password : '';
+    const token = extractBearer(getHeader(event, 'authorization'));
     const ledger = validateLedger(body?.ledger);
     const rows = extractRows(ledger);
     const ledgerJson = JSON.stringify(body?.ledger);
@@ -32,7 +35,10 @@ export default defineEventHandler(async (event) => {
       throw new StoryNotFoundError(handle);
     }
     const row = found[0] as { id: string; password_hash: string | null };
-    if (!row.password_hash || !(await verifyPassword(password, row.password_hash))) {
+    // A valid owner session token authorizes the edit; otherwise fall back to
+    // the profile password (used by the landing re-upload flow).
+    const viaSession = authorizeSession(token, handle, row.id);
+    if (!viaSession && (!row.password_hash || !(await verifyPassword(password, row.password_hash)))) {
       throw new BadPasswordError();
     }
 
@@ -86,20 +92,31 @@ export default defineEventHandler(async (event) => {
 
     // Log the re-publish as an upload event and (re)claim this install's
     // anonymous events under the handle, so a re-publish from a new install
-    // folds its totals under the profile.
+    // folds its totals under the profile. Best-effort: the profile is already
+    // updated, so a bookkeeping failure must never fail the update (mirrors the
+    // create path).
     if (ledger.installId && ledger.dataFingerprint) {
-      await recordUpload({
-        installId: ledger.installId,
-        dataFingerprint: ledger.dataFingerprint,
-        totalIntegrationSeconds: totals.totalIntegrationSeconds,
-        lightFrameCount: totals.lightFrameCount,
-        objectCount: totals.objectCount,
-      });
-      await claimUploads(ledger.installId, handle);
+      try {
+        await recordUpload({
+          installId: ledger.installId,
+          dataFingerprint: ledger.dataFingerprint,
+          totalIntegrationSeconds: totals.totalIntegrationSeconds,
+          lightFrameCount: totals.lightFrameCount,
+          objectCount: totals.objectCount,
+        });
+        await claimUploads(ledger.installId, handle);
+      } catch (bookkeepingError) {
+        // Surfaced in the function logs; never propagated to the client.
+        console.error('update upload bookkeeping failed (non-fatal):', bookkeepingError);
+      }
     }
 
     const url = `${config.publicBaseUrl.replace(/\/$/, '')}/user/${handle}`;
-    return success('STORY_UPDATED', 'Your Celestory was updated.', { url, handle });
+    return success('STORY_UPDATED', 'Your Celestory was updated.', {
+      url,
+      handle,
+      token: signSession(handle, storyId),
+    });
   } catch (error) {
     return toErrorResponse(event, error);
   }
