@@ -96,8 +96,9 @@ new/changed files are parsed. Re-runs drop from minutes to seconds.
 
 If the same sub is sitting in two places (e.g. a working copy and a backup), it's
 **counted once** toward your integration and **reported** so you know — Celestory
-never deletes anything. Duplicates appear in `celestory.json → duplicates`, in the
-summary, and on the terminal.
+never deletes anything. The per-file duplicate list is shown **on the terminal
+only**: it contains local file paths, which are never written to `celestory.json`
+(the file you upload). The path-free counts still appear in the summary.
 
 By default the report is **scoped to the folder you scanned** — a set with a copy in
 that folder (even if its twin lives on another disk) is shown; sets sitting entirely

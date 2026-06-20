@@ -175,7 +175,12 @@ func run(f cliFlags) error {
 	}
 	ledger.DataFingerprint = fingerprint.Compute(ledger)
 
-	if err := report.WriteFile(jsonPath, ledger); err != nil {
+	// celestory.json is uploaded to the web app, so it must not carry local file
+	// paths. The duplicate sets are the only path-bearing data — write a copy with
+	// them cleared; the terminal still reports them locally, where paths are safe.
+	persisted := ledger
+	persisted.Duplicates = []model.DuplicateSet{}
+	if err := report.WriteFile(jsonPath, persisted); err != nil {
 		return err
 	}
 	printRunSummary(ledger, jsonPath, hiddenDupSets)
