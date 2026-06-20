@@ -64,14 +64,6 @@ scoop bucket add sidthesloth92 https://github.com/sidthesloth92/scoop-bucket
 scoop install sortronomy
 ```
 
-### `go install`
-
-```bash
-go install github.com/sidthesloth92/db-astro-suite/tools/sortronomy@latest
-```
-
-The binary will land at `$(go env GOPATH)/bin/sortronomy`.
-
 ### Direct download
 
 Grab a pre-built archive from the [Releases page](https://github.com/sidthesloth92/db-astro-suite/releases?q=sortronomy).

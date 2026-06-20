@@ -26,6 +26,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/sidthesloth92/db-astro-suite/libs/cliui"
 	"github.com/sidthesloth92/db-astro-suite/tools/sortronomy/internal/fits"
 	"github.com/sidthesloth92/db-astro-suite/tools/sortronomy/internal/fsutil"
 )
@@ -157,7 +158,7 @@ func BuildPlan(opts Options, log *slog.Logger) (Plan, error) {
 	}
 	opts.OutputDir = abs
 
-	fmt.Printf("Scanning %s …\n", opts.InputDir)
+	fmt.Printf("%s %s\n", cliui.Dim.Render("Scanning"), cliui.Value.Render(opts.InputDir)+cliui.Dim.Render(" …"))
 	files, err := walkFITS(opts.InputDir)
 	if err != nil {
 		return Plan{}, err
@@ -212,7 +213,7 @@ type fileErr struct {
 // function returns an error only if any file failed.
 func ExecutePlan(plan Plan, opts Options, log *slog.Logger) error {
 	if len(plan.Entries) == 0 {
-		fmt.Println("Nothing to do.")
+		fmt.Println(cliui.Dim.Render("Nothing to do."))
 		return nil
 	}
 	log.Info("organize start",
@@ -222,7 +223,12 @@ func ExecutePlan(plan Plan, opts Options, log *slog.Logger) error {
 		"groupByFocal", opts.GroupByFocal,
 		"groupSession", opts.GroupSession,
 		"tagFilter", opts.TagFilter)
-	fmt.Printf("Organizing %d file(s) under %s\n\n", len(plan.Entries), plan.OutputDir)
+	fmt.Printf("%s %s %s %s\n\n",
+		cliui.Dim.Render("Organizing"),
+		cliui.OK.Render(fmt.Sprintf("%d file(s)", len(plan.Entries))),
+		cliui.Dim.Render("under"),
+		cliui.Value.Render(plan.OutputDir),
+	)
 
 	prog := newProgressReporter(os.Stdout, os.Stdout.Fd(), len(plan.Entries))
 	var copied, alreadyExisted int
@@ -268,10 +274,21 @@ func ExecutePlan(plan Plan, opts Options, log *slog.Logger) error {
 		"alreadyExisted", alreadyExisted,
 		"skipped", len(plan.Skips),
 		"failed", failed)
-	fmt.Printf("Done. Copied: %d   Already existed: %d   Skipped: %d   Failed: %d\n",
-		copied, alreadyExisted, len(plan.Skips), failed)
+	fmt.Println()
+	fmt.Printf("%s   %s\n",
+		cliui.Heading.Render("✦ Done"),
+		strings.Join([]string{
+			cliui.OK.Render(fmt.Sprintf("Copied %d", copied)),
+			cliui.Dim.Render(fmt.Sprintf("Already existed %d", alreadyExisted)),
+			cliui.Count("Skipped", len(plan.Skips), cliui.Warn),
+			cliui.Count("Failed", failed, cliui.Fail),
+		}, cliui.Dim.Render(" · ")),
+	)
 	if len(plan.SoftwareSeen) > 0 {
-		fmt.Printf("Capture software seen: %s\n", strings.Join(softwareLabels(plan.SoftwareSeen), ", "))
+		fmt.Printf("%s %s\n",
+			cliui.Dim.Render("Capture software detected:"),
+			cliui.Value.Render(strings.Join(softwareLabels(plan.SoftwareSeen), ", ")))
+		fmt.Println()
 	}
 	if failed > 0 {
 		printFileErrors(os.Stderr, fileErrs, "could not be processed")
@@ -287,14 +304,19 @@ func ExecutePlan(plan Plan, opts Options, log *slog.Logger) error {
 // idempotent and fills them in.
 func ExecuteDryRun(plan Plan, opts Options, log *slog.Logger) error {
 	if len(plan.Entries) == 0 {
-		fmt.Println("Nothing to do.")
+		fmt.Println(cliui.Dim.Render("Nothing to do."))
 		return nil
 	}
 	log.Info("dry run start",
 		"input", opts.InputDir,
 		"output", plan.OutputDir,
 		"files", len(plan.Entries))
-	fmt.Printf("Dry run — creating folders only under %s (no files copied)\n\n", plan.OutputDir)
+	fmt.Printf("%s %s %s %s\n\n",
+		cliui.Warn.Render("Dry run"),
+		cliui.Dim.Render("— creating folders only under"),
+		cliui.Value.Render(plan.OutputDir),
+		cliui.Dim.Render("(no files copied)"),
+	)
 
 	// Distinct destination directories, sorted for deterministic creation order.
 	dirSet := map[string]struct{}{}
@@ -332,10 +354,19 @@ func ExecuteDryRun(plan Plan, opts Options, log *slog.Logger) error {
 		"files", len(plan.Entries),
 		"skipped", len(plan.Skips),
 		"failed", failed)
-	fmt.Printf("Dry run complete. Created %d folder(s) for %d file(s) under %s. No files were copied.\n",
-		created, len(plan.Entries), plan.OutputDir)
+	fmt.Println()
+	fmt.Printf("%s   %s %s %s\n",
+		cliui.Heading.Render("✦ Dry run complete"),
+		cliui.OK.Render(fmt.Sprintf("Created %d folder(s)", created)),
+		cliui.Dim.Render(fmt.Sprintf("for %d file(s) under", len(plan.Entries))),
+		cliui.Value.Render(plan.OutputDir),
+	)
+	fmt.Println(cliui.Dim.Render("No files were copied."))
 	if len(plan.SoftwareSeen) > 0 {
-		fmt.Printf("Capture software seen: %s\n", strings.Join(softwareLabels(plan.SoftwareSeen), ", "))
+		fmt.Printf("%s %s\n",
+			cliui.Dim.Render("Capture software detected:"),
+			cliui.Value.Render(strings.Join(softwareLabels(plan.SoftwareSeen), ", ")))
+		fmt.Println()
 	}
 	if failed > 0 {
 		printFileErrors(os.Stderr, dirErrs, "could not be created")
@@ -357,7 +388,7 @@ func Run(opts Options, log *slog.Logger) error {
 	}
 	if plan.TotalFound == 0 {
 		log.Info("no FITS files found", "input", opts.InputDir)
-		fmt.Println("No FITS files found.")
+		fmt.Println(cliui.Warn.Render("No FITS files found."))
 		return nil
 	}
 	reportSkips(plan)
@@ -376,7 +407,7 @@ func DryRun(opts Options, log *slog.Logger) error {
 	}
 	if plan.TotalFound == 0 {
 		log.Info("no FITS files found", "input", opts.InputDir)
-		fmt.Println("No FITS files found.")
+		fmt.Println(cliui.Warn.Render("No FITS files found."))
 		return nil
 	}
 	reportSkips(plan)
@@ -386,7 +417,10 @@ func DryRun(opts Options, log *slog.Logger) error {
 // reportSkips prints each planned skip to stderr. Shared by Run and DryRun.
 func reportSkips(plan Plan) {
 	for _, s := range plan.Skips {
-		fmt.Fprintf(os.Stderr, "  %s — skipped: %s\n", filepath.Base(s.Src), s.Reason)
+		fmt.Fprintf(os.Stderr, "  %s %s %s\n",
+			cliui.Warn.Render(filepath.Base(s.Src)),
+			cliui.Dim.Render("— skipped:"),
+			cliui.Dim.Render(s.Reason))
 	}
 }
 
@@ -518,11 +552,11 @@ func walkFITS(root string) ([]string, error) {
 //	    Path:  /Volumes/Data/raw/frame_0001.fit
 //	    Error: permission denied
 func printFileErrors(w io.Writer, errs []fileErr, verb string) {
-	fmt.Fprintf(w, "\n%d file(s) %s:\n", len(errs), verb)
+	fmt.Fprintf(w, "\n%s\n", cliui.Fail.Render(fmt.Sprintf("%d file(s) %s:", len(errs), verb)))
 	for _, e := range errs {
-		fmt.Fprintf(w, "\n  %s\n", e.filename)
-		fmt.Fprintf(w, "    Path:  %s\n", e.path)
-		fmt.Fprintf(w, "    Error: %s\n", e.reason)
+		fmt.Fprintf(w, "\n  %s\n", cliui.Value.Render(e.filename))
+		fmt.Fprintf(w, "    %s %s\n", cliui.Dim.Render("Path: "), cliui.Dim.Render(e.path))
+		fmt.Fprintf(w, "    %s %s\n", cliui.Dim.Render("Error:"), cliui.Fail.Render(e.reason))
 	}
 }
 
