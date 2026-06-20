@@ -1,13 +1,15 @@
+import { injectBaseURL } from '@analogjs/router/tokens';
 import {
   afterNextRender,
   ChangeDetectionStrategy,
   Component,
   computed,
   inject,
+  type OnInit,
   signal,
 } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { DomSanitizer, type SafeHtml, Title } from '@angular/platform-browser';
+import { DomSanitizer, Meta, type SafeHtml, Title } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
 import { ConstellationFieldComponent } from '@db-astro-suite/ui';
 import { catchError, combineLatest, map, of, startWith, switchMap } from 'rxjs';
@@ -21,7 +23,9 @@ import { filterColor } from '../utils/filter-color.util';
 import { formatCompact, formatCount } from '../utils/format.util';
 import { leaderboardIconSvg } from '../utils/leaderboard-icon.util';
 import { leaderboardBackdrop, motifSvg } from '../utils/leaderboard-motif.util';
+import { resolveOrigin } from '../utils/origin.util';
 import { safeSvg } from '../utils/safe-svg.util';
+import { applySocialMeta } from '../utils/social-meta.util';
 import { LeaderboardsService } from '../services/leaderboards.service';
 import { SessionStore } from '../services/session-store.service';
 import { StoryService } from '../services/story.service';
@@ -52,12 +56,15 @@ import type { MeRow } from '../models/me-row.model';
   styleUrl: './leaderboards.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export default class LeaderboardsPageComponent {
+export default class LeaderboardsPageComponent implements OnInit {
   private readonly sanitizer = inject(DomSanitizer);
   private readonly service = inject(LeaderboardsService);
   private readonly storyService = inject(StoryService);
   private readonly session = inject(SessionStore);
   private readonly title = inject(Title);
+  private readonly meta = inject(Meta);
+  /** SSR base URL (origin), null in the browser — used to build absolute share URLs. */
+  private readonly baseUrl = injectBaseURL();
 
   /** Number formatters exposed to the template. */
   protected readonly fmt = formatCount;
@@ -152,8 +159,23 @@ export default class LeaderboardsPageComponent {
   });
 
   constructor() {
-    this.title.setTitle('Leaderboards · Celestory');
     afterNextRender(() => this.browser.set(true));
+  }
+
+  /** Set the document title + full social unfurl tags (SSR-rendered for crawlers). */
+  ngOnInit(): void {
+    const title = 'Community Leaderboards · Celestory';
+    const description =
+      'How the Celestory community stacks up under the sky — ranked by photons, not popularity.';
+    const origin = resolveOrigin(this.baseUrl);
+    this.title.setTitle(title);
+    applySocialMeta(this.meta, {
+      title,
+      description,
+      type: 'website',
+      url: origin ? `${origin}/leaderboards` : undefined,
+      image: origin ? `${origin}/api/og/default?variant=leaderboards` : undefined,
+    });
   }
 
   /** Switch the active board. */

@@ -1,3 +1,4 @@
+import { injectBaseURL } from '@analogjs/router/tokens';
 import {
   afterNextRender,
   ChangeDetectionStrategy,
@@ -19,6 +20,8 @@ import type { StoryDetails } from '../../models/api.model';
 import type { PortfolioState } from '../../models/portfolio.types';
 import { StoryService } from '../../services/story.service';
 import { formatHours } from '../../utils/format.util';
+import { resolveOrigin } from '../../utils/origin.util';
+import { applySocialMeta } from '../../utils/social-meta.util';
 
 /**
  * Public profile at /user/<handle>. Renders the shared journey shell in the
@@ -45,6 +48,8 @@ export default class PortfolioPageComponent {
   private readonly storyService = inject(StoryService);
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
+  /** SSR base URL (origin), null in the browser — used to build absolute share URLs. */
+  private readonly baseUrl = injectBaseURL();
 
   /** Bumped to re-fetch the profile after an owner edit (re-upload). */
   private readonly reloadTick = signal(0);
@@ -107,15 +112,22 @@ export default class PortfolioPageComponent {
     this.introActive.set(false);
   }
 
-  /** Sets the document title + OG/description tags from the story summary. */
+  /** Sets the document title + full OG/Twitter unfurl tags (with a per-profile
+   * og:image) from the story summary. */
   private applyMeta(profile: StoryDetails): void {
     const summary = profile.story.summary;
     const hours = formatHours(summary.totalIntegrationSeconds);
     const title = `${profile.handle} · ${hours}h under the stars — Celestory`;
     const description = `${summary.objectCount} targets · ${hours}h integration · ${summary.nightCount} nights imaged.`;
+    const origin = resolveOrigin(this.baseUrl);
+    const handle = encodeURIComponent(profile.handle);
     this.title.setTitle(title);
-    this.meta.updateTag({ property: 'og:title', content: title });
-    this.meta.updateTag({ name: 'description', content: description });
-    this.meta.updateTag({ property: 'og:description', content: description });
+    applySocialMeta(this.meta, {
+      title,
+      description,
+      type: 'profile',
+      url: origin ? `${origin}/user/${handle}` : undefined,
+      image: origin ? `${origin}/api/og/user/${handle}` : undefined,
+    });
   }
 }

@@ -1,4 +1,5 @@
 import { RouteMeta } from "@analogjs/router";
+import { injectBaseURL } from "@analogjs/router/tokens";
 import {
   afterNextRender,
   ChangeDetectionStrategy,
@@ -8,9 +9,13 @@ import {
   effect,
   ElementRef,
   inject,
+  type OnInit,
   signal,
   viewChild,
 } from "@angular/core";
+import { Meta } from "@angular/platform-browser";
+import { resolveOrigin } from "../utils/origin.util";
+import { applySocialMeta } from "../utils/social-meta.util";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { Router, RouterLink } from "@angular/router";
 import {
@@ -72,11 +77,14 @@ const COUNT_UP_MS = 1600;
   styleUrl: "./index.page.css",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export default class LandingPageComponent {
+export default class LandingPageComponent implements OnInit {
   private readonly storyService = inject(StoryService);
   private readonly previewStore = inject(PreviewStore);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly meta = inject(Meta);
+  /** SSR base URL (origin), null in the browser — used to build the absolute og:image URL. */
+  private readonly baseUrl = injectBaseURL();
 
   /** User-facing error message, or empty when there is none. */
   protected readonly error = signal("");
@@ -175,6 +183,22 @@ export default class LandingPageComponent {
     }
     this.canAnimate.set(true);
   });
+
+  /** Set the full social unfurl tags (with an absolute og:image) — SSR-rendered
+   * for crawlers; routeMeta keeps the static title/description baseline. */
+  ngOnInit(): void {
+    const title = "Celestory — Chart your journey under the stars";
+    const description =
+      "A privacy-first astrophotography journey. Your light frames never leave your machine — everything renders in your browser.";
+    const origin = resolveOrigin(this.baseUrl);
+    applySocialMeta(this.meta, {
+      title,
+      description,
+      type: "website",
+      url: origin || undefined,
+      image: origin ? `${origin}/api/og/default` : undefined,
+    });
+  }
 
   /**
    * Once the counters exist and animation is armed, observe the section and run
@@ -405,20 +429,14 @@ export default class LandingPageComponent {
 
 export const routeMeta: RouteMeta = {
   title: "Celestory — Chart your journey under the stars",
+  // Baseline description; the full OG/Twitter unfurl set (with an absolute
+  // og:image) is applied in the component's ngOnInit so it can use the request
+  // origin. See applySocialMeta.
   meta: [
     {
       name: "description",
       content:
         "Point Celestory at your astrophotography light frames and get a gallery-grade chronicle of your imaging journey — every target, every filter, every photon, across every year — rendered entirely in your browser. Nothing is uploaded.",
-    },
-    {
-      property: "og:title",
-      content: "Celestory — Chart your journey under the stars",
-    },
-    {
-      property: "og:description",
-      content:
-        "A privacy-first astrophotography journey. Your light frames never leave your machine — everything renders in your browser.",
     },
   ],
 };
