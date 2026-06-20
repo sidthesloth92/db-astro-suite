@@ -66,6 +66,9 @@ function validateSession(value: unknown, field: string): Session {
     equipmentIds: Array.isArray(record['equipmentIds'])
       ? (record['equipmentIds'] as unknown[]).map((e) => String(e))
       : [],
+    focalLengthMm:
+      typeof record['focalLengthMm'] === 'number' ? record['focalLengthMm'] : null,
+    fRatio: typeof record['fRatio'] === 'number' ? record['fRatio'] : null,
   };
 }
 

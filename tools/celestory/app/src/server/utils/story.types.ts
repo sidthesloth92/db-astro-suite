@@ -39,6 +39,10 @@ export interface Session {
   lightFrameCount: number;
   filters: FilterIntegration[];
   equipmentIds: string[];
+  /** Night's representative optic spec; null when unknown. */
+  focalLengthMm: number | null;
+  /** Night's representative f-ratio; null when unknown. */
+  fRatio: number | null;
 }
 
 /** Top-level rollup powering the hero band and filter chips. */

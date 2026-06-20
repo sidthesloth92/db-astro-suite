@@ -31,10 +31,13 @@ export class EquipmentDetailComponent {
   /** Whether the per-equipment share modal is open. */
   protected readonly showShare = signal(false);
 
-  /** Whether this gear is a camera. */
-  protected readonly isCamera = computed(() => this.equip().kind.toLowerCase() === 'camera');
-  /** Header glyph. */
-  protected readonly icon = computed<CelIconName>(() => (this.isCamera() ? 'camera' : 'optic'));
+  /** Lower-cased noun for this gear ('camera' | 'optic' | 'mount'). */
+  protected readonly kindNoun = computed<CelIconName>(() => {
+    const kind = this.equip().kind.toLowerCase();
+    return kind === 'camera' || kind === 'mount' ? kind : 'optic';
+  });
+  /** Header glyph (matches the gear kind). */
+  protected readonly icon = computed<CelIconName>(() => this.kindNoun());
   /** Captured objects, busiest first. */
   protected readonly objects = computed<StoryObject[]>(() => {
     const byId = new Map(this.story().objects.map((o) => [o.id, o] as const));

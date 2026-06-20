@@ -30,6 +30,12 @@ func main() {
 	write(filepath.Join(root, "NGC7000", "001.fits"), synonymLight("NGC 7000", "Ha", 600, "2025-09-10T21:00:00", "QHY268M", "Esprit 100"))
 	write(filepath.Join(root, "NGC7000", "002.fits"), synonymLight("NGC 7000", "SII", 600, "2025-09-11T21:00:00", "QHY268M", "Esprit 100"))
 
+	// M 27 via an EQMOD/ASCOM rig: the mount name lands in TELESCOP (FOCALLEN is
+	// still the real optic), exercising the mount/optic split — the mount is
+	// listed as a Mount and the focal length surfaces on the session.
+	write(filepath.Join(root, "M27", "ha_001.fits"), light("M27", "Ha", 300, "2025-07-04T22:00:00", "ZWO ASI2600MM Pro", "EQMod Mount", 530))
+	write(filepath.Join(root, "M27", "oiii_001.fits"), light("M27", "OIII", 300, "2025-07-05T22:00:00", "ZWO ASI2600MM Pro", "EQMod Mount", 530))
+
 	// M 42 — one-shot-colour (Bayer, no filter), incl. an undated frame.
 	write(filepath.Join(root, "M42", "osc_001.fits"), osc("M42", 120, "2025-12-01T20:00:00", "ZWO ASI2600MC"))
 	write(filepath.Join(root, "M42", "osc_undated.fits"), osc("M42", 120, "", "ZWO ASI2600MC"))

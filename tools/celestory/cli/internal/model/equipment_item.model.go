@@ -1,10 +1,10 @@
 package model
 
-// EquipmentItem is a distinct, listable piece of gear (a camera or an optic)
-// with aggregate stats and a reverse index of the objects shot with it.
+// EquipmentItem is a distinct, listable piece of gear (a camera, an optic, or a
+// mount) with aggregate stats and a reverse index of the objects shot with it.
 type EquipmentItem struct {
 	ID                      string   `json:"id"`
-	Kind                    string   `json:"kind"` // "camera" | "optic"
+	Kind                    string   `json:"kind"` // "camera" | "optic" | "mount"
 	DisplayName             string   `json:"displayName"`
 	FocalLengthMm           *float64 `json:"focalLengthMm"` // optics only; null for cameras
 	FRatio                  *float64 `json:"fRatio"`        // optics only; null for cameras

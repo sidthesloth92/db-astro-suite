@@ -105,6 +105,9 @@ func buildObject(frames []LightFrame) model.ObjectTimeline {
 		if id := equipment.OpticID(lf.Telescope, lf.Focal); id != "" {
 			equipIDs[id] = struct{}{}
 		}
+		if id := equipment.MountID(lf.Telescope); id != "" {
+			equipIDs[id] = struct{}{}
+		}
 		if !lf.Date.IsZero() {
 			if first.IsZero() || lf.Date.Before(first) {
 				first = lf.Date
@@ -169,17 +172,21 @@ func buildSession(key string, frames []LightFrame) model.Session {
 	for _, lf := range frames {
 		total += lf.Exposure
 	}
+	focal, fratio := sessionFocalRatio(frames)
 	return model.Session{
 		Date:               key,
 		IntegrationSeconds: total,
 		LightFrameCount:    len(frames),
 		Filters:            filterIntegration(frames),
 		EquipmentIds:       sessionEquipmentIds(frames),
+		FocalLengthMm:      focal,
+		FRatio:             fratio,
 	}
 }
 
 // sessionEquipmentIds derives the night's gear as story equipment ids, using the
-// same camera/optic identifiers an object carries so the web app resolves names.
+// same camera/optic/mount identifiers an object carries so the web app resolves
+// names.
 func sessionEquipmentIds(frames []LightFrame) []string {
 	ids := map[string]struct{}{}
 	for _, lf := range frames {
@@ -189,8 +196,47 @@ func sessionEquipmentIds(frames []LightFrame) []string {
 		if id := equipment.OpticID(lf.Telescope, lf.Focal); id != "" {
 			ids[id] = struct{}{}
 		}
+		if id := equipment.MountID(lf.Telescope); id != "" {
+			ids[id] = struct{}{}
+		}
 	}
 	return sortedSet(ids)
+}
+
+// sessionFocalRatio returns the night's representative focal length (mm) and
+// f-ratio — the values carrying the most integration time — or nil when unknown.
+// A night usually uses one optic; when it mixes optics the dominant one wins.
+func sessionFocalRatio(frames []LightFrame) (focal, fratio *float64) {
+	focalSecs := map[float64]float64{}
+	fratioSecs := map[float64]float64{}
+	for _, lf := range frames {
+		if lf.Focal > 0 {
+			focalSecs[lf.Focal] += lf.Exposure
+		}
+		if lf.FRatio > 0 {
+			fratioSecs[lf.FRatio] += lf.Exposure
+		}
+	}
+	if v, ok := dominantValue(focalSecs); ok {
+		focal = &v
+	}
+	if v, ok := dominantValue(fratioSecs); ok {
+		fratio = &v
+	}
+	return focal, fratio
+}
+
+// dominantValue returns the key carrying the most accumulated seconds (ties
+// broken by the larger key for determinism), and whether the map had any entry.
+func dominantValue(byValue map[float64]float64) (float64, bool) {
+	var best, bestSecs float64
+	found := false
+	for v, secs := range byValue {
+		if !found || secs > bestSecs || (secs == bestSecs && v > best) {
+			best, bestSecs, found = v, secs, true
+		}
+	}
+	return best, found
 }
 
 // filterIntegration aggregates frames into per-filter seconds + frame counts,

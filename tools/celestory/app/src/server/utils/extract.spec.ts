@@ -103,9 +103,9 @@ describe('extractRows — object months', () => {
   it('buckets sessions by object and month, summing seconds and frames', () => {
     const object = makeObject({
       sessions: [
-        { date: '2025-09-10', integrationSeconds: 300, lightFrameCount: 5, filters: [], equipmentIds: [] },
-        { date: '2025-09-20', integrationSeconds: 200, lightFrameCount: 3, filters: [], equipmentIds: [] },
-        { date: '2025-10-01', integrationSeconds: 100, lightFrameCount: 2, filters: [], equipmentIds: [] },
+        { date: '2025-09-10', integrationSeconds: 300, lightFrameCount: 5, filters: [], equipmentIds: [], focalLengthMm: null, fRatio: null },
+        { date: '2025-09-20', integrationSeconds: 200, lightFrameCount: 3, filters: [], equipmentIds: [], focalLengthMm: null, fRatio: null },
+        { date: '2025-10-01', integrationSeconds: 100, lightFrameCount: 2, filters: [], equipmentIds: [], focalLengthMm: null, fRatio: null },
       ],
     });
 
@@ -127,8 +127,8 @@ describe('extractRows — object months', () => {
   it('skips sessions with no parseable date', () => {
     const object = makeObject({
       sessions: [
-        { date: '', integrationSeconds: 999, lightFrameCount: 9, filters: [], equipmentIds: [] },
-        { date: '2025-10-01', integrationSeconds: 100, lightFrameCount: 2, filters: [], equipmentIds: [] },
+        { date: '', integrationSeconds: 999, lightFrameCount: 9, filters: [], equipmentIds: [], focalLengthMm: null, fRatio: null },
+        { date: '2025-10-01', integrationSeconds: 100, lightFrameCount: 2, filters: [], equipmentIds: [], focalLengthMm: null, fRatio: null },
       ],
     });
 
@@ -144,7 +144,7 @@ describe('extractRows — object months', () => {
       designation: '',
       displayName: 'Backyard Nebula',
       sessions: [
-        { date: '2025-08-05', integrationSeconds: 60, lightFrameCount: 1, filters: [], equipmentIds: [] },
+        { date: '2025-08-05', integrationSeconds: 60, lightFrameCount: 1, filters: [], equipmentIds: [], focalLengthMm: null, fRatio: null },
       ],
     });
 

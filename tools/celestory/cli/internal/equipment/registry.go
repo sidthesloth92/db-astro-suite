@@ -76,6 +76,7 @@ func BuildRegistry(usages []Usage) []model.EquipmentItem {
 	for _, u := range usages {
 		add(CameraID(u.CameraRaw), "camera", CameraDisplay(u.CameraRaw), 0, 0, u)
 		add(OpticID(u.Telescope, u.Focal), "optic", OpticDisplay(u.Telescope, u.Focal), u.Focal, u.FRatio, u)
+		add(MountID(u.Telescope), "mount", MountDisplay(u.Telescope), 0, 0, u)
 	}
 
 	items := make([]model.EquipmentItem, 0, len(order))
@@ -100,7 +101,7 @@ func BuildRegistry(usages []Usage) []model.EquipmentItem {
 
 	sort.SliceStable(items, func(i, j int) bool {
 		if items[i].Kind != items[j].Kind {
-			return items[i].Kind == "camera" // cameras first
+			return kindRank(items[i].Kind) < kindRank(items[j].Kind) // camera, then optic, then mount
 		}
 		if items[i].TotalIntegrationSeconds != items[j].TotalIntegrationSeconds {
 			return items[i].TotalIntegrationSeconds > items[j].TotalIntegrationSeconds
@@ -108,6 +109,21 @@ func BuildRegistry(usages []Usage) []model.EquipmentItem {
 		return items[i].DisplayName < items[j].DisplayName
 	})
 	return items
+}
+
+// kindRank orders equipment kinds for a stable listing: cameras, then optics,
+// then mounts. Unknown kinds sort last.
+func kindRank(kind string) int {
+	switch kind {
+	case "camera":
+		return 0
+	case "optic":
+		return 1
+	case "mount":
+		return 2
+	default:
+		return 3
+	}
 }
 
 func sortedKeys(set map[string]struct{}) []string {

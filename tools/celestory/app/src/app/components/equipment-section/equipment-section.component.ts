@@ -19,12 +19,15 @@ export class EquipmentSectionComponent {
   /** Emits an equipment id to open its detail. */
   readonly open = output<string>();
 
-  /** Grouped gear. */
+  /** Grouped gear — one list per kind; empty lists hide their section. */
   protected readonly cameras = computed(() =>
     this.story().equipment.filter((e) => e.kind.toLowerCase() === 'camera'),
   );
   protected readonly optics = computed(() =>
-    this.story().equipment.filter((e) => e.kind.toLowerCase() !== 'camera'),
+    this.story().equipment.filter((e) => e.kind.toLowerCase() === 'optic'),
+  );
+  protected readonly mounts = computed(() =>
+    this.story().equipment.filter((e) => e.kind.toLowerCase() === 'mount'),
   );
 
   /** A spec line for optics (focal length / f-ratio). */

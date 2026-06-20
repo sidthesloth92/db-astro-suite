@@ -71,6 +71,8 @@ export interface SessionView {
   lightFrameCount: number;
   filters: { name: string; label: string; color: string }[];
   gearNames: string[];
+  /** Optic spec line for the night (e.g. "250mm · f/4.9"); empty when unknown. */
+  spec: string;
 }
 
 /** One proportional segment of the filter-distribution bar. */

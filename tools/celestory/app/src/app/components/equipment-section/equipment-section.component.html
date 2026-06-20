@@ -48,4 +48,29 @@
       </div>
     </div>
   }
+
+  @if (mounts().length) {
+    <div class="equip-group">
+      <div class="gh">
+        <span class="gh-ico"><dba-cel-icon name="mount" [size]="16" /></span>
+        <h3>Mounts</h3>
+        <span class="gh-c">{{ mounts().length }}</span>
+      </div>
+      <div class="equip-list">
+        @for (e of mounts(); track e.id) {
+          <button class="erow" type="button" (click)="open.emit(e.id)">
+            <div class="ename-cell">
+              <div class="ename">{{ e.displayName }}</div>
+              @if (detail(e)) { <div class="edetail">{{ detail(e) }}</div> }
+            </div>
+            <div class="ecell"><div class="ek">Integration</div><div class="ev glow">{{ dur(e.totalIntegrationSeconds) }}</div></div>
+            <div class="ecell"><div class="ek">Frames</div><div class="ev">{{ count(e.lightFrameCount) }}</div></div>
+            <div class="ecell"><div class="ek">Objects</div><div class="ev">{{ count(e.objectCount) }}</div></div>
+            <div class="ecell"><div class="ek">Active</div><div class="ev ev-sm">{{ range(e.firstLight, e.latestSession) }}</div></div>
+            <span class="earrow"><dba-cel-icon name="arrow" [size]="18" /></span>
+          </button>
+        }
+      </div>
+    </div>
+  }
 </section>

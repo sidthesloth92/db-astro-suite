@@ -312,6 +312,13 @@
   color: var(--db-color-text-primary);
   margin: 4px 0 8px;
 }
+.tspec {
+  font-family: var(--db-font-mono-code);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--db-color-text-dim);
+  margin: -4px 0 8px;
+}
 .tfilters {
   display: flex;
   flex-wrap: wrap;

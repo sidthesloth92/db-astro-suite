@@ -295,6 +295,90 @@ func TestScopeToRootFiltersAndRetotals(t *testing.T) {
 	}
 }
 
+// mountFrame builds a light frame whose TELESCOP carries a mount name (the
+// EQMOD/ASCOM case) plus a real focal length / f-ratio.
+func mountFrame(path string, exp float64, size int64, date time.Time) scan.Frame {
+	return scan.Frame{
+		Path: path,
+		Size: size,
+		Meta: astrofits.Metadata{
+			FrameType: "Light",
+			Target:    "M31",
+			Filter:    "Ha",
+			CameraRaw: "ZWO ASI2600MM",
+			Telescope: "EQMod Mount",
+			Focal:     700,
+			HasFocal:  true,
+			FRatio:    4.9,
+			Exposure:  exp,
+			DateObs:   date,
+		},
+	}
+}
+
+func TestMountSeparatedFromOpticWithSessionSpecs(t *testing.T) {
+	n1 := time.Date(2025, 8, 1, 22, 0, 0, 0, time.UTC)
+	n1b := time.Date(2025, 8, 1, 22, 5, 0, 0, time.UTC)
+	frames := []scan.Frame{
+		mountFrame("/a/l1.fits", 300, 1000, n1),
+		mountFrame("/a/l2.fits", 300, 1001, n1b),
+	}
+
+	led := Build(frames, nil, model.ToolInfo{Name: "celestory", Version: "test"})
+
+	// Registry: one camera + one mount, and NO optic (the mount must not be
+	// surfaced as an unnamed focal-length optic).
+	kinds := map[string]int{}
+	var mount *model.EquipmentItem
+	for i := range led.Equipment {
+		kinds[led.Equipment[i].Kind]++
+		if led.Equipment[i].Kind == "mount" {
+			mount = &led.Equipment[i]
+		}
+	}
+	if kinds["camera"] != 1 || kinds["mount"] != 1 || kinds["optic"] != 0 {
+		t.Fatalf("equipment kinds = %v, want camera:1 mount:1 optic:0", kinds)
+	}
+	if mount.DisplayName != "EQMod Mount" || mount.FocalLengthMm != nil {
+		t.Errorf("mount entry = %+v, want name 'EQMod Mount' and nil focal", mount)
+	}
+
+	// Object cross-links the mount id (and the camera), never an optic id.
+	m31 := findObject(led.Objects, "m31")
+	if m31 == nil {
+		t.Fatal("expected object m31")
+	}
+	if !containsID(m31.EquipmentIds, "mount-eqmod-mount") || !containsID(m31.EquipmentIds, "cam-2600mm") {
+		t.Errorf("object equipmentIds = %v, want to include mount-eqmod-mount and cam-2600mm", m31.EquipmentIds)
+	}
+	for _, id := range m31.EquipmentIds {
+		if len(id) >= 6 && id[:6] == "optic-" {
+			t.Errorf("object equipmentIds must not include an optic, got %q", id)
+		}
+	}
+
+	// The optic spec moves onto the session.
+	if len(m31.Sessions) != 1 {
+		t.Fatalf("sessions = %d, want 1", len(m31.Sessions))
+	}
+	s := m31.Sessions[0]
+	if s.FocalLengthMm == nil || *s.FocalLengthMm != 700 {
+		t.Errorf("session focalLengthMm = %v, want 700", s.FocalLengthMm)
+	}
+	if s.FRatio == nil || *s.FRatio != 4.9 {
+		t.Errorf("session fRatio = %v, want 4.9", s.FRatio)
+	}
+}
+
+func containsID(ids []string, want string) bool {
+	for _, id := range ids {
+		if id == want {
+			return true
+		}
+	}
+	return false
+}
+
 func TestUndatedFrameStillCounts(t *testing.T) {
 	frames := []scan.Frame{
 		frame("/a/u1.fits", "M42", "OSC", "Light", "ZWO ASI2600MC", 120, 2000, time.Time{}),

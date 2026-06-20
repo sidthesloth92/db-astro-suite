@@ -37,9 +37,14 @@ func CameraID(raw string) string {
 }
 
 // OpticDisplay returns a friendly optic name. Prefers the TELESCOP value;
-// falls back to a focal-length label; returns "" when neither is known.
+// falls back to a focal-length label; returns "" when neither is known. A
+// TELESCOP value recognised as a mount yields no optic (it is surfaced as a
+// mount instead) — no unnamed focal-length optic is synthesised for it.
 func OpticDisplay(telescope string, focal float64) string {
 	telescope = strings.TrimSpace(telescope)
+	if isMount(telescope) {
+		return ""
+	}
 	if telescope != "" {
 		return telescope
 	}
@@ -50,9 +55,13 @@ func OpticDisplay(telescope string, focal float64) string {
 }
 
 // OpticID returns a stable id like "optic-redcat-51" or "optic-250mm", or ""
-// when no optic is known.
+// when no optic is known. A TELESCOP value recognised as a mount yields no
+// optic id (see OpticDisplay).
 func OpticID(telescope string, focal float64) string {
 	telescope = strings.TrimSpace(telescope)
+	if isMount(telescope) {
+		return ""
+	}
 	if s := slug(telescope); s != "" {
 		return "optic-" + s
 	}

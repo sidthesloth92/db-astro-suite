@@ -109,6 +109,9 @@
               </div>
               <div class="tmoon">{{ moonName(s.date) }}</div>
               <div class="tint">{{ dur(s.integrationSeconds) }}</div>
+              @if (s.spec) {
+                <div class="tspec">{{ s.spec }}</div>
+              }
               <div class="tfilters">
                 @for (f of s.filters; track f.name) {
                   <span class="tfc"><span class="tfdot" [style.background]="f.color"></span>{{ f.label }}</span>

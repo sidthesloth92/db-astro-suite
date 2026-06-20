@@ -250,6 +250,8 @@ export function sessionViews(
     lightFrameCount: number;
     filters: readonly { name: string; seconds: number }[];
     equipmentIds: readonly string[];
+    focalLengthMm?: number | null;
+    fRatio?: number | null;
   }[],
   equipNames: ReadonlyMap<string, string>,
 ): SessionView[] {
@@ -264,7 +266,20 @@ export function sessionViews(
         .sort((a, b) => b.seconds - a.seconds)
         .map((f) => ({ name: f.name, label: filterLabel(f.name), color: filterColor(f.name) })),
       gearNames: s.equipmentIds.map((id) => equipNames.get(id) ?? id),
+      spec: sessionSpec(s.focalLengthMm ?? null, s.fRatio ?? null),
     }));
+}
+
+/** Format a session's optic spec line ("250mm · f/4.9"); "" when unknown. */
+function sessionSpec(focalLengthMm: number | null, fRatio: number | null): string {
+  const parts: string[] = [];
+  if (focalLengthMm) {
+    parts.push(`${focalLengthMm}mm`);
+  }
+  if (fRatio) {
+    parts.push(`f/${fRatio}`);
+  }
+  return parts.join(' · ');
 }
 
 /** A map of equipment id → display name. */

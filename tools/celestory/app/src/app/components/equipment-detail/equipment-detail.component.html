@@ -34,7 +34,7 @@
 
   <div class="dsection">
     <div class="dsec-head">
-      <h2 class="dsec-title">Captured with this {{ isCamera() ? 'camera' : 'optic' }}</h2>
+      <h2 class="dsec-title">Captured with this {{ kindNoun() }}</h2>
       <span class="dsec-count">{{ objects().length }} objects</span>
     </div>
     @if (objects().length) {

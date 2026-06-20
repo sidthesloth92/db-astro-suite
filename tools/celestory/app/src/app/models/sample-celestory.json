@@ -5785,7 +5785,8 @@
       ],
       "equipmentIds": [
         "cam-6200mm",
-        "optic-edge925"
+        "optic-edge925",
+        "mount-eqmod-mount"
       ],
       "sessions": [
         {
@@ -5816,8 +5817,11 @@
           ],
           "equipmentIds": [
             "cam-6200mm",
-            "optic-edge925"
-          ]
+            "optic-edge925",
+            "mount-eqmod-mount"
+          ],
+          "focalLengthMm": 2350,
+          "fRatio": 10
         },
         {
           "date": "2026-11-03",
@@ -5837,8 +5841,11 @@
           ],
           "equipmentIds": [
             "cam-6200mm",
-            "optic-edge925"
-          ]
+            "optic-edge925",
+            "mount-eqmod-mount"
+          ],
+          "focalLengthMm": 2350,
+          "fRatio": 10
         },
         {
           "date": "2026-12-06",
@@ -5858,8 +5865,11 @@
           ],
           "equipmentIds": [
             "cam-6200mm",
-            "optic-edge925"
-          ]
+            "optic-edge925",
+            "mount-eqmod-mount"
+          ],
+          "focalLengthMm": 2350,
+          "fRatio": 10
         }
       ],
       "image": null
@@ -6668,6 +6678,21 @@
       "objectIds": [
         "m33",
         "ngc891",
+        "ngc7293"
+      ]
+    },
+    {
+      "id": "mount-eqmod-mount",
+      "kind": "mount",
+      "displayName": "EQMod Mount",
+      "focalLengthMm": null,
+      "fRatio": null,
+      "totalIntegrationSeconds": 129300,
+      "lightFrameCount": 254,
+      "objectCount": 1,
+      "firstLight": "2025-08-02",
+      "latestSession": "2026-12-06",
+      "objectIds": [
         "ngc7293"
       ]
     }

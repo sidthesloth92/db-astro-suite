@@ -43,6 +43,10 @@ export interface StorySession {
   lightFrameCount: number;
   filters: StoryFilterIntegration[];
   equipmentIds: string[];
+  /** Night's representative optic spec; null/absent when unknown (added 2026-06; absent on older stories). */
+  focalLengthMm?: number | null;
+  /** Night's representative f-ratio; null/absent when unknown. */
+  fRatio?: number | null;
 }
 
 /** One imaged target with aggregated totals and per-night timeline. */
