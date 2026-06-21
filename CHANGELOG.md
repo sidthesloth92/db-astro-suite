@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.31.1](https://github.com/sidthesloth92/db-astro-suite/compare/v1.31.0...v1.31.1) (2026-06-21)
+
+
+### Bug Fixes
+
+* **hub:** play landing intro once per session to stop Back-nav replay ([#92](https://github.com/sidthesloth92/db-astro-suite/issues/92)) ([5d8539d](https://github.com/sidthesloth92/db-astro-suite/commit/5d8539d41ffa568cddd069b21a84024b50271d0f))
+
 ## [1.31.0](https://github.com/sidthesloth92/db-astro-suite/compare/v1.30.0...v1.31.0) (2026-06-20)
 
 
