@@ -57,17 +57,12 @@ configuration, because every program writes the same `IMAGETYP`, `OBJECT`,
 brew install --cask sidthesloth92/tap/sortronomy
 ```
 
-### Scoop (Windows)
+### Windows (PowerShell)
 
-```powershell
-scoop bucket add sidthesloth92 https://github.com/sidthesloth92/scoop-bucket
-scoop install sortronomy
-```
-
-### Windows (PowerShell, no Scoop)
-
-Downloads the latest release, verifies its checksum, and installs `sortronomy.exe`
-to `%LOCALAPPDATA%\Programs\Sortronomy` (added to your PATH):
+The simplest option — nothing else to install, since `irm`/`iex` ship with
+Windows PowerShell. Downloads the latest release, verifies its checksum, and
+installs `sortronomy.exe` to `%LOCALAPPDATA%\Programs\Sortronomy` (added to your
+PATH):
 
 ```powershell
 irm https://raw.githubusercontent.com/sidthesloth92/db-astro-suite/main/tools/sortronomy/install.ps1 | iex
@@ -75,6 +70,15 @@ irm https://raw.githubusercontent.com/sidthesloth92/db-astro-suite/main/tools/so
 
 Re-run the same command to upgrade. (Inspect [`install.ps1`](install.ps1) first if you'd
 rather not pipe a script straight into PowerShell.)
+
+### Scoop (Windows)
+
+If you already use [Scoop](https://scoop.sh):
+
+```powershell
+scoop bucket add sidthesloth92 https://github.com/sidthesloth92/scoop-bucket
+scoop install sortronomy
+```
 
 ### Direct download
 
