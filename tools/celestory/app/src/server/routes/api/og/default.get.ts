@@ -1,25 +1,30 @@
 import { defineEventHandler, getQuery, setHeader } from 'h3';
-import { brandCardPng } from '../../../og/og-card';
+import { brandCardPng, landingCardPng, leaderboardsCardPng } from '../../../og/og-card';
+import { loadLandingOgModel, loadLeaderboardsOgModel } from '../../../og/og-leaderboards.util';
+
+/** Static brand fallback if the community queries fail — never break an unfurl. */
+const BRAND_FALLBACK = {
+  eyebrow: 'Astrophotography journey',
+  hero: 'Charted.',
+  sub: 'Every target, every filter, every photon.',
+};
 
 /**
- * Generic brand Open Graph image — `GET /api/og/default?variant=` → a 1200×630
- * PNG for the landing and leaderboards links. `variant=leaderboards` tweaks the
- * copy.
+ * Community Open Graph image — `GET /api/og/default?variant=` → a 1200×630 PNG.
+ * The default is the landing card; `variant=leaderboards` renders the
+ * leaderboards card. Both pull live community totals (behind the CDN cache) and
+ * fall back to a static brand card on any error.
  */
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
   setHeader(event, 'content-type', 'image/png');
   setHeader(event, 'cache-control', 'public, max-age=3600, s-maxage=604800');
   const variant = String(getQuery(event)['variant'] ?? '');
-  if (variant === 'leaderboards') {
-    return brandCardPng({
-      eyebrow: 'Community',
-      hero: 'Leaderboards',
-      sub: 'Ranked by photons, not popularity.',
-    });
+  try {
+    if (variant === 'leaderboards') {
+      return await leaderboardsCardPng(await loadLeaderboardsOgModel());
+    }
+    return await landingCardPng(await loadLandingOgModel());
+  } catch {
+    return await brandCardPng(BRAND_FALLBACK);
   }
-  return brandCardPng({
-    eyebrow: 'Astrophotography journey',
-    hero: 'Charted.',
-    sub: 'Every target, every filter, every photon.',
-  });
 });

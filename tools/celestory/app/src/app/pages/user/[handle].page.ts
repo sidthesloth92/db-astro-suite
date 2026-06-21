@@ -19,9 +19,9 @@ import { ProcessingRevealComponent } from '../../components/processing-reveal/pr
 import type { StoryDetails } from '../../models/api.model';
 import type { PortfolioState } from '../../models/portfolio.types';
 import { StoryService } from '../../services/story.service';
-import { formatHours } from '../../utils/format.util';
 import { resolveOrigin } from '../../utils/origin.util';
 import { applySocialMeta } from '../../utils/social-meta.util';
+import { profileShareMeta, type ProfileShareFocus } from '../../utils/profile-share-meta.util';
 
 /**
  * Public profile at /user/<handle>. Renders the shared journey shell in the
@@ -87,6 +87,14 @@ export default class PortfolioPageComponent {
     return state.status === 'loaded' ? state.profile : null;
   });
 
+  /** The focused object / equipment (from `?object=` / `?equipment=`), driving the OG image. */
+  private readonly focus = toSignal(
+    this.route.queryParamMap.pipe(
+      map((pm) => ({ object: pm.get('object'), equipment: pm.get('equipment') })),
+    ),
+    { initialValue: { object: null as string | null, equipment: null as string | null } },
+  );
+
   /** Total integration seconds for the reveal's hours count-up (0 until loaded). */
   protected readonly introSeconds = computed(
     () => this.profile()?.story.summary.totalIntegrationSeconds ?? 0,
@@ -98,11 +106,12 @@ export default class PortfolioPageComponent {
     // count-up fills in when the story resolves.
     afterNextRender(() => this.introActive.set(true));
 
-    // Apply per-handle OG meta once the story resolves (runs during SSR too).
+    // Apply per-handle OG meta once the story resolves (runs during SSR too),
+    // focused on the object/equipment named in the URL query when present.
     effect(() => {
       const profile = this.profile();
       if (profile) {
-        this.applyMeta(profile);
+        this.applyMeta(profile, this.focus());
       }
     });
   }
@@ -112,22 +121,11 @@ export default class PortfolioPageComponent {
     this.introActive.set(false);
   }
 
-  /** Sets the document title + full OG/Twitter unfurl tags (with a per-profile
-   * og:image) from the story summary. */
-  private applyMeta(profile: StoryDetails): void {
-    const summary = profile.story.summary;
-    const hours = formatHours(summary.totalIntegrationSeconds);
-    const title = `${profile.handle} · ${hours}h under the stars — Celestory`;
-    const description = `${summary.objectCount} targets · ${hours}h integration · ${summary.nightCount} nights imaged.`;
-    const origin = resolveOrigin(this.baseUrl);
-    const handle = encodeURIComponent(profile.handle);
-    this.title.setTitle(title);
-    applySocialMeta(this.meta, {
-      title,
-      description,
-      type: 'profile',
-      url: origin ? `${origin}/user/${handle}` : undefined,
-      image: origin ? `${origin}/api/og/user/${handle}` : undefined,
-    });
+  /** Sets the document title + full OG/Twitter unfurl tags, focused on the
+   * object/equipment in the URL query when present, else the whole profile. */
+  private applyMeta(profile: StoryDetails, focus: ProfileShareFocus): void {
+    const meta = profileShareMeta(profile, focus, resolveOrigin(this.baseUrl));
+    this.title.setTitle(meta.title);
+    applySocialMeta(this.meta, meta);
   }
 }
