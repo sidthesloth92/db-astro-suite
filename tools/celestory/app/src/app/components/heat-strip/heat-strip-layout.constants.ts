@@ -36,5 +36,5 @@ export const PILL_REF_W = 1140;
 export const LEADER_VBW = 1000;
 /** Pixels of track per spanned month (drives the scrollable width). */
 export const MONTH_PX = 66;
-/** Min gap (px) the centred hover tooltip keeps from either track edge. */
-export const TIP_EDGE = 96;
+/** Half the hover tooltip's width (px) — used to keep it within the panel edges. */
+export const TIP_HALF_W = 120;

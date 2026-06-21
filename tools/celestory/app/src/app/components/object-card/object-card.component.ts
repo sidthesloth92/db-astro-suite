@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, input, output } from '@an
 import type { StoryObject } from '../../models/story.model';
 import { formatCount, formatDuration } from '../../utils/format.util';
 import { categoryIcon } from '../../utils/portfolio.util';
+import { CelIconComponent } from '../cel-icon/cel-icon.component';
 import type { CelIconName } from '../cel-icon/cel-icon.component';
 import { FilterDistributionComponent } from '../filter-distribution/filter-distribution.component';
 import { ObjectImageComponent } from '../object-image/object-image.component';
@@ -10,7 +11,7 @@ import { ObjectImageComponent } from '../object-image/object-image.component';
 @Component({
   selector: 'dba-object-card',
   standalone: true,
-  imports: [ObjectImageComponent, FilterDistributionComponent],
+  imports: [ObjectImageComponent, FilterDistributionComponent, CelIconComponent],
   templateUrl: './object-card.component.html',
   styleUrl: './object-card.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -20,6 +21,8 @@ export class ObjectCardComponent {
   readonly obj = input.required<StoryObject>();
   /** Emits the object id when the card is opened. */
   readonly open = output<string>();
+  /** Emits the object id when its share button is pressed. */
+  readonly share = output<string>();
 
   /** Category glyph. */
   protected readonly icon = computed<CelIconName>(() => categoryIcon(this.obj().category));

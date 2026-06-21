@@ -1,10 +1,10 @@
-<dba-ui-constellation-field>
+<dba-ui-constellation-field [maxPoints]="150" [linkDistance]="130" [taggedCount]="5" [lineOpacity]="0.28">
   <div class="neb" aria-hidden="true"></div>
 
   <main class="journey">
     <header class="bar">
       <a class="brand" routerLink="/">
-        <dba-celestory-wordmark [markSize]="30" [fontSize]="20" />
+        <dba-celestory-wordmark [markSize]="30" [fontSize]="21" />
       </a>
     </header>
 
@@ -46,14 +46,7 @@
                 </span>
               </div>
               <div class="banner-share">
-                <button class="share-btn" type="button" [title]="copied() ? 'Copied' : 'Copy link'" (click)="copyLink()">
-                  <dba-cel-icon [name]="copied() ? 'check' : 'link'" [size]="15" />
-                </button>
-                @for (s of socialLinks(); track s.id) {
-                  <a class="share-btn share-social" [href]="s.href" target="_blank" rel="noopener noreferrer" [title]="'Share on ' + s.name">
-                    <span class="share-glyph">{{ s.glyph }}</span>
-                  </a>
-                }
+                <dba-cel-social-share-row [url]="profileUrl()" />
                 <dba-ui-text-button variant="primary" label="Share" (clicked)="openShare()">
                   <dba-cel-icon slot="leading" name="share" [size]="14" />
                 </dba-ui-text-button>
@@ -89,6 +82,8 @@
       <dba-object-detail
         [obj]="o"
         [story]="story()"
+        [handle]="handle()"
+        [published]="isPublished()"
         (back)="closeDetail()"
         (openEquipment)="openEquipment($event)"
       />
@@ -96,6 +91,8 @@
       <dba-equipment-detail
         [equip]="e"
         [story]="story()"
+        [handle]="handle()"
+        [published]="isPublished()"
         (back)="closeDetail()"
         (openObject)="openObject($event)"
       />
@@ -112,7 +109,7 @@
       />
 
       <dba-section-banner num="02" eyebrow="The Catalogue" title="Objects" glyph="galaxy" [seed]="4" [sub]="objectsSub()" />
-      <dba-object-section [story]="story()" (open)="openObject($event)" />
+      <dba-object-section [story]="story()" (open)="openObject($event)" (share)="openObjectShare($event)" />
 
       <dba-section-banner num="03" eyebrow="The Rig" title="Equipment" glyph="camera" [seed]="9" [sub]="equipmentSub()" />
       <dba-equipment-section [story]="story()" (open)="openEquipment($event)" />
@@ -144,6 +141,15 @@
       [state]="state()"
       (openPublish)="openPublish()"
       (closed)="showStudio.set(false)"
+    />
+  }
+  @if (shareObject(); as o) {
+    <dba-object-share-modal
+      [obj]="o"
+      [story]="story()"
+      [handle]="handle()"
+      [shareUrl]="objectShareUrl()"
+      (closed)="shareObject.set(null)"
     />
   }
 

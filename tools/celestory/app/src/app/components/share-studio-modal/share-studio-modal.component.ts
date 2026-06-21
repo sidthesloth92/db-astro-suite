@@ -1,4 +1,5 @@
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   computed,
@@ -19,7 +20,9 @@ import { profileDisplayUrl } from '../../models/app.constants';
 import { SessionStore } from '../../services/session-store.service';
 import { slugifyHandle } from '../../utils/handle.util';
 import type { CelestoryStory } from '../../models/story.model';
-import { DOWNLOAD_FORMAT_MENU, STORY_TYPES } from '../../models/share.constants';
+import { CelIconComponent, type CelIconName } from '../cel-icon/cel-icon.component';
+import { SocialIconComponent } from '../social-icon/social-icon.component';
+import { DOWNLOAD_FORMAT_MENU, STORY_TYPE_ICONS, STORY_TYPES } from '../../models/share.constants';
 import type {
   ShareAssetKind,
   ShareFormatId,
@@ -36,7 +39,7 @@ import {
   SHARE_THEME_LIST,
 } from '../../utils/share-card.util';
 import { buildShareModel, scopeModelByYear } from '../../utils/share-model.util';
-import { copyCanvasToClipboard, shareCanvas } from '../../utils/share-export.util';
+import { canShareFiles, copyCanvasToClipboard, shareCanvas } from '../../utils/share-export.util';
 import { SUGGESTED_DESTINATIONS } from '../../models/share.constants';
 import type { JourneyState } from '../../models/journey.types';
 
@@ -48,7 +51,7 @@ import type { JourneyState } from '../../models/journey.types';
 @Component({
   selector: 'dba-share-studio-modal',
   standalone: true,
-  imports: [TextButtonComponent, IconButtonComponent, SplitButtonComponent],
+  imports: [TextButtonComponent, IconButtonComponent, SplitButtonComponent, CelIconComponent, SocialIconComponent],
   templateUrl: './share-studio-modal.component.html',
   styleUrl: './share-studio-modal.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -87,6 +90,10 @@ export class ShareStudioModalComponent {
   protected readonly themeId = signal<ShareThemeId>('dark');
   protected readonly formatId = signal<ShareFormatId>('story');
   protected readonly storyType = signal('summary');
+  /** Whether the rich Story Type dropdown is expanded. */
+  protected readonly storyMenuOpen = signal(false);
+  /** Viewport coords for the open dropdown so it overlays (like a native select) without reflowing. */
+  protected readonly storyMenuPos = signal<{ left: number; top: number; width: number } | null>(null);
   protected readonly yearFilter = signal('all-time');
   protected readonly dlFormat = signal<'png' | 'jpeg'>('png');
   /** Download-format menu for the split button. */
@@ -101,6 +108,12 @@ export class ShareStudioModalComponent {
   protected readonly slides = Array.from({ length: CAROUSEL_SLIDE_COUNT }, (_, i) => i);
   /** Transient flash message ("Downloaded", etc.). */
   protected readonly flash = signal('');
+  /** True when the OS share sheet can take image files (mobile) — set post-render. */
+  protected readonly canNativeShare = signal(false);
+
+  constructor() {
+    afterNextRender(() => this.canNativeShare.set(canShareFiles()));
+  }
 
   /** Years derived from the summary activity log, descending. */
   protected readonly availableYears = computed(() => {
@@ -125,14 +138,16 @@ export class ShareStudioModalComponent {
     return `${fmt.w} × ${fmt.h}px`;
   });
 
-  /** Editable identity (name/handle), shared live with the portfolio hero. */
+  /** Editable identity (name/username), shared live with the portfolio hero. */
   protected readonly session = inject(SessionStore);
-  /** Handle printed on the card: the edited identity wins, else the input. */
-  private readonly effectiveHandle = computed(() => this.session.identity().handle || this.handle());
-  /** Canonical profile URL shown in the left-panel claim bar (with a placeholder). */
-  protected readonly claimUrl = computed(() =>
-    profileDisplayUrl(this.effectiveHandle() || 'yourhandle'),
+  /** Username printed on the card: the edited identity wins, else the published handle. */
+  private readonly effectiveUsername = computed(() => this.session.identity().username || this.handle());
+  /** URL slug for the claim bar: derived from the username, else the published handle. */
+  private readonly urlSlug = computed(
+    () => slugifyHandle(this.session.identity().username) || this.handle(),
   );
+  /** Canonical profile URL shown in the left-panel claim bar (with a placeholder). */
+  protected readonly claimUrl = computed(() => profileDisplayUrl(this.urlSlug() || 'yourhandle'));
   /** Year scope from the timeframe pills ('all' or a calendar year). */
   private readonly yearScope = computed<number | 'all'>(() => {
     const y = this.yearFilter();
@@ -141,7 +156,7 @@ export class ShareStudioModalComponent {
   /** Render-ready model, scoped to the chosen timeframe, with the edited identity. */
   protected readonly model = computed(() => {
     const ident = this.session.identity();
-    const base = buildShareModel(this.story(), { name: ident.name, handle: this.effectiveHandle() });
+    const base = buildShareModel(this.story(), { name: ident.name, username: this.effectiveUsername() });
     return scopeModelByYear(base, this.yearScope());
   });
 
@@ -149,9 +164,9 @@ export class ShareStudioModalComponent {
   setIdentityName(value: string): void {
     this.session.setIdentity({ ...this.session.identity(), name: value });
   }
-  /** Update the shared identity from the studio's handle input. */
-  setIdentityHandle(value: string): void {
-    this.session.setIdentity({ ...this.session.identity(), handle: slugifyHandle(value) });
+  /** Update the shared identity from the studio's username input (stored verbatim). */
+  setIdentityUsername(value: string): void {
+    this.session.setIdentity({ ...this.session.identity(), username: value.replace(/^@+/, '') });
   }
 
   /** Cached font-readiness so we only await once. */
@@ -213,9 +228,24 @@ export class ShareStudioModalComponent {
     this.themeId.set(id);
   }
 
-  /** Story-type dropdown change. */
-  onStoryType(event: Event): void {
-    this.storyType.set((event.target as HTMLSelectElement).value);
+  /** Glyph for a story type id (rich Story Type dropdown). */
+  storyIcon(id: string): CelIconName {
+    return STORY_TYPE_ICONS[id] ?? 'star';
+  }
+  /** Toggles the dropdown, anchoring the floating menu under the button (no reflow). */
+  toggleStoryMenu(ev: MouseEvent): void {
+    if (this.storyMenuOpen()) {
+      this.storyMenuOpen.set(false);
+      return;
+    }
+    const r = (ev.currentTarget as HTMLElement).getBoundingClientRect();
+    this.storyMenuPos.set({ left: r.left, top: r.bottom + 6, width: r.width });
+    this.storyMenuOpen.set(true);
+  }
+  /** Picks a story type from the rich dropdown and closes it. */
+  pickStoryType(id: string): void {
+    this.storyType.set(id);
+    this.storyMenuOpen.set(false);
   }
 
   /** Selects a format. */

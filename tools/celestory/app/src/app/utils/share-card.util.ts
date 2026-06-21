@@ -161,15 +161,17 @@ function vSparkle(ctx: Ctx, cx: number, cy: number, r: number, col: string): voi
 /** Social formats keyed by id. */
 export const SHARE_FORMATS: Readonly<Record<ShareFormatId, Dims>> = {
   story: { w: 1080, h: 1920 },
+  vertical: { w: 1080, h: 1440 },
   square: { w: 1080, h: 1080 },
-  landscape: { w: 1200, h: 675 },
+  landscape: { w: 1080, h: 566 },
 };
 
 /** Format-picker metadata. */
 export const SHARE_FORMAT_LIST: ShareFormatMeta[] = [
-  { id: 'story', label: 'Story', sub: '9:16 · story', w: 1080, h: 1920 },
-  { id: 'square', label: 'Square', sub: '1:1 · post', w: 1080, h: 1080 },
-  { id: 'landscape', label: 'Landscape', sub: '16:9 · X / OG', w: 1200, h: 675 },
+  { id: 'story', label: 'Story', sub: '9:16 1080×1920', w: 1080, h: 1920 },
+  { id: 'vertical', label: 'Vertical', sub: '3:4 1080×1440', w: 1080, h: 1440 },
+  { id: 'square', label: 'Square', sub: '1:1 1080×1080', w: 1080, h: 1080 },
+  { id: 'landscape', label: 'Landscape', sub: '1.91:1 1080×566', w: 1080, h: 566 },
 ];
 
 // ---- background primitives -------------------------------------------------
@@ -1685,19 +1687,27 @@ function filterStacked(ctx: Ctx, x: number, y: number, w: number, hh: number, di
   });
   ctx.restore();
   ctx.textBaseline = 'middle';
-  ctx.font = fnt(600, 27 * sc, t.f.label);
   const labelFor = (k: ShareFilterKey): string => (showHours ? `${SHARE_FILTER_META[k].label}  ${fmtHM(dist[k] ?? 0)}` : SHARE_FILTER_META[k].label);
-  const widths = order.map((k) => ctx.measureText(labelFor(k)).width + 40 * sc);
+  // Lay the legend out at the base size, then shrink it to fit the bar width so a
+  // filter-heavy target (e.g. 7 filters with hours) never spills past the edges.
+  const baseFont = 27 * sc;
+  const baseGap = 40 * sc;
+  const widthsAt = (gap: number): number[] => order.map((k) => ctx.measureText(labelFor(k)).width + gap);
+  ctx.font = fnt(600, baseFont, t.f.label);
+  const baseTw = widthsAt(baseGap).reduce((a, b) => a + b, 0);
+  const fit = baseTw > w ? (w * 0.97) / baseTw : 1;
+  ctx.font = fnt(600, baseFont * fit, t.f.label);
+  const widths = widthsAt(baseGap * fit);
   const tw = widths.reduce((a, b) => a + b, 0);
   let lx = x + (w - tw) / 2;
   order.forEach((k, i) => {
     ctx.fillStyle = filterColor(k, t);
     ctx.beginPath();
-    ctx.arc(lx + 7 * sc, y + hh + 34 * sc, 5 * sc, 0, 6.283);
+    ctx.arc(lx + 7 * sc * fit, y + hh + 34 * sc, 5 * sc * fit, 0, 6.283);
     ctx.fill();
     ctx.fillStyle = t.sub;
     ctx.textAlign = 'left';
-    ctx.fillText(labelFor(k), lx + 18 * sc, y + hh + 34 * sc);
+    ctx.fillText(labelFor(k), lx + 18 * sc * fit, y + hh + 34 * sc);
     lx += widths[i];
   });
   ctx.textBaseline = 'alphabetic';
@@ -1705,12 +1715,17 @@ function filterStacked(ctx: Ctx, x: number, y: number, w: number, hh: number, di
 // ---- identity helpers ------------------------------------------------------
 
 /** Resolves the printed identity from the edited identity, else the observer line. */
-function objIdentity(model: ShareModel): { name: string; handle: string } {
+function objIdentity(model: ShareModel): { name: string; username: string } {
   const op = (model.observer || '').split('—').map((x) => x.trim());
   return {
     name: model.identity.name || op[0] || model.observer || '',
-    handle: model.identity.handle || op[1] || '',
+    username: model.identity.username || op[1] || '',
   };
+}
+
+/** Formats a username for display: exactly one leading "@", or "" when empty. */
+function atUser(username: string): string {
+  return username ? (username.charAt(0) === '@' ? username : `@${username}`) : '';
 }
 
 /** Name printed on the single cards (respects the edited identity). */
@@ -1729,10 +1744,10 @@ function drawTall(ctx: Ctx, dims: Dims, model: ShareModel, t: ResolvedTheme): vo
   const s = model.summary;
   const isStory = h > w * 1.3;
   const f = t.f;
-  const footY = h - pad * 0.6;
+  const footY = h - pad * 1.1;
   const id = objIdentity(model);
   const name = id.name || 'Astrophotographer';
-  const handle = id.handle;
+  const username = id.username;
 
   // header: wordmark (left) + rig (right)
   drawGlyph(ctx, pad + 15 * sc, pad + 16 * sc, 15 * sc);
@@ -1787,10 +1802,10 @@ function drawTall(ctx: Ctx, dims: Dims, model: ShareModel, t: ResolvedTheme): vo
   ctx.fillText(tail, nx + ctx.measureText(lead).width, nameY);
   ctx.textAlign = 'center';
   ctx.textBaseline = 'alphabetic';
-  if (handle) {
+  if (username) {
     ctx.fillStyle = t.accent;
     ctx.font = fnt(600, (isStory ? 42 : 34) * sc, f.label);
-    ctx.fillText(handle, w / 2, nameY + (isStory ? 84 : 66) * sc);
+    ctx.fillText(atUser(username), w / 2, nameY + (isStory ? 84 : 66) * sc);
   }
 
   // hero year band
@@ -1864,17 +1879,7 @@ function drawTall(ctx: Ctx, dims: Dims, model: ShareModel, t: ResolvedTheme): vo
   filterStacked(ctx, pad, ly + 24 * sc, w - 2 * pad, 20 * sc, s.filterDistribution, t, sc);
 
   // footer
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'alphabetic';
-  ctx.fillStyle = t.label;
-  ctx.font = fnt(600, 17 * sc, f.label);
-  setLS(ctx, 0.5 * sc);
-  ctx.fillText('Create your own Celestory', pad, footY);
-  ctx.textAlign = 'right';
-  ctx.fillStyle = t.accent;
-  ctx.fillText('celestory.dbastrosuite.com', w - pad, footY);
-  setLS(ctx, 0);
-  ctx.textAlign = 'left';
+  cardFooterLine(ctx, w, footY, sc, t);
 }
 
 /** Landscape summary layout — left identity, right filter chart. */
@@ -1954,12 +1959,7 @@ function drawWide(ctx: Ctx, dims: Dims, model: ShareModel, t: ResolvedTheme): vo
   sectionLabel(ctx, 'FILTER BREAKDOWN', colX, rTop, t, sc);
   drawFilterBars(ctx, colX, rTop + 38 * sc, w - pad - colX, h * 0.4, s.filterDistribution, t, sc);
 
-  ctx.textBaseline = 'alphabetic';
-  ctx.textAlign = 'right';
-  ctx.fillStyle = t.accent;
-  ctx.font = fnt(600, 16 * sc, f.label);
-  ctx.fillText('celestory.dbastrosuite.com', w - pad, h - pad * 0.5);
-  ctx.textAlign = 'left';
+  cardFooterLine(ctx, w, h - pad * 0.9, sc, t);
   void y;
 }
 // ---- render entry ----------------------------------------------------------
@@ -2055,19 +2055,7 @@ export function renderShareCard(
 
 /** Two-line credit footer ("Create your own Celestory" / URL). */
 function cardFooter(ctx: Ctx, w: number, h: number, sc: number, t: ResolvedTheme, pad: number): void {
-  const f = t.f;
-  const footY = h - pad * 0.6;
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'alphabetic';
-  ctx.fillStyle = t.label;
-  ctx.font = fnt(600, 17 * sc, f.label);
-  setLS(ctx, 0.5 * sc);
-  ctx.fillText('Create your own Celestory', pad, footY);
-  ctx.textAlign = 'right';
-  ctx.fillStyle = t.accent;
-  ctx.fillText('celestory.dbastrosuite.com', w - pad, footY);
-  setLS(ctx, 0);
-  ctx.textAlign = 'left';
+  cardFooterLine(ctx, w, h - pad * 1.0, sc, t);
 }
 
 /** Single-card variants that reuse carousel slide content with card chrome. */
@@ -2093,18 +2081,7 @@ function drawVariantCard(ctx: Ctx, dims: Dims, model: ShareModel, t: ResolvedThe
   ctx.save();
   slideFn(ctx, { w, h, sc, index: 0 }, model, t);
   ctx.restore();
-  const footY = h - pad + 6 * sc;
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'alphabetic';
-  ctx.fillStyle = t.label;
-  ctx.font = fnt(600, 17 * sc, f.label);
-  setLS(ctx, 0.5 * sc);
-  ctx.fillText('Create your own Celestory', pad, footY);
-  ctx.textAlign = 'right';
-  ctx.fillStyle = t.accent;
-  ctx.fillText('celestory.dbastrosuite.com', w - pad, footY);
-  setLS(ctx, 0);
-  ctx.textAlign = 'left';
+  cardFooterLine(ctx, w, h - pad * 1.0, sc, t);
 }
 
 /** Year-in-review — the selected year set in giant type. */
@@ -3427,11 +3404,11 @@ function hoursSlide(ctx: Ctx, dims: SlideDims, model: ShareModel, t: ResolvedThe
     setLS(ctx, 0);
     ctx.fillText(id.name, w / 2, h * 0.142);
   }
-  if (id.handle) {
+  if (id.username) {
     ctx.fillStyle = t.accent;
     ctx.font = fnt(600, 36 * sc, f.label);
     setLS(ctx, 0.5 * sc);
-    ctx.fillText(id.handle, w / 2, h * 0.186);
+    ctx.fillText(atUser(id.username), w / 2, h * 0.186);
     setLS(ctx, 0);
   }
   const yda = parseDate(s.firstLight);
@@ -3580,12 +3557,7 @@ function drawCarouselChrome(ctx: Ctx, W: number, H: number, t: ResolvedTheme, in
     ctx.fillStyle = i === index ? t.accent : t.label;
     ctx.fill();
   }
-  ctx.textAlign = 'right';
-  ctx.textBaseline = 'alphabetic';
-  ctx.fillStyle = t.accent;
-  ctx.font = fnt(600, 20 * csc, t.f.label);
-  ctx.fillText('celestory.dbastrosuite.com', W - pad, H - pad * 0.62);
-  ctx.textAlign = 'left';
+  cardFooterLine(ctx, W, H - pad * 1.05, csc, t);
 }
 
 /** Renders carousel slide `index` for the given theme + format. */
@@ -3769,7 +3741,7 @@ function bannerNameBlock(ctx: Ctx, o: ShareModelObject, x: number, y: number, w:
 }
 
 /** Object/equipment card header bar (wordmark + identity). */
-function objHeaderBar(ctx: Ctx, w: number, sc: number, t: ResolvedTheme, pad: number, idn: { name: string; handle: string }): void {
+function objHeaderBar(ctx: Ctx, w: number, sc: number, t: ResolvedTheme, pad: number, idn: { name: string; username: string }): void {
   const f = t.f;
   drawGlyph(ctx, pad + 14 * sc, pad + 14 * sc, 14 * sc);
   ctx.fillStyle = t.ink;
@@ -3778,12 +3750,12 @@ function objHeaderBar(ctx: Ctx, w: number, sc: number, t: ResolvedTheme, pad: nu
   ctx.font = fnt(f.headW, 28 * sc, f.head);
   setLS(ctx, 0);
   drawWordmark(ctx, pad + 38 * sc, pad + 15 * sc, t);
-  if (idn && (idn.name || idn.handle)) {
+  if (idn && (idn.name || idn.username)) {
     const cy = pad + 15 * sc;
     ctx.textAlign = 'right';
     ctx.textBaseline = 'middle';
     let x = w - pad;
-    const hd = idn.handle ? (idn.handle.charAt(0) === '@' ? idn.handle : `@${idn.handle}`) : '';
+    const hd = atUser(idn.username);
     if (hd) {
       ctx.fillStyle = t.sub;
       ctx.font = fnt(500, 15 * sc, f.label);
@@ -3813,7 +3785,7 @@ function cardFooterLine(ctx: Ctx, w: number, footY: number, sc: number, t: Resol
   ctx.textBaseline = 'alphabetic';
   setLS(ctx, 0.4 * sc);
   ctx.font = fnt(600, 16 * sc, f.label);
-  const pre = 'Created using Celestory at ';
+  const pre = 'Create your story using ';
   const url = 'celestory.dbastrosuite.com';
   ctx.textAlign = 'left';
   const wPre = ctx.measureText(pre).width;
@@ -3836,7 +3808,7 @@ function drawObjectTall(ctx: Ctx, dims: Dims, model: ShareModel, o: ShareModelOb
   const isStory = h > w * 1.3;
   const pad = w * 0.075;
   const id = objIdentity(model);
-  const footY = h - pad * 0.62;
+  const footY = h - pad * 1.25;
   objHeaderBar(ctx, w, sc, t, pad, id);
   const bx = pad;
   const bw = w - 2 * pad;
@@ -4053,7 +4025,7 @@ function drawEquipTall(ctx: Ctx, dims: Dims, model: ShareModel, e: ShareModelEqu
   const isStory = h > w * 1.3;
   const pad = w * 0.075;
   const id = objIdentity(model);
-  const footY = h - pad * 0.62;
+  const footY = h - pad * 1.25;
   const byId = new Map(model.objects.map((o) => [o.id, o]));
   const objs = (e.objectIds || [])
     .map((x) => byId.get(x))

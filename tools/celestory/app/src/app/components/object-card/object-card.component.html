@@ -1,4 +1,13 @@
 <article class="ocard" (click)="open.emit(obj().id)">
+  <button
+    class="obj-share-btn"
+    type="button"
+    title="Share this target"
+    aria-label="Share this target"
+    (click)="$event.stopPropagation(); share.emit(obj().id)"
+  >
+    <dba-cel-icon name="share" [size]="16" />
+  </button>
   <div class="othumb"><dba-object-image [objectId]="obj().id" [category]="obj().category" [icon]="icon()" label="Add image" /></div>
   <div class="obody">
     <div class="otitle">
@@ -18,6 +27,6 @@
         <div class="v">{{ count(obj().lightFrameCount) }}</div>
       </div>
     </div>
-    <dba-filter-distribution [filters]="obj().filters" [legend]="false" />
+    <dba-filter-distribution [filters]="obj().filters" [legend]="false" size="mini" />
   </div>
 </article>

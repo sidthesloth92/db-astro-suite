@@ -4,6 +4,7 @@ import {
   Component,
   computed,
   ElementRef,
+  inject,
   input,
   signal,
   viewChild,
@@ -11,7 +12,6 @@ import {
 import { MILESTONE_COLOR } from '../../models/heat-milestone.constants';
 import type { HeatNode, HeatStripView, PlacedMilestone } from '../../models/portfolio-view.types';
 import { formatCount, formatDuration } from '../../utils/format.util';
-import { edgeClampLeft } from '../../utils/heat-strip.util';
 import { fmtDate } from '../../utils/portfolio.util';
 import {
   BASELINE,
@@ -27,7 +27,7 @@ import {
   STEM_MIN,
   STEM_RANGE,
   TIER_H,
-  TIP_EDGE,
+  TIP_HALF_W,
   TRACK_HEIGHT,
 } from './heat-strip-layout.constants';
 
@@ -55,6 +55,12 @@ export class HeatStripComponent {
 
   /** The currently hovered night, or null. */
   protected readonly hovered = signal<HeatNode | null>(null);
+
+  /** Hover tooltip position (px, relative to the component host), or null. */
+  protected readonly tipPos = signal<{ x: number; y: number } | null>(null);
+
+  /** Component host — the tooltip is positioned relative to it, outside the clipping scroller. */
+  private readonly hostRef = inject<ElementRef<HTMLElement>>(ElementRef);
 
   /**
    * Open on the most recent activity (the densest end) rather than the sparse
@@ -162,6 +168,32 @@ export class HeatStripComponent {
     });
   });
 
+  /**
+   * Reveals a night and positions the tooltip from the hovered dot's measured
+   * screen position, mapped into host coordinates and horizontally clamped to the
+   * panel — the tooltip renders outside the horizontally-clipping scroller so its
+   * richer body (filters + objects) is never cut off. Browser-only (hover event).
+   */
+  protected onEnter(n: HeatNode, ev: MouseEvent): void {
+    this.hovered.set(n);
+    const node = ev.currentTarget as HTMLElement | null;
+    if (!node) {
+      return;
+    }
+    const nr = node.getBoundingClientRect();
+    const hr = this.hostRef.nativeElement.getBoundingClientRect();
+    const rawX = nr.left + nr.width / 2 - hr.left;
+    const x = Math.min(Math.max(rawX, TIP_HALF_W + 8), Math.max(TIP_HALF_W + 8, hr.width - TIP_HALF_W - 8));
+    const y = nr.top + n.dotTop - hr.top - 8;
+    this.tipPos.set({ x, y });
+  }
+
+  /** Hides the tooltip. */
+  protected onLeave(): void {
+    this.hovered.set(null);
+    this.tipPos.set(null);
+  }
+
   /** Long date for the tooltip. */
   protected date(d: string): string {
     return fmtDate(d);
@@ -173,9 +205,5 @@ export class HeatStripComponent {
   /** Thousands-separated count for the tooltip. */
   protected count(n: number): string {
     return formatCount(n);
-  }
-  /** Edge-clamped CSS `left` for the hover tooltip so it never overflows. */
-  protected tipLeft(leftPct: number): string {
-    return edgeClampLeft(leftPct, TIP_EDGE);
   }
 }

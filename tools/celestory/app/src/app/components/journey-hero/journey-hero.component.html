@@ -14,12 +14,12 @@
           <div class="id-handle-row">
             <span class="id-at">&#64;</span>
             <input
-              #handleI
+              #usernameI
               class="id-input"
-              [value]="editHandle()"
-              (input)="onEditHandle(handleI.value)"
-              placeholder="handle"
-              aria-label="Your handle"
+              [value]="editUsername()"
+              (input)="onEditUsername(usernameI.value)"
+              placeholder="username"
+              aria-label="Your username"
             />
           </div>
           <div class="id-edit-actions">
@@ -30,18 +30,18 @@
           </div>
         </div>
       } @else {
-        <dba-celestory-wordmark class="hero-lockup" [prefix]="lockupPrefix()" [markSize]="40" [fontSize]="32" />
+        <dba-celestory-wordmark class="hero-lockup" [prefix]="lockupPrefix()" [markSize]="36" [fontSize]="32" />
         <div class="hero-id-meta">
-          @if (displayHandle()) {
-            <span class="hero-handle">&#64;{{ displayHandle() }}</span>
+          @if (displayUsername()) {
+            <span class="hero-handle">&#64;{{ displayUsername() }}</span>
           }
-          <dba-ui-icon-button class="id-edit-btn" accent="cyan" [size]="30" title="Edit name and handle" (clicked)="startEdit()">
+          <dba-ui-icon-button class="id-edit-btn" accent="cyan" [size]="30" title="Edit name and username" (clicked)="startEdit()">
             <dba-cel-icon name="edit" [size]="14" />
           </dba-ui-icon-button>
         </div>
       }
     </div>
-    <div class="hero-tagline eyebrow">{{ identity().tagline }}</div>
+    <div class="hero-tagline eyebrow">{{ tagline() }}</div>
 
     @if (span(); as sp) {
       <div class="hero-span">

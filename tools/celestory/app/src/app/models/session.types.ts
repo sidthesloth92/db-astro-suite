@@ -13,6 +13,6 @@ export interface OwnerSession {
 export interface ViewerIdentity {
   /** Display name (e.g. "Vera C"). */
   name: string;
-  /** Public handle without the leading "@" (e.g. "verac"). */
-  handle: string;
+  /** Username printed verbatim on cards with a leading "@" (e.g. "Backyard Observatory"). */
+  username: string;
 }

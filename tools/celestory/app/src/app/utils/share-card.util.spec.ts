@@ -19,8 +19,13 @@ describe('share-card themes', () => {
 });
 
 describe('share-card formats + carousel', () => {
-  it('ships the three social formats', () => {
-    expect(SHARE_FORMAT_LIST.map((f) => f.id).sort()).toEqual(['landscape', 'square', 'story']);
+  it('ships the four social formats', () => {
+    expect(SHARE_FORMAT_LIST.map((f) => f.id).sort()).toEqual([
+      'landscape',
+      'square',
+      'story',
+      'vertical',
+    ]);
   });
 
   it('has a five-slide carousel', () => {

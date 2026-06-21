@@ -16,10 +16,7 @@ import { map } from 'rxjs';
 import { ConstellationFieldComponent, TextButtonComponent } from '@db-astro-suite/ui';
 import { profileDisplayUrl, profileUrl as buildProfileUrl } from '../../models/app.constants';
 import type { DetailRef, JourneyState } from '../../models/journey.types';
-import type { SocialShareLink } from '../../models/social-share.model';
-import { socialShareLinks } from '../../utils/social-share.util';
 import type { CelestoryStory, StoryEquipment, StoryObject } from '../../models/story.model';
-import { copyToClipboard } from '../../utils/clipboard.util';
 import { formatCount, formatHours } from '../../utils/format.util';
 import { publishErrorMessage } from '../../utils/publish-error.util';
 import { readStoryFile } from '../../utils/read-story.util';
@@ -33,11 +30,13 @@ import { EquipmentSectionComponent } from '../equipment-section/equipment-sectio
 import { JourneyHeroComponent } from '../journey-hero/journey-hero.component';
 import { ObjectDetailComponent } from '../object-detail/object-detail.component';
 import { ObjectSectionComponent } from '../object-section/object-section.component';
+import { ObjectShareModalComponent } from '../object-share-modal/object-share-modal.component';
 import { OwnerLoginModalComponent } from '../owner-login-modal/owner-login-modal.component';
 import { PlanetariumComponent } from '../planetarium/planetarium.component';
 import { PublishModalComponent } from '../publish-modal/publish-modal.component';
 import { SectionBannerComponent } from '../section-banner/section-banner.component';
 import { ShareStudioModalComponent } from '../share-studio-modal/share-studio-modal.component';
+import { SocialShareRowComponent } from '../social-share-row/social-share-row.component';
 
 /**
  * Shared journey shell rendered by /preview (Private Preview), /demo (Demo)
@@ -64,6 +63,8 @@ import { ShareStudioModalComponent } from '../share-studio-modal/share-studio-mo
     PublishModalComponent,
     OwnerLoginModalComponent,
     ShareStudioModalComponent,
+    ObjectShareModalComponent,
+    SocialShareRowComponent,
     PlanetariumComponent,
   ],
   templateUrl: './journey-view.component.html',
@@ -106,8 +107,8 @@ export class JourneyViewComponent {
   protected readonly showLogin = signal(false);
   /** The Share Studio drawer (opened directly from any "Share" action). */
   protected readonly showStudio = signal(false);
-  /** Flashes after a successful copy. */
-  protected readonly copied = signal(false);
+  /** The object whose per-object share card is open, or null. */
+  protected readonly shareObject = signal<StoryObject | null>(null);
   /** True while an owner edit (re-upload) is in flight. */
   protected readonly editBusy = signal(false);
   /** User-facing error from an owner edit, or empty. */
@@ -181,10 +182,15 @@ export class JourneyViewComponent {
   protected readonly profileUrl = computed(() => buildProfileUrl(this.handle()));
   /** Display form of the profile URL (no scheme) shown in the published banner. */
   protected readonly profileDisplay = computed(() => profileDisplayUrl(this.handle()));
-  /** Social-platform share links for the published banner's share row. */
-  protected readonly socialLinks = computed<SocialShareLink[]>(() =>
-    socialShareLinks(this.profileUrl()),
-  );
+  /** True once the journey is published — gates the per-item share links. */
+  protected readonly isPublished = computed(() => this.state() === 'published');
+  /** Public deep-link to the open per-object share card, or '' when unpublished. */
+  protected readonly objectShareUrl = computed(() => {
+    const o = this.shareObject();
+    return o && this.isPublished() && this.handle()
+      ? `${buildProfileUrl(this.handle())}?object=${encodeURIComponent(o.id)}`
+      : '';
+  });
 
   /** Opens an object's detail (pushes a history entry). */
   openObject(id: string): void {
@@ -247,6 +253,10 @@ export class JourneyViewComponent {
   /** Opens the Share Studio drawer directly. */
   openShare(): void {
     this.showStudio.set(true);
+  }
+  /** Opens the per-object share card for the given object id. */
+  openObjectShare(id: string): void {
+    this.shareObject.set(this.story().objects.find((o) => o.id === id) ?? null);
   }
   /** Opens the Publish modal directly (full flow). */
   openPublish(): void {
@@ -325,49 +335,15 @@ export class JourneyViewComponent {
     void this.router.navigate([this.previewStore.story() ? '/preview' : '/']);
   }
 
-  /** Copies the public profile URL and flashes feedback. */
-  copyLink(): void {
-    void copyToClipboard(this.profileUrl()).then((ok) => {
-      if (!ok) {
-        return;
-      }
-      this.copied.set(true);
-      setTimeout(() => this.copied.set(false), 1400);
-    });
-  }
-
-  /** Opens the public profile URL in a new tab. */
-  openProfile(): void {
-    if (typeof window !== 'undefined') {
-      window.open(this.profileUrl(), '_blank', 'noopener');
-    }
-  }
-
-  /** Shares via the Web Share API, falling back to copying the URL. */
-  share(): void {
-    if (typeof navigator === 'undefined') {
-      return;
-    }
-    const payload = {
-      title: 'Celestory',
-      text: 'Chart your astrophotography journey under the stars.',
-      url: this.profileUrl(),
-    };
-    if (navigator.share) {
-      // A user-cancelled share rejects; that is expected and safely ignored.
-      void navigator.share(payload).catch(() => undefined);
-    } else {
-      this.copyLink();
-    }
-  }
-
   /** Escape closes any open modal; with no modal open, it closes an open detail. */
   onEscape(): void {
-    const anyModalOpen = this.showPublish() || this.showStudio() || this.showLogin();
+    const anyModalOpen =
+      this.showPublish() || this.showStudio() || this.showLogin() || this.shareObject() != null;
     if (anyModalOpen) {
       this.showPublish.set(false);
       this.showStudio.set(false);
       this.showLogin.set(false);
+      this.shareObject.set(null);
       return;
     }
     if (this.detail()) {

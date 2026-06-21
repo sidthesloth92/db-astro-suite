@@ -95,6 +95,10 @@ export interface HeatNight {
   frac: number;
   /** Horizontal position as a percentage across the span. */
   leftPct: number;
+  /** Filters used that night, busiest first (for the hover tooltip). */
+  filters: { name: string; label: string; color: string; seconds: number }[];
+  /** Objects imaged that night, busiest first (for the hover tooltip). */
+  objects: { name: string; type: string; seconds: number }[];
 }
 
 /** A heat-strip night with resolved vertical layout (px), for rendering. */

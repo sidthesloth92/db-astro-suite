@@ -3,6 +3,7 @@ import type { CelestoryStory, StoryEquipment, StoryObject } from '../../models/s
 import type { CelIconName } from '../cel-icon/cel-icon.component';
 import type { FilterRow, SessionView } from '../../models/portfolio-view.types';
 import type { AltAz } from '../../models/sky.types';
+import { profileUrl } from '../../models/app.constants';
 import { formatCount, formatDuration } from '../../utils/format.util';
 import { moonGlyphFor } from '../../utils/moon-phase.util';
 import {
@@ -39,6 +40,10 @@ export class ObjectDetailComponent {
   readonly obj = input.required<StoryObject>();
   /** The full story (for equipment resolution). */
   readonly story = input.required<CelestoryStory>();
+  /** The public handle (for the per-object share link). */
+  readonly handle = input<string>('');
+  /** Whether the profile is published (gates the per-object share link). */
+  readonly published = input<boolean>(false);
   /** Rendered inside the planetarium popup (hides the back link, compacts the head). */
   readonly embedded = input<boolean>(false);
   /** Current horizontal position, when shown from the planetarium. */
@@ -51,6 +56,13 @@ export class ObjectDetailComponent {
 
   /** Whether the per-object share modal is open. */
   protected readonly showShare = signal(false);
+
+  /** Public deep-link to this object, or '' when unpublished (gates the share row). */
+  protected readonly shareUrl = computed(() =>
+    this.published() && this.handle()
+      ? `${profileUrl(this.handle())}?object=${encodeURIComponent(this.obj().id)}`
+      : '',
+  );
 
   /** Category glyph. */
   protected readonly icon = computed<CelIconName>(() => categoryIcon(this.obj().category));

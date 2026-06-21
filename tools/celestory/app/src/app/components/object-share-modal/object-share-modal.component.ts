@@ -1,5 +1,6 @@
 import { isPlatformBrowser } from '@angular/common';
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   computed,
@@ -21,11 +22,12 @@ import {
   SHARE_FORMATS,
   SHARE_THEME_LIST,
 } from '../../utils/share-card.util';
-import { IconButtonComponent, TextButtonComponent } from '@db-astro-suite/ui';
+import { IconButtonComponent, SplitButtonComponent, TextButtonComponent } from '@db-astro-suite/ui';
+import { DOWNLOAD_FORMAT_MENU } from '../../models/share.constants';
 import { buildShareModel } from '../../utils/share-model.util';
 import { SessionStore } from '../../services/session-store.service';
-import { slugifyHandle } from '../../utils/handle.util';
-import { copyCanvasToClipboard, shareCanvas } from '../../utils/share-export.util';
+import { canShareFiles, copyCanvasToClipboard, shareCanvas } from '../../utils/share-export.util';
+import { SocialShareRowComponent } from '../social-share-row/social-share-row.component';
 
 /**
  * Per-object Share — a single-item scope of the shared Share Studio shell: a live
@@ -35,7 +37,7 @@ import { copyCanvasToClipboard, shareCanvas } from '../../utils/share-export.uti
 @Component({
   selector: 'dba-object-share-modal',
   standalone: true,
-  imports: [TextButtonComponent, IconButtonComponent],
+  imports: [TextButtonComponent, IconButtonComponent, SplitButtonComponent, SocialShareRowComponent],
   templateUrl: './object-share-modal.component.html',
   styleUrl: '../share-studio-modal/share-studio-modal.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -50,6 +52,8 @@ export class ObjectShareModalComponent {
   readonly story = input.required<CelestoryStory>();
   /** Public handle for the card's URL line. */
   readonly handle = input<string>('');
+  /** Public deep-link to this object (empty when unpublished) — gates the share row. */
+  readonly shareUrl = input<string>('');
   /** Emits when the modal should close. */
   readonly closed = output<void>();
 
@@ -66,6 +70,12 @@ export class ObjectShareModalComponent {
   protected readonly themeId = signal<ShareThemeId>('star');
   protected readonly formatId = signal<ShareFormatId>('story');
   protected readonly flash = signal('');
+  /** True when the OS share sheet can take image files (mobile) — set post-render. */
+  protected readonly canNativeShare = signal(false);
+  /** Active download format (PNG/JPEG) for the split button. */
+  protected readonly dlFormat = signal<'png' | 'jpeg'>('png');
+  /** Download-format menu for the split button. */
+  protected readonly downloadMenu = DOWNLOAD_FORMAT_MENU;
 
   /** Caption under the preview ("designation · name"). */
   protected readonly caption = computed(() => {
@@ -82,15 +92,15 @@ export class ObjectShareModalComponent {
   setIdentityName(value: string): void {
     this.session.setIdentity({ ...this.session.identity(), name: value });
   }
-  /** Update the shared identity handle from the studio input. */
-  setIdentityHandle(value: string): void {
-    this.session.setIdentity({ ...this.session.identity(), handle: slugifyHandle(value) });
+  /** Update the shared identity username from the studio input (stored verbatim). */
+  setIdentityUsername(value: string): void {
+    this.session.setIdentity({ ...this.session.identity(), username: value.replace(/^@+/, '') });
   }
 
-  /** Render-ready model, with the edited identity (handle falls back to the input). */
+  /** Render-ready model, with the edited identity (username falls back to the handle). */
   private readonly model = computed(() => {
     const ident = this.session.identity();
-    return buildShareModel(this.story(), { name: ident.name, handle: ident.handle || this.handle() });
+    return buildShareModel(this.story(), { name: ident.name, username: ident.username || this.handle() });
   });
   /** The matching render object for the input target. */
   private readonly shareObject = computed(() => {
@@ -101,6 +111,7 @@ export class ObjectShareModalComponent {
   private fontsReady: Promise<void> | null = null;
 
   constructor() {
+    afterNextRender(() => this.canNativeShare.set(canShareFiles()));
     effect(() => {
       const canvas = this.canvasRef()?.nativeElement;
       const themeId = this.themeId();
@@ -129,24 +140,34 @@ export class ObjectShareModalComponent {
     return `${(this.obj().designation || this.obj().displayName).replace(/\s+/g, '-').toLowerCase()}-celestory`;
   }
 
-  /** Download the current card as a PNG. */
-  download(): void {
+  /** Switches the active download format (from the split-button menu). */
+  setDlFormat(f: string): void {
+    this.dlFormat.set(f === 'jpeg' ? 'jpeg' : 'png');
+  }
+
+  /** Download the current card as PNG or JPEG. */
+  downloadAs(format: 'png' | 'jpeg'): void {
     const canvas = this.canvasRef()?.nativeElement;
     if (!canvas) {
       return;
     }
-    canvas.toBlob((blob) => {
-      if (!blob) {
-        return;
-      }
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${this.fileStem()}.png`;
-      a.click();
-      URL.revokeObjectURL(url);
-      this.flashMessage('Downloaded');
-    }, 'image/png');
+    const mime = format === 'jpeg' ? 'image/jpeg' : 'image/png';
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) {
+          return;
+        }
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${this.fileStem()}.${format}`;
+        a.click();
+        URL.revokeObjectURL(url);
+        this.flashMessage('Downloaded');
+      },
+      mime,
+      format === 'jpeg' ? 0.92 : undefined,
+    );
   }
 
   /** Copy the current card to the clipboard (falls back to download). */
@@ -159,7 +180,7 @@ export class ObjectShareModalComponent {
       if (ok) {
         this.flashMessage('Copied');
       } else {
-        this.download();
+        this.downloadAs('png');
       }
     });
   }
@@ -172,7 +193,7 @@ export class ObjectShareModalComponent {
     }
     void shareCanvas(canvas, `${this.fileStem()}.png`).then((shared) => {
       if (!shared) {
-        this.download();
+        this.downloadAs('png');
       }
     });
   }

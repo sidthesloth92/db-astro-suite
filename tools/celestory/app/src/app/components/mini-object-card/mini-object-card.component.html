@@ -1,0 +1,13 @@
+<article class="minicard" (click)="open.emit(obj().id)">
+  <div class="minithumb"><dba-object-image [objectId]="obj().id" [category]="obj().category" [icon]="icon()" label="" /></div>
+  <div class="minibody">
+    <div class="mt">
+      @if (obj().designation) {
+        <span class="d">{{ obj().designation }}</span>
+      }<span class="n">{{ obj().displayName }}</span>
+    </div>
+    <div class="mmeta"><span class="glow">{{ dur(obj().totalIntegrationSeconds) }}</span> · {{ count(obj().lightFrameCount) }} frames</div>
+    <dba-filter-distribution [filters]="obj().filters" [legend]="false" size="mini" />
+    <div class="mininights"><span class="num">{{ nights() }}</span> nights · {{ range() }}</div>
+  </div>
+</article>

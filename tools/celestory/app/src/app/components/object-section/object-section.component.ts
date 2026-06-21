@@ -16,6 +16,8 @@ export class ObjectSectionComponent {
   readonly story = input.required<CelestoryStory>();
   /** Emits an object id to open its detail. */
   readonly open = output<string>();
+  /** Emits an object id to open its share card. */
+  readonly share = output<string>();
 
   /** Active filters. */
   protected readonly cat = signal('All');

@@ -1,0 +1,66 @@
+:host {
+  display: block;
+}
+.minicard {
+  display: flex;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--db-color-text-faint) 18%, transparent);
+  border-radius: 14px;
+  background: linear-gradient(180deg, var(--db-color-surface-raised), color-mix(in srgb, var(--db-color-surface-raised) 60%, var(--db-color-surface-bg)));
+  cursor: pointer;
+  transition: border-color 0.16s, transform 0.16s;
+}
+.minicard:hover {
+  border-color: var(--db-color-border-strong);
+  transform: translateY(-2px);
+}
+.minithumb {
+  position: relative;
+  flex: none;
+  width: 92px;
+  height: 92px;
+  border-radius: 9px;
+  overflow: hidden;
+  background: var(--db-color-surface-bg);
+  border: 1px solid color-mix(in srgb, var(--db-color-text-faint) 18%, transparent);
+}
+.minibody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.mt {
+  line-height: 1.2;
+}
+.mt .d {
+  font-family: var(--db-font-mono-code);
+  font-size: 11px;
+  color: var(--db-color-neon-pink);
+  margin-right: 7px;
+  white-space: nowrap;
+}
+.mt .n {
+  font-family: var(--db-font-display-major);
+  font-size: 16px;
+}
+.mmeta {
+  font-family: var(--db-font-mono-code);
+  font-size: 11.5px;
+  color: var(--db-color-text-dim);
+}
+.mmeta .glow {
+  color: var(--db-color-neon-pink);
+}
+.mininights {
+  font-family: var(--db-font-mono-code);
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  color: var(--db-color-text-faint);
+  margin-top: 4px;
+}
+.mininights .num {
+  color: var(--db-color-text-dim);
+}

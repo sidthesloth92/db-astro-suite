@@ -5,7 +5,7 @@
       <stop offset="1" [attr.stop-color]="pink" />
     </linearGradient>
   </defs>
-  <line x1="30" y1="22" x2="270" y2="22" [attr.stroke]="'url(#' + uid + ')'" stroke-width="1.4" opacity="0.45" />
+  <line x1="30" y1="22" x2="270" y2="22" [attr.stroke]="'url(#' + uid + ')'" stroke-width="1.4" opacity="0.4" />
   @for (ph of phases; track ph.cx) {
     <circle [attr.cx]="ph.cx" [attr.cy]="ph.cy" [attr.r]="ph.r" fill="none" [attr.stroke]="ph.color" stroke-width="0.9" opacity="0.28" />
     @switch (ph.mode) {

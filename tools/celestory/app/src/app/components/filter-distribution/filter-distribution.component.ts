@@ -17,6 +17,8 @@ export class FilterDistributionComponent {
   readonly filters = input.required<readonly StoryFilterTotal[]>();
   /** Whether to show the labelled legend beneath the bar. */
   readonly legend = input<boolean>(true);
+  /** Bar thickness: 'tall' (12px, summary panel) or 'mini' (5px, object cards). */
+  readonly size = input<'tall' | 'mini'>('tall');
 
   /** Proportional, ordered slices. */
   protected readonly slices = computed<FilterSlice[]>(() => filterSlices(this.filters()));

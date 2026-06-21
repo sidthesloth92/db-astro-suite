@@ -25,8 +25,6 @@
           }
         </div>
 
-        <p class="canvas-caption">{{ selectedStory().label }}</p>
-
         <!-- Private: publish & claim your profile -->
         @if (isPrivate()) {
           <div class="claim-block">
@@ -49,11 +47,11 @@
         <!-- Published: share your link -->
         @if (isPublished()) {
           <div class="claim-block">
-            <span class="claim-label">Share your link</span>
+            <span class="claim-label">Share your profile</span>
             <div class="dest-row">
               @for (d of destinations; track d.short) {
                 <button class="dest" type="button" (click)="openDestination(d.url)" [title]="d.label" [attr.aria-label]="d.label">
-                  {{ d.short }}
+                  <dba-cel-social-icon [name]="d.icon" [size]="17" />
                 </button>
               }
             </div>
@@ -91,7 +89,7 @@
           </button>
         </div>
 
-        <!-- Your name & handle — updates the slide identity live (and the portfolio hero) -->
+        <!-- Your name & username — updates the slide identity live (and the portfolio hero) -->
         <div class="grp grp-row">
           <label class="grp-col">
             <span class="grp-label">Your name</span>
@@ -105,32 +103,73 @@
             />
           </label>
           <label class="grp-col">
-            <span class="grp-label">Handle</span>
+            <span class="grp-label">Username</span>
             <input
               #idh
               class="sel ss-id-input"
-              [value]="session.identity().handle"
-              (input)="setIdentityHandle(idh.value)"
-              placeholder="handle"
-              aria-label="Your handle"
+              [value]="session.identity().username"
+              (input)="setIdentityUsername(idh.value)"
+              placeholder="username"
+              aria-label="Your username"
             />
           </label>
         </div>
 
-        <!-- Story Type dropdown -->
+        <!-- Story Type — rich dropdown (icon + title + description) -->
         <div class="grp">
           <span class="grp-label">Story Type</span>
-          <div class="sel-wrap">
-            <select class="sel" [value]="storyType()" (change)="onStoryType($event)" aria-label="Story type">
-              @for (t of storyTypes; track t.id) {
-                <option [value]="t.id">{{ t.label }}</option>
-              }
-            </select>
-            <svg class="sel-caret" viewBox="0 0 12 12" fill="none" width="11" height="11" aria-hidden="true">
-              <path d="M3 4.5L6 7.5l3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+          <div class="rich-sel" [class.open]="storyMenuOpen()">
+            <button
+              type="button"
+              class="rich-sel-btn"
+              (click)="toggleStoryMenu($event)"
+              aria-haspopup="listbox"
+              [attr.aria-expanded]="storyMenuOpen()"
+            >
+              <span class="rsi"><dba-cel-icon [name]="storyIcon(selectedStory().id)" [size]="18" /></span>
+              <span class="rst">
+                <span class="rst-title">{{ selectedStory().label }}</span>
+                <span class="rst-desc">{{ selectedStory().description }}</span>
+              </span>
+              <svg class="rich-sel-caret" viewBox="0 0 12 12" fill="none" width="12" height="12" aria-hidden="true">
+                <path d="M3 4.5L6 7.5l3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
           </div>
         </div>
+
+        <!-- Story Type menu — floats over the layout (no reflow), like a native select -->
+        @if (storyMenuOpen()) {
+          <button class="rich-scrim" type="button" aria-hidden="true" tabindex="-1" (click)="storyMenuOpen.set(false)"></button>
+          <div
+            class="rich-sel-menu"
+            role="listbox"
+            aria-label="Story type"
+            [style.left.px]="storyMenuPos()?.left"
+            [style.top.px]="storyMenuPos()?.top"
+            [style.width.px]="storyMenuPos()?.width"
+          >
+            @for (t of storyTypes; track t.id) {
+              <button
+                type="button"
+                class="rich-opt"
+                [class.sel]="storyType() === t.id"
+                role="option"
+                [attr.aria-selected]="storyType() === t.id"
+                (click)="pickStoryType(t.id)"
+              >
+                <span class="rsi"><dba-cel-icon [name]="storyIcon(t.id)" [size]="18" /></span>
+                <span class="rst">
+                  <span class="rst-title">{{ t.label }}</span>
+                  <span class="rst-desc">{{ t.description }}</span>
+                </span>
+                @if (storyType() === t.id) {
+                  <dba-cel-icon class="rich-opt-check" name="check" [size]="16" />
+                }
+              </button>
+            }
+          </div>
+        }
 
         <!-- Timeframe (scrollable) -->
         @if (availableYears().length) {
@@ -184,6 +223,11 @@
                         <circle cx="10" cy="17" r="1" fill="currentColor" opacity="0.5"/>
                       </svg>
                     }
+                    @case ('vertical') {
+                      <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                        <rect x="4" y="3" width="12" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                      </svg>
+                    }
                     @default {
                       <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
                         <rect x="1" y="5" width="18" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/>
@@ -213,12 +257,14 @@
             (menuSelect)="setDlFormat($event)"
           />
 
-          <dba-ui-text-button variant="secondary" label="Share" (clicked)="share()">
-            <svg slot="leading" viewBox="0 0 16 16" fill="none" width="15" height="15" aria-hidden="true">
-              <path d="M8 10V2M5 5l3-3 3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M3 9v4a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-            </svg>
-          </dba-ui-text-button>
+          @if (canNativeShare()) {
+            <dba-ui-text-button class="act-share" variant="secondary" label="Share" (clicked)="share()">
+              <svg slot="leading" viewBox="0 0 16 16" fill="none" width="15" height="15" aria-hidden="true">
+                <path d="M8 10V2M5 5l3-3 3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M3 9v4a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+            </dba-ui-text-button>
+          }
 
           <dba-ui-text-button variant="secondary" label="Copy" (clicked)="copy()">
             <svg slot="leading" viewBox="0 0 16 16" fill="none" width="15" height="15" aria-hidden="true">
@@ -231,8 +277,6 @@
         @if (flash()) {
           <p class="flash-msg" role="status">{{ flash() }}</p>
         }
-
-        <p class="footer-note">{{ currentFormatDims() }} · nothing leaves your device</p>
       </div>
     </div>
   </div>

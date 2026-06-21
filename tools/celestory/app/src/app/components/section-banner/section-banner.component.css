@@ -3,16 +3,23 @@
 }
 .sb {
   position: relative;
-  padding: 56px 0 18px;
+  margin: 86px 0 30px;
+  padding-top: 30px;
+  border-top: 1px solid var(--db-color-border);
   overflow: hidden;
+  /* Section banners are always left-aligned, even the "01 Activity" one nested
+     inside the centered hero (its sub line is a block that would otherwise
+     inherit the hero's text-align: center). */
+  text-align: left;
 }
 .sb-deco {
   position: absolute;
-  top: 44px;
-  right: 0;
-  width: 200px;
-  height: 80px;
-  color: color-mix(in srgb, var(--db-color-neon-pink) 36%, transparent);
+  top: 14px;
+  right: -10px;
+  max-width: 46%;
+  height: auto;
+  color: var(--db-color-neon-pink);
+  opacity: 0.42;
   pointer-events: none;
 }
 .sb-eyebrow {
@@ -21,7 +28,7 @@
   gap: 12px;
   font-family: var(--db-font-mono-code);
   font-size: 11px;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.26em;
   text-transform: uppercase;
   color: var(--db-color-text-faint);
 }
@@ -30,35 +37,34 @@
   font-weight: 600;
 }
 .sb-line {
-  width: 30px;
+  width: 34px;
   height: 1px;
   background: color-mix(in srgb, var(--db-color-text-faint) 35%, transparent);
 }
 .sb-titlerow {
   display: flex;
   align-items: center;
-  gap: 14px;
-  margin-top: 14px;
+  gap: 16px;
+  margin-top: 12px;
 }
 .sb-glyph {
   color: var(--db-color-neon-pink);
   line-height: 0;
-  filter: drop-shadow(0 0 12px color-mix(in srgb, var(--db-color-neon-pink) 45%, transparent));
+  opacity: 0.9;
 }
 .sb-title {
   font-family: var(--db-font-display);
   font-weight: 800;
-  font-size: clamp(28px, 6.6vw, 44px);
+  font-size: clamp(30px, 5.4vw, 58px);
   letter-spacing: 0.012em;
-  line-height: 1.04;
+  line-height: 0.98;
   text-transform: uppercase;
-  color: var(--db-color-neon-pink);
-  text-shadow: 0 0 30px color-mix(in srgb, var(--db-color-neon-pink) 35%, transparent);
+  color: var(--db-color-text-primary);
   margin: 0;
 }
 .sb-sub {
   font-family: var(--db-font-mono-code);
-  font-size: 12.5px;
+  font-size: 13px;
   color: var(--db-color-text-dim);
-  margin-top: 12px;
+  margin-top: 14px;
 }

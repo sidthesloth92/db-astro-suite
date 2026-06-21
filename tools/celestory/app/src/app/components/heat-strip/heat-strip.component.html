@@ -4,7 +4,7 @@
       class="hs-track"
       [style.height.px]="trackHeight"
       [style.width]="trackWidth()"
-      (mouseleave)="hovered.set(null)"
+      (mouseleave)="onLeave()"
     >
       <div class="hs-base" [style.top.px]="baseline"></div>
 
@@ -15,7 +15,7 @@
       }
 
       @for (n of nodes(); track n.date) {
-        <div class="hs-node" [style.left.%]="n.leftPct" (mouseenter)="hovered.set(n)">
+        <div class="hs-node" [style.left.%]="n.leftPct" (mouseenter)="onEnter(n, $event)">
           <span
             class="hs-stem"
             [class.on]="hovered()?.date === n.date"
@@ -55,16 +55,42 @@
           <span class="hs-ms-d">{{ m.small }}</span>
         </span>
       }
-
-      @if (hovered(); as h) {
-        <div class="hs-tip" [style.left]="tipLeft(h.leftPct)" [style.top.px]="h.stemTop - 8">
-          <div class="t-date">{{ date(h.date) }}</div>
-          <div class="t-int">{{ dur(h.integrationSeconds) }}</div>
-          <div class="t-sub">{{ count(h.lightFrameCount) }} frames · {{ h.objectCount }} object{{ h.objectCount === 1 ? '' : 's' }}</div>
-        </div>
-      }
     </div>
   </div>
+
+  @if (hovered(); as h) {
+    @if (tipPos(); as p) {
+      <div class="hs-tip" [style.left.px]="p.x" [style.top.px]="p.y">
+        <div class="t-date">{{ date(h.date) }}</div>
+        <div class="t-int">
+          {{ dur(h.integrationSeconds) }} <span class="t-sub">{{ count(h.lightFrameCount) }} frames</span>
+        </div>
+        @if (h.filters.length) {
+          <div class="t-filters">
+            @for (f of h.filters; track f.name) {
+              <span class="t-filter"><span class="t-fdot" [style.background]="f.color"></span>{{ f.label }}</span>
+            }
+          </div>
+        }
+        @if (h.objects.length) {
+          <div class="t-objlist">
+            @for (o of h.objects; track o.name; let i = $index) {
+              @if (i < 4) {
+                <div class="t-objrow">
+                  <span class="t-objname">{{ o.name }}</span>
+                  <span class="t-objmeta">{{ o.type }} · {{ dur(o.seconds) }}</span>
+                </div>
+              }
+            }
+            @if (h.objects.length > 4) {
+              <div class="t-objmore">+{{ h.objects.length - 4 }} more</div>
+            }
+          </div>
+        }
+      </div>
+    }
+  }
+
   <div class="hs-cap">{{ view().caption }}</div>
 } @else {
   <div class="hs-empty">{{ view().caption }}</div>

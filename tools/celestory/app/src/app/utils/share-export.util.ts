@@ -9,6 +9,29 @@ function toPngBlob(canvas: HTMLCanvasElement): Promise<Blob | null> {
   return new Promise((resolve) => canvas.toBlob((b) => resolve(b), 'image/png'));
 }
 
+/**
+ * Whether the Web Share API can share image files here (true on most mobile
+ * browsers, false on desktop Chrome/Firefox). SSR-safe. Used to surface the
+ * native Share action only where it actually opens the OS share sheet.
+ */
+export function canShareFiles(): boolean {
+  if (typeof navigator === 'undefined') {
+    return false;
+  }
+  const nav = navigator as Navigator & { canShare?: (data: { files: File[] }) => boolean };
+  if (!nav.share || !nav.canShare) {
+    return false;
+  }
+  try {
+    const probe = new File([new Blob([], { type: 'image/png' })], 'probe.png', {
+      type: 'image/png',
+    });
+    return nav.canShare({ files: [probe] });
+  } catch {
+    return false;
+  }
+}
+
 /** Copy a canvas to the clipboard as a PNG image. Returns true on success. */
 export async function copyCanvasToClipboard(canvas: HTMLCanvasElement): Promise<boolean> {
   try {

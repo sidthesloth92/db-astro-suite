@@ -11,6 +11,8 @@
     <dba-object-share-modal
       [obj]="obj()"
       [story]="story()"
+      [handle]="handle()"
+      [shareUrl]="shareUrl()"
       (closed)="showShare.set(false)"
     />
   }
@@ -26,7 +28,7 @@
           <h1>{{ obj().displayName }}</h1>
           <div class="otype">{{ obj().type || obj().category }}</div>
         </div>
-        <dba-ui-text-button class="sharebtn" variant="secondary" label="Share this target" (clicked)="showShare.set(true)">
+        <dba-ui-text-button class="sharebtn" variant="secondary" label="Share" (clicked)="showShare.set(true)">
           <dba-cel-icon slot="leading" name="share" [size]="14" />
         </dba-ui-text-button>
       </div>

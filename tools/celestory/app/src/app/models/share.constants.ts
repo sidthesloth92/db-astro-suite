@@ -1,4 +1,5 @@
 import type { SplitButtonMenuItem } from '@db-astro-suite/ui';
+import type { CelIconName } from '../components/cel-icon/cel-icon.component';
 import type { ShareDestination, ShareOption } from './share.types';
 
 /** Download-format options for the share card's split download button. */
@@ -44,6 +45,18 @@ export const STORY_TYPES: ShareOption[] = [
   { id: 'equipment', label: 'Top Gear', description: 'The rig that did the work' },
 ];
 
+/** Glyph shown next to each story type in the Share Studio picker (by id). */
+export const STORY_TYPE_ICONS: Record<string, CelIconName> = {
+  summary: 'star',
+  year: 'chart',
+  timeline: 'arrow',
+  targets: 'galaxy',
+  spectrum: 'chart',
+  skydome: 'globe',
+  moons: 'star',
+  equipment: 'camera',
+};
+
 /** Timeframe options in the Story-Slides flow. */
 export const TIMEFRAMES: readonly string[] = [
   'All Time',
@@ -65,10 +78,10 @@ export const ASPECT_RATIOS: readonly string[] = [
 
 /** Suggested social destinations to share a freshly published journey. */
 export const SUGGESTED_DESTINATIONS: ShareDestination[] = [
-  { label: 'X', short: 'x', url: 'https://twitter.com/intent/tweet' },
-  { label: 'Facebook', short: 'f', url: 'https://www.facebook.com/sharer/sharer.php' },
-  { label: 'Reddit', short: 'r', url: 'https://www.reddit.com/r/astrophotography/' },
-  { label: 'Cloudy Nights', short: 'w', url: 'https://www.cloudynights.com/' },
-  { label: 'Threads', short: 't', url: 'https://www.threads.net/' },
-  { label: 'Email', short: '@', url: 'mailto:' },
+  { label: 'X', short: 'x', icon: 'x', url: 'https://twitter.com/intent/tweet' },
+  { label: 'Facebook', short: 'f', icon: 'facebook', url: 'https://www.facebook.com/sharer/sharer.php' },
+  { label: 'Reddit', short: 'r', icon: 'reddit', url: 'https://www.reddit.com/r/astrophotography/' },
+  { label: 'Cloudy Nights', short: 'w', icon: 'cloudynights', url: 'https://www.cloudynights.com/' },
+  { label: 'Threads', short: 't', icon: 'threads', url: 'https://www.threads.net/' },
+  { label: 'Email', short: '@', icon: 'email', url: 'mailto:' },
 ];

@@ -14,8 +14,10 @@ export interface ShareOption {
 export interface ShareDestination {
   /** Display name. */
   label: string;
-  /** Single-letter abbreviation shown in the icon button. */
+  /** Single-letter abbreviation (fallback). */
   short: string;
+  /** Social-icon id rendered in the button (x | facebook | reddit | cloudynights | threads | email). */
+  icon: string;
   /** Outbound URL (a share intent where one exists, else the site). */
   url: string;
 }
@@ -70,7 +72,7 @@ export interface ShareBackgroundMeta {
 }
 
 /** A share-card social format id. */
-export type ShareFormatId = 'square' | 'story' | 'landscape';
+export type ShareFormatId = 'square' | 'story' | 'landscape' | 'vertical';
 
 /** Share Studio mode: a single card, or the multi-slide carousel. */
 export type ShareMode = 'single' | 'carousel';

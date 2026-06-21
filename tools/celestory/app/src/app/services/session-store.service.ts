@@ -10,7 +10,7 @@ import type { OwnerSession, StorageKind, ViewerIdentity } from '../models/sessio
  * owner mode survives a refresh within the same tab but resets when the tab is
  * closed or the profile URL is opened fresh — visitors (and the owner on a new
  * tab) always start on the public view until they log in. The editable viewer
- * identity (display name + handle) lives in `localStorage`, shared app-wide.
+ * identity (display name + username) lives in `localStorage`, shared app-wide.
  *
  * SSR-safe: touches web storage only in the browser. Nothing here is a security
  * boundary — the token is the server-signed capability and is verified server-side.
@@ -24,8 +24,8 @@ export class SessionStore {
   readonly ownerHandle = signal<string | null>(null);
   /** Management session token for the current tab, or null. */
   readonly token = signal<string | null>(null);
-  /** Editable viewer identity (display name + handle). */
-  readonly identity = signal<ViewerIdentity>({ name: '', handle: '' });
+  /** Editable viewer identity (display name + username). */
+  readonly identity = signal<ViewerIdentity>({ name: '', username: '' });
 
   constructor() {
     if (!this.isBrowser) {
@@ -65,9 +65,13 @@ export class SessionStore {
       this.ownerHandle.set(owner.handle);
       this.token.set(owner.token);
     }
-    const identity = this.read<ViewerIdentity>(IDENTITY_KEY, 'local');
+    // Accept the legacy `handle` key so identities saved before the rename survive.
+    const identity = this.read<Partial<ViewerIdentity> & { handle?: string }>(IDENTITY_KEY, 'local');
     if (identity) {
-      this.identity.set({ name: identity.name ?? '', handle: identity.handle ?? '' });
+      this.identity.set({
+        name: identity.name ?? '',
+        username: identity.username ?? identity.handle ?? '',
+      });
     }
   }
 

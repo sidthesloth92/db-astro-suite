@@ -427,14 +427,20 @@ export function heatStrip(story: CelestoryStory): HeatStripView {
   const span = Math.max(1, daysBetween(start, end));
   const max = activity.reduce((m, a) => Math.max(m, a.integrationSeconds), 1);
 
-  const nights: HeatNight[] = activity.map((a) => ({
-    date: a.date,
-    integrationSeconds: a.integrationSeconds,
-    lightFrameCount: a.lightFrameCount,
-    objectCount: a.objectIds.length,
-    frac: a.integrationSeconds / max,
-    leftPct: (daysBetween(start, a.date) / span) * 100,
-  }));
+  const detailByDate = buildNightDetails(story);
+  const nights: HeatNight[] = activity.map((a) => {
+    const det = detailByDate.get(a.date);
+    return {
+      date: a.date,
+      integrationSeconds: a.integrationSeconds,
+      lightFrameCount: a.lightFrameCount,
+      objectCount: a.objectIds.length,
+      frac: a.integrationSeconds / max,
+      leftPct: (daysBetween(start, a.date) / span) * 100,
+      filters: det?.filters ?? [],
+      objects: det?.objects ?? [],
+    };
+  });
 
   const months: HeatMonthTick[] = [];
   const ps = ymd(start);
@@ -468,6 +474,46 @@ export function heatStrip(story: CelestoryStory): HeatStripView {
     spanMonths,
     caption: `${activity.length} nights imaged · ${fmtRange(start, end)}`,
   };
+}
+
+/**
+ * Aggregates, per ISO date, the filters used and the objects imaged that night —
+ * derived from each object's per-night sessions — to feed the heat-strip hover
+ * tooltip. Filters and objects are each returned busiest-first.
+ */
+function buildNightDetails(
+  story: CelestoryStory,
+): Map<string, Pick<HeatNight, 'filters' | 'objects'>> {
+  const filterSecs = new Map<string, Map<string, number>>();
+  const objsByDate = new Map<string, HeatNight['objects']>();
+  for (const o of story.objects) {
+    for (const sess of o.sessions) {
+      const list = objsByDate.get(sess.date) ?? [];
+      list.push({
+        name: o.designation || o.displayName,
+        type: o.type || o.category,
+        seconds: sess.integrationSeconds,
+      });
+      objsByDate.set(sess.date, list);
+
+      const fm = filterSecs.get(sess.date) ?? new Map<string, number>();
+      for (const f of sess.filters) {
+        fm.set(f.name, (fm.get(f.name) ?? 0) + f.seconds);
+      }
+      filterSecs.set(sess.date, fm);
+    }
+  }
+
+  const out = new Map<string, Pick<HeatNight, 'filters' | 'objects'>>();
+  const dates = new Set<string>([...objsByDate.keys(), ...filterSecs.keys()]);
+  for (const date of dates) {
+    const filters = [...(filterSecs.get(date) ?? new Map<string, number>()).entries()]
+      .sort((a, b) => b[1] - a[1])
+      .map(([name, seconds]) => ({ name, label: filterLabel(name), color: filterColor(name), seconds }));
+    const objects = [...(objsByDate.get(date) ?? [])].sort((a, b) => b.seconds - a.seconds);
+    out.set(date, { filters, objects });
+  }
+  return out;
 }
 
 /**

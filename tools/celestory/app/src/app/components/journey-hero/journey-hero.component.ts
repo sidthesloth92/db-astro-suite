@@ -6,7 +6,6 @@ import type { HeatStripView, HeroIdentity, Highlight, YearSpan } from '../../mod
 import { SessionStore } from '../../services/session-store.service';
 import { objectRaDec } from '../../utils/celestial.util';
 import { formatCount, formatDuration } from '../../utils/format.util';
-import { slugifyHandle } from '../../utils/handle.util';
 import {
   heatStrip,
   heroIdentity,
@@ -76,29 +75,38 @@ export class JourneyHeroComponent {
 
   /** Resolved identity (from the story). */
   protected readonly identity = computed<HeroIdentity>(() => heroIdentity(this.story(), this.handle()));
-  /** Display name/handle — the user's edited identity overrides the story's. */
+  /** Display name/username — the user's edited identity overrides the story's. */
   protected readonly displayName = computed(() => this.session.identity().name || this.identity().name);
-  /** Bare handle (no leading "@"); the template renders the "@" so we never double it. */
-  protected readonly displayHandle = computed(() =>
-    (this.session.identity().handle || this.identity().handle).replace(/^@+/, ''),
+  /** Bare username (no leading "@"); the template renders the "@" so we never double it.
+   * Falls back to the story-derived published handle when the user hasn't set one. */
+  protected readonly displayUsername = computed(() =>
+    (this.session.identity().username || this.identity().handle).replace(/^@+/, ''),
   );
   /** Possessive prefix for the "[Name]'s Celestory" lockup. */
   protected readonly lockupPrefix = computed(() => `${this.displayName()}'s`);
+  /** Tagline that follows the effective (possibly edited) author name, not the static story name. */
+  protected readonly tagline = computed<string>(() => {
+    const first = this.displayName().trim().split(/\s+/)[0];
+    return first ? `${first}’s journey under the stars` : 'A journey under the stars';
+  });
 
   /** Inline identity editor. */
   protected readonly editing = signal(false);
   protected readonly editName = signal('');
-  protected readonly editHandle = signal('');
+  protected readonly editUsername = signal('');
 
   /** Open the identity editor, prefilled with the current values. */
   startEdit(): void {
     this.editName.set(this.displayName());
-    this.editHandle.set(this.displayHandle().replace(/^@/, ''));
+    this.editUsername.set(this.displayUsername().replace(/^@/, ''));
     this.editing.set(true);
   }
   /** Persist the edited identity (shared with the Share Studio) and close. */
   saveEdit(): void {
-    this.session.setIdentity({ name: this.editName().trim(), handle: slugifyHandle(this.editHandle()) });
+    this.session.setIdentity({
+      name: this.editName().trim(),
+      username: this.editUsername().trim().replace(/^@+/, ''),
+    });
     this.editing.set(false);
   }
   /** Discard edits. */
@@ -109,8 +117,8 @@ export class JourneyHeroComponent {
   onEditName(value: string): void {
     this.editName.set(value);
   }
-  onEditHandle(value: string): void {
-    this.editHandle.set(value);
+  onEditUsername(value: string): void {
+    this.editUsername.set(value);
   }
   /** First→latest year span. */
   protected readonly span = computed<YearSpan | null>(() => yearSpan(this.story()));

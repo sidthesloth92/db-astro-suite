@@ -7,7 +7,6 @@
         <div class="preview" [attr.data-fmt]="formatId()">
           <canvas #cv class="card-canvas" aria-label="Gear share card preview"></canvas>
         </div>
-        <p class="canvas-caption">{{ caption() }}</p>
       </div>
 
       <!-- RIGHT: scrollable controls -->
@@ -24,7 +23,7 @@
           <p class="ctrl-desc">A shareable snapshot of this {{ isCamera() ? 'camera' : 'telescope' }} — total integration, frames, objects &amp; the targets it captured.</p>
         </div>
 
-        <!-- Your name & handle — updates the shared identity live -->
+        <!-- Your name & username — updates the shared identity live -->
         <div class="grp grp-row">
           <label class="grp-col">
             <span class="grp-label">Your name</span>
@@ -38,14 +37,14 @@
             />
           </label>
           <label class="grp-col">
-            <span class="grp-label">Handle</span>
+            <span class="grp-label">Username</span>
             <input
               #idh
               class="sel ss-id-input"
-              [value]="session.identity().handle"
-              (input)="setIdentityHandle(idh.value)"
-              placeholder="handle"
-              aria-label="Your handle"
+              [value]="session.identity().username"
+              (input)="setIdentityUsername(idh.value)"
+              placeholder="username"
+              aria-label="Your username"
             />
           </label>
         </div>
@@ -89,6 +88,11 @@
                         <circle cx="10" cy="17" r="1" fill="currentColor" opacity="0.5"/>
                       </svg>
                     }
+                    @case ('vertical') {
+                      <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                        <rect x="4" y="3" width="12" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                      </svg>
+                    }
                     @default {
                       <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
                         <rect x="1" y="5" width="18" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/>
@@ -105,21 +109,27 @@
           </div>
         </div>
 
-        <!-- Actions -->
+        <!-- Actions — Download (PNG/JPEG split) + Share + Copy (matches Share Studio) -->
         <div class="actions">
-          <dba-ui-text-button variant="primary" label="Download PNG" (clicked)="download()">
-            <svg slot="leading" viewBox="0 0 16 16" fill="none" width="15" height="15" aria-hidden="true">
-              <path d="M8 2v8M5 7l3 3 3-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M3 13h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-            </svg>
-          </dba-ui-text-button>
+          <dba-ui-split-button
+            class="dl-split"
+            [label]="'Download ' + (dlFormat() === 'png' ? 'PNG' : 'JPEG')"
+            [menuItems]="downloadMenu"
+            [selectedValue]="dlFormat()"
+            menuPlacement="up"
+            menuAriaLabel="Choose download format"
+            (mainClick)="downloadAs(dlFormat())"
+            (menuSelect)="setDlFormat($event)"
+          />
 
-          <dba-ui-text-button variant="secondary" label="Share" (clicked)="share()">
-            <svg slot="leading" viewBox="0 0 16 16" fill="none" width="15" height="15" aria-hidden="true">
-              <path d="M8 10V2M5 5l3-3 3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M3 9v4a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-            </svg>
-          </dba-ui-text-button>
+          @if (canNativeShare()) {
+            <dba-ui-text-button class="act-share" variant="secondary" label="Share" (clicked)="share()">
+              <svg slot="leading" viewBox="0 0 16 16" fill="none" width="15" height="15" aria-hidden="true">
+                <path d="M8 10V2M5 5l3-3 3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M3 9v4a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+            </dba-ui-text-button>
+          }
 
           <dba-ui-text-button variant="secondary" label="Copy" (clicked)="copy()">
             <svg slot="leading" viewBox="0 0 16 16" fill="none" width="15" height="15" aria-hidden="true">
@@ -129,11 +139,16 @@
           </dba-ui-text-button>
         </div>
 
+        @if (shareUrl()) {
+          <div class="grp share-link-grp">
+            <span class="grp-label">Share your profile</span>
+            <dba-cel-social-share-row [url]="shareUrl()" [showUrl]="true" />
+          </div>
+        }
+
         @if (flash()) {
           <p class="flash-msg" role="status">{{ flash() }}</p>
         }
-
-        <p class="footer-note">{{ currentFormatDims() }} · nothing leaves your device</p>
       </div>
     </div>
   </div>

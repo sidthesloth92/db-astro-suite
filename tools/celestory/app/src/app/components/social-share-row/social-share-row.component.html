@@ -1,0 +1,30 @@
+@if (showUrl()) {
+  <div class="share-url-row">
+    <span class="share-url-text">{{ displayUrl() }}</span>
+    <button class="share-url-copy" type="button" (click)="copyLink()">
+      <dba-cel-icon [name]="copied() ? 'check' : 'link'" [size]="13" />
+      {{ copied() ? 'Copied' : 'Copy' }}
+    </button>
+  </div>
+  <div class="share-or"><span>or share to</span></div>
+}
+
+<div class="share-row">
+  @if (!showUrl()) {
+    <button class="share-btn" type="button" [title]="copied() ? 'Copied' : 'Copy link'" (click)="copyLink()">
+      <dba-cel-icon [name]="copied() ? 'check' : 'link'" [size]="15" />
+    </button>
+  }
+  @for (s of links(); track s.id) {
+    <a
+      class="share-btn share-social"
+      [href]="s.href"
+      target="_blank"
+      rel="noopener noreferrer"
+      [title]="'Share on ' + s.name"
+      [attr.aria-label]="'Share on ' + s.name"
+    >
+      <dba-cel-social-icon [name]="s.id" [size]="17" />
+    </a>
+  }
+</div>

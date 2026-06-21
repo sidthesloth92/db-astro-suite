@@ -115,15 +115,15 @@ export interface ShareModelEquipment {
 export interface ShareIdentity {
   /** Display name (e.g. "Vera C"). */
   name: string;
-  /** Public handle (without the leading "@"). */
-  handle: string;
+  /** Username printed verbatim with a leading "@" (e.g. "Backyard Observatory"). */
+  username: string;
 }
 
 /** The complete model every Celestory share card renders from. */
 export interface ShareModel {
   /** Observer line ("Name — Place"); blank when unknown. */
   observer: string;
-  /** Editable viewer identity (display name + handle). */
+  /** Editable viewer identity (display name + username). */
   identity: ShareIdentity;
   /** Summary rollup. */
   summary: ShareSummary;

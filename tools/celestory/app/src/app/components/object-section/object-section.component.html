@@ -53,7 +53,7 @@
   } @else {
     <div class="objgrid">
       @for (o of filtered(); track o.id) {
-        <dba-object-card [obj]="o" (open)="open.emit($event)" />
+        <dba-object-card [obj]="o" (open)="open.emit($event)" (share)="share.emit($event)" />
       }
     </div>
   }

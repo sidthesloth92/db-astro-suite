@@ -6,7 +6,13 @@
   </div>
 
   @if (showShare()) {
-    <dba-equipment-share-modal [equip]="equip()" [story]="story()" (closed)="showShare.set(false)" />
+    <dba-equipment-share-modal
+      [equip]="equip()"
+      [story]="story()"
+      [handle]="handle()"
+      [shareUrl]="shareUrl()"
+      (closed)="showShare.set(false)"
+    />
   }
 
   <div class="detail-head">
@@ -20,7 +26,7 @@
         <div class="edetail">{{ detail() }}</div>
       }
     </div>
-    <dba-ui-text-button class="sharebtn" variant="secondary" label="Share this gear" (clicked)="showShare.set(true)">
+    <dba-ui-text-button class="sharebtn" variant="secondary" label="Share" (clicked)="showShare.set(true)">
       <dba-cel-icon slot="leading" name="share" [size]="14" />
     </dba-ui-text-button>
   </div>
@@ -38,9 +44,9 @@
       <span class="dsec-count">{{ objects().length }} objects</span>
     </div>
     @if (objects().length) {
-      <div class="objgrid">
+      <div class="minigrid">
         @for (o of objects(); track o.id) {
-          <dba-object-card [obj]="o" (open)="openObject.emit($event)" />
+          <dba-mini-object-card [obj]="o" [equipId]="equip().id" (open)="openObject.emit($event)" />
         }
       </div>
     } @else {
