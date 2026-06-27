@@ -1,3 +1,4 @@
+import { RouteMeta } from '@analogjs/router';
 import { afterNextRender, ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ConstellationFieldComponent } from '@db-astro-suite/ui';
@@ -11,6 +12,13 @@ import { PreviewStore } from '../services/preview-store.service';
  * journey shell (banner + actions). Nothing was uploaded; a hard reload clears
  * the in-memory store and shows the empty state.
  */
+
+/** Private, transient page — never index it (nothing is uploaded/persisted). */
+export const routeMeta: RouteMeta = {
+  title: 'Celestory — Preview',
+  meta: [{ name: 'robots', content: 'noindex, nofollow' }],
+};
+
 @Component({
   selector: 'dba-celestory-preview',
   standalone: true,

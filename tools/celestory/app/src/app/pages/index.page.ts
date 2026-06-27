@@ -14,6 +14,10 @@ import {
   viewChild,
 } from "@angular/core";
 import { Meta } from "@angular/platform-browser";
+import { DOCUMENT } from "@angular/common";
+import { setCanonicalUrl } from "../utils/canonical.util";
+import { setStructuredData } from "../utils/structured-data.util";
+import { websiteJsonLd } from "../utils/json-ld.util";
 import { resolveOrigin } from "../utils/origin.util";
 import { applySocialMeta } from "../utils/social-meta.util";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
@@ -83,6 +87,7 @@ export default class LandingPageComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly meta = inject(Meta);
+  private readonly doc = inject(DOCUMENT);
   /** SSR base URL (origin), null in the browser — used to build the absolute og:image URL. */
   private readonly baseUrl = injectBaseURL();
 
@@ -198,6 +203,8 @@ export default class LandingPageComponent implements OnInit {
       url: origin || undefined,
       image: origin ? `${origin}/api/og/default` : undefined,
     });
+    setCanonicalUrl(this.doc, origin || null);
+    setStructuredData(this.doc, websiteJsonLd(origin));
   }
 
   /**

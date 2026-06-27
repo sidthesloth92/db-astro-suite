@@ -38,7 +38,7 @@ export function profileShareMeta(
           : o.displayName;
       const q = `?object=${encodeURIComponent(focus.object)}`;
       return {
-        title: `${name} · ${hours}h — @${profile.handle} on Celestory`,
+        title: `Celestory — ${name} by @${profile.handle}`,
         description: `${hours}h integration · ${formatCount(o.lightFrameCount)} light frames · ${formatCount(o.nightCount)} nights.`,
         type: 'article',
         url: abs(origin, `/user/${handle}${q}`),
@@ -53,7 +53,7 @@ export function profileShareMeta(
       const hours = formatHours(e.totalIntegrationSeconds);
       const q = `?equipment=${encodeURIComponent(focus.equipment)}`;
       return {
-        title: `${e.displayName} · ${hours}h — @${profile.handle} on Celestory`,
+        title: `Celestory — ${e.displayName} by @${profile.handle}`,
         description: `${e.kind} · ${hours}h · ${formatCount(e.objectCount)} targets · ${formatCount(e.lightFrameCount)} light frames.`,
         type: 'article',
         url: abs(origin, `/user/${handle}${q}`),
@@ -65,7 +65,7 @@ export function profileShareMeta(
   const summary = story.summary;
   const hours = formatHours(summary.totalIntegrationSeconds);
   return {
-    title: `${profile.handle} · ${hours}h under the stars — Celestory`,
+    title: `Celestory — @${profile.handle}'s journey · ${hours} h under the stars`,
     description: `${formatCount(summary.objectCount)} targets · ${hours}h integration · ${formatCount(summary.nightCount)} nights imaged.`,
     type: 'profile',
     url: abs(origin, `/user/${handle}`),

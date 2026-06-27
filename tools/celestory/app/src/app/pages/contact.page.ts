@@ -74,7 +74,7 @@ export default class ContactPageComponent {
 }
 
 export const routeMeta: RouteMeta = {
-  title: 'Contact — Celestory',
+  title: 'Celestory — Contact',
   meta: [
     {
       name: 'description',

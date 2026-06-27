@@ -9,6 +9,12 @@
       name="description"
       content="Point Celestory at your astrophotography light frames and get a gallery-grade chronicle of your imaging journey — every target, every filter, every photon, across every year — rendered entirely in your browser. Nothing is uploaded."
     />
+    <meta name="theme-color" content="#05060A" />
+    <!-- Static crawler-fallback social tags; per-page SSR overrides title/desc/image. -->
+    <meta property="og:site_name" content="Celestory" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="en_US" />
+    <meta name="twitter:card" content="summary_large_image" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <!-- Team fonts: Orbitron + Outfit ship locally via @db-astro-suite/theme;
@@ -20,6 +26,11 @@
       rel="stylesheet"
     />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
   </head>
   <body>
     <dba-celestory-root></dba-celestory-root>

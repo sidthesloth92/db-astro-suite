@@ -1,8 +1,13 @@
+import { injectBaseURL } from '@analogjs/router/tokens';
+import { DOCUMENT } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { JourneyViewComponent } from '../components/journey-view/journey-view.component';
 import { SAMPLE_HANDLE, SAMPLE_STORY } from '../models/sample-story.constants';
+import { setCanonicalUrl } from '../utils/canonical.util';
 import { formatHours } from '../utils/format.util';
+import { resolveOrigin } from '../utils/origin.util';
+import { applySocialMeta } from '../utils/social-meta.util';
 
 /**
  * Demo journey at /demo — renders the bundled sample story ("Vera") in the
@@ -21,6 +26,9 @@ import { formatHours } from '../utils/format.util';
 export default class DemoPageComponent implements OnInit {
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
+  private readonly doc = inject(DOCUMENT);
+  /** SSR base URL (origin), null in the browser — used to build absolute share URLs. */
+  private readonly baseUrl = injectBaseURL();
 
   /** The bundled demo story, rendered entirely from the UI bundle. */
   protected readonly story = SAMPLE_STORY;
@@ -32,15 +40,23 @@ export default class DemoPageComponent implements OnInit {
     this.applyMeta();
   }
 
-  /** Sets the document title + OG/description tags from the sample summary. */
+  /** Sets the document title + full OG/Twitter unfurl tags + canonical from the
+   * sample summary, so a shared /demo link previews well. Runs during SSR too. */
   private applyMeta(): void {
     const summary = SAMPLE_STORY.summary;
     const hours = formatHours(summary.totalIntegrationSeconds);
-    const title = `${SAMPLE_HANDLE} · ${hours}h under the stars — Celestory`;
+    const title = `Celestory — @${SAMPLE_HANDLE}'s journey (demo)`;
     const description = `${summary.objectCount} targets · ${hours}h integration · ${summary.nightCount} nights imaged.`;
+    const origin = resolveOrigin(this.baseUrl);
+    const url = origin ? `${origin}/demo` : null;
     this.title.setTitle(title);
-    this.meta.updateTag({ property: 'og:title', content: title });
-    this.meta.updateTag({ name: 'description', content: description });
-    this.meta.updateTag({ property: 'og:description', content: description });
+    applySocialMeta(this.meta, {
+      title,
+      description,
+      type: 'website',
+      url: url ?? undefined,
+      image: origin ? `${origin}/api/og/default` : undefined,
+    });
+    setCanonicalUrl(this.doc, url);
   }
 }

@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
-import { Meta, Title } from '@angular/platform-browser';
+import { RouteMeta } from '@analogjs/router';
+import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 
 /**
  * Dev-only gallery of the live 1200×630 OpenGraph cards at `/dev/og`. Renders an
@@ -8,6 +8,13 @@ import { Meta, Title } from '@angular/platform-browser';
  * profile/object/equipment variants need a published handle + DATABASE_URL (they
  * fall back to the brand card otherwise).
  */
+
+/** Dev tool — never index it. SSR-rendered noindex via routeMeta. */
+export const routeMeta: RouteMeta = {
+  title: 'OG card preview — Celestory (dev)',
+  meta: [{ name: 'robots', content: 'noindex, nofollow' }],
+};
+
 @Component({
   selector: 'dba-dev-og-preview',
   standalone: true,
@@ -15,10 +22,7 @@ import { Meta, Title } from '@angular/platform-browser';
   styleUrl: './og.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export default class DevOgPreviewPageComponent implements OnInit {
-  private readonly meta = inject(Meta);
-  private readonly title = inject(Title);
-
+export default class DevOgPreviewPageComponent {
   /** Handle used by the profile / object / equipment previews. */
   protected readonly handle = signal('astrowithdb');
   /** Object id used by the object preview. */
@@ -47,11 +51,6 @@ export default class DevOgPreviewPageComponent implements OnInit {
     }
     return list;
   });
-
-  ngOnInit(): void {
-    this.title.setTitle('OG card preview — Celestory (dev)');
-    this.meta.updateTag({ name: 'robots', content: 'noindex, nofollow' });
-  }
 
   /** Update the handle used by the previews. */
   setHandle(value: string): void {

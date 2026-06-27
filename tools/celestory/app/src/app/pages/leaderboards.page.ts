@@ -1,4 +1,5 @@
 import { injectBaseURL } from '@analogjs/router/tokens';
+import { DOCUMENT } from '@angular/common';
 import {
   afterNextRender,
   ChangeDetectionStrategy,
@@ -25,6 +26,7 @@ import { leaderboardIconSvg } from '../utils/leaderboard-icon.util';
 import { leaderboardBackdrop, motifSvg } from '../utils/leaderboard-motif.util';
 import { resolveOrigin } from '../utils/origin.util';
 import { safeSvg } from '../utils/safe-svg.util';
+import { setCanonicalUrl } from '../utils/canonical.util';
 import { applySocialMeta } from '../utils/social-meta.util';
 import { LeaderboardsService } from '../services/leaderboards.service';
 import { SessionStore } from '../services/session-store.service';
@@ -63,6 +65,7 @@ export default class LeaderboardsPageComponent implements OnInit {
   private readonly session = inject(SessionStore);
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
+  private readonly doc = inject(DOCUMENT);
   /** SSR base URL (origin), null in the browser — used to build absolute share URLs. */
   private readonly baseUrl = injectBaseURL();
 
@@ -164,18 +167,20 @@ export default class LeaderboardsPageComponent implements OnInit {
 
   /** Set the document title + full social unfurl tags (SSR-rendered for crawlers). */
   ngOnInit(): void {
-    const title = 'Community Leaderboards · Celestory';
+    const title = 'Celestory — Community Leaderboards';
     const description =
       'How the Celestory community stacks up under the sky — ranked by photons, not popularity.';
     const origin = resolveOrigin(this.baseUrl);
+    const url = origin ? `${origin}/leaderboards` : null;
     this.title.setTitle(title);
     applySocialMeta(this.meta, {
       title,
       description,
       type: 'website',
-      url: origin ? `${origin}/leaderboards` : undefined,
+      url: url ?? undefined,
       image: origin ? `${origin}/api/og/default?variant=leaderboards` : undefined,
     });
+    setCanonicalUrl(this.doc, url);
   }
 
   /** Switch the active board. */

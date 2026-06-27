@@ -1,4 +1,6 @@
+import { RouteMeta } from '@analogjs/router';
 import { injectBaseURL } from '@analogjs/router/tokens';
+import { DOCUMENT } from '@angular/common';
 import {
   afterNextRender,
   ChangeDetectionStrategy,
@@ -19,9 +21,25 @@ import { ProcessingRevealComponent } from '../../components/processing-reveal/pr
 import type { StoryDetails } from '../../models/api.model';
 import type { PortfolioState } from '../../models/portfolio.types';
 import { StoryService } from '../../services/story.service';
+import { setCanonicalUrl } from '../../utils/canonical.util';
+import { profileJsonLd } from '../../utils/json-ld.util';
 import { resolveOrigin } from '../../utils/origin.util';
+import { setStructuredData } from '../../utils/structured-data.util';
 import { applySocialMeta } from '../../utils/social-meta.util';
 import { profileShareMeta, type ProfileShareFocus } from '../../utils/profile-share-meta.util';
+
+/** SSR baseline for the dynamic profile route — overwritten per-handle once the
+ * story resolves; covers the loading state before the API responds. */
+export const routeMeta: RouteMeta = {
+  title: "Celestory — A stargazer's journey",
+  meta: [
+    {
+      name: 'description',
+      content:
+        'A public astrophotography journey on Celestory — every target, every filter, every photon.',
+    },
+  ],
+};
 
 /**
  * Public profile at /user/<handle>. Renders the shared journey shell in the
@@ -48,6 +66,7 @@ export default class PortfolioPageComponent {
   private readonly storyService = inject(StoryService);
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
+  private readonly doc = inject(DOCUMENT);
   /** SSR base URL (origin), null in the browser — used to build absolute share URLs. */
   private readonly baseUrl = injectBaseURL();
 
@@ -107,11 +126,14 @@ export default class PortfolioPageComponent {
     afterNextRender(() => this.introActive.set(true));
 
     // Apply per-handle OG meta once the story resolves (runs during SSR too),
-    // focused on the object/equipment named in the URL query when present.
+    // focused on the object/equipment named in the URL query when present. An
+    // unknown handle gets a noindex "not found" head so it isn't indexed.
     effect(() => {
-      const profile = this.profile();
-      if (profile) {
-        this.applyMeta(profile, this.focus());
+      const state = this.state();
+      if (state.status === 'loaded') {
+        this.applyMeta(state.profile, this.focus());
+      } else if (state.status === 'error') {
+        this.applyNotFoundMeta();
       }
     });
   }
@@ -121,11 +143,22 @@ export default class PortfolioPageComponent {
     this.introActive.set(false);
   }
 
-  /** Sets the document title + full OG/Twitter unfurl tags, focused on the
-   * object/equipment in the URL query when present, else the whole profile. */
+  /** Sets the document title + full OG/Twitter unfurl tags, the canonical link
+   * and ProfilePage JSON-LD, focused on the object/equipment in the URL query
+   * when present, else the whole profile. */
   private applyMeta(profile: StoryDetails, focus: ProfileShareFocus): void {
     const meta = profileShareMeta(profile, focus, resolveOrigin(this.baseUrl));
     this.title.setTitle(meta.title);
+    this.meta.removeTag('name="robots"');
     applySocialMeta(this.meta, meta);
+    setCanonicalUrl(this.doc, meta.url ?? null);
+    setStructuredData(this.doc, profileJsonLd(profile, meta.url ?? null));
+  }
+
+  /** Marks an unknown handle noindex with a clear title and no structured data. */
+  private applyNotFoundMeta(): void {
+    this.title.setTitle('Celestory — Profile not found');
+    this.meta.updateTag({ name: 'robots', content: 'noindex' });
+    setStructuredData(this.doc, null);
   }
 }
