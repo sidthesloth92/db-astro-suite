@@ -72,6 +72,19 @@ dba-ui-footer {
   animation-delay: 3.62s;
 }
 
+/* On a Back return the intro has already played this session, so the staged
+   reveals are suppressed — content shows in its settled state immediately, which
+   also lets the restored scroll position land on real content (mirrors the
+   reduced-motion block below). */
+:host(.intro-done) .hero .status-pill,
+:host(.intro-done) .hero__rule,
+:host(.intro-done) .hero__description,
+:host(.intro-done) .tools__head,
+:host(.intro-done) .tool-card,
+:host(.intro-done) dba-ui-footer {
+  animation: none;
+}
+
 @keyframes reveal-fade {
   from {
     opacity: 0;

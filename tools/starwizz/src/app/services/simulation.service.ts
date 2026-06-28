@@ -404,6 +404,13 @@ export class SimulationService implements OnDestroy {
    */
   private currentGenerationId = 0;
 
+  /**
+   * True once the initial async star field has finished generating. Together with
+   * {@link isLoadingDefaultImage} this gates the 'Ready' state so the loading
+   * overlay stays up until BOTH the stars and the default scene image have settled.
+   */
+  private starsReady = false;
+
   // ==================== Control Methods ====================
 
   /**
@@ -704,6 +711,30 @@ export class SimulationService implements OnDestroy {
   // ==================== Image Management ====================
 
   /**
+   * Marks the initial async star field as fully generated, then re-evaluates the
+   * loading state. Called by the simulator once {@link loadStarsAsync} completes.
+   */
+  markStarsReady(): void {
+    this.starsReady = true;
+    this.settleLoadingState();
+  }
+
+  /**
+   * Flips loadingProgress to 'Ready' only once BOTH the star field has generated
+   * AND the default scene image has settled (loaded or errored). While the stars
+   * are done but the image is still in flight, it holds the loading message so the
+   * overlay never disappears into a blank preview with no controls — the gap that
+   * previously left the user stuck on initial load.
+   */
+  private settleLoadingState(): void {
+    if (this.starsReady && !this.isLoadingDefaultImage()) {
+      this.loadingProgress.set('Ready');
+    } else {
+      this.loadingProgress.set('Loading Default Scene...');
+    }
+  }
+
+  /**
    * Loads the default galaxy image to showcase the simulation on startup.
    * This allows users to immediately see the animation without uploading an image.
    *
@@ -711,7 +742,8 @@ export class SimulationService implements OnDestroy {
    * - Sets loading progress to indicate loading state
    * - Creates an Image element and loads from DEFAULT_GALAXY_URL
    * - On success: updates galaxyImage, sets isDefaultImage and isImageLoaded to true
-   * - On failure: logs error but still sets progress to 'Ready' so user can upload
+   * - On failure: logs error but still settles to 'Ready' (once stars are done) so
+   *   the user can upload their own image
    */
   loadDefaultScene(): void {
     this.loadingProgress.set('Loading Default Scene...');
@@ -725,15 +757,17 @@ export class SimulationService implements OnDestroy {
       this.isDefaultImage.set(true);
       this.isImageLoaded.set(true);
       this.isLoadingDefaultImage.set(false);
-      this.loadingProgress.set('Ready');
+      // Only declare 'Ready' if the star field has also finished — otherwise the
+      // star callback (markStarsReady) will, once it completes.
+      this.settleLoadingState();
     };
 
     // Handle load failure gracefully
     image.onerror = () => {
       console.error('Failed to load default galaxy image.');
       this.isLoadingDefaultImage.set(false);
-      // Still show 'Ready' so user can upload their own image
-      this.loadingProgress.set('Ready');
+      // Settle so the user can upload their own image once stars are done.
+      this.settleLoadingState();
     };
 
     image.src = DEFAULT_GALAXY_URL;
