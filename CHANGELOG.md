@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.31.3](https://github.com/sidthesloth92/db-astro-suite/compare/v1.31.2...v1.31.3) (2026-06-28)
+
+
+### Bug Fixes
+
+* **astrogram:** card export layout overflow + default icons for new items ([#96](https://github.com/sidthesloth92/db-astro-suite/issues/96)) ([707628d](https://github.com/sidthesloth92/db-astro-suite/commit/707628dbdef48b2478690451a913b695550b56ff))
+
 ## [1.31.2](https://github.com/sidthesloth92/db-astro-suite/compare/v1.31.1...v1.31.2) (2026-06-28)
 
 
