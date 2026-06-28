@@ -15,6 +15,7 @@ import {
 import type { EquipmentItem, SoftwareItem } from '../../models/card-data.model';
 import { CardDataService } from '../../services/card-data.service';
 import { PresetService } from '../../services/preset.service';
+import { DEFAULT_EQUIPMENT_ICON, DEFAULT_SOFTWARE_ICON } from './equipment-panel.constants';
 import type { PresetRow } from './equipment-panel.types';
 
 /**
@@ -146,10 +147,13 @@ export class EquipmentPanelComponent {
     });
   }
 
-  /** Appends a blank equipment row. */
+  /** Appends a new equipment row with the default placeholder icon. */
   addEquipmentRow(): void {
     this.dataService.mutateData((data) => {
-      data.equipment = [...data.equipment, { icon: '', label: 'New item', value: '' }];
+      data.equipment = [
+        ...data.equipment,
+        { icon: DEFAULT_EQUIPMENT_ICON, label: 'New item', value: '' },
+      ];
     });
   }
 
@@ -169,10 +173,13 @@ export class EquipmentPanelComponent {
     });
   }
 
-  /** Appends a blank software row. */
+  /** Appends a new software row with the default placeholder icon. */
   addSoftwareRow(): void {
     this.dataService.mutateData((data) => {
-      data.software = [...data.software, { icon: '', label: 'New item', name: '' }];
+      data.software = [
+        ...data.software,
+        { icon: DEFAULT_SOFTWARE_ICON, label: 'New item', name: '' },
+      ];
     });
   }
 
