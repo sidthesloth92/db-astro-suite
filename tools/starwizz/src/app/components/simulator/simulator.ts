@@ -236,7 +236,10 @@ export class Simulator implements AfterViewInit {
 
     setTimeout(() => {
       this.simService.loadStarsAsync(this.width, this.height, () => {
-        this.simService.loadingProgress.set('Ready');
+        // Stars are done — but only reach 'Ready' once the default scene image
+        // has also settled, so the loading overlay never clears into a blank,
+        // control-less preview while the image is still fetching.
+        this.simService.markStarsReady();
         this.lastShootingStarSpawn = Date.now();
       });
     }, 10);

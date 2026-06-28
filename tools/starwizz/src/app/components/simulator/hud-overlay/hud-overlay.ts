@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
-/** Decorative HUD overlay — corner brackets, scanning line, and telemetry readouts. */
+/** Decorative HUD overlay — corner brackets and scanning line. */
 @Component({
   selector: 'dba-sw-hud-overlay',
   imports: [],
