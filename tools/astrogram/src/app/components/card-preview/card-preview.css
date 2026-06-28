@@ -36,6 +36,10 @@
 .pn-meta {
   display: flex;
   justify-content: center;
+  /* Keep the date + location on one line. Without this the row reflows in
+     the modern-screenshot export (text is re-measured at capture scale),
+     wrapping the location chip onto a second line even though it fits. */
+  flex-wrap: nowrap;
   gap: 14px;
   margin-top: 10px;
   font-family: var(--db-font-mono-code);
@@ -45,6 +49,11 @@
   color: rgba(255, 255, 255, 0.7);
 }
 
+.pn-meta span {
+  /* Each chip (📅 date, 📍 location) stays intact instead of breaking mid-value. */
+  white-space: nowrap;
+}
+
 .pn-description {
   margin: 10px 0 0;
   font-family: var(--db-font-ui);
@@ -52,6 +61,16 @@
   font-size: 10.5px;
   line-height: 1.5;
   color: rgba(255, 255, 255, 0.78);
+  /* Clamp the description so a long blurb can never grow the hero past the
+     aspect-locked card and push the integration / equipment sections out of
+     view. Overflow is truncated with an ellipsis. The line budget is tuned
+     per aspect tier in the density blocks below. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .pn-integration {
@@ -87,6 +106,8 @@
   font-weight: 400;
   font-size: 11px;
   color: var(--db-color-text-dim);
+  /* Keep "TOTAL 5h 14m" on one line — the export otherwise wraps the value. */
+  white-space: nowrap;
 }
 
 .pn-integration-total strong {
@@ -224,6 +245,11 @@
 }
 
 /* Expanded: 9:16 (480×853) — title breathes, lists go full width */
+:host(.aspect-9-16) .pn-description {
+  /* Far more vertical room than the standard tier — allow a longer blurb. */
+  -webkit-line-clamp: 8;
+  line-clamp: 8;
+}
 :host(.aspect-9-16) .pn-title {
   font-size: 24px;
   line-height: 1.15;
