@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.31.4](https://github.com/sidthesloth92/db-astro-suite/compare/v1.31.3...v1.31.4) (2026-06-28)
+
+
+### Bug Fixes
+
+* **ci:** create GitHub release + tag on release-PR merge, not next push ([#98](https://github.com/sidthesloth92/db-astro-suite/issues/98)) ([62bbcab](https://github.com/sidthesloth92/db-astro-suite/commit/62bbcabf56a1046352f3202493bb117d357d3a24))
+
 ## [1.31.3](https://github.com/sidthesloth92/db-astro-suite/compare/v1.31.2...v1.31.3) (2026-06-28)
 
 
