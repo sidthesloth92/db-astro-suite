@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.31.2](https://github.com/sidthesloth92/db-astro-suite/compare/v1.31.1...v1.31.2) (2026-06-28)
+
+
+### Bug Fixes
+
+* **starwizz:** hold loading spinner until default image loads; remove fake HUD telemetry ([#94](https://github.com/sidthesloth92/db-astro-suite/issues/94)) ([e243a72](https://github.com/sidthesloth92/db-astro-suite/commit/e243a72ec02bf2b66d8b1733e535df304fb2efa7))
+
 ## [1.31.1](https://github.com/sidthesloth92/db-astro-suite/compare/v1.31.0...v1.31.1) (2026-06-21)
 
 
