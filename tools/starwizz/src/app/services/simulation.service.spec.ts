@@ -1,6 +1,7 @@
 import { discardPeriodicTasks, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { AnalyticsService } from '@db-astro-suite/ui';
 
+import { ShootingStar } from '../models/shooting-star.model';
 import { Star } from '../models/star.model';
 import { SimulationService } from './simulation.service';
 
@@ -85,6 +86,20 @@ describe('SimulationService', () => {
 
       expect(service.shootingStarsEnabled()).toBe(true);
     });
+
+    it('should re-enable the starfield on reset', () => {
+      service.starsEnabled.set(false);
+
+      service.resetControlsToDefaults();
+
+      expect(service.starsEnabled()).toBe(true);
+    });
+  });
+
+  describe('starsEnabled', () => {
+    it('should default to true so the starfield renders on first load', () => {
+      expect(service.starsEnabled()).toBe(true);
+    });
   });
 
   describe('clearImage', () => {
@@ -132,6 +147,23 @@ describe('SimulationService', () => {
 
       service.updateDirection('path');
       expect(service.isPathMode()).toBe(true);
+    });
+
+    it('should clear in-flight shooting stars when the path is finalized', () => {
+      // A streak captured under the previous direction, still in flight.
+      const streak = new ShootingStar(WIDTH, HEIGHT, service);
+      streak.spawn();
+      service.shootingStars.set([streak]);
+      expect(streak.isActive).toBe(true);
+
+      service.updateLiveCamera({ panX: 0, panY: 0, scale: 1 });
+      service.setCameraStart();
+      service.updateLiveCamera({ panX: 200, panY: 0, scale: 2 });
+      service.setCameraEnd();
+      service.finalizePath();
+
+      // Cleared so it respawns with the freshly-derived path motion.
+      expect(streak.isActive).toBe(false);
     });
 
     it('should capture the live framing into Start and End', () => {
@@ -236,6 +268,46 @@ describe('SimulationService', () => {
 
       expect(service.pathFinalized()).toBe(false);
       expect(service.pathPlaying()).toBe(false);
+    });
+  });
+
+  describe('getStarMotionSpeed', () => {
+    function finalizePanPath(): void {
+      service.updateDirection('path');
+      service.updateLiveCamera({ panX: 0, panY: 0, scale: 1 });
+      service.setCameraStart();
+      service.updateLiveCamera({ panX: 300, panY: 0, scale: 1 });
+      service.setCameraEnd();
+      service.pathSpeed.set(150);
+      service.finalizePath();
+    }
+
+    it('uses the absolute Star Speed value outside a fixed Custom Path', () => {
+      service.updateDirection('forward');
+
+      expect(service.getStarMotionSpeed()).toBeCloseTo(service.getInternalValue('starSpeed'), 5);
+    });
+
+    it('tracks the camera path pace once a Custom Path is finalized', () => {
+      finalizePanPath();
+
+      // pathSpeed / ASSUMED_FPS * PATH_STAR_SPEED_FACTOR * (slider / default)
+      // = 150 / 60 * 0.6 * (5 / 5) = 1.5
+      expect(service.getStarMotionSpeed()).toBeCloseTo(1.5, 5);
+    });
+
+    it('treats the Star Speed slider as a relative multiplier in a Custom Path', () => {
+      finalizePanPath();
+      service.updateControl('starSpeed', 10); // 2× the default slider
+
+      expect(service.getStarMotionSpeed()).toBeCloseTo(3.0, 5);
+    });
+
+    it('scales with the chosen path speed so faster glides drive faster stars', () => {
+      finalizePanPath();
+      service.pathSpeed.set(300); // double the glide speed
+
+      expect(service.getStarMotionSpeed()).toBeCloseTo(3.0, 5);
     });
   });
 

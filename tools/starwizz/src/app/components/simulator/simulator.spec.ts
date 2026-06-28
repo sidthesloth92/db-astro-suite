@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AnalyticsService } from '@db-astro-suite/ui';
 
+import { ShootingStar } from '../../models/shooting-star.model';
+import { Star } from '../../models/star.model';
 import { SimulationService } from '../../services/simulation.service';
 import { Simulator } from './simulator';
 
@@ -103,5 +105,28 @@ describe('Simulator', () => {
 
     dispatchPointer(canvas, 'pointerup', 1, 100, 100); // lift last finger
     expect(component['isDragging']()).toBe(false);
+  });
+
+  it('should skip drawing background and shooting stars while the starfield is removed', () => {
+    component['ctx'] = canvas.getContext('2d');
+    simService.isImageLoaded.set(true);
+
+    const star = jasmine.createSpyObj<Star>('Star', ['update', 'draw']);
+    const shootingStar = jasmine.createSpyObj<ShootingStar>('ShootingStar', ['update', 'draw']);
+    simService.stars.set([star]);
+    simService.shootingStars.set([shootingStar]);
+
+    simService.starsEnabled.set(false);
+    component['drawStars']();
+
+    expect(star.draw).not.toHaveBeenCalled();
+    expect(shootingStar.draw).not.toHaveBeenCalled();
+
+    // Re-enabling the starfield resumes both the background stars and shooting stars.
+    simService.starsEnabled.set(true);
+    component['drawStars']();
+
+    expect(star.draw).toHaveBeenCalled();
+    expect(shootingStar.draw).toHaveBeenCalled();
   });
 });

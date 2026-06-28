@@ -109,6 +109,23 @@ export const CONTROLS: Record<ControlKey, ControlMetadata> = {
 };
 
 /**
+ * Camera/scene slider controls, in render order. These shape the galaxy backdrop
+ * motion and stay visible regardless of the master Stars switch.
+ */
+export const CAMERA_CONTROL_KEYS: readonly ControlKey[] = ['zoomRate', 'rotationRate'];
+
+/**
+ * Background-starfield slider controls, in render order. These live inside the
+ * "Stars" section and are hidden when the master Stars switch is off.
+ * (`shootingStarSpeed` is rendered separately, next to the Shooting Stars toggle.)
+ */
+export const STAR_FIELD_CONTROL_KEYS: readonly ControlKey[] = [
+  'starSpeed',
+  'baseStarSize',
+  'starCount',
+];
+
+/**
  * Per-direction unit velocity applied to each star (and to the galaxy pan).
  * `z` is depth (negative = toward the viewer), `x`/`y` are lateral world axes.
  */
@@ -125,6 +142,21 @@ export const DIRECTION_VECTORS: Record<TravelDirection, { x: number; y: number; 
 
 /** Lower bound of the galaxy zoom ramp (upper bound `TARGET_SCALE` lives in the simulator). */
 export const MIN_SCALE = 1.0;
+
+/**
+ * Nominal animation frame rate. Used to convert the per-second Custom Path speed
+ * into a per-frame star step so the field's pace tracks the camera glide (star
+ * motion is applied per frame, the camera glide per second).
+ */
+export const ASSUMED_FPS = 60;
+
+/**
+ * In a fixed Custom Path the star field drifts at this multiple of the camera's
+ * per-frame path pace, so it tracks the glide (no longer stalling at the fixed
+ * Star Speed) while staying a touch slower than the backdrop pan rather than
+ * outrunning it. The Star Speed slider scales this as a relative multiplier.
+ */
+export const PATH_STAR_SPEED_FACTOR = 0.6;
 
 /**
  * Multiplier applied to lateral star drift. Matched to {@link STAR_DEPTH_FACTOR}
