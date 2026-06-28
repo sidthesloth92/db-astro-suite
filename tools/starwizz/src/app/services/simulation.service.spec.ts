@@ -102,6 +102,39 @@ describe('SimulationService', () => {
     });
   });
 
+  describe('loading state coordination', () => {
+    it('should hold the loading message when the stars finish before the default image settles', () => {
+      // Default scene image still fetching over the network.
+      service.isLoadingDefaultImage.set(true);
+
+      service.markStarsReady();
+
+      // Must NOT be 'Ready' — otherwise the overlay clears into a blank, control-less
+      // preview while the image is still loading (the bug this fix addresses).
+      expect(service.loadingProgress()).toBe('Loading Default Scene...');
+    });
+
+    it('should reach Ready once the image settles after the stars are already ready', () => {
+      service.isLoadingDefaultImage.set(true);
+      service.markStarsReady();
+
+      // Image finishes loading: its handler clears the flag and re-settles the state.
+      service.isLoadingDefaultImage.set(false);
+      service.markStarsReady();
+
+      expect(service.loadingProgress()).toBe('Ready');
+    });
+
+    it('should reach Ready when the image already settled before the stars finish', () => {
+      // Image loaded first (or errored): no longer in flight.
+      service.isLoadingDefaultImage.set(false);
+
+      service.markStarsReady();
+
+      expect(service.loadingProgress()).toBe('Ready');
+    });
+  });
+
   describe('clearImage', () => {
     it('should return the whole simulation to its fresh-page state', () => {
       // Drive the simulation well away from defaults first.
