@@ -261,9 +261,9 @@ test.describe("Sortronomy Tool Page", () => {
 });
 
 test.describe("Hub tool demo lightbox", () => {
-  // Only the astrogram output pair uses expandable images. Starwizz embeds a
-  // video demo and the sortronomy page uses CLI terminal blocks, so neither has
-  // a lightbox — coverage is scoped to astrogram.
+  // The sortronomy page uses ASCII before/after folder trees (no demo image
+  // wired to a lightbox), and starwizz embeds a video demo, so lightbox
+  // coverage stays scoped to astrogram.
   const tools: ReadonlyArray<{
     slug: "astrogram";
     expandButton: string;

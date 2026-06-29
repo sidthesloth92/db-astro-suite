@@ -6,6 +6,7 @@ import { DEFAULT_FILTERS } from '../../models/card-data.model';
 import { CardDataService } from '../../services/card-data.service';
 import { PresetService } from '../../services/preset.service';
 import { EquipmentPanelComponent } from './equipment-panel.component';
+import { DEFAULT_EQUIPMENT_ICON, DEFAULT_SOFTWARE_ICON } from './equipment-panel.constants';
 
 const seed = (): CardData => ({
   title: 'X',
@@ -112,5 +113,25 @@ describe('EquipmentPanelComponent', () => {
     fixture.detectChanges();
     fixture.componentInstance.updateEquipment(0, 'Askar 71F');
     expect(dataStub.cardData().equipment[0].value).toBe('Askar 71F');
+  });
+
+  it('adds an equipment row carrying the default placeholder icon', () => {
+    const fixture = TestBed.createComponent(EquipmentPanelComponent);
+    fixture.detectChanges();
+    fixture.componentInstance.addEquipmentRow();
+    const equipment = dataStub.cardData().equipment;
+    const added = equipment[equipment.length - 1];
+    expect(added.icon).toBe(DEFAULT_EQUIPMENT_ICON);
+    expect(added.icon).not.toBe('');
+  });
+
+  it('adds a software row carrying the default placeholder icon', () => {
+    const fixture = TestBed.createComponent(EquipmentPanelComponent);
+    fixture.detectChanges();
+    fixture.componentInstance.addSoftwareRow();
+    const software = dataStub.cardData().software;
+    const added = software[software.length - 1];
+    expect(added.icon).toBe(DEFAULT_SOFTWARE_ICON);
+    expect(added.icon).not.toBe('');
   });
 });

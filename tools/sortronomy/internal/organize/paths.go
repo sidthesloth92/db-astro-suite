@@ -50,15 +50,19 @@ func RoundFocalUp(mm float64) int {
 //
 // Layout:
 //
-//	<out>/<camera>[/<focal>]/<target or "_Calibration Frames">/<frameType>/<date - filter>/
+//	<out>/<camera>[/<focal>]/<target or "_Calibration Frames">/<frameType>[/<date|filter|date - filter>/]
 //
 // focalDir is included only when groupByFocal is true and focal > 0.
-// filterLabel is the folder-name label (may be the user override in OSC mode).
+// When groupByDate is true the date (and filter, if set) forms the leaf folder.
+// When groupByDate is false only the filter label is used as the leaf; if there
+// is no filter either, files land directly in the frameType folder.
 func destPath(
 	out, camera string,
 	focal int,
 	groupByFocal bool,
-	target, frameType, date, filterLabel string,
+	target, frameType string,
+	groupByDate bool,
+	date, filterLabel string,
 ) string {
 	parts := []string{out, camera}
 	if groupByFocal && focal > 0 {
@@ -70,11 +74,20 @@ func destPath(
 		parts = append(parts, target)
 	}
 	parts = append(parts, frameType)
-	dateLabel := date
-	if filterLabel != "" {
-		dateLabel = date + " - " + filterLabel
+
+	var leaf string
+	if groupByDate && date != "" {
+		if filterLabel != "" {
+			leaf = date + " - " + filterLabel
+		} else {
+			leaf = date
+		}
+	} else if filterLabel != "" {
+		leaf = filterLabel
 	}
-	parts = append(parts, dateLabel)
+	if leaf != "" {
+		parts = append(parts, leaf)
+	}
 	return filepath.Join(parts...)
 }
 

@@ -1,6 +1,8 @@
 // Package config reads and writes the per-user persisted defaults for
-// sortronomy. Only path fields are persisted (user preference) — option
-// toggles and filter info reset to defaults on every run.
+// sortronomy. Paths, grouping toggles, and the session rollover hour are all
+// persisted so the next run starts with the same settings. Filter info is
+// intentionally not persisted — filters are image-set specific and should be
+// re-confirmed each run.
 package config
 
 import (
@@ -17,13 +19,17 @@ type Config struct {
 	Flats    FlatsPaths       `json:"flats,omitempty"`
 }
 
-// OrganizeSettings holds the persisted options for the organize-by-date
-// flow. Field JSON tags match the existing on-disk schema so older config
-// files that lack the newer fields continue to load cleanly.
+// OrganizeSettings holds the persisted options for the organize flow.
+// Field JSON tags match the existing on-disk schema so older config files
+// that lack newer fields continue to load cleanly (missing bools zero to false).
 type OrganizeSettings struct {
-	SourceDir           string `json:"sourceDir,omitempty"`
+	InputDir            string `json:"inputDir,omitempty"`
 	OutputDir           string `json:"outputDir,omitempty"`
 	SessionRolloverHour int    `json:"sessionRolloverHour,omitempty"`
+	GroupByFocal        bool   `json:"groupByFocal,omitempty"`
+	GroupByDate         bool   `json:"groupByDate,omitempty"`
+	GroupByFilter       bool   `json:"groupByFilter,omitempty"`
+	GroupSession        bool   `json:"groupSession,omitempty"`
 }
 
 // FlatsPaths holds last-used paths for the rename-master-flats flow.

@@ -236,7 +236,10 @@ export class Simulator implements AfterViewInit {
 
     setTimeout(() => {
       this.simService.loadStarsAsync(this.width, this.height, () => {
-        this.simService.loadingProgress.set('Ready');
+        // Stars are done — but only reach 'Ready' once the default scene image
+        // has also settled, so the loading overlay never clears into a blank,
+        // control-less preview while the image is still fetching.
+        this.simService.markStarsReady();
         this.lastShootingStarSpawn = Date.now();
       });
     }, 10);
@@ -571,6 +574,11 @@ export class Simulator implements AfterViewInit {
   }
 
   private handleShootingStarSpawning() {
+    // Whole starfield removed by the user — never spawn.
+    if (!this.simService.starsEnabled()) {
+      return;
+    }
+
     // Disabled by the user — never spawn.
     if (!this.simService.shootingStarsEnabled()) {
       return;
@@ -639,6 +647,10 @@ export class Simulator implements AfterViewInit {
 
   private drawStars() {
     if (!this.ctx || !this.simService.isImageLoaded()) return;
+
+    // Master switch off — record the galaxy backdrop alone, no background stars
+    // and no shooting stars (drawGalaxyBackground still runs, so it keeps moving).
+    if (!this.simService.starsEnabled()) return;
 
     // While composing a Custom Path (before "Set Path"), hide the whole field so
     // the user frames against a clean backdrop. The stars appear and start moving

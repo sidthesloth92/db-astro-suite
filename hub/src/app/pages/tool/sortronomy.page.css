@@ -29,6 +29,33 @@
 }
 
 /*
+ * ASCII folder trees that stand in for before/after screenshots. Rendered as
+ * monospace text so the box-drawing characters line up. The "before" tree is
+ * dimmed to read as a messy dump; the "after" tree is brighter to read as the
+ * clean, sorted result.
+ */
+.ascii-tree {
+  margin: 0;
+  padding: 18px 20px;
+  min-height: 220px;
+  overflow-x: auto;
+  background: var(--db-color-surface-bg);
+  font-family: var(--db-font-mono-code);
+  font-size: 12.5px;
+  line-height: 1.7;
+  white-space: pre;
+  tab-size: 2;
+}
+
+.ascii-tree--before {
+  color: var(--db-color-text-dim);
+}
+
+.ascii-tree--after {
+  color: var(--db-color-text-primary);
+}
+
+/*
  * Placeholder shown inside a demo-frame until the real media (walkthrough
  * video / before-after screenshots) is captured. Sized to roughly match a
  * 16:9 capture so the layout doesn't shift when a real <img>/<video> lands.

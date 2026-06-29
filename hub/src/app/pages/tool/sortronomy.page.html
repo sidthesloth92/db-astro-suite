@@ -31,21 +31,12 @@
         <h3 class="output-pair__title">
           <span class="output-pair__title-accent">Before</span> — raw dump
         </h3>
-        <!--
-          TODO(screenshot): replace with a real "before" capture, e.g.
-          <dba-hub-demo-frame label="~/Captures (before)">
-            <img class="demo-media" src="assets/img/sortronomy_before.png"
-                 alt="A flat, unsorted folder of raw FITS frames before Sortronomy" />
-          </dba-hub-demo-frame>
-        -->
         <dba-hub-demo-frame label="~/Captures (before)">
-          <div class="media-placeholder">
-            <span class="media-placeholder__title">Before screenshot coming soon</span>
-            <span class="media-placeholder__hint">
-              A flat folder of raw .fit frames straight from the capture software —
-              hundreds of files, no structure.
-            </span>
-          </div>
+          <pre
+            class="ascii-tree ascii-tree--before"
+            role="img"
+            aria-label="Before: a single flat folder holding over a thousand raw FITS frames with inconsistent names and no structure."
+          >{{ treeBefore }}</pre>
         </dba-hub-demo-frame>
       </figure>
 
@@ -53,21 +44,12 @@
         <h3 class="output-pair__title">
           <span class="output-pair__title-accent">After</span> — organised tree
         </h3>
-        <!--
-          TODO(screenshot): replace with a real "after" capture, e.g.
-          <dba-hub-demo-frame label="~/Organised (after)">
-            <img class="demo-media" src="assets/img/sortronomy_after.png"
-                 alt="The same frames sorted into camera / focal length / target / date folders" />
-          </dba-hub-demo-frame>
-        -->
         <dba-hub-demo-frame label="~/Organised (after)">
-          <div class="media-placeholder">
-            <span class="media-placeholder__title">After screenshot coming soon</span>
-            <span class="media-placeholder__hint">
-              The same frames sorted into a camera → focal length → target → date tree,
-              ready for calibration and stacking.
-            </span>
-          </div>
+          <pre
+            class="ascii-tree ascii-tree--after"
+            role="img"
+            aria-label="After: the same frames sorted by camera, focal length, target, session date, and filter. A mono camera gets one folder per narrowband filter; a one-shot-color camera gets a single OSC folder tagged with its filter; calibration frames are grouped separately."
+          >{{ treeAfter }}</pre>
         </dba-hub-demo-frame>
       </figure>
     </div>

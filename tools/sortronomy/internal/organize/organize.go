@@ -1,11 +1,11 @@
 // Package organize implements the "organize images by date" pipeline.
-// It walks a source directory, reads FITS headers, and copies files into a
+// It walks an input directory, reads FITS headers, and copies files into a
 // structured tree under the output directory.
 //
 // The pipeline is split into two phases so the wizard can present a review
 // screen between them:
 //
-//  1. BuildPlan — walks the source dir, reads every header, computes
+//  1. BuildPlan — walks the input dir, reads every header, computes
 //     destination paths, and returns a Plan describing exactly what would
 //     happen if the user confirms.
 //  2. ExecutePlan — performs the actual copies + optional FITS FILTER writes
@@ -18,6 +18,7 @@ package organize
 import (
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -25,6 +26,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/sidthesloth92/db-astro-suite/libs/cliui"
 	"github.com/sidthesloth92/db-astro-suite/tools/sortronomy/internal/fits"
 	"github.com/sidthesloth92/db-astro-suite/tools/sortronomy/internal/fsutil"
 )
@@ -46,11 +48,16 @@ const DefaultSessionRolloverHour = 18
 
 // Options is the full set of user choices collected by the wizard.
 type Options struct {
-	SourceDir    string
-	OutputDir    string
-	GroupByFocal bool
-	TagFilter    bool
-	Filter       FilterTag
+	InputDir      string
+	OutputDir     string
+	GroupByFocal  bool
+	GroupByFilter bool // when true, frames are filed into per-filter subfolders; when false, filter is ignored in the path
+	TagFilter     bool
+	Filter        FilterTag
+	// GroupByDate opts into including the capture date as a folder level in the
+	// destination tree. When false, frames land directly in the frameType folder
+	// (or the filter subfolder if one is set), with no date component.
+	GroupByDate bool
 	// GroupSession opts into rolling late captures into the next day's session
 	// folder (see SessionDate). When false, frames are filed under their literal
 	// UTC capture day.
@@ -136,7 +143,7 @@ func softwareLabels(seen map[string]int) []string {
 	return out
 }
 
-// BuildPlan walks the source directory, reads each FITS header, and computes
+// BuildPlan walks the input directory, reads each FITS header, and computes
 // destination paths. It does not copy any files. The returned Plan can be
 // shown to the user for review and then passed to ExecutePlan. Scan progress
 // is reported as a live line on a terminal (silent when output is piped) so
@@ -151,8 +158,8 @@ func BuildPlan(opts Options, log *slog.Logger) (Plan, error) {
 	}
 	opts.OutputDir = abs
 
-	fmt.Printf("Scanning %s …\n", opts.SourceDir)
-	files, err := walkFITS(opts.SourceDir)
+	fmt.Printf("%s %s\n", cliui.Dim.Render("Scanning"), cliui.Value.Render(opts.InputDir)+cliui.Dim.Render(" …"))
+	files, err := walkFITS(opts.InputDir)
 	if err != nil {
 		return Plan{}, err
 	}
@@ -191,34 +198,51 @@ func BuildPlan(opts Options, log *slog.Logger) (Plan, error) {
 	return plan, nil
 }
 
+// fileErr records a per-file failure during ExecutePlan or ExecuteDryRun.
+// Errors are collected and printed as a block after the run summary, rather
+// than interleaved with the progress bar.
+type fileErr struct {
+	filename string // base name shown to the user
+	path     string // full source (or directory) path for context
+	reason   string // human-readable error description
+}
+
 // ExecutePlan performs the copies described by plan and (when TagFilter is
-// true) writes the FILTER keyword into each copied file. Errors during
-// per-file copy are surfaced inline and counted; the function returns an
-// error only if any file failed.
+// true) writes the FILTER keyword into each copied file. Per-file errors are
+// collected and printed as a formatted block after the summary line; the
+// function returns an error only if any file failed.
 func ExecutePlan(plan Plan, opts Options, log *slog.Logger) error {
 	if len(plan.Entries) == 0 {
-		fmt.Println("Nothing to do.")
+		fmt.Println(cliui.Dim.Render("Nothing to do."))
 		return nil
 	}
 	log.Info("organize start",
-		"source", opts.SourceDir,
+		"input", opts.InputDir,
 		"output", plan.OutputDir,
 		"files", len(plan.Entries),
 		"groupByFocal", opts.GroupByFocal,
 		"groupSession", opts.GroupSession,
 		"tagFilter", opts.TagFilter)
-	fmt.Printf("Organizing %d file(s) under %s\n\n", len(plan.Entries), plan.OutputDir)
+	fmt.Printf("%s %s %s %s\n\n",
+		cliui.Dim.Render("Organizing"),
+		cliui.OK.Render(fmt.Sprintf("%d file(s)", len(plan.Entries))),
+		cliui.Dim.Render("under"),
+		cliui.Value.Render(plan.OutputDir),
+	)
 
 	prog := newProgressReporter(os.Stdout, os.Stdout.Fd(), len(plan.Entries))
-	var copied, alreadyExisted, failed int
+	var copied, alreadyExisted int
+	var fileErrs []fileErr
 	for i, e := range plan.Entries {
 		prog.update(i+1, filepath.Base(e.Src))
 		exists := fileExists(e.Dst)
 		if err := fsutil.CopyFile(e.Src, e.Dst); err != nil {
-			prog.clear()
-			fmt.Fprintf(os.Stderr, "  %s — copy error: %v\n", filepath.Base(e.Src), err)
 			log.Error("copy failed", "file", e.Src, "dst", e.Dst, "err", err)
-			failed++
+			fileErrs = append(fileErrs, fileErr{
+				filename: filepath.Base(e.Src),
+				path:     e.Src,
+				reason:   err.Error(),
+			})
 			continue
 		}
 		if exists {
@@ -230,11 +254,13 @@ func ExecutePlan(plan Plan, opts Options, log *slog.Logger) error {
 		// already-tagged destinations don't keep rewriting the header.
 		if opts.TagFilter {
 			if err := fits.WriteFilter(e.Dst, opts.Filter.Name, opts.Filter.Description); err != nil {
-				prog.clear()
-				fmt.Fprintf(os.Stderr, "  %s — FILTER write error: %v\n", filepath.Base(e.Dst), err)
 				log.Error("filter write failed", "file", e.Dst, "err", err)
-				copied++
-				failed++
+				fileErrs = append(fileErrs, fileErr{
+					filename: filepath.Base(e.Dst),
+					path:     e.Dst,
+					reason:   "FILTER header write failed: " + err.Error(),
+				})
+				copied++ // the file was copied; only the header write failed
 				continue
 			}
 		}
@@ -242,18 +268,111 @@ func ExecutePlan(plan Plan, opts Options, log *slog.Logger) error {
 	}
 	prog.clear()
 
+	failed := len(fileErrs)
 	log.Info("organize complete",
 		"copied", copied,
 		"alreadyExisted", alreadyExisted,
 		"skipped", len(plan.Skips),
 		"failed", failed)
-	fmt.Printf("Done. Copied: %d   Already existed: %d   Skipped: %d   Failed: %d\n",
-		copied, alreadyExisted, len(plan.Skips), failed)
+	fmt.Println()
+	fmt.Printf("%s   %s\n",
+		cliui.Heading.Render("✦ Done"),
+		strings.Join([]string{
+			cliui.OK.Render(fmt.Sprintf("Copied %d", copied)),
+			cliui.Dim.Render(fmt.Sprintf("Already existed %d", alreadyExisted)),
+			cliui.Count("Skipped", len(plan.Skips), cliui.Warn),
+			cliui.Count("Failed", failed, cliui.Fail),
+		}, cliui.Dim.Render(" · ")),
+	)
 	if len(plan.SoftwareSeen) > 0 {
-		fmt.Printf("Capture software seen: %s\n", strings.Join(softwareLabels(plan.SoftwareSeen), ", "))
+		fmt.Printf("%s %s\n",
+			cliui.Dim.Render("Capture software detected:"),
+			cliui.Value.Render(strings.Join(softwareLabels(plan.SoftwareSeen), ", ")))
+		fmt.Println()
 	}
 	if failed > 0 {
+		printFileErrors(os.Stderr, fileErrs, "could not be processed")
 		return fmt.Errorf("%d file(s) failed", failed)
+	}
+	return nil
+}
+
+// ExecuteDryRun is the folders-only counterpart to ExecutePlan: it creates
+// every distinct destination directory referenced by the plan so the user can
+// inspect the resulting layout, but copies no files and writes no headers. The
+// empty folders it leaves behind are harmless — a subsequent real run is
+// idempotent and fills them in.
+func ExecuteDryRun(plan Plan, opts Options, log *slog.Logger) error {
+	if len(plan.Entries) == 0 {
+		fmt.Println(cliui.Dim.Render("Nothing to do."))
+		return nil
+	}
+	log.Info("dry run start",
+		"input", opts.InputDir,
+		"output", plan.OutputDir,
+		"files", len(plan.Entries))
+	fmt.Printf("%s %s %s %s\n\n",
+		cliui.Warn.Render("Dry run"),
+		cliui.Dim.Render("— creating folders only under"),
+		cliui.Value.Render(plan.OutputDir),
+		cliui.Dim.Render("(no files copied)"),
+	)
+
+	// Distinct destination directories, sorted for deterministic creation order.
+	dirSet := map[string]struct{}{}
+	for _, e := range plan.Entries {
+		dirSet[filepath.Dir(e.Dst)] = struct{}{}
+	}
+	dirs := make([]string, 0, len(dirSet))
+	for d := range dirSet {
+		dirs = append(dirs, d)
+	}
+	sort.Strings(dirs)
+
+	var created int
+	var dirErrs []fileErr
+	for _, dir := range dirs {
+		if fileExists(dir) {
+			continue
+		}
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			log.Error("mkdir failed", "dir", dir, "err", err)
+			dirErrs = append(dirErrs, fileErr{
+				filename: filepath.Base(dir),
+				path:     dir,
+				reason:   err.Error(),
+			})
+			continue
+		}
+		created++
+	}
+
+	failed := len(dirErrs)
+	log.Info("dry run complete",
+		"foldersCreated", created,
+		"foldersTotal", len(dirs),
+		"files", len(plan.Entries),
+		"skipped", len(plan.Skips),
+		"failed", failed)
+	fmt.Println()
+	fmt.Printf("%s   %s %s %s\n",
+		cliui.Heading.Render("✦ Dry run complete"),
+		cliui.OK.Render(fmt.Sprintf("Created %d folder(s)", created)),
+		cliui.Dim.Render(fmt.Sprintf("for %d file(s) under", len(plan.Entries))),
+		cliui.Value.Render(plan.OutputDir),
+	)
+	fmt.Println(cliui.Dim.Render("No files were copied."))
+	if len(plan.SoftwareSeen) > 0 {
+		fmt.Printf("%s %s\n",
+			cliui.Dim.Render("Capture software detected:"),
+			cliui.Value.Render(strings.Join(softwareLabels(plan.SoftwareSeen), ", ")))
+		fmt.Println()
+	}
+	if failed > 0 {
+		printFileErrors(os.Stderr, dirErrs, "could not be created")
+	}
+	if failed > 0 {
+		return fmt.Errorf("%d folder(s) failed", failed)
 	}
 	return nil
 }
@@ -264,18 +383,45 @@ func ExecutePlan(plan Plan, opts Options, log *slog.Logger) error {
 func Run(opts Options, log *slog.Logger) error {
 	plan, err := BuildPlan(opts, log)
 	if err != nil {
-		log.Error("scan failed", "source", opts.SourceDir, "err", err)
+		log.Error("scan failed", "input", opts.InputDir, "err", err)
 		return err
 	}
 	if plan.TotalFound == 0 {
-		log.Info("no FITS files found", "source", opts.SourceDir)
-		fmt.Println("No FITS files found.")
+		log.Info("no FITS files found", "input", opts.InputDir)
+		fmt.Println(cliui.Warn.Render("No FITS files found."))
 		return nil
 	}
-	for _, s := range plan.Skips {
-		fmt.Fprintf(os.Stderr, "  %s — skipped: %s\n", filepath.Base(s.Src), s.Reason)
-	}
+	reportSkips(plan)
 	return ExecutePlan(plan, opts, log)
+}
+
+// DryRun is the folders-only counterpart to Run: it builds the plan and creates
+// the destination folder tree without copying any files. Backs the wizard's
+// "Dry run" review option and the --dry-run CLI flag, so the user can inspect
+// the resulting layout before moving any data.
+func DryRun(opts Options, log *slog.Logger) error {
+	plan, err := BuildPlan(opts, log)
+	if err != nil {
+		log.Error("scan failed", "input", opts.InputDir, "err", err)
+		return err
+	}
+	if plan.TotalFound == 0 {
+		log.Info("no FITS files found", "input", opts.InputDir)
+		fmt.Println(cliui.Warn.Render("No FITS files found."))
+		return nil
+	}
+	reportSkips(plan)
+	return ExecuteDryRun(plan, opts, log)
+}
+
+// reportSkips prints each planned skip to stderr. Shared by Run and DryRun.
+func reportSkips(plan Plan) {
+	for _, s := range plan.Skips {
+		fmt.Fprintf(os.Stderr, "  %s %s %s\n",
+			cliui.Warn.Render(filepath.Base(s.Src)),
+			cliui.Dim.Render("— skipped:"),
+			cliui.Dim.Render(s.Reason))
+	}
 }
 
 // applyFilenameFallback mutates m to fill in missing header fields from
@@ -321,11 +467,15 @@ func planDest(src string, opts Options, m fits.Metadata) (string, string, bool) 
 	// Filter label for the folder:
 	//   - OSC mode (TagFilter): use the user's Type (folder label)
 	//   - Otherwise: the FILTER keyword from the header
+	// When GroupByFilter is off the label is discarded so all frames for a
+	// target/frameType land in one folder regardless of filter.
 	var filterLabel string
-	if opts.TagFilter {
-		filterLabel = opts.Filter.Type
-	} else {
-		filterLabel = m.Filter
+	if opts.GroupByFilter {
+		if opts.TagFilter {
+			filterLabel = opts.Filter.Type
+		} else {
+			filterLabel = m.Filter
+		}
 	}
 	focalRounded := RoundFocalUp(m.Focal)
 	if opts.GroupByFocal && !m.HasFocal {
@@ -339,6 +489,7 @@ func planDest(src string, opts Options, m fits.Metadata) (string, string, bool) 
 		opts.GroupByFocal,
 		m.Target,
 		m.FrameType,
+		opts.GroupByDate,
 		SessionDate(m.DateObs, opts.GroupSession, opts.SessionRolloverHour),
 		filterLabel,
 	)
@@ -373,7 +524,7 @@ func walkFITS(root string) ([]string, error) {
 	if info, err := os.Stat(root); err != nil {
 		return nil, err
 	} else if !info.IsDir() {
-		return nil, errors.New("source is not a directory")
+		return nil, errors.New("input is not a directory")
 	}
 	var paths []string
 	err := filepath.WalkDir(root, func(p string, d os.DirEntry, err error) error {
@@ -389,6 +540,24 @@ func walkFITS(root string) ([]string, error) {
 		return nil
 	})
 	return paths, err
+}
+
+// printFileErrors writes a formatted error block to w. Each entry is rendered
+// as the filename on one line, followed by indented path and error lines, so
+// the output is easy to scan and copy into a bug report.
+//
+//	2 file(s) could not be processed:
+//
+//	  frame_0001.fit
+//	    Path:  /Volumes/Data/raw/frame_0001.fit
+//	    Error: permission denied
+func printFileErrors(w io.Writer, errs []fileErr, verb string) {
+	fmt.Fprintf(w, "\n%s\n", cliui.Fail.Render(fmt.Sprintf("%d file(s) %s:", len(errs), verb)))
+	for _, e := range errs {
+		fmt.Fprintf(w, "\n  %s\n", cliui.Value.Render(e.filename))
+		fmt.Fprintf(w, "    %s %s\n", cliui.Dim.Render("Path: "), cliui.Dim.Render(e.path))
+		fmt.Fprintf(w, "    %s %s\n", cliui.Dim.Render("Error:"), cliui.Fail.Render(e.reason))
+	}
 }
 
 func fileExists(p string) bool {

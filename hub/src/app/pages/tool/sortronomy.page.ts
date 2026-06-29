@@ -3,7 +3,6 @@ import { DOCUMENT } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  afterNextRender,
   inject,
   signal,
 } from '@angular/core';
@@ -12,6 +11,10 @@ import { AnalyticsService } from '@db-astro-suite/ui';
 import { DemoFrameComponent } from '../../components/demo-frame/demo-frame.component';
 import { ToolDetailComponent } from '../../components/tool-detail/tool-detail.component';
 import { SORTRONOMY_DETAIL } from './sortronomy-detail.constants';
+import {
+  SORTRONOMY_TREE_AFTER,
+  SORTRONOMY_TREE_BEFORE,
+} from './sortronomy-output.constants';
 import { SORTRONOMY_REPO_URL } from './tool.constants';
 
 /**
@@ -31,6 +34,12 @@ export default class SortronomyPageComponent {
   /** Content driving the shared detail layout. */
   protected readonly config = SORTRONOMY_DETAIL;
 
+  /** ASCII "before" tree — the flat, unsorted capture dump. */
+  protected readonly treeBefore = SORTRONOMY_TREE_BEFORE;
+
+  /** ASCII "after" tree — the same frames classified into a clean hierarchy. */
+  protected readonly treeAfter = SORTRONOMY_TREE_AFTER;
+
   /** Whether the OS-specific install dialog is open. */
   protected readonly isInstallOpen = signal(false);
 
@@ -41,9 +50,7 @@ export default class SortronomyPageComponent {
   private readonly document = inject(DOCUMENT);
 
   constructor() {
-    afterNextRender(() =>
-      this.upsertCanonical('https://dbastrosuite.com/tool/sortronomy'),
-    );
+    this.upsertCanonical('https://dbastrosuite.com/tool/sortronomy');
   }
 
   /** Fires the hub launch-tool analytics event. */

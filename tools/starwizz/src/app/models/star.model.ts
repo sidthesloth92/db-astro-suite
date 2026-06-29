@@ -47,7 +47,7 @@ export class Star {
    * which is imperceptible at the configured star counts.
    */
   update() {
-    const speed = this.simService.getInternalValue('starSpeed');
+    const speed = this.simService.getStarMotionSpeed();
 
     // Lateral drift along the A→B angle (0 = right, 90 = up), when active.
     if (this.simService.starLateralOn()) {

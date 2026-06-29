@@ -1,5 +1,10 @@
 import { RouteMeta } from '@analogjs/router';
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   AnalyticsService,
@@ -12,6 +17,7 @@ import {
 import { CrescentLogoComponent } from '../components/crescent-logo/crescent-logo.component';
 import { AstroMarkComponent } from '../components/astro-mark/astro-mark.component';
 import { LiveStarfieldComponent } from '../components/live-starfield/live-starfield.component';
+import { IntroStateService } from '../services/intro-state.service';
 import packageJson from '../../../../package.json';
 import type { HubTool } from './hub-tool.types';
 
@@ -38,9 +44,25 @@ import type { HubTool } from './hub-tool.types';
   templateUrl: './index.page.html',
   styleUrl: './index.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    // Suppresses the staged-entrance CSS when this page is constructed on a
+    // Back return (the intro already played this session) — see
+    // `introAlreadyPlayed` for why this is a construction-time snapshot.
+    '[class.intro-done]': 'introAlreadyPlayed',
+  },
 })
 export default class HomePageComponent {
   private readonly analytics = inject(AnalyticsService);
+  private readonly introState = inject(IntroStateService);
+
+  /**
+   * Snapshot — taken when this page instance is constructed — of whether the
+   * intro had already played earlier this session. Captured once (not read live
+   * from the signal) so that recording the first intro as done mid-animation
+   * (see `onLogoAnimationDone`) cannot retroactively suppress this instance's
+   * own staged entrance; only later (Back) constructions read it as `true`.
+   */
+  protected readonly introAlreadyPlayed = this.introState.hasIntroPlayed();
 
   /** CPU glyph used as the Sortronomy CLI card icon. */
   protected readonly cpuIcon = cpuIcon;
@@ -49,11 +71,18 @@ export default class HomePageComponent {
   protected readonly version = packageJson.version;
 
   /**
-   * Whether the black-hole background loader is shown. Held back until the
-   * crescent logo intro animation has settled so the two animations play in
-   * sequence (logo first, then background).
+   * Whether the crescent-logo drift-in intro should play. Suppressed on a Back
+   * return once the intro has already played this session.
    */
-  protected readonly showBackground = signal(false);
+  protected readonly shouldAnimateIntro = !this.introAlreadyPlayed;
+
+  /**
+   * Whether the black-hole background loader is shown. On the first visit it is
+   * held back until the crescent logo intro settles so the two animations play
+   * in sequence (logo first, then background); on a Back return the intro is
+   * skipped, so it starts visible.
+   */
+  protected readonly showBackground = signal(this.introAlreadyPlayed);
 
   /** Fires the hub tool card click analytics event. */
   onCardClick(tool: HubTool): void {
@@ -62,6 +91,7 @@ export default class HomePageComponent {
 
   /** Reveals the background animation once the logo intro has finished. */
   onLogoAnimationDone(): void {
+    this.introState.markIntroPlayed();
     this.showBackground.set(true);
   }
 }

@@ -101,7 +101,7 @@ export const SORTRONOMY_DETAIL: ToolDetailConfig = {
   outputTitle: 'Before and after',
   outputMeta: 'Folder structure',
   outputCaption:
-    'A raw capture dump on the left; the same frames organised by camera, target, date and filter on the right.',
+    'A raw capture dump on the left; the same frames sorted by camera, focal length, target, session date, and filter on the right — mono rigs get one folder per filter, one-shot-colour rigs a single tagged folder.',
 
   ctaTitle: {
     before: 'Bring order to your ',

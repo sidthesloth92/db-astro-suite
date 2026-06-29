@@ -22,7 +22,7 @@ func TestBuildPlanLogsSkippedFileNames(t *testing.T) {
 	var buf bytes.Buffer
 	log := slog.New(slog.NewTextHandler(&buf, &slog.HandlerOptions{Level: slog.LevelDebug}))
 
-	plan, err := BuildPlan(Options{SourceDir: srcDir, OutputDir: t.TempDir()}, log)
+	plan, err := BuildPlan(Options{InputDir: srcDir, OutputDir: t.TempDir()}, log)
 	if err != nil {
 		t.Fatalf("BuildPlan: %v", err)
 	}
@@ -40,13 +40,13 @@ func TestBuildPlanLogsSkippedFileNames(t *testing.T) {
 	}
 }
 
-// TestBuildPlanCleanRunDoesNotLogSkips verifies an empty source produces no
+// TestBuildPlanCleanRunDoesNotLogSkips verifies an empty input produces no
 // skip records — the log stays quiet when there's nothing wrong.
 func TestBuildPlanCleanRunDoesNotLogSkips(t *testing.T) {
 	var buf bytes.Buffer
 	log := slog.New(slog.NewTextHandler(&buf, nil))
 
-	plan, err := BuildPlan(Options{SourceDir: t.TempDir(), OutputDir: t.TempDir()}, log)
+	plan, err := BuildPlan(Options{InputDir: t.TempDir(), OutputDir: t.TempDir()}, log)
 	if err != nil {
 		t.Fatalf("BuildPlan: %v", err)
 	}

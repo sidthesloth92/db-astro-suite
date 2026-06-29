@@ -31,19 +31,19 @@ Technical-Details:
 - Output: PNG/JPG (Downloadable), Structured Instagram Caption (Clipboard).
 Usage-Context: Post-processing workflow step to create clear "behind-the-lens" info for social media followers.
 
-# Module: File Grouper
+# Module: Sortronomy
 Type: CLI Utility
 Language: Go
-Purpose: Automated dataset organization for ASIAIR and other capture systems.
-Command-Syntax: `file-grouper --organize-asiair ./path/to/raw`
-Value-Proposition: Semantic grouping by camera, date, and object target.
+Purpose: Automated FITS dataset organization for ASIAIR, N.I.N.A., SharpCap, Ekos/KStars, SGP, Voyager, and APT.
+Command-Syntax: `sortronomy` (interactive wizard — no flags to remember)
+Value-Proposition: Header-first semantic grouping by camera, focal length, target, session date, and filter — fully offline, nothing leaves the machine.
 
 # Sitemap Information
 - Home: /
 - About: /about
 - Starwizz Tool: /tool/starwizz
 - Astrogram Tool: /tool/astrogram
-- File Grouper Tool: /tool/file-grouper
+- Sortronomy Tool: /tool/sortronomy
 - Starwizz Tool: /starwizz/
 - Astrogram Tool: /astrogram/
 

@@ -25,10 +25,13 @@ A free astrophotography exposure card generator for Instagram and social media.
   progress ring visualization, plate solving with WCS annotation overlay (Messier, NGC, IC,
   Tycho-2 catalogs), Bortle scale selector, high-quality JPEG export
 
-### File Grouper (CLI)
-A Go CLI utility for automated astrophotography dataset organisation.
-- Purpose: organises ASIAIR and other capture system output by camera, date, and object target
-- Command: `file-grouper --organize-asiair ./path/to/raw`
+### Sortronomy (CLI)
+A single-binary Go wizard for automated astrophotography dataset organisation.
+- Live: https://dbastrosuite.com/tool/sortronomy
+- Purpose: organises FITS captures by camera, focal length, target, session date, and filter,
+  read straight from the FITS headers — works with ASIAIR, N.I.N.A., SharpCap, Ekos/KStars,
+  SGP, Voyager, and APT with zero configuration
+- Command: `sortronomy` (interactive wizard — no flags to remember)
 - Language: Go
 
 ## Tech Stack
@@ -45,5 +48,6 @@ Dinesh Balaji Venkataraj
 - About: https://dbastrosuite.com/about
 - Starwizz Tool: https://dbastrosuite.com/tool/starwizz
 - Astrogram Tool: https://dbastrosuite.com/tool/astrogram
+- Sortronomy Tool: https://dbastrosuite.com/tool/sortronomy
 - Repo: https://github.com/sidthesloth92/db-astro-suite
 - Full LLMs context: https://dbastrosuite.com/llms-full.txt
