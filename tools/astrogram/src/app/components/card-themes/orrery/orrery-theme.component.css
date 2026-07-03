@@ -1,0 +1,184 @@
+/* Orrery card theme — faithful port of the design source ThemeOrrery.
+   Per-theme palette/typography is the theme's identity, so colours are
+   literal hex. `Space Grotesk` is not bundled, so the stack falls back to
+   Outfit exactly as the prototype renders. */
+
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.orr-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Space Grotesk', 'Outfit', sans-serif;
+  color: #efeafb;
+  background:
+    radial-gradient(ellipse 50% 40% at 50% 32%, rgba(120, 80, 30, 0.2), transparent 70%),
+    #080611;
+}
+
+.orr-chart {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ── Header ── */
+.orr-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 0;
+}
+
+.orr-brand {
+  font: 600 10px/1 'JetBrains Mono', monospace;
+  letter-spacing: 0.26em;
+  color: #ffcf6b;
+  text-transform: uppercase;
+}
+
+.orr-datestamp {
+  font: 500 10px/1 'JetBrains Mono', monospace;
+  letter-spacing: 0.16em;
+  color: #544e72;
+}
+
+/* ── Sun label (total) ── */
+.orr-sun-label {
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  z-index: 2;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+}
+
+.orr-sun-total {
+  font: 600 18px/1 'Space Grotesk', 'Outfit', sans-serif;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+
+.orr-sun-badge {
+  display: inline-block;
+  font: 500 8px/1 'JetBrains Mono', monospace;
+  color: rgba(8, 6, 17, 0.9);
+  background: #ffcf6b;
+  border-radius: 3px;
+  padding: 2px 5px;
+  margin-top: 5px;
+  letter-spacing: 0.1em;
+}
+
+/* ── Planet labels ── */
+.orr-planet-label {
+  position: absolute;
+  z-index: 2;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+.orr-planet-id {
+  font: 600 11px/1 'JetBrains Mono', monospace;
+}
+
+.orr-planet-time {
+  font: 500 10px/1 'Space Grotesk', 'Outfit', sans-serif;
+  color: #9a92b8;
+  margin-top: 3px;
+}
+
+/* ── Object title ── */
+.orr-title {
+  position: absolute;
+  top: 65.28%;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  text-align: center;
+}
+
+.orr-object-id {
+  font: 500 10px/1 'JetBrains Mono', monospace;
+  color: #ffcf6b;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.orr-object-name {
+  font: 600 30px/1 'Space Grotesk', 'Outfit', sans-serif;
+  color: #efeafb;
+  letter-spacing: -0.01em;
+  margin-top: 8px;
+}
+
+/* ── Footer ── */
+.orr-footer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  padding: 0 26px 22px;
+}
+
+.orr-cols {
+  border-top: 1px solid rgba(255, 207, 107, 0.18);
+  padding-top: 14px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+}
+
+.orr-col-title {
+  font: 600 9px/1 'JetBrains Mono', monospace;
+  color: #ffcf6b;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 7px;
+}
+
+.orr-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 1.5px 0;
+}
+
+.orr-row-label {
+  font: 500 9px/1.4 'JetBrains Mono', monospace;
+  color: #544e72;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.orr-row-value {
+  font: 400 10px/1.4 'Space Grotesk', 'Outfit', sans-serif;
+  color: #efeafb;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 140px;
+}
+
+.orr-sky {
+  font: 500 10px/1.4 'Space Grotesk', 'Outfit', sans-serif;
+  color: #9a92b8;
+  margin-top: 6px;
+}

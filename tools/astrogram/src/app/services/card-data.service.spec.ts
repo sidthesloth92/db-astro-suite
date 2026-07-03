@@ -145,6 +145,35 @@ describe('CardDataService', () => {
     });
   });
 
+  describe('cardTheme', () => {
+    it("defaults to 'pink-nebula'", () => {
+      expect(service.cardData().cardTheme).toBe('pink-nebula');
+    });
+
+    it('setCardTheme sets the id and applies the theme accents', () => {
+      service.setCardTheme('obsidian', {
+        accentColor: '#5DD8FF',
+        accentColorRgb: '93, 216, 255',
+        secondaryAccentColor: '#B97DFF',
+      });
+      const data = service.cardData();
+      expect(data.cardTheme).toBe('obsidian');
+      expect(data.accentColor).toBe('#5DD8FF');
+      expect(data.accentColorRgb).toBe('93, 216, 255');
+      expect(data.secondaryAccentColor).toBe('#B97DFF');
+    });
+
+    it('produces a new cardData reference rather than mutating in place', () => {
+      const before = service.cardData();
+      service.setCardTheme('obsidian', {
+        accentColor: '#5DD8FF',
+        accentColorRgb: '93, 216, 255',
+        secondaryAccentColor: '#B97DFF',
+      });
+      expect(service.cardData()).not.toBe(before);
+    });
+  });
+
   describe('exportFormat signal', () => {
     it("defaults to 'jpeg'", () => {
       expect(service.exportFormat()).toBe('jpeg');

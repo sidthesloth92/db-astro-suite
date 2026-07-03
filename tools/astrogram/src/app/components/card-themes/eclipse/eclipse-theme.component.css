@@ -1,0 +1,164 @@
+/* Eclipse card theme — faithful port of the design source ThemeEclipse. */
+
+:host {
+  --ec-bg: #020204;
+  --ec-cor: #fff2d9;
+  --ec-txt: #f2efe8;
+  --ec-dim: #94908a;
+  --ec-faint: #54524c;
+  --ec-sans: 'Outfit', system-ui, sans-serif;
+  --ec-grot: 'Space Grotesk', 'Outfit', sans-serif;
+  --ec-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.ec-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: var(--ec-txt);
+  font-family: var(--ec-sans);
+  padding: 28px 32px 26px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  background: var(--ec-bg);
+}
+
+/* ── Header ── */
+.ec-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ec-eyebrow {
+  font: 600 10px/1 var(--ec-mono);
+  color: var(--ec-dim);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.ec-date {
+  font: 500 10px/1 var(--ec-mono);
+  color: var(--ec-faint);
+  letter-spacing: 0.14em;
+}
+
+/* ── Eclipse ── */
+.ec-svg {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: 12px;
+}
+
+.ec-total-label {
+  font: 500 9px var(--ec-mono);
+  fill: var(--ec-dim);
+  letter-spacing: 0.3em;
+}
+
+.ec-total-value {
+  font: 300 40px var(--ec-grot);
+  fill: #fff;
+  letter-spacing: -0.02em;
+}
+
+/* ── Legend ── */
+.ec-legend {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  gap: 26px;
+  margin-top: 2px;
+}
+
+.ec-legend-item {
+  text-align: center;
+}
+
+.ec-legend-swatch {
+  display: block;
+  width: 22px;
+  height: 4px;
+  border-radius: 2px;
+  margin: 0 auto;
+}
+
+.ec-legend-id {
+  font: 700 11px/1 var(--ec-mono);
+  margin-top: 8px;
+}
+
+.ec-legend-time {
+  font: 600 14px/1 var(--ec-grot);
+  color: var(--ec-txt);
+  margin-top: 6px;
+}
+
+/* ── Title ── */
+.ec-title {
+  position: relative;
+  text-align: center;
+  margin-top: 22px;
+}
+
+.ec-kicker {
+  font: 600 10.5px/1 var(--ec-mono);
+  color: var(--ec-cor);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.ec-name {
+  font: 300 36px/1.05 var(--ec-sans);
+  margin-top: 8px;
+}
+
+.ec-spacer {
+  flex: 1;
+}
+
+/* ── Footer ── */
+.ec-footer {
+  position: relative;
+  border-top: 1px solid rgba(255, 242, 217, 0.1);
+  padding-top: 12px;
+}
+
+.ec-foot-gear {
+  font: 500 10px/1.6 var(--ec-mono);
+  color: #8b92a6;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ec-foot-row {
+  display: flex;
+  align-items: center;
+  margin-top: 7px;
+}
+
+.ec-foot-author {
+  font: 600 12px/1 var(--ec-sans);
+  color: #e7eaf2;
+}
+
+.ec-foot-spacer {
+  flex: 1;
+}
+
+.ec-foot-meta {
+  font: 500 9.5px/1 var(--ec-mono);
+  color: #5a6175;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}

@@ -1,0 +1,224 @@
+/* Radiant card theme — faithful port of the design source ThemeRadiant. */
+
+:host {
+  --rd-bg: #06060f;
+  --rd-gold: #ffc24d;
+  --rd-txt: #eff0f8;
+  --rd-dim: #8f94ac;
+  --rd-faint: #4f546c;
+  --rd-sans: 'Outfit', system-ui, sans-serif;
+  --rd-grot: 'Space Grotesk', 'Outfit', sans-serif;
+  --rd-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.rd-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: var(--rd-txt);
+  font-family: var(--rd-sans);
+  padding: 28px 32px 26px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(ellipse 75% 50% at 50% 22%, rgba(70, 50, 160, 0.26), transparent 65%),
+    radial-gradient(ellipse 50% 35% at 80% 80%, rgba(160, 40, 110, 0.14), transparent 65%),
+    var(--rd-bg);
+}
+
+/* ── Header ── */
+.rd-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.rd-eyebrow {
+  font: 600 10px/1 var(--rd-mono);
+  color: var(--rd-dim);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.rd-date {
+  font: 500 10px/1 var(--rd-mono);
+  color: var(--rd-faint);
+  letter-spacing: 0.14em;
+}
+
+/* ── Meteor field ── */
+.rd-svg {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: 6px;
+}
+
+.rd-radiant {
+  font: 500 8.5px var(--rd-mono);
+  fill: var(--rd-dim);
+  letter-spacing: 0.16em;
+}
+
+/* ── Band rows ── */
+.rd-rows {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin-top: 2px;
+}
+
+.rd-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8.5px 0;
+}
+
+.rd-row + .rd-row {
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.rd-row-id {
+  width: 42px;
+  font: 700 13px/1 var(--rd-mono);
+}
+
+.rd-row-frames {
+  width: 78px;
+  font: 500 9.5px/1 var(--rd-mono);
+  color: var(--rd-faint);
+  letter-spacing: 0.06em;
+}
+
+.rd-row-bar {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.06);
+  position: relative;
+}
+
+.rd-row-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-radius: 2px;
+}
+
+.rd-row-time {
+  width: 62px;
+  text-align: right;
+  font: 600 14px/1 var(--rd-grot);
+  color: var(--rd-txt);
+}
+
+/* ── Title + total ── */
+.rd-title {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.rd-kicker {
+  font: 600 10px/1 var(--rd-mono);
+  color: var(--rd-gold);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.rd-name {
+  font: 600 27px/1.05 var(--rd-sans);
+  margin-top: 8px;
+}
+
+.rd-title-spacer {
+  flex: 1;
+}
+
+.rd-total {
+  text-align: right;
+}
+
+.rd-total-label {
+  font: 500 9px/1 var(--rd-mono);
+  color: var(--rd-faint);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.rd-total-value {
+  font: 300 30px/1 var(--rd-grot);
+  color: var(--rd-gold);
+  letter-spacing: -0.01em;
+  margin-top: 6px;
+}
+
+/* ── Caption chip ── */
+.rd-caption {
+  position: relative;
+  margin-top: 14px;
+  padding: 11px 14px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  font: 600 13px/1.5 var(--rd-sans);
+  color: #fff;
+}
+
+.rd-caption-hl {
+  color: var(--rd-gold);
+}
+
+.rd-spacer {
+  flex: 1;
+}
+
+/* ── Footer ── */
+.rd-footer {
+  position: relative;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 12px;
+}
+
+.rd-foot-gear {
+  font: 500 10px/1.6 var(--rd-mono);
+  color: #8b92a6;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rd-foot-row {
+  display: flex;
+  align-items: center;
+  margin-top: 7px;
+}
+
+.rd-foot-author {
+  font: 600 12px/1 var(--rd-sans);
+  color: #e7eaf2;
+}
+
+.rd-foot-spacer {
+  flex: 1;
+}
+
+.rd-foot-meta {
+  font: 500 9.5px/1 var(--rd-mono);
+  color: #5a6175;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}

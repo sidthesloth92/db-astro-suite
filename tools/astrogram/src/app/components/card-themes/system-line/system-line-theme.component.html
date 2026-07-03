@@ -1,0 +1,117 @@
+@let data = vm();
+
+<div class="sl-root">
+  <dba-ag-theme-starfield [density]="110" [opacity]="0.5" [seed]="21" />
+
+  <!-- Header -->
+  <div class="sl-header">
+    <span class="sl-eyebrow">Astrogram · System</span>
+    <span class="sl-date">{{ data.dateNumeric }}</span>
+  </div>
+
+  <!-- Object -->
+  <div class="sl-object" data-testid="card-hero">
+    <div class="sl-kicker">{{ data.objectId }} · One session, to scale</div>
+    <div class="sl-name">{{ data.objectName }}</div>
+  </div>
+
+  <div class="sl-spacer-a"></div>
+
+  <!-- The ecliptic number line -->
+  <div class="sl-chart">
+    <svg class="sl-svg" viewBox="0 0 476 250" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <defs>
+        @for (p of planets(); track p.gradId) {
+          <radialGradient [attr.id]="p.gradId" cx="32%" cy="30%" r="80%">
+            <stop offset="0%" stop-color="#fff" stop-opacity="0.85" />
+            <stop offset="28%" [attr.stop-color]="p.color" />
+            <stop offset="100%" stop-color="#0A0A14" />
+          </radialGradient>
+        }
+        <radialGradient id="sl-sun" cx="40%" cy="35%" r="80%">
+          <stop offset="0%" stop-color="#FFF3D6" />
+          <stop offset="55%" stop-color="#FFCF6B" />
+          <stop offset="100%" stop-color="#B36A18" />
+        </radialGradient>
+      </defs>
+
+      <!-- ecliptic line -->
+      <line x1="14" y1="120" x2="462" y2="120" stroke="rgba(255,255,255,0.22)" stroke-width="1" />
+
+      <!-- hour ticks -->
+      @for (tick of hourTicks; track tick.hh) {
+        <line
+          [attr.x1]="tick.x"
+          y1="116"
+          [attr.x2]="tick.x"
+          y2="124"
+          stroke="rgba(255,255,255,0.3)"
+          stroke-width="1"
+        />
+        <text [attr.x]="tick.x" y="140" text-anchor="middle" class="sl-tick-label">{{ tick.hh }}h</text>
+      }
+
+      <!-- sun (session origin) -->
+      <circle cx="20" cy="120" r="22" fill="#FFCF6B" opacity="0.14" />
+      <circle cx="20" cy="120" r="13" fill="url(#sl-sun)" />
+
+      <!-- planets -->
+      @for (p of planets(); track p.id) {
+        <line
+          [attr.x1]="p.cx"
+          [attr.y1]="p.tickY1"
+          [attr.x2]="p.cx"
+          [attr.y2]="p.tickY2"
+          [attr.stroke]="p.color"
+          stroke-width="1"
+          opacity="0.7"
+        />
+        <circle [attr.cx]="p.cx" cy="120" [attr.r]="p.glowR" [attr.fill]="p.color" opacity="0.1" />
+        <circle [attr.cx]="p.cx" cy="120" [attr.r]="p.r" [attr.fill]="'url(#' + p.gradId + ')'" />
+        @if (p.isFirst) {
+          <ellipse
+            [attr.cx]="p.cx"
+            cy="120"
+            [attr.rx]="p.ringRx"
+            [attr.ry]="p.ringRy"
+            fill="none"
+            [attr.stroke]="p.color"
+            stroke-width="1.2"
+            opacity="0.55"
+            [attr.transform]="'rotate(-16 ' + p.cx + ' 120)'"
+          />
+        }
+      }
+
+      <!-- band labels -->
+      @for (p of planets(); track p.id) {
+        <text [attr.x]="p.cx" y="178" text-anchor="middle" [attr.fill]="p.color" class="sl-band-id">
+          {{ p.id }}
+        </text>
+        <text [attr.x]="p.cx" y="200" text-anchor="middle" class="sl-band-time">{{ p.time }}</text>
+        <text [attr.x]="p.cx" y="217" text-anchor="middle" class="sl-band-frames">{{ p.frames }}</text>
+      }
+    </svg>
+  </div>
+
+  <div class="sl-spacer-b"></div>
+
+  <!-- Total -->
+  <div class="sl-total">
+    <div class="sl-total-label">Total integration</div>
+    <div class="sl-total-value">{{ data.total }}</div>
+    <div class="sl-total-sub">{{ totalFrames() }} frames · 300s subs</div>
+  </div>
+
+  <div class="sl-spacer-c"></div>
+
+  <!-- Footer -->
+  <div class="sl-footer">
+    <div class="sl-foot-gear">{{ footerLine() }}</div>
+    <div class="sl-foot-row">
+      <span class="sl-foot-author">{{ data.author }}</span>
+      <span class="sl-foot-spacer"></span>
+      <span class="sl-foot-meta">{{ data.location }} · Bortle {{ data.bortle }}</span>
+    </div>
+  </div>
+</div>

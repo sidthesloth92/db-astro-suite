@@ -1,0 +1,295 @@
+/* Mission Data card theme — faithful port of the design source ThemeMissionData.
+   Per-theme palette/typography is the theme's identity, so colours are literal.
+   The prototype's `sans` stack leads with "Space Grotesk" (not loaded), so it
+   renders in the app body font Outfit — declared directly here. Band colours
+   come from each band's own filter colour, never a hardcoded theme accent. */
+
+:host {
+  --md-bg: #0a0d14;
+  --md-tile: #10141e;
+  --md-cyan: #34e1e8;
+  --md-lime: #a6f05a;
+  --md-amber: #ffb84d;
+  --md-txt: #eaf0f7;
+  --md-dim: #7e8799;
+  --md-faint: #4a5263;
+  --md-sans: 'Outfit', -apple-system, system-ui, sans-serif;
+  --md-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.md-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--md-bg);
+  color: var(--md-txt);
+  font-family: var(--md-sans);
+  padding: 18px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.md-tile {
+  background: var(--md-tile);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.md-spacer {
+  flex: 1;
+}
+
+/* ── Header ── */
+.md-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.md-status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--md-lime);
+  box-shadow: 0 0 10px var(--md-lime);
+}
+
+.md-brand {
+  font: 600 12px/1 var(--md-mono);
+  color: var(--md-txt);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.md-date {
+  font: 500 10.5px/1 var(--md-mono);
+  color: var(--md-dim);
+  letter-spacing: 0.1em;
+}
+
+/* ── Title tile ── */
+.md-title-tile {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.md-title-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.md-object-id {
+  font: 500 10px/1 var(--md-mono);
+  color: var(--md-cyan);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.md-object-name {
+  font: 600 30px/1 var(--md-sans);
+  color: var(--md-txt);
+  letter-spacing: -0.02em;
+  margin-top: 8px;
+}
+
+.md-ring {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  flex-shrink: 0;
+}
+
+.md-ring svg {
+  display: block;
+}
+
+.md-ring-center {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.md-ring-value {
+  font: 600 15px/1 var(--md-sans);
+  color: var(--md-txt);
+}
+
+.md-ring-label {
+  font: 500 7px/1 var(--md-mono);
+  color: var(--md-dim);
+  letter-spacing: 0.12em;
+  margin-top: 2px;
+}
+
+/* ── KPI row ── */
+.md-kpis {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+
+.md-kpi {
+  padding: 14px 14px 12px;
+}
+
+.md-kpi-label {
+  font: 500 9px/1 var(--md-mono);
+  color: var(--md-dim);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.md-kpi-value {
+  font: 600 26px/1 var(--md-sans);
+  letter-spacing: -0.02em;
+  margin-top: 10px;
+}
+
+.md-kpi-value--lime {
+  color: var(--md-lime);
+}
+
+.md-kpi-value--cyan {
+  color: var(--md-cyan);
+}
+
+.md-kpi-value--amber {
+  color: var(--md-amber);
+}
+
+/* ── Integration breakdown ── */
+.md-breakdown-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 12px;
+}
+
+.md-breakdown-title {
+  font: 500 10px/1 var(--md-mono);
+  color: var(--md-dim);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.md-breakdown-sub {
+  font: 500 10px/1 var(--md-mono);
+  color: var(--md-faint);
+}
+
+.md-stack {
+  display: flex;
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.md-stack-seg {
+  height: 100%;
+}
+
+.md-bands {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+
+.md-band-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.md-band-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+
+.md-band-id {
+  font: 600 11px/1 var(--md-mono);
+  color: var(--md-txt);
+}
+
+.md-band-time {
+  font: 600 18px/1 var(--md-sans);
+  color: var(--md-txt);
+  margin-top: 8px;
+}
+
+.md-band-frames {
+  font: 400 9px/1 var(--md-mono);
+  color: var(--md-dim);
+  margin-top: 4px;
+}
+
+/* ── Rig + pipeline ── */
+.md-lower {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+}
+
+.md-gear {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.md-gear-title {
+  font: 500 9px/1 var(--md-mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+
+.md-gear-title--cyan {
+  color: var(--md-cyan);
+}
+
+.md-gear-title--amber {
+  color: var(--md-amber);
+}
+
+.md-gear-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.md-gear-label {
+  font: 500 9px/1.3 var(--md-mono);
+  color: var(--md-faint);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.md-gear-value {
+  font: 500 10px/1.3 var(--md-sans);
+  color: var(--md-txt);
+  text-align: right;
+  max-width: 130px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.md-gear-site {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}

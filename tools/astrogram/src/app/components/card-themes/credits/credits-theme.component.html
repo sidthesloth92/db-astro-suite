@@ -1,0 +1,154 @@
+@let data = vm();
+
+<div class="crd-root">
+  <dba-ag-theme-starfield [density]="110" [opacity]="0.4" color="#ffffff" [seed]="1" />
+
+  <svg class="crd-constellation" width="260" height="170" viewBox="0 0 220 150" aria-hidden="true">
+    @for (edge of constellationEdges; track $index) {
+      <line
+        [attr.x1]="edge.x1"
+        [attr.y1]="edge.y1"
+        [attr.x2]="edge.x2"
+        [attr.y2]="edge.y2"
+        stroke="#C9BEDA"
+        stroke-width="0.8"
+        stroke-dasharray="3 4"
+        opacity="0.2"
+      />
+    }
+    @for (node of constellationNodes; track $index) {
+      <circle
+        [attr.cx]="node.x"
+        [attr.cy]="node.y"
+        [attr.r]="node.r"
+        fill="#C9BEDA"
+        opacity="0.4"
+      />
+      @if (node.halo) {
+        <circle
+          [attr.cx]="node.x"
+          [attr.cy]="node.y"
+          r="5.5"
+          fill="none"
+          stroke="#C9BEDA"
+          stroke-width="0.5"
+          opacity="0.18"
+        />
+      }
+    }
+  </svg>
+
+  <svg class="crd-spike crd-spike-1" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+    <line x1="12" y1="0" x2="12" y2="24" stroke="#C9BEDA" stroke-width="0.9" />
+    <line x1="0" y1="12" x2="24" y2="12" stroke="#C9BEDA" stroke-width="0.9" />
+    <line
+      x1="5.5"
+      y1="5.5"
+      x2="18.5"
+      y2="18.5"
+      stroke="#C9BEDA"
+      stroke-width="0.45"
+      opacity="0.6"
+    />
+    <line
+      x1="18.5"
+      y1="5.5"
+      x2="5.5"
+      y2="18.5"
+      stroke="#C9BEDA"
+      stroke-width="0.45"
+      opacity="0.6"
+    />
+    <circle cx="12" cy="12" r="1.5" fill="#C9BEDA" />
+  </svg>
+
+  <svg class="crd-spike crd-spike-2" width="26" height="26" viewBox="0 0 24 24" aria-hidden="true">
+    <line x1="12" y1="0" x2="12" y2="24" stroke="#C9BEDA" stroke-width="0.9" />
+    <line x1="0" y1="12" x2="24" y2="12" stroke="#C9BEDA" stroke-width="0.9" />
+    <line
+      x1="5.5"
+      y1="5.5"
+      x2="18.5"
+      y2="18.5"
+      stroke="#C9BEDA"
+      stroke-width="0.45"
+      opacity="0.6"
+    />
+    <line
+      x1="18.5"
+      y1="5.5"
+      x2="5.5"
+      y2="18.5"
+      stroke="#C9BEDA"
+      stroke-width="0.45"
+      opacity="0.6"
+    />
+    <circle cx="12" cy="12" r="1.5" fill="#C9BEDA" />
+  </svg>
+
+  <!-- Presents -->
+  <div class="crd-presents">Astrogram presents</div>
+
+  <!-- Title -->
+  <div class="crd-title-block" data-testid="card-hero">
+    <div class="crd-the">The</div>
+    <div class="crd-title-solid">{{ objectNameFirst() }}</div>
+    <div class="crd-title-outline">{{ objectNameRest() }}</div>
+  </div>
+
+  <!-- Band colour strip -->
+  <div class="crd-strip">
+    @for (band of data.integration; track band.id) {
+      <div [style.width]="band.pct * 100 + '%'" [style.background]="band.color"></div>
+    }
+  </div>
+  <div class="crd-study">{{ data.objectId }} · A narrowband study</div>
+
+  <div class="crd-grow"></div>
+
+  <!-- Billing block -->
+  <div class="crd-billing">
+    <div class="crd-credit">
+      <div class="crd-credit-k">Captured by</div>
+      <div class="crd-credit-v">{{ data.author }}</div>
+    </div>
+    <div class="crd-credit">
+      <div class="crd-credit-k">Shot on</div>
+      <div class="crd-credit-v">{{ equipmentValue(0) }} × {{ equipmentValue(1) }}</div>
+    </div>
+    <div class="crd-credit">
+      <div class="crd-credit-k">Riding</div>
+      <div class="crd-credit-v">{{ equipmentValue(2) }}</div>
+    </div>
+    <div class="crd-credit">
+      <div class="crd-credit-k">Filtered through</div>
+      <div class="crd-credit-v">{{ equipmentValue(4) }}</div>
+    </div>
+    <div class="crd-credit">
+      <div class="crd-credit-k">Processed in</div>
+      <div class="crd-credit-v">{{ softwareShort() }}</div>
+    </div>
+    <div class="crd-credit">
+      <div class="crd-credit-k">Total exposure</div>
+      <div class="crd-credit-v">
+        {{ data.total }} <span class="crd-faint">across</span> {{ totalFrames() }} frames
+        <span class="crd-band-line">
+          @for (band of data.integration; track band.id) {
+            <span [style.color]="band.color">{{ band.id }} {{ band.time }}</span>
+            @if (!$last) {
+              <span class="crd-faint"> · </span>
+            }
+          }
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="crd-grow"></div>
+
+  <!-- Release date -->
+  <div class="crd-release">
+    <div class="crd-release-date">{{ releaseDate() }}</div>
+    <div class="crd-release-meta">Under Bortle {{ data.bortle }} skies · {{ data.location }}</div>
+  </div>
+</div>

@@ -1,0 +1,179 @@
+/* System Line card theme — faithful port of the design source ThemeSystemLine.
+   Per-theme palette/typography is the theme's identity, so colours are literal. */
+
+:host {
+  --sl-bg: #05070f;
+  --sl-sun: #ffcf6b;
+  --sl-txt: #edf1f9;
+  --sl-dim: #8b93a8;
+  --sl-faint: #4e5568;
+  --sl-sans: 'Space Grotesk', 'Outfit', system-ui, sans-serif;
+  --sl-body: 'Outfit', system-ui, sans-serif;
+  --sl-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.sl-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: var(--sl-txt);
+  font-family: var(--sl-body);
+  padding: 28px 32px 26px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(ellipse 55% 35% at 12% 34%, rgba(140, 90, 30, 0.16), transparent 65%),
+    var(--sl-bg);
+}
+
+/* ── Header ── */
+.sl-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sl-eyebrow {
+  font: 600 10px/1 var(--sl-mono);
+  color: var(--sl-sun);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.sl-date {
+  font: 500 10px/1 var(--sl-mono);
+  color: var(--sl-faint);
+  letter-spacing: 0.14em;
+}
+
+/* ── Object ── */
+.sl-object {
+  position: relative;
+  margin-top: 24px;
+}
+
+.sl-kicker {
+  font: 600 10.5px/1 var(--sl-mono);
+  color: var(--sl-sun);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+}
+
+.sl-name {
+  font: 700 44px/1.02 var(--sl-sans);
+  letter-spacing: -0.03em;
+  margin-top: 12px;
+}
+
+/* ── Flex spacers (reproduce the prototype's vertical distribution) ── */
+.sl-spacer-a,
+.sl-spacer-b {
+  flex: 0.9;
+}
+
+.sl-spacer-c {
+  flex: 1.1;
+}
+
+/* ── Chart ── */
+.sl-chart {
+  position: relative;
+}
+
+.sl-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.sl-tick-label {
+  font: 500 8.5px var(--sl-mono);
+  fill: var(--sl-faint);
+}
+
+.sl-band-id {
+  font: 700 12px var(--sl-mono);
+  letter-spacing: 0.06em;
+}
+
+.sl-band-time {
+  font: 600 16px var(--sl-sans);
+  fill: #fff;
+}
+
+.sl-band-frames {
+  font: 400 9px var(--sl-mono);
+  fill: var(--sl-faint);
+}
+
+/* ── Total ── */
+.sl-total {
+  position: relative;
+  text-align: center;
+}
+
+.sl-total-label {
+  font: 500 10px/1 var(--sl-mono);
+  color: var(--sl-faint);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+}
+
+.sl-total-value {
+  font: 300 54px/1 var(--sl-sans);
+  color: var(--sl-sun);
+  letter-spacing: -0.02em;
+  margin-top: 14px;
+}
+
+.sl-total-sub {
+  font: 500 10px/1 var(--sl-mono);
+  color: var(--sl-faint);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-top: 12px;
+}
+
+/* ── Footer ── */
+.sl-footer {
+  position: relative;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 12px;
+}
+
+.sl-foot-gear {
+  font: 500 10px/1.6 var(--sl-mono);
+  color: #8b92a6;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sl-foot-row {
+  display: flex;
+  align-items: center;
+  margin-top: 7px;
+}
+
+.sl-foot-author {
+  font: 600 12px/1 var(--sl-body);
+  color: #e7eaf2;
+}
+
+.sl-foot-spacer {
+  flex: 1;
+}
+
+.sl-foot-meta {
+  font: 500 9.5px/1 var(--sl-mono);
+  color: #5a6175;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}

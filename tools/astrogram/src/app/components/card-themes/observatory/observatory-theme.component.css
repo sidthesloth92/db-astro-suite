@@ -1,0 +1,319 @@
+/* Observatory card theme — faithful port of the design source ThemeObservatory.
+   Per-theme palette/typography is the theme's identity, so colours are literal. */
+
+:host {
+  --obv-copper: #d97742;
+  --obv-amber: #e8c788;
+  --obv-sage: #7aa59a;
+  --obv-txt: #e8dcc4;
+  --obv-dim: #9a8b73;
+  --obv-faint: #5a4f40;
+  --obv-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --obv-sans: 'Outfit', -apple-system, system-ui, sans-serif;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.obv-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: var(--obv-txt);
+  font: 400 10.5px/1.4 var(--obv-mono);
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(217, 119, 66, 0.08), transparent 70%),
+    linear-gradient(180deg, #100b07 0%, #0a0805 100%);
+}
+
+.obv-hatch {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: repeating-linear-gradient(45deg, rgba(217, 119, 66, 0.02) 0 1px, transparent 1px 8px);
+}
+
+.obv-inner {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-sizing: border-box;
+}
+
+.obv-panel {
+  border: 1px solid rgba(217, 119, 66, 0.2);
+  background: linear-gradient(180deg, rgba(217, 119, 66, 0.04), rgba(0, 0, 0, 0.3));
+  border-radius: 4px;
+  padding: 12px;
+}
+
+.obv-tick {
+  font: 500 9px/1 var(--obv-mono);
+  color: var(--obv-copper);
+  letter-spacing: 0.18em;
+}
+
+/* ── Header ── */
+.obv-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 1px solid rgba(217, 119, 66, 0.333);
+  border-radius: 4px;
+  background: linear-gradient(180deg, rgba(217, 119, 66, 0.1), rgba(217, 119, 66, 0.02));
+}
+
+.obv-logo {
+  color: var(--obv-copper);
+  flex-shrink: 0;
+}
+
+.obv-brand {
+  font: 700 11px/1 var(--obv-mono);
+  letter-spacing: 0.2em;
+  color: var(--obv-copper);
+}
+
+.obv-session {
+  flex: 1;
+  text-align: center;
+  color: var(--obv-dim);
+  letter-spacing: 0.16em;
+}
+
+.obv-status {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--obv-sage);
+}
+
+.obv-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--obv-sage);
+  box-shadow: 0 0 6px var(--obv-sage);
+}
+
+/* ── Target panel ── */
+.obv-target {
+  padding: 14px 16px;
+}
+
+.obv-target-name {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-top: 6px;
+}
+
+.obv-target-id {
+  font: 300 32px/1 var(--obv-sans);
+  color: var(--obv-amber);
+  letter-spacing: 0.06em;
+}
+
+.obv-target-common {
+  font: 500 16px/1 var(--obv-sans);
+  color: var(--obv-txt);
+  letter-spacing: 0.02em;
+}
+
+.obv-target-meta {
+  display: flex;
+  gap: 16px;
+  margin-top: 10px;
+  color: var(--obv-dim);
+  letter-spacing: 0.06em;
+  font-size: 9.5px;
+  text-transform: uppercase;
+}
+
+.obv-target-caption {
+  margin-top: 10px;
+  padding-left: 10px;
+  border-left: 2px solid var(--obv-copper);
+  font: 400 11.5px/1.5 var(--obv-sans);
+  color: var(--obv-txt);
+  font-style: italic;
+}
+
+/* ── Integration telemetry ── */
+.obv-tel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+
+.obv-tel-total {
+  font: 300 22px/1 var(--obv-sans);
+  color: var(--obv-amber);
+  letter-spacing: 0.02em;
+}
+
+.obv-tel-total span {
+  font: 500 9px/1 var(--obv-mono);
+  color: var(--obv-dim);
+  letter-spacing: 0.16em;
+}
+
+.obv-tel-cols {
+  display: grid;
+  grid-template-columns: 60px 1fr 90px 70px;
+  gap: 4px;
+  font-size: 8.5px;
+  color: var(--obv-faint);
+  letter-spacing: 0.14em;
+  padding: 0 0 4px;
+  border-bottom: 1px solid rgba(217, 119, 66, 0.133);
+}
+
+.obv-r {
+  text-align: right;
+}
+
+.obv-tel-row {
+  display: grid;
+  grid-template-columns: 60px 1fr 90px 70px;
+  gap: 6px;
+  align-items: center;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(217, 119, 66, 0.063);
+  font-size: 10.5px;
+}
+
+.obv-tel-band {
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.obv-tel-bar {
+  position: relative;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 1px;
+}
+
+.obv-tel-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: 1px;
+}
+
+.obv-tel-frames {
+  text-align: right;
+  color: var(--obv-txt);
+  font-feature-settings: 'tnum';
+}
+
+.obv-tel-time {
+  text-align: right;
+  color: var(--obv-amber);
+  font-weight: 600;
+}
+
+/* ── Lower split panels ── */
+.obv-lower {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
+}
+
+.obv-pipeline {
+  display: flex;
+  flex-direction: column;
+}
+
+.obv-gear-list {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.obv-gear-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.obv-gear-icon {
+  flex-shrink: 0;
+}
+
+.obv-gear-text {
+  min-width: 0;
+  flex: 1;
+}
+
+.obv-gear-label {
+  font-size: 8.5px;
+  color: var(--obv-faint);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.obv-gear-value {
+  font: 500 10.5px/1.2 var(--obv-sans);
+  color: var(--obv-txt);
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.obv-spacer {
+  flex: 1;
+}
+
+.obv-sky {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(217, 119, 66, 0.149);
+}
+
+.obv-sky-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.obv-sky-val {
+  font: 300 16px/1 var(--obv-sans);
+  color: var(--obv-amber);
+}
+
+.obv-sky-val span {
+  font-size: 9px;
+  color: var(--obv-faint);
+}
+
+.obv-bortle-bar {
+  display: flex;
+  gap: 2px;
+  margin-top: 6px;
+}
+
+.obv-bortle-seg {
+  flex: 1;
+  height: 7px;
+  background: transparent;
+  border: 1px solid rgba(217, 119, 66, 0.149);
+}
+
+.obv-bortle-seg.is-lit {
+  background: var(--obv-copper);
+  border-color: var(--obv-copper);
+}

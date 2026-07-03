@@ -1,0 +1,330 @@
+/* Blueprint card theme — faithful port of the design source ThemeBlueprint.
+   Per-theme palette/typography is the theme's identity, so colours are literal.
+   The prototype's `sans` stack leads with "Space Grotesk" (not loaded), so it
+   renders in the app body font Outfit — declared directly here. */
+
+:host {
+  --bp-bg: #06101c;
+  --bp-cyan: #4fc3f7;
+  --bp-cyan-2: #7fd8ff;
+  --bp-line: rgba(79, 195, 247, 0.18);
+  --bp-txt: #dceef8;
+  --bp-dim: #6e8ba0;
+  --bp-faint: #3a5364;
+  --bp-sans: 'Outfit', -apple-system, system-ui, sans-serif;
+  --bp-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.bp-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bp-bg);
+  color: var(--bp-txt);
+  font-family: var(--bp-sans);
+}
+
+/* ── Grid + frame + corner marks ── */
+.bp-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.bp-grid--fine {
+  background-image:
+    linear-gradient(var(--bp-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--bp-line) 1px, transparent 1px);
+  background-size: 26px 26px;
+  opacity: 0.6;
+}
+
+.bp-grid--coarse {
+  background-image:
+    linear-gradient(var(--bp-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--bp-line) 1px, transparent 1px);
+  background-size: 130px 130px;
+}
+
+.bp-frame {
+  position: absolute;
+  inset: 16px;
+  border: 1px solid rgba(79, 195, 247, 0.27);
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+.bp-cross {
+  position: absolute;
+  pointer-events: none;
+}
+
+.bp-cross line {
+  stroke: var(--bp-cyan);
+  stroke-width: 1;
+  opacity: 0.7;
+}
+
+.bp-cross--tl {
+  top: 13px;
+  left: 13px;
+}
+
+.bp-cross--tr {
+  top: 13px;
+  right: 13px;
+}
+
+.bp-cross--bl {
+  bottom: 13px;
+  left: 13px;
+}
+
+.bp-cross--br {
+  bottom: 13px;
+  right: 13px;
+}
+
+/* ── Content column ── */
+.bp-inner {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.bp-tick {
+  font: 500 9px/1 var(--bp-mono);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.bp-tick--cyan {
+  color: var(--bp-cyan);
+}
+
+.bp-tick--dim {
+  color: var(--bp-dim);
+}
+
+.bp-tick--faint {
+  color: var(--bp-faint);
+}
+
+.bp-titlerow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ── Subject ── */
+.bp-subject {
+  margin-top: 28px;
+}
+
+.bp-subject-name {
+  font: 600 40px/1 var(--bp-sans);
+  color: var(--bp-txt);
+  letter-spacing: -0.02em;
+  margin-top: 10px;
+}
+
+.bp-subject-id-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.bp-subject-id {
+  font: 500 13px/1 var(--bp-mono);
+  color: var(--bp-cyan);
+  letter-spacing: 0.1em;
+}
+
+.bp-subject-rule {
+  flex: 1;
+  height: 1px;
+  background: rgba(79, 195, 247, 0.27);
+}
+
+/* ── Annotation ── */
+.bp-annotation {
+  margin-top: 16px;
+  display: flex;
+  gap: 10px;
+}
+
+.bp-annotation-bar {
+  width: 1px;
+  background: var(--bp-cyan);
+  opacity: 0.5;
+}
+
+.bp-annotation-text {
+  font: 400 11.5px/1.55 var(--bp-sans);
+  color: var(--bp-dim);
+  flex: 1;
+}
+
+/* ── Dimensioned integration ── */
+.bp-integration {
+  margin-top: 22px;
+  border: 1px solid rgba(79, 195, 247, 0.2);
+  border-radius: 4px;
+  padding: 14px;
+  background: rgba(79, 195, 247, 0.03);
+}
+
+.bp-int-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 12px;
+}
+
+.bp-int-total {
+  font: 600 18px/1 var(--bp-sans);
+  color: var(--bp-cyan-2);
+}
+
+.bp-dim-row {
+  display: grid;
+  grid-template-columns: 44px 1fr 70px 56px;
+  gap: 10px;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.bp-dim-id {
+  font: 600 11px/1 var(--bp-mono);
+  letter-spacing: 0.06em;
+}
+
+.bp-dim-line {
+  position: relative;
+  height: 10px;
+}
+
+.bp-dim-track {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(79, 195, 247, 0.33);
+}
+
+.bp-dim-tick {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 8px;
+  background: var(--bp-cyan);
+}
+
+.bp-dim-dot {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: 1.5px solid var(--bp-cyan);
+  background: var(--bp-bg);
+}
+
+.bp-dim-frames {
+  font: 400 10px/1 var(--bp-mono);
+  color: var(--bp-dim);
+  text-align: right;
+}
+
+.bp-dim-time {
+  font: 500 11px/1 var(--bp-mono);
+  color: var(--bp-txt);
+  text-align: right;
+}
+
+.bp-spacer {
+  flex: 1;
+}
+
+/* ── Parts list ── */
+.bp-parts {
+  border: 1px solid rgba(79, 195, 247, 0.2);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 18px;
+}
+
+.bp-parts-head {
+  display: grid;
+  grid-template-columns: 28px 1fr 1fr;
+  background: rgba(79, 195, 247, 0.07);
+  padding: 7px 12px;
+}
+
+.bp-parts-row {
+  display: grid;
+  grid-template-columns: 28px 1fr 1fr;
+  padding: 5px 12px;
+  border-top: 1px solid rgba(79, 195, 247, 0.1);
+  align-items: center;
+}
+
+.bp-parts-num {
+  font: 500 10px/1 var(--bp-mono);
+  color: var(--bp-faint);
+}
+
+.bp-parts-label {
+  font: 500 10px/1.2 var(--bp-mono);
+  color: var(--bp-dim);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.bp-parts-value {
+  font: 500 11px/1.2 var(--bp-sans);
+  color: var(--bp-txt);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Footer titleblock ── */
+.bp-footer {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  margin-top: 14px;
+  border: 1px solid rgba(79, 195, 247, 0.2);
+  border-radius: 4px;
+}
+
+.bp-footer-cell {
+  padding: 8px 12px;
+}
+
+.bp-footer-cell + .bp-footer-cell {
+  border-left: 1px solid rgba(79, 195, 247, 0.2);
+}
+
+.bp-footer-value {
+  font: 500 11px/1.2 var(--bp-sans);
+  color: var(--bp-txt);
+  margin-top: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

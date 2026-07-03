@@ -1,0 +1,165 @@
+@let data = vm();
+
+<div class="flm-root">
+  <!-- Top sprockets -->
+  <div class="flm-sprockets">
+    @for (hole of sprockets; track $index) {
+      <div class="flm-sprocket"></div>
+    }
+  </div>
+
+  <!-- Top edge print -->
+  <div class="flm-edge">
+    <span>Astrogram 800 ▸ Safety film</span>
+    <span>{{ data.objectId }} ◂ 027</span>
+  </div>
+
+  <!-- The exposed frame -->
+  <div class="flm-frame">
+    <dba-ag-theme-starfield
+      [width]="488"
+      [height]="560"
+      [density]="130"
+      [opacity]="0.6"
+      color="#ffffff"
+      [seed]="13"
+    />
+
+    <svg
+      class="flm-spike flm-spike-1"
+      width="30"
+      height="30"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <line x1="12" y1="0" x2="12" y2="24" stroke="#ffffff" stroke-width="0.9" />
+      <line x1="0" y1="12" x2="24" y2="12" stroke="#ffffff" stroke-width="0.9" />
+      <line
+        x1="5.5"
+        y1="5.5"
+        x2="18.5"
+        y2="18.5"
+        stroke="#ffffff"
+        stroke-width="0.45"
+        opacity="0.6"
+      />
+      <line
+        x1="18.5"
+        y1="5.5"
+        x2="5.5"
+        y2="18.5"
+        stroke="#ffffff"
+        stroke-width="0.45"
+        opacity="0.6"
+      />
+      <circle cx="12" cy="12" r="1.5" fill="#ffffff" />
+    </svg>
+
+    <svg
+      class="flm-spike flm-spike-2"
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <line x1="12" y1="0" x2="12" y2="24" stroke="#ffffff" stroke-width="0.9" />
+      <line x1="0" y1="12" x2="24" y2="12" stroke="#ffffff" stroke-width="0.9" />
+      <line
+        x1="5.5"
+        y1="5.5"
+        x2="18.5"
+        y2="18.5"
+        stroke="#ffffff"
+        stroke-width="0.45"
+        opacity="0.6"
+      />
+      <line
+        x1="18.5"
+        y1="5.5"
+        x2="5.5"
+        y2="18.5"
+        stroke="#ffffff"
+        stroke-width="0.45"
+        opacity="0.6"
+      />
+      <circle cx="12" cy="12" r="1.5" fill="#ffffff" />
+    </svg>
+
+    <svg
+      class="flm-spike flm-spike-3"
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <line x1="12" y1="0" x2="12" y2="24" stroke="#ffffff" stroke-width="0.9" />
+      <line x1="0" y1="12" x2="24" y2="12" stroke="#ffffff" stroke-width="0.9" />
+      <line
+        x1="5.5"
+        y1="5.5"
+        x2="18.5"
+        y2="18.5"
+        stroke="#ffffff"
+        stroke-width="0.45"
+        opacity="0.6"
+      />
+      <line
+        x1="18.5"
+        y1="5.5"
+        x2="5.5"
+        y2="18.5"
+        stroke="#ffffff"
+        stroke-width="0.45"
+        opacity="0.6"
+      />
+      <circle cx="12" cy="12" r="1.5" fill="#ffffff" />
+    </svg>
+
+    <div class="flm-frame-content">
+      <div class="flm-frame-head">
+        <span class="flm-frame-no">Frame 027</span>
+        <span class="flm-frame-date">{{ data.dateShort }}</span>
+      </div>
+
+      <div class="flm-grow"></div>
+
+      <!-- Subject -->
+      <div class="flm-subject" data-testid="card-hero">
+        <div class="flm-object-id">{{ data.objectId }}</div>
+        <div class="flm-object-name">{{ data.objectName }}</div>
+        <div class="flm-total">{{ data.total }}</div>
+        <div class="flm-total-label">Total exposure · {{ totalFrames() }} frames</div>
+      </div>
+
+      <div class="flm-grow"></div>
+
+      <!-- Bands as exposure codes -->
+      <div class="flm-codes">
+        @for (band of data.integration; track band.id) {
+          <div class="flm-code">
+            <div
+              class="flm-code-bar"
+              [style.background]="band.color"
+              [style.box-shadow]="'0 0 8px ' + band.color + '88'"
+            ></div>
+            <div class="flm-code-id" [style.color]="band.color">{{ band.id }}</div>
+            <div class="flm-code-time">{{ band.time }}</div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom edge print -->
+  <div class="flm-edge">
+    <span>EXP {{ totalNoSpace() }} · {{ equipmentValue(0) }}</span>
+    <span>{{ data.author }} · B{{ data.bortle }}</span>
+  </div>
+
+  <!-- Bottom sprockets -->
+  <div class="flm-sprockets">
+    @for (hole of sprockets; track $index) {
+      <div class="flm-sprocket"></div>
+    }
+  </div>
+</div>

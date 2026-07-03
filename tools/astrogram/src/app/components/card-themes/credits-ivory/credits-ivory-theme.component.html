@@ -1,0 +1,142 @@
+@let data = vm();
+
+<div class="cri-root">
+  <svg class="cri-specks" viewBox="0 0 540 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    @for (speck of specks; track $index) {
+      <circle
+        [attr.cx]="speck.cx"
+        [attr.cy]="speck.cy"
+        [attr.r]="speck.r"
+        fill="#1A1622"
+        [attr.opacity]="speck.opacity"
+      />
+    }
+  </svg>
+
+  <!-- Constellation -->
+  <svg class="cri-constellation" viewBox="0 0 220 150" aria-hidden="true">
+    @for (edge of conEdges; track $index) {
+      <line
+        [attr.x1]="edge.x1"
+        [attr.y1]="edge.y1"
+        [attr.x2]="edge.x2"
+        [attr.y2]="edge.y2"
+        stroke="#1A1622"
+        stroke-width="0.8"
+        [attr.opacity]="conLineOpacity"
+        stroke-dasharray="3 4"
+      />
+    }
+    @for (pt of conPoints; track $index) {
+      <g>
+        <circle
+          [attr.cx]="pt.x"
+          [attr.cy]="pt.y"
+          [attr.r]="pt.major ? 2.3 : 1.4"
+          fill="#1A1622"
+          [attr.opacity]="conDotOpacity"
+        />
+        @if (pt.major) {
+          <circle
+            [attr.cx]="pt.x"
+            [attr.cy]="pt.y"
+            r="5.5"
+            fill="none"
+            stroke="#1A1622"
+            stroke-width="0.5"
+            [attr.opacity]="conHaloOpacity"
+          />
+        }
+      </g>
+    }
+  </svg>
+
+  <!-- Diffraction spikes -->
+  <svg class="cri-spike cri-spike-a" viewBox="0 0 24 24" aria-hidden="true">
+    <line x1="12" y1="0" x2="12" y2="24" stroke="#1A1622" stroke-width="0.9" />
+    <line x1="0" y1="12" x2="24" y2="12" stroke="#1A1622" stroke-width="0.9" />
+    <line x1="5.5" y1="5.5" x2="18.5" y2="18.5" stroke="#1A1622" stroke-width="0.45" opacity="0.6" />
+    <line x1="18.5" y1="5.5" x2="5.5" y2="18.5" stroke="#1A1622" stroke-width="0.45" opacity="0.6" />
+    <circle cx="12" cy="12" r="1.5" fill="#1A1622" />
+  </svg>
+  <svg class="cri-spike cri-spike-b" viewBox="0 0 24 24" aria-hidden="true">
+    <line x1="12" y1="0" x2="12" y2="24" stroke="#1A1622" stroke-width="0.9" />
+    <line x1="0" y1="12" x2="24" y2="12" stroke="#1A1622" stroke-width="0.9" />
+    <line x1="5.5" y1="5.5" x2="18.5" y2="18.5" stroke="#1A1622" stroke-width="0.45" opacity="0.6" />
+    <line x1="18.5" y1="5.5" x2="5.5" y2="18.5" stroke="#1A1622" stroke-width="0.45" opacity="0.6" />
+    <circle cx="12" cy="12" r="1.5" fill="#1A1622" />
+  </svg>
+
+  <div class="cri-inner">
+    <!-- Presents -->
+    <div class="cri-presents">Astrogram presents</div>
+
+    <!-- Title -->
+    <div class="cri-title-block" data-testid="card-hero">
+      <div class="cri-the">The</div>
+      <div class="cri-title-solid">{{ titleFirst() }}</div>
+      @if (titleRest()) {
+        <div class="cri-title-outline">{{ titleRest() }}</div>
+      }
+    </div>
+
+    <!-- Band strip -->
+    <div class="cri-strip">
+      @for (band of data.integration; track band.id) {
+        <div class="cri-strip-seg" [style.width.%]="band.pct * 100" [style.background]="band.color"></div>
+      }
+    </div>
+    <div class="cri-designation">
+      @if (data.objectId) {
+        <span>{{ data.objectId }} · </span>
+      }
+      A narrowband study
+    </div>
+
+    <div class="cri-spacer"></div>
+
+    <!-- Billing block -->
+    <div class="cri-billing">
+      <div class="cri-credit">
+        <div class="cri-credit-k">Captured by</div>
+        <div class="cri-credit-v">{{ data.author }}</div>
+      </div>
+      <div class="cri-credit">
+        <div class="cri-credit-k">Shot on</div>
+        <div class="cri-credit-v">{{ shotOn() }}</div>
+      </div>
+      <div class="cri-credit">
+        <div class="cri-credit-k">Riding</div>
+        <div class="cri-credit-v">{{ riding() }}</div>
+      </div>
+      <div class="cri-credit">
+        <div class="cri-credit-k">Filtered through</div>
+        <div class="cri-credit-v">{{ filteredThrough() }}</div>
+      </div>
+      <div class="cri-credit">
+        <div class="cri-credit-k">Processed in</div>
+        <div class="cri-credit-v">{{ processedIn() }}</div>
+      </div>
+      <div class="cri-credit">
+        <div class="cri-credit-k">Total exposure</div>
+        <div class="cri-credit-v">
+          {{ data.total }} <span class="cri-faint">across</span> {{ totalFrames() }} frames
+          <span class="cri-credit-bands">
+            @for (band of data.integration; track band.id; let last = $last) {
+              <span [style.color]="band.color">{{ band.id }} {{ band.time }}</span
+              >@if (!last) {<span class="cri-faint"> · </span>}
+            }
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cri-spacer"></div>
+
+    <!-- Release date -->
+    <div class="cri-release">
+      <div class="cri-release-date">{{ releaseDate() }}</div>
+      <div class="cri-release-sub">Under Bortle {{ data.bortle }} skies · {{ data.location }}</div>
+    </div>
+  </div>
+</div>

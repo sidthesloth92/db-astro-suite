@@ -1,0 +1,248 @@
+/* Star Card theme — faithful port of the design source ThemeStarCard.
+   Per-theme palette/typography is the theme's identity, so colours are literal.
+   "Space Grotesk" falls back to Outfit when not loaded (design intent). */
+
+:host {
+  --stc-gold: #e8c788;
+  --stc-gold-2: #c9a86a;
+  --stc-txt: #f4efe2;
+  --stc-dim: #9a8fa8;
+  --stc-faint: #565064;
+  --stc-sans: 'Space Grotesk', 'Outfit', sans-serif;
+  --stc-mono: 'JetBrains Mono', monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.stc-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: 20px;
+  color: var(--stc-txt);
+  font-family: var(--stc-sans);
+  background:
+    radial-gradient(ellipse 60% 45% at 50% 24%, rgba(232, 199, 136, 0.07), transparent 70%), #05040a;
+}
+
+/* ── Double gold hairline frame ── */
+.stc-frame {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  box-sizing: border-box;
+  border: 1px solid rgba(201, 168, 106, 0.33);
+  border-radius: 14px;
+  padding: 7px;
+}
+
+.stc-inner {
+  position: relative;
+  height: 100%;
+  box-sizing: border-box;
+  border: 1px solid rgba(201, 168, 106, 0.18);
+  border-radius: 9px;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.stc-constellation {
+  position: absolute;
+  top: 108px;
+  left: 50%;
+  margin-left: -110px;
+  pointer-events: none;
+}
+
+.stc-grow {
+  flex: 1;
+}
+
+.stc-grow-sm {
+  flex: 0.9;
+}
+
+/* ── Archive strip ── */
+.stc-archive {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stc-archive-name {
+  font: 600 9.5px/1 var(--stc-mono);
+  color: var(--stc-gold);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.stc-archive-no {
+  font: 500 9.5px/1 var(--stc-mono);
+  color: var(--stc-faint);
+  letter-spacing: 0.18em;
+}
+
+/* ── Ornament + title ── */
+.stc-title-block {
+  position: relative;
+  text-align: center;
+}
+
+.stc-ornament {
+  display: block;
+  margin: 0 auto;
+}
+
+.stc-object-id {
+  font: 500 11px/1 var(--stc-mono);
+  color: var(--stc-dim);
+  letter-spacing: 0.36em;
+  text-transform: uppercase;
+  margin-top: 16px;
+  padding-left: 0.36em;
+}
+
+.stc-title {
+  font: 600 44px/1.02 var(--stc-sans);
+  color: var(--stc-txt);
+  letter-spacing: -0.02em;
+  margin-top: 12px;
+}
+
+.stc-title-rest {
+  color: var(--stc-gold);
+  font-weight: 400;
+}
+
+/* ── Total plate ── */
+.stc-plate {
+  border: 1px solid rgba(201, 168, 106, 0.27);
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(232, 199, 136, 0.07), rgba(232, 199, 136, 0.02));
+  padding: 14px 18px;
+  text-align: center;
+}
+
+.stc-plate-label {
+  font: 600 9px/1 var(--stc-mono);
+  color: var(--stc-gold);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.stc-plate-total {
+  font: 700 40px/1 var(--stc-sans);
+  color: var(--stc-txt);
+  letter-spacing: -0.02em;
+  margin-top: 10px;
+}
+
+.stc-plate-frames {
+  font: 400 9.5px/1 var(--stc-mono);
+  color: var(--stc-faint);
+  letter-spacing: 0.12em;
+  margin-top: 8px;
+}
+
+/* ── Band gems ── */
+.stc-gems {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.stc-gem {
+  flex: 1;
+  text-align: center;
+}
+
+.stc-gem-icon {
+  display: grid;
+  place-items: center;
+  height: 26px;
+}
+
+.stc-gem-shape {
+  width: 15px;
+  height: 15px;
+  border-radius: 3px;
+  transform: rotate(45deg);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.stc-gem-id {
+  font: 700 12px/1 var(--stc-mono);
+  letter-spacing: 0.06em;
+  margin-top: 8px;
+}
+
+.stc-gem-time {
+  font: 600 17px/1 var(--stc-sans);
+  color: var(--stc-txt);
+  margin-top: 7px;
+}
+
+.stc-gem-frames {
+  font: 400 9px/1 var(--stc-mono);
+  color: var(--stc-faint);
+  margin-top: 5px;
+}
+
+/* ── Compact specs ── */
+.stc-specs {
+  border-top: 1px solid rgba(201, 168, 106, 0.15);
+  padding-top: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px 20px;
+}
+
+.stc-spec-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.stc-spec-label {
+  font: 500 8.5px/1.5 var(--stc-mono);
+  color: var(--stc-faint);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.stc-spec-value {
+  font: 500 10.5px/1.5 var(--stc-sans);
+  color: var(--stc-txt);
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 140px;
+}
+
+/* ── Rarity bar ── */
+.stc-rarity {
+  margin: 14px -24px -20px;
+  background: linear-gradient(90deg, var(--stc-gold-2), var(--stc-gold));
+  color: #171208;
+  padding: 9px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 0 0 8px 8px;
+}
+
+.stc-rarity-class {
+  font: 700 9.5px/1 var(--stc-mono);
+  letter-spacing: 0.2em;
+}
+
+.stc-rarity-meta {
+  font: 600 9.5px/1 var(--stc-mono);
+  letter-spacing: 0.14em;
+}

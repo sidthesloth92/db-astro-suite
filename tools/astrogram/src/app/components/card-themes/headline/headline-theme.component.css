@@ -1,0 +1,223 @@
+/* Headline card theme — faithful port of the design source ThemeHeadline.
+   Per-theme palette/typography is the theme's identity, so colours are literal.
+   "Space Grotesk"/"Manrope" fall back to Outfit when not loaded (design intent). */
+
+:host {
+  --hdl-pink: #ff2d95;
+  --hdl-gold: #ffd79a;
+  --hdl-txt: #fff7fb;
+  --hdl-dim: #a89dbe;
+  --hdl-faint: #5e5478;
+  --hdl-display: 'Manrope', 'Outfit', sans-serif;
+  --hdl-sans: 'Outfit', system-ui, sans-serif;
+  --hdl-mono: 'JetBrains Mono', monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.hdl-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: var(--hdl-txt);
+  font-family: var(--hdl-sans);
+  background:
+    radial-gradient(ellipse 70% 45% at 78% 8%, rgba(255, 45, 149, 0.16), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 12% 92%, rgba(90, 50, 160, 0.22), transparent 60%), #0b0714;
+}
+
+.hdl-constellation {
+  position: absolute;
+  top: 92px;
+  right: 28px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.hdl-spike {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.hdl-spike-1 {
+  left: 54px;
+  top: 198px;
+  opacity: 0.5;
+}
+
+.hdl-spike-2 {
+  right: 54px;
+  top: 330px;
+  opacity: 0.35;
+}
+
+.hdl-inner {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  padding: 30px 32px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Brand row ── */
+.hdl-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.hdl-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: radial-gradient(circle at 30% 30%, #ffc36b, #ff2d95 70%, #6b1a48);
+}
+
+.hdl-brand-name {
+  font: 600 12px/1 var(--hdl-sans);
+  letter-spacing: 0.14em;
+  color: var(--hdl-txt);
+  text-transform: uppercase;
+}
+
+.hdl-grow {
+  flex: 1;
+}
+
+.hdl-date {
+  font: 500 10.5px/1 var(--hdl-mono);
+  color: var(--hdl-faint);
+  letter-spacing: 0.12em;
+}
+
+.hdl-sp1 {
+  flex: 1.2;
+}
+
+.hdl-sp2 {
+  flex: 0.8;
+}
+
+.hdl-sp3 {
+  flex: 1;
+}
+
+/* ── Headline stat ── */
+.hdl-stat {
+  position: relative;
+}
+
+.hdl-eyebrow {
+  font: 600 11px/1 var(--hdl-mono);
+  color: var(--hdl-pink);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.hdl-total {
+  font: 800 98px/0.92 var(--hdl-display);
+  color: var(--hdl-txt);
+  letter-spacing: -0.05em;
+  margin-top: 16px;
+}
+
+.hdl-object {
+  font: 500 24px/1.25 var(--hdl-display);
+  color: var(--hdl-gold);
+  letter-spacing: -0.01em;
+  margin-top: 14px;
+}
+
+.hdl-subline {
+  font: 500 11px/1 var(--hdl-mono);
+  color: var(--hdl-faint);
+  letter-spacing: 0.2em;
+  margin-top: 10px;
+  text-transform: uppercase;
+}
+
+/* ── Band chips ── */
+.hdl-chips {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+
+.hdl-chip {
+  padding: 13px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hdl-chip-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.hdl-chip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.hdl-chip-id {
+  font: 700 12px/1 var(--hdl-mono);
+  letter-spacing: 0.06em;
+}
+
+.hdl-chip-time {
+  font: 700 19px/1 var(--hdl-display);
+  color: var(--hdl-txt);
+  margin-top: 10px;
+  letter-spacing: -0.02em;
+}
+
+.hdl-chip-frames {
+  font: 400 9.5px/1 var(--hdl-mono);
+  color: var(--hdl-faint);
+  margin-top: 6px;
+}
+
+/* ── Footer ticker ── */
+.hdl-footer {
+  position: relative;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 14px;
+}
+
+.hdl-ticker {
+  font: 500 10px/1.6 var(--hdl-mono);
+  color: var(--hdl-dim);
+  letter-spacing: 0.04em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hdl-footer-row {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.hdl-author {
+  font: 600 12.5px/1 var(--hdl-sans);
+  color: var(--hdl-txt);
+}
+
+.hdl-loc {
+  font: 500 10px/1 var(--hdl-mono);
+  color: var(--hdl-faint);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}

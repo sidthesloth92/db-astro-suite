@@ -108,9 +108,15 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
       if (natW > 0) return `${natW}px`;
       return this.backgroundImage() ? 'auto' : '480px';
     }
-    // Both 3:4 and 4:5 render at 480 px so the surrounding context bar +
-    // caption section align flush with the card chrome on either side.
-    return '480px';
+    // Card themes are authored on a 540 px basis (the design source canvas),
+    // so bleed (themed) cards render at 540 px for pixel-faithful proportions;
+    // the preview scales the card to fit and the export still targets 1080 px.
+    // Legacy / stellar consumers keep the historical 480 px chrome width.
+    return this.bleedContent() ? '540px' : '480px';
+  }
+  /** Base card width (px) used for header/post sizing math. */
+  private get baseWidth(): number {
+    return this.bleedContent() ? 540 : 480;
   }
   @HostBinding('style.--img-height') get imgHeight() {
     const natH = this.naturalImageHeight();
@@ -123,7 +129,7 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
       if (natW > 0) return `${natW * scale}px`;
       return `${480 * scale}px`;
     }
-    return `${480 * scale}px`;
+    return `${this.baseWidth * scale}px`;
   }
   @HostBinding('style.--post-width') get postWidth() {
     if (this.aspectRatio() === 'auto') {

@@ -1,0 +1,266 @@
+/* Emission card theme — faithful port of the design source ThemeEmission.
+   Per-theme palette/typography is the theme's identity, so colours are literal.
+   "Space Grotesk" falls back to Outfit when not loaded (design intent). */
+
+:host {
+  --ems-cyan: #7fe3ff;
+  --ems-txt: #edf2f9;
+  --ems-dim: #8794a9;
+  --ems-faint: #4a5468;
+  --ems-sans: 'Space Grotesk', 'Outfit', sans-serif;
+  --ems-body: 'Outfit', system-ui, sans-serif;
+  --ems-mono: 'JetBrains Mono', monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.ems-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: 30px 32px 26px;
+  color: var(--ems-txt);
+  font-family: var(--ems-body);
+  background: #04060b;
+  display: flex;
+  flex-direction: column;
+}
+
+.ems-cross {
+  position: absolute;
+  top: 44px;
+  right: -30px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.ems-spike {
+  position: absolute;
+  left: 38px;
+  top: 168px;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+/* ── Header ── */
+.ems-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ems-brand {
+  font: 600 10px/1 var(--ems-mono);
+  color: var(--ems-dim);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.ems-date {
+  font: 500 10px/1 var(--ems-mono);
+  color: var(--ems-faint);
+  letter-spacing: 0.14em;
+}
+
+/* ── Object ── */
+.ems-object {
+  position: relative;
+  margin-top: 28px;
+}
+
+.ems-kicker {
+  font: 600 10.5px/1 var(--ems-mono);
+  color: var(--ems-cyan);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+}
+
+.ems-name {
+  font: 700 44px/1.02 var(--ems-sans);
+  letter-spacing: -0.03em;
+  margin-top: 12px;
+}
+
+.ems-desc {
+  font: 400 12.5px/1.5 var(--ems-body);
+  color: var(--ems-dim);
+  margin-top: 10px;
+  max-width: 410px;
+}
+
+.ems-sp-a {
+  flex: 0.8;
+}
+
+.ems-sp-b {
+  flex: 0.5;
+}
+
+.ems-sp-c {
+  flex: 1;
+}
+
+/* ── Spectrum strip ── */
+.ems-spectrum {
+  position: relative;
+}
+
+.ems-strip {
+  position: relative;
+  height: 62px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(
+    90deg,
+    #150c2e 0%,
+    #101a40 18%,
+    #0c2e42 32%,
+    #0e3a34 44%,
+    #27350f 56%,
+    #3e2a0c 68%,
+    #46150f 82%,
+    #330a12 100%
+  );
+}
+
+.ems-absorption {
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.35) 0 1px,
+    transparent 1px 9px
+  );
+  opacity: 0.5;
+}
+
+.ems-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  margin-left: -1.5px;
+}
+
+.ems-axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 7px;
+  font: 500 8.5px/1 var(--ems-mono);
+  color: var(--ems-faint);
+  letter-spacing: 0.14em;
+}
+
+/* ── Band readout ── */
+.ems-readout {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.ems-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 11px 0;
+}
+
+.ems-row-div {
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.ems-row-id {
+  width: 44px;
+  font: 700 14px/1 var(--ems-mono);
+}
+
+.ems-row-nm {
+  width: 78px;
+  font: 500 11px/1 var(--ems-mono);
+  color: var(--ems-dim);
+}
+
+.ems-row-bar {
+  flex: 1;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.05);
+  position: relative;
+}
+
+.ems-row-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: 3px;
+}
+
+.ems-row-time {
+  width: 66px;
+  text-align: right;
+  font: 600 16px/1 var(--ems-sans);
+  color: var(--ems-txt);
+}
+
+.ems-total-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.ems-total-label {
+  font: 500 9.5px/1 var(--ems-mono);
+  color: var(--ems-faint);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.ems-grow {
+  flex: 1;
+}
+
+.ems-total-val {
+  font: 700 34px/1 var(--ems-sans);
+  letter-spacing: -0.02em;
+}
+
+/* ── Footer ── */
+.ems-footer {
+  position: relative;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 12px;
+}
+
+.ems-ticker {
+  font: 500 10px/1.6 var(--ems-mono);
+  color: var(--ems-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ems-footer-row {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.ems-author {
+  font: 600 12px/1 var(--ems-body);
+  color: var(--ems-txt);
+}
+
+.ems-loc {
+  font: 500 9.5px/1 var(--ems-mono);
+  color: var(--ems-faint);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}

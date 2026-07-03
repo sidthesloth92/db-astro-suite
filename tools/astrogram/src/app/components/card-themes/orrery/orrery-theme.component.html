@@ -1,0 +1,97 @@
+@let data = vm();
+
+<div class="orr-root">
+  <dba-ag-theme-starfield [density]="130" [opacity]="0.5" [seed]="9" />
+
+  <svg class="orr-chart" viewBox="0 0 540 720" preserveAspectRatio="none" aria-hidden="true">
+    <g [attr.transform]="'translate(0 ' + orbitTop + ')'">
+      <!-- orbit ellipses -->
+      @for (orbit of orbits(); track orbit.band.id) {
+        <ellipse
+          [attr.cx]="cx"
+          [attr.cy]="cy"
+          [attr.rx]="orbit.rx"
+          [attr.ry]="orbit.ry"
+          fill="none"
+          [attr.stroke]="orbit.band.color"
+          stroke-width="1"
+          opacity="0.35"
+        />
+      }
+
+      <!-- sun glow -->
+      <circle [attr.cx]="cx" [attr.cy]="cy" r="46" fill="#FFCF6B" opacity="0.12" />
+      <circle [attr.cx]="cx" [attr.cy]="cy" r="30" fill="#FFCF6B" opacity="0.2" />
+
+      <!-- planets -->
+      @for (orbit of orbits(); track orbit.band.id) {
+        <g>
+          <circle [attr.cx]="orbit.x" [attr.cy]="orbit.y" [attr.r]="orbit.haloR" [attr.fill]="orbit.band.color" opacity="0.16" />
+          <circle [attr.cx]="orbit.x" [attr.cy]="orbit.y" [attr.r]="orbit.pr" [attr.fill]="orbit.band.color" />
+          <circle
+            [attr.cx]="orbit.x"
+            [attr.cy]="orbit.y"
+            [attr.r]="orbit.pr"
+            fill="none"
+            stroke="#fff"
+            stroke-width="0.7"
+            opacity="0.5"
+          />
+        </g>
+      }
+    </g>
+  </svg>
+
+  <!-- Header -->
+  <div class="orr-header">
+    <span class="orr-brand">Astrogram · Orrery</span>
+    <span class="orr-datestamp">{{ data.dateNumeric }}</span>
+  </div>
+
+  <!-- Sun label (total) -->
+  <div class="orr-sun-label">
+    <div class="orr-sun-total">{{ data.total }}</div>
+    <div class="orr-sun-badge">TOTAL</div>
+  </div>
+
+  <!-- Planet labels -->
+  @for (orbit of orbits(); track orbit.band.id) {
+    <div class="orr-planet-label" [style.top.%]="orbit.labelTopPct" [style.left.%]="orbit.labelLeftPct">
+      <div class="orr-planet-id" [style.color]="orbit.band.color">{{ orbit.band.id }}</div>
+      <div class="orr-planet-time">{{ orbit.band.time }}</div>
+    </div>
+  }
+
+  <!-- Object title -->
+  <div class="orr-title" data-testid="card-hero">
+    @if (data.objectId) {
+      <div class="orr-object-id">{{ data.objectId }}</div>
+    }
+    <div class="orr-object-name">{{ data.objectName }}</div>
+  </div>
+
+  <!-- Footer -->
+  <div class="orr-footer">
+    <div class="orr-cols">
+      <div class="orr-col">
+        <div class="orr-col-title">Rig</div>
+        @for (item of data.equipment; track $index) {
+          <div class="orr-row">
+            <span class="orr-row-label">{{ item.label }}</span>
+            <span class="orr-row-value">{{ item.value }}</span>
+          </div>
+        }
+      </div>
+      <div class="orr-col">
+        <div class="orr-col-title">Pipeline</div>
+        @for (item of data.software; track $index) {
+          <div class="orr-row">
+            <span class="orr-row-label">{{ item.label }}</span>
+            <span class="orr-row-value">{{ item.value }}</span>
+          </div>
+        }
+        <div class="orr-sky">Bortle {{ data.bortle }} · {{ data.location }}</div>
+      </div>
+    </div>
+  </div>
+</div>

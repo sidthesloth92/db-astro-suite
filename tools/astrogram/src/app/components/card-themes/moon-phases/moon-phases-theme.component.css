@@ -1,0 +1,180 @@
+/* Moon Phases card theme — faithful port of the design source ThemeMoonPhases. */
+
+:host {
+  --mp-bg: #070709;
+  --mp-moon: #e8e4da;
+  --mp-txt: #f0eee8;
+  --mp-dim: #95928a;
+  --mp-faint: #55534c;
+  --mp-sans: 'Outfit', system-ui, sans-serif;
+  --mp-grot: 'Space Grotesk', 'Outfit', sans-serif;
+  --mp-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.mp-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: var(--mp-txt);
+  font-family: var(--mp-sans);
+  padding: 28px 32px 26px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 12%, rgba(90, 88, 78, 0.14), transparent 65%),
+    var(--mp-bg);
+}
+
+/* ── Header ── */
+.mp-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mp-eyebrow {
+  font: 600 10px/1 var(--mp-mono);
+  color: var(--mp-dim);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.mp-date {
+  font: 500 10px/1 var(--mp-mono);
+  color: var(--mp-faint);
+  letter-spacing: 0.14em;
+}
+
+/* ── Title ── */
+.mp-title {
+  position: relative;
+  text-align: center;
+  margin-top: 30px;
+}
+
+.mp-kicker {
+  font: 600 10.5px/1 var(--mp-mono);
+  color: var(--mp-dim);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.mp-name {
+  font: 300 42px/1.04 var(--mp-sans);
+  margin-top: 10px;
+}
+
+.mp-tagline {
+  font: 400 12.5px/1.5 var(--mp-sans);
+  color: var(--mp-dim);
+  margin-top: 10px;
+}
+
+.mp-spacer {
+  flex: 1;
+}
+
+/* ── Moons ── */
+.mp-moons {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  justify-items: center;
+}
+
+.mp-moon-item {
+  text-align: center;
+}
+
+.mp-moon {
+  display: block;
+  width: 100%;
+  max-width: 116px;
+  height: auto;
+  margin: 0 auto;
+}
+
+.mp-moon-id {
+  font: 700 12px/1 var(--mp-mono);
+  letter-spacing: 0.06em;
+  margin-top: 12px;
+}
+
+.mp-moon-time {
+  font: 600 19px/1 var(--mp-grot);
+  color: var(--mp-txt);
+  letter-spacing: -0.01em;
+  margin-top: 8px;
+}
+
+.mp-moon-frames {
+  font: 400 9.5px/1 var(--mp-mono);
+  color: var(--mp-faint);
+  margin-top: 6px;
+}
+
+/* ── Total ── */
+.mp-total {
+  position: relative;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.mp-total-label {
+  font: 500 10px/1 var(--mp-mono);
+  color: var(--mp-faint);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+}
+
+.mp-total-value {
+  font: 300 34px/1 var(--mp-grot);
+  color: var(--mp-moon);
+  letter-spacing: -0.01em;
+  vertical-align: -6px;
+}
+
+/* ── Footer ── */
+.mp-footer {
+  position: relative;
+  border-top: 1px solid rgba(232, 228, 218, 0.1);
+  padding-top: 12px;
+}
+
+.mp-foot-gear {
+  font: 500 10px/1.6 var(--mp-mono);
+  color: #8b92a6;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mp-foot-row {
+  display: flex;
+  align-items: center;
+  margin-top: 7px;
+}
+
+.mp-foot-author {
+  font: 600 12px/1 var(--mp-sans);
+  color: #e7eaf2;
+}
+
+.mp-foot-spacer {
+  flex: 1;
+}
+
+.mp-foot-meta {
+  font: 500 9.5px/1 var(--mp-mono);
+  color: #5a6175;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}

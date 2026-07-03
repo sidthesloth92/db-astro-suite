@@ -1,0 +1,240 @@
+/* Split Stats card theme — faithful port of the design source ThemeSplitStats.
+   Per-theme palette/typography is the theme's identity, so colours are literal.
+   "Space Grotesk" falls back to Outfit when not loaded (design intent). */
+
+:host {
+  --sps-pink: #ff2d95;
+  --sps-txt: #f2f5fa;
+  --sps-dim: #8b92a6;
+  --sps-faint: #4e5468;
+  --sps-sans: 'Space Grotesk', 'Outfit', sans-serif;
+  --sps-body: 'Outfit', system-ui, sans-serif;
+  --sps-mono: 'JetBrains Mono', monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.sps-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: 28px 32px 26px;
+  color: var(--sps-txt);
+  font-family: var(--sps-body);
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(ellipse 70% 40% at 85% 0%, rgba(255, 45, 149, 0.1), transparent 60%), #07080d;
+}
+
+.sps-graticule {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.sps-constellation {
+  position: absolute;
+  top: 142px;
+  right: 22px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ── Brand row ── */
+.sps-brand {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.sps-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: radial-gradient(circle at 30% 30%, #ffc36b, #ff2d95 70%, #6b1a48);
+}
+
+.sps-brand-name {
+  font: 600 12px/1 var(--sps-body);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.sps-grow {
+  flex: 1;
+}
+
+.sps-date {
+  font: 500 10.5px/1 var(--sps-mono);
+  color: var(--sps-faint);
+  letter-spacing: 0.1em;
+}
+
+/* ── Object ── */
+.sps-object {
+  position: relative;
+  margin-top: 26px;
+}
+
+.sps-kicker {
+  font: 600 10.5px/1 var(--sps-mono);
+  color: var(--sps-pink);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+}
+
+.sps-name {
+  font: 700 46px/1.02 var(--sps-sans);
+  letter-spacing: -0.03em;
+  margin-top: 12px;
+}
+
+.sps-caption {
+  font: 400 13px/1.5 var(--sps-body);
+  color: var(--sps-dim);
+  margin-top: 12px;
+  max-width: 400px;
+}
+
+.sps-grow-v {
+  flex: 1;
+}
+
+/* ── 2×2 giant stats ── */
+.sps-stats {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 28px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sps-cell-tl {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sps-cell-tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  padding-left: 28px;
+}
+
+.sps-cell-br {
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  padding-left: 28px;
+}
+
+.sps-stat {
+  padding: 16px 0 14px;
+}
+
+.sps-stat-k {
+  font: 500 9.5px/1 var(--sps-mono);
+  color: var(--sps-faint);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.sps-stat-v {
+  font: 700 42px/1 var(--sps-sans);
+  color: var(--sps-txt);
+  letter-spacing: -0.03em;
+  margin-top: 10px;
+}
+
+.sps-accent {
+  color: var(--sps-pink);
+}
+
+.sps-stat-sub {
+  font: 500 10px/1.4 var(--sps-mono);
+  color: var(--sps-dim);
+  letter-spacing: 0.04em;
+  margin-top: 7px;
+}
+
+/* ── Band bar ── */
+.sps-band {
+  position: relative;
+  margin-top: 18px;
+}
+
+.sps-bar {
+  display: flex;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.sps-legend {
+  display: flex;
+  gap: 18px;
+  margin-top: 10px;
+}
+
+.sps-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sps-legend-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.sps-legend-id {
+  font: 600 11px/1 var(--sps-mono);
+}
+
+.sps-legend-time {
+  font: 500 12px/1 var(--sps-body);
+  color: var(--sps-txt);
+}
+
+/* ── Gear chips ── */
+.sps-chips {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sps-chip {
+  padding: 6px 11px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  font: 500 10.5px/1 var(--sps-body);
+  color: var(--sps-dim);
+}
+
+.sps-author-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-top: 14px;
+}
+
+.sps-author {
+  font: 600 12.5px/1 var(--sps-body);
+  color: var(--sps-txt);
+}
+
+.sps-loc {
+  font: 500 10px/1 var(--sps-mono);
+  color: var(--sps-faint);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}

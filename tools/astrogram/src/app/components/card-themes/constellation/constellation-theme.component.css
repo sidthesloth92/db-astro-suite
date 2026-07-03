@@ -1,0 +1,190 @@
+/* Constellation card theme — faithful port of the design source
+   ThemeConstellation. Per-theme palette/typography is the theme's identity,
+   so colours are literal hex. */
+
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.con-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Outfit', system-ui, sans-serif;
+  color: #f2f7ff;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 20%, rgba(40, 70, 130, 0.3), transparent 70%),
+    #060a18;
+}
+
+.con-chart {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ── Header ── */
+.con-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 0;
+}
+
+.con-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.con-fourstar {
+  display: block;
+}
+
+.con-brand-name {
+  font: 600 10px/1 'JetBrains Mono', monospace;
+  letter-spacing: 0.28em;
+  color: #7fe3ff;
+  text-transform: uppercase;
+}
+
+.con-datestamp {
+  font: 500 10px/1 'JetBrains Mono', monospace;
+  letter-spacing: 0.18em;
+  color: #46506b;
+  text-transform: uppercase;
+}
+
+/* ── Band labels ── */
+.con-band-label {
+  position: absolute;
+  z-index: 2;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+.con-band-id {
+  font: 600 11px/1 'JetBrains Mono', monospace;
+  letter-spacing: 0.08em;
+}
+
+.con-band-time {
+  font: 500 10px/1 'Outfit', system-ui, sans-serif;
+  color: #8a97b5;
+  margin-top: 3px;
+}
+
+/* ── Object name plate ── */
+.con-nameplate {
+  position: absolute;
+  top: 46.11%;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  text-align: center;
+}
+
+.con-object-id {
+  font: 500 10px/1 'JetBrains Mono', monospace;
+  color: #ffd79a;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.con-object-name {
+  font: 300 34px/1 'Outfit', system-ui, sans-serif;
+  color: #f2f7ff;
+  letter-spacing: 0.01em;
+  margin-top: 8px;
+}
+
+/* ── Lower legend panel ── */
+.con-legend {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  padding: 0 24px 22px;
+}
+
+.con-caption {
+  font: 300 12.5px/1.55 'Outfit', system-ui, sans-serif;
+  color: rgba(242, 247, 255, 0.78);
+  text-align: center;
+  max-width: 400px;
+  margin: 0 auto 16px;
+}
+
+.con-cols {
+  border-top: 1px solid rgba(127, 227, 255, 0.18);
+  padding-top: 14px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+}
+
+.con-col-title {
+  font: 600 9px/1 'JetBrains Mono', monospace;
+  color: #7fe3ff;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.con-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 1.5px 0;
+}
+
+.con-row-label {
+  font: 500 9px/1.4 'JetBrains Mono', monospace;
+  color: #46506b;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.con-row-value {
+  font: 400 10.5px/1.4 'Outfit', system-ui, sans-serif;
+  color: #f2f7ff;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 150px;
+}
+
+.con-total-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(127, 227, 255, 0.12);
+}
+
+.con-total {
+  font: 600 9px/1 'JetBrains Mono', monospace;
+  color: #ffd79a;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.con-sky {
+  font: 500 10px/1 'Outfit', system-ui, sans-serif;
+  color: #8a97b5;
+}

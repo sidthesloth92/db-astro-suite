@@ -1,0 +1,276 @@
+/* Spectrum card theme — faithful port of the design source ThemeSpectrum.
+   Per-theme palette/typography is the theme's identity, so colours are literal. */
+
+:host {
+  --spc-pink: #ff2d95;
+  --spc-magenta: #b83bff;
+  --spc-cyan: #00e5ff;
+  --spc-violet: #7b5cff;
+  --spc-txt: #ffffff;
+  --spc-dim: #b0b5c8;
+  --spc-faint: #5f6580;
+  --spc-display: 'Manrope', 'Outfit', sans-serif;
+  --spc-sans: 'Inter', 'Outfit', sans-serif;
+  --spc-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.spc-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #070611;
+  color: var(--spc-txt);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Hero gradient block ── */
+.spc-hero {
+  position: relative;
+  padding: 30px 30px 26px;
+  background: linear-gradient(135deg, var(--spc-pink) 0%, var(--spc-magenta) 35%, var(--spc-violet) 65%, var(--spc-cyan) 100%);
+}
+
+.spc-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.4;
+  pointer-events: none;
+  background: radial-gradient(ellipse 80% 60% at 20% 20%, rgba(0, 0, 0, 0.25), transparent 60%);
+}
+
+.spc-hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.spc-kicker {
+  font: 700 10.5px/1 var(--spc-mono);
+  letter-spacing: 0.3em;
+  color: rgba(255, 255, 255, 0.85);
+  text-transform: uppercase;
+}
+
+.spc-headline {
+  font: 800 60px/0.92 var(--spc-display);
+  color: #fff;
+  letter-spacing: -0.03em;
+  margin-top: 14px;
+}
+
+.spc-subhead {
+  font: 500 18px/1.1 var(--spc-display);
+  color: rgba(255, 255, 255, 0.85);
+  margin-top: 4px;
+  letter-spacing: -0.01em;
+}
+
+.spc-hero-meta {
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+  font: 500 10.5px/1 var(--spc-mono);
+  color: rgba(255, 255, 255, 0.95);
+  letter-spacing: 0.04em;
+}
+
+.spc-sep {
+  opacity: 0.4;
+}
+
+.spc-up {
+  text-transform: uppercase;
+}
+
+/* ── Body ── */
+.spc-body {
+  padding: 20px 30px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  flex: 1;
+  min-height: 0;
+}
+
+.spc-caption {
+  font: 400 13.5px/1.55 var(--spc-sans);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* ── Integration — hero stat ── */
+.spc-integration {
+  display: flex;
+  align-items: flex-end;
+  gap: 20px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.spc-int-label {
+  font: 600 10px/1 var(--spc-mono);
+  letter-spacing: 0.22em;
+  color: var(--spc-dim);
+  text-transform: uppercase;
+}
+
+.spc-int-total {
+  font: 800 52px/0.9 var(--spc-display);
+  color: var(--spc-txt);
+  letter-spacing: -0.04em;
+  margin-top: 10px;
+}
+
+.spc-int-bands {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-bottom: 4px;
+}
+
+.spc-int-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.spc-int-id {
+  width: 28px;
+  font: 700 11px/1 var(--spc-mono);
+  letter-spacing: 0.06em;
+}
+
+.spc-int-bar {
+  flex: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 2px;
+  position: relative;
+}
+
+.spc-int-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: 2px;
+}
+
+.spc-int-time {
+  width: 60px;
+  text-align: right;
+  font: 500 12px/1 var(--spc-sans);
+  color: var(--spc-txt);
+}
+
+.spc-int-frames {
+  width: 70px;
+  text-align: right;
+  font: 400 10px/1 var(--spc-mono);
+  color: var(--spc-faint);
+}
+
+/* ── Lower grid ── */
+.spc-lower {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 22px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  flex: 1;
+  min-height: 0;
+}
+
+.spc-col-title {
+  font: 600 10px/1 var(--spc-mono);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.spc-title-pink {
+  color: var(--spc-pink);
+}
+
+.spc-title-cyan {
+  color: var(--spc-cyan);
+}
+
+.spc-eq-row {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.spc-eq-label {
+  font: 500 10px/1.2 var(--spc-mono);
+  color: var(--spc-faint);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.spc-eq-value {
+  font: 500 11.5px/1.2 var(--spc-sans);
+  color: var(--spc-txt);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.spc-sw-row {
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.spc-sw-label {
+  font: 500 10px/1 var(--spc-mono);
+  color: var(--spc-faint);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.spc-sw-value {
+  font: 500 11.5px/1.2 var(--spc-sans);
+  color: var(--spc-txt);
+  margin-top: 2px;
+}
+
+.spc-bortle {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.spc-bortle-label {
+  font: 500 10px/1 var(--spc-mono);
+  color: var(--spc-faint);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.spc-bortle-dots {
+  display: flex;
+  gap: 2px;
+}
+
+.spc-bortle-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.spc-bortle-dot.is-lit {
+  background: linear-gradient(135deg, var(--spc-pink), var(--spc-cyan));
+}
+
+.spc-bortle-val {
+  font: 700 14px/1 var(--spc-display);
+  color: var(--spc-txt);
+}

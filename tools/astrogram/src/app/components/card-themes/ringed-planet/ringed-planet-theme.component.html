@@ -1,0 +1,127 @@
+@let data = vm();
+
+<div class="rpl-root">
+  <dba-ag-theme-starfield [density]="140" [opacity]="0.55" [seed]="9" />
+
+  <!-- Header -->
+  <div class="rpl-header">
+    <span class="rpl-brand">Astrogram</span>
+    <span class="rpl-datestamp">{{ data.dateNumeric }}</span>
+  </div>
+
+  <svg class="rpl-chart" viewBox="0 0 540 720" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <radialGradient id="ringed-planet-body" cx="38%" cy="34%" r="75%">
+        <stop offset="0%" stop-color="#C9A6E8" />
+        <stop offset="42%" stop-color="#8A5BC2" />
+        <stop offset="78%" stop-color="#46256E" />
+        <stop offset="100%" stop-color="#1C0E33" />
+      </radialGradient>
+      <linearGradient id="ringed-planet-band" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.16" />
+        <stop offset="50%" stop-color="#ffffff" stop-opacity="0" />
+        <stop offset="100%" stop-color="#000000" stop-opacity="0.22" />
+      </linearGradient>
+    </defs>
+
+    <g [attr.transform]="'translate(0 ' + planetTop + ')'">
+      <!-- back half of rings -->
+      <g [attr.transform]="ringGroupTransform">
+        @for (ring of rings(); track ring.band.id) {
+          <ellipse
+            cx="0"
+            cy="0"
+            [attr.rx]="ring.rr"
+            [attr.ry]="ring.ry"
+            fill="none"
+            [attr.stroke]="ring.band.color"
+            stroke-width="6"
+            opacity="0.5"
+            [attr.stroke-dasharray]="ring.backDash"
+            transform="rotate(180)"
+          />
+        }
+      </g>
+
+      <!-- planet body -->
+      <circle [attr.cx]="cx" [attr.cy]="cy" [attr.r]="planetRadius" fill="url(#ringed-planet-body)" />
+      <ellipse
+        [attr.cx]="cx"
+        [attr.cy]="cy"
+        [attr.rx]="planetRadius"
+        [attr.ry]="planetRadius"
+        fill="url(#ringed-planet-band)"
+      />
+
+      <!-- latitude bands -->
+      @for (lat of latitudeBands; track $index) {
+        <ellipse [attr.cx]="cx" [attr.cy]="lat.cy" [attr.rx]="lat.rx" ry="6" fill="#fff" opacity="0.05" />
+      }
+
+      <!-- front half of rings -->
+      <g [attr.transform]="ringGroupTransform">
+        @for (ring of rings(); track ring.band.id) {
+          <ellipse
+            cx="0"
+            cy="0"
+            [attr.rx]="ring.rr"
+            [attr.ry]="ring.ry"
+            fill="none"
+            [attr.stroke]="ring.band.color"
+            stroke-width="6"
+            opacity="0.95"
+            [attr.stroke-dasharray]="ring.frontDash"
+            stroke-linecap="round"
+          />
+        }
+      </g>
+    </g>
+  </svg>
+
+  <!-- Object title overlay -->
+  <div class="rpl-title" data-testid="card-hero">
+    @if (data.objectId) {
+      <div class="rpl-object-id">{{ data.objectId }}</div>
+    }
+    <div class="rpl-object-name">{{ data.objectName }}</div>
+  </div>
+
+  <!-- Ring legend -->
+  <div class="rpl-legend">
+    @for (ring of rings(); track ring.band.id) {
+      <div class="rpl-legend-item">
+        <span class="rpl-legend-swatch" [style.background]="ring.band.color"></span>
+        <span class="rpl-legend-id" [style.color]="ring.band.color">{{ ring.band.id }}</span>
+        <span class="rpl-legend-time">{{ ring.band.time }}</span>
+      </div>
+    }
+    <div class="rpl-legend-item">
+      <span class="rpl-legend-total">{{ data.total }}</span>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="rpl-footer">
+    <div class="rpl-cols">
+      <div class="rpl-col">
+        <div class="rpl-col-title">Apparatus</div>
+        @for (item of data.equipment; track $index) {
+          <div class="rpl-row">
+            <span class="rpl-row-label">{{ item.label }}</span>
+            <span class="rpl-row-value">{{ item.value }}</span>
+          </div>
+        }
+      </div>
+      <div class="rpl-col">
+        <div class="rpl-col-title">Pipeline</div>
+        @for (item of data.software; track $index) {
+          <div class="rpl-row">
+            <span class="rpl-row-label">{{ item.label }}</span>
+            <span class="rpl-row-value">{{ item.value }}</span>
+          </div>
+        }
+        <div class="rpl-sky">Bortle {{ data.bortle }} · {{ data.location }}</div>
+      </div>
+    </div>
+  </div>
+</div>

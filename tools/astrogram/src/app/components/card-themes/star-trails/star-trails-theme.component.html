@@ -1,0 +1,97 @@
+@let data = vm();
+
+<div class="st-root">
+  <dba-ag-theme-starfield [density]="90" [opacity]="0.4" [seed]="22" />
+
+  <!-- Header -->
+  <div class="st-header">
+    <span class="st-eyebrow">Astrogram · Star trails</span>
+    <span class="st-date">{{ data.dateNumeric }}</span>
+  </div>
+
+  <!-- Trails -->
+  <svg class="st-svg" viewBox="0 0 476 400" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+    <g [attr.transform]="'rotate(-90 ' + cx + ' ' + cy + ')'">
+      <!-- ambient faint trails -->
+      @for (t of ambientTrails; track $index) {
+        <circle
+          [attr.cx]="cx"
+          [attr.cy]="cy"
+          [attr.r]="t.r"
+          fill="none"
+          stroke="#fff"
+          stroke-width="0.7"
+          opacity="0.13"
+          stroke-linecap="round"
+          [attr.stroke-dasharray]="t.dash"
+          [attr.transform]="'rotate(' + t.rot + ' ' + cx + ' ' + cy + ')'"
+        />
+      }
+      <!-- band trails -->
+      @for (b of bands(); track b.id) {
+        <circle
+          [attr.cx]="cx"
+          [attr.cy]="cy"
+          [attr.r]="b.r"
+          fill="none"
+          [attr.stroke]="b.color"
+          stroke-width="5"
+          stroke-linecap="round"
+          opacity="0.95"
+          [attr.stroke-dasharray]="b.dash"
+        />
+        <circle
+          [attr.cx]="cx"
+          [attr.cy]="cy"
+          [attr.r]="b.r"
+          fill="none"
+          [attr.stroke]="b.color"
+          stroke-width="11"
+          stroke-linecap="round"
+          opacity="0.18"
+          [attr.stroke-dasharray]="b.dash"
+        />
+      }
+    </g>
+
+    <!-- Polaris -->
+    <g>
+      <line [attr.x1]="cx - 12" [attr.y1]="cy" [attr.x2]="cx + 12" [attr.y2]="cy" stroke="#FFF4D8" stroke-width="0.8" opacity="0.9" />
+      <line [attr.x1]="cx" [attr.y1]="cy - 12" [attr.x2]="cx" [attr.y2]="cy + 12" stroke="#FFF4D8" stroke-width="0.8" opacity="0.9" />
+      <circle [attr.cx]="cx" [attr.cy]="cy" r="3" fill="#FFF4D8" />
+      <circle [attr.cx]="cx" [attr.cy]="cy" r="8" fill="none" stroke="#FFF4D8" stroke-width="0.6" opacity="0.5" />
+      <text [attr.x]="cx + 15" [attr.y]="cy - 11" class="st-polaris" fill="#FFF4D8" opacity="0.85">POLARIS</text>
+    </g>
+  </svg>
+
+  <!-- Band legend -->
+  <div class="st-legend">
+    @for (b of bands(); track b.id) {
+      <div class="st-legend-item">
+        <span class="st-legend-swatch" [style.background]="b.color" [style.box-shadow]="'0 0 8px ' + b.color + '88'"></span>
+        <div class="st-legend-id" [style.color]="b.color">{{ b.id }}</div>
+        <div class="st-legend-time">{{ b.time }}</div>
+        <div class="st-legend-frames">{{ b.frames }}</div>
+      </div>
+    }
+  </div>
+
+  <!-- Title + total -->
+  <div class="st-title" data-testid="card-hero">
+    <div class="st-kicker">{{ data.objectId }} · {{ data.total }} of rotation</div>
+    <div class="st-name">{{ data.objectName }}</div>
+    <div class="st-sub">{{ totalFrames() }} frames · arc length = exposure share</div>
+  </div>
+
+  <div class="st-spacer"></div>
+
+  <!-- Footer -->
+  <div class="st-footer">
+    <div class="st-foot-gear">{{ footerLine() }}</div>
+    <div class="st-foot-row">
+      <span class="st-foot-author">{{ data.author }}</span>
+      <span class="st-foot-spacer"></span>
+      <span class="st-foot-meta">{{ data.location }} · Bortle {{ data.bortle }}</span>
+    </div>
+  </div>
+</div>

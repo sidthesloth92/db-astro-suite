@@ -1,0 +1,184 @@
+/* Credits card theme — faithful port of the design source ThemeCredits.
+   Per-theme palette/typography is the theme's identity, so colours are literal.
+   "Archivo Black"/"Space Grotesk" fall back to Outfit when not loaded. */
+
+:host {
+  --crd-txt: #f2eee6;
+  --crd-dim: #9b94a8;
+  --crd-faint: #59536a;
+  --crd-display: 'Archivo Black', 'Outfit', sans-serif;
+  --crd-sans: 'Space Grotesk', 'Outfit', sans-serif;
+  --crd-mono: 'JetBrains Mono', monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.crd-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: 36px 34px 30px;
+  color: var(--crd-txt);
+  font-family: var(--crd-sans);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(ellipse 75% 50% at 50% 0%, rgba(120, 60, 140, 0.18), transparent 62%), #060509;
+}
+
+.crd-constellation {
+  position: absolute;
+  top: 84px;
+  left: 50%;
+  margin-left: -130px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.crd-spike {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.crd-spike-1 {
+  left: 92px;
+  top: 606px;
+  opacity: 0.55;
+}
+
+.crd-spike-2 {
+  right: 86px;
+  top: 622px;
+  opacity: 0.45;
+}
+
+/* ── Presents ── */
+.crd-presents {
+  position: relative;
+  font: 500 10px/1 var(--crd-mono);
+  color: var(--crd-dim);
+  letter-spacing: 0.44em;
+  text-transform: uppercase;
+  padding-left: 0.44em;
+}
+
+/* ── Title ── */
+.crd-title-block {
+  position: relative;
+  margin-top: 24px;
+}
+
+.crd-the {
+  font: 400 16px/1 var(--crd-sans);
+  color: var(--crd-dim);
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  padding-left: 0.5em;
+}
+
+.crd-title-solid {
+  font: 400 64px/0.98 var(--crd-display);
+  color: var(--crd-txt);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  margin-top: 10px;
+}
+
+.crd-title-outline {
+  font: 400 64px/0.98 var(--crd-display);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--crd-txt);
+  margin-top: 2px;
+}
+
+/* ── Band colour strip ── */
+.crd-strip {
+  position: relative;
+  display: flex;
+  width: 220px;
+  height: 4px;
+  margin: 22px auto 0;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.crd-study {
+  position: relative;
+  font: 500 9.5px/1 var(--crd-mono);
+  color: var(--crd-faint);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  margin-top: 12px;
+  padding-left: 0.26em;
+}
+
+.crd-grow {
+  flex: 1;
+}
+
+/* ── Billing block ── */
+.crd-billing {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.crd-credit {
+  text-align: center;
+}
+
+.crd-credit-k {
+  font: 500 8.5px/1 var(--crd-mono);
+  color: var(--crd-faint);
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  padding-left: 0.32em;
+}
+
+.crd-credit-v {
+  font: 600 13px/1.35 var(--crd-sans);
+  color: var(--crd-txt);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-top: 5px;
+}
+
+.crd-faint {
+  color: var(--crd-faint);
+}
+
+.crd-band-line {
+  display: block;
+  margin-top: 4px;
+  font: 500 11px/1 var(--crd-mono);
+  letter-spacing: 0.08em;
+}
+
+/* ── Release date ── */
+.crd-release {
+  position: relative;
+}
+
+.crd-release-date {
+  font: 400 40px/1 var(--crd-display);
+  color: var(--crd-txt);
+  letter-spacing: 0.04em;
+}
+
+.crd-release-meta {
+  font: 500 9.5px/1 var(--crd-mono);
+  color: var(--crd-faint);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  margin-top: 10px;
+  padding-left: 0.26em;
+}

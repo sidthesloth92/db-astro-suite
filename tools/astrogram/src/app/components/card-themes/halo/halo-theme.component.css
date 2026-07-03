@@ -1,0 +1,331 @@
+/* Halo card theme — faithful port of the design source ThemeHalo.
+   Per-theme palette/typography is the theme's identity, so colours are literal. */
+
+:host {
+  --hal-lav: #c6b6ff;
+  --hal-peach: #ffb8a8;
+  --hal-mint: #a8e8d0;
+  --hal-sky: #a8d5ff;
+  --hal-rose: #ffb0ce;
+  --hal-txt: #f0edfa;
+  --hal-dim: #9f9cb8;
+  --hal-faint: #5e5c75;
+  --hal-sans: 'Plus Jakarta Sans', 'Outfit', sans-serif;
+  --hal-display: 'Plus Jakarta Sans', 'Outfit', sans-serif;
+  --hal-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.hal-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #0a0915;
+  color: var(--hal-txt);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Soft pastel halos ── */
+.hal-halos {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.hal-halo {
+  position: absolute;
+  border-radius: 50%;
+}
+
+.hal-halo-lav {
+  width: 360px;
+  height: 360px;
+  top: -100px;
+  left: -80px;
+  background: radial-gradient(circle, #c6b6ff66 0%, transparent 70%);
+  filter: blur(30px);
+}
+
+.hal-halo-rose {
+  width: 320px;
+  height: 320px;
+  top: 200px;
+  right: -100px;
+  background: radial-gradient(circle, #ffb0ce55 0%, transparent 70%);
+  filter: blur(30px);
+}
+
+.hal-halo-sky {
+  width: 380px;
+  height: 380px;
+  bottom: -150px;
+  left: -50px;
+  background: radial-gradient(circle, #a8d5ff44 0%, transparent 70%);
+  filter: blur(40px);
+}
+
+.hal-halo-mint {
+  width: 240px;
+  height: 240px;
+  bottom: 100px;
+  right: -60px;
+  background: radial-gradient(circle, #a8e8d033 0%, transparent 70%);
+  filter: blur(30px);
+}
+
+.hal-inner {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-height: 0;
+  padding: 30px 28px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+.hal-glass {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 16px;
+  padding: 16px;
+  backdrop-filter: blur(12px);
+}
+
+/* ── Header ── */
+.hal-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hal-logo {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: conic-gradient(from 90deg, var(--hal-lav), var(--hal-rose), var(--hal-peach), var(--hal-mint), var(--hal-sky), var(--hal-lav));
+  filter: blur(0.3px);
+  box-shadow: 0 0 14px rgba(198, 182, 255, 0.4);
+}
+
+.hal-brand {
+  font: 600 11px/1 var(--hal-sans);
+  letter-spacing: 0.16em;
+  color: var(--hal-txt);
+  text-transform: uppercase;
+}
+
+.hal-spacer {
+  flex: 1;
+}
+
+.hal-date {
+  font: 400 11px/1 var(--hal-mono);
+  color: var(--hal-faint);
+  letter-spacing: 0.1em;
+}
+
+/* ── Hero ── */
+.hal-hero {
+  padding: 22px 22px 20px;
+}
+
+.hal-hero-id {
+  font: 500 10px/1 var(--hal-mono);
+  color: var(--hal-lav);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.hal-hero-name {
+  font: 200 48px/1 var(--hal-display);
+  color: var(--hal-txt);
+  letter-spacing: -0.02em;
+  margin-top: 14px;
+}
+
+.hal-hero-caption {
+  font: 300 13px/1.55 var(--hal-sans);
+  color: var(--hal-dim);
+  margin-top: 12px;
+  max-width: 420px;
+}
+
+.hal-hero-meta {
+  display: flex;
+  gap: 14px;
+  margin-top: 16px;
+  font: 500 10px/1 var(--hal-mono);
+  color: var(--hal-dim);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hal-sep {
+  opacity: 0.4;
+}
+
+/* ── Integration ── */
+.hal-int-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.hal-int-label {
+  font: 500 10px/1 var(--hal-mono);
+  color: var(--hal-lav);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.hal-int-total {
+  font: 200 28px/1 var(--hal-display);
+  color: var(--hal-txt);
+  letter-spacing: -0.02em;
+}
+
+.hal-int-total span {
+  font: 500 10px/1 var(--hal-mono);
+  color: var(--hal-faint);
+  letter-spacing: 0.1em;
+}
+
+.hal-pills {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+}
+
+.hal-pill {
+  padding: 12px 14px;
+  border-radius: 12px;
+}
+
+.hal-pill-id {
+  font: 600 11px/1 var(--hal-mono);
+  letter-spacing: 0.1em;
+}
+
+.hal-pill-time {
+  font: 300 22px/1 var(--hal-display);
+  color: var(--hal-txt);
+  margin-top: 8px;
+  letter-spacing: -0.02em;
+}
+
+.hal-pill-frames {
+  font: 400 9.5px/1 var(--hal-mono);
+  color: var(--hal-faint);
+  margin-top: 6px;
+}
+
+/* ── Lower grid ── */
+.hal-lower {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+}
+
+.hal-equipment {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.hal-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.hal-pipeline {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.hal-col-title {
+  font: 500 10px/1 var(--hal-mono);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.hal-title-mint {
+  color: var(--hal-mint);
+}
+
+.hal-title-peach {
+  color: var(--hal-peach);
+}
+
+.hal-gear-label {
+  font: 500 8.5px/1 var(--hal-mono);
+  color: var(--hal-faint);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.hal-gear-value {
+  font: 500 11px/1.25 var(--hal-sans);
+  color: var(--hal-txt);
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hal-bortle {
+  padding: 10px 14px;
+}
+
+.hal-bortle-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hal-bortle-label {
+  font: 500 10px/1 var(--hal-mono);
+  color: var(--hal-sky);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.hal-bortle-val {
+  font: 200 22px/1 var(--hal-display);
+  color: var(--hal-txt);
+  letter-spacing: -0.02em;
+}
+
+.hal-bortle-bar {
+  display: flex;
+  gap: 2px;
+  margin-top: 8px;
+}
+
+.hal-bortle-seg {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.hal-bortle-seg.is-lit {
+  background: linear-gradient(90deg, var(--hal-mint), var(--hal-peach), var(--hal-rose));
+}

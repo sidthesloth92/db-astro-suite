@@ -1,0 +1,109 @@
+@let data = vm();
+
+<div class="eh-root">
+  <dba-ag-theme-starfield [density]="110" [opacity]="0.4" [seed]="26" />
+
+  <!-- Header -->
+  <div class="eh-header">
+    <span class="eh-eyebrow">Astrogram · Deep field</span>
+    <span class="eh-date">{{ data.dateNumeric }}</span>
+  </div>
+
+  <!-- Black hole -->
+  <svg class="eh-svg" viewBox="0 0 476 368" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+    <defs>
+      <radialGradient id="eh-glow" cx="50%" cy="50%" r="50%">
+        <stop offset="40%" stop-color="#000" stop-opacity="0" />
+        <stop offset="58%" stop-color="#8A4A20" stop-opacity="0.22" />
+        <stop offset="100%" stop-color="#000" stop-opacity="0" />
+      </radialGradient>
+    </defs>
+    <circle [attr.cx]="cx" [attr.cy]="cy" r="168" fill="url(#eh-glow)" />
+
+    <g [attr.transform]="'rotate(-14 ' + cx + ' ' + cy + ')'">
+      <!-- back halves — dim -->
+      @for (d of disks(); track d.id) {
+        <ellipse
+          [attr.cx]="cx"
+          [attr.cy]="cy"
+          [attr.rx]="d.rx"
+          [attr.ry]="d.ry"
+          fill="none"
+          [attr.stroke]="d.color"
+          stroke-width="3"
+          opacity="0.28"
+          stroke-linecap="round"
+          [attr.stroke-dasharray]="d.backDash"
+          [attr.transform]="d.backRot"
+        />
+      }
+      <!-- front arcs — sweep ∝ share -->
+      @for (d of disks(); track d.id) {
+        <ellipse
+          [attr.cx]="cx"
+          [attr.cy]="cy"
+          [attr.rx]="d.rx"
+          [attr.ry]="d.ry"
+          fill="none"
+          [attr.stroke]="d.color"
+          stroke-width="5"
+          opacity="0.95"
+          stroke-linecap="round"
+          [attr.stroke-dasharray]="d.frontDash"
+          [attr.transform]="d.frontRot"
+        />
+        <ellipse
+          [attr.cx]="cx"
+          [attr.cy]="cy"
+          [attr.rx]="d.rx"
+          [attr.ry]="d.ry"
+          fill="none"
+          [attr.stroke]="d.color"
+          stroke-width="12"
+          opacity="0.14"
+          stroke-linecap="round"
+          [attr.stroke-dasharray]="d.frontDash"
+          [attr.transform]="d.frontRot"
+        />
+      }
+    </g>
+
+    <!-- photon ring + horizon -->
+    <circle [attr.cx]="cx" [attr.cy]="cy" r="66" fill="none" stroke="#FFE9C4" stroke-width="1.6" opacity="0.9" />
+    <circle [attr.cx]="cx" [attr.cy]="cy" r="66" fill="none" stroke="#FFE9C4" stroke-width="6" opacity="0.14" />
+    <circle [attr.cx]="cx" [attr.cy]="cy" r="60" fill="#010101" />
+
+    <!-- total inside the void -->
+    <text [attr.x]="cx" [attr.y]="cy - 14" text-anchor="middle" class="eh-total-label">CAPTURED</text>
+    <text [attr.x]="cx" [attr.y]="cy + 18" text-anchor="middle" class="eh-total-value">{{ data.total }}</text>
+  </svg>
+
+  <!-- Legend -->
+  <div class="eh-legend">
+    @for (d of disks(); track d.id) {
+      <div class="eh-legend-item">
+        <div class="eh-legend-id" [style.color]="d.color">{{ d.id }}</div>
+        <div class="eh-legend-time">{{ d.time }}</div>
+        <div class="eh-legend-frames">{{ d.frames }}</div>
+      </div>
+    }
+  </div>
+
+  <!-- Title -->
+  <div class="eh-title" data-testid="card-hero">
+    <div class="eh-kicker">{{ data.objectId }} · {{ totalFrames() }} frames escaped</div>
+    <div class="eh-name">{{ data.objectName }}</div>
+  </div>
+
+  <div class="eh-spacer"></div>
+
+  <!-- Footer -->
+  <div class="eh-footer">
+    <div class="eh-foot-gear">{{ footerLine() }}</div>
+    <div class="eh-foot-row">
+      <span class="eh-foot-author">{{ data.author }}</span>
+      <span class="eh-foot-spacer"></span>
+      <span class="eh-foot-meta">{{ data.location }} · Bortle {{ data.bortle }}</span>
+    </div>
+  </div>
+</div>

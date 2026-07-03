@@ -1,0 +1,200 @@
+/* Credits Ivory card theme — faithful port of the design source
+   ThemeCreditsIvory. One-sheet on ivory paper; per-theme palette is literal. */
+
+:host {
+  --cri-paper: #f4efe4;
+  --cri-ink: #1a1622;
+  --cri-dim: #6a6376;
+  --cri-faint: #9c94a4;
+  /* Archivo Black / Space Grotesk are not loaded, so these stacks resolve to
+     the loaded Outfit fallback — matching what the design actually renders. */
+  --cri-display: 'Archivo Black', 'Outfit', sans-serif;
+  --cri-sans: 'Space Grotesk', 'Outfit', sans-serif;
+  --cri-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.cri-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: var(--cri-ink);
+  font-family: var(--cri-sans);
+  background:
+    radial-gradient(ellipse 80% 55% at 50% 0%, rgba(255, 255, 252, 0.7), transparent 65%),
+    var(--cri-paper);
+}
+
+.cri-specks {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.cri-constellation {
+  position: absolute;
+  top: 84px;
+  left: 50%;
+  margin-left: -130px;
+  width: 260px;
+  height: 170px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.cri-spike {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.cri-spike-a {
+  left: 92px;
+  top: 606px;
+  width: 20px;
+  height: 20px;
+  opacity: 0.4;
+}
+
+.cri-spike-b {
+  left: 428px;
+  top: 622px;
+  width: 26px;
+  height: 26px;
+  opacity: 0.32;
+}
+
+.cri-inner {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 36px 34px 30px;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+/* ── Presents ── */
+.cri-presents {
+  font: 500 10px/1 var(--cri-mono);
+  color: var(--cri-dim);
+  letter-spacing: 0.44em;
+  text-transform: uppercase;
+  padding-left: 0.44em;
+}
+
+/* ── Title ── */
+.cri-title-block {
+  margin-top: 24px;
+}
+
+.cri-the {
+  font: 400 16px/1 var(--cri-sans);
+  color: var(--cri-dim);
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  padding-left: 0.5em;
+}
+
+.cri-title-solid {
+  font: 400 64px/0.98 var(--cri-display);
+  color: var(--cri-ink);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  margin-top: 10px;
+}
+
+.cri-title-outline {
+  font: 400 64px/0.98 var(--cri-display);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--cri-ink);
+  margin-top: 2px;
+}
+
+/* ── Band strip ── */
+.cri-strip {
+  display: flex;
+  width: 220px;
+  max-width: 100%;
+  margin: 22px auto 0;
+  height: 4px;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.cri-strip-seg {
+  height: 100%;
+}
+
+.cri-designation {
+  font: 500 9.5px/1 var(--cri-mono);
+  color: var(--cri-faint);
+  letter-spacing: 0.26em;
+  margin-top: 12px;
+  text-transform: uppercase;
+  padding-left: 0.26em;
+}
+
+.cri-spacer {
+  flex: 1;
+}
+
+/* ── Billing block ── */
+.cri-billing {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.cri-credit-k {
+  font: 500 8.5px/1 var(--cri-mono);
+  color: var(--cri-faint);
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  padding-left: 0.32em;
+}
+
+.cri-credit-v {
+  font: 600 13px/1.35 var(--cri-sans);
+  color: var(--cri-ink);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-top: 5px;
+}
+
+.cri-faint {
+  color: var(--cri-faint);
+}
+
+.cri-credit-bands {
+  display: block;
+  margin-top: 4px;
+  font: 500 11px/1 var(--cri-mono);
+  letter-spacing: 0.08em;
+}
+
+/* ── Release date ── */
+.cri-release-date {
+  font: 400 40px/1 var(--cri-display);
+  color: var(--cri-ink);
+  letter-spacing: 0.04em;
+}
+
+.cri-release-sub {
+  font: 500 9.5px/1 var(--cri-mono);
+  color: var(--cri-faint);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  margin-top: 10px;
+  padding-left: 0.26em;
+}

@@ -1,0 +1,173 @@
+/* Star Trails card theme — faithful port of the design source ThemeStarTrails. */
+
+:host {
+  --st-bg: #040810;
+  --st-txt: #eaf1fa;
+  --st-dim: #8a96ac;
+  --st-faint: #4b5669;
+  --st-pole: #fff4d8;
+  --st-sans: 'Outfit', system-ui, sans-serif;
+  --st-grot: 'Space Grotesk', 'Outfit', sans-serif;
+  --st-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.st-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: var(--st-txt);
+  font-family: var(--st-sans);
+  padding: 28px 32px 26px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(ellipse 70% 45% at 50% 24%, rgba(40, 60, 110, 0.25), transparent 66%),
+    var(--st-bg);
+}
+
+/* ── Header ── */
+.st-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.st-eyebrow {
+  font: 600 10px/1 var(--st-mono);
+  color: var(--st-dim);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.st-date {
+  font: 500 10px/1 var(--st-mono);
+  color: var(--st-faint);
+  letter-spacing: 0.14em;
+}
+
+/* ── Trails ── */
+.st-svg {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: 2px;
+}
+
+.st-polaris {
+  font: 500 8.5px var(--st-mono);
+  letter-spacing: 0.16em;
+}
+
+/* ── Legend ── */
+.st-legend {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  margin-top: -26px;
+}
+
+.st-legend-item {
+  text-align: center;
+}
+
+.st-legend-swatch {
+  display: block;
+  width: 22px;
+  height: 4px;
+  border-radius: 2px;
+  margin: 0 auto;
+}
+
+.st-legend-id {
+  font: 700 11px/1 var(--st-mono);
+  margin-top: 8px;
+}
+
+.st-legend-time {
+  font: 600 14px/1 var(--st-grot);
+  color: var(--st-txt);
+  margin-top: 6px;
+}
+
+.st-legend-frames {
+  font: 400 9px/1 var(--st-mono);
+  color: var(--st-faint);
+  margin-top: 5px;
+}
+
+/* ── Title + total ── */
+.st-title {
+  position: relative;
+  text-align: center;
+  margin-top: 16px;
+}
+
+.st-kicker {
+  font: 600 10.5px/1 var(--st-mono);
+  color: var(--st-pole);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.st-name {
+  font: 300 38px/1.05 var(--st-sans);
+  margin-top: 10px;
+}
+
+.st-sub {
+  font: 500 10px/1 var(--st-mono);
+  color: var(--st-faint);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-top: 10px;
+}
+
+.st-spacer {
+  flex: 1;
+}
+
+/* ── Footer ── */
+.st-footer {
+  position: relative;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 12px;
+}
+
+.st-foot-gear {
+  font: 500 10px/1.6 var(--st-mono);
+  color: #8b92a6;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.st-foot-row {
+  display: flex;
+  align-items: center;
+  margin-top: 7px;
+}
+
+.st-foot-author {
+  font: 600 12px/1 var(--st-sans);
+  color: #e7eaf2;
+}
+
+.st-foot-spacer {
+  flex: 1;
+}
+
+.st-foot-meta {
+  font: 500 9.5px/1 var(--st-mono);
+  color: #5a6175;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}

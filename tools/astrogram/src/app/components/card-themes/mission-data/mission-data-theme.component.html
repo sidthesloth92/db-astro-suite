@@ -1,0 +1,119 @@
+@let data = vm();
+
+<div class="md-root">
+  <!-- Header -->
+  <div class="md-header">
+    <span class="md-status-dot"></span>
+    <span class="md-brand">Astrogram · Report</span>
+    <div class="md-spacer"></div>
+    <span class="md-date">{{ data.dateNumeric }}</span>
+  </div>
+
+  <!-- Title tile -->
+  <div class="md-tile md-title-tile" data-testid="card-hero">
+    <div class="md-title-text">
+      <div class="md-object-id">{{ data.objectId }}</div>
+      <div class="md-object-name">{{ data.objectName }}</div>
+    </div>
+    <div class="md-ring">
+      <svg
+        [attr.width]="ringSize"
+        [attr.height]="ringSize"
+        [attr.viewBox]="'0 0 ' + ringSize + ' ' + ringSize"
+      >
+        <circle
+          [attr.cx]="ringSize / 2"
+          [attr.cy]="ringSize / 2"
+          [attr.r]="ringRadius"
+          fill="none"
+          stroke="rgba(255,255,255,0.10)"
+          [attr.stroke-width]="ringStroke"
+        />
+        <circle
+          [attr.cx]="ringSize / 2"
+          [attr.cy]="ringSize / 2"
+          [attr.r]="ringRadius"
+          fill="none"
+          stroke="#A6F05A"
+          [attr.stroke-width]="ringStroke"
+          [attr.stroke-dasharray]="ringCircumference"
+          stroke-dashoffset="0"
+          stroke-linecap="round"
+          [attr.transform]="'rotate(-90 ' + ringSize / 2 + ' ' + ringSize / 2 + ')'"
+        />
+      </svg>
+      <div class="md-ring-center">
+        <div class="md-ring-value">{{ data.bortle }}</div>
+        <div class="md-ring-label">BORTLE</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI row -->
+  <div class="md-kpis">
+    <div class="md-tile md-kpi">
+      <div class="md-kpi-label">Integration</div>
+      <div class="md-kpi-value md-kpi-value--lime">{{ data.total }}</div>
+    </div>
+    <div class="md-tile md-kpi">
+      <div class="md-kpi-label">Frames</div>
+      <div class="md-kpi-value md-kpi-value--cyan">{{ frameCount() }}</div>
+    </div>
+    <div class="md-tile md-kpi">
+      <div class="md-kpi-label">Filters</div>
+      <div class="md-kpi-value md-kpi-value--amber">{{ filterCount() }}</div>
+    </div>
+  </div>
+
+  <!-- Integration breakdown -->
+  <div class="md-tile md-breakdown">
+    <div class="md-breakdown-head">
+      <div class="md-breakdown-title">Exposure by band</div>
+      <div class="md-breakdown-sub">300s subs</div>
+    </div>
+    <div class="md-stack">
+      @for (band of data.integration; track band.id) {
+        <div class="md-stack-seg" [style.width.%]="band.pct * 100" [style.background]="band.color"></div>
+      }
+    </div>
+    <div class="md-bands">
+      @for (band of data.integration; track band.id) {
+        <div class="md-band">
+          <div class="md-band-head">
+            <span class="md-band-dot" [style.background]="band.color"></span>
+            <span class="md-band-id">{{ band.id }}</span>
+          </div>
+          <div class="md-band-time">{{ band.time }}</div>
+          <div class="md-band-frames">{{ band.frames }} · {{ pctRounded(band.pct) }}%</div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Rig + pipeline -->
+  <div class="md-lower">
+    <div class="md-tile md-gear">
+      <div class="md-gear-title md-gear-title--cyan">Rig</div>
+      @for (item of data.equipment; track $index) {
+        <div class="md-gear-row">
+          <span class="md-gear-label">{{ item.label }}</span>
+          <span class="md-gear-value">{{ item.value }}</span>
+        </div>
+      }
+    </div>
+    <div class="md-tile md-gear">
+      <div class="md-gear-title md-gear-title--amber">Pipeline</div>
+      @for (item of data.software; track $index) {
+        <div class="md-gear-row">
+          <span class="md-gear-label">{{ item.label }}</span>
+          <span class="md-gear-value">{{ item.value }}</span>
+        </div>
+      }
+      <div class="md-spacer"></div>
+      <div class="md-gear-row md-gear-site">
+        <span class="md-gear-label">Site</span>
+        <span class="md-gear-value">{{ data.location }}</span>
+      </div>
+    </div>
+  </div>
+</div>

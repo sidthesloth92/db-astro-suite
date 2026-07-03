@@ -1,0 +1,67 @@
+@let data = vm();
+
+<div class="dp-root">
+  <div class="dp-blob dp-blob--halftone" aria-hidden="true"></div>
+  <dba-ag-theme-starfield [density]="70" [opacity]="0.4" [color]="'#F5EFE0'" [seed]="5" />
+  <div class="dp-blob dp-blob--coral" aria-hidden="true"></div>
+  <div class="dp-blob dp-blob--sky" aria-hidden="true"></div>
+
+  <div class="dp-inner">
+    <!-- Tag row -->
+    <div class="dp-tags">
+      <span class="dp-tag dp-tag--solid">Astrogram</span>
+      <span class="dp-tag dp-tag--outline">{{ data.objectId }}</span>
+      <div class="dp-spacer"></div>
+      <span class="dp-date">{{ data.dateShort }}</span>
+    </div>
+
+    <!-- Poster headline -->
+    <div class="dp-headline" data-testid="card-hero">
+      <div class="dp-headline-main">{{ objectNameHead() }}</div>
+      @if (objectNameTail()) {
+        <div class="dp-headline-sub">{{ objectNameTail() }}</div>
+      }
+    </div>
+
+    @if (data.caption) {
+      <div class="dp-caption">{{ data.caption }}</div>
+    }
+
+    <!-- Big integration number -->
+    <div class="dp-total-row">
+      <div class="dp-total">{{ data.total }}</div>
+      <div class="dp-total-meta">
+        <div class="dp-total-label">Total</div>
+        <div class="dp-total-sub">integration</div>
+      </div>
+      <div class="dp-spacer"></div>
+      <div class="dp-total-bands">
+        @for (band of data.integration; track band.id) {
+          <div class="dp-band">
+            <span class="dp-band-id" [style.color]="band.color">{{ band.id }}</span>
+            <span class="dp-band-time">{{ band.time }}</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="dp-spacer"></div>
+
+    <!-- Footer columns -->
+    <div class="dp-footer">
+      <div class="dp-footer-col">
+        <div class="dp-footer-title dp-footer-title--coral">Gear</div>
+        @for (item of gearItems(); track $index) {
+          <div class="dp-footer-item">{{ item.value }}</div>
+        }
+      </div>
+      <div class="dp-footer-col">
+        <div class="dp-footer-title dp-footer-title--sky">Process</div>
+        @for (item of data.software; track $index) {
+          <div class="dp-footer-item">{{ item.value }}</div>
+        }
+        <div class="dp-footer-item dp-footer-item--dim">Bortle {{ data.bortle }} · {{ data.location }}</div>
+      </div>
+    </div>
+  </div>
+</div>

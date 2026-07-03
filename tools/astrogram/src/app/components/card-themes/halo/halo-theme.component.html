@@ -1,0 +1,95 @@
+@let data = vm();
+
+<div class="hal-root">
+  <!-- Soft pastel halos -->
+  <div class="hal-halos" aria-hidden="true">
+    <div class="hal-halo hal-halo-lav"></div>
+    <div class="hal-halo hal-halo-rose"></div>
+    <div class="hal-halo hal-halo-sky"></div>
+    <div class="hal-halo hal-halo-mint"></div>
+  </div>
+
+  <div class="hal-inner">
+    <!-- Header -->
+    <div class="hal-header">
+      <div class="hal-logo"></div>
+      <div class="hal-brand">Astrogram</div>
+      <div class="hal-spacer"></div>
+      <div class="hal-date">{{ data.dateNumeric }}</div>
+    </div>
+
+    <!-- Hero -->
+    <div class="hal-glass hal-hero" data-testid="card-hero">
+      <div class="hal-hero-id">{{ data.objectId }}</div>
+      <div class="hal-hero-name">{{ data.objectName }}</div>
+      @if (data.caption) {
+        <div class="hal-hero-caption">{{ data.caption }}</div>
+      }
+      <div class="hal-hero-meta">
+        <span>{{ data.dateShort }}</span>
+        <span class="hal-sep">·</span>
+        <span>{{ data.location }}</span>
+        <span class="hal-sep">·</span>
+        <span>{{ data.author }}</span>
+      </div>
+    </div>
+
+    <!-- Integration -->
+    <div class="hal-glass hal-integration">
+      <div class="hal-int-head">
+        <div class="hal-int-label">Integration</div>
+        <div class="hal-int-total">{{ data.total }} <span>TOTAL</span></div>
+      </div>
+      <div class="hal-pills">
+        @for (band of data.integration; track band.id) {
+          <div
+            class="hal-pill"
+            [style.background]="pillBackground($index)"
+            [style.border]="pillBorder($index)"
+          >
+            <div class="hal-pill-id" [style.color]="pastel($index)">{{ band.id }}</div>
+            <div class="hal-pill-time">{{ band.time }}</div>
+            <div class="hal-pill-frames">{{ band.frames }}</div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Lower grid -->
+    <div class="hal-lower">
+      <div class="hal-glass hal-equipment">
+        <div class="hal-col-title hal-title-mint">Equipment</div>
+        @for (item of data.equipment; track $index) {
+          <div class="hal-gear">
+            <div class="hal-gear-label">{{ item.label }}</div>
+            <div class="hal-gear-value">{{ item.value }}</div>
+          </div>
+        }
+      </div>
+
+      <div class="hal-stack">
+        <div class="hal-glass hal-pipeline">
+          <div class="hal-col-title hal-title-peach">Pipeline</div>
+          @for (item of data.software; track $index) {
+            <div class="hal-gear">
+              <div class="hal-gear-label">{{ item.label }}</div>
+              <div class="hal-gear-value">{{ item.value }}</div>
+            </div>
+          }
+        </div>
+
+        <div class="hal-glass hal-bortle">
+          <div class="hal-bortle-head">
+            <span class="hal-bortle-label">Bortle</span>
+            <span class="hal-bortle-val">{{ data.bortle }}</span>
+          </div>
+          <div class="hal-bortle-bar">
+            @for (segment of bortleSegments; track segment) {
+              <div class="hal-bortle-seg" [class.is-lit]="isBortleLit(segment)"></div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,147 @@
+@let data = vm();
+
+<div class="sps-root">
+  <dba-ag-theme-starfield [density]="70" [opacity]="0.35" color="#ffffff" [seed]="1" />
+
+  <svg class="sps-graticule" width="280" height="280" viewBox="0 0 300 300" aria-hidden="true">
+    @for (r of graticuleRadii; track r) {
+      <circle
+        cx="300"
+        cy="0"
+        [attr.r]="r"
+        fill="none"
+        stroke="#FF2D95"
+        stroke-width="0.7"
+        opacity="0.11"
+      />
+    }
+    @for (line of graticuleLines; track $index) {
+      <line
+        x1="300"
+        y1="0"
+        [attr.x2]="line.x2"
+        [attr.y2]="line.y2"
+        stroke="#FF2D95"
+        stroke-width="0.7"
+        opacity="0.088"
+      />
+    }
+  </svg>
+
+  <svg class="sps-constellation" width="160" height="110" viewBox="0 0 220 150" aria-hidden="true">
+    @for (edge of constellationEdges; track $index) {
+      <line
+        [attr.x1]="edge.x1"
+        [attr.y1]="edge.y1"
+        [attr.x2]="edge.x2"
+        [attr.y2]="edge.y2"
+        stroke="#8B92A6"
+        stroke-width="0.8"
+        stroke-dasharray="3 4"
+        opacity="0.2"
+      />
+    }
+    @for (node of constellationNodes; track $index) {
+      <circle
+        [attr.cx]="node.x"
+        [attr.cy]="node.y"
+        [attr.r]="node.r"
+        fill="#8B92A6"
+        opacity="0.4"
+      />
+      @if (node.halo) {
+        <circle
+          [attr.cx]="node.x"
+          [attr.cy]="node.y"
+          r="5.5"
+          fill="none"
+          stroke="#8B92A6"
+          stroke-width="0.5"
+          opacity="0.18"
+        />
+      }
+    }
+  </svg>
+
+  <!-- Brand row -->
+  <div class="sps-brand">
+    <span class="sps-dot"></span>
+    <span class="sps-brand-name">Astrogram</span>
+    <span class="sps-grow"></span>
+    <span class="sps-date">{{ data.dateNumeric }}</span>
+  </div>
+
+  <!-- Object -->
+  <div class="sps-object" data-testid="card-hero">
+    <div class="sps-kicker">{{ data.objectId }} · Narrowband</div>
+    <div class="sps-name">{{ data.objectName }}</div>
+    @if (cleanCaption()) {
+      <div class="sps-caption">{{ cleanCaption() }}</div>
+    }
+  </div>
+
+  <div class="sps-grow-v"></div>
+
+  <!-- 2×2 giant stats -->
+  <div class="sps-stats">
+    <div class="sps-cell sps-cell-tl">
+      <div class="sps-stat">
+        <div class="sps-stat-k">Integration</div>
+        <div class="sps-stat-v sps-accent">{{ data.total }}</div>
+      </div>
+    </div>
+    <div class="sps-cell sps-cell-tr">
+      <div class="sps-stat">
+        <div class="sps-stat-k">Frames</div>
+        <div class="sps-stat-v">{{ totalFrames() }}</div>
+        <div class="sps-stat-sub">300s subs</div>
+      </div>
+    </div>
+    <div class="sps-cell sps-cell-bl">
+      <div class="sps-stat">
+        <div class="sps-stat-k">Filters</div>
+        <div class="sps-stat-v">{{ filterPalette() }}</div>
+        <div class="sps-stat-sub">{{ filterNames() }}</div>
+      </div>
+    </div>
+    <div class="sps-cell sps-cell-br">
+      <div class="sps-stat">
+        <div class="sps-stat-k">Bortle</div>
+        <div class="sps-stat-v">{{ data.bortle }}</div>
+        <div class="sps-stat-sub">inner city</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Band bar -->
+  <div class="sps-band">
+    <div class="sps-bar">
+      @for (band of data.integration; track band.id) {
+        <div [style.width]="band.pct * 100 + '%'" [style.background]="band.color"></div>
+      }
+    </div>
+    <div class="sps-legend">
+      @for (band of data.integration; track band.id) {
+        <span class="sps-legend-item">
+          <span class="sps-legend-dot" [style.background]="band.color"></span>
+          <span class="sps-legend-id" [style.color]="band.color">{{ band.id }}</span>
+          <span class="sps-legend-time">{{ band.time }}</span>
+        </span>
+      }
+    </div>
+  </div>
+
+  <div class="sps-grow-v"></div>
+
+  <!-- Gear chips -->
+  <div class="sps-chips">
+    @for (item of chipRows(); track $index) {
+      <span class="sps-chip">{{ item.value }}</span>
+    }
+  </div>
+  <div class="sps-author-row">
+    <span class="sps-author">{{ data.author }}</span>
+    <span class="sps-grow"></span>
+    <span class="sps-loc">{{ data.location }}</span>
+  </div>
+</div>

@@ -1,0 +1,102 @@
+@let data = vm();
+
+<div class="ave-root">
+  <dba-ag-theme-starfield [density]="70" [opacity]="0.35" [seed]="1" />
+
+  <!-- Masthead -->
+  <div class="ave-masthead">
+    <div class="ave-mast-left">
+      <svg class="ave-star" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+        <polygon points="7,0 8.2,5.8 14,7 8.2,8.2 7,14 5.8,8.2 0,7 5.8,5.8" fill="#D4A574" />
+      </svg>
+      <div class="ave-mast-name">Astrogram Quarterly</div>
+    </div>
+    <div class="ave-mast-issue">Issue 27 · MMXXVI</div>
+  </div>
+
+  <!-- Catalogue eyebrow -->
+  <div class="ave-eyebrow">Deep-sky catalogue · {{ data.objectId }}</div>
+
+  <!-- Headline -->
+  <div class="ave-headline" data-testid="card-hero">{{ heroPrimary() }}<span class="ave-dot">.</span></div>
+  @if (heroRest()) {
+    <div class="ave-subhead">— {{ heroRest() }}</div>
+  }
+
+  <!-- Standfirst -->
+  @if (data.caption) {
+    <div class="ave-standfirst">
+      <div class="ave-standbar"></div>
+      <div class="ave-standtext">{{ data.caption }}</div>
+    </div>
+  }
+
+  <!-- Byline -->
+  <div class="ave-byline">
+    <span class="ave-meta">
+      <dba-ag-theme-icon name="calendar" [size]="11" color="#D4A574" />{{ data.dateShort }}
+    </span>
+    <span class="ave-meta">
+      <dba-ag-theme-icon name="pin" [size]="11" color="#D4A574" />{{ data.location }}
+    </span>
+    <span class="ave-meta">
+      <dba-ag-theme-icon name="user" [size]="11" color="#D4A574" />{{ data.author }}
+    </span>
+  </div>
+
+  <!-- Integration as editorial display -->
+  <div class="ave-integration">
+    <div class="ave-int-lead">
+      <div class="ave-int-label">Integration</div>
+      <div class="ave-int-total">{{ data.total }}</div>
+    </div>
+    <div class="ave-int-spacer"></div>
+    <div class="ave-int-bands">
+      @for (band of data.integration; track band.id) {
+        <div class="ave-int-band">
+          <div class="ave-int-id" [style.color]="band.color">{{ band.id }}</div>
+          <div class="ave-int-time">{{ band.time }}</div>
+          <div class="ave-int-frames">{{ band.frames }}</div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="ave-flexspacer"></div>
+
+  <!-- Three-col footer -->
+  <div class="ave-footer">
+    <div class="ave-foot-col">
+      <div class="ave-foot-title">Apparatus</div>
+      @for (item of data.equipment; track $index) {
+        <div class="ave-foot-row">
+          <dba-ag-theme-icon class="ave-foot-icon" [name]="equipmentIcon($index)" [size]="10" color="#555A6E" />
+          <div class="ave-foot-label">{{ item.label }}</div>
+          <div class="ave-foot-value">{{ item.value }}</div>
+        </div>
+      }
+    </div>
+
+    <div class="ave-foot-col">
+      <div class="ave-foot-title">Workflow</div>
+      @for (item of data.software; track $index) {
+        <div class="ave-foot-row">
+          <dba-ag-theme-icon class="ave-foot-icon" [name]="softwareIcon($index)" [size]="10" color="#555A6E" />
+          <div class="ave-foot-label">{{ item.label }}</div>
+          <div class="ave-foot-value">{{ item.value }}</div>
+        </div>
+      }
+    </div>
+
+    <div class="ave-foot-col">
+      <div class="ave-foot-title">Sky</div>
+      <div class="ave-sky-big">{{ data.bortle }}</div>
+      <div class="ave-sky-sub">Bortle · inner city</div>
+      <div class="ave-sky-bar">
+        @for (segment of bortleSegments; track segment) {
+          <div class="ave-sky-seg" [class.is-lit]="isBortleLit(segment)"></div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

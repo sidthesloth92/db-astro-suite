@@ -1,0 +1,270 @@
+/* Aurora card theme — faithful port of the design source ThemeAuroraEditorial.
+   Per-theme palette/typography is the theme's identity, so colours are literal. */
+
+:host {
+  --ave-cream: #f0e8d4;
+  --ave-gold: #d4a574;
+  --ave-rose: #e5446d;
+  --ave-txt: #f0e8d4;
+  --ave-dim: #9ca1b5;
+  --ave-faint: #555a6e;
+  --ave-serif: 'Manrope', 'Outfit', system-ui, sans-serif;
+  --ave-display: 'Manrope', 'Outfit', sans-serif;
+  --ave-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.ave-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: 32px 36px;
+  color: var(--ave-txt);
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(ellipse 70% 50% at 50% -10%, rgba(212, 165, 116, 0.1), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 50% 110%, rgba(229, 68, 109, 0.1), transparent 60%),
+    linear-gradient(180deg, #0a0e1a 0%, #070912 100%);
+}
+
+/* Lift every content child above the absolute star field. */
+.ave-root > *:not(dba-ag-theme-starfield) {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Masthead ── */
+.ave-masthead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(212, 165, 116, 0.251);
+  padding-bottom: 10px;
+}
+
+.ave-mast-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ave-star {
+  flex-shrink: 0;
+  display: block;
+}
+
+.ave-mast-name {
+  font: 500 9.5px/1 var(--ave-mono);
+  letter-spacing: 0.32em;
+  color: var(--ave-gold);
+  text-transform: uppercase;
+}
+
+.ave-mast-issue {
+  font: 500 9.5px/1 var(--ave-mono);
+  letter-spacing: 0.22em;
+  color: var(--ave-faint);
+  text-transform: uppercase;
+}
+
+/* ── Headline block ── */
+.ave-eyebrow {
+  margin-top: 26px;
+  font: 500 9.5px/1 var(--ave-mono);
+  letter-spacing: 0.32em;
+  color: var(--ave-rose);
+  text-transform: uppercase;
+}
+
+.ave-headline {
+  font: 800 60px/0.92 var(--ave-display);
+  color: var(--ave-cream);
+  margin-top: 12px;
+  letter-spacing: -0.01em;
+}
+
+.ave-dot {
+  color: var(--ave-rose);
+}
+
+.ave-subhead {
+  font: 400 16px/1 var(--ave-display);
+  color: var(--ave-gold);
+  margin-top: 6px;
+  letter-spacing: 0.04em;
+}
+
+/* ── Standfirst ── */
+.ave-standfirst {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.ave-standbar {
+  width: 2px;
+  align-self: stretch;
+  background: linear-gradient(180deg, var(--ave-gold), transparent);
+  border-radius: 1px;
+}
+
+.ave-standtext {
+  font: 300 13.5px/1.55 var(--ave-serif);
+  color: var(--ave-txt);
+  flex: 1;
+}
+
+/* ── Byline ── */
+.ave-byline {
+  display: flex;
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.ave-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font: 500 9px/1 var(--ave-mono);
+  color: var(--ave-dim);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* ── Integration ── */
+.ave-integration {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(212, 165, 116, 0.2);
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+}
+
+.ave-int-label {
+  font: 500 9px/1 var(--ave-mono);
+  letter-spacing: 0.28em;
+  color: var(--ave-gold);
+  text-transform: uppercase;
+}
+
+.ave-int-total {
+  font: 800 54px/0.92 var(--ave-display);
+  color: var(--ave-cream);
+  margin-top: 8px;
+}
+
+.ave-int-spacer {
+  flex: 1;
+}
+
+.ave-int-bands {
+  display: flex;
+  gap: 14px;
+  padding-bottom: 4px;
+}
+
+.ave-int-band {
+  text-align: right;
+}
+
+.ave-int-id {
+  font: 500 10px/1 var(--ave-mono);
+  letter-spacing: 0.1em;
+}
+
+.ave-int-time {
+  font: 300 14px/1 var(--ave-serif);
+  color: var(--ave-cream);
+  margin-top: 6px;
+}
+
+.ave-int-frames {
+  font: 400 8.5px/1 var(--ave-mono);
+  color: var(--ave-faint);
+  margin-top: 4px;
+}
+
+.ave-flexspacer {
+  flex: 1;
+}
+
+/* ── Three-col footer ── */
+.ave-footer {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 0.7fr;
+  gap: 18px;
+  border-top: 1px solid rgba(212, 165, 116, 0.2);
+  padding-top: 14px;
+  margin-top: 18px;
+}
+
+.ave-foot-title {
+  font: 500 9px/1 var(--ave-mono);
+  letter-spacing: 0.3em;
+  color: var(--ave-gold);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.ave-foot-row {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  margin-bottom: 4px;
+}
+
+.ave-foot-icon {
+  flex-shrink: 0;
+}
+
+.ave-foot-label {
+  font: 300 9px/1 var(--ave-serif);
+  color: var(--ave-faint);
+  min-width: 50px;
+  text-transform: lowercase;
+}
+
+.ave-foot-value {
+  font: 400 10.5px/1.2 var(--ave-serif);
+  color: var(--ave-txt);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ave-sky-big {
+  font: 800 52px/0.92 var(--ave-display);
+  color: var(--ave-cream);
+}
+
+.ave-sky-sub {
+  font: 300 9.5px/1.2 var(--ave-serif);
+  color: var(--ave-dim);
+  margin-top: 4px;
+}
+
+.ave-sky-bar {
+  display: flex;
+  gap: 1px;
+  margin-top: 6px;
+}
+
+.ave-sky-seg {
+  flex: 1;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.ave-sky-seg.is-lit {
+  background: var(--ave-gold);
+}
