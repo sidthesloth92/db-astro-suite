@@ -51,7 +51,7 @@ libs/ui         →  libs/theme only            (ALLOWED)
 libs/theme      →  nothing                    (ALLOWED)
 e2e             →  nothing                    (ALLOWED)
 app → other app                               (FORBIDDEN)
-relative ../../libs/... imports               (FORBIDDEN — use @db-astro/* aliases)
+relative ../../libs/... imports               (FORBIDDEN — use @db-astro-suite/* aliases)
 ```
 
 ## Constraints

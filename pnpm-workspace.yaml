@@ -3,4 +3,3 @@ packages:
   - "tools/*"
   - "tools/astrosolve/*"
   - "libs/*"
-  - "services/*"
