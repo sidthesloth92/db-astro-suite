@@ -38,6 +38,7 @@
         #cardElement
         id="card-preview"
         class="card"
+        [class.bleed]="bleedContent()"
         [class.aspect-3-4]="aspectRatio() === '3:4'"
         [class.aspect-4-5]="aspectRatio() === '4:5'"
         [class.aspect-1-1]="aspectRatio() === '1:1'"

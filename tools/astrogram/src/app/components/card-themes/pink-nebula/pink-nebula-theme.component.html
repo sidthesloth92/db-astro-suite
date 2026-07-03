@@ -1,0 +1,126 @@
+@let data = vm();
+
+<div class="pnt-root">
+  <dba-ag-theme-starfield [density]="140" [opacity]="0.7" [seed]="1" />
+
+  <svg class="pnt-golddust" viewBox="0 0 540 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    @for (dust of goldDust; track $index) {
+      <circle [attr.cx]="dust.cx" [attr.cy]="dust.cy" r="1.4" fill="#E8C788" opacity="0.4" />
+    }
+  </svg>
+
+  <div class="pnt-inner">
+    <!-- HEADER -->
+    <div class="pnt-card pnt-header" data-testid="card-hero">
+      <div class="pnt-eyebrow">Astrogram · Catalogue Plate</div>
+      <div class="pnt-title">
+        @if (data.objectId) {
+          {{ data.objectId }}<br />
+        }
+        {{ data.objectName }}
+      </div>
+      <div class="pnt-meta">
+        <span class="pnt-chip">
+          <dba-ag-theme-icon name="calendar" [size]="11" color="#D63384" />{{ data.date }}
+        </span>
+        <span class="pnt-chip">
+          <dba-ag-theme-icon name="pin" [size]="11" color="#D63384" />{{ data.location }}
+        </span>
+        <span class="pnt-chip">
+          <dba-ag-theme-icon name="user" [size]="11" color="#D63384" />{{ data.author }}
+        </span>
+      </div>
+      @if (data.caption) {
+        <div class="pnt-caption">“{{ data.caption }}”</div>
+      }
+    </div>
+
+    <!-- INTEGRATION -->
+    <div class="pnt-card pnt-integration">
+      <div class="pnt-int-head">
+        <div class="pnt-int-label">integration</div>
+        <div class="pnt-int-total">TOTAL <span>{{ data.total }}</span></div>
+      </div>
+      <div class="pnt-rings">
+        @for (band of data.integration; track band.id) {
+          <div class="pnt-ring-item">
+            <div class="pnt-ring" [style.--ring-glow]="band.color + '55'">
+              <svg [attr.width]="ringSize" [attr.height]="ringSize" [attr.viewBox]="'0 0 ' + ringSize + ' ' + ringSize">
+                <circle
+                  [attr.cx]="ringSize / 2"
+                  [attr.cy]="ringSize / 2"
+                  [attr.r]="ringRadius"
+                  fill="none"
+                  stroke="rgba(255,255,255,0.08)"
+                  [attr.stroke-width]="ringStroke"
+                />
+                <circle
+                  [attr.cx]="ringSize / 2"
+                  [attr.cy]="ringSize / 2"
+                  [attr.r]="ringRadius"
+                  fill="none"
+                  [attr.stroke]="band.color"
+                  [attr.stroke-width]="ringStroke"
+                  [attr.stroke-dasharray]="ringCircumference"
+                  [attr.stroke-dashoffset]="ringOffset(band)"
+                  stroke-linecap="round"
+                  [attr.transform]="'rotate(-90 ' + ringSize / 2 + ' ' + ringSize / 2 + ')'"
+                />
+              </svg>
+              <span class="pnt-ring-time">{{ band.time }}</span>
+            </div>
+            <div class="pnt-ring-id" [style.color]="band.color">{{ band.id }}</div>
+            <div class="pnt-ring-frames">{{ band.frames }}</div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- TWO-COL -->
+    <div class="pnt-twocol">
+      <div class="pnt-card pnt-equipment">
+        <div class="pnt-col-title">equipment</div>
+        @for (item of data.equipment; track $index) {
+          <div class="pnt-gear-row">
+            <dba-ag-theme-icon class="pnt-gear-icon" [name]="equipmentIcon($index)" [size]="13" />
+            <div class="pnt-gear-text">
+              <div class="pnt-gear-label">{{ item.label }}</div>
+              <div class="pnt-gear-value">{{ item.value }}</div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="pnt-stack">
+        <div class="pnt-card pnt-software">
+          <div class="pnt-col-title">software</div>
+          @for (item of data.software; track $index) {
+            <div class="pnt-gear-row">
+              <dba-ag-theme-icon class="pnt-gear-icon" [name]="softwareIcon($index)" [size]="13" />
+              <div class="pnt-gear-text">
+                <div class="pnt-gear-label">{{ item.label }}</div>
+                <div class="pnt-gear-value">{{ item.value }}</div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="pnt-card pnt-bortle">
+          <div class="pnt-bortle-head">
+            <div class="pnt-col-title">bortle</div>
+            <div class="pnt-bortle-val">{{ data.bortle }}<span>/9</span></div>
+          </div>
+          <div class="pnt-bortle-bar">
+            @for (segment of bortleSegments; track segment) {
+              <div
+                class="pnt-bortle-seg"
+                [class.is-lit]="isBortleLit(segment)"
+                [style.opacity]="bortleOpacity(segment)"
+              ></div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

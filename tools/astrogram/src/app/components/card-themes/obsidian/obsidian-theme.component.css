@@ -1,0 +1,334 @@
+/* Obsidian Glass card theme — faithful port of the design source ThemeObsidian. */
+
+:host {
+  --obs-cyan: #5dd8ff;
+  --obs-violet: #b97dff;
+  --obs-gold: #e8c788;
+  --obs-txt: #e8ecf5;
+  --obs-dim: #9aa3b8;
+  --obs-faint: #5a6178;
+  --obs-sans: 'Outfit', -apple-system, system-ui, sans-serif;
+  --obs-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.obs-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: var(--obs-txt);
+  font-family: var(--obs-sans);
+  background:
+    radial-gradient(ellipse 80% 60% at 30% 20%, rgba(93, 216, 255, 0.1), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 90%, rgba(185, 125, 255, 0.1), transparent 65%),
+    linear-gradient(180deg, #0a0e1a 0%, #06080f 60%, #02030a 100%);
+}
+
+.obs-aurora {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.obs-inner {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-sizing: border-box;
+}
+
+.obs-glass {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 14px;
+  backdrop-filter: blur(12px) saturate(140%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* ── Masthead ── */
+.obs-masthead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.obs-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.obs-brand-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: conic-gradient(from 180deg, var(--obs-cyan), var(--obs-violet), var(--obs-gold), var(--obs-cyan));
+  box-shadow: 0 0 12px rgba(93, 216, 255, 0.25);
+}
+
+.obs-brand-name {
+  font: 600 11px/1 var(--obs-sans);
+  letter-spacing: 0.18em;
+  color: var(--obs-txt);
+  text-transform: uppercase;
+}
+
+.obs-frame {
+  font: 500 9.5px/1 var(--obs-mono);
+  letter-spacing: 0.18em;
+  color: var(--obs-faint);
+}
+
+/* ── Hero ── */
+.obs-hero {
+  padding: 20px 20px 18px;
+}
+
+.obs-kicker {
+  font: 500 9.5px/1 var(--obs-mono);
+  letter-spacing: 0.28em;
+  color: var(--obs-cyan);
+  text-transform: uppercase;
+}
+
+.obs-name {
+  font: 300 38px/1 var(--obs-sans);
+  color: var(--obs-txt);
+  letter-spacing: -0.02em;
+  margin-top: 10px;
+}
+
+.obs-hairline {
+  display: inline-block;
+  margin-top: 10px;
+  width: 56px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--obs-cyan), transparent);
+}
+
+.obs-caption {
+  font: 400 12px/1.55 var(--obs-sans);
+  color: var(--obs-dim);
+  margin-top: 12px;
+  max-width: 440px;
+}
+
+.obs-meta {
+  display: flex;
+  gap: 16px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.obs-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font: 500 9.5px/1 var(--obs-mono);
+  color: var(--obs-dim);
+  letter-spacing: 0.04em;
+}
+
+/* ── Integration ── */
+.obs-int-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.obs-int-label {
+  font: 500 9.5px/1 var(--obs-mono);
+  letter-spacing: 0.22em;
+  color: var(--obs-cyan);
+  text-transform: uppercase;
+}
+
+.obs-int-total {
+  font: 300 24px/1 var(--obs-sans);
+  color: var(--obs-txt);
+  letter-spacing: -0.02em;
+}
+
+.obs-int-total span {
+  font: 500 9.5px/1 var(--obs-mono);
+  color: var(--obs-faint);
+  letter-spacing: 0.1em;
+}
+
+.obs-bar {
+  display: flex;
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.obs-bar-seg {
+  height: 100%;
+}
+
+.obs-legend {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.obs-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.obs-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.obs-legend-id {
+  font: 600 10px/1.1 var(--obs-mono);
+  letter-spacing: 0.1em;
+}
+
+.obs-legend-time {
+  font: 500 13px/1.1 var(--obs-sans);
+  color: var(--obs-txt);
+  margin-top: 3px;
+}
+
+.obs-legend-frames {
+  font: 400 8.5px/1 var(--obs-mono);
+  color: var(--obs-faint);
+  margin-top: 3px;
+}
+
+/* ── Lower grid ── */
+.obs-lower {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+}
+
+.obs-apparatus,
+.obs-pipeline {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.obs-pipeline {
+  flex: 1;
+}
+
+.obs-col-title {
+  font: 500 9.5px/1 var(--obs-mono);
+  letter-spacing: 0.22em;
+  color: var(--obs-violet);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.obs-gear-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+}
+
+.obs-gear-icon {
+  color: var(--obs-violet);
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.obs-gear-text {
+  min-width: 0;
+  flex: 1;
+}
+
+.obs-gear-label {
+  font: 500 8.5px/1 var(--obs-mono);
+  color: var(--obs-faint);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.obs-gear-value {
+  font: 500 11px/1.25 var(--obs-sans);
+  color: var(--obs-txt);
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.obs-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.obs-bortle {
+  padding: 10px 12px;
+}
+
+.obs-bortle-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.obs-bortle-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font: 500 9.5px/1 var(--obs-mono);
+  letter-spacing: 0.2em;
+  color: var(--obs-gold);
+  text-transform: uppercase;
+}
+
+.obs-bortle-val {
+  font: 300 18px/1 var(--obs-sans);
+  color: var(--obs-txt);
+}
+
+.obs-bortle-val span {
+  font: 500 10px/1 var(--obs-mono);
+  color: var(--obs-faint);
+}
+
+.obs-bortle-bar {
+  display: flex;
+  gap: 2px;
+  margin-top: 8px;
+}
+
+.obs-bortle-seg {
+  flex: 1;
+  height: 4px;
+  border-radius: 1px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.obs-bortle-seg.is-lit {
+  background: var(--obs-gold);
+}

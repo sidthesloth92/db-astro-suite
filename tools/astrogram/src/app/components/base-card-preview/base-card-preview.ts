@@ -88,6 +88,13 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
   accentColorRgb = input<string>('255, 45, 149');
   secondaryAccentColor = input<string>('#00E5FF');
   cardOpacity = input<number>(0.85);
+  /**
+   * When true, the projected content fills the card edge-to-edge (no inner
+   * padding / flex distribution). Card themes draw their own full-bleed
+   * background + padding, so they opt into this; the stellar-map and legacy
+   * layouts keep the default padded flex column.
+   */
+  bleedContent = input<boolean>(false);
 
   @HostBinding('style.--scale-factor') get scale() {
     return this.scaleFactor();

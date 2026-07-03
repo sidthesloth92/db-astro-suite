@@ -5,22 +5,28 @@ import {
   InspectorFieldComponent,
   InspectorSectionComponent,
   MicroSliderComponent,
+  SelectComponent,
   cropIcon,
   imageIcon,
   paletteIcon,
+  sparklesIcon,
 } from '@db-astro-suite/ui';
 import {
   PREVIEW_SIZES,
-  PREVIEW_SIZE_GROUPS,
+  buildPreviewSizeSelectItems,
   type PreviewSizeKey,
 } from '../../constants/preview-sizes.constants';
+import {
+  CARD_THEMES,
+  buildCardThemeSelectItems,
+  isCardThemeId,
+} from '../../components/card-themes/card-themes.constants';
 import { CardDataService } from '../../services/card-data.service';
-import type { FormatGroup, FormatOption } from './layout-panel.types';
 
 /**
- * Inspector panel combining card format (aspect-ratio preset), accent
- * colours, opacity, and background image. Consolidates the former Format
- * section (previously in StylePanel) with colour and background controls.
+ * Inspector panel combining card theme, format (aspect-ratio preset), accent
+ * colours, opacity, and background image. Theme and size are both native
+ * dropdowns; accent + background controls follow.
  */
 @Component({
   selector: 'dba-ag-layout-panel',
@@ -30,6 +36,7 @@ import type { FormatGroup, FormatOption } from './layout-panel.types';
     InspectorFieldComponent,
     ColorSwatchInputComponent,
     MicroSliderComponent,
+    SelectComponent,
     IconComponent,
   ],
   templateUrl: './layout-panel.component.html',
@@ -42,35 +49,52 @@ export class LayoutPanelComponent {
   /** Current card document. */
   readonly cardData = this.dataService.cardData;
 
-  /** Currently selected preview-size key — drives the active-row highlight. */
+  /** Currently selected preview-size key — drives the size dropdown value. */
   readonly selectedSizeKey = this.dataService.previewSizeKey;
 
   /** Glyphs rendered next to each section title. */
+  protected readonly sparklesIcon = sparklesIcon;
   protected readonly cropIcon = cropIcon;
   protected readonly paletteIcon = paletteIcon;
   protected readonly imageIcon = imageIcon;
 
-  /** All format options grouped by social platform, shown in the scrollable picker. */
-  readonly formatGroups: readonly FormatGroup[] = PREVIEW_SIZE_GROUPS.map((group) => ({
-    label: group.label,
-    options: group.keys.map<FormatOption>((key) => {
-      const meta = PREVIEW_SIZES[key];
-      const isAuto = meta.ratio === 'auto';
-      return {
-        key,
-        label: meta.name,
-        dims: isAuto ? 'matches source image' : `${meta.width} × ${meta.height}`,
-        ratio: meta.ratio,
-      };
-    }),
-  }));
+  /** Theme dropdown options built from the registry. */
+  readonly themeSelectItems = buildCardThemeSelectItems();
+
+  /** Size dropdown options grouped by social platform. */
+  readonly sizeSelectItems = buildPreviewSizeSelectItems();
+
+  /** Active theme's helper subtitle shown under the theme picker. */
+  readonly activeThemeSubtitle = computed(
+    () => CARD_THEMES[this.cardData().cardTheme]?.subtitle ?? '',
+  );
+
+  /** Metadata for the selected size (drives the ratio proxy + px caption). */
+  readonly selectedSizeMeta = computed(() => PREVIEW_SIZES[this.selectedSizeKey()]);
+
+  /** Pixel-dimension caption for the selected size. */
+  readonly sizeCaption = computed(() => {
+    const meta = this.selectedSizeMeta();
+    return meta.ratio === 'auto' ? 'Matches source image' : `${meta.width} × ${meta.height} px`;
+  });
 
   /** Current card opacity expressed in 0–100 for the slider readout. */
   readonly opacityPercent = computed(() => Math.round(this.cardData().cardOpacity * 100));
 
+  /** Applies a theme: sets the id and resets accents to the theme defaults. */
+  setTheme(value: string | number | boolean): void {
+    if (!isCardThemeId(value)) {
+      return;
+    }
+    const accents = CARD_THEMES[value]?.accents;
+    if (accents) {
+      this.dataService.setCardTheme(value, accents);
+    }
+  }
+
   /** Picks a new size preset; routes through the shared service to keep context in sync. */
-  setFormat(key: PreviewSizeKey): void {
-    this.dataService.setPreviewSize(key);
+  onSizeChange(value: string | number | boolean): void {
+    this.dataService.setPreviewSize(value as PreviewSizeKey);
   }
 
   /** Patches the accent colour and its parsed RGB tuple. */

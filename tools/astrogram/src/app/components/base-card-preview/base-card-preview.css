@@ -290,6 +290,17 @@
   gap: 2.25rem;
 }
 
+/* Full-bleed content mode: card themes render their own background + padding
+   and manage their own internal layout, so the content host becomes a plain
+   full-size block. Placed after the aspect-specific `.card-content` rules so
+   it wins on equal specificity via source order. */
+.card.bleed .card-content {
+  display: block;
+  padding: 0;
+  gap: 0;
+  justify-content: flex-start;
+}
+
 .card-overlay {
   position: absolute;
   inset: 0;
