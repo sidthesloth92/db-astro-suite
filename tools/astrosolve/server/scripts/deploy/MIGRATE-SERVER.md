@@ -114,6 +114,12 @@ ssh -A -i $SSH_KEY root@$OLD_IP        # -A forwards the agent to the old box
 # now ON the old box (env vars don't cross the SSH hop — set the destination here):
 export NEW_IP="<new server IP>"
 
+# GUARD: a copy sent to a wrong-but-reachable host exits 0 and looks like success, so
+# confirm NEW_IP is set and is NOT this (old) box before copying. `hostname -I` lists
+# this box's own IPs — NEW_IP must not be among them, or you'd copy old→old (a no-op).
+test -n "$NEW_IP" && ! hostname -I | tr ' ' '\n' | grep -qx "$NEW_IP" \
+  || { echo "ABORT: NEW_IP unset or points at THIS (old) box — that copy would no-op"; exit 1; }
+
 # catalog: read-only, safe to copy while the app runs
 rsync -avP /opt/astrosolve/data/local-catalog/celestial.sqlite \
   deploy@$NEW_IP:/opt/astrosolve/data/local-catalog/
@@ -141,6 +147,24 @@ is *written* on every solve, so Method A stops the container briefly for a clean
 of old-box downtime — fine, since Cloudflare still points at it and traffic is light). Method A is faster
 because the bytes go box-to-box over the provider's backbone; Method B routes them through your Mac
 (~2× the transfer). The ~8.3 GB transferred is negligible against a typical monthly traffic allowance.
+
+### Verify the copy actually landed (do NOT skip — this is where migrations silently fail)
+
+**What:** from your Mac, compare the on-disk size of `astrosolve.sqlite` on both boxes. They must match.
+
+```bash
+# from your Mac — both numbers must be EQUAL and non-trivial
+# (a fresh box's placeholder is only ~48 KB):
+ssh -i $SSH_KEY deploy@$OLD_IP 'stat -c "%s  OLD" /opt/astrosolve/data/astrosolve.sqlite'
+ssh -i $SSH_KEY deploy@$NEW_IP 'stat -c "%s  NEW" /opt/astrosolve/data/astrosolve.sqlite'
+```
+
+**Why:** `rsync` to a wrong-but-reachable host **exits 0** — a mistargeted copy is indistinguishable
+from a real one by exit code alone. This size compare is the first unambiguous proof the bytes arrived.
+If NEW is ~48 KB (or much smaller than OLD), the copy did **not** land — the box still has the empty
+placeholder `1_server_init.sh` created. Re-check `NEW_IP` and re-run the copy before continuing. (The
+definitive key-by-key check is step 6, once the container is running — this size check is the early
+tripwire so you catch it here, not after cutover.)
 
 ---
 
@@ -184,11 +208,29 @@ ssh -i $SSH_KEY deploy@$NEW_IP \
   'ls -lh /opt/astrosolve/data/local-catalog/celestial.sqlite /opt/astrosolve/data/astrosolve.sqlite'
 ```
 
-Also confirm an **existing access key still authenticates** against `http://$NEW_IP/` and that a solve
-returns catalog labels.
+Then run the **hard gate that guarantees your users can still authenticate** — a key-by-key diff of the
+new box against the old box. Run it against the **raw `$NEW_IP`** (never a hostname or an ambient
+`SERVER_IP` that might still point at the old box):
 
-**Why:** DNS still points at the old box, so users are unaffected while you test. The key-auth check is
-the critical one — it proves `astrosolve.sqlite` copied intact (the whole reason for this migration). The
+```bash
+# from your Mac — these two lists MUST be identical (sort makes order irrelevant):
+ssh -i $SSH_KEY deploy@$OLD_IP 'docker exec astrosolve node scripts/manage-keys.js list' | sort > /tmp/keys-old.txt
+ssh -i $SSH_KEY deploy@$NEW_IP 'docker exec astrosolve node scripts/manage-keys.js list' | sort > /tmp/keys-new.txt
+diff /tmp/keys-old.txt /tmp/keys-new.txt \
+  && echo "✅ KEYS MATCH — safe to cut over" \
+  || echo "❌ KEYS DIFFER — copy failed; DO NOT flip DNS; redo step 3"
+```
+
+**STOP if the diff is non-empty.** If the new box shows fewer keys (or none), the keys DB never copied —
+flipping DNS now would lock out every user whose key is missing. Go back to step 3, confirm `NEW_IP`, and
+re-copy. Only proceed to step 7 when the diff is clean.
+
+**Why:** DNS still points at the old box, so users are unaffected while you test. This key diff is the
+single most important check in the runbook — it is the only thing that *proves* `astrosolve.sqlite`
+actually copied. An rsync to the wrong host exits 0 and leaves the new box with an empty placeholder,
+which looks fine right up until real users hit `UNAUTHORIZED` after cutover. Run it against the raw
+`$NEW_IP` specifically: verifying the *old* box by mistake is exactly how a broken copy slips through
+(if `SERVER_IP` is floating around your shell, it may point at the old box — don't use it here). The
 catalog-label check proves `celestial.sqlite` copied intact. Fix any problem now, with zero user impact.
 
 ---
