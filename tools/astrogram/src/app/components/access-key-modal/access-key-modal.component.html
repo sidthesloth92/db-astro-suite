@@ -1,74 +1,95 @@
-<div class="modal-backdrop" (click)="onCancel()">
+<div class="astro-overlay" (click)="onCancel()">
+  <svg class="astro-stars" aria-hidden="true">
+    @for (star of stars; track $index) {
+      <circle [attr.cx]="star.cx + '%'" [attr.cy]="star.cy + '%'" [attr.r]="star.r" fill="#fff" [attr.opacity]="star.opacity" />
+    }
+  </svg>
+
   <div
-    class="modal-dialog"
+    class="astro-modal"
     role="dialog"
     aria-modal="true"
     aria-labelledby="access-key-modal-title"
     (click)="$event.stopPropagation()"
   >
+    <button class="astro-close" type="button" aria-label="Close" (click)="onCancel()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M18 6 6 18" /><path d="m6 6 12 12" />
+      </svg>
+    </button>
+
+    <div class="astro-logo">
+      <span class="astro-logo-dot"></span>
+      <span class="astro-logo-word">astrogram</span>
+    </div>
+
     @if (view() === 'cta') {
-      <div class="modal-header">
-        <h2 id="access-key-modal-title" class="modal-title">🔑 WANNA TRY IT OUT?</h2>
-      </div>
+      <div class="astro-eyebrow"><span class="dot"></span>Access required</div>
+      <h2 id="access-key-modal-title" class="astro-title">Wanna try Astro Solve?</h2>
+      <p class="astro-body">
+        DM <b>&#64;astrowithdb</b> on Instagram to grab an access key, then paste it here to unlock the solver.
+      </p>
 
-      <div class="modal-body">
-        <p class="modal-description">
-          DM @astrowithdb on Instagram to get a key to try it out. Thank You!
-        </p>
-
-        <button
-          class="modal-btn modal-btn--instagram"
-          type="button"
-          (click)="openInstagram()"
-        >
-          📸 DM ON INSTAGRAM
+      <div class="astro-actions">
+        <button class="astro-btn astro-btn--primary" type="button" (click)="openInstagram()">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M22 2 11 13" /><path d="M22 2 15 22l-4-9-9-4Z" />
+          </svg>
+          DM on Instagram
         </button>
-
-        <button class="modal-link" type="button" (click)="switchToKey()">
-          Already have a key? ›
-        </button>
-      </div>
-
-      <div class="modal-footer modal-footer--single">
-        <button class="modal-btn modal-btn--cancel" type="button" (click)="onCancel()">
-          CLOSE
+        <button class="astro-link" type="button" (click)="switchToKey()">
+          Already have a key?
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m9 6 6 6-6 6" />
+          </svg>
         </button>
       </div>
     } @else {
-      <div class="modal-header">
-        <h2 id="access-key-modal-title" class="modal-title">🔑 ENTER ACCESS KEY</h2>
-      </div>
+      <div class="astro-eyebrow"><span class="dot"></span>Unlock</div>
+      <h2 id="access-key-modal-title" class="astro-title">Enter your access key</h2>
+      <p class="astro-body">Paste the key you received from <b>&#64;astrowithdb</b> to start solving.</p>
 
-      <div class="modal-body">
-        <p class="modal-description">Paste the key you received.</p>
-
-        @if (showError()) {
-          <p class="modal-error">Invalid access key — please try again</p>
-        }
-
-        <div class="modal-field">
-          <span class="modal-field-label">Access Key</span>
-          <dba-ui-micro-input
-            ariaLabel="Access Key"
-            placeholder="Enter your access key..."
-            type="password"
+      <div class="astro-field astro-field--spaced">
+        <label class="astro-field-label" for="access-key-input">Access key</label>
+        <div class="astro-input-wrap">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="7.5" cy="15.5" r="5.5" /><path d="M11.4 11.6 21 2" /><path d="m16 7 3 3" /><path d="m18 5 3 3" />
+          </svg>
+          <input
+            id="access-key-input"
+            class="astro-input"
+            type="text"
+            aria-label="Access Key"
+            placeholder="ASTRO-XXXX-XXXX"
+            autocomplete="off"
+            spellcheck="false"
             [value]="keyValue()"
-            (valueChange)="onKeyChange($event)"
-          ></dba-ui-micro-input>
+            (input)="onKeyInput($event)"
+            (keydown)="onKeydown($event)"
+          />
         </div>
+        @if (showError()) {
+          <p class="astro-err">That key doesn't look right — check it and try again.</p>
+        }
       </div>
 
-      <div class="modal-footer">
-        <button class="modal-btn modal-btn--cancel" type="button" (click)="switchToCta()">
-          BACK
+      <div class="astro-row">
+        <button class="astro-btn astro-btn--ghost" type="button" (click)="switchToCta()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m15 6-6 6 6 6" />
+          </svg>
+          Back
         </button>
         <button
-          class="modal-btn modal-btn--submit"
+          class="astro-btn astro-btn--primary"
           type="button"
           [disabled]="isSubmitDisabled()"
           (click)="onSubmit()"
         >
-          SUBMIT
+          Unlock solver
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m9 6 6 6-6 6" />
+          </svg>
         </button>
       </div>
     }

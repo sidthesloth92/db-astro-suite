@@ -9,20 +9,19 @@ import {
   signal,
 } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
-import { AnalyticsService, MicroInputComponent } from '@db-astro-suite/ui';
-import { INSTAGRAM_URL } from './access-key-modal.constants';
+import { AnalyticsService } from '@db-astro-suite/ui';
+import { INSTAGRAM_URL, MIN_ACCESS_KEY_LENGTH, MODAL_STARS } from './access-key-modal.constants';
 
 /**
- * Modal dialog that invites the user to request an Astrosolve access key
+ * Astro Solve access-key modal. Invites the user to request an access key
  * (via Instagram DM) and lets them paste a key they already have.
  *
- * Starts in the CTA view by default, or jumps straight to the key-entry
+ * Starts in the gate/CTA view by default, or jumps straight to the key-entry
  * view when `showError` is true (the previously stored key was rejected).
  */
 @Component({
   selector: 'dba-ag-access-key-modal',
   standalone: true,
-  imports: [MicroInputComponent],
   templateUrl: './access-key-modal.component.html',
   styleUrl: './access-key-modal.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -40,14 +39,17 @@ export class AccessKeyModalComponent {
   /** Emits when the user dismisses the modal without submitting. */
   cancelled = output<void>();
 
-  /** Which view is currently shown: the invite CTA or the key-entry form. */
+  /** Which view is currently shown: the invite gate or the key-entry form. */
   readonly view = signal<'cta' | 'key'>('cta');
 
   /** Current value of the access-key input field. */
   readonly keyValue = signal('');
 
-  /** True when the key input is empty, disabling the submit button. */
-  readonly isSubmitDisabled = computed(() => this.keyValue().trim().length === 0);
+  /** Decorative backdrop stars. */
+  protected readonly stars = MODAL_STARS;
+
+  /** True until the key input reaches the minimum length, disabling submit. */
+  readonly isSubmitDisabled = computed(() => this.keyValue().trim().length < MIN_ACCESS_KEY_LENGTH);
 
   constructor() {
     effect(() => {
@@ -62,7 +64,7 @@ export class AccessKeyModalComponent {
     this.view.set('key');
   }
 
-  /** Switches back to the invite CTA view. */
+  /** Switches back to the invite gate view. */
   switchToCta(): void {
     this.view.set('cta');
   }
@@ -74,15 +76,22 @@ export class AccessKeyModalComponent {
     win?.open(INSTAGRAM_URL, '_blank', 'noopener,noreferrer');
   }
 
-  /** Syncs the bound input component's value to the local signal. */
-  onKeyChange(value: string): void {
-    this.keyValue.set(value);
+  /** Syncs the native input's value to the local signal. */
+  onKeyInput(event: Event): void {
+    this.keyValue.set((event.target as HTMLInputElement).value);
   }
 
-  /** Emits the trimmed key via `submitted` if the input is non-empty. */
+  /** Submits on Enter when the key is long enough. */
+  onKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Enter' && !this.isSubmitDisabled()) {
+      this.onSubmit();
+    }
+  }
+
+  /** Emits the trimmed key via `submitted` if it meets the minimum length. */
   onSubmit(): void {
     const key = this.keyValue().trim();
-    if (key) {
+    if (key.length >= MIN_ACCESS_KEY_LENGTH) {
       this.analyticsService.trackAccessKeySubmitted(true);
       this.submitted.emit(key);
     } else {
