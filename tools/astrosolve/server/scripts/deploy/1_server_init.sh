@@ -15,7 +15,7 @@
 # What this script does NOT build:
 #   - The local celestial catalog (data/local-catalog/celestial.sqlite). It is
 #     built out-of-band, AFTER the first deploy has pulled an image, via
-#     rebuild-catalog.sh (detached) — deploys never build it. See deploy.md §3a.
+#     rebuild-catalog.sh (detached) — deploys never build it. See SERVER-SETUP.md.
 #     This script just creates the mount directory.
 #
 # What this script does NOT do (handled by the pipeline):
@@ -133,7 +133,7 @@ echo "  2. Add GitHub Actions variables (APP_DIR, ASTROSOLVE_ORIGIN)"
 echo "  3. Point Cloudflare DNS A record to this server IP"
 echo "  4. Trigger a deploy from GitHub Actions (pulls the image, starts the API"
 echo "     catalog-less — fast pull + container swap)"
-echo "  5. Build the catalog once it has an image, detached (deploy.md §3a):"
+echo "  5. Build the catalog once it has an image, detached (see SERVER-SETUP.md):"
 echo "       /opt/astrosolve/scripts/rebuild-catalog.sh   # ~20-40 min, survives SSH drops"
 echo "     then: docker restart astrosolve"
 echo ""
