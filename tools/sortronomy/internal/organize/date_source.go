@@ -17,3 +17,15 @@ const (
 	// filename — the preferred source for session grouping.
 	sourceFilename
 )
+
+// String renders the source name as it appears in logs and warnings.
+func (d dateSource) String() string {
+	switch d {
+	case sourceFilename:
+		return "filename"
+	case sourceDateLoc:
+		return "DATE-LOC"
+	default:
+		return "DATE-OBS"
+	}
+}

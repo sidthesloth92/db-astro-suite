@@ -51,13 +51,12 @@ func TestParseArgsMapsFlagsToOptions(t *testing.T) {
 		},
 		{
 			name: "grouping and meta flags set their bools",
-			args: []string{"--input", "/s", "--group-focal", "--group-session", "--dry-run", "--yes", "--debug"},
+			args: []string{"--input", "/s", "--group-focal", "--group-session", "--dry-run", "--yes"},
 			cfg:  config.Config{},
 			want: parsedArgs{
 				Options: organize.Options{InputDir: "/s", GroupByFocal: true, GroupSession: true},
 				DryRun:  true,
 				Yes:     true,
-				Debug:   true,
 			},
 		},
 		{
@@ -65,6 +64,12 @@ func TestParseArgsMapsFlagsToOptions(t *testing.T) {
 			args: []string{"-y", "-v"},
 			cfg:  config.Config{},
 			want: parsedArgs{Yes: true, Version: true},
+		},
+		{
+			name: "--report sets the report meta-flag",
+			args: []string{"--report"},
+			cfg:  config.Config{},
+			want: parsedArgs{Report: true},
 		},
 		{
 			name: "full filter turns on TagFilter and maps all three fields",
