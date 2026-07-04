@@ -1,6 +1,6 @@
 // Package aggregate turns parsed FITS frames into the Celestory domain model:
-// it drops calibration frames, resolves object identity and filter names,
-// detects duplicate copies, and rolls everything up per object, per night, and
+// it drops calibration frames, resolves target identity and filter names,
+// detects duplicate copies, and rolls everything up per target, per night, and
 // across the whole library.
 package aggregate
 
@@ -27,7 +27,7 @@ type LightFrame struct {
 	Size        int64
 	FrameFP     string // content/path-independent identity; the dedup key
 	WeakID      bool   // FrameFP came from the content fallback (undated frame)
-	ObjectID    string
+	TargetID    string
 	DisplayName string
 	Designation string
 	Aliases     []string
@@ -47,7 +47,7 @@ type LightFrame struct {
 
 // Enrich keeps only genuine single light sub-exposures: it drops calibration
 // frames (Flat/Dark/Bias) and stacked masters (which carry summed exposure and
-// would double-count their subs), resolves each remaining frame's object
+// would double-count their subs), resolves each remaining frame's target
 // identity + filter, and assigns its content/path-independent FrameFP (falling
 // back to a content hash for undated frames). It returns the light frames plus
 // the count of frames excluded.
@@ -75,7 +75,7 @@ func Enrich(frames []scan.Frame) (lights []LightFrame, dropped int) {
 			Size:        f.Size,
 			FrameFP:     fp,
 			WeakID:      weak,
-			ObjectID:    r.ID,
+			TargetID:    r.ID,
 			DisplayName: r.DisplayName,
 			Designation: r.Designation,
 			Aliases:     r.Aliases,
@@ -143,7 +143,7 @@ func (lf LightFrame) dupLabel() string {
 	if lf.Designation != "" {
 		return lf.Designation
 	}
-	return lf.ObjectID
+	return lf.TargetID
 }
 
 func firstNonEmpty(values ...string) string {

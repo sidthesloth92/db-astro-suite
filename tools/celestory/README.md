@@ -63,6 +63,11 @@ overrides where it goes:
 - `-out /some/dir` → writes `celestory.json` into that directory.
 - `-out /some/dir/celestory.json` → names the file directly.
 
+Each run **replaces** any existing `celestory.json` with a freshly created file
+containing your complete, up-to-date story (it's regenerated from your whole
+library every time, so nothing is lost) — the file's creation date always tells
+you when it was last generated.
+
 ## Flags
 
 The interface is intentionally small — most runs need none of these. They're
@@ -77,11 +82,9 @@ grouped below by what they touch.
 
 **Cache** (re-scan speed — see [How the cache works](#how-the-cache-works))
 
-| Flag             | Description                                                       |
-| ---------------- | ---------------------------------------------------------------- |
-| `-rebuild-cache` | Ignore the cache and re-parse every file, then rebuild it.       |
-| `-no-cache`      | Don't read or write the scan cache.                              |
-| `-verify-hash`   | Detect file changes by a FITS-header hash instead of size+mtime. |
+| Flag        | Description                          |
+| ----------- | ------------------------------------ |
+| `-no-cache` | Don't read or write the scan cache.  |
 
 **Duplicates** (see [Duplicates](#duplicates))
 
@@ -97,7 +100,7 @@ for confirmation first (`-yes` skips the prompt for scripts).
 | Flag            | Description                                                                       |
 | --------------- | -------------------------------------------------------------------------------- |
 | `-fresh`        | Wipe the cumulative library index, then rebuild it from this scan.               |
-| `-reset`        | Wipe the cumulative library index and exit.                                      |
+| `-reset`        | Wipe **both** the scan cache and the cumulative library index, then exit — a full clean slate. |
 | `-forget <dir>` | Drop a folder you no longer own from the cumulative library index.               |
 | `-keep-deleted` | Keep frames whose files were deleted from the scanned folder (don't un-count culled subs). |
 | `-yes`          | Skip the confirmation prompt for `-reset` / `-fresh` / `-forget`.                |
@@ -119,17 +122,24 @@ each run it `stat`s every file (one cheap syscall, no bytes read) and compares t
 **size + modification time** against the cache — unchanged files are reused, only
 new/changed files are parsed. Re-runs drop from minutes to seconds.
 
-- `-rebuild-cache` re-parses everything and rebuilds the cache; `-no-cache` disables it entirely.
-- `-verify-hash` swaps the size+mtime check for a hash of the FITS header bytes (more
-  certain, a little more I/O).
-- The cache lives in your OS cache directory automatically — no setup needed. `-config`
-  prints its location (alongside your output and history-index paths).
+The cache is fully automatic — it lives in your OS cache directory, needs no setup,
+and never affects your numbers (it only speeds up re-scans). `-no-cache` runs without
+it; `-reset` clears it (together with the library index) for a clean slate. `-config`
+prints its location (alongside your output and history-index paths).
 
 ## Duplicates
 
 If the same sub is sitting in two places (e.g. a working copy and a backup), it's
 **counted once** toward your integration and **reported** so you know — Celestory
-never deletes anything. The per-file duplicate list is shown **on the terminal
+never deletes anything.
+
+**Moving files doesn't create phantom duplicates.** When a scan finds a sub that an
+earlier scan indexed elsewhere, Celestory checks the old location: if the old copy is
+confirmed gone (you moved or deleted it), the index quietly updates to the new
+location; if it's still there, it's a real duplicate and gets reported. A copy on a
+disconnected disk can't be checked, so it's not reported — the scanned folder is
+simply treated as the latest location until that disk is scanned again. Your FITS
+files are never touched — only Celestory's own index. The per-file duplicate list is shown **on the terminal
 only**: it contains local file paths, which are never written to `celestory.json`
 (the file you upload). The path-free counts still appear in the summary.
 

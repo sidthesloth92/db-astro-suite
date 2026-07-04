@@ -1,8 +1,8 @@
 package model
 
-// Session is one night of imaging on an object (the per-object timeline node).
+// Session is one night of imaging on a target (the per-target timeline node).
 // EquipmentIds reference entries in the story's top-level equipment list, the
-// same identifiers an object carries — so the web app resolves gear by id.
+// same identifiers a target carries — so the web app resolves gear by id.
 // FocalLengthMm / FRatio carry the night's representative telescope spec (the
 // values the telescope equipment entry no longer holds for mount-only frames);
 // null when unknown.

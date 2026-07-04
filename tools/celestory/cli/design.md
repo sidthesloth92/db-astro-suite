@@ -6,8 +6,8 @@ counterpart to the user-facing [README.md](tools/celestory/README.md).
 
 > The CLI scans a folder of astrophotography **FITS** files, reads only their
 > **headers** (never pixel data), and emits a single `celestory.json` describing
-> every object imaged, the equipment/filters used, and integration hours per
-> object over time. It is **read-only** — it never moves, renames, or deletes any
+> every target imaged, the equipment/filters used, and integration hours per
+> target over time. It is **read-only** — it never moves, renames, or deletes any
 > capture.
 
 ---
@@ -33,7 +33,7 @@ counterpart to the user-facing [README.md](tools/celestory/README.md).
                                         │
                                         ▼
   dedup by FrameFP, roll up per         aggregate.Assemble ────▶ model.Ledger
-  object / night / equipment, summary   (internal/equipment,
+  target / night / equipment, summary   (internal/equipment,
                                         │  internal/model)
                                         ▼
   stamp install/profile id + data       config / fingerprint
@@ -68,13 +68,14 @@ terminal**, the tool launches the guided wizard instead of requiring flags.
 
 ### 2.2 Cache options
 
-The incremental parse cache lets re-scans skip unchanged files. See §5.2.
+The incremental parse cache lets re-scans skip unchanged files. See §5.2. It is
+fully automatic (change detection is `size + mtime` — sufficient for write-once
+capture files); the single flag opts out of it for a run, and `-reset` clears it
+alongside the library index.
 
-| Flag             | Type | Default | Behaviour |
-| ---------------- | ---- | ------- | --------- |
-| `-rebuild-cache` | bool | false   | Ignore the existing cache, re-parse **every** file, then rewrite the cache fresh ([`Cache.Clear`](tools/celestory/cli/internal/cache/cache.go)). |
-| `-no-cache`      | bool | false   | Do not read or write the cache at all this run. |
-| `-verify-hash`   | bool | false   | Detect file changes by hashing the leading 32 KB of FITS-header bytes instead of comparing `size + mtime`. More certain, slightly more I/O. |
+| Flag        | Type | Default | Behaviour |
+| ----------- | ---- | ------- | --------- |
+| `-no-cache` | bool | false   | Do not read or write the cache at all this run. |
 
 ### 2.3 Duplicate-report scoping
 
@@ -97,7 +98,7 @@ stdin unless `-yes` is passed. **FITS files are never touched** by any of them.
 | ---------------- | ------ | ------- | --------- |
 | `-keep-deleted`  | bool   | false   | When merging a re-scan, keep frames whose files vanished from the folder if they were the *last* copy (legacy append-only mode). By default the scanned folder is reconciled to exactly its current files, so culled subs un-count. See [`Index.Merge`](tools/celestory/cli/internal/library/library.go). |
 | `-fresh`         | bool   | false   | Wipe the cumulative index, then rebuild it from this one scan. |
-| `-reset`         | bool   | false   | Wipe the cumulative index and exit (no scan). |
+| `-reset`         | bool   | false   | Wipe **both** the cumulative index and the scan cache, then exit (no scan) — the full clean slate. |
 | `-forget <dir>`  | string | `""`    | Drop a single folder partition (a disk you no longer own) from the index and exit. |
 | `-yes`           | bool   | false   | Skip the confirmation prompt for `-reset` / `-fresh` / `-forget` (required for those operations in scripts/CI). |
 
@@ -129,7 +130,8 @@ auto-completion. Esc / Ctrl+C aborts cleanly.
 | File | Responsibility |
 | ---- | -------------- |
 | [main.go](tools/celestory/cli/main.go) | Entry point. Declares the `cliFlags` struct, parses flags, prints version, dispatches to `run`, maps a returned error to a non-zero exit. |
-| [run.go](tools/celestory/cli/run.go) | The orchestrator. Resolves inputs (flags or wizard), opens the cache + library index, runs the scan, folds it into the index, assembles the ledger, stamps identity, strips local paths, writes the JSON, prints the summary. Also hosts the index-maintenance operations (`resetLibrary`, `forgetRoot`), `showConfig`, and interactivity/confirmation helpers. |
+| [run.go](tools/celestory/cli/run.go) | The orchestrator. Resolves inputs (flags or wizard), opens the cache + library index, runs the scan, folds it into the index (then heals moved-file references via `ReconcileMoved`), assembles the ledger, stamps identity, strips local paths, writes the JSON, prints the summary. Also hosts the index-maintenance operations (`resetAll`, `forgetRoot`), `showConfig`, and interactivity/confirmation helpers. |
+| [probe.go](tools/celestory/cli/probe.go) | `osProbe`: the `os.Stat`-backed `library.DiskProbe` used for real runs. Reports a file as existing on any error other than a certain not-exist, so the heal never drops an entry it could not verify. |
 | [output.go](tools/celestory/cli/output.go) | [`resolveOutputs`](tools/celestory/cli/output.go): decides the final `celestory.json` path from `-out` (empty → cwd, `.json` → file, else → directory). |
 | [summary.go](tools/celestory/cli/summary.go) | Terminal summary rendering: headline stats, the colour-coded duplicate report, the skipped-files list, and the "Next steps" call-to-action. Holds the print caps, duration/byte formatters, and `lipgloss` styles. |
 | [banner.go](tools/celestory/cli/banner.go) | The startup brand banner: the procedurally-rendered crescent-moon mark (teal→pink gradient) beside the `CELESTORY` wordmark and version. |
@@ -159,11 +161,12 @@ in their own files per the repo's file-naming conventions.
 
 - One JSON file per scanned root, namespaced by a hash of the absolute root path,
   in the OS user-cache dir.
-- Change detection: `size + mtime` by default, or a 32 KB header hash under
-  `-verify-hash`. A `SchemaVersion` (currently **2**) invalidates entries after a
-  parser upgrade.
+- Change detection: `size + mtime` (one stat, no bytes read) — sufficient for
+  write-once capture files. A `SchemaVersion` (currently **2**) invalidates
+  entries after a parser upgrade.
 - Thread-safe (`sync.Mutex`); `Save` prunes entries for files not seen this run.
-  A corrupt cache file is non-fatal — it starts fresh.
+  A corrupt cache file is non-fatal — it starts fresh. `Purge` removes every
+  per-root cache file (backing `-reset`).
 
 ### 4.3 `internal/aggregate` — FITS frames → domain ledger
 [aggregate.go](tools/celestory/cli/internal/aggregate/aggregate.go) ·
@@ -175,14 +178,16 @@ in their own files per the repo's file-naming conventions.
   filter, coordinates, and `FrameFP` → `[]LightFrame`.
 - `DetectDuplicates`: groups frames by `FrameFP`, keeps the lexicographically-first
   path per set, reports the rest; `ScopeToRoot` / `OutsideRootDuplicateSets`
-  implement the folder-scoped duplicate view.
-- `BuildObjects` / `Summarize` / `byCategory` / `activityByNight`: per-object,
+  implement the folder-scoped duplicate view; `FilterVerifiable` suppresses
+  copies that cannot be checked right now (disconnected disks) from the report
+  without touching integration totals.
+- `BuildTargets` / `Summarize` / `byCategory` / `activityByNight`: per-target,
   per-night, per-filter, and per-category roll-ups + the global summary.
 - `Assemble` is the entry point used by `run.go`; `Build` is a one-shot
   convenience (scan → ledger) used in tests. Holds the JSON-contract
-  `SchemaVersion` (currently **2**).
+  `SchemaVersion` (currently **3**).
 
-### 4.4 `internal/identity` — object & filter canonicalisation
+### 4.4 `internal/identity` — target & filter canonicalisation
 [catalog.go](tools/celestory/cli/internal/identity/catalog.go) ·
 [resolver.go](tools/celestory/cli/internal/identity/resolver.go) ·
 [classifier.go](tools/celestory/cli/internal/identity/classifier.go) ·
@@ -196,7 +201,7 @@ in their own files per the repo's file-naming conventions.
   `ngc 224 - andromeda`) via a prefix regex; un-seeded but recognised
   designations still resolve, and freeform targets degrade gracefully (never
   dropped).
-- `classifier.go` maps objects to coarse UI categories (Galaxy, Nebula, …).
+- `classifier.go` maps targets to coarse UI categories (Galaxy, Nebula, …).
 - `NormalizeFilter` collapses the many spellings of a filter to a canonical label
   (`Hα`, `OIII`, `SII`, `L`, `RGB`, …), stripping bandwidth specs (`7nm`) and
   preserving unknown/dual-band filters.
@@ -213,7 +218,7 @@ in their own files per the repo's file-naming conventions.
 - `WeakFingerprint`: the fallback for an **undated** frame — a hash of the leading
   header bytes (tagged `w:`), flagged as a weak identity by callers.
 - `Compute`: the ledger-level **data fingerprint** — a stable hash over the
-  normalised object set (ignoring `generatedAt` and ordering) so re-uploading an
+  normalised target set (ignoring `generatedAt` and ordering) so re-uploading an
   unchanged library is recognised as the same data, not a new upload.
 
 ### 4.6 `internal/equipment` — gear registry
@@ -226,11 +231,12 @@ in their own files per the repo's file-naming conventions.
   in `mount.go`) becomes a `mount` instead of a `telescope`.
 - `BuildRegistry` collapses per-frame `Usage`s into a deduped list of distinct
   cameras + telescopes + mounts, each with aggregate stats and a reverse index of
-  the objects shot with it (cameras before telescopes before mounts, then by
+  the targets shot with it (cameras before telescopes before mounts, then by
   integration descending).
 
 ### 4.7 `internal/library` — cumulative, root-partitioned index
-[library.go](tools/celestory/cli/internal/library/library.go)
+[library.go](tools/celestory/cli/internal/library/library.go) ·
+[reconcile.go](tools/celestory/cli/internal/library/reconcile.go)
 
 - Persists every light frame ever indexed across **all** scanned disks, deduped
   by `FrameFP`, as `library.json` in the config dir (separate from the parse
@@ -239,21 +245,25 @@ in their own files per the repo's file-naming conventions.
 - `Merge` folds a fresh scan into one root partition: by default reconciles the
   folder to exactly its current files; `-keep-deleted` switches to append-only
   semantics that protect the last copy of a culled sub.
+- `ReconcileMoved` heals stale references after a move (see §6.4), and
+  `VerifiablePath` builds the reachability predicate the duplicate report uses.
+  Both take the consumer-side `DiskProbe` interface so tests never touch the
+  filesystem.
 - `Union` rebuilds the deduped `[]LightFrame` across all partitions (the ledger is
   built from this, not from a single scan). `Forget` / `Reset` back the
   index-maintenance flags. `compact` garbage-collects unreferenced frame records.
 
 ### 4.8 `internal/model` — JSON contract types
 [ledger.model.go](tools/celestory/cli/internal/model/ledger.model.go) ·
-[object_timeline.model.go](tools/celestory/cli/internal/model/object_timeline.model.go) ·
+[target_timeline.model.go](tools/celestory/cli/internal/model/target_timeline.model.go) ·
 [equipment_item.model.go](tools/celestory/cli/internal/model/equipment_item.model.go) ·
 [session.model.go](tools/celestory/cli/internal/model/session.model.go) ·
 [filter_integration.model.go](tools/celestory/cli/internal/model/filter_integration.model.go)
 
 The domain types marshaled into `celestory.json` (one concept per file):
 `Ledger` (root), `ToolInfo`, `Summary`, `CategoryStat`, `ActivityEntry`,
-`DuplicateSet`, `SkippedEntry`, `ObjectTimeline`, `EquipmentItem`, `Session`,
-`FilterIntegration`, `FilterTotal`. These define the v2 schema the web app reads.
+`DuplicateSet`, `SkippedEntry`, `TargetTimeline`, `EquipmentItem`, `Session`,
+`FilterIntegration`, `FilterTotal`. These define the v3 schema the web app reads.
 
 ### 4.9 `internal/report` — JSON serialiser
 [report.go](tools/celestory/cli/internal/report/report.go)
@@ -281,6 +291,12 @@ validation, and clean abort handling.
 ## 5. On-disk state
 
 The CLI manages four kinds of files; `-config` prints all of their locations.
+All of them are written **atomically** (temp file + rename via
+[`internal/atomicwrite`](tools/celestory/cli/internal/atomicwrite/atomicwrite.go)):
+a crash or interrupt can never leave a truncated, corrupt file — which matters
+most for `library.json`, whose corruption would otherwise silently read as an
+empty library. A side benefit: each write installs a genuinely new file, so
+`celestory.json`'s creation time always reflects the last generation.
 
 | File | Location | Owner | Purpose |
 | ---- | -------- | ----- | ------- |
@@ -314,7 +330,8 @@ Integration is always deduped across the full `library.Union()`, so a
 disconnected disk's frames still count. The duplicate **report**, by contrast, is
 scoped by default to sets with a copy under the scanned folder (the only ones you
 can act on this run); `-all-duplicates` widens it, and a hint counts the hidden
-sets.
+sets. Copies on unreachable disks are additionally suppressed from the report —
+they cannot be verified right now — while their index entries (and totals) stay.
 
 ### 6.3 Content-based dedup, not path-based
 Duplicates are detected by `FrameFP` (acquisition-header identity), so the same
@@ -323,7 +340,24 @@ genuinely different exposures (different sub-second `DATE-OBS`) stay separate.
 Undated frames fall back to a weak content hash, and ultimately to their path, so
 a frame is **always** counted and never silently merged away.
 
-### 6.4 Schema versions
+### 6.4 Moves heal; disconnected disks are sacred
+Moving files between folders must not create phantom duplicates. After each
+merge, [`ReconcileMoved`](tools/celestory/cli/internal/library/reconcile.go)
+treats the just-scanned folder as the source of truth and, for each of its
+frames that another folder also references, applies:
+
+| Other root | Old copy on disk | Action |
+| ---------- | ---------------- | ------ |
+| reachable | still there | genuine backup — kept and reported as a duplicate |
+| reachable | gone | moved/deleted — the stale index entry is dropped (self-heal) |
+| unreachable | unverifiable | entry kept untouched; the report suppresses the copy |
+
+Only frames also present under the scanned root are ever considered, so a heal
+can never remove the last record of a frame or change integration totals. No
+FITS file is ever touched — only index entries. The rule is symmetric: scanning
+the other folder later reconciles in the opposite direction.
+
+### 6.5 Schema versions
 Three independent version constants guard against silent drift:
 
 | Constant | File | Guards |
@@ -354,7 +388,7 @@ FITS bytes itself.
 | [go.mod](tools/celestory/cli/go.mod) / `go.sum` | Module deps: `astrogo/fitsio` (FITS), the `charmbracelet` stack (`huh`, `lipgloss`, `x/term`) for the TUI, and the local `libs/astrofits` via `replace`. |
 | [.goreleaser.yaml](tools/celestory/cli/.goreleaser.yaml) | Cross-builds static binaries (darwin/linux/windows × amd64/arm64, `CGO_ENABLED=0`), injects the version via `-ldflags -X main.version`, and publishes Homebrew cask + Scoop manifests to the tap repos. |
 | [.gitignore](tools/celestory/cli/.gitignore) | Ignores GoReleaser `dist/` and the local-only `celestory` dev binary. |
-| [cmd/genfixtures/main.go](tools/celestory/cli/cmd/genfixtures/main.go) | **Dev aid (not shipped):** writes a small tree of real FITS files (varied objects/filters/cameras/dates, a duplicate, an undated OSC frame, a calibration frame, and a garbage file) for exercising the CLI end-to-end. |
+| [cmd/genfixtures/main.go](tools/celestory/cli/cmd/genfixtures/main.go) | **Dev aid (not shipped):** writes a small tree of real FITS files (varied targets/filters/cameras/dates, a duplicate, an undated OSC frame, a calibration frame, and a garbage file) for exercising the CLI end-to-end. |
 
 To build locally:
 

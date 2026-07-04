@@ -1,6 +1,6 @@
 // Package equipment turns the camera/telescope fields read from FITS headers
 // into stable, listable equipment identities and builds the deduped equipment
-// registry (with a reverse index of the objects shot with each item).
+// registry (with a reverse index of the targets shot with each item).
 package equipment
 
 import (

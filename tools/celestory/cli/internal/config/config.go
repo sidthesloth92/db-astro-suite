@@ -11,6 +11,8 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+
+	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/atomicwrite"
 )
 
 // Config holds Celestory's persisted preferences.
@@ -112,7 +114,8 @@ func newInstallID() (string, error) {
 	return hex.EncodeToString(b[:]), nil
 }
 
-// Save writes the config, creating the directory if needed.
+// Save atomically writes the config (temp file + rename), creating the
+// directory if needed — the InstallID must never be lost to a partial write.
 func Save(c Config) error {
 	dir, err := Dir()
 	if err != nil {
@@ -126,7 +129,7 @@ func Save(c Config) error {
 	if err != nil {
 		return fmt.Errorf("marshal config: %w", err)
 	}
-	if err := os.WriteFile(path, data, 0o644); err != nil {
+	if err := atomicwrite.WriteFile(path, data, 0o644); err != nil {
 		return fmt.Errorf("write config %s: %w", path, err)
 	}
 	return nil

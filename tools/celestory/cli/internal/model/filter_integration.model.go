@@ -1,6 +1,6 @@
 package model
 
-// FilterIntegration is per-filter integration within an object or a session.
+// FilterIntegration is per-filter integration within a target or a session.
 type FilterIntegration struct {
 	Name    string  `json:"name"`
 	Seconds float64 `json:"seconds"`

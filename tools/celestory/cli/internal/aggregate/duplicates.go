@@ -89,6 +89,37 @@ func dupDateObs(t time.Time) string {
 	return t.UTC().Format(time.RFC3339)
 }
 
+// FilterVerifiable removes unverifiable copies from the report: paths for
+// which verifiable returns false (e.g. they live on a disconnected disk that
+// cannot be checked right now) are dropped from each set, and a set left with
+// fewer than two paths is no longer a duplicate. WastedBytes/FileCount are
+// recomputed so the headline tallies match what is listed. Deduped is carried
+// through untouched, so integration totals are unaffected. A nil verifiable
+// returns the report unchanged.
+func (r DuplicateReport) FilterVerifiable(verifiable func(path string) bool) DuplicateReport {
+	if verifiable == nil {
+		return r
+	}
+	out := DuplicateReport{Deduped: r.Deduped, Sets: []model.DuplicateSet{}}
+	for _, set := range r.Sets {
+		kept := make([]string, 0, len(set.Paths))
+		for _, p := range set.Paths {
+			if verifiable(p) {
+				kept = append(kept, p)
+			}
+		}
+		if len(kept) < 2 {
+			continue
+		}
+		filtered := set
+		filtered.Paths = kept
+		out.Sets = append(out.Sets, filtered)
+		out.WastedBytes += int64(len(kept)-1) * set.SizeBytes
+		out.FileCount += len(kept) - 1
+	}
+	return out
+}
+
 // ScopeToRoot narrows the report to duplicate sets with at least one copy under
 // root — the view that matters for a single run, where a set entirely on other
 // (possibly disconnected) folders is just noise. WastedBytes/FileCount are
@@ -114,12 +145,15 @@ func (r DuplicateReport) ScopeToRoot(root string) DuplicateReport {
 // OutsideRootDuplicateSets returns how many duplicate sets in the full library
 // fall entirely outside root — i.e. how many a root-scoped report omits. It lets
 // a scoped run tell the user that more duplicates exist elsewhere (and that
-// -all-duplicates reveals them). Returns 0 for an empty root (nothing is hidden).
-func OutsideRootDuplicateSets(lights []LightFrame, root string) int {
+// -all-duplicates reveals them). Unverifiable copies are filtered first with the
+// same verifiable predicate Assemble uses (nil = everything verifiable), so the
+// hint never counts sets that would not be reported anyway. Returns 0 for an
+// empty root (nothing is hidden).
+func OutsideRootDuplicateSets(lights []LightFrame, root string, verifiable func(path string) bool) int {
 	if root == "" {
 		return 0
 	}
-	full := DetectDuplicates(lights)
+	full := DetectDuplicates(lights).FilterVerifiable(verifiable)
 	return len(full.Sets) - len(full.ScopeToRoot(root).Sets)
 }
 

@@ -14,8 +14,10 @@ import (
 // detect files from an older CLI and prompt the user to regenerate.
 //
 //	v2 — frame-fingerprint dedup + identity fields (installId/profileId/
-//	     dataFingerprint) + per-object ra/dec.
-const SchemaVersion = 2
+//	     dataFingerprint) + per-target ra/dec.
+//	v3 — domain rename object→target: root "targets" array, targetCount/
+//	     targetIds keys.
+const SchemaVersion = 3
 
 // Build is the top-level orchestrator for a single scan: enrich → assemble.
 // Slices are always non-nil so the JSON arrays render as [] rather than null.
@@ -23,24 +25,26 @@ const SchemaVersion = 2
 // scope the report to a folder.
 func Build(frames []scan.Frame, skipped []scan.Skipped, tool model.ToolInfo) model.Story {
 	lights, _ := Enrich(frames)
-	return Assemble(lights, skipped, tool, "")
+	return Assemble(lights, skipped, tool, "", nil)
 }
 
 // Assemble turns already-enriched light frames (e.g. the cumulative union across
-// every scanned disk) into the story: dedupe by FrameFP → per-object/equipment
+// every scanned disk) into the story: dedupe by FrameFP → per-target/equipment
 // rollups → summary → Story.
 //
 // Integration is always deduped across the full input, so totals reflect the
 // whole library. The duplicate report, however, is scoped to dupRoot when it is
 // non-empty (only sets with a copy under that folder), so a run reports the
 // duplicates of the folder it scanned rather than every disk ever seen; pass ""
-// for the whole-library report.
-func Assemble(lights []LightFrame, skipped []scan.Skipped, tool model.ToolInfo, dupRoot string) model.Story {
-	dup := DetectDuplicates(lights)
+// for the whole-library report. Copies the verifiable predicate rejects (paths
+// on disconnected disks that cannot be checked right now) are excluded from the
+// duplicate report — but never from integration; pass nil to report everything.
+func Assemble(lights []LightFrame, skipped []scan.Skipped, tool model.ToolInfo, dupRoot string, verifiable func(path string) bool) model.Story {
+	dup := DetectDuplicates(lights).FilterVerifiable(verifiable)
 	view := dup.ScopeToRoot(dupRoot)
-	objects := BuildObjects(dup.Deduped)
+	targets := BuildTargets(dup.Deduped)
 	equip := equipment.BuildRegistry(toUsages(dup.Deduped))
-	summary := Summarize(objects, dup.Deduped, view)
+	summary := Summarize(targets, dup.Deduped, view)
 	// The skipped paths are stripped from the persisted story (privacy), so the
 	// count is the only signal that survives the upload — carry it in the summary.
 	summary.SkippedFileCount = len(skipped)
@@ -51,39 +55,39 @@ func Assemble(lights []LightFrame, skipped []scan.Skipped, tool model.ToolInfo, 
 		Tool:          tool,
 		Summary:       summary,
 		Equipment:     equip,
-		Objects:       objects,
+		Targets:       targets,
 		Duplicates:    view.Sets,
 		Skipped:       toSkipped(skipped),
 	}
 }
 
-// BuildObjects groups light frames by object and builds each object's totals,
+// BuildTargets groups light frames by target and builds each target's totals,
 // per-filter integration, equipment cross-links, and per-night sessions.
-func BuildObjects(lights []LightFrame) []model.ObjectTimeline {
+func BuildTargets(lights []LightFrame) []model.TargetTimeline {
 	grouped := map[string][]LightFrame{}
 	var order []string
 	for _, lf := range lights {
-		if _, seen := grouped[lf.ObjectID]; !seen {
-			order = append(order, lf.ObjectID)
+		if _, seen := grouped[lf.TargetID]; !seen {
+			order = append(order, lf.TargetID)
 		}
-		grouped[lf.ObjectID] = append(grouped[lf.ObjectID], lf)
+		grouped[lf.TargetID] = append(grouped[lf.TargetID], lf)
 	}
 
-	objects := make([]model.ObjectTimeline, 0, len(order))
+	targets := make([]model.TargetTimeline, 0, len(order))
 	for _, id := range order {
-		objects = append(objects, buildObject(grouped[id]))
+		targets = append(targets, buildTarget(grouped[id]))
 	}
 
-	sort.SliceStable(objects, func(i, j int) bool {
-		if objects[i].TotalIntegrationSeconds != objects[j].TotalIntegrationSeconds {
-			return objects[i].TotalIntegrationSeconds > objects[j].TotalIntegrationSeconds
+	sort.SliceStable(targets, func(i, j int) bool {
+		if targets[i].TotalIntegrationSeconds != targets[j].TotalIntegrationSeconds {
+			return targets[i].TotalIntegrationSeconds > targets[j].TotalIntegrationSeconds
 		}
-		return objects[i].DisplayName < objects[j].DisplayName
+		return targets[i].DisplayName < targets[j].DisplayName
 	})
-	return objects
+	return targets
 }
 
-func buildObject(frames []LightFrame) model.ObjectTimeline {
+func buildTarget(frames []LightFrame) model.TargetTimeline {
 	head := frames[0]
 
 	nights := map[string][]LightFrame{}
@@ -146,8 +150,8 @@ func buildObject(frames []LightFrame) model.ObjectTimeline {
 		return sessions[i].Date < sessions[j].Date
 	})
 
-	return model.ObjectTimeline{
-		ID:                      head.ObjectID,
+	return model.TargetTimeline{
+		ID:                      head.TargetID,
 		DisplayName:             head.DisplayName,
 		Designation:             head.Designation,
 		Aliases:                 nonNil(head.Aliases),
@@ -185,7 +189,7 @@ func buildSession(key string, frames []LightFrame) model.Session {
 }
 
 // sessionEquipmentIds derives the night's gear as story equipment ids, using the
-// same camera/telescope/mount identifiers an object carries so the web app
+// same camera/telescope/mount identifiers a target carries so the web app
 // resolves names.
 func sessionEquipmentIds(frames []LightFrame) []string {
 	ids := map[string]struct{}{}
@@ -272,10 +276,10 @@ func filterIntegration(frames []LightFrame) []model.FilterIntegration {
 	return out
 }
 
-// Summarize rolls the objects + frames into the top-level summary.
-func Summarize(objects []model.ObjectTimeline, lights []LightFrame, dup DuplicateReport) model.Summary {
+// Summarize rolls the targets + frames into the top-level summary.
+func Summarize(targets []model.TargetTimeline, lights []LightFrame, dup DuplicateReport) model.Summary {
 	s := model.Summary{
-		ObjectCount:          len(objects),
+		TargetCount:          len(targets),
 		Filters:              []model.FilterTotal{},
 		ByCategory:           []model.CategoryStat{},
 		Activity:             []model.ActivityEntry{},
@@ -315,28 +319,28 @@ func Summarize(objects []model.ObjectTimeline, lights []LightFrame, dup Duplicat
 		return s.Filters[i].Name < s.Filters[j].Name
 	})
 
-	s.ByCategory = byCategory(objects)
+	s.ByCategory = byCategory(targets)
 	s.Activity = activityByNight(lights)
 	s.NightCount = len(s.Activity)
 	return s
 }
 
-func byCategory(objects []model.ObjectTimeline) []model.CategoryStat {
+func byCategory(targets []model.TargetTimeline) []model.CategoryStat {
 	type agg struct {
-		objects int
+		targets int
 		seconds float64
 		frames  int
 	}
 	cats := map[string]*agg{}
 	var order []string
-	for _, o := range objects {
+	for _, o := range targets {
 		a := cats[o.Category]
 		if a == nil {
 			a = &agg{}
 			cats[o.Category] = a
 			order = append(order, o.Category)
 		}
-		a.objects++
+		a.targets++
 		a.seconds += o.TotalIntegrationSeconds
 		a.frames += o.LightFrameCount
 	}
@@ -345,7 +349,7 @@ func byCategory(objects []model.ObjectTimeline) []model.CategoryStat {
 		a := cats[c]
 		out = append(out, model.CategoryStat{
 			Category:           c,
-			ObjectCount:        a.objects,
+			TargetCount:        a.targets,
 			IntegrationSeconds: a.seconds,
 			LightFrameCount:    a.frames,
 		})
@@ -363,7 +367,7 @@ func activityByNight(lights []LightFrame) []model.ActivityEntry {
 	type agg struct {
 		seconds float64
 		frames  int
-		objects map[string]struct{}
+		targets map[string]struct{}
 	}
 	nights := map[string]*agg{}
 	var order []string
@@ -374,13 +378,13 @@ func activityByNight(lights []LightFrame) []model.ActivityEntry {
 		}
 		a := nights[k]
 		if a == nil {
-			a = &agg{objects: map[string]struct{}{}}
+			a = &agg{targets: map[string]struct{}{}}
 			nights[k] = a
 			order = append(order, k)
 		}
 		a.seconds += lf.Exposure
 		a.frames++
-		a.objects[lf.ObjectID] = struct{}{}
+		a.targets[lf.TargetID] = struct{}{}
 	}
 	sort.Strings(order)
 	out := make([]model.ActivityEntry, 0, len(order))
@@ -390,7 +394,7 @@ func activityByNight(lights []LightFrame) []model.ActivityEntry {
 			Date:               k,
 			IntegrationSeconds: a.seconds,
 			LightFrameCount:    a.frames,
-			ObjectIds:          sortedSet(a.objects),
+			TargetIds:          sortedSet(a.targets),
 		})
 	}
 	return out
@@ -400,7 +404,7 @@ func toUsages(lights []LightFrame) []equipment.Usage {
 	out := make([]equipment.Usage, 0, len(lights))
 	for _, lf := range lights {
 		out = append(out, equipment.Usage{
-			ObjectID:        lf.ObjectID,
+			TargetID:        lf.TargetID,
 			CameraRaw:       lf.Camera,
 			Telescope:       lf.Telescope,
 			Focal:           lf.Focal,

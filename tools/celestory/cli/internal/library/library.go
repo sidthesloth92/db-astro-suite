@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/aggregate"
+	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/atomicwrite"
 )
 
 // frameRecord is the per-frame data the index keeps, keyed by FrameFP. It holds
@@ -31,7 +32,7 @@ import (
 type frameRecord struct {
 	Size        int64     `json:"size"`
 	WeakID      bool      `json:"weakId,omitempty"`
-	ObjectID    string    `json:"objectId"`
+	TargetID    string    `json:"targetId"`
 	DisplayName string    `json:"displayName"`
 	Designation string    `json:"designation"`
 	Aliases     []string  `json:"aliases,omitempty"`
@@ -224,13 +225,15 @@ func (i *Index) Union() []aggregate.LightFrame {
 	return out
 }
 
-// Save writes the index to disk.
+// Save atomically writes the index to disk (temp file + rename), so a crash
+// mid-save can never leave a corrupt library.json — which load() would
+// otherwise silently treat as an empty library.
 func (i *Index) Save() error {
 	data, err := json.Marshal(i)
 	if err != nil {
 		return fmt.Errorf("marshal library: %w", err)
 	}
-	if err := os.WriteFile(i.path, data, 0o644); err != nil {
+	if err := atomicwrite.WriteFile(i.path, data, 0o644); err != nil {
 		return fmt.Errorf("write library %s: %w", i.path, err)
 	}
 	return nil
@@ -255,7 +258,7 @@ func recordOf(lf aggregate.LightFrame) frameRecord {
 	return frameRecord{
 		Size:        lf.Size,
 		WeakID:      lf.WeakID,
-		ObjectID:    lf.ObjectID,
+		TargetID:    lf.TargetID,
 		DisplayName: lf.DisplayName,
 		Designation: lf.Designation,
 		Aliases:     lf.Aliases,
@@ -277,7 +280,7 @@ func lightFrom(rec frameRecord, fp, path string) aggregate.LightFrame {
 		Size:        rec.Size,
 		FrameFP:     fp,
 		WeakID:      rec.WeakID,
-		ObjectID:    rec.ObjectID,
+		TargetID:    rec.TargetID,
 		DisplayName: rec.DisplayName,
 		Designation: rec.Designation,
 		Aliases:     rec.Aliases,

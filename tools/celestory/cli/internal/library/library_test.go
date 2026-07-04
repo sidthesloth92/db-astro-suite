@@ -13,7 +13,7 @@ func light(path, fp string, exp float64, date time.Time) aggregate.LightFrame {
 		Path:        path,
 		Size:        1000,
 		FrameFP:     fp,
-		ObjectID:    "m31",
+		TargetID:    "m31",
 		DisplayName: "M31",
 		Designation: "M 31",
 		Category:    "Galaxy",
@@ -25,7 +25,7 @@ func light(path, fp string, exp float64, date time.Time) aggregate.LightFrame {
 }
 
 func assembled(idx *Index) model.Story {
-	return aggregate.Assemble(idx.Union(), nil, model.ToolInfo{}, "")
+	return aggregate.Assemble(idx.Union(), nil, model.ToolInfo{}, "", nil)
 }
 
 func TestCumulativeMergePreservesAndDedups(t *testing.T) {

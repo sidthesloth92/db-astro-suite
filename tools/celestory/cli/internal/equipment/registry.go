@@ -11,7 +11,7 @@ import (
 // aggregate layer maps each frame to a Usage (declared here so equipment does
 // not depend on aggregate — avoiding an import cycle).
 type Usage struct {
-	ObjectID        string
+	TargetID        string
 	CameraRaw       string
 	Telescope       string
 	Focal           float64
@@ -22,17 +22,17 @@ type Usage struct {
 }
 
 type accumulator struct {
-	item   model.EquipmentItem
-	objs   map[string]struct{}
-	first  time.Time
-	last   time.Time
-	focal  float64
-	fratio float64
+	item    model.EquipmentItem
+	targets map[string]struct{}
+	first   time.Time
+	last    time.Time
+	focal   float64
+	fratio  float64
 }
 
 // BuildRegistry collapses per-frame usages into a deduped list of distinct
 // cameras, telescopes, and mounts, each with aggregate stats and the reverse
-// index of objects shot with it. Cameras are listed before telescopes before
+// index of targets shot with it. Cameras are listed before telescopes before
 // mounts; within a kind, items are ordered by total integration descending
 // (then display name).
 func BuildRegistry(usages []Usage) []model.EquipmentItem {
@@ -46,8 +46,8 @@ func BuildRegistry(usages []Usage) []model.EquipmentItem {
 		a := accs[id]
 		if a == nil {
 			a = &accumulator{
-				item: model.EquipmentItem{ID: id, Kind: kind, Subtype: subtype, DisplayName: display},
-				objs: map[string]struct{}{},
+				item:    model.EquipmentItem{ID: id, Kind: kind, Subtype: subtype, DisplayName: display},
+				targets: map[string]struct{}{},
 			}
 			accs[id] = a
 			order = append(order, id)
@@ -59,8 +59,8 @@ func BuildRegistry(usages []Usage) []model.EquipmentItem {
 		}
 		a.item.TotalIntegrationSeconds += u.ExposureSeconds
 		a.item.LightFrameCount++
-		if u.ObjectID != "" {
-			a.objs[u.ObjectID] = struct{}{}
+		if u.TargetID != "" {
+			a.targets[u.TargetID] = struct{}{}
 		}
 		if !u.Date.IsZero() {
 			if a.first.IsZero() || u.Date.Before(a.first) {
@@ -89,8 +89,8 @@ func BuildRegistry(usages []Usage) []model.EquipmentItem {
 	items := make([]model.EquipmentItem, 0, len(order))
 	for _, id := range order {
 		a := accs[id]
-		a.item.ObjectCount = len(a.objs)
-		a.item.ObjectIds = sortedKeys(a.objs)
+		a.item.TargetCount = len(a.targets)
+		a.item.TargetIds = sortedKeys(a.targets)
 		a.item.FirstLight = dateString(a.first)
 		a.item.LatestSession = dateString(a.last)
 		if a.item.Kind == "telescope" {

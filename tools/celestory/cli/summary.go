@@ -33,7 +33,7 @@ var (
 // Styles for the duplicate report.
 var (
 	dupHeader = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#F59E0B"))
-	dupObject = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#C4B5FD"))
+	dupTarget = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#C4B5FD"))
 	dupKeep   = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#34D3C4"))
 	dupRemove = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#EC4899"))
 	dupDim    = lipgloss.NewStyle().Foreground(lipgloss.Color("#9CA3AF"))
@@ -48,8 +48,8 @@ func flagUsage() { flag.Usage() }
 func printRunSummary(story model.Story, jsonPath string, outsideDupSets int) {
 	s := story.Summary
 	fmt.Println()
-	fmt.Printf("Done — %d object(s) · %s total · %d night(s) · %d light frame(s)\n",
-		s.ObjectCount, formatDuration(s.TotalIntegrationSeconds), s.NightCount, s.LightFrameCount)
+	fmt.Printf("Done — %d target(s) · %s total · %d night(s) · %d light frame(s)\n",
+		s.TargetCount, formatDuration(s.TotalIntegrationSeconds), s.NightCount, s.LightFrameCount)
 
 	printSkipped(story)
 	printDuplicates(story, outsideDupSets)
@@ -120,7 +120,7 @@ func printDuplicates(story model.Story, outsideDupSets int) {
 	}
 	for _, d := range dups[:limit] {
 		fmt.Println()
-		fmt.Println("    " + dupObject.Render(dupHeading(d)))
+		fmt.Println("    " + dupTarget.Render(dupHeading(d)))
 		for n, p := range d.Paths {
 			if n == 0 {
 				fmt.Printf("      %s  %s\n", dupKeep.Render("✓ keep  "), dupDim.Render(p))
@@ -154,7 +154,7 @@ func printOutsideDuplicatesHint(sets int) {
 		dupDim.Render("to see them."))
 }
 
-// dupHeading builds the one-line summary for a duplicate set: object · date · size.
+// dupHeading builds the one-line summary for a duplicate set: target · date · size.
 func dupHeading(d model.DuplicateSet) string {
 	head := d.Designation
 	if when := dupDisplayDate(d.DateObs); when != "" {

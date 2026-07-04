@@ -10,8 +10,8 @@ func TestBuildRegistryMountSeparatedFromTelescope(t *testing.T) {
 	// TELESCOP carries the mount name (EQMOD/ASCOM setup); FOCALLEN is the real
 	// telescope spec.
 	usages := []Usage{
-		{ObjectID: "m31", CameraRaw: "ZWO ASI2600MM", Telescope: "EQMod Mount", Focal: 700, FRatio: 4.9, ExposureSeconds: 300, Date: d},
-		{ObjectID: "m31", CameraRaw: "ZWO ASI2600MM", Telescope: "EQMod Mount", Focal: 700, FRatio: 4.9, ExposureSeconds: 300, Date: d},
+		{TargetID: "m31", CameraRaw: "ZWO ASI2600MM", Telescope: "EQMod Mount", Focal: 700, FRatio: 4.9, ExposureSeconds: 300, Date: d},
+		{TargetID: "m31", CameraRaw: "ZWO ASI2600MM", Telescope: "EQMod Mount", Focal: 700, FRatio: 4.9, ExposureSeconds: 300, Date: d},
 	}
 
 	items := BuildRegistry(usages)
@@ -49,7 +49,7 @@ func TestBuildRegistryMountSeparatedFromTelescope(t *testing.T) {
 func TestBuildRegistryRealScopeStaysTelescope(t *testing.T) {
 	d := time.Date(2025, 8, 1, 22, 0, 0, 0, time.UTC)
 	usages := []Usage{
-		{ObjectID: "m31", CameraRaw: "ZWO ASI2600MM", Telescope: "William Optics RedCat 51", Focal: 250, FRatio: 4.9, ExposureSeconds: 300, Date: d},
+		{TargetID: "m31", CameraRaw: "ZWO ASI2600MM", Telescope: "William Optics RedCat 51", Focal: 250, FRatio: 4.9, ExposureSeconds: 300, Date: d},
 	}
 
 	items := BuildRegistry(usages)

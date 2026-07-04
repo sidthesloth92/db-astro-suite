@@ -1,6 +1,8 @@
 package cache
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -9,7 +11,7 @@ import (
 
 func TestCacheReusesUnchangedAndReparsesChanged(t *testing.T) {
 	dir := t.TempDir()
-	c, err := Open(dir, dir, false)
+	c, err := Open(dir, dir)
 	if err != nil {
 		t.Fatalf("Open: %v", err)
 	}
@@ -37,7 +39,7 @@ func TestCachePersistsAcrossOpen(t *testing.T) {
 	dir := t.TempDir()
 	mtime := time.Unix(1_700_000_000, 0)
 
-	c1, err := Open(dir, "/some/root", false)
+	c1, err := Open(dir, "/some/root")
 	if err != nil {
 		t.Fatalf("Open: %v", err)
 	}
@@ -46,7 +48,7 @@ func TestCachePersistsAcrossOpen(t *testing.T) {
 		t.Fatalf("Save: %v", err)
 	}
 
-	c2, err := Open(dir, "/some/root", false)
+	c2, err := Open(dir, "/some/root")
 	if err != nil {
 		t.Fatalf("re-Open: %v", err)
 	}
@@ -60,23 +62,76 @@ func TestCacheSavePrunesUnseenEntries(t *testing.T) {
 	dir := t.TempDir()
 	mtime := time.Unix(1_700_000_000, 0)
 
-	c1, _ := Open(dir, "/r", false)
+	c1, _ := Open(dir, "/r")
 	c1.Put("/r/keep.fits", 1, mtime, astrofits.Metadata{Target: "Keep"})
 	c1.Put("/r/drop.fits", 2, mtime, astrofits.Metadata{Target: "Drop"})
 	_ = c1.Save()
 
 	// Re-open; only touch keep.fits, then save → drop.fits should be pruned.
-	c2, _ := Open(dir, "/r", false)
+	c2, _ := Open(dir, "/r")
 	if _, ok := c2.Get("/r/keep.fits", 1, mtime); !ok {
 		t.Fatal("keep.fits should be present")
 	}
 	_ = c2.Save()
 
-	c3, _ := Open(dir, "/r", false)
+	c3, _ := Open(dir, "/r")
 	if _, ok := c3.Get("/r/drop.fits", 2, mtime); ok {
 		t.Error("drop.fits should have been pruned (not seen last run)")
 	}
 	if _, ok := c3.Get("/r/keep.fits", 1, mtime); !ok {
 		t.Error("keep.fits should have survived pruning")
+	}
+}
+
+func TestPurgeRemovesCacheFilesOnly(t *testing.T) {
+	dir := t.TempDir()
+	mtime := time.Unix(1_700_000_000, 0)
+
+	// Seed two per-root cache files plus a non-json bystander.
+	for _, root := range []string{"/root/a", "/root/b"} {
+		c, err := Open(dir, root)
+		if err != nil {
+			t.Fatalf("Open %s: %v", root, err)
+		}
+		c.Put(root+"/f.fits", 1, mtime, astrofits.Metadata{Target: "T"})
+		if err := c.Save(); err != nil {
+			t.Fatalf("Save %s: %v", root, err)
+		}
+	}
+	bystander := filepath.Join(dir, "notes.txt")
+	if err := os.WriteFile(bystander, []byte("keep me"), 0o644); err != nil {
+		t.Fatalf("write bystander: %v", err)
+	}
+
+	if err := Purge(dir); err != nil {
+		t.Fatalf("Purge: %v", err)
+	}
+
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		t.Fatalf("ReadDir: %v", err)
+	}
+	if len(entries) != 1 || entries[0].Name() != "notes.txt" {
+		names := make([]string, 0, len(entries))
+		for _, e := range entries {
+			names = append(names, e.Name())
+		}
+		t.Fatalf("expected only notes.txt to survive, got %v", names)
+	}
+
+	// A purged cache reads back empty.
+	c, err := Open(dir, "/root/a")
+	if err != nil {
+		t.Fatalf("re-Open after purge: %v", err)
+	}
+	if _, ok := c.Get("/root/a/f.fits", 1, mtime); ok {
+		t.Error("purged cache should not return entries")
+	}
+}
+
+func TestPurgeMissingDirIsNoOp(t *testing.T) {
+	missing := filepath.Join(t.TempDir(), "does-not-exist")
+	if err := Purge(missing); err != nil {
+		t.Fatalf("Purge on a missing dir should be a no-op, got: %v", err)
 	}
 }

@@ -1,6 +1,6 @@
 // Package identity canonicalizes the messy, cross-program values found in FITS
 // headers into stable identities: it resolves an OBJECT string to a single
-// catalog object (merging aliases like M 31 == NGC 224), classifies it into a
+// catalog target (merging aliases like M 31 == NGC 224), classifies it into a
 // coarse UI category, and normalizes filter names (Hα, OIII, …).
 package identity
 

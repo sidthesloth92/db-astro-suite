@@ -2,11 +2,12 @@
 package report
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
-	"os"
 
+	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/atomicwrite"
 	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/model"
 )
 
@@ -22,12 +23,16 @@ func WriteJSON(w io.Writer, story model.Story) error {
 	return nil
 }
 
-// WriteFile writes the story JSON to path (creating/truncating it).
+// WriteFile atomically replaces path with the story JSON (temp file + rename),
+// so an interrupted run never leaves a truncated file and each generation is a
+// genuinely new file with a fresh creation time.
 func WriteFile(path string, story model.Story) error {
-	f, err := os.Create(path)
-	if err != nil {
-		return fmt.Errorf("create %s: %w", path, err)
+	var buf bytes.Buffer
+	if err := WriteJSON(&buf, story); err != nil {
+		return err
 	}
-	defer f.Close()
-	return WriteJSON(f, story)
+	if err := atomicwrite.WriteFile(path, buf.Bytes(), 0o644); err != nil {
+		return fmt.Errorf("write story: %w", err)
+	}
+	return nil
 }

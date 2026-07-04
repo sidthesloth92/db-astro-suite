@@ -1,8 +1,8 @@
 package model
 
-// ObjectTimeline is one imaged target with its aggregated totals, per-filter
+// TargetTimeline is one imaged target with its aggregated totals, per-filter
 // integration, equipment cross-links, and per-night session timeline.
-type ObjectTimeline struct {
+type TargetTimeline struct {
 	ID                      string              `json:"id"`
 	DisplayName             string              `json:"displayName"`
 	Designation             string              `json:"designation"`

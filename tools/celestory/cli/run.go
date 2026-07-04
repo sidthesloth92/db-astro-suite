@@ -43,7 +43,7 @@ func run(f cliFlags) error {
 
 	// Standalone cumulative-index maintenance operations.
 	if f.reset {
-		return resetLibrary(f.assumeYes)
+		return resetAll(f.assumeYes)
 	}
 	if f.forget != "" {
 		return forgetRoot(f.forget, f.assumeYes)
@@ -102,12 +102,9 @@ func run(f cliFlags) error {
 
 	var c *cache.Cache
 	if !f.noCache {
-		c, err = cache.Open(cacheDir, sourceDir, f.verifyHash)
+		c, err = cache.Open(cacheDir, sourceDir)
 		if err != nil {
 			return err
-		}
-		if f.rebuildCache {
-			c.Clear()
 		}
 	}
 
@@ -148,10 +145,15 @@ func run(f cliFlags) error {
 		idx.Reset()
 	}
 	idx.Merge(sourceDir, lights, f.keepDeleted)
+	// Heal stale references left by files moved out of other (still reachable)
+	// folders, so a move never shows up as a phantom duplicate.
+	idx.ReconcileMoved(sourceDir, osProbe{})
 
 	// Scope the duplicate report to the folder just scanned (unless -all-duplicates):
 	// a set sitting entirely on another, possibly-disconnected disk isn't actionable
-	// from this run. Integration totals stay full-library regardless.
+	// from this run. Integration totals stay full-library regardless. Copies on
+	// unreachable disks can't be verified, so they're excluded from the report
+	// (their index entries stay).
 	dupRoot := ""
 	if !f.allDuplicates {
 		if abs, absErr := filepath.Abs(sourceDir); absErr == nil {
@@ -161,8 +163,9 @@ func run(f cliFlags) error {
 		}
 	}
 	union := idx.Union()
-	story := aggregate.Assemble(union, res.Skipped, model.ToolInfo{Name: "celestory", Version: version}, dupRoot)
-	hiddenDupSets := aggregate.OutsideRootDuplicateSets(union, dupRoot)
+	verifiable := idx.VerifiablePath(osProbe{})
+	story := aggregate.Assemble(union, res.Skipped, model.ToolInfo{Name: "celestory", Version: version}, dupRoot, verifiable)
+	hiddenDupSets := aggregate.OutsideRootDuplicateSets(union, dupRoot, verifiable)
 
 	// Stamp a stable, privacy-preserving identity for deduped attempt counting.
 	if installID, idErr := config.EnsureInstallID(); idErr == nil {
@@ -201,14 +204,15 @@ func libraryDir() string {
 	return ".celestory"
 }
 
-// resetLibrary wipes the entire cumulative index after confirmation. FITS files
-// are never touched — the user rebuilds by re-scanning.
-func resetLibrary(assumeYes bool) error {
+// resetAll wipes both stores — the cumulative library index and the scan
+// cache — after confirmation, giving a true clean slate. FITS files are never
+// touched; the user rebuilds by re-scanning.
+func resetAll(assumeYes bool) error {
 	idx, err := library.Open(libraryDir())
 	if err != nil {
 		return err
 	}
-	if !confirmDestructive("Wipe your entire cumulative library index? (FITS files are untouched; re-scan to rebuild)", assumeYes) {
+	if !confirmDestructive("Wipe your entire Celestory library index and scan cache? (FITS files are untouched; re-scan to rebuild)", assumeYes) {
 		fmt.Println("Cancelled.")
 		return nil
 	}
@@ -216,7 +220,10 @@ func resetLibrary(assumeYes bool) error {
 	if err := idx.Save(); err != nil {
 		return err
 	}
-	fmt.Println("Cumulative library index wiped. Re-scan your folders to rebuild it.")
+	if err := cache.Purge(resolveCacheDir()); err != nil {
+		fmt.Fprintln(os.Stderr, "warning: could not clear the scan cache:", err)
+	}
+	fmt.Println("Library index and scan cache cleared. Re-scan your folders to rebuild.")
 	return nil
 }
 

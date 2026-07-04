@@ -2,7 +2,7 @@ package identity
 
 import "testing"
 
-func TestResolveMergesAliasesToOneObject(t *testing.T) {
+func TestResolveMergesAliasesToOneTarget(t *testing.T) {
 	tests := []struct {
 		name string
 		raw  string
@@ -47,7 +47,7 @@ func TestResolveUnseededDesignationKeepsCategoryGuess(t *testing.T) {
 		t.Errorf("Category = %q, want %q (Sharpless ⇒ Nebula heuristic)", got.Category, CategoryNebula)
 	}
 	if got.Type != nil {
-		t.Errorf("Type = %v, want nil for unseeded object", *got.Type)
+		t.Errorf("Type = %v, want nil for unseeded target", *got.Type)
 	}
 }
 
@@ -83,7 +83,7 @@ func TestResolveFallsBackToInputFileName(t *testing.T) {
 	}
 }
 
-func TestResolveNewlySeededObjects(t *testing.T) {
+func TestResolveNewlySeededTargets(t *testing.T) {
 	cases := []struct {
 		raw, id, category string
 	}{

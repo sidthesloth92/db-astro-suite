@@ -1,5 +1,5 @@
 // Package model holds the Celestory domain types that are marshaled to the
-// schema-v1 JSON contract the web UI consumes. One concept per file.
+// schema-v3 JSON contract the web UI consumes. One concept per file.
 package model
 
 // Story is the root document Celestory emits.
@@ -19,7 +19,7 @@ type Story struct {
 	DataFingerprint string           `json:"dataFingerprint"`
 	Summary         Summary          `json:"summary"`
 	Equipment       []EquipmentItem  `json:"equipment"`
-	Objects         []ObjectTimeline `json:"objects"`
+	Targets         []TargetTimeline `json:"targets"`
 	Duplicates      []DuplicateSet   `json:"duplicates"`
 	Skipped         []SkippedEntry   `json:"skipped"`
 }
@@ -33,7 +33,7 @@ type ToolInfo struct {
 // Summary is the top-level rollup powering the hero band and filter chips.
 type Summary struct {
 	TotalIntegrationSeconds float64         `json:"totalIntegrationSeconds"`
-	ObjectCount             int             `json:"objectCount"`
+	TargetCount             int             `json:"targetCount"`
 	NightCount              int             `json:"nightCount"`
 	LightFrameCount         int             `json:"lightFrameCount"`
 	FirstLight              string          `json:"firstLight"`
@@ -49,17 +49,17 @@ type Summary struct {
 // CategoryStat is the per-category breakdown (Galaxy, Nebula, …).
 type CategoryStat struct {
 	Category           string  `json:"category"`
-	ObjectCount        int     `json:"objectCount"`
+	TargetCount        int     `json:"targetCount"`
 	IntegrationSeconds float64 `json:"integrationSeconds"`
 	LightFrameCount    int     `json:"lightFrameCount"`
 }
 
-// ActivityEntry is one night of activity across all objects (global timeline).
+// ActivityEntry is one night of activity across all targets (global timeline).
 type ActivityEntry struct {
 	Date               string   `json:"date"`
 	IntegrationSeconds float64  `json:"integrationSeconds"`
 	LightFrameCount    int      `json:"lightFrameCount"`
-	ObjectIds          []string `json:"objectIds"`
+	TargetIds          []string `json:"targetIds"`
 }
 
 // DuplicateSet is one set of identical subs found at multiple paths.

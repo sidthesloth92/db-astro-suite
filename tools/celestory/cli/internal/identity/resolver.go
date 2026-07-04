@@ -2,12 +2,12 @@ package identity
 
 import "strings"
 
-// Resolved is the canonical identity of an imaged object.
+// Resolved is the canonical identity of an imaged target.
 type Resolved struct {
 	ID          string   // stable slug, e.g. "m31"
 	DisplayName string   // common name if known, else the designation/raw value
 	Designation string   // canonical catalog designation, e.g. "M 31"
-	Aliases     []string // all known designations for the object
+	Aliases     []string // all known designations for the target
 	Type        *string  // fine type (e.g. "Spiral Galaxy"); nil if unresolved
 	Category    string   // coarse UI bucket; "Other" if unresolved
 	RA          *float64 // J2000 right ascension (decimal degrees); nil if unknown

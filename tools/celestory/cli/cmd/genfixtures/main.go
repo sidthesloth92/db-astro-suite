@@ -1,4 +1,4 @@
-// Command genfixtures writes a small tree of real FITS files (varied objects,
+// Command genfixtures writes a small tree of real FITS files (varied targets,
 // filters, cameras, dates, plus a duplicate, a calibration frame, and a garbage
 // file) into a target directory. It is a developer aid for exercising the
 // celestory CLI end-to-end; it is not shipped in releases.
@@ -51,10 +51,10 @@ func main() {
 	log.Printf("fixtures written under %s", root)
 }
 
-func light(object, filter string, exp float64, dateObs, camera, telescope string, focal float64) []fitsio.Card {
+func light(target, filter string, exp float64, dateObs, camera, telescope string, focal float64) []fitsio.Card {
 	cards := []fitsio.Card{
 		{Name: "IMAGETYP", Value: "LIGHT"},
-		{Name: "OBJECT", Value: object},
+		{Name: "OBJECT", Value: target},
 		{Name: "FILTER", Value: filter},
 		{Name: "EXPTIME", Value: exp},
 		{Name: "INSTRUME", Value: camera},
@@ -68,10 +68,10 @@ func light(object, filter string, exp float64, dateObs, camera, telescope string
 	return cards
 }
 
-func synonymLight(object, filter string, exp float64, dateObs, camera, telescope string) []fitsio.Card {
+func synonymLight(target, filter string, exp float64, dateObs, camera, telescope string) []fitsio.Card {
 	return []fitsio.Card{
 		{Name: "FRAME", Value: "Light Frame"},
-		{Name: "OBJNAME", Value: object},
+		{Name: "OBJNAME", Value: target},
 		{Name: "FILTER", Value: filter},
 		{Name: "EXPOSURE", Value: exp},
 		{Name: "CAMERA", Value: camera},
@@ -80,10 +80,10 @@ func synonymLight(object, filter string, exp float64, dateObs, camera, telescope
 	}
 }
 
-func osc(object string, exp float64, dateObs, camera string) []fitsio.Card {
+func osc(target string, exp float64, dateObs, camera string) []fitsio.Card {
 	cards := []fitsio.Card{
 		{Name: "IMAGETYP", Value: "LIGHT"},
-		{Name: "OBJECT", Value: object},
+		{Name: "OBJECT", Value: target},
 		{Name: "EXPTIME", Value: exp},
 		{Name: "INSTRUME", Value: camera},
 		{Name: "BAYERPAT", Value: "RGGB"},

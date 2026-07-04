@@ -9,13 +9,13 @@ import (
 	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/scan"
 )
 
-func frame(path, object, filter, frameType, camera string, exp float64, size int64, date time.Time) scan.Frame {
+func frame(path, target, filter, frameType, camera string, exp float64, size int64, date time.Time) scan.Frame {
 	return scan.Frame{
 		Path: path,
 		Size: size,
 		Meta: astrofits.Metadata{
 			FrameType: frameType,
-			Target:    object,
+			Target:    target,
 			Filter:    filter,
 			CameraRaw: camera,
 			Telescope: "William Optics RedCat 51",
@@ -27,16 +27,16 @@ func frame(path, object, filter, frameType, camera string, exp float64, size int
 	}
 }
 
-func findObject(objs []model.ObjectTimeline, id string) *model.ObjectTimeline {
-	for i := range objs {
-		if objs[i].ID == id {
-			return &objs[i]
+func findTarget(targets []model.TargetTimeline, id string) *model.TargetTimeline {
+	for i := range targets {
+		if targets[i].ID == id {
+			return &targets[i]
 		}
 	}
 	return nil
 }
 
-func TestObjectCoordsHybrid(t *testing.T) {
+func TestTargetCoordsHybrid(t *testing.T) {
 	// Distinct dates so the (target-independent) frame fingerprint keeps all three.
 	d1 := time.Date(2025, 1, 2, 3, 0, 0, 0, time.UTC)
 	d2 := time.Date(2025, 1, 3, 3, 0, 0, 0, time.UTC)
@@ -55,7 +55,7 @@ func TestObjectCoordsHybrid(t *testing.T) {
 
 	led := Build([]scan.Frame{fitsM31, catM13, unknown}, nil, model.ToolInfo{})
 
-	m31 := findObject(led.Objects, "m31")
+	m31 := findTarget(led.Targets, "m31")
 	if m31 == nil || m31.RA == nil || m31.Dec == nil {
 		t.Fatalf("m31 coords missing: %+v", m31)
 	}
@@ -63,7 +63,7 @@ func TestObjectCoordsHybrid(t *testing.T) {
 		t.Errorf("m31 used %v/%v, want FITS coords 11.5/42.0 (FITS must win)", *m31.RA, *m31.Dec)
 	}
 
-	m13 := findObject(led.Objects, "m13")
+	m13 := findTarget(led.Targets, "m13")
 	if m13 == nil || m13.RA == nil || m13.Dec == nil {
 		t.Fatalf("m13 catalog coords missing: %+v", m13)
 	}
@@ -71,9 +71,9 @@ func TestObjectCoordsHybrid(t *testing.T) {
 		t.Errorf("m13 catalog coords %v/%v, want ≈250.4/+36.5", *m13.RA, *m13.Dec)
 	}
 
-	x := findObject(led.Objects, "mybackyardfield")
+	x := findTarget(led.Targets, "mybackyardfield")
 	if x == nil {
-		t.Fatalf("unknown target object not found")
+		t.Fatalf("unknown target not found")
 	}
 	if x.RA != nil || x.Dec != nil {
 		t.Errorf("unknown target got coords %v/%v, want none", x.RA, x.Dec)
@@ -96,12 +96,12 @@ func TestBuildIntegrationAndCalibrationExclusion(t *testing.T) {
 
 	led := Build(frames, nil, model.ToolInfo{Name: "celestory", Version: "test"})
 
-	if led.Summary.ObjectCount != 1 {
-		t.Fatalf("ObjectCount = %d, want 1 (calibration must not create objects)", led.Summary.ObjectCount)
+	if led.Summary.TargetCount != 1 {
+		t.Fatalf("TargetCount = %d, want 1 (calibration must not create targets)", led.Summary.TargetCount)
 	}
-	m31 := findObject(led.Objects, "m31")
+	m31 := findTarget(led.Targets, "m31")
 	if m31 == nil {
-		t.Fatal("expected object m31")
+		t.Fatal("expected target m31")
 	}
 	if m31.TotalIntegrationSeconds != 900 {
 		t.Errorf("M31 integration = %v, want 900 (3 lights × 300; calibration excluded)", m31.TotalIntegrationSeconds)
@@ -123,8 +123,8 @@ func TestBuildIntegrationAndCalibrationExclusion(t *testing.T) {
 		t.Fatalf("equipment count = %d, want 2 (camera + telescope)", len(led.Equipment))
 	}
 	for _, e := range led.Equipment {
-		if len(e.ObjectIds) != 1 || e.ObjectIds[0] != "m31" {
-			t.Errorf("equipment %q objectIds = %v, want [m31]", e.ID, e.ObjectIds)
+		if len(e.TargetIds) != 1 || e.TargetIds[0] != "m31" {
+			t.Errorf("equipment %q targetIds = %v, want [m31]", e.ID, e.TargetIds)
 		}
 	}
 }
@@ -137,7 +137,7 @@ func TestDuplicateDetectionCountsOnceAndReports(t *testing.T) {
 	}
 	led := Build(frames, nil, model.ToolInfo{})
 
-	m31 := findObject(led.Objects, "m31")
+	m31 := findTarget(led.Targets, "m31")
 	if m31 == nil || m31.LightFrameCount != 1 {
 		t.Fatalf("duplicate copy must be counted once; got %+v", m31)
 	}
@@ -163,7 +163,7 @@ func TestSameExposureDifferentSizeCountsOnce(t *testing.T) {
 	}
 	led := Build(frames, nil, model.ToolInfo{})
 
-	m31 := findObject(led.Objects, "m31")
+	m31 := findTarget(led.Targets, "m31")
 	if m31 == nil || m31.LightFrameCount != 1 {
 		t.Fatalf("same exposure at a different size must count once; got %+v", m31)
 	}
@@ -183,7 +183,7 @@ func TestDistinctSubsNotFlaggedAsDuplicates(t *testing.T) {
 	if led.Summary.DuplicateFileCount != 0 {
 		t.Errorf("distinct subs must not be flagged; DuplicateFileCount = %d", led.Summary.DuplicateFileCount)
 	}
-	m31 := findObject(led.Objects, "m31")
+	m31 := findTarget(led.Targets, "m31")
 	if m31 == nil || m31.LightFrameCount != 2 {
 		t.Fatalf("both distinct subs should count; got %+v", m31)
 	}
@@ -204,7 +204,7 @@ func TestAssembleScopesDuplicatesToFolder(t *testing.T) {
 
 	// Scoped to folderA: only the set touching folderA is reported (folderC hidden),
 	// but both exposures are still deduped and counted once.
-	scoped := Assemble(lights, nil, model.ToolInfo{}, "/folderA")
+	scoped := Assemble(lights, nil, model.ToolInfo{}, "/folderA", nil)
 	if len(scoped.Duplicates) != 1 {
 		t.Fatalf("scoped duplicate sets = %d, want 1 (folderC set hidden)", len(scoped.Duplicates))
 	}
@@ -217,7 +217,7 @@ func TestAssembleScopesDuplicatesToFolder(t *testing.T) {
 	}
 
 	// Whole-library view ("") reports both duplicate sets; integration is identical.
-	all := Assemble(lights, nil, model.ToolInfo{}, "")
+	all := Assemble(lights, nil, model.ToolInfo{}, "", nil)
 	if len(all.Duplicates) != 2 {
 		t.Errorf("whole-library duplicate sets = %d, want 2", len(all.Duplicates))
 	}
@@ -241,13 +241,13 @@ func TestOutsideRootDuplicateSetsCountsHidden(t *testing.T) {
 	}
 	lights, _ := Enrich(frames)
 
-	if got := OutsideRootDuplicateSets(lights, "/folderA"); got != 1 {
+	if got := OutsideRootDuplicateSets(lights, "/folderA", nil); got != 1 {
 		t.Errorf("scoped to folderA hides the folderC set; got %d, want 1", got)
 	}
-	if got := OutsideRootDuplicateSets(lights, "/folderC"); got != 1 {
+	if got := OutsideRootDuplicateSets(lights, "/folderC", nil); got != 1 {
 		t.Errorf("scoped to folderC hides the A/B set; got %d, want 1", got)
 	}
-	if got := OutsideRootDuplicateSets(lights, ""); got != 0 {
+	if got := OutsideRootDuplicateSets(lights, "", nil); got != 0 {
 		t.Errorf("whole-library view hides nothing; got %d, want 0", got)
 	}
 }
@@ -343,17 +343,17 @@ func TestMountSeparatedFromTelescopeWithSessionSpecs(t *testing.T) {
 		t.Errorf("mount entry = %+v, want name 'EQMod Mount' and nil focal", mount)
 	}
 
-	// Object cross-links the mount id (and the camera), never a telescope id.
-	m31 := findObject(led.Objects, "m31")
+	// Target cross-links the mount id (and the camera), never a telescope id.
+	m31 := findTarget(led.Targets, "m31")
 	if m31 == nil {
-		t.Fatal("expected object m31")
+		t.Fatal("expected target m31")
 	}
 	if !containsID(m31.EquipmentIds, "mount-eqmod-mount") || !containsID(m31.EquipmentIds, "cam-2600mm") {
-		t.Errorf("object equipmentIds = %v, want to include mount-eqmod-mount and cam-2600mm", m31.EquipmentIds)
+		t.Errorf("target equipmentIds = %v, want to include mount-eqmod-mount and cam-2600mm", m31.EquipmentIds)
 	}
 	for _, id := range m31.EquipmentIds {
 		if len(id) >= 10 && id[:10] == "telescope-" {
-			t.Errorf("object equipmentIds must not include a telescope, got %q", id)
+			t.Errorf("target equipmentIds must not include a telescope, got %q", id)
 		}
 	}
 
@@ -384,9 +384,9 @@ func TestUndatedFrameStillCounts(t *testing.T) {
 		frame("/a/u1.fits", "M42", "OSC", "Light", "ZWO ASI2600MC", 120, 2000, time.Time{}),
 	}
 	led := Build(frames, nil, model.ToolInfo{})
-	m42 := findObject(led.Objects, "m42")
+	m42 := findTarget(led.Targets, "m42")
 	if m42 == nil {
-		t.Fatal("undated light frame must still produce its object")
+		t.Fatal("undated light frame must still produce its target")
 	}
 	if m42.TotalIntegrationSeconds != 120 {
 		t.Errorf("undated integration = %v, want 120", m42.TotalIntegrationSeconds)
@@ -395,6 +395,6 @@ func TestUndatedFrameStillCounts(t *testing.T) {
 		t.Errorf("undated frame should land in an empty-date session, got %+v", m42.Sessions)
 	}
 	if m42.NightCount != 0 {
-		t.Errorf("undated-only object nightCount = %d, want 0 (undated isn't a night)", m42.NightCount)
+		t.Errorf("undated-only target nightCount = %d, want 0 (undated isn't a night)", m42.NightCount)
 	}
 }
