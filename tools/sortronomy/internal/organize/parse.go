@@ -5,6 +5,8 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/sidthesloth92/db-astro-suite/libs/capturetime"
 )
 
 // Tokens are the fields recovered from an ASIAIR-style filename. Any field
@@ -21,7 +23,6 @@ type Tokens struct {
 var (
 	rotationTokenRe = regexp.MustCompile(`^\d+(\.\d+)?deg$`)
 	filterSuffixCap = regexp.MustCompile(`(?i)_f_([^_]+)$`)
-	dateTimeTokenRe = regexp.MustCompile(`^\d{8}-\d{6}$`)
 )
 
 // ParseFilename does a best-effort positional parse of an ASIAIR-style
@@ -74,9 +75,6 @@ func ParseFilename(name string) Tokens {
 		if len(parts) > 4 {
 			t.Filter = parts[4]
 		}
-		if len(parts) > 6 {
-			t.DateObs, _ = parseAsiairTimestamp(parts[6])
-		}
 	} else {
 		if len(parts) > 1 {
 			t.Target = parts[1]
@@ -87,10 +85,13 @@ func ParseFilename(name string) Tokens {
 		if len(parts) > 5 {
 			t.Filter = parts[5]
 		}
-		if len(parts) > 7 {
-			t.DateObs, _ = parseAsiairTimestamp(parts[7])
-		}
 	}
+
+	// DateObs is decoded from the whole filename via the shared multi-format
+	// scanner (ASIAIR / N.I.N.A. / SharpCap / ISO), independent of the
+	// positional slot, so the header-missing fallback works across capture
+	// software rather than only ASIAIR's layout.
+	t.DateObs, _ = capturetime.ParseFilenameTimestamp(name)
 
 	// OSC suffix wins for filter when present — the positional slot is
 	// often "gain100" or similar on OSC filenames where it doesn't exist.
@@ -98,17 +99,4 @@ func ParseFilename(name string) Tokens {
 		t.Filter = osc
 	}
 	return t
-}
-
-// parseAsiairTimestamp parses an ASIAIR filename timestamp like
-// "20250118-065554" (UTC). The Python scripts use the same layout.
-func parseAsiairTimestamp(s string) (time.Time, bool) {
-	if !dateTimeTokenRe.MatchString(s) {
-		return time.Time{}, false
-	}
-	t, err := time.Parse("20060102-150405", s)
-	if err != nil {
-		return time.Time{}, false
-	}
-	return t, true
 }

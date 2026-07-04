@@ -36,7 +36,11 @@ configuration, because every program writes the same `IMAGETYP`, `OBJECT`,
   per target; without it all frames for a target collect in one flat folder.
   Layer on "Group imaging session" and any capture at or after your chosen
   cutoff hour rolls into the _following_ day's folder — so a night that
-  crosses midnight, plus the next morning's flats, stay together.
+  crosses midnight, plus the next morning's flats, stay together. The cutoff is
+  matched against each frame's **local** capture time, read from the filename
+  (ASIAIR, N.I.N.A., SharpCap and ISO timestamps), falling back to the `DATE-LOC`
+  header and then the UTC `DATE-OBS`. Plain date grouping (no session) keeps
+  filing under the `DATE-OBS` day.
 - **Set filter.** For one-shot-color cameras (or relabeling a mono
   filter slot), opt in to the "set filter" step and Sortronomy writes
   `FILTER = "<name>"` with your description as the comment into each copied
@@ -119,7 +123,7 @@ sortronomy --input ./raw --output ./organized --group-focal --yes
 | `--group-date`      | Include the capture date as a folder level in the tree. When off, all frames for a target land in one folder regardless of date.                                                                                                                                                                |
 | `--group-filter`    | File frames into per-filter subfolders (e.g. `Ha/`, `OIII/`). When off, all frames for a target collect together regardless of filter.                                                                                                                                                          |
 | `--group-session`   | Roll captures at/after the cutoff hour into the next day's session folder. Only applies when `--group-date` is set.                                                                                                                                                                             |
-| `--rollover-hour N` | Hour (0–23) at which a night's session starts. Frames captured _at or after_ this hour are filed under the _next_ calendar day, so a night that crosses midnight — plus any flats shot the following morning — land in one session folder. Default 18. Only used when `--group-session` is set. |
+| `--rollover-hour N` | Local-time hour (0–23) at which a night's session starts. Frames captured _at or after_ this hour are filed under the _next_ calendar day, so a night that crosses midnight — plus any flats shot the following morning — land in one session folder. The local capture time is read from the filename when possible (ASIAIR, N.I.N.A., SharpCap…), else the `DATE-LOC` header, else the UTC `DATE-OBS` (with a warning). Default 18. Only used when `--group-session` is set. |
 | `--filter-type S`   | Folder label for the filter, e.g. `Ha` / `OIII`. Used as the subfolder name in the organized tree.                                                                                                                                                                                              |
 | `--filter-name S`   | Value written into the FITS `FILTER` header of every copied file; also appended as `_f_<value>` before the file extension.                                                                                                                                                                      |
 | `--filter-desc S`   | Comment written alongside the FITS `FILTER` header. Optional — leave it out if you don't need a description.                                                                                                                                                                                    |

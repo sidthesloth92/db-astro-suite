@@ -41,10 +41,12 @@ Flags (every wizard option has one):
                      frames for a target collect together regardless of filter.
   --group-session    Roll captures at/after the cutoff hour into the next day's session folder.
                      Only applies when --group-date is set.
-  --rollover-hour N  Hour (0–23) at which a night's session starts. Frames captured at or after
-                     this hour are filed under the next calendar day, so a night that crosses
-                     midnight — plus any flats shot the following morning — land in one session
-                     folder. Default 18. Only used when --group-session is set.
+  --rollover-hour N  Local-time hour (0–23) at which a night's session starts. Frames captured at
+                     or after this hour are filed under the next calendar day, so a night that
+                     crosses midnight — plus any flats shot the following morning — land in one
+                     session folder. The local capture time is read from the filename when possible
+                     (ASIAIR, N.I.N.A., SharpCap…), else the DATE-LOC header, else the UTC DATE-OBS.
+                     Default 18. Only used when --group-session is set.
   --filter-type S    Folder label for the filter, e.g. Ha / OIII.
   --filter-name S    Value written into the FITS FILTER header of every copied file; also appended
                      as _f_<value> before the file extension (e.g. frame_0001_f_SV220.fit).

@@ -5,7 +5,8 @@ dry-run the deploy scripts before touching the real server. This mirrors the pro
 bootstrap exactly. OrbStack uses Apple's native Virtualization.framework — no QEMU
 complexity, works on Apple Silicon out of the box.
 
-> For the real server setup, see [deploy.md](deploy.md).
+> For the real server setup, see [SERVER-SETUP.md](SERVER-SETUP.md) (from scratch) or
+> [MIGRATE-SERVER.md](MIGRATE-SERVER.md) (moving an existing server).
 
 ---
 
@@ -139,7 +140,7 @@ orb run -m astrosolve-test id ${DEPLOY_USER}
 
 > **Catalog required.** The server aborts on startup if
 > `data/local-catalog/celestial.sqlite` is missing. For a local smoke test,
-> build it once into the VM volume from the loaded image (see deploy.md §3a) —
+> build it once into the VM volume from the loaded image (see SERVER-SETUP.md) —
 > or, to skip the multi-hour Gaia fetch, generate a smaller catalog by running
 > `npm run init-local-catalog-db` with the Gaia step interrupted; the DSO
 > sources alone produce a valid (smaller) `celestial.sqlite`.

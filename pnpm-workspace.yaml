@@ -4,4 +4,3 @@ packages:
   - "tools/astrosolve/*"
   - "tools/celestory/*"
   - "libs/*"
-  - "services/*"

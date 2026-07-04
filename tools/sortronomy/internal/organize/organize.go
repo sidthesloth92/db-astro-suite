@@ -25,7 +25,9 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"time"
 
+	"github.com/sidthesloth92/db-astro-suite/libs/capturetime"
 	"github.com/sidthesloth92/db-astro-suite/libs/cliui"
 	"github.com/sidthesloth92/db-astro-suite/tools/sortronomy/internal/fits"
 	"github.com/sidthesloth92/db-astro-suite/tools/sortronomy/internal/fsutil"
@@ -59,10 +61,13 @@ type Options struct {
 	// (or the filter subfolder if one is set), with no date component.
 	GroupByDate bool
 	// GroupSession opts into rolling late captures into the next day's session
-	// folder (see SessionDate). When false, frames are filed under their literal
-	// UTC capture day.
-	GroupSession        bool
-	SessionRolloverHour int // UTC hour, 0..23; 0 means "use default" (18). Only applies when GroupSession is true.
+	// folder (see sessionTimestamp). When false, frames are filed under their
+	// literal DATE-OBS (UTC) capture day.
+	GroupSession bool
+	// SessionRolloverHour is the cutoff hour 0..23 (0 means "use default", 18).
+	// Compared against the frame's LOCAL capture time (from the filename or
+	// DATE-LOC, falling back to DATE-OBS). Only applies when GroupSession is true.
+	SessionRolloverHour int
 	Confirmed           bool
 }
 
@@ -90,6 +95,12 @@ type Plan struct {
 	// or the raw creator string, or "Unknown") to file count, for the summary.
 	SoftwareSeen map[string]int
 	TotalFound   int
+	// SessionUTCFallbacks counts session-grouped frames whose date had to fall
+	// back to the UTC DATE-OBS header (no local capture time in the filename or
+	// DATE-LOC). Their dated folder may be off by the observer's UTC offset.
+	SessionUTCFallbacks int
+	// SessionUTCFallbackSamples holds a few example base names for the warning.
+	SessionUTCFallbackSamples []string
 }
 
 // FolderSummary aggregates Entry counts by destination directory for the
@@ -183,17 +194,31 @@ func BuildPlan(opts Options, log *slog.Logger) (Plan, error) {
 
 		applyFilenameFallback(src, &m)
 
-		dst, reason, ok := planDest(src, opts, m)
+		sessionTime, source := sessionTimestamp(src, m, opts)
+		dst, reason, ok := planDest(src, opts, m, sessionTime)
 		if !ok {
 			plan.Skips = append(plan.Skips, Skip{Src: src, Reason: reason})
 			log.Warn("skipped: incomplete metadata", "file", src, "reason", reason)
 			continue
+		}
+		if opts.GroupSession && source == sourceDateObs {
+			plan.SessionUTCFallbacks++
+			if len(plan.SessionUTCFallbackSamples) < 5 {
+				plan.SessionUTCFallbackSamples = append(plan.SessionUTCFallbackSamples, filepath.Base(src))
+			}
+			log.Warn("session date fell back to DATE-OBS (UTC)",
+				"file", src,
+				"hint", "no local capture time in the filename or DATE-LOC; folder date may be off by the UTC offset")
 		}
 		log.Debug("planned", "file", src, "dst", dst)
 
 		plan.Entries = append(plan.Entries, Entry{Src: src, Dst: dst, Metadata: m})
 	}
 	prog.clear()
+
+	if opts.GroupSession && plan.SessionUTCFallbacks > 0 {
+		printSessionUTCWarning(os.Stdout, plan.SessionUTCFallbacks, plan.SessionUTCFallbackSamples)
+	}
 
 	return plan, nil
 }
@@ -451,17 +476,74 @@ func applyFilenameFallback(src string, m *fits.Metadata) {
 	}
 }
 
+// sessionTimestamp picks the timestamp used to compute a frame's session date.
+//
+// Plain date grouping keeps using DATE-OBS. With session grouping on, the cutoff
+// must be compared against the observer's LOCAL clock, so the priority is:
+// (1) the local capture time decoded from the filename, (2) the DATE-LOC header
+// (local time, written by N.I.N.A.), (3) DATE-OBS (UTC) as a last resort. The
+// returned dateSource lets BuildPlan warn when it lands on DATE-OBS.
+func sessionTimestamp(src string, m fits.Metadata, opts Options) (time.Time, dateSource) {
+	if !opts.GroupSession {
+		return m.DateObs, sourceDateObs
+	}
+	if ft, ok := capturetime.ParseFilenameTimestamp(filepath.Base(src)); ok && datesPlausible(ft, m.DateObs) {
+		return ft, sourceFilename
+	}
+	if !m.DateLoc.IsZero() {
+		return m.DateLoc, sourceDateLoc
+	}
+	return m.DateObs, sourceDateObs
+}
+
+// datesPlausible reports whether a filename-decoded local time is close enough to
+// DATE-OBS to trust for session grouping. A real UTC offset never shifts the
+// calendar day by more than one, so a gap beyond 24h means the filename time is
+// bogus (e.g. a batch-renamed file) and must not override the header. A
+// date-only filename token (midnight) is always trusted — it is an explicit
+// session date (e.g. N.I.N.A. $$DATEMINUS12$$), not a mislabel. A zero DATE-OBS
+// leaves nothing to compare against, so the filename wins.
+func datesPlausible(filenameTime, dateObs time.Time) bool {
+	if dateObs.IsZero() {
+		return true
+	}
+	if filenameTime.Hour() == 0 && filenameTime.Minute() == 0 && filenameTime.Second() == 0 {
+		return true
+	}
+	diff := filenameTime.Sub(dateObs)
+	if diff < 0 {
+		diff = -diff
+	}
+	return diff <= 24*time.Hour
+}
+
+// printSessionUTCWarning tells the user that some session-grouped frames were
+// dated from the UTC DATE-OBS header because no local capture time could be read
+// from their filename or DATE-LOC, so their dated folder may be off by the UTC
+// offset. Printed once after the scan; details are also in the log file.
+func printSessionUTCWarning(w io.Writer, n int, samples []string) {
+	fmt.Fprintf(w, "%s %s\n",
+		cliui.Warn.Render("⚠"),
+		cliui.Warn.Render(fmt.Sprintf("%d file(s): no local capture time in the filename or DATE-LOC — used DATE-OBS (UTC).", n)),
+	)
+	fmt.Fprintln(w, cliui.Dim.Render("  Their session date may be off by your local UTC offset."))
+	if len(samples) > 0 {
+		fmt.Fprintln(w, cliui.Dim.Render("  e.g. "+strings.Join(samples, ", ")))
+	}
+}
+
 // planDest returns the absolute destination path for src, or (path, reason, false)
-// if it should be skipped. Reasons are surfaced in the review screen.
-func planDest(src string, opts Options, m fits.Metadata) (string, string, bool) {
+// if it should be skipped. sessionTime is the timestamp chosen for the dated
+// folder (see sessionTimestamp). Reasons are surfaced in the review screen.
+func planDest(src string, opts Options, m fits.Metadata, sessionTime time.Time) (string, string, bool) {
 	if m.FrameType == "" {
 		return "", "missing IMAGETYP", false
 	}
 	if m.Camera == "" {
 		return "", "missing INSTRUME", false
 	}
-	if m.DateObs.IsZero() {
-		return "", "missing or unparseable DATE-OBS", false
+	if sessionTime.IsZero() {
+		return "", "missing or unparseable capture date", false
 	}
 
 	// Filter label for the folder:
@@ -490,7 +572,7 @@ func planDest(src string, opts Options, m fits.Metadata) (string, string, bool) 
 		m.Target,
 		m.FrameType,
 		opts.GroupByDate,
-		SessionDate(m.DateObs, opts.GroupSession, opts.SessionRolloverHour),
+		capturetime.SessionDate(sessionTime, opts.GroupSession, opts.SessionRolloverHour),
 		filterLabel,
 	)
 
@@ -515,6 +597,13 @@ func applyFilterSuffix(name, filter string) string {
 	if loc := fitsExtRe.FindStringIndex(name); loc != nil {
 		ext = name[loc[0]:]
 		name = name[:loc[0]]
+	}
+	// Idempotent: if the name already ends with exactly this filter suffix,
+	// leave it as-is rather than stripping and re-appending the same token.
+	// This also avoids duplicating a suffix whose filter contains an underscore
+	// (e.g. "SV_220"), which filterSuffixRe's [^_]+ cannot strip.
+	if strings.HasSuffix(name, "_f_"+filter) {
+		return name + ext
 	}
 	name = filterSuffixRe.ReplaceAllString(name, "")
 	return name + "_f_" + filter + ext
