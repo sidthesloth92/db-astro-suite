@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/sidthesloth92/db-astro-suite/libs/cliui"
 )
 
 // wordmark is the "CELESTORY" wordmark in the DB Astro Suite box font (the same
@@ -23,22 +24,17 @@ const (
 
 var moon = struct{ cx, cy, r, sx, sy, sr float64 }{cx: 6, cy: 3, r: 3.2, sx: 10.5, sy: 2.2, sr: 3.5}
 
-// Brand gradient endpoints (teal → pink) for the moon dots.
+// Brand gradient endpoints (teal → pink) for the moon dots: the RGB components
+// of cliui.ColorOK and cliui.ColorFail, kept as raw channels because moonColor
+// interpolates channel-wise (a lipgloss.Color hex string can't be mixed).
 var (
-	moonTeal = [3]int{0x34, 0xD3, 0xC4}
-	moonPink = [3]int{0xEC, 0x48, 0x99}
+	moonTeal = [3]int{0x34, 0xD3, 0xC4} // cliui.ColorOK
+	moonPink = [3]int{0xEC, 0x48, 0x99} // cliui.ColorFail
 )
 
-// Wordmark rows + meta colours: a soft violet gradient with a dimmed copyright/URL.
-var (
-	bannerRows = []lipgloss.Style{
-		lipgloss.NewStyle().Foreground(lipgloss.Color("#C4B5FD")),
-		lipgloss.NewStyle().Foreground(lipgloss.Color("#A78BFA")),
-		lipgloss.NewStyle().Foreground(lipgloss.Color("#8B5CF6")),
-	}
-	bannerDim     = lipgloss.NewStyle().Foreground(lipgloss.Color("#6B7280"))
-	bannerVersion = lipgloss.NewStyle().Foreground(lipgloss.Color("#8B5CF6"))
-)
+// bannerVersion tints the version line; the wordmark gradient and the dimmed
+// copyright/URL lines come from the shared cliui theme.
+var bannerVersion = lipgloss.NewStyle().Foreground(cliui.ColorBrandDeep)
 
 // displayVersion is the running build's version for the banner, normalising an
 // unset/dev build to a readable label.
@@ -96,16 +92,13 @@ func moonColor(t float64) lipgloss.Color {
 // copyright, and URL beside it, with blank lines for breathing room.
 func printBanner() {
 	var wm strings.Builder
-	for i, row := range strings.Split(wordmark, "\n") {
-		wm.WriteString(bannerRows[i%len(bannerRows)].Render(row))
-		wm.WriteByte('\n')
-	}
-	wm.WriteByte('\n')
+	wm.WriteString(cliui.RenderWordmark(strings.Split(wordmark, "\n")))
+	wm.WriteString("\n\n")
 	wm.WriteString(bannerVersion.Render("celestory " + displayVersion()))
 	wm.WriteByte('\n')
-	wm.WriteString(bannerDim.Render("© 2026 DB Astro Suite · dbastrosuite.com"))
+	wm.WriteString(cliui.BannerFooter.Render("© 2026 DB Astro Suite · dbastrosuite.com"))
 	wm.WriteByte('\n')
-	wm.WriteString(bannerDim.Render("↑ keep current: brew upgrade celestory"))
+	wm.WriteString(cliui.BannerFooter.Render("↑ keep current: brew upgrade celestory"))
 
 	side := lipgloss.NewStyle().PaddingLeft(3).Render(wm.String())
 	banner := lipgloss.JoinHorizontal(lipgloss.Center, renderMoon(), side)

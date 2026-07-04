@@ -9,6 +9,7 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/term"
+	"github.com/sidthesloth92/db-astro-suite/libs/cliui"
 )
 
 const (
@@ -24,11 +25,12 @@ const (
 	progressThrottle = 80 * time.Millisecond
 )
 
-// Bar colours: a violet fill matching the wordmark, a dim trough, dim text.
+// Bar colours: a violet fill matching the wordmark, a dim trough, dim text —
+// all from the shared cliui palette.
 var (
-	progressFillStyle  = lipgloss.NewStyle().Foreground(lipgloss.Color("#A78BFA"))
-	progressTroughStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#3F3F5A"))
-	progressTextStyle  = lipgloss.NewStyle().Foreground(lipgloss.Color("#9CA3AF"))
+	progressFillStyle   = lipgloss.NewStyle().Foreground(cliui.ColorHeading)
+	progressTroughStyle = lipgloss.NewStyle().Foreground(cliui.ColorTrough)
+	progressTextStyle   = cliui.Dim
 )
 
 // progressReporter renders an in-place "[bar] pct done/total files" line that

@@ -6,7 +6,7 @@ import (
 	"math"
 	"time"
 
-	"github.com/charmbracelet/lipgloss"
+	"github.com/sidthesloth92/db-astro-suite/libs/cliui"
 	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/model"
 )
 
@@ -21,22 +21,22 @@ const maxSkippedFilesPrinted = 20
 // visualise their journey — everything renders client-side, nothing is uploaded.
 const webAppURL = "https://celestory.dbastrosuite.com"
 
-// Styles for the "Next steps" call-to-action.
+// Styles for the "Next steps" call-to-action, from the shared cliui theme.
 var (
-	stepHeader = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#A78BFA"))
-	stepNum    = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#34D3C4"))
-	stepURL    = lipgloss.NewStyle().Bold(true).Underline(true).Foreground(lipgloss.Color("#34D3C4"))
-	stepFile   = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#EC4899"))
-	stepDim    = lipgloss.NewStyle().Foreground(lipgloss.Color("#9CA3AF"))
+	stepHeader = cliui.Heading
+	stepNum    = cliui.OK
+	stepURL    = cliui.OK.Underline(true)
+	stepFile   = cliui.Fail
+	stepDim    = cliui.Dim
 )
 
-// Styles for the duplicate report.
+// Styles for the duplicate report, from the shared cliui theme.
 var (
-	dupHeader = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#F59E0B"))
-	dupTarget = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#C4B5FD"))
-	dupKeep   = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#34D3C4"))
-	dupRemove = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#EC4899"))
-	dupDim    = lipgloss.NewStyle().Foreground(lipgloss.Color("#9CA3AF"))
+	dupHeader = cliui.Warn
+	dupTarget = cliui.Value
+	dupKeep   = cliui.OK
+	dupRemove = cliui.Fail
+	dupDim    = cliui.Dim
 )
 
 func flagUsage() { flag.Usage() }
