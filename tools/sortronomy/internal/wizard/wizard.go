@@ -83,6 +83,15 @@ func runOrganize(cfg config.Config, opts organize.Options, dryRun bool, log *slo
 		opts.SessionRolloverHour = organize.DefaultSessionRolloverHour
 	}
 
+	// A complete filter supplied via --filter-* flags bypasses the preset menu
+	// for the whole wizard session — decided once here, because a preset chosen
+	// in an earlier loop iteration also leaves opts.Filter complete and must not
+	// suppress the menu after "Go back and edit". The draft snapshot likewise
+	// keeps the add-filter form pre-filled from flags only, never from a preset
+	// picked on an earlier pass through the loop.
+	filterFromFlags := filterSuppliedByFlags(opts)
+	flagFilterDraft := opts.Filter
+
 	for {
 		tagFilter := opts.TagFilter
 		rolloverStr := strconv.Itoa(opts.SessionRolloverHour)
@@ -95,6 +104,15 @@ func runOrganize(cfg config.Config, opts organize.Options, dryRun bool, log *slo
 		}
 		if opts.OutputDir == "" {
 			opts.OutputDir = "./output"
+		}
+		if opts.TagFilter && !filterFromFlags {
+			var err error
+			// Reassigning cfg keeps the preset changes when persistOrganize
+			// saves the whole config after the run.
+			cfg, opts.Filter, err = resolveFilter(log, cfg, flagFilterDraft)
+			if err != nil {
+				return err
+			}
 		}
 
 		// Default the review selection to dry-run when --dry-run was passed.
@@ -157,8 +175,10 @@ func RunNonInteractive(log *slog.Logger, cfg config.Config, opts organize.Option
 }
 
 // persistOrganize saves the organize paths, grouping toggles, and rollover hour
-// for the next run, preserving the rest of cfg. Filter info is intentionally
-// excluded — it's image-set specific and should be re-confirmed each run.
+// for the next run, preserving the rest of cfg — including any filter presets
+// saved during the filter menu flow, which the caller threads back into cfg.
+// The per-run filter choice itself is intentionally not persisted — it's
+// image-set specific and should be re-confirmed each run.
 // Best-effort: a save failure never fails the run.
 func persistOrganize(cfg config.Config, opts organize.Options) {
 	cfg.Organize = config.OrganizeSettings{
@@ -242,22 +262,6 @@ func organizeForm(opts *organize.Options, tagFilter *bool, rolloverHour *string)
 				Value(tagFilter).
 				WithButtonAlignment(lipgloss.Left),
 		),
-		huh.NewGroup(
-			huh.NewInput().
-				Title("Filter type (folder label)").
-				Description("The label used to name the folder in your organized tree, e.g. Ha, OIII, SII. Keep it short — this is what you'll see when browsing your files.").
-				Value(&opts.Filter.Type).
-				Validate(validateNonEmpty),
-			huh.NewInput().
-				Title("Filter name (FITS keyword value)").
-				Description("The exact value written into the FITS FILTER keyword of every copied file, e.g. SV220. It is also appended to each filename as _f_<name> so you can tell files apart at a glance.").
-				Value(&opts.Filter.Name).
-				Validate(validateNonEmpty),
-			huh.NewInput().
-				Title("Filter description (optional)").
-				Description("A human-readable note stored as a comment alongside the FITS FILTER keyword, e.g. Svbony SV220 7nm Ha. Useful for identifying the exact filter model later. Leave blank to skip.").
-				Value(&opts.Filter.Description),
-		).WithHideFunc(func() bool { return !*tagFilter }),
 	).WithKeyMap(pathInputKeyMap())
 	return form.Run()
 }
