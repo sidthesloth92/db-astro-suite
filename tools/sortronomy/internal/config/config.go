@@ -1,8 +1,9 @@
 // Package config reads and writes the per-user persisted defaults for
 // sortronomy. Paths, grouping toggles, and the session rollover hour are all
-// persisted so the next run starts with the same settings. Filter info is
-// intentionally not persisted — filters are image-set specific and should be
-// re-confirmed each run.
+// persisted so the next run starts with the same settings. The per-run filter
+// choice is intentionally not persisted — it's image-set specific and should
+// be re-confirmed each run — but saved filter presets (FilterPresets) are, so
+// the wizard can offer them as reusable choices.
 package config
 
 import (
@@ -17,6 +18,9 @@ import (
 type Config struct {
 	Organize OrganizeSettings `json:"organize,omitempty"`
 	Flats    FlatsPaths       `json:"flats,omitempty"`
+	// FilterPresets are the saved filter definitions offered by the wizard's
+	// filter menu. Absent in configs written by older versions.
+	FilterPresets []FilterPreset `json:"filterPresets,omitempty"`
 }
 
 // OrganizeSettings holds the persisted options for the organize flow.
