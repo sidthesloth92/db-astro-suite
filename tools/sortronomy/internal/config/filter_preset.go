@@ -5,8 +5,8 @@ import "strings"
 // FilterPreset is a saved filter definition the wizard offers as a reusable
 // choice. Name is the FITS FILTER keyword value and doubles as the preset's
 // identity in the saved-filter menu; Type is the folder label used in the
-// organized tree; Description is an optional comment stored alongside the
-// FITS FILTER keyword.
+// organized tree; Description is an optional note stored in the FITS
+// FILTDESC keyword.
 type FilterPreset struct {
 	Name        string `json:"name"`
 	Type        string `json:"type"`

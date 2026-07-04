@@ -7,6 +7,7 @@ package wizard
 import (
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -17,7 +18,9 @@ import (
 	"github.com/charmbracelet/huh"
 	"github.com/charmbracelet/lipgloss"
 
+	"github.com/sidthesloth92/db-astro-suite/libs/cliui"
 	"github.com/sidthesloth92/db-astro-suite/tools/sortronomy/internal/config"
+	"github.com/sidthesloth92/db-astro-suite/tools/sortronomy/internal/fits"
 	"github.com/sidthesloth92/db-astro-suite/tools/sortronomy/internal/flats"
 	"github.com/sidthesloth92/db-astro-suite/tools/sortronomy/internal/organize"
 )
@@ -114,6 +117,11 @@ func runOrganize(cfg config.Config, opts organize.Options, dryRun bool, log *slo
 				return err
 			}
 		}
+		// New presets are validated at entry; this guards filters from CLI
+		// flags and presets loaded from a hand-edited config file.
+		if err := validateFilterOptions(opts); err != nil {
+			return err
+		}
 
 		// Default the review selection to dry-run when --dry-run was passed.
 		decision := reviewContinue
@@ -125,12 +133,14 @@ func runOrganize(cfg config.Config, opts organize.Options, dryRun bool, log *slo
 		}
 		switch decision {
 		case reviewContinue:
+			printConfirmedPlan(os.Stdout, opts)
 			if err := organize.Run(opts, log); err != nil {
 				return err
 			}
 			persistOrganize(cfg, opts) // only after a successful run
 			return nil
 		case reviewDryRun:
+			printConfirmedPlan(os.Stdout, opts)
 			if err := organize.DryRun(opts, log); err != nil {
 				return err
 			}
@@ -194,11 +204,22 @@ func persistOrganize(cfg config.Config, opts organize.Options) {
 }
 
 // validateFilterOptions enforces that both the folder label (Type) and the FITS
-// filter name (Name) are present once filter mode is engaged. The description
-// stays optional. Mirrors the per-field validation in the interactive form.
+// filter name (Name) are present once filter mode is engaged, and that the name
+// and (optional) description fit their FITS header cards. Guards every filter
+// source — CLI flags, the interactive form, and presets loaded from a possibly
+// hand-edited config file.
 func validateFilterOptions(opts organize.Options) error {
-	if opts.TagFilter && (strings.TrimSpace(opts.Filter.Type) == "" || strings.TrimSpace(opts.Filter.Name) == "") {
+	if !opts.TagFilter {
+		return nil
+	}
+	if strings.TrimSpace(opts.Filter.Type) == "" || strings.TrimSpace(opts.Filter.Name) == "" {
 		return &UsageError{Msg: "--filter-type and --filter-name are both required when setting a filter"}
+	}
+	if err := fits.ValidateFilterName(strings.TrimSpace(opts.Filter.Name)); err != nil {
+		return &UsageError{Msg: "invalid filter", Err: err}
+	}
+	if err := fits.ValidateFilterDescription(strings.TrimSpace(opts.Filter.Description)); err != nil {
+		return &UsageError{Msg: "invalid filter", Err: err}
 	}
 	return nil
 }
@@ -297,6 +318,15 @@ func showOrganizeReview(opts organize.Options, decision *string) error {
 				Value(decision),
 		),
 	).Run()
+}
+
+// printConfirmedPlan echoes the reviewed option summary to w after the user
+// confirms. The interactive review form erases itself from the terminal when
+// it completes, so without this the chosen options vanish; echoing them keeps
+// the full record — options first, then scan/copy progress — in the scrollback
+// after the run finishes.
+func printConfirmedPlan(w io.Writer, opts organize.Options) {
+	fmt.Fprintf(w, "%s\n%s\n", cliui.Heading.Render("✦ Plan"), buildOrganizeReviewText(opts))
 }
 
 func buildOrganizeReviewText(opts organize.Options) string {
