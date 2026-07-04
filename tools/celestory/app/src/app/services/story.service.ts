@@ -84,7 +84,7 @@ export class StoryService {
       .pipe(map((response) => response.details));
   }
 
-  /** Record a deduped anonymous attempt (visualise). Resolves to void. */
+  /** Record an anonymous attempt (visualise) — append-only, every attempt counts. Resolves to void. */
   recordAttempt(ping: AttemptPing): Observable<void> {
     return this.http
       .post<ApiResponse<Record<string, never>>>('/api/v1/pings', ping)

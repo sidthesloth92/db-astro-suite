@@ -325,8 +325,9 @@ export default class LandingPageComponent implements OnInit {
   }
 
   /**
-   * Fire a deduped anonymous attempt ping for a CLI-produced story. Manual or
-   * legacy storys (no identity) are skipped. Fire-and-forget — failures are
+   * Fire an anonymous attempt ping for a CLI-produced story — the server log is
+   * append-only, so every visualise counts toward the community totals. Manual
+   * or legacy storys (no identity) are skipped. Fire-and-forget — failures are
    * swallowed so they never block the upload flow.
    */
   private recordAttempt(story: CelestoryStory): void {

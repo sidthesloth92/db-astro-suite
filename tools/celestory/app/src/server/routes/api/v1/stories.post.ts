@@ -128,9 +128,9 @@ export default defineEventHandler(async (event) => {
       throw dbError;
     }
 
-    // Append the publish as an upload event (no-op if already logged during a
-    // prior visualise), then claim this install's anonymous events under the
-    // handle so their totals fold under the profile without double-counting.
+    // Append the publish as an upload event (the log is append-only), then
+    // claim this install's anonymous events under the handle so their totals
+    // fold under the profile without double-counting.
     // Identity is absent on manual/legacy storys. Best-effort: the profile is
     // already persisted, so a bookkeeping failure must not fail the publish
     // (which would orphan the story and break a retry as "handle taken").

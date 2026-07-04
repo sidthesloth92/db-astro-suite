@@ -36,8 +36,9 @@ export interface StoryAuth {
 }
 
 /**
- * Anonymous attempt ping sent on visualise. Carries only the dedup identity and
- * three headline integers — never a handle, never story contents.
+ * Anonymous attempt ping sent on visualise. Carries only the upload identity
+ * (installId + dataFingerprint) and three headline integers — never a handle,
+ * never story contents.
  */
 export interface AttemptPing {
   installId: string;
