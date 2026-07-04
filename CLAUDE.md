@@ -8,14 +8,12 @@ Path-specific rule files in `.claude/rules/` provide detailed per-stack rules �
 
 ## Path → Rule File
 
-| Path                                                              | Stack          | Rule file                |
-| ----------------------------------------------------------------- | -------------- | ------------------------ |
-| `/hub/*`, `/tools/astrogram/**`, `/tools/starwizz/**`, `/libs/**` | Angular v17+   | `.claude/rules/angular.md` |
-| `/tools/astro-gen-go/**`                                          | Go             | `.claude/rules/go.md`      |
-| `/tools/astro-gen-go/**` (Python sources)                         | Python 3.x     | `.claude/rules/python.md`  |
-| `/tools/astrosolve/**`                                            | Node.js ESM    | `.claude/rules/node.md`    |
-| `/services/**`, `/tools/node-scripts/**`                          | TypeScript ESM | _(rules below)_           |
-| `/e2e/**`                                                         | Playwright     | `.claude/rules/e2e.md`     |
+| Path                                                               | Stack                          | Rule file                  |
+| ------------------------------------------------------------------ | ------------------------------ | -------------------------- |
+| `/hub/**`, `/tools/astrogram/**`, `/tools/starwizz/**`, `/libs/**` | Angular 21 (v17+ signal APIs)  | `.claude/rules/angular.md` |
+| `/tools/astro-gen-go/**`                                           | Go                             | `.claude/rules/go.md`      |
+| `/tools/astrosolve/server/**`                                      | Node.js ESM (Fastify)          | `.claude/rules/node.md`    |
+| `/e2e/**`                                                          | Playwright                     | `.claude/rules/e2e.md`     |
 
 Before editing any file, read the matching rule file once per session.
 
@@ -31,17 +29,6 @@ Before editing any file, read the matching rule file once per session.
 
 ---
 
-## TypeScript / Node Rules (`/services/*`, `/tools/node-scripts/*`)
-
-- TypeScript only. ESM (`import`/`export`). `async/await` throughout.
-- Every `async` function has explicit error handling — no unhandled promise rejections.
-- Strong typing required. Never use `any`, `as SomeType` casts, or `!` non-null assertions without documented justification.
-- Throw domain-specific error subclasses (e.g. `class SolveError extends Error`) from business logic. Never throw a plain `new Error('...')` from a service — it forces fragile string-matching at the catch site.
-- Use the application framework's structured logger (e.g. Fastify's `request.log`). Never use `console.log/error` in production code.
-- Read all environment variables once at startup into a validated config object. Never scatter `process.env.X` reads across business logic files.
-
----
-
 ## Dependency Graph (enforced — no exceptions)
 
 ```
@@ -52,8 +39,8 @@ Before editing any file, read the matching rule file once per session.
 ```
 
 - Apps MUST NOT import from each other.
-- Cross-package imports MUST use path aliases (`@db-astro/ui`, `@db-astro/theme`).
-  Never use relative `../../libs/...` paths.
+- Cross-package imports MUST use path aliases (`@db-astro-suite/ui`, `@db-astro-suite/theme`),
+  defined in the root `tsconfig.json`. Never use relative `../../libs/...` paths.
 - One `index.ts` barrel per package at the public API boundary only. No nested barrels.
 - If logic is needed in two apps → move it to `/libs`. Never duplicate it.
 
@@ -97,13 +84,13 @@ All backend responses must follow this shape:
 
 ## File Naming Conventions (All Languages)
 
-Every discrete concern lives in its own file. Apply across Angular, Node/TypeScript, Go, and Python:
+Every discrete concern lives in its own file. Apply across Angular, Node/TypeScript, and Go:
 
 | Content                          | File suffix / pattern                      |
 | -------------------------------- | ------------------------------------------ |
-| Domain / DTO model class or type | `*.model.ts` / `*_model.py` / `*_model.go` |
-| Constants                        | `*.constants.ts` / `*_constants.py`        |
-| Enums                            | `*.enum.ts` / `*_enum.py`                  |
+| Domain / DTO model class or type | `*.model.ts` / `*.model.js` / `*_model.go` |
+| Constants                        | `*.constants.ts` / `*.constants.js`        |
+| Enums                            | `*.enum.ts`                                |
 | Interfaces (TS)                  | `*.interface.ts`                           |
 | Type aliases (TS)                | `*.types.ts`                               |
 | Services (business logic)        | `*.service.ts` / `*.service.js`            |
@@ -185,11 +172,11 @@ When code changes, first determine whether the **behaviour changed intentionally
 
 Every change — regardless of size — must satisfy all of the following:
 
-- [ ] `tsc --noEmit` passes — no new TypeScript errors, no new `any` types
-- [ ] `pnpm lint` passes — no new ESLint errors or warnings
-- [ ] `pnpm test` is green — coverage not decreased; new tests written for new code
+- [ ] Build compiles clean — `pnpm build` succeeds (Angular projects typecheck via `ng build`; the astrosolve backend is JS/ESM). No new TypeScript errors, no new `any` types in TS code
+- [ ] Lint — no repo-wide `lint` script is wired today; run whatever linter the touched project provides (e.g. `ng lint` where configured) and keep it clean
+- [ ] `pnpm test` is green — note it currently runs only `@db-astro-suite/ui` + `@db-astro-suite/astrogram`; run per-package tests for starwizz/hub and `node --test` for the astrosolve backend when you touch them. Coverage not decreased; new tests written for new code
 - [ ] Test integrity respected — tests updated because behaviour changed, not to force a pass
-- [ ] If UI changed: visual baselines updated in CI only (`pnpm e2e:update-snapshots`)
+- [ ] If UI changed: visual baselines updated in CI/Docker only (`pnpm test:e2e:docker:update`)
 - [ ] No locally-generated snapshots committed
 - [ ] Commits follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `refactor:`, etc.) — release-please auto-generates `CHANGELOG.md` from these; do **not** edit `CHANGELOG.md` manually
 - [ ] PR description explains _what_ changed and _why_

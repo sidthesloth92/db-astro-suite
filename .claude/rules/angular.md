@@ -50,7 +50,7 @@
 - Services must use `providedIn: 'root'` unless component-scoped provision is explicitly justified. Never leave `providedIn` unset.
 - `rxResource` is only permitted in a component when data is single-component, read-only,
   and not shared. Always handle `isLoading` and `error` states in templates.
-- When a feature needs browser storage access, inject `STORAGE_SERVICE_TOKEN` from `@db-astro/ui` rather than calling `localStorage` directly. The `LocalStorageService` implementation is provided at the app level in `app.config.ts`. Never call `localStorage`/`sessionStorage` directly in a component or service.
+- When a feature needs browser storage access, inject `STORAGE_SERVICE_TOKEN` from `@db-astro-suite/ui` rather than calling `localStorage` directly. The `LocalStorageService` implementation is provided at the app level in `app.config.ts`. Never call `localStorage`/`sessionStorage` directly in a component or service.
 
 ## Performance
 

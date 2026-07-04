@@ -149,14 +149,21 @@ jobs:
   release-please:
     name: Release Management
     needs: verify
-    # Only run on main pushes THAT ARE NOT release merges
+    # Run on EVERY push to main:
+    #  - normal commits: `verify` runs first and must succeed; release-please
+    #    opens/updates the release PR.
+    #  - release-merge commits ("chore(main): release …"): `verify` is skipped
+    #    (the content was already verified on the underlying PRs), so we also
+    #    accept `skipped` here. Running on this commit is what lets
+    #    release-please CREATE the GitHub release + tag for the just-merged
+    #    release PR immediately. Previously this job was excluded from release
+    #    commits, so the tag was only stamped on the NEXT push to main — and if
+    #    no next push ever came, the version was never tagged at all.
     if: |
       always() &&
-      needs.verify.result == 'success' &&
       github.event_name == 'push' &&
       github.ref == 'refs/heads/main' &&
-      !startsWith(github.event.head_commit.message, 'chore(main): release') &&
-      !startsWith(github.event.head_commit.message, 'feat(main): release')
+      (needs.verify.result == 'success' || needs.verify.result == 'skipped')
     runs-on: ubuntu-latest
     outputs:
       release_created: ${{ steps.release.outputs.releases_created }}

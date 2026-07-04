@@ -1,9 +1,9 @@
 {
   "name": "db-astro-suite",
-  "version": "1.31.3",
+  "version": "1.31.4",
   "private": true,
   "packageManager": "pnpm@9.15.0",
-  "description": "A suite of Astro tools with Python backends and Go generators.",
+  "description": "A suite of Astro tools: Angular apps (hub, astrogram, starwizz), a Fastify plate-solving backend (astrosolve), shared UI/theme libraries, and Go tooling.",
   "scripts": {
     "dev": "pnpm -r --parallel dev",
     "dev:hub": "pnpm --filter hub dev",
