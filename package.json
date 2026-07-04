@@ -11,6 +11,8 @@
     "dev:astrogram": "pnpm --filter @db-astro-suite/astrogram dev",
     "dev:astrosolve": "pnpm --filter @db-astro-suite/astrosolve-server dev",
     "start:astrosolve": "pnpm --filter @db-astro-suite/astrosolve-server start",
+    "dev:celestory": "pnpm --filter @db-astro-suite/celestory-app dev",
+    "build:celestory": "pnpm --filter @db-astro-suite/celestory-app build",
     "build": "pnpm -r exec rm -rf dist && rm -rf dist && pnpm sitemap && pnpm redirects && pnpm build:hub && pnpm build:starwizz && pnpm build:astrogram && pnpm build:merge",
     "sitemap": "node scripts/generate-sitemap.mjs",
     "redirects": "node scripts/generate-redirects.mjs",

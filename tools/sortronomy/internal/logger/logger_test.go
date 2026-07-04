@@ -1,8 +1,6 @@
 package logger
 
 import (
-	"fmt"
-	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
@@ -11,19 +9,19 @@ import (
 
 func TestOpenWritesToReturnedPath(t *testing.T) {
 	dir := t.TempDir()
-	log, path, closeLog, err := openIn(dir, "v1.2.3", slog.LevelInfo)
+	sess, err := openIn(dir, "v1.2.3")
 	if err != nil {
 		t.Fatalf("openIn: %v", err)
 	}
-	log.Info("hello", "file", "ngc7000.fit")
-	if err := closeLog(); err != nil {
+	sess.Logger.Info("hello", "file", "ngc7000.fit")
+	if err := sess.Close(); err != nil {
 		t.Fatalf("close: %v", err)
 	}
 
-	if got := filepath.Dir(path); got != dir {
-		t.Errorf("log path = %q, want it under %q", path, dir)
+	if got := filepath.Dir(sess.Path); got != dir {
+		t.Errorf("log path = %q, want it under %q", sess.Path, dir)
 	}
-	data, err := os.ReadFile(path)
+	data, err := os.ReadFile(sess.Path)
 	if err != nil {
 		t.Fatalf("read log: %v", err)
 	}
@@ -38,12 +36,12 @@ func TestOpenWritesToReturnedPath(t *testing.T) {
 func TestOpenAppendsAcrossRuns(t *testing.T) {
 	dir := t.TempDir()
 	for _, line := range []string{"first run", "second run"} {
-		log, _, closeLog, err := openIn(dir, "v1", slog.LevelInfo)
+		sess, err := openIn(dir, "v1")
 		if err != nil {
 			t.Fatalf("openIn: %v", err)
 		}
-		log.Info(line)
-		if err := closeLog(); err != nil {
+		sess.Logger.Info(line)
+		if err := sess.Close(); err != nil {
 			t.Fatalf("close: %v", err)
 		}
 	}
@@ -54,6 +52,43 @@ func TestOpenAppendsAcrossRuns(t *testing.T) {
 	out := string(data)
 	if !strings.Contains(out, "first run") || !strings.Contains(out, "second run") {
 		t.Errorf("expected both runs appended, got:\n%s", out)
+	}
+}
+
+
+// TestOpenMasksHomePaths verifies the log file never carries the user's home
+// directory — the property that makes it safe to attach to a public report.
+func TestOpenMasksHomePaths(t *testing.T) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		t.Skipf("no home dir available: %v", err)
+	}
+
+	sess, err := openIn(t.TempDir(), "v1")
+	if err != nil {
+		t.Fatalf("openIn: %v", err)
+	}
+	sess.Logger.Info("planned",
+		"file", filepath.Join(home, "raw", "m31.fit"),
+		"dst", "/Volumes/T7/out/m31.fit")
+	if err := sess.Close(); err != nil {
+		t.Fatalf("close: %v", err)
+	}
+
+	data, err := os.ReadFile(sess.Path)
+	if err != nil {
+		t.Fatalf("read log: %v", err)
+	}
+	out := string(data)
+	if strings.Contains(out, home) {
+		t.Errorf("log leaks the home directory %q:\n%s", home, out)
+	}
+	sep := string(filepath.Separator)
+	if !strings.Contains(out, "~"+sep+"raw"+sep+"m31.fit") {
+		t.Errorf("log missing the masked path:\n%s", out)
+	}
+	if !strings.Contains(out, "/Volumes/T7/out/m31.fit") {
+		t.Errorf("non-home path should be untouched:\n%s", out)
 	}
 }
 
@@ -90,66 +125,16 @@ func TestDiscardIsNoOp(t *testing.T) {
 	Discard().Error("boom", "file", "x.fit")
 }
 
-func TestTailLines(t *testing.T) {
-	dir := t.TempDir()
-	path := filepath.Join(dir, "in.log")
-	if err := os.WriteFile(path, []byte("l1\nl2\nl3\nl4\nl5\n"), 0o644); err != nil {
-		t.Fatalf("seed: %v", err)
+// TestDiscardSessionIsSafe verifies the discard session's zero-value contract:
+// empty path (so report/footer callers no-op) and a safe Close.
+func TestDiscardSessionIsSafe(t *testing.T) {
+	sess := DiscardSession()
+	sess.Logger.Error("boom")
+	if sess.Path != "" {
+		t.Errorf("discard session Path = %q, want empty", sess.Path)
 	}
-	tests := []struct {
-		name string
-		n    int
-		want string
-	}{
-		{name: "fewer than n returns all", n: 10, want: "l1\nl2\nl3\nl4\nl5\n"},
-		{name: "more than n returns tail", n: 2, want: "l4\nl5\n"},
-	}
-	for _, tc := range tests {
-		t.Run(tc.name, func(t *testing.T) {
-			got, err := tailLines(path, tc.n)
-			if err != nil {
-				t.Fatalf("tailLines: %v", err)
-			}
-			if got != tc.want {
-				t.Errorf("tailLines(%d) = %q, want %q", tc.n, got, tc.want)
-			}
-		})
+	if err := sess.Close(); err != nil {
+		t.Errorf("Close on discard session: %v", err)
 	}
 }
 
-func TestWriteErrorReportDropsTailInCwd(t *testing.T) {
-	logDir := t.TempDir()
-	logPath := filepath.Join(logDir, logFileName)
-	var b strings.Builder
-	for i := 0; i < errorReportLines+20; i++ {
-		fmt.Fprintf(&b, "line %d\n", i)
-	}
-	if err := os.WriteFile(logPath, []byte(b.String()), 0o644); err != nil {
-		t.Fatalf("seed log: %v", err)
-	}
-
-	t.Chdir(t.TempDir()) // run "from" a clean working directory
-
-	report, err := WriteErrorReport(logPath)
-	if err != nil {
-		t.Fatalf("WriteErrorReport: %v", err)
-	}
-	if filepath.Base(report) != errorReportName {
-		t.Errorf("report name = %q, want %q", filepath.Base(report), errorReportName)
-	}
-	data, err := os.ReadFile(report)
-	if err != nil {
-		t.Fatalf("read report: %v", err)
-	}
-	gotLines := strings.Count(string(data), "\n")
-	if gotLines != errorReportLines {
-		t.Errorf("report has %d lines, want %d", gotLines, errorReportLines)
-	}
-	// The tail must include the last log line and exclude the very first.
-	if !strings.Contains(string(data), "line 69") {
-		t.Errorf("report missing last line:\n%s", data)
-	}
-	if strings.Contains(string(data), "line 0\n") {
-		t.Errorf("report should not contain the earliest line:\n%s", data)
-	}
-}

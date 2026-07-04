@@ -1,12 +1,13 @@
 package main
 
 import (
-	"errors"
 	"fmt"
-	"log/slog"
+	"io"
 	"os"
+	"path/filepath"
 	"runtime"
 
+	"github.com/sidthesloth92/db-astro-suite/libs/redact"
 	"github.com/sidthesloth92/db-astro-suite/tools/sortronomy/internal/config"
 	"github.com/sidthesloth92/db-astro-suite/tools/sortronomy/internal/logger"
 	"github.com/sidthesloth92/db-astro-suite/tools/sortronomy/internal/wizard"
@@ -53,7 +54,8 @@ Flags (every wizard option has one):
   --filter-desc S    Comment written alongside the FITS FILTER header. Optional.
   --dry-run          Create the destination folders only — copy no files.
   --yes, -y          Skip all prompts and run straight from the flags + saved config.
-  --debug            Verbose debug logging to the log file.
+  --report           Also save the entire debug log as ./sortronomy-report.log when this run
+                     finishes, whether it succeeds, fails, or is cancelled.
 
 Filter flags (--filter-type, --filter-name, --filter-desc) are for OSC cameras or relabeling a
 mono filter slot. When any --filter-* flag is present, Sortronomy writes FILTER = "<name>" (with
@@ -61,6 +63,11 @@ mono filter slot. When any --filter-* flag is present, Sortronomy writes FILTER 
 With no --filter-* flag, files are filed under their own existing FITS FILTER header unchanged.
 Both --filter-type and --filter-name are required when filter mode is engaged; --filter-desc is
 optional. The interactive wizard prompts for these same options and confirms before doing anything.
+
+Every run appends a debug log in your OS cache directory. Paths under your home directory are
+masked as ~ in it; paths outside your home (e.g. on external drives) appear as-is, so glance
+over a report before sharing if that matters to you. If a run fails, that run's full log is
+saved as sortronomy-error.log in the folder you ran the command from.
 `
 
 func main() {
@@ -71,7 +78,8 @@ func main() {
 
 	args, err := parseArgs(os.Args[1:], cfg)
 	if err != nil {
-		exitUsage(err)
+		printUsageError(os.Stderr, err)
+		os.Exit(2)
 	}
 	if args.Help {
 		fmt.Print(usageText)
@@ -82,22 +90,33 @@ func main() {
 		return
 	}
 
-	level := slog.LevelInfo
-	if args.Debug {
-		level = slog.LevelDebug
-	}
+	os.Exit(run(args, cfg, cfgErr))
+}
 
+// run executes the selected flow end-to-end and returns the process exit
+// code. It is separated from main so the deferred log-file close runs before
+// the process exits — main must not defer anything around its os.Exit calls.
+func run(args parsedArgs, cfg config.Config, cfgErr error) int {
 	// Logging is best-effort: if the log file can't be opened, fall back to a
-	// discard logger and keep running — debugging support must never block use.
-	log, logPath, closeLog, err := logger.Open(version, level)
+	// discard session and keep running — debugging support must never block use.
+	sess, err := logger.Open(version)
 	if err != nil {
-		log, logPath, closeLog = logger.Discard(), "", func() error { return nil }
+		sess = logger.DiscardSession()
 	}
-	defer func() { _ = closeLog() }()
+	defer func() { _ = sess.Close() }()
+	log := sess.Logger
 	if cfgErr != nil {
 		log.Warn("config load failed; using defaults", "err", cfgErr)
 	}
-	log.Info("run start", "os", runtime.GOOS, "arch", runtime.GOARCH)
+	// The values here are the wizard's seed (flags + saved config); the final
+	// confirmed options are logged by the organize engine as "scan start".
+	log.Info("run start",
+		"os", runtime.GOOS,
+		"arch", runtime.GOARCH,
+		"interactive", !args.Yes,
+		"dryRun", args.DryRun,
+		"input", args.Options.InputDir,
+		"output", args.Options.OutputDir)
 
 	// The banner is decoration for interactive use; --yes runs may be scripted,
 	// so keep their output clean.
@@ -111,49 +130,68 @@ func main() {
 	} else {
 		runErr = wizard.Run(log, cfg, args.Options, args.DryRun)
 	}
+
+	outcome := classifyRunErr(runErr)
 	if runErr != nil {
-		// Invalid user input is not a crash — print it plainly, exit with a
-		// usage status, and skip the crash report (there's nothing to debug).
-		var usageErr *wizard.UsageError
-		if errors.As(runErr, &usageErr) {
-			exitUsage(runErr)
+		if outcome.Report {
+			log.Error("fatal", "err", runErr)
+		} else {
+			log.Warn("run stopped", "status", outcome.Status, "err", runErr)
 		}
-		log.Error("fatal", "err", runErr)
+	}
+	// Always the run's final record, so every log section closes unambiguously.
+	log.Info("run end", "status", outcome.Status)
+
+	switch outcome.Status {
+	case statusOK:
+		if args.Report {
+			writeShareableReport(os.Stdout, sess)
+		} else {
+			printLogFooter(os.Stdout, sess.Path)
+		}
+	case statusCancelled:
+		fmt.Println("Cancelled.")
+		if args.Report {
+			writeShareableReport(os.Stdout, sess)
+		}
+	case statusUsage:
+		printUsageError(os.Stderr, runErr)
+		if args.Report {
+			writeShareableReport(os.Stderr, sess)
+		}
+	default: // statusError
 		fmt.Fprintln(os.Stderr, "sortronomy:", runErr)
-		reportError(logPath)
-		os.Exit(1)
+		if args.Report {
+			writeShareableReport(os.Stderr, sess)
+		} else {
+			reportError(sess)
+		}
 	}
+	return outcome.Code
 }
 
-// exitUsage prints a user-input error to stderr with a pointer to --help and
-// exits with status 2. Used for bad flags and failed input validation — never
-// writes a crash report.
-func exitUsage(err error) {
-	fmt.Fprintln(os.Stderr, "sortronomy:", err)
-	fmt.Fprintln(os.Stderr, "Run 'sortronomy --help' for usage.")
-	os.Exit(2)
+// printUsageError prints a user-input error to stderr-style writer w with a
+// pointer to --help. Used for bad flags and failed input validation — never
+// paired with a crash report; the input just needs fixing.
+func printUsageError(w io.Writer, err error) {
+	fmt.Fprintln(w, "sortronomy:", err)
+	fmt.Fprintln(w, "Run 'sortronomy --help' for usage.")
 }
 
-// reportError saves an error report and prints actionable instructions for
-// filing a bug. The report is written next to the working directory so the
-// user finds it without hunting through the cache; if that fails (read-only
-// dir) we fall back to the cache log path. Never fatal itself.
-func reportError(logPath string) {
-	if logPath == "" {
+// reportError saves the entire log as sortronomy-error.log in the folder the
+// command was run from and prints bug-filing instructions naming that file.
+// Falls back to pointing at the cache log when the report can't be written
+// (e.g. a read-only directory). Never fatal itself; a discard session (no log
+// file) skips it entirely.
+func reportError(sess *logger.Session) {
+	if sess.Path == "" {
 		return
 	}
-	const issueURL = "https://github.com/sidthesloth92/db-astro-suite/issues/new"
-	if report, err := logger.WriteErrorReport(logPath); err == nil {
-		fmt.Fprintf(os.Stderr, "\nAn error report was saved to:\n  %s\n", report)
-		fmt.Fprintf(os.Stderr, "\nTo report this issue:\n")
-		fmt.Fprintf(os.Stderr, "  1. Open a GitHub issue at %s\n", issueURL)
-		fmt.Fprintf(os.Stderr, "  2. Attach the error report file above\n")
-		fmt.Fprintf(os.Stderr, "  3. Describe what you were doing when the error occurred\n")
+	if report, err := logger.WriteErrorReport(sess.Path); err == nil {
+		fmt.Fprintf(os.Stderr, "\nAn error report was saved to:\n  %s\n", redact.Home(report))
+		printIssueInstructions(os.Stderr, filepath.Base(report))
 		return
 	}
-	fmt.Fprintf(os.Stderr, "\nA debug log was saved to:\n  %s\n", logPath)
-	fmt.Fprintf(os.Stderr, "\nTo report this issue:\n")
-	fmt.Fprintf(os.Stderr, "  1. Open a GitHub issue at %s\n", issueURL)
-	fmt.Fprintf(os.Stderr, "  2. Attach the log file above\n")
-	fmt.Fprintf(os.Stderr, "  3. Describe what you were doing when the error occurred\n")
+	fmt.Fprintf(os.Stderr, "\nA debug log was saved to:\n  %s\n", redact.Home(sess.Path))
+	printIssueInstructions(os.Stderr, filepath.Base(sess.Path))
 }

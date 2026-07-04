@@ -1,0 +1,24 @@
+@if (story(); as l) {
+  <dba-journey-view state="preview" [story]="l" />
+  @if (revealing()) {
+    <dba-processing-reveal
+      [seconds]="l.summary.totalIntegrationSeconds"
+      (done)="revealing.set(false)"
+    />
+  }
+} @else {
+  <dba-ui-constellation-field>
+    <div class="neb" aria-hidden="true"></div>
+    <main class="preview">
+      <header class="bar">
+        <a class="brand" routerLink="/">
+          <dba-celestory-wordmark />
+        </a>
+      </header>
+      <div class="empty">
+        <p>Nothing to preview yet.</p>
+        <a class="btn" routerLink="/">Start from your celestory.json →</a>
+      </div>
+    </main>
+  </dba-ui-constellation-field>
+}

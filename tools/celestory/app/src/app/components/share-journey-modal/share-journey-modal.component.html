@@ -1,0 +1,222 @@
+<div class="overlay" (click)="onBackdrop($event)">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="sh-title">
+    <button class="close" type="button" (click)="closed.emit()" aria-label="Close">
+      <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M2 2l10 10M12 2L2 12"/>
+      </svg>
+    </button>
+
+    <div class="hdr">
+      <h2 id="sh-title" class="title">Share Your Journey</h2>
+      <p class="subtitle">Create social-ready assets or publish a permanent profile.</p>
+    </div>
+
+    <section class="sec">
+      <div class="cards">
+        @for (a of assets; track a.id) {
+          <button
+            type="button"
+            class="card"
+            (click)="selectAsset(a.id)"
+          >
+            <!-- Thumbnail preview -->
+            <div class="thumb" aria-hidden="true">
+              @switch (a.id) {
+                @case ('story-slides') {
+                  <svg viewBox="0 0 380 224" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:auto">
+                    <rect width="380" height="224" fill="#07070f"/>
+                    <!-- Constellation lines -->
+                    <g stroke="#252538" stroke-width="0.8">
+                      <line x1="20" y1="55" x2="75" y2="90"/>
+                      <line x1="75" y1="90" x2="145" y2="72"/>
+                      <line x1="145" y1="72" x2="195" y2="100"/>
+                      <line x1="75" y1="90" x2="85" y2="140"/>
+                      <circle cx="20" cy="55" r="2" fill="#363650" stroke="none"/>
+                      <circle cx="75" cy="90" r="2.5" fill="#363650" stroke="none"/>
+                      <circle cx="145" cy="72" r="2" fill="#363650" stroke="none"/>
+                      <circle cx="195" cy="100" r="2" fill="#363650" stroke="none"/>
+                      <circle cx="85" cy="140" r="1.5" fill="#252538" stroke="none"/>
+                    </g>
+                    <!-- Logo row -->
+                    <text x="14" y="18" font-family="monospace" font-size="8" fill="#00d8ec" font-weight="700">C</text>
+                    <text x="21" y="18" font-family="monospace" font-size="8" fill="#666">elestory</text>
+                    <circle cx="354" cy="13" r="1.5" fill="#333"/>
+                    <circle cx="360" cy="13" r="1.5" fill="#333"/>
+                    <circle cx="366" cy="13" r="1.5" fill="#333"/>
+                    <line x1="0" y1="25" x2="380" y2="25" stroke="#131322" stroke-width="1"/>
+                    <!-- Sub-header -->
+                    <text x="14" y="40" font-family="monospace" font-size="7" fill="#444" letter-spacing="0.1em">CELESTORY</text>
+                    <text x="74" y="40" font-family="monospace" font-size="7" fill="#252538">│</text>
+                    <text x="80" y="40" font-family="monospace" font-size="7" fill="#444">2025–26</text>
+                    <text x="123" y="40" font-family="monospace" font-size="7" fill="#252538">│</text>
+                    <rect x="128" y="31" width="48" height="12" rx="2" fill="none" stroke="#252538" stroke-width="0.8"/>
+                    <text x="152" y="39.5" font-family="monospace" font-size="6.5" fill="#444" text-anchor="middle" letter-spacing="0.1em">IN REVIEW</text>
+                    <!-- TOTAL INTEGRATION -->
+                    <text x="14" y="67" font-family="monospace" font-size="7" fill="#3a3a55" letter-spacing="0.18em">TOTAL INTEGRATION</text>
+                    <!-- Big number -->
+                    <text x="14" y="108" font-family="monospace" font-weight="700" font-size="38" fill="#00d8ec">186h 46m</text>
+                    <!-- Stats -->
+                    <text x="14" y="127" font-family="monospace" font-size="7.5" fill="#3a3a55">22.3 clear nights  ·  19 targets  ·  64 nights</text>
+                    <!-- Name -->
+                    <text x="14" y="146" font-family="sans-serif" font-size="8.5" fill="#666">Vera C. — Backyard Observations</text>
+                    <line x1="14" y1="155" x2="366" y2="155" stroke="#131322" stroke-width="0.8"/>
+                    <!-- LIGHT COLLECTED -->
+                    <text x="14" y="170" font-family="monospace" font-size="6.5" fill="#333" letter-spacing="0.15em">LIGHT COLLECTED</text>
+                    <rect x="14" y="174" width="92" height="5" rx="1.5" fill="#ff2d7e"/>
+                    <rect x="108" y="174" width="57" height="5" rx="1.5" fill="#00c4d8"/>
+                    <rect x="167" y="174" width="36" height="5" rx="1.5" fill="#e03030"/>
+                    <rect x="205" y="174" width="22" height="5" rx="1.5" fill="#22c55e"/>
+                    <rect x="229" y="174" width="17" height="5" rx="1.5" fill="#3b82f6"/>
+                    <text x="14" y="188" font-family="monospace" font-size="6" fill="#333">Hα 54.2h</text>
+                    <text x="108" y="188" font-family="monospace" font-size="6" fill="#333">OIII 32.1h</text>
+                    <text x="167" y="188" font-family="monospace" font-size="6" fill="#333">SII 18.4h</text>
+                    <text x="366" y="219" font-family="monospace" font-size="5.5" fill="#1a1a28" text-anchor="end">CELESTORY.APP</text>
+                  </svg>
+                }
+                @case ('summary-card') {
+                  <svg viewBox="0 0 380 224" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:auto">
+                    <rect width="380" height="224" fill="#07070f"/>
+                    <!-- Center portrait card -->
+                    <rect x="95" y="8" width="190" height="208" rx="10" fill="#0d0d1c" stroke="#1a1a2e" stroke-width="1"/>
+                    <!-- Card header -->
+                    <text x="112" y="30" font-family="monospace" font-size="7.5" fill="#00d8ec" font-weight="700">C</text>
+                    <text x="119" y="30" font-family="monospace" font-size="7.5" fill="#666">elestory</text>
+                    <circle cx="261" cy="26" r="1.3" fill="#333"/>
+                    <circle cx="266" cy="26" r="1.3" fill="#333"/>
+                    <circle cx="271" cy="26" r="1.3" fill="#333"/>
+                    <line x1="95" y1="37" x2="285" y2="37" stroke="#1a1a2e" stroke-width="0.8"/>
+                    <!-- Name -->
+                    <text x="190" y="68" font-family="sans-serif" font-size="17" font-weight="600" fill="#e5e5f0" text-anchor="middle">Vera C.</text>
+                    <text x="190" y="83" font-family="monospace" font-size="7" fill="#444" text-anchor="middle">Backyard Observations</text>
+                    <line x1="120" y1="92" x2="260" y2="92" stroke="#1a1a2e" stroke-width="0.6"/>
+                    <!-- Big number -->
+                    <text x="190" y="128" font-family="monospace" font-weight="700" font-size="26" fill="#00d8ec" text-anchor="middle">186h 46m</text>
+                    <!-- Stats grid -->
+                    <text x="152" y="153" font-family="monospace" font-size="16" fill="#e5e5f0" text-anchor="middle" font-weight="700">19</text>
+                    <text x="190" y="153" font-family="monospace" font-size="16" fill="#e5e5f0" text-anchor="middle" font-weight="700">64</text>
+                    <text x="228" y="153" font-family="monospace" font-size="16" fill="#e5e5f0" text-anchor="middle" font-weight="700">7</text>
+                    <text x="152" y="164" font-family="monospace" font-size="6" fill="#444" text-anchor="middle" letter-spacing="0.08em">TARGETS</text>
+                    <text x="190" y="164" font-family="monospace" font-size="6" fill="#444" text-anchor="middle" letter-spacing="0.08em">NIGHTS</text>
+                    <text x="228" y="164" font-family="monospace" font-size="6" fill="#444" text-anchor="middle" letter-spacing="0.08em">YRS</text>
+                    <line x1="170" y1="142" x2="170" y2="167" stroke="#1a1a2e" stroke-width="0.7"/>
+                    <line x1="210" y1="142" x2="210" y2="167" stroke="#1a1a2e" stroke-width="0.7"/>
+                    <!-- Filter bar -->
+                    <rect x="115" y="182" width="62" height="4" rx="1" fill="#ff2d7e"/>
+                    <rect x="178" y="182" width="40" height="4" rx="1" fill="#00c4d8"/>
+                    <rect x="219" y="182" width="24" height="4" rx="1" fill="#e03030"/>
+                    <rect x="244" y="182" width="16" height="4" rx="1" fill="#22c55e"/>
+                    <rect x="261" y="182" width="10" height="4" rx="1" fill="#3b82f6"/>
+                  </svg>
+                }
+                @case ('poster') {
+                  <svg viewBox="0 0 380 224" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:auto">
+                    <rect width="380" height="224" fill="#07070f"/>
+                    <!-- Header -->
+                    <text x="14" y="18" font-family="monospace" font-size="8" fill="#00d8ec" font-weight="700">C</text>
+                    <text x="21" y="18" font-family="monospace" font-size="8" fill="#666">elestory</text>
+                    <text x="190" y="18" font-family="sans-serif" font-size="8" fill="#555" text-anchor="middle">Vera C. — Backyard Observations</text>
+                    <text x="366" y="18" font-family="monospace" font-size="6.5" fill="#2a2a38" text-anchor="end">CELESTORY.APP</text>
+                    <line x1="0" y1="25" x2="380" y2="25" stroke="#131322" stroke-width="1"/>
+                    <!-- Left: TOTAL INTEGRATION -->
+                    <text x="14" y="47" font-family="monospace" font-size="7" fill="#3a3a55" letter-spacing="0.15em">TOTAL INTEGRATION</text>
+                    <text x="14" y="85" font-family="monospace" font-weight="700" font-size="34" fill="#00d8ec">186h 46m</text>
+                    <text x="14" y="103" font-family="monospace" font-size="7" fill="#3a3a55">Feb 2, 2021 → May 4, 2025</text>
+                    <!-- Stats -->
+                    <text x="14" y="128" font-family="monospace" font-size="21" fill="#e5e5f0" font-weight="700">19</text>
+                    <text x="14" y="141" font-family="monospace" font-size="6" fill="#3a3a55" letter-spacing="0.1em">TARGETS</text>
+                    <text x="58" y="128" font-family="monospace" font-size="21" fill="#e5e5f0" font-weight="700">64</text>
+                    <text x="58" y="141" font-family="monospace" font-size="6" fill="#3a3a55" letter-spacing="0.1em">NIGHTS</text>
+                    <text x="102" y="128" font-family="monospace" font-size="21" fill="#e5e5f0" font-weight="700">2,619</text>
+                    <text x="102" y="141" font-family="monospace" font-size="6" fill="#3a3a55" letter-spacing="0.1em">FRAMES</text>
+                    <!-- Vertical divider -->
+                    <line x1="230" y1="28" x2="230" y2="196" stroke="#131322" stroke-width="1"/>
+                    <!-- Right: ghost year text -->
+                    <text x="247" y="72" font-family="monospace" font-weight="700" font-size="29" fill="#191928">2025–26</text>
+                    <!-- FILTER BREAKDOWN -->
+                    <text x="247" y="98" font-family="monospace" font-size="7" fill="#3a3a55" letter-spacing="0.14em">FILTER BREAKDOWN</text>
+                    <!-- Vertical bars -->
+                    <rect x="247" y="107" width="14" height="66" rx="2" fill="#ff2d7e"/>
+                    <text x="254" y="181" font-family="monospace" font-size="6" fill="#444" text-anchor="middle">Hα</text>
+                    <text x="254" y="190" font-family="monospace" font-size="5.5" fill="#2a2a38" text-anchor="middle">54.2h</text>
+                    <rect x="268" y="120" width="14" height="53" rx="2" fill="#00c4d8"/>
+                    <text x="275" y="181" font-family="monospace" font-size="6" fill="#444" text-anchor="middle">OIII</text>
+                    <text x="275" y="190" font-family="monospace" font-size="5.5" fill="#2a2a38" text-anchor="middle">32.1h</text>
+                    <rect x="289" y="131" width="14" height="42" rx="2" fill="#e03030"/>
+                    <text x="296" y="181" font-family="monospace" font-size="6" fill="#444" text-anchor="middle">SII</text>
+                    <text x="296" y="190" font-family="monospace" font-size="5.5" fill="#2a2a38" text-anchor="middle">18.4h</text>
+                    <rect x="310" y="140" width="14" height="33" rx="2" fill="#22c55e"/>
+                    <text x="317" y="181" font-family="monospace" font-size="6" fill="#444" text-anchor="middle">G</text>
+                    <text x="317" y="190" font-family="monospace" font-size="5.5" fill="#2a2a38" text-anchor="middle">11.2h</text>
+                    <rect x="331" y="148" width="14" height="25" rx="2" fill="#3b82f6"/>
+                    <text x="338" y="181" font-family="monospace" font-size="6" fill="#444" text-anchor="middle">B</text>
+                    <text x="338" y="190" font-family="monospace" font-size="5.5" fill="#2a2a38" text-anchor="middle">8.8h</text>
+                    <line x1="0" y1="196" x2="380" y2="196" stroke="#131322" stroke-width="1"/>
+                    <text x="14" y="210" font-family="monospace" font-size="5.5" fill="#1a1a28">CELESTORY — YOUR JOURNEY UNDER THE STARS</text>
+                    <text x="366" y="210" font-family="monospace" font-size="5.5" fill="#1a1a28" text-anchor="end">CELESTORY.APP</text>
+                  </svg>
+                }
+              }
+            </div>
+
+            <!-- Card body -->
+            <div class="card-body">
+              <div class="card-title-row">
+                @switch (a.id) {
+                  @case ('story-slides') {
+                    <span class="card-ico">
+                      <svg viewBox="0 0 12 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="0.8" y="0.8" width="10.4" height="14.4" rx="2"/>
+                        <line x1="3.5" y1="3" x2="8.5" y2="3"/>
+                        <circle cx="6" cy="13" r="0.9" fill="currentColor" stroke="none"/>
+                      </svg>
+                    </span>
+                  }
+                  @case ('summary-card') {
+                    <span class="card-ico">
+                      <svg viewBox="0 0 16 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="0.8" y="0.8" width="14.4" height="10.4" rx="2"/>
+                        <path d="M2.5 8.5 5.5 5l2.5 3 2-2.5L14 9"/>
+                      </svg>
+                    </span>
+                  }
+                  @case ('poster') {
+                    <span class="card-ico">
+                      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="0.8" y="0.8" width="14.4" height="14.4" rx="2"/>
+                        <line x1="5.5" y1="0.8" x2="5.5" y2="15.2"/>
+                        <line x1="0.8" y1="7" x2="15.2" y2="7"/>
+                      </svg>
+                    </span>
+                  }
+                }
+                <h4>{{ a.label }}</h4>
+              </div>
+              @if (a.bullets?.length) {
+                <ul class="bullets">
+                  @for (b of a.bullets; track b) {
+                    <li>{{ b }}</li>
+                  }
+                </ul>
+              }
+              <span class="customize">Customize &rsaquo;</span>
+            </div>
+          </button>
+        }
+      </div>
+    </section>
+
+    @if (state() === 'preview') {
+      <section class="sec">
+        <h3 class="sec-lbl">Publish Your Journey</h3>
+        <ul class="benefits">
+          <li>✓ Permanent URL</li>
+          <li>✓ View from any device</li>
+          <li>✓ Share with fellow astrophotographers</li>
+          <li>✓ Update your profile anytime</li>
+        </ul>
+        <div class="preview-url"><code>celestory.dbastrosuite.com/user/&lt;handle&gt;</code></div>
+        <button class="btn-primary" type="button" (click)="openPublish.emit()">Claim Handle</button>
+      </section>
+    }
+  </div>
+</div>

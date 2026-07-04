@@ -1,0 +1,133 @@
+/**
+ * Client-side view of the Celestory story — the full schema-v1 contract the
+ * CLI emits and the web app consumes. Mirrors the server contract
+ * (src/server/utils/story.types.ts) and the CLI source of truth
+ * (tools/celestory/cli/internal/model/*.model.go). The current UI renders only
+ * the `summary` subset; the richer arrays (targets, equipment, sessions,
+ * activity) are carried for the upcoming gallery/timeline views.
+ */
+
+/** Per-filter integration within a target or a single session. */
+export interface StoryFilterIntegration {
+  name: string;
+  seconds: number;
+  frames: number;
+}
+
+/** A filter total at the summary level (no frame count). */
+export interface StoryFilterTotal {
+  name: string;
+  seconds: number;
+}
+
+/** Per-category breakdown (Galaxy, Nebula, …). */
+export interface StoryCategoryStat {
+  category: string;
+  targetCount: number;
+  integrationSeconds: number;
+  lightFrameCount: number;
+}
+
+/** One night of activity across all targets (global timeline). */
+export interface StoryActivityEntry {
+  date: string;
+  integrationSeconds: number;
+  lightFrameCount: number;
+  targetIds: string[];
+}
+
+/** One per-night session for a single target (the per-target timeline node). */
+export interface StorySession {
+  date: string;
+  integrationSeconds: number;
+  lightFrameCount: number;
+  filters: StoryFilterIntegration[];
+  equipmentIds: string[];
+  /** Night's representative telescope spec; null/absent when unknown (added 2026-06; absent on older stories). */
+  focalLengthMm?: number | null;
+  /** Night's representative f-ratio; null/absent when unknown. */
+  fRatio?: number | null;
+}
+
+/** One imaged target with aggregated totals and per-night timeline. */
+export interface StoryTarget {
+  id: string;
+  displayName: string;
+  designation: string;
+  aliases: string[];
+  type: string | null;
+  category: string;
+  totalIntegrationSeconds: number;
+  lightFrameCount: number;
+  nightCount: number;
+  firstLight: string;
+  latestSession: string;
+  /** J2000 right ascension in decimal degrees; absent when unknown. */
+  ra?: number;
+  /** J2000 declination in decimal degrees; absent when unknown. */
+  dec?: number;
+  filters: StoryFilterIntegration[];
+  equipmentIds: string[];
+  sessions: StorySession[];
+  image: string | null;
+}
+
+/** A distinct, listable piece of gear (a camera, a telescope, or a mount). */
+export interface StoryEquipment {
+  id: string;
+  kind: string;
+  /** Equipment sub-type (mono/colour/dslr, harmonic/equatorial/tracker, refractor/sct/…); '' when unknown. */
+  subtype: string;
+  displayName: string;
+  focalLengthMm: number | null;
+  fRatio: number | null;
+  totalIntegrationSeconds: number;
+  lightFrameCount: number;
+  targetCount: number;
+  firstLight: string;
+  latestSession: string;
+  targetIds: string[];
+}
+
+/** Hero/summary rollup powering the hero band and filter chips. */
+export interface StorySummary {
+  totalIntegrationSeconds: number;
+  targetCount: number;
+  nightCount: number;
+  lightFrameCount: number;
+  firstLight: string;
+  latestSession: string;
+  duplicateFileCount: number;
+  duplicateWastedBytes: number;
+  filters: StoryFilterTotal[];
+  byCategory: StoryCategoryStat[];
+  activity: StoryActivityEntry[];
+}
+
+/** Records which tool/version produced the story. */
+export interface StoryToolInfo {
+  name: string;
+  version: string;
+}
+
+/** The root story document the CLI emits and the web app consumes. */
+export interface CelestoryStory {
+  schemaVersion: number;
+  generatedAt: string;
+  tool: StoryToolInfo;
+  /** Observer display name (optionally "Name — Place"); blank if unknown. */
+  observer?: string;
+  /** Imaging site / location line; blank if unknown. */
+  site?: string;
+  /** Stable per-install identity, present on CLI-produced storys. */
+  installId?: string;
+  /** Configured profile handle, when the user set one via `celestory --profile`. */
+  profileId?: string;
+  /** Stable hash of the normalized data, present on CLI-produced storys. */
+  dataFingerprint?: string;
+  summary: StorySummary;
+  targets: StoryTarget[];
+  equipment: StoryEquipment[];
+  duplicates?: unknown[];
+  skipped?: unknown[];
+}

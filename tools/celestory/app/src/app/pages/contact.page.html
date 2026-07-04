@@ -1,0 +1,76 @@
+<dba-ui-constellation-field>
+  <div class="neb" aria-hidden="true"></div>
+
+  <div class="contact">
+    <!-- NAV -->
+    <nav class="top">
+      <a class="brand" routerLink="/" aria-label="Celestory home">
+        <dba-celestory-wordmark />
+      </a>
+      <div class="spacer"></div>
+      <a class="nlink" routerLink="/">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H6M11 6l-6 6 6 6" /></svg>
+        Back to home
+      </a>
+    </nav>
+
+    <main>
+      <!-- INTRO -->
+      <section class="intro">
+        <div class="eyebrow">Get in touch</div>
+        <h1>Say <em>hello</em>.</h1>
+        <p>
+          Questions, feedback, a bug in the charts, or just want to share your journey? Drop a note
+          below — it opens your mail app with everything filled in, addressed straight to me.
+        </p>
+      </section>
+
+      <!-- FORM -->
+      <section class="card">
+        <div class="ch">Send a message</div>
+        <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+          <div class="field">
+            <label for="name">Your name</label>
+            <input id="name" type="text" formControlName="name" placeholder="Jane Stargazer" autocomplete="name" />
+          </div>
+
+          <div class="field" [class.invalid]="submitted() && form.controls.email.invalid">
+            <label for="email">Your email <span class="req">*</span></label>
+            <input id="email" type="email" formControlName="email" placeholder="you@email.com" autocomplete="email" />
+            <div class="err">Please enter a valid email so I can reply.</div>
+          </div>
+
+          <div class="field">
+            <label for="subject">Subject</label>
+            <input id="subject" type="text" formControlName="subject" placeholder="Feedback on Celestory" />
+          </div>
+
+          <div class="field" [class.invalid]="submitted() && form.controls.message.invalid">
+            <label for="message">Message <span class="req">*</span></label>
+            <textarea id="message" formControlName="message" placeholder="Tell me what's on your mind…" rows="5"></textarea>
+            <div class="err">A message would be lovely.</div>
+          </div>
+
+          <dba-ui-text-button class="send-btn" variant="primary" size="lg" label="Send message" (clicked)="submit()">
+            <svg slot="leading" class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z" /></svg>
+          </dba-ui-text-button>
+
+          @if (sent()) {
+            <div class="sent show" role="status">
+              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+              <span>Your mail app should have opened with the message ready to send.</span>
+            </div>
+          }
+          <div class="formnote">Opens in your email app — nothing is stored or sent without you.</div>
+        </form>
+      </section>
+    </main>
+
+    <footer>
+      <div class="foot-inner">
+        <span>© {{ year }} Celestory · Open-source</span>
+        <a routerLink="/">Back to Celestory →</a>
+      </div>
+    </footer>
+  </div>
+</dba-ui-constellation-field>

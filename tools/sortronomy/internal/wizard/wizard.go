@@ -131,20 +131,21 @@ func runOrganize(cfg config.Config, opts organize.Options, dryRun bool, log *slo
 		if err := showOrganizeReview(opts, &decision); err != nil {
 			return err
 		}
+		log.Info("review decision", "decision", decision)
 		switch decision {
 		case reviewContinue:
 			printConfirmedPlan(os.Stdout, opts)
 			if err := organize.Run(opts, log); err != nil {
 				return err
 			}
-			persistOrganize(cfg, opts) // only after a successful run
+			persistOrganize(log, cfg, opts) // only after a successful run
 			return nil
 		case reviewDryRun:
 			printConfirmedPlan(os.Stdout, opts)
 			if err := organize.DryRun(opts, log); err != nil {
 				return err
 			}
-			persistOrganize(cfg, opts)
+			persistOrganize(log, cfg, opts)
 			return nil
 		case reviewEdit:
 			continue
@@ -180,7 +181,7 @@ func RunNonInteractive(log *slog.Logger, cfg config.Config, opts organize.Option
 	if runErr != nil {
 		return runErr
 	}
-	persistOrganize(cfg, opts)
+	persistOrganize(log, cfg, opts)
 	return nil
 }
 
@@ -189,8 +190,9 @@ func RunNonInteractive(log *slog.Logger, cfg config.Config, opts organize.Option
 // saved during the filter menu flow, which the caller threads back into cfg.
 // The per-run filter choice itself is intentionally not persisted — it's
 // image-set specific and should be re-confirmed each run.
-// Best-effort: a save failure never fails the run.
-func persistOrganize(cfg config.Config, opts organize.Options) {
+// Best-effort: a save failure never fails the run, but it is logged so a
+// "my settings didn't stick" report is explainable.
+func persistOrganize(log *slog.Logger, cfg config.Config, opts organize.Options) {
 	cfg.Organize = config.OrganizeSettings{
 		InputDir:            opts.InputDir,
 		OutputDir:           opts.OutputDir,
@@ -200,7 +202,11 @@ func persistOrganize(cfg config.Config, opts organize.Options) {
 		GroupByFilter:       opts.GroupByFilter,
 		GroupSession:        opts.GroupSession,
 	}
-	_ = config.Save(cfg)
+	if err := config.Save(cfg); err != nil {
+		log.Warn("saving settings for the next run failed", "err", err)
+		return
+	}
+	log.Info("settings saved for next run")
 }
 
 // validateFilterOptions enforces that both the folder label (Type) and the FITS

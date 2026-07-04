@@ -11,6 +11,12 @@
       "component": "sortronomy",
       "tag-separator": "-",
       "include-component-in-tag": true
+    },
+    "tools/celestory": {
+      "release-type": "go",
+      "component": "celestory",
+      "tag-separator": "-",
+      "include-component-in-tag": true
     }
   },
   "separate-pull-requests": false

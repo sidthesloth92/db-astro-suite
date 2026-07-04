@@ -57,6 +57,7 @@ func resolveFilter(log *slog.Logger, cfg config.Config, draft organize.FilterTag
 				return cfg, draft, err
 			}
 			if ok {
+				log.Info("filter preset selected", "name", preset.Name, "type", preset.Type)
 				return cfg, filterTagFromPreset(preset), nil
 			}
 			// Back — re-show the menu.
@@ -107,6 +108,7 @@ func createFilterPreset(log *slog.Logger, cfg config.Config, draft organize.Filt
 		Description: strings.TrimSpace(tag.Description),
 	}
 	cfg.FilterPresets = config.AddFilterPreset(cfg.FilterPresets, preset)
+	log.Info("filter preset created", "name", preset.Name, "type", preset.Type)
 	saveFilterPresets(log, cfg)
 	return cfg, filterTagFromPreset(preset), nil
 }
@@ -175,6 +177,7 @@ func deleteFilterPresetPrompt(log *slog.Logger, cfg config.Config) (config.Confi
 	}
 
 	cfg.FilterPresets = config.RemoveFilterPreset(cfg.FilterPresets, preset.Name)
+	log.Info("filter preset deleted", "name", preset.Name)
 	saveFilterPresets(log, cfg)
 	return cfg, nil
 }
@@ -184,7 +187,7 @@ func deleteFilterPresetPrompt(log *slog.Logger, cfg config.Config) (config.Confi
 // current run still gets its filter.
 func saveFilterPresets(log *slog.Logger, cfg config.Config) {
 	if err := config.Save(cfg); err != nil {
-		log.Warn("saving filter presets failed", "error", err)
+		log.Warn("saving filter presets failed", "err", err)
 		fmt.Fprintf(os.Stderr, "sortronomy: warning: could not save filter presets: %v\n", err)
 	}
 }

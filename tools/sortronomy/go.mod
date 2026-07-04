@@ -12,6 +12,7 @@ require (
 	github.com/charmbracelet/x/term v0.2.2
 	github.com/sidthesloth92/db-astro-suite/libs/capturetime v0.0.0
 	github.com/sidthesloth92/db-astro-suite/libs/cliui v0.0.0
+	github.com/sidthesloth92/db-astro-suite/libs/redact v0.0.0
 )
 
 // In-repo shared modules; resolved from the working tree. The suite's CLIs ship
@@ -21,6 +22,8 @@ require (
 replace github.com/sidthesloth92/db-astro-suite/libs/cliui => ../../libs/cliui
 
 replace github.com/sidthesloth92/db-astro-suite/libs/capturetime => ../../libs/capturetime
+
+replace github.com/sidthesloth92/db-astro-suite/libs/redact => ../../libs/redact
 
 require (
 	github.com/atotto/clipboard v0.1.4 // indirect

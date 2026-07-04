@@ -1,0 +1,44 @@
+<div class="ol-overlay" (mousedown)="onBackdrop($event)">
+  <div class="ol-modal" role="dialog" aria-modal="true">
+    <dba-ui-icon-button class="ol-close" accent="cyan" [size]="34" title="Close" (clicked)="closed.emit()">
+      <dba-cel-icon name="close" [size]="18" />
+    </dba-ui-icon-button>
+
+    <div class="ol-badge"><dba-cel-icon name="lock" [size]="24" /></div>
+    <div class="ol-head">
+      <span class="eyebrow">Manage profile</span>
+      <h2>Log In to Manage</h2>
+      <p>Enter the password you set for <b>&#64;{{ handle() }}</b> to edit or delete it.</p>
+    </div>
+
+    <div class="ol-field">
+      <span class="ol-field-pfx"><dba-cel-icon name="lock" [size]="15" /></span>
+      <input
+        #p
+        type="password"
+        [value]="password()"
+        (input)="onPassword(p.value)"
+        autocomplete="current-password"
+        autofocus
+        (keydown.enter)="submit()"
+      />
+    </div>
+
+    @if (error()) {
+      <p class="ol-error" role="alert">{{ error() }}</p>
+    }
+
+    <dba-ui-text-button
+      class="ol-full"
+      variant="primary"
+      size="lg"
+      [label]="busy() ? 'Logging in…' : 'Log In'"
+      [disabled]="busy() || !password()"
+      (clicked)="submit()"
+    >
+      @if (!busy()) {
+        <dba-cel-icon slot="leading" name="arrow" [size]="15" />
+      }
+    </dba-ui-text-button>
+  </div>
+</div>

@@ -1,0 +1,35 @@
+<main class="dev-og">
+  <header class="dev-og-head">
+    <h1>OG card preview <span class="dev-tag">dev</span></h1>
+    <p class="hint">
+      Live 1200×630 social-unfurl cards. The brand / leaderboards cards need no database;
+      profile / target / equipment query the published story (set <code>DATABASE_URL</code>)
+      and fall back to the brand card on an unknown handle / id.
+    </p>
+  </header>
+
+  <div class="fields">
+    <label class="field">
+      <span>Handle</span>
+      <input #hI [value]="handle()" (input)="setHandle(hI.value)" placeholder="astrowithdb" />
+    </label>
+    <label class="field">
+      <span>Target id</span>
+      <input #oI [value]="targetId()" (input)="setTargetId(oI.value)" placeholder="aeaurigae" />
+    </label>
+    <label class="field">
+      <span>Equipment id</span>
+      <input #eI [value]="equipmentId()" (input)="setEquipmentId(eI.value)" placeholder="cam-2600mm" />
+    </label>
+  </div>
+
+  <div class="grid">
+    @for (c of cards(); track c.src) {
+      <figure class="card">
+        <figcaption>{{ c.label }}</figcaption>
+        <img [src]="c.src" [alt]="c.label" width="1200" height="630" loading="lazy" />
+        <a class="open" [href]="c.src" target="_blank" rel="noopener noreferrer">{{ c.src }}</a>
+      </figure>
+    }
+  </div>
+</main>

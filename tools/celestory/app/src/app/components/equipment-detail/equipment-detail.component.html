@@ -1,0 +1,56 @@
+<section class="detail">
+  <div class="detail-top">
+    <button class="backlink" type="button" (click)="back.emit()">
+      <dba-cel-icon name="back" [size]="14" /> All equipment
+    </button>
+  </div>
+
+  @if (showShare()) {
+    <dba-equipment-share-modal
+      [equip]="equip()"
+      [story]="story()"
+      [handle]="handle()"
+      [shareUrl]="shareUrl()"
+      (closed)="showShare.set(false)"
+    />
+  }
+
+  <div class="detail-head">
+    <div class="detail-head-id">
+      <div class="kindrow">
+        <dba-cel-icon [name]="icon()" [size]="15" />
+        <span>{{ equip().kind }}</span>
+      </div>
+      <h1>{{ equip().displayName }}</h1>
+      @if (detail()) {
+        <div class="edetail">{{ detail() }}</div>
+      }
+    </div>
+    <dba-ui-text-button class="sharebtn" variant="secondary" label="Share" (clicked)="showShare.set(true)">
+      <dba-cel-icon slot="leading" name="share" [size]="14" />
+    </dba-ui-text-button>
+  </div>
+
+  <div class="dstats">
+    <div class="cell"><div class="k">Total integration</div><div class="v glow">{{ dur(equip().totalIntegrationSeconds) }}</div></div>
+    <div class="cell"><div class="k">Light frames</div><div class="v">{{ count(equip().lightFrameCount) }}</div></div>
+    <div class="cell"><div class="k">Targets</div><div class="v">{{ count(equip().targetCount) }}</div></div>
+    <div class="cell"><div class="k">Active range</div><div class="v v-sm">{{ range(equip().firstLight, equip().latestSession) }}</div></div>
+  </div>
+
+  <div class="dsection">
+    <div class="dsec-head">
+      <h2 class="dsec-title">Captured with this {{ kindNoun() }}</h2>
+      <span class="dsec-count">{{ targets().length }} targets</span>
+    </div>
+    @if (targets().length) {
+      <div class="minigrid">
+        @for (o of targets(); track o.id) {
+          <dba-mini-target-card [target]="o" [filterColors]="filterColors()" [equipId]="equip().id" (open)="openTarget.emit($event)" />
+        }
+      </div>
+    } @else {
+      <div class="muted">No targets recorded for this equipment.</div>
+    }
+  </div>
+</section>

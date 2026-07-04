@@ -1,0 +1,8 @@
+/**
+ * Demo page — the bundled "Vera" journey rendered in the shared shell's Demo
+ * state. The journey shell (dba-journey-view) supplies its own starfield backdrop
+ * and layout, so this host only needs to be a block-level container.
+ */
+:host {
+  display: block;
+}

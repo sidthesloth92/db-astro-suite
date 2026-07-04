@@ -3,3 +3,7 @@ dist/
 
 # Local-only dev binary
 sortronomy
+
+# Generated debug-report artifacts (dropped into the cwd by failed runs and --report)
+sortronomy-error.log
+sortronomy-report.log

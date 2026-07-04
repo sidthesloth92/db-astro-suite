@@ -1,4 +1,5 @@
 {
   ".": "1.13.1",
-  "tools/sortronomy": "0.1.0"
+  "tools/sortronomy": "0.1.0",
+  "tools/celestory": "0.1.0"
 }
