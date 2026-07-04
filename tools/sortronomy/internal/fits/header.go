@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/astrogo/fitsio"
+	"github.com/sidthesloth92/db-astro-suite/libs/capturetime"
 )
 
 // Metadata is the set of header fields Sortronomy reads from a FITS file.
@@ -23,7 +24,8 @@ type Metadata struct {
 	Target    string    // OBJECT, trimmed; empty for calibration frames
 	Camera    string    // normalized short label (e.g. "2600MM")
 	Filter    string    // FILTER, trimmed; may be empty
-	DateObs   time.Time // parsed DATE-OBS
+	DateObs   time.Time // parsed DATE-OBS (UTC per the FITS standard)
+	DateLoc   time.Time // parsed DATE-LOC (local time, written by N.I.N.A.); zero when absent
 	Focal     float64   // FOCALLEN in mm; 0 if missing
 	Exposure  float64   // EXPTIME in seconds; 0 if missing
 	Gain      int       // GAIN; 0 if missing
@@ -65,7 +67,7 @@ func ReadMetadata(path string) (Metadata, error) {
 	// Stash raw strings of every key we look at, for diagnostics + the
 	// filename-fallback path.
 	for _, key := range []string{
-		"IMAGETYP", "OBJECT", "INSTRUME", "FILTER", "DATE-OBS",
+		"IMAGETYP", "OBJECT", "INSTRUME", "FILTER", "DATE-OBS", "DATE-LOC",
 		"FOCALLEN", "EXPTIME", "EXPOSURE", "GAIN", "XBINNING", "YBINNING",
 		"CCD-TEMP", "SWCREATE", "CREATOR", "PROGRAM",
 	} {
@@ -86,8 +88,11 @@ func ReadMetadata(path string) (Metadata, error) {
 	m.Camera = normalizeCamera(stringCard(hdr, "INSTRUME"))
 	m.Filter = strings.TrimSpace(stringCard(hdr, "FILTER"))
 
-	if t, ok := parseDateObs(stringCard(hdr, "DATE-OBS")); ok {
+	if t, ok := capturetime.ParseFitsDateTime(stringCard(hdr, "DATE-OBS")); ok {
 		m.DateObs = t
+	}
+	if t, ok := capturetime.ParseFitsDateTime(stringCard(hdr, "DATE-LOC")); ok {
+		m.DateLoc = t
 	}
 
 	if v, ok := floatCard(hdr, "FOCALLEN"); ok {
@@ -223,28 +228,6 @@ func parseFloat(s string) (float64, bool) {
 		return 0, false
 	}
 	return f, true
-}
-
-// parseDateObs handles both "2026-01-18T06:55:54" (FITS standard) and
-// "2026-01-18T06:55:54.123" (some programs include milliseconds). Falls
-// through to "2026-01-18" for date-only.
-func parseDateObs(s string) (time.Time, bool) {
-	s = strings.TrimSpace(s)
-	if s == "" {
-		return time.Time{}, false
-	}
-	formats := []string{
-		"2006-01-02T15:04:05.999999",
-		"2006-01-02T15:04:05.000",
-		"2006-01-02T15:04:05",
-		"2006-01-02",
-	}
-	for _, layout := range formats {
-		if t, err := time.Parse(layout, s); err == nil {
-			return t, true
-		}
-	}
-	return time.Time{}, false
 }
 
 func isCalibration(frameType string) bool {

@@ -42,7 +42,7 @@ func parseArgs(args []string, cfg config.Config) (parsedArgs, error) {
 	groupDate := fs.Bool("group-date", cfg.Organize.GroupByDate, "include the capture date as a folder level")
 	groupFilter := fs.Bool("group-filter", cfg.Organize.GroupByFilter, "file frames into per-filter subfolders")
 	groupSession := fs.Bool("group-session", cfg.Organize.GroupSession, "roll late captures into the next day's session")
-	rollover := fs.Int("rollover-hour", cfg.Organize.SessionRolloverHour, "session cutoff hour 0–23 (with --group-session)")
+	rollover := fs.Int("rollover-hour", cfg.Organize.SessionRolloverHour, "session cutoff hour 0–23, local time (with --group-session)")
 	filterType := fs.String("filter-type", "", "filter folder label, e.g. Ha")
 	filterName := fs.String("filter-name", "", "FITS FILTER value, e.g. SV220")
 	filterDesc := fs.String("filter-desc", "", "FITS FILTER description (comment)")

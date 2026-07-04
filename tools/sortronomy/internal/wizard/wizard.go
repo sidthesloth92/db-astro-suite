@@ -220,7 +220,7 @@ func organizeForm(opts *organize.Options, tagFilter *bool, rolloverHour *string)
 				WithButtonAlignment(lipgloss.Left),
 			huh.NewConfirm().
 				Title("Group imaging session?").
-				Description("When on, frames captured at or after a cutoff hour roll into the next calendar day's folder — so a night that crosses midnight, plus its morning flats, share one dated folder. Only applies when grouping by date.").
+				Description("When on, frames captured at or after a cutoff hour roll into the next calendar day's folder — so a night that crosses midnight, plus its morning flats, share one dated folder. The cutoff is matched against each frame's local capture time (read from the filename, falling back to the DATE-LOC then DATE-OBS header). Only applies when grouping by date.").
 				Affirmative("Yes").
 				Negative("No").
 				Value(&opts.GroupSession).
@@ -229,7 +229,7 @@ func organizeForm(opts *organize.Options, tagFilter *bool, rolloverHour *string)
 		huh.NewGroup(
 			huh.NewInput().
 				Title("Session cutoff hour (0–23)").
-				Description("Frames captured at or after this hour are filed under the next calendar day. The default (18) works well for evening sessions that run past midnight.").
+				Description("Frames captured at or after this hour, in your local time, are filed under the next calendar day. Sortronomy reads that local time from the filename when it can (ASIAIR, N.I.N.A., SharpCap…), otherwise the DATE-LOC header, and only as a last resort the UTC DATE-OBS. The default (18) works well for evening sessions that run past midnight.").
 				Value(rolloverHour).
 				Validate(validateRolloverHour),
 		).WithHideFunc(func() bool { return !opts.GroupSession }),

@@ -10,14 +10,17 @@ require (
 	github.com/charmbracelet/huh v1.0.0
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/charmbracelet/x/term v0.2.2
+	github.com/sidthesloth92/db-astro-suite/libs/capturetime v0.0.0
 	github.com/sidthesloth92/db-astro-suite/libs/cliui v0.0.0
 )
 
-// In-repo shared module; resolved from the working tree. The suite's CLIs ship
+// In-repo shared modules; resolved from the working tree. The suite's CLIs ship
 // as goreleaser-built binaries (built from this checkout), so a relative replace
 // works through the whole release path. This does mean `go install` is not
 // supported for this tool — use the prebuilt binaries (brew/scoop/winget).
 replace github.com/sidthesloth92/db-astro-suite/libs/cliui => ../../libs/cliui
+
+replace github.com/sidthesloth92/db-astro-suite/libs/capturetime => ../../libs/capturetime
 
 require (
 	github.com/atotto/clipboard v0.1.4 // indirect
