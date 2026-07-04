@@ -35,8 +35,8 @@ import (
 
 // FilterTag is the user-supplied filter info written into copied FITS files
 // when TagFilter is true. All three fields are usually identical, but Name
-// goes into the FITS FILTER keyword value, Description goes into the comment,
-// and Type is used as the folder label.
+// goes into the FITS FILTER keyword value, Description goes into the FILTDESC
+// keyword, and Type is used as the folder label.
 type FilterTag struct {
 	Type        string
 	Name        string
@@ -233,7 +233,7 @@ type fileErr struct {
 }
 
 // ExecutePlan performs the copies described by plan and (when TagFilter is
-// true) writes the FILTER keyword into each copied file. Per-file errors are
+// true) writes the filter-tag headers into each copied file. Per-file errors are
 // collected and printed as a formatted block after the summary line; the
 // function returns an error only if any file failed.
 func ExecutePlan(plan Plan, opts Options, log *slog.Logger) error {

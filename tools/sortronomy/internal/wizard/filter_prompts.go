@@ -10,6 +10,7 @@ import (
 	"github.com/charmbracelet/huh"
 
 	"github.com/sidthesloth92/db-astro-suite/tools/sortronomy/internal/config"
+	"github.com/sidthesloth92/db-astro-suite/tools/sortronomy/internal/fits"
 	"github.com/sidthesloth92/db-astro-suite/tools/sortronomy/internal/organize"
 )
 
@@ -91,8 +92,9 @@ func createFilterPreset(log *slog.Logger, cfg config.Config, draft organize.Filt
 				Validate(validateNonEmpty),
 			huh.NewInput().
 				Title("Filter description (optional)").
-				Description("A human-readable note stored as a comment alongside the FITS FILTER keyword, e.g. Svbony SV220 7nm Ha. Useful for identifying the exact filter model later. Leave blank to skip.").
-				Value(&tag.Description),
+				Description(fmt.Sprintf("A human-readable note stored in the FITS FILTDESC keyword of every copied file, e.g. Svbony SV220 7nm Ha. Useful for identifying the exact filter model later. Up to %d characters. Leave blank to skip.", fits.MaxFilterDescLen)).
+				Value(&tag.Description).
+				Validate(validateFilterDescription),
 		),
 	)
 	if err := form.Run(); err != nil {
@@ -224,18 +226,29 @@ func presetOptionLabel(p config.FilterPreset) string {
 	return fmt.Sprintf("%s — %s (%s)", p.Name, p.Type, p.Description)
 }
 
-// filterNameValidator returns an input validator that rejects blank names and
+// filterNameValidator returns an input validator that rejects blank names,
+// names the FITS FILTER card cannot hold (too long, quotes, non-ASCII), and
 // names already used by a saved preset (case-insensitive).
 func filterNameValidator(presets []config.FilterPreset) func(string) error {
 	return func(s string) error {
 		if strings.TrimSpace(s) == "" {
 			return errors.New("required")
 		}
+		if err := fits.ValidateFilterName(strings.TrimSpace(s)); err != nil {
+			return err
+		}
 		if _, exists := config.FindFilterPreset(presets, s); exists {
 			return errors.New("a filter with this name is already saved")
 		}
 		return nil
 	}
+}
+
+// validateFilterDescription rejects descriptions the FITS FILTDESC card cannot
+// hold on a single 80-char card (too long, quotes, non-ASCII). Blank passes —
+// the description is optional.
+func validateFilterDescription(s string) error {
+	return fits.ValidateFilterDescription(strings.TrimSpace(s))
 }
 
 // filterTagFromPreset maps a stored preset to the organize-layer filter values.
