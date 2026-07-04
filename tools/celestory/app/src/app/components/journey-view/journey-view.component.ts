@@ -16,7 +16,7 @@ import { map } from 'rxjs';
 import { ConstellationFieldComponent, TextButtonComponent } from '@db-astro-suite/ui';
 import { profileDisplayUrl, profileUrl as buildProfileUrl } from '../../models/app.constants';
 import type { DetailRef, JourneyState } from '../../models/journey.types';
-import type { CelestoryStory, StoryEquipment, StoryObject } from '../../models/story.model';
+import type { CelestoryStory, StoryEquipment, StoryTarget } from '../../models/story.model';
 import { formatCount, formatHours } from '../../utils/format.util';
 import { publishErrorMessage } from '../../utils/publish-error.util';
 import { readStoryFile } from '../../utils/read-story.util';
@@ -28,9 +28,9 @@ import { CelestoryWordmarkComponent } from '../celestory-wordmark/celestory-word
 import { EquipmentDetailComponent } from '../equipment-detail/equipment-detail.component';
 import { EquipmentSectionComponent } from '../equipment-section/equipment-section.component';
 import { JourneyHeroComponent } from '../journey-hero/journey-hero.component';
-import { ObjectDetailComponent } from '../object-detail/object-detail.component';
-import { ObjectSectionComponent } from '../object-section/object-section.component';
-import { ObjectShareModalComponent } from '../object-share-modal/object-share-modal.component';
+import { TargetDetailComponent } from '../target-detail/target-detail.component';
+import { TargetSectionComponent } from '../target-section/target-section.component';
+import { TargetShareModalComponent } from '../target-share-modal/target-share-modal.component';
 import { OwnerLoginModalComponent } from '../owner-login-modal/owner-login-modal.component';
 import { PlanetariumComponent } from '../planetarium/planetarium.component';
 import { PublishModalComponent } from '../publish-modal/publish-modal.component';
@@ -41,7 +41,7 @@ import { SocialShareRowComponent } from '../social-share-row/social-share-row.co
 /**
  * Shared journey shell rendered by /preview (Private Preview), /demo (Demo)
  * and /user/<handle> (Published). Renders a single flowing page — journey hero,
- * Objects catalogue, Equipment rig — or an in-page object/equipment detail. The
+ * Targets catalogue, Equipment rig — or an in-page target/equipment detail. The
  * top banner + actions vary by state. Hosts the Getting Started, Share, Publish
  * and Story-Slides modals.
  */
@@ -56,14 +56,14 @@ import { SocialShareRowComponent } from '../social-share-row/social-share-row.co
     CelestoryWordmarkComponent,
     JourneyHeroComponent,
     SectionBannerComponent,
-    ObjectSectionComponent,
+    TargetSectionComponent,
     EquipmentSectionComponent,
-    ObjectDetailComponent,
+    TargetDetailComponent,
     EquipmentDetailComponent,
     PublishModalComponent,
     OwnerLoginModalComponent,
     ShareStudioModalComponent,
-    ObjectShareModalComponent,
+    TargetShareModalComponent,
     SocialShareRowComponent,
     PlanetariumComponent,
   ],
@@ -107,8 +107,8 @@ export class JourneyViewComponent {
   protected readonly showLogin = signal(false);
   /** The Share Studio drawer (opened directly from any "Share" action). */
   protected readonly showStudio = signal(false);
-  /** The object whose per-object share card is open, or null. */
-  protected readonly shareObject = signal<StoryObject | null>(null);
+  /** The target whose per-target share card is open, or null. */
+  protected readonly shareTarget = signal<StoryTarget | null>(null);
   /** True while an owner edit (re-upload) is in flight. */
   protected readonly editBusy = signal(false);
   /** User-facing error from an owner edit, or empty. */
@@ -117,25 +117,25 @@ export class JourneyViewComponent {
   protected readonly publishPhase = signal<'' | 'delete'>('');
 
   /**
-   * Open detail, driven by URL query params (`?object=` / `?equipment=`) so the
+   * Open detail, driven by URL query params (`?target=` / `?equipment=`) so the
    * browser Back button closes the detail and returns to the journey overview
    * instead of leaving the page.
    */
   private readonly detailParams = toSignal(
     this.route.queryParamMap.pipe(
-      map((pm) => ({ object: pm.get('object'), equipment: pm.get('equipment'), view: pm.get('view') })),
+      map((pm) => ({ target: pm.get('target'), equipment: pm.get('equipment'), view: pm.get('view') })),
     ),
-    { initialValue: { object: null as string | null, equipment: null as string | null, view: null as string | null } },
+    { initialValue: { target: null as string | null, equipment: null as string | null, view: null as string | null } },
   );
 
   /** Whether the full-screen planetarium ("View My Universe") is open. */
   protected readonly showSky = computed(() => this.detailParams().view === 'sky');
 
-  /** The open object/equipment detail, or null for the flowing page. */
+  /** The open target/equipment detail, or null for the flowing page. */
   protected readonly detail = computed<DetailRef | null>(() => {
     const p = this.detailParams();
-    if (p.object) {
-      return { kind: 'object', id: p.object };
+    if (p.target) {
+      return { kind: 'target', id: p.target };
     }
     if (p.equipment) {
       return { kind: 'equipment', id: p.equipment };
@@ -143,13 +143,13 @@ export class JourneyViewComponent {
     return null;
   });
 
-  /** The resolved object detail, or null. */
-  protected readonly detailObject = computed<StoryObject | null>(() => {
+  /** The resolved target detail, or null. */
+  protected readonly detailTarget = computed<StoryTarget | null>(() => {
     const d = this.detail();
-    if (d?.kind !== 'object') {
+    if (d?.kind !== 'target') {
       return null;
     }
-    return this.story().objects.find((o) => o.id === d.id) ?? null;
+    return this.story().targets.find((o) => o.id === d.id) ?? null;
   });
   /** The resolved equipment detail, or null. */
   protected readonly detailEquip = computed<StoryEquipment | null>(() => {
@@ -160,11 +160,11 @@ export class JourneyViewComponent {
     return this.story().equipment.find((e) => e.id === d.id) ?? null;
   });
 
-  /** Objects section sub line. */
-  protected readonly objectsSub = computed(() => {
-    const objects = this.story().objects;
-    const seconds = objects.reduce((s, o) => s + o.totalIntegrationSeconds, 0);
-    return `${formatCount(objects.length)} targets · ${formatHours(seconds)}h captured`;
+  /** Targets section sub line. */
+  protected readonly targetsSub = computed(() => {
+    const targets = this.story().targets;
+    const seconds = targets.reduce((s, o) => s + o.totalIntegrationSeconds, 0);
+    return `${formatCount(targets.length)} targets · ${formatHours(seconds)}h captured`;
   });
   /** Equipment section sub line. */
   protected readonly equipmentSub = computed(() => {
@@ -184,19 +184,19 @@ export class JourneyViewComponent {
   protected readonly profileDisplay = computed(() => profileDisplayUrl(this.handle()));
   /** True once the journey is published — gates the per-item share links. */
   protected readonly isPublished = computed(() => this.state() === 'published');
-  /** Public deep-link to the open per-object share card, or '' when unpublished. */
-  protected readonly objectShareUrl = computed(() => {
-    const o = this.shareObject();
+  /** Public deep-link to the open per-target share card, or '' when unpublished. */
+  protected readonly targetShareUrl = computed(() => {
+    const o = this.shareTarget();
     return o && this.isPublished() && this.handle()
-      ? `${buildProfileUrl(this.handle())}?object=${encodeURIComponent(o.id)}`
+      ? `${buildProfileUrl(this.handle())}?target=${encodeURIComponent(o.id)}`
       : '';
   });
 
-  /** Opens an object's detail (pushes a history entry). */
-  openObject(id: string): void {
+  /** Opens a target's detail (pushes a history entry). */
+  openTarget(id: string): void {
     void this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { object: id, equipment: null },
+      queryParams: { target: id, equipment: null },
       queryParamsHandling: 'merge',
     });
     this.scrollTop();
@@ -205,7 +205,7 @@ export class JourneyViewComponent {
   openEquipment(id: string): void {
     void this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { equipment: id, object: null },
+      queryParams: { equipment: id, target: null },
       queryParamsHandling: 'merge',
     });
     this.scrollTop();
@@ -214,7 +214,7 @@ export class JourneyViewComponent {
   closeDetail(): void {
     void this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { object: null, equipment: null },
+      queryParams: { target: null, equipment: null },
       queryParamsHandling: 'merge',
     });
     this.scrollTop();
@@ -223,7 +223,7 @@ export class JourneyViewComponent {
   openSky(): void {
     void this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { view: 'sky', object: null, equipment: null },
+      queryParams: { view: 'sky', target: null, equipment: null },
       queryParamsHandling: 'merge',
     });
   }
@@ -239,7 +239,7 @@ export class JourneyViewComponent {
   skyToEquipment(id: string): void {
     void this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { equipment: id, object: null, view: null },
+      queryParams: { equipment: id, target: null, view: null },
       queryParamsHandling: 'merge',
     });
     this.scrollTop();
@@ -254,9 +254,9 @@ export class JourneyViewComponent {
   openShare(): void {
     this.showStudio.set(true);
   }
-  /** Opens the per-object share card for the given object id. */
-  openObjectShare(id: string): void {
-    this.shareObject.set(this.story().objects.find((o) => o.id === id) ?? null);
+  /** Opens the per-target share card for the given target id. */
+  openTargetShare(id: string): void {
+    this.shareTarget.set(this.story().targets.find((o) => o.id === id) ?? null);
   }
   /** Opens the Publish modal directly (full flow). */
   openPublish(): void {
@@ -338,12 +338,12 @@ export class JourneyViewComponent {
   /** Escape closes any open modal; with no modal open, it closes an open detail. */
   onEscape(): void {
     const anyModalOpen =
-      this.showPublish() || this.showStudio() || this.showLogin() || this.shareObject() != null;
+      this.showPublish() || this.showStudio() || this.showLogin() || this.shareTarget() != null;
     if (anyModalOpen) {
       this.showPublish.set(false);
       this.showStudio.set(false);
       this.showLogin.set(false);
-      this.shareObject.set(null);
+      this.shareTarget.set(null);
       return;
     }
     if (this.detail()) {

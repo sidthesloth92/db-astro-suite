@@ -9,9 +9,9 @@ import type {
   EquipmentMetric,
   FilterMetric,
   MonthView,
-  ObjectMetric,
   Scope,
   SpecMetric,
+  TargetMetric,
   UserMetric,
 } from './leaderboards.types';
 
@@ -24,7 +24,7 @@ export const MAX_LIMIT = 50;
 export const USER_METRICS: readonly UserMetric[] = [
   'integration',
   'frames',
-  'objects',
+  'targets',
   'nights',
   'longevity',
   'pioneer',
@@ -33,7 +33,7 @@ export const USER_METRICS: readonly UserMetric[] = [
 ];
 export const DEFAULT_USER_METRIC: UserMetric = 'integration';
 
-export const OBJECT_METRICS: readonly ObjectMetric[] = [
+export const TARGET_METRICS: readonly TargetMetric[] = [
   'integration',
   'imagers',
   'frames',
@@ -41,13 +41,13 @@ export const OBJECT_METRICS: readonly ObjectMetric[] = [
   'rarest',
   'comets',
 ];
-export const DEFAULT_OBJECT_METRIC: ObjectMetric = 'integration';
+export const DEFAULT_TARGET_METRIC: TargetMetric = 'integration';
 
 export const CATEGORY_METRICS: readonly CategoryMetric[] = [
   'integration',
-  'objects',
+  'targets',
 ];
-export const DEFAULT_CATEGORY_METRIC: CategoryMetric = 'objects';
+export const DEFAULT_CATEGORY_METRIC: CategoryMetric = 'targets';
 
 export const EQUIPMENT_METRICS: readonly EquipmentMetric[] = [
   'integration',

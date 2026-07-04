@@ -3,21 +3,21 @@
 
   <!-- targets overlay -->
   <div class="sky-markers">
-    @for (t of targets(); track t.obj.id) {
+    @for (t of targets(); track t.target.id) {
       <button
         #marker
         type="button"
         class="sky-mk"
-        [style.--mk]="markerColor(t.obj)"
-        [title]="t.obj.displayName"
-        (click)="select(t.obj.id)"
+        [style.--mk]="markerColor(t.target)"
+        [title]="t.target.displayName"
+        (click)="select(t.target.id)"
       >
         <span class="sky-mk-thumb">
           <span class="sky-mk-art">
-            <dba-object-image [objectId]="t.obj.id" [category]="t.obj.category" />
+            <dba-target-image [targetId]="t.target.id" [category]="t.target.category" />
           </span>
         </span>
-        <span class="sky-mk-label">{{ t.obj.designation || t.obj.displayName }}</span>
+        <span class="sky-mk-label">{{ t.target.designation || t.target.displayName }}</span>
       </button>
     }
   </div>
@@ -101,7 +101,7 @@
     <div class="sky-hint">Drag to look around · scroll to zoom · tap a target</div>
   }
 
-  <!-- target popup: the full object page, embedded -->
+  <!-- target popup: the full target page, embedded -->
   @if (selected(); as t) {
     <div class="sky-pop-wrap" (click)="closePopup()">
       <div class="sky-pop sky-pop-detail" (click)="$event.stopPropagation()">
@@ -113,8 +113,8 @@
           </button>
         </div>
         <div class="sky-pop-scroll">
-          <dba-object-detail
-            [obj]="t.obj"
+          <dba-target-detail
+            [target]="t.target"
             [story]="story()"
             [embedded]="true"
             [altaz]="selectedAltAz()"

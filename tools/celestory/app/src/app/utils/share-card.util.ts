@@ -20,7 +20,7 @@ import type {
   ShareFilterKey,
   ShareModel,
   ShareModelEquipment,
-  ShareModelObject,
+  ShareModelTarget,
 } from '../models/share-model.model';
 import type {
   ShareFormatId,
@@ -1834,7 +1834,7 @@ function drawTall(ctx: Ctx, dims: Dims, model: ShareModel, t: ResolvedTheme): vo
 
   // stat row
   const stats: [string, string][] = [
-    [fmtInt(s.uniqueObjects), 'TARGETS'],
+    [fmtInt(s.uniqueTargets), 'TARGETS'],
     [fmtInt(s.nightsImaged), 'NIGHTS'],
     [fmtInt(s.totalLightFrames), 'FRAMES'],
   ];
@@ -1935,7 +1935,7 @@ function drawWide(ctx: Ctx, dims: Dims, model: ShareModel, t: ResolvedTheme): vo
   ctx.fillText(`≈ ${fmtNights(s.totalIntegrationSeconds)} clear nights  ·  ${fmtRange(s.firstLight, s.latestSession)}`, pad, y + 26 * sc + heroSize + 12 * sc);
 
   const stats: [string, string][] = [
-    [fmtInt(s.uniqueObjects), 'TARGETS'],
+    [fmtInt(s.uniqueTargets), 'TARGETS'],
     [fmtInt(s.nightsImaged), 'NIGHTS'],
     [fmtInt(s.totalLightFrames), 'FRAMES'],
   ];
@@ -2140,7 +2140,7 @@ function drawYearCard(ctx: Ctx, dims: Dims, model: ShareModel, t: ResolvedTheme)
     ctx.fillText(`≈ ${fmtNights(s.totalIntegrationSeconds)} clear nights  ·  ${fmtRange(s.firstLight, s.latestSession)}`, pad, h * 0.37 + yS + 16 * sc);
     const cells: [string, string][] = [
       ['TOTAL', fmtHM(s.totalIntegrationSeconds)],
-      ['OBJECTS', fmtInt(s.uniqueObjects)],
+      ['TARGETS', fmtInt(s.uniqueTargets)],
       ['NIGHTS', fmtInt(s.nightsImaged)],
       ['FILTERS', fmtInt(nF)],
     ];
@@ -2205,7 +2205,7 @@ function drawYearCard(ctx: Ctx, dims: Dims, model: ShareModel, t: ResolvedTheme)
   ctx.textBaseline = 'alphabetic';
 
   const stats: [string, string][] = [
-    [fmtInt(s.uniqueObjects), 'OBJECTS'],
+    [fmtInt(s.uniqueTargets), 'TARGETS'],
     [fmtInt(s.nightsImaged), 'NIGHTS'],
     [fmtInt(s.totalLightFrames), 'FRAMES'],
   ];
@@ -2386,8 +2386,8 @@ function drawSkyDomeCard(ctx: Ctx, dims: Dims, model: ShareModel, t: ResolvedThe
   const { w, h, sc, pad } = gm;
   const f = t.f;
   const s = model.summary;
-  const objs = model.objects.slice().sort((a, b) => b.totalIntegrationSeconds - a.totalIntegrationSeconds);
-  vcHeader(ctx, gm, model, t, 'YOUR SKY, CHARTED', `${fmtInt(s.uniqueObjects)} targets on the dome`);
+  const objs = model.targets.slice().sort((a, b) => b.totalIntegrationSeconds - a.totalIntegrationSeconds);
+  vcHeader(ctx, gm, model, t, 'YOUR SKY, CHARTED', `${fmtInt(s.uniqueTargets)} targets on the dome`);
   const cy = h * (gm.wide ? 0.55 : gm.isStory ? 0.5 : 0.52);
   const R = Math.min(w * (gm.wide ? 0.21 : 0.36), h * 0.3);
   const cx = gm.wide ? w * 0.3 : w / 2;
@@ -2425,7 +2425,7 @@ function drawSkyDomeCard(ctx: Ctx, dims: Dims, model: ShareModel, t: ResolvedThe
   ctx.arc(cx, cy, 2.4 * sc, 0, 6.283);
   ctx.fill();
   const maxI = objs.length ? objs[0].totalIntegrationSeconds : 1;
-  const labelled: { o: ShareModelObject; x: number; y: number; r: number }[] = [];
+  const labelled: { o: ShareModelTarget; x: number; y: number; r: number }[] = [];
   objs.forEach((o, i) => {
     let hsh = 2166136261;
     const id = String(o.id);
@@ -2465,7 +2465,7 @@ function drawSkyDomeCard(ctx: Ctx, dims: Dims, model: ShareModel, t: ResolvedThe
   if (gm.wide) {
     const sx = w * 0.58;
     let yy = h * 0.36;
-    ([[fmtInt(s.uniqueObjects), 'TARGETS CHARTED'], [fmtHM(s.totalIntegrationSeconds), 'TOTAL INTEGRATION'], [fmtInt(s.nightsImaged), 'NIGHTS OUT']] as [string, string][]).forEach((st) => {
+    ([[fmtInt(s.uniqueTargets), 'TARGETS CHARTED'], [fmtHM(s.totalIntegrationSeconds), 'TOTAL INTEGRATION'], [fmtInt(s.nightsImaged), 'NIGHTS OUT']] as [string, string][]).forEach((st) => {
       ctx.textBaseline = 'top';
       ctx.fillStyle = t.label;
       ctx.font = fnt(700, 14 * sc, f.label);
@@ -2479,7 +2479,7 @@ function drawSkyDomeCard(ctx: Ctx, dims: Dims, model: ShareModel, t: ResolvedThe
     });
   } else {
     vcStatRow(ctx, gm, t, [
-      [fmtInt(s.uniqueObjects), 'TARGETS'],
+      [fmtInt(s.uniqueTargets), 'TARGETS'],
       [fmtHM(s.totalIntegrationSeconds), 'INTEGRATION', t.heroColor],
       [fmtInt(s.nightsImaged), 'NIGHTS'],
     ], h * 0.835);
@@ -2605,7 +2605,7 @@ function drawBestsCard(ctx: Ctx, dims: Dims, model: ShareModel, t: ResolvedTheme
   const { w, h, sc, pad } = gm;
   const f = t.f;
   vcHeader(ctx, gm, model, t, 'YOUR TOP 5', 'Personal Bests');
-  const top5 = model.objects.slice().sort((a, b) => b.totalIntegrationSeconds - a.totalIntegrationSeconds).slice(0, 5);
+  const top5 = model.targets.slice().sort((a, b) => b.totalIntegrationSeconds - a.totalIntegrationSeconds).slice(0, 5);
   const top0 = h * (gm.isStory ? 0.3 : 0.32);
   const bot = h * (gm.isStory ? 0.865 : 0.85);
   const n = Math.max(1, top5.length);
@@ -2703,7 +2703,7 @@ function drawTimelineCard(ctx: Ctx, dims: Dims, model: ShareModel, t: ResolvedTh
   const stats: [string, string][] = [
     [fmtHM(s.totalIntegrationSeconds), 'INTEGRATION'],
     [fmtInt(s.nightsImaged), 'NIGHTS'],
-    [fmtInt(s.uniqueObjects), 'OBJECTS'],
+    [fmtInt(s.uniqueTargets), 'TARGETS'],
     [fmtInt(nF), 'FILTERS'],
   ];
   const sy = h * 0.8;
@@ -3430,7 +3430,7 @@ function hoursSlide(ctx: Ctx, dims: SlideDims, model: ShareModel, t: ResolvedThe
   ctx.fillText(fmtHM(s.totalIntegrationSeconds), w / 2, h * 0.45);
   ctx.fillStyle = t.sub;
   ctx.textBaseline = 'alphabetic';
-  const statLine = `≈ ${fmtNights(s.totalIntegrationSeconds)} clear nights  ·  ${fmtInt(s.uniqueObjects)} objects  ·  ${fmtInt(s.nightsImaged)} nights`;
+  const statLine = `≈ ${fmtNights(s.totalIntegrationSeconds)} clear nights  ·  ${fmtInt(s.uniqueTargets)} targets  ·  ${fmtInt(s.nightsImaged)} nights`;
   let ss = 41 * sc;
   ctx.font = fnt(600, ss, f.label);
   while (ctx.measureText(statLine).width > w - 2 * pad && ss > 22 * sc) {
@@ -3456,7 +3456,7 @@ function targetsSlide(ctx: Ctx, dims: SlideDims, model: ShareModel, t: ResolvedT
   const s = model.summary;
   const wide = w > h * 1.15;
   drawNebulaShell(ctx, w * 0.22, h * 0.8, w * 0.4, t, 21, undefined, undefined, 0.26);
-  const objs = model.objects.slice().sort((a, b) => b.totalIntegrationSeconds - a.totalIntegrationSeconds);
+  const objs = model.targets.slice().sort((a, b) => b.totalIntegrationSeconds - a.totalIntegrationSeconds);
   slideHero(ctx, dims, t, `${slideIdx(dims)}TARGETS CAPTURED`, fmtInt(objs.length), `${fmtHM(s.totalIntegrationSeconds)} total integration`);
   const rows: SlideRow[] = objs.slice(0, 5).map((o) => ({
     label: o.designation || o.displayName,
@@ -3604,10 +3604,10 @@ export function renderCarouselSlide(
   (CAROUSEL[index] || CAROUSEL[0])(ctx, { w: W, h: H, sc, index }, model, t);
   drawCarouselChrome(ctx, W, H, t, index, model);
 }
-// ---- per-object + per-equipment cards --------------------------------------
+// ---- per-target + per-equipment cards --------------------------------------
 
-/** Resolves the gear records used on an object. */
-function objGearList(model: ShareModel, o: ShareModelObject): ShareModelEquipment[] {
+/** Resolves the gear records used on a target. */
+function objGearList(model: ShareModel, o: ShareModelTarget): ShareModelEquipment[] {
   const byId = new Map(model.equipment.map((e) => [e.id, e]));
   return (o.sessions.flatMap((s) => s.equipmentIds))
     .filter((id, i, arr) => arr.indexOf(id) === i)
@@ -3615,8 +3615,8 @@ function objGearList(model: ShareModel, o: ShareModelObject): ShareModelEquipmen
     .filter((e): e is ShareModelEquipment => !!e);
 }
 
-/** Returns the rig line (telescope + camera) for an object. */
-function objRigLine(model: ShareModel, o: ShareModelObject): string[] {
+/** Returns the rig line (telescope + camera) for a target. */
+function objRigLine(model: ShareModel, o: ShareModelTarget): string[] {
   const gear = objGearList(model, o).slice().sort((a, b) => (b.totalIntegrationSeconds || 0) - (a.totalIntegrationSeconds || 0));
   const opt = gear.filter((e) => e.kind !== 'Camera')[0];
   const cam = gear.filter((e) => e.kind === 'Camera')[0];
@@ -3633,13 +3633,13 @@ function objRigLine(model: ShareModel, o: ShareModelObject): string[] {
   return names;
 }
 
-/** Distinct filter count for an object. */
-function objFilterCount(o: ShareModelObject): number {
+/** Distinct filter count for a target. */
+function objFilterCount(o: ShareModelTarget): number {
   return presentFilters(o.filterTotals).length;
 }
 
-/** Distinct night count for an object. */
-function objNights(o: ShareModelObject): number {
+/** Distinct night count for a target. */
+function objNights(o: ShareModelTarget): number {
   const days = new Set<string>();
   for (const s of o.sessions) {
     const k = dayKey(s.date);
@@ -3706,8 +3706,8 @@ function objCategoryMotif(ctx: Ctx, x: number, y: number, w: number, h: number, 
   ctx.restore();
 }
 
-/** Bottom-scrim name block over the object banner. */
-function bannerNameBlock(ctx: Ctx, o: ShareModelObject, x: number, y: number, w: number, h: number, t: ResolvedTheme, sc: number, r: number): void {
+/** Bottom-scrim name block over the target banner. */
+function bannerNameBlock(ctx: Ctx, o: ShareModelTarget, x: number, y: number, w: number, h: number, t: ResolvedTheme, sc: number, r: number): void {
   ctx.save();
   roundRect(ctx, x, y, w, h, r);
   ctx.clip();
@@ -3740,7 +3740,7 @@ function bannerNameBlock(ctx: Ctx, o: ShareModelObject, x: number, y: number, w:
   }
 }
 
-/** Object/equipment card header bar (wordmark + identity). */
+/** Target/equipment card header bar (wordmark + identity). */
 function objHeaderBar(ctx: Ctx, w: number, sc: number, t: ResolvedTheme, pad: number, idn: { name: string; username: string }): void {
   const f = t.f;
   drawGlyph(ctx, pad + 14 * sc, pad + 14 * sc, 14 * sc);
@@ -3779,7 +3779,7 @@ function objHeaderBar(ctx: Ctx, w: number, sc: number, t: ResolvedTheme, pad: nu
   ctx.textBaseline = 'alphabetic';
 }
 
-/** Single centered credit line for the bottom of object/equipment cards. */
+/** Single centered credit line for the bottom of target/equipment cards. */
 function cardFooterLine(ctx: Ctx, w: number, footY: number, sc: number, t: ResolvedTheme): void {
   const f = t.f;
   ctx.textBaseline = 'alphabetic';
@@ -3799,8 +3799,8 @@ function cardFooterLine(ctx: Ctx, w: number, footY: number, sc: number, t: Resol
   ctx.textAlign = 'left';
 }
 
-/** Portrait/square per-object card. */
-function drawObjectTall(ctx: Ctx, dims: Dims, model: ShareModel, o: ShareModelObject, t: ResolvedTheme, img?: HTMLImageElement | null): void {
+/** Portrait/square per-target card. */
+function drawTargetTall(ctx: Ctx, dims: Dims, model: ShareModel, o: ShareModelTarget, t: ResolvedTheme, img?: HTMLImageElement | null): void {
   const w = dims.w;
   const h = dims.h;
   const sc = w / 1080;
@@ -3901,8 +3901,8 @@ function drawObjectTall(ctx: Ctx, dims: Dims, model: ShareModel, o: ShareModelOb
   cardFooterLine(ctx, w, footY, sc, t);
 }
 
-/** Landscape per-object card. */
-function drawObjectWide(ctx: Ctx, dims: Dims, model: ShareModel, o: ShareModelObject, t: ResolvedTheme, img?: HTMLImageElement | null): void {
+/** Landscape per-target card. */
+function drawTargetWide(ctx: Ctx, dims: Dims, model: ShareModel, o: ShareModelTarget, t: ResolvedTheme, img?: HTMLImageElement | null): void {
   const w = dims.w;
   const h = dims.h;
   const sc = w / 1200;
@@ -3984,11 +3984,11 @@ function drawObjectWide(ctx: Ctx, dims: Dims, model: ShareModel, o: ShareModelOb
   cardFooterLine(ctx, w, h - pad * 0.46, sc, t);
 }
 
-/** Renders a per-object share card. */
-export function renderObjectShareCard(
+/** Renders a per-target share card. */
+export function renderTargetShareCard(
   canvas: HTMLCanvasElement,
   model: ShareModel,
-  o: ShareModelObject,
+  o: ShareModelTarget,
   themeId: ShareThemeId,
   formatId: ShareFormatId,
   img?: HTMLImageElement | null,
@@ -4010,9 +4010,9 @@ export function renderObjectShareCard(
   roundRect(ctx, 14, 14, dims.w - 28, dims.h - 28, 22);
   ctx.stroke();
   if (formatId === 'landscape') {
-    drawObjectWide(ctx, dims, model, o, t, img);
+    drawTargetWide(ctx, dims, model, o, t, img);
   } else {
-    drawObjectTall(ctx, dims, model, o, t, img);
+    drawTargetTall(ctx, dims, model, o, t, img);
   }
 }
 
@@ -4026,10 +4026,10 @@ function drawEquipTall(ctx: Ctx, dims: Dims, model: ShareModel, e: ShareModelEqu
   const pad = w * 0.075;
   const id = objIdentity(model);
   const footY = h - pad * 1.25;
-  const byId = new Map(model.objects.map((o) => [o.id, o]));
-  const objs = (e.objectIds || [])
+  const byId = new Map(model.targets.map((o) => [o.id, o]));
+  const objs = (e.targetIds || [])
     .map((x) => byId.get(x))
-    .filter((o): o is ShareModelObject => !!o)
+    .filter((o): o is ShareModelTarget => !!o)
     .sort((a, b) => b.totalIntegrationSeconds - a.totalIntegrationSeconds);
   const nightSet = new Set<string>();
   objs.forEach((o) => o.sessions.forEach((s) => {
@@ -4081,7 +4081,7 @@ function drawEquipTall(ctx: Ctx, dims: Dims, model: ShareModel, e: ShareModelEqu
   ctx.fillText(`ACTIVE ${fmtRange(e.firstLight, e.latestSession).toUpperCase()}`, w / 2, h * A.heroSub);
   const stats: [string, string][] = [
     [fmtInt(e.totalLightFrames), 'FRAMES'],
-    [fmtInt(e.objectCount), 'OBJECTS'],
+    [fmtInt(e.targetCount), 'TARGETS'],
     [fmtInt(nights), 'NIGHTS'],
   ];
   const rowY = h * A.row;

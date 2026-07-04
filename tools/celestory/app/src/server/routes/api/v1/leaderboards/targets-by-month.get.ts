@@ -1,10 +1,10 @@
 import { defineEventHandler, getQuery } from 'h3';
-import { topObjectsByMonth } from '../../../../utils/leaderboards';
+import { topTargetsByMonth } from '../../../../utils/leaderboards';
 import { parseLimit, parseMonth } from '../../../../utils/leaderboards.util';
 import { success, toErrorResponse } from '../../../../utils/respond';
 
 /**
- * Top objects within a month — most photographed targets in a given `YYYY-MM`
+ * Top targets within a month — most photographed targets in a given `YYYY-MM`
  * (`?month=`, defaults to the latest month present; `?limit=`).
  */
 export default defineEventHandler(async (event) => {
@@ -12,9 +12,9 @@ export default defineEventHandler(async (event) => {
     const query = getQuery(event);
     const month = parseMonth(query['month']);
     const limit = parseLimit(query['limit']);
-    const entries = await topObjectsByMonth(month, limit);
-    return success('LEADERBOARD', 'Top objects by month.', {
-      board: 'objects-by-month',
+    const entries = await topTargetsByMonth(month, limit);
+    return success('LEADERBOARD', 'Top targets by month.', {
+      board: 'targets-by-month',
       metric: 'integration',
       month,
       entries,

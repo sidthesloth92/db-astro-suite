@@ -11,9 +11,9 @@ import {
   DEFAULT_FILTER_METRIC,
   DEFAULT_LIMIT,
   DEFAULT_MONTH_VIEW,
-  DEFAULT_OBJECT_METRIC,
   DEFAULT_SCOPE,
   DEFAULT_SPEC_METRIC,
+  DEFAULT_TARGET_METRIC,
   DEFAULT_USER_METRIC,
   EQUIPMENT_KINDS,
   EQUIPMENT_METRICS,
@@ -21,9 +21,9 @@ import {
   MAX_LIMIT,
   MONTH_VIEWS,
   NARROWBAND_FILTER_FRAGMENTS,
-  OBJECT_METRICS,
   SCOPES,
   SPEC_METRICS,
+  TARGET_METRICS,
   USER_METRICS,
 } from './leaderboards.constants';
 import type {
@@ -32,10 +32,10 @@ import type {
   EquipmentMetric,
   FilterMetric,
   MonthView,
-  ObjectMetric,
   Palette,
   Scope,
   SpecMetric,
+  TargetMetric,
   UserMetric,
 } from './leaderboards.types';
 
@@ -71,9 +71,9 @@ export function parseUserMetric(value: unknown): UserMetric {
   return pick(value, USER_METRICS, DEFAULT_USER_METRIC);
 }
 
-/** Parse the objects-board metric. */
-export function parseObjectMetric(value: unknown): ObjectMetric {
-  return pick(value, OBJECT_METRICS, DEFAULT_OBJECT_METRIC);
+/** Parse the targets-board metric. */
+export function parseTargetMetric(value: unknown): TargetMetric {
+  return pick(value, TARGET_METRICS, DEFAULT_TARGET_METRIC);
 }
 
 /** Parse the categories-board metric. */

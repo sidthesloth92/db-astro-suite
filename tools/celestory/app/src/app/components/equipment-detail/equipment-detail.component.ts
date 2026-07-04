@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
-import type { CelestoryStory, StoryEquipment, StoryObject } from '../../models/story.model';
+import type { CelestoryStory, StoryEquipment, StoryTarget } from '../../models/story.model';
 import type { CelIconName } from '../cel-icon/cel-icon.component';
 import { profileUrl } from '../../models/app.constants';
 import { formatCount, formatDuration } from '../../utils/format.util';
@@ -7,13 +7,13 @@ import { fmtRange } from '../../utils/portfolio.util';
 import { TextButtonComponent } from '@db-astro-suite/ui';
 import { CelIconComponent } from '../cel-icon/cel-icon.component';
 import { EquipmentShareModalComponent } from '../equipment-share-modal/equipment-share-modal.component';
-import { MiniObjectCardComponent } from '../mini-object-card/mini-object-card.component';
+import { MiniTargetCardComponent } from '../mini-target-card/mini-target-card.component';
 
-/** Equipment detail: header, totals, and the objects captured with this gear. */
+/** Equipment detail: header, totals, and the targets captured with this gear. */
 @Component({
   selector: 'dba-equipment-detail',
   standalone: true,
-  imports: [TextButtonComponent, CelIconComponent, MiniObjectCardComponent, EquipmentShareModalComponent],
+  imports: [TextButtonComponent, CelIconComponent, MiniTargetCardComponent, EquipmentShareModalComponent],
   templateUrl: './equipment-detail.component.html',
   styleUrl: './equipment-detail.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -21,7 +21,7 @@ import { MiniObjectCardComponent } from '../mini-object-card/mini-object-card.co
 export class EquipmentDetailComponent {
   /** The equipment to show. */
   readonly equip = input.required<StoryEquipment>();
-  /** The full story (to resolve captured objects). */
+  /** The full story (to resolve captured targets). */
   readonly story = input.required<CelestoryStory>();
   /** The public handle (for the per-equipment share link). */
   readonly handle = input<string>('');
@@ -30,8 +30,8 @@ export class EquipmentDetailComponent {
 
   /** Return to the equipment list. */
   readonly back = output<void>();
-  /** Open an object by id. */
-  readonly openObject = output<string>();
+  /** Open a target by id. */
+  readonly openTarget = output<string>();
 
   /** Whether the per-equipment share modal is open. */
   protected readonly showShare = signal(false);
@@ -50,12 +50,12 @@ export class EquipmentDetailComponent {
   });
   /** Header glyph (matches the gear kind). */
   protected readonly icon = computed<CelIconName>(() => this.kindNoun());
-  /** Captured objects, busiest first. */
-  protected readonly objects = computed<StoryObject[]>(() => {
-    const byId = new Map(this.story().objects.map((o) => [o.id, o] as const));
+  /** Captured targets, busiest first. */
+  protected readonly targets = computed<StoryTarget[]>(() => {
+    const byId = new Map(this.story().targets.map((o) => [o.id, o] as const));
     return this.equip()
-      .objectIds.map((id) => byId.get(id))
-      .filter((o): o is StoryObject => !!o)
+      .targetIds.map((id) => byId.get(id))
+      .filter((o): o is StoryTarget => !!o)
       .sort((a, b) => b.totalIntegrationSeconds - a.totalIntegrationSeconds);
   });
 

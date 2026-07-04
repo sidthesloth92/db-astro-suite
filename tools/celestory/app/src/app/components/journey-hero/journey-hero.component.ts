@@ -4,7 +4,7 @@ import type { JourneyState } from '../../models/journey.types';
 import type { CelestoryStory } from '../../models/story.model';
 import type { HeatStripView, HeroIdentity, Highlight, YearSpan } from '../../models/portfolio-view.types';
 import { SessionStore } from '../../services/session-store.service';
-import { objectRaDec } from '../../utils/celestial.util';
+import { targetRaDec } from '../../utils/celestial.util';
 import { formatCount, formatDuration } from '../../utils/format.util';
 import {
   heatStrip,
@@ -28,7 +28,7 @@ let heroUid = 0;
  * The per-user journey hero (the design's SummaryPage), blended into the
  * background: identity → year-span moon-phase timeline → giant total integration
  * → key metrics → "Highlights of the journey" → filter distribution → nightly
- * activity heat strip. Emits share/publish/open-object intents to the shell.
+ * activity heat strip. Emits share/publish/open-target intents to the shell.
  */
 @Component({
   selector: 'dba-journey-hero',
@@ -62,8 +62,8 @@ export class JourneyHeroComponent {
   readonly share = output<void>();
   /** Open the Publish flow. */
   readonly publish = output<void>();
-  /** Open an object's detail (the top-target highlight). */
-  readonly openObject = output<string>();
+  /** Open a target's detail (the top-target highlight). */
+  readonly openTarget = output<string>();
   /** Enter the full-screen planetarium ("View My Universe"). */
   readonly enterSky = output<void>();
 
@@ -138,8 +138,8 @@ export class JourneyHeroComponent {
   protected readonly highlights = computed<Highlight[]>(() => highlights(this.story()));
   /** Heat-strip view-model. */
   protected readonly heat = computed<HeatStripView>(() => heatStrip(this.story()));
-  /** Whether any imaged object resolves to sky coordinates (gates the universe globe). */
-  protected readonly hasSky = computed(() => this.story().objects.some((o) => objectRaDec(o) != null));
+  /** Whether any imaged target resolves to sky coordinates (gates the universe globe). */
+  protected readonly hasSky = computed(() => this.story().targets.some((o) => targetRaDec(o) != null));
 
   /** Thousands-separated integer for the template. */
   protected count(n: number): string {

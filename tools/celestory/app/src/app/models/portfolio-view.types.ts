@@ -45,11 +45,11 @@ export interface Highlight {
   sub: string;
   /** Optional accent colour (the filter highlight). */
   color?: string;
-  /** Object id to navigate to (the top-target highlight). */
-  objectId?: string;
+  /** Target id to navigate to (the top-target highlight). */
+  targetId?: string;
 }
 
-/** A per-filter integration row in an object's detail. */
+/** A per-filter integration row in a target's detail. */
 export interface FilterRow {
   name: string;
   label: string;
@@ -58,9 +58,9 @@ export interface FilterRow {
   frames: number;
   /** Average sub-exposure length in seconds. */
   avg: number;
-  /** Share of this object's integration, 0–100. */
+  /** Share of this target's integration, 0–100. */
   pct: number;
-  /** Bar width relative to the object's busiest filter, 0–1. */
+  /** Bar width relative to the target's busiest filter, 0–1. */
   frac: number;
 }
 
@@ -89,16 +89,16 @@ export interface HeatNight {
   date: string;
   integrationSeconds: number;
   lightFrameCount: number;
-  /** Distinct objects imaged that night. */
-  objectCount: number;
+  /** Distinct targets imaged that night. */
+  targetCount: number;
   /** 0–1 intensity relative to the busiest night. */
   frac: number;
   /** Horizontal position as a percentage across the span. */
   leftPct: number;
   /** Filters used that night, busiest first (for the hover tooltip). */
   filters: { name: string; label: string; color: string; seconds: number }[];
-  /** Objects imaged that night, busiest first (for the hover tooltip). */
-  objects: { name: string; type: string; seconds: number }[];
+  /** Targets imaged that night, busiest first (for the hover tooltip). */
+  targets: { name: string; type: string; seconds: number }[];
 }
 
 /** A heat-strip night with resolved vertical layout (px), for rendering. */
@@ -120,7 +120,7 @@ export interface HeatMonthTick {
 }
 
 /** What kind of milestone a heat-strip callout marks (drives its accent color). */
-export type HeatMilestoneKind = 'hours' | 'frames' | 'object' | 'night' | 'best';
+export type HeatMilestoneKind = 'hours' | 'frames' | 'target' | 'night' | 'best';
 
 /** A milestone callout — a notable night surfaced with a dot + labelled chip. */
 export interface HeatMilestone {
@@ -132,7 +132,7 @@ export interface HeatMilestone {
   kind: HeatMilestoneKind;
   /** Headline figure, e.g. "25h", "1K", "10th", "Best". */
   big: string;
-  /** Caption under the headline, e.g. "LOGGED", "FRAMES", "OBJECT". */
+  /** Caption under the headline, e.g. "LOGGED", "FRAMES", "TARGET". */
   small: string;
 }
 

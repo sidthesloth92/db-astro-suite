@@ -1,11 +1,11 @@
-<section class="objsec">
+<section class="tgtsec">
   <div class="filters-row">
     <label class="filter-sel">
-      <span class="fs-label">Objects</span>
+      <span class="fs-label">Targets</span>
       <select [value]="cat()" (change)="onCat($event)">
-        <option value="All">All objects</option>
+        <option value="All">All targets</option>
         @for (c of categories(); track c.category) {
-          <option [value]="c.category">{{ c.category }} ({{ c.objectCount }})</option>
+          <option [value]="c.category">{{ c.category }} ({{ c.targetCount }})</option>
         }
       </select>
     </label>
@@ -45,15 +45,15 @@
         }
       </select>
     </label>
-    <span class="filter-count">{{ filtered().length }} of {{ story().objects.length }}</span>
+    <span class="filter-count">{{ filtered().length }} of {{ story().targets.length }}</span>
   </div>
 
   @if (filtered().length === 0) {
-    <div class="empty-note">No objects match this filter.</div>
+    <div class="empty-note">No targets match this filter.</div>
   } @else {
-    <div class="objgrid">
+    <div class="tgtgrid">
       @for (o of filtered(); track o.id) {
-        <dba-object-card [obj]="o" (open)="open.emit($event)" (share)="share.emit($event)" />
+        <dba-target-card [target]="o" (open)="open.emit($event)" (share)="share.emit($event)" />
       }
     </div>
   }

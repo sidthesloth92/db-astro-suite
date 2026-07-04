@@ -127,7 +127,7 @@ export class ShareStudioModalComponent {
     return [...years].sort((a, b) => b - a);
   });
 
-  /** The currently selected story type object. */
+  /** The currently selected story type target. */
   protected readonly selectedStory = computed(
     () => STORY_TYPES.find((t) => t.id === this.storyType()) ?? STORY_TYPES[0],
   );

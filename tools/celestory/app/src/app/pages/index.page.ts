@@ -164,9 +164,9 @@ export default class LandingPageComponent implements OnInit {
       ((this.stats()?.totalIntegrationSeconds ?? 0) / 3600) * this.progress(),
     ),
   );
-  /** Animated "Objects charted" counter. */
-  protected readonly objects = computed(() =>
-    formatCompact((this.stats()?.objectCount ?? 0) * this.progress()),
+  /** Animated "Targets charted" counter. */
+  protected readonly targets = computed(() =>
+    formatCompact((this.stats()?.targetCount ?? 0) * this.progress()),
   );
   /** Animated "Light frames" counter. */
   protected readonly frames = computed(() =>
@@ -341,7 +341,7 @@ export default class LandingPageComponent implements OnInit {
         dataFingerprint,
         totalIntegrationSeconds: story.summary.totalIntegrationSeconds,
         lightFrameCount: story.summary.lightFrameCount,
-        objectCount: story.summary.objectCount,
+        targetCount: story.summary.targetCount,
       })
       .pipe(
         catchError(() => of(undefined)),

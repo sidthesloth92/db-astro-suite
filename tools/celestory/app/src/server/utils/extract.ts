@@ -5,8 +5,8 @@ import type {
   StoryEquipmentRow,
   StoryFilterMonthRow,
   StoryFilterRow,
-  StoryObjectMonthRow,
-  StoryObjectRow,
+  StoryTargetMonthRow,
+  StoryTargetRow,
   StoryTotals,
 } from './story.model';
 
@@ -37,7 +37,7 @@ function latest(a: string | null, b: string): string | null {
 }
 
 /**
- * Recompute headline totals from the validated objects/activity rather than
+ * Recompute headline totals from the validated targets/activity rather than
  * trusting the story's own summary block (integrity + anti-fabrication).
  */
 function recomputeTotals(story: Story): StoryTotals {
@@ -46,11 +46,11 @@ function recomputeTotals(story: Story): StoryTotals {
   let firstLight: string | null = null;
   let latestSession: string | null = null;
 
-  for (const object of story.objects) {
-    totalIntegrationSeconds += object.totalIntegrationSeconds;
-    lightFrameCount += object.lightFrameCount;
-    firstLight = earliest(firstLight, object.firstLight);
-    latestSession = latest(latestSession, object.latestSession);
+  for (const target of story.targets) {
+    totalIntegrationSeconds += target.totalIntegrationSeconds;
+    lightFrameCount += target.lightFrameCount;
+    firstLight = earliest(firstLight, target.firstLight);
+    latestSession = latest(latestSession, target.latestSession);
   }
 
   const nightCount = new Set(
@@ -59,7 +59,7 @@ function recomputeTotals(story: Story): StoryTotals {
 
   return {
     totalIntegrationSeconds,
-    objectCount: story.objects.length,
+    targetCount: story.targets.length,
     nightCount,
     lightFrameCount,
     firstLight,
@@ -67,15 +67,15 @@ function recomputeTotals(story: Story): StoryTotals {
   };
 }
 
-/** Build story_objects rows from the story. */
-function extractObjects(story: Story): StoryObjectRow[] {
-  return story.objects.map((object) => ({
-    objectId: object.id,
-    designation: object.designation || object.displayName,
-    category: object.category,
-    integrationSeconds: object.totalIntegrationSeconds,
-    lightFrameCount: object.lightFrameCount,
-    nightCount: object.nightCount,
+/** Build story_targets rows from the story. */
+function extractTargets(story: Story): StoryTargetRow[] {
+  return story.targets.map((target) => ({
+    targetId: target.id,
+    designation: target.designation || target.displayName,
+    category: target.category,
+    integrationSeconds: target.totalIntegrationSeconds,
+    lightFrameCount: target.lightFrameCount,
+    nightCount: target.nightCount,
   }));
 }
 
@@ -95,18 +95,18 @@ function extractEquipment(story: Story): StoryEquipmentRow[] {
 }
 
 /**
- * Roll each object's per-night sessions up to one row per (object, month),
+ * Roll each target's per-night sessions up to one row per (target, month),
  * powering the month/seasonality leaderboards. Sessions with no parseable date
  * are skipped; integration and frames are summed within each month bucket.
  */
-function extractObjectMonths(story: Story): StoryObjectMonthRow[] {
-  const buckets = new Map<string, StoryObjectMonthRow>();
-  for (const object of story.objects) {
-    const designation = object.designation || object.displayName;
-    for (const session of object.sessions) {
+function extractTargetMonths(story: Story): StoryTargetMonthRow[] {
+  const buckets = new Map<string, StoryTargetMonthRow>();
+  for (const target of story.targets) {
+    const designation = target.designation || target.displayName;
+    for (const session of target.sessions) {
       const month = monthStart(session.date);
       if (!month) continue;
-      const key = `${object.id}|${month}`;
+      const key = `${target.id}|${month}`;
       const existing = buckets.get(key);
       if (existing) {
         buckets.set(key, {
@@ -117,9 +117,9 @@ function extractObjectMonths(story: Story): StoryObjectMonthRow[] {
         });
       } else {
         buckets.set(key, {
-          objectId: object.id,
+          targetId: target.id,
           designation,
-          category: object.category,
+          category: target.category,
           month,
           integrationSeconds: session.integrationSeconds,
           lightFrameCount: session.lightFrameCount,
@@ -131,14 +131,14 @@ function extractObjectMonths(story: Story): StoryObjectMonthRow[] {
 }
 
 /**
- * Roll each object's per-night session filters up to one row per (filter, month),
+ * Roll each target's per-night session filters up to one row per (filter, month),
  * powering the time-windowed filters board. Sessions with no parseable date are
  * skipped; seconds and frames are summed within each (name, month) bucket.
  */
 function extractFilterMonths(story: Story): StoryFilterMonthRow[] {
   const buckets = new Map<string, StoryFilterMonthRow>();
-  for (const object of story.objects) {
-    for (const session of object.sessions) {
+  for (const target of story.targets) {
+    for (const session of target.sessions) {
       const month = monthStart(session.date);
       if (!month) continue;
       for (const filter of session.filters) {
@@ -162,15 +162,15 @@ function extractFilterMonths(story: Story): StoryFilterMonthRow[] {
 }
 
 /**
- * Roll each object's per-night sessions up to one row per (equipment, month),
+ * Roll each target's per-night sessions up to one row per (equipment, month),
  * powering the time-windowed equipment boards. Every gear id used on a night is
  * attributed that night's integration and frames (a session usually shares one
  * rig); join story_equipment for kind/subtype/display_name.
  */
 function extractEquipmentMonths(story: Story): StoryEquipmentMonthRow[] {
   const buckets = new Map<string, StoryEquipmentMonthRow>();
-  for (const object of story.objects) {
-    for (const session of object.sessions) {
+  for (const target of story.targets) {
+    for (const session of target.sessions) {
       const month = monthStart(session.date);
       if (!month) continue;
       for (const equipmentId of session.equipmentIds) {
@@ -196,8 +196,8 @@ function extractEquipmentMonths(story: Story): StoryEquipmentMonthRow[] {
 /** Build story_filters rows from the story summary, merging by name. */
 function extractFilters(story: Story): StoryFilterRow[] {
   const frames = new Map<string, number>();
-  for (const object of story.objects) {
-    for (const filter of object.filters) {
+  for (const target of story.targets) {
+    for (const filter of target.filters) {
       frames.set(filter.name, (frames.get(filter.name) ?? 0) + filter.frames);
     }
   }
@@ -215,10 +215,10 @@ function extractFilters(story: Story): StoryFilterRow[] {
 export function extractRows(story: Story): ExtractedRows {
   return {
     totals: recomputeTotals(story),
-    objects: extractObjects(story),
+    targets: extractTargets(story),
     equipment: extractEquipment(story),
     filters: extractFilters(story),
-    objectMonths: extractObjectMonths(story),
+    targetMonths: extractTargetMonths(story),
     filterMonths: extractFilterMonths(story),
     equipmentMonths: extractEquipmentMonths(story),
   };

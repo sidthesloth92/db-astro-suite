@@ -1,4 +1,4 @@
-import type { StoryObject } from './story.model';
+import type { StoryTarget } from './story.model';
 
 /** An RGB colour triple used for canvas star/cloud tinting. */
 export type RgbColor = [number, number, number];
@@ -149,9 +149,9 @@ export interface SkyLocation {
   status: SkyLocationStatus;
 }
 
-/** A user target plotted in the planetarium (object + its current alt/az + ENU vector). */
+/** A user target plotted in the planetarium (target + its current alt/az + ENU vector). */
 export interface SkyTarget {
-  obj: StoryObject;
+  target: StoryTarget;
   v: EnuVector;
   alt: number;
   az: number;

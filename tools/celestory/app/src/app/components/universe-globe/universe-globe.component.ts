@@ -9,7 +9,7 @@ import {
   output,
   viewChild,
 } from '@angular/core';
-import type { StoryObject } from '../../models/story.model';
+import type { StoryTarget } from '../../models/story.model';
 import { UniverseGlobeRenderer } from '../../utils/universe-globe-renderer.util';
 
 /**
@@ -37,8 +37,8 @@ import { UniverseGlobeRenderer } from '../../utils/universe-globe-renderer.util'
 export class UniverseGlobeComponent {
   private readonly destroyRef = inject(DestroyRef);
 
-  /** Imaged objects (those carrying RA/Dec are plotted on the globe). */
-  readonly objects = input.required<StoryObject[]>();
+  /** Imaged targets (those carrying RA/Dec are plotted on the globe). */
+  readonly targets = input.required<StoryTarget[]>();
 
   /** Enter the planetarium. */
   readonly enter = output<void>();
@@ -56,7 +56,7 @@ export class UniverseGlobeComponent {
       if (!canvas || !stage) {
         return;
       }
-      const renderer = new UniverseGlobeRenderer(canvas, this.objects(), () => this.hovered);
+      const renderer = new UniverseGlobeRenderer(canvas, this.targets(), () => this.hovered);
       const apply = (): void => {
         const r = stage.getBoundingClientRect();
         renderer.resize(r.width, r.height);

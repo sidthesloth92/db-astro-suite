@@ -1,6 +1,6 @@
 /**
  * Scope-aware leaderboard queries for the board facade. Each reads from the
- * per-month rollup tables (story_object_months / story_filter_months /
+ * per-month rollup tables (story_target_months / story_filter_months /
  * story_equipment_months) so a single board can be sliced All-time / This year /
  * This month. They return the canonical `LeaderboardEntry` shape (raw seconds in
  * `value`, context in `meta`); the presenter converts these to render-ready rows.
@@ -50,7 +50,7 @@ export async function scopedUserIntegration(
   const rows: Array<Record<string, unknown>> = await sql`
     SELECT s.handle AS key, s.handle AS label,
       SUM(som.integration_seconds) AS value
-    FROM story_object_months som JOIN stories s ON s.id = som.story_id
+    FROM story_target_months som JOIN stories s ON s.id = som.story_id
     WHERE (
       ${scope} = 'all'
       OR (${scope} = 'year' AND som.month >= date_trunc('year', CURRENT_DATE))
@@ -69,7 +69,7 @@ export async function scopedUserFrames(
   const rows: Array<Record<string, unknown>> = await sql`
     SELECT s.handle AS key, s.handle AS label,
       SUM(som.light_frame_count) AS value
-    FROM story_object_months som JOIN stories s ON s.id = som.story_id
+    FROM story_target_months som JOIN stories s ON s.id = som.story_id
     WHERE (
       ${scope} = 'all'
       OR (${scope} = 'year' AND som.month >= date_trunc('year', CURRENT_DATE))
@@ -79,8 +79,8 @@ export async function scopedUserFrames(
   return rank(rows, 'frames', () => undefined);
 }
 
-/** Longest single-target projects: most integration poured into one object by
- * one profile, within the scope (each row is a profile+object effort). */
+/** Longest single-target projects: most integration poured into one target by
+ * one profile, within the scope (each row is a profile+target effort). */
 export async function scopedProjects(
   scope: Scope,
   limit: number,
@@ -90,13 +90,13 @@ export async function scopedProjects(
     SELECT s.handle AS key, s.handle AS label,
       MAX(som.designation) AS designation, MAX(som.category) AS category,
       SUM(som.integration_seconds) AS value
-    FROM story_object_months som JOIN stories s ON s.id = som.story_id
-    WHERE som.object_id IS NOT NULL AND (
+    FROM story_target_months som JOIN stories s ON s.id = som.story_id
+    WHERE som.target_id IS NOT NULL AND (
       ${scope} = 'all'
       OR (${scope} = 'year' AND som.month >= date_trunc('year', CURRENT_DATE))
       OR (${scope} = 'month' AND som.month >= date_trunc('month', CURRENT_DATE))
     )
-    GROUP BY s.handle, som.object_id ORDER BY value DESC NULLS LAST LIMIT ${limit}`;
+    GROUP BY s.handle, som.target_id ORDER BY value DESC NULLS LAST LIMIT ${limit}`;
   return rank(rows, 'seconds', (row) => ({
     designation: String(row['designation'] ?? ''),
     category: String(row['category'] ?? ''),
@@ -104,22 +104,22 @@ export async function scopedProjects(
 }
 
 /** Most-imaged targets by distinct imagers within the scope. */
-export async function scopedObjects(
+export async function scopedTargets(
   scope: Scope,
   limit: number,
 ): Promise<LeaderboardEntry[]> {
   const sql = getDb();
   const rows: Array<Record<string, unknown>> = await sql`
-    SELECT som.object_id AS key, MAX(som.designation) AS label,
+    SELECT som.target_id AS key, MAX(som.designation) AS label,
       COUNT(DISTINCT som.story_id) AS value,
       MAX(som.category) AS category, SUM(som.integration_seconds) AS seconds
-    FROM story_object_months som
-    WHERE som.object_id IS NOT NULL AND (
+    FROM story_target_months som
+    WHERE som.target_id IS NOT NULL AND (
       ${scope} = 'all'
       OR (${scope} = 'year' AND som.month >= date_trunc('year', CURRENT_DATE))
       OR (${scope} = 'month' AND som.month >= date_trunc('month', CURRENT_DATE))
     )
-    GROUP BY som.object_id ORDER BY value DESC LIMIT ${limit}`;
+    GROUP BY som.target_id ORDER BY value DESC LIMIT ${limit}`;
   return rank(rows, 'imagers', (row) => ({
     category: String(row['category'] ?? ''),
     seconds: num(row['seconds']),
@@ -172,7 +172,7 @@ export async function scopedMonths(
   const rows: Array<Record<string, unknown>> = await sql`
     SELECT EXTRACT(MONTH FROM month)::int AS month_num,
       SUM(integration_seconds) AS value, SUM(light_frame_count) AS frames
-    FROM story_object_months
+    FROM story_target_months
     WHERE month IS NOT NULL AND (
       ${scope} = 'all'
       OR EXTRACT(YEAR FROM month) = EXTRACT(YEAR FROM CURRENT_DATE)

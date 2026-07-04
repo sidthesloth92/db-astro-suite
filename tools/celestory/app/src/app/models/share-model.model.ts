@@ -32,7 +32,7 @@ export interface ShareSummary {
   /** Total integration across the whole journey, in seconds. */
   totalIntegrationSeconds: number;
   /** Distinct imaged targets. */
-  uniqueObjects: number;
+  uniqueTargets: number;
   /** Distinct nights imaged. */
   nightsImaged: number;
   /** Total light frames captured. */
@@ -49,7 +49,7 @@ export interface ShareSummary {
   byCategory: Record<string, ShareCategoryStat>;
 }
 
-/** One per-night session node for a single object. */
+/** One per-night session node for a single target. */
 export interface ShareModelSession {
   /** ISO date. */
   date: string;
@@ -62,16 +62,16 @@ export interface ShareModelSession {
 }
 
 /** One imaged target in the share model. */
-export interface ShareModelObject {
+export interface ShareModelTarget {
   /** Stable id. */
   id: string;
   /** Display name (e.g. "Andromeda Galaxy"). */
   displayName: string;
   /** Catalogue designation (e.g. "M31"); blank when unknown. */
   designation: string;
-  /** Object type label; null when unknown. */
+  /** Target type label; null when unknown. */
   type: string | null;
-  /** Object category id (selects motifs / colours). */
+  /** Target category id (selects motifs / colours). */
   category: string;
   /** Total integration on this target, in seconds. */
   totalIntegrationSeconds: number;
@@ -102,13 +102,13 @@ export interface ShareModelEquipment {
   /** Total light frames captured with this gear. */
   totalLightFrames: number;
   /** Distinct targets captured with this gear. */
-  objectCount: number;
+  targetCount: number;
   /** First-light date. */
   firstLight: string;
   /** Latest-session date. */
   latestSession: string;
   /** Target ids captured with this gear. */
-  objectIds: string[];
+  targetIds: string[];
 }
 
 /** Editable viewer identity printed on the cards. */
@@ -128,7 +128,7 @@ export interface ShareModel {
   /** Summary rollup. */
   summary: ShareSummary;
   /** Imaged targets. */
-  objects: ShareModelObject[];
+  targets: ShareModelTarget[];
   /** Gear used. */
   equipment: ShareModelEquipment[];
 }

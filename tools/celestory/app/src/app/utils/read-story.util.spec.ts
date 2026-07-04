@@ -8,8 +8,8 @@ function validStoryJson(overrides: Record<string, unknown> = {}): string {
     schemaVersion: SUPPORTED_STORY_SCHEMA_VERSION,
     generatedAt: '2026-06-17T00:00:00Z',
     tool: { name: 'celestory', version: '1.0.0' },
-    summary: { totalIntegrationSeconds: 3600, objectCount: 1, nightCount: 1, lightFrameCount: 10 },
-    objects: [],
+    summary: { totalIntegrationSeconds: 3600, targetCount: 1, nightCount: 1, lightFrameCount: 10 },
+    targets: [],
     equipment: [],
     ...overrides,
   });
@@ -20,7 +20,7 @@ describe('parseStoryText', () => {
     const result = parseStoryText(validStoryJson());
     expect(result.ok).toBe(true);
     if (result.ok) {
-      expect(result.story.summary.objectCount).toBe(1);
+      expect(result.story.summary.targetCount).toBe(1);
     }
   });
 

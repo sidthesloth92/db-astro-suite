@@ -51,12 +51,12 @@ export interface OgProfileModel {
   longestNight: string;
 }
 
-/** Per-object (target) card. */
-export interface OgObjectModel {
+/** Per-target card. */
+export interface OgTargetModel {
   handle: string;
   /** Display name, e.g. "Andromeda Galaxy" (the pink hero). */
   name: string;
-  /** Object type / category for the pill, e.g. "Galaxy". */
+  /** Target type / category for the pill, e.g. "Galaxy". */
   type: string;
   hours: string;
   nights: string;

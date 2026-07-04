@@ -1,20 +1,20 @@
 import { defineEventHandler, getQuery } from 'h3';
-import { topObjects } from '../../../../utils/leaderboards';
-import { parseLimit, parseObjectMetric } from '../../../../utils/leaderboards.util';
+import { topTargets } from '../../../../utils/leaderboards';
+import { parseLimit, parseTargetMetric } from '../../../../utils/leaderboards.util';
 import { success, toErrorResponse } from '../../../../utils/respond';
 
 /**
- * Objects leaderboard — most imaged targets across the community
+ * Targets leaderboard — most imaged targets across the community
  * (`?metric=integration|imagers|frames|deepest|rarest|comets`, `?limit=`).
  */
 export default defineEventHandler(async (event) => {
   try {
     const query = getQuery(event);
-    const metric = parseObjectMetric(query['metric']);
+    const metric = parseTargetMetric(query['metric']);
     const limit = parseLimit(query['limit']);
-    const entries = await topObjects(metric, limit);
-    return success('LEADERBOARD', 'Objects leaderboard.', {
-      board: 'objects',
+    const entries = await topTargets(metric, limit);
+    return success('LEADERBOARD', 'Targets leaderboard.', {
+      board: 'targets',
       metric,
       entries,
     });

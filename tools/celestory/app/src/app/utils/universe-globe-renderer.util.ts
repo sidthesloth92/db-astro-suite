@@ -5,9 +5,9 @@
  * `afterNextRender`. Ported from the Celestory design.
  */
 import { BRAND_PINK } from '../models/brand.constants';
-import type { StoryObject } from '../models/story.model';
+import type { StoryTarget } from '../models/story.model';
 import type { Vec3 } from '../models/sky.types';
-import { D2R, objectRaDec } from './celestial.util';
+import { D2R, targetRaDec } from './celestial.util';
 
 /** Single premium accent for the entry globe (brand pink). */
 const GLOBE_ACCENT = BRAND_PINK;
@@ -37,7 +37,7 @@ export class UniverseGlobeRenderer {
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
-    objects: readonly StoryObject[],
+    targets: readonly StoryTarget[],
     private readonly isHovered: () => boolean,
   ) {
     const ctx = canvas.getContext('2d');
@@ -55,8 +55,8 @@ export class UniverseGlobeRenderer {
       this.bg.push({ x: Math.cos(th) * r, y, z: Math.sin(th) * r, m: Math.random() });
     }
     // targets at their celestial coordinates (lon = RA, lat = Dec)
-    for (const o of objects) {
-      const coords = objectRaDec(o);
+    for (const o of targets) {
+      const coords = targetRaDec(o);
       if (!coords) {
         continue;
       }

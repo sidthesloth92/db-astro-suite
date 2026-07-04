@@ -5,7 +5,7 @@
  * objects, which is exactly what Satori consumes.
  *
  * One branded system across all five cards (landing, leaderboards, profile,
- * object, equipment): a radial-glow field + vignette, a deterministic star
+ * target, equipment): a radial-glow field + vignette, a deterministic star
  * field, the crescent brand mark + a faint decorative crescent, a hairline inner
  * frame with pink corners, then a per-card body and footer.
  */
@@ -20,9 +20,9 @@ import type {
   OgHighlight,
   OgLandingModel,
   OgLeaderboardsModel,
-  OgObjectModel,
   OgProfileModel,
   OgStat,
+  OgTargetModel,
 } from './og-card.model';
 
 const WIDTH = 1200;
@@ -33,7 +33,7 @@ const INK3 = '#85839a';
 const INK4 = '#5b5970';
 const LINE = 'rgba(170,160,200,0.12)';
 const ACCENT = '#ff2a7b';
-/** Orbitron — display: wordmark, hero numbers, object/gear names, stat values. */
+/** Orbitron — display: wordmark, hero numbers, target/gear names, stat values. */
 const DISPLAY = 'Orbitron';
 /** Rajdhani — heads/labels/sub (substitutes the design's Outfit + IBM Plex Mono). */
 const HEAD = 'Rajdhani';
@@ -278,7 +278,7 @@ function heroSub(text: string): OgEl {
   return el('div', { fontFamily: HEAD, fontWeight: 700, fontSize: '31px', color: INK, marginTop: '14px' }, text);
 }
 
-/** Pink Orbitron name hero (object / equipment cards). */
+/** Pink Orbitron name hero (target / equipment cards). */
 function nameHero(name: string, size: number): OgEl {
   return el('div', { display: 'flex', fontFamily: DISPLAY, fontWeight: 700, fontSize: `${size}px`, lineHeight: '0.96', color: ACCENT, letterSpacing: '-0.005em', maxWidth: '940px' }, name);
 }
@@ -319,7 +319,7 @@ function iconSvg(children: OgEl[]): OgEl {
   return svgEl('svg', { width: 22, height: 22, viewBox: '0 0 24 24', fill: 'none' }, children);
 }
 
-/** Nebula/target glyph for object cards. */
+/** Nebula/target glyph for target cards. */
 function nebulaIcon(): OgEl {
   return iconSvg([iPath('M12 3c1.6 3 1.6 5.4 0 8-1.6-2.6-1.6-5 0-8z'), iCircle(12, 14.5, 6.5), iPath('M7 12.5c1.6 1.2 8.4 1.2 10 0')]);
 }
@@ -405,8 +405,8 @@ export function profileCardPng(model: OgProfileModel): Promise<Buffer> {
   );
 }
 
-/** Per-object (target) card — pink name + type pill + highlights. */
-export function objectCardPng(model: OgObjectModel): Promise<Buffer> {
+/** Per-target card — pink name + type pill + highlights. */
+export function targetCardPng(model: OgTargetModel): Promise<Buffer> {
   return toPng(
     shell(
       body([heroHandle(`@${model.handle}`), nameHero(model.name, 104), pill(nebulaIcon(), model.type || 'Target')]),

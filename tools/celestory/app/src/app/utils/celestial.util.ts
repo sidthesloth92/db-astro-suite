@@ -5,7 +5,7 @@
  * projection, and procedurally generates the deep-sky backdrop. Ported from the
  * Celestory sky atlas (sky-data.js / planetarium.jsx).
  */
-import { CAT_COLOR, OBJECT_COORDS } from '../models/sky-catalog.constants';
+import { CAT_COLOR, TARGET_COORDS } from '../models/sky-catalog.constants';
 import type {
   AltAz,
   CamPoint,
@@ -259,18 +259,18 @@ export function generateSky(): GeneratedSky {
   return { field, milky, clouds, galaxies, dust, ha };
 }
 
-// ---- object coordinate lookup ----------------------------------------------
+// ---- target coordinate lookup ----------------------------------------------
 
-/** Normalise a designation to the OBJECT_COORDS key form (lowercase alphanumerics). */
+/** Normalise a designation to the TARGET_COORDS key form (lowercase alphanumerics). */
 export function coordKey(s: string): string {
   return String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 }
 
 /** Look up fallback RA/Dec for any of the given candidate designations/names. */
-export function lookupObjectCoords(candidates: readonly string[]): readonly [number, number] | null {
+export function lookupTargetCoords(candidates: readonly string[]): readonly [number, number] | null {
   for (const cand of candidates) {
     const k = coordKey(cand);
-    if (k && OBJECT_COORDS[k]) return OBJECT_COORDS[k];
+    if (k && TARGET_COORDS[k]) return TARGET_COORDS[k];
   }
   return null;
 }
@@ -290,14 +290,14 @@ export interface CoordCandidate {
 }
 
 /**
- * Resolve an object's RA/Dec: its own coordinates if present, else a fallback
+ * Resolve a target's RA/Dec: its own coordinates if present, else a fallback
  * looked up from the catalogue by designation / name / aliases. Lets storys
  * that don't carry coordinates still light up the sky.
  */
-export function objectRaDec(obj: CoordCandidate): readonly [number, number] | null {
+export function targetRaDec(obj: CoordCandidate): readonly [number, number] | null {
   if (obj.ra != null && obj.dec != null) {
     return [obj.ra, obj.dec];
   }
   const cands = [obj.designation, obj.displayName, ...(obj.aliases || [])].filter((s): s is string => !!s);
-  return lookupObjectCoords(cands);
+  return lookupTargetCoords(cands);
 }

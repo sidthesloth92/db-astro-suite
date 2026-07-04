@@ -18,7 +18,7 @@ interface FilterBar {
 
 /**
  * Presentational stats renderer — the hero integration number, the
- * objects/nights/frames strip, and the filter distribution. Driven entirely by
+ * targets/nights/frames strip, and the filter distribution. Driven entirely by
  * a `story` input so it works in both the client-side preview and the SSR
  * portfolio page.
  */
@@ -38,9 +38,9 @@ export class StoryStatsComponent {
     formatDuration(this.story().summary.totalIntegrationSeconds),
   );
 
-  /** Objects / nights / frames, formatted. */
-  protected readonly objectCount = computed(() =>
-    formatCount(this.story().summary.objectCount),
+  /** Targets / nights / frames, formatted. */
+  protected readonly targetCount = computed(() =>
+    formatCount(this.story().summary.targetCount),
   );
   protected readonly nightCount = computed(() =>
     formatCount(this.story().summary.nightCount),

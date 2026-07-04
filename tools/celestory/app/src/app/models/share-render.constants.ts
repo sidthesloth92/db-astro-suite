@@ -37,7 +37,7 @@ export const SHARE_FILTER_META: Readonly<Record<ShareFilterKey, ShareFilterMeta>
 /** Canonical render order for filters (RGB appended for one-shot-colour rigs). */
 export const SHARE_FILTER_ORDER: readonly ShareFilterKey[] = ['Ha', 'SII', 'OIII', 'L', 'R', 'G', 'B', 'RGB'];
 
-/** Canonical object category order for the per-category breakdown. */
+/** Canonical target category order for the per-category breakdown. */
 export const SHARE_CATEGORIES: readonly string[] = [
   'Galaxy',
   'Nebula',

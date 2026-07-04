@@ -78,9 +78,9 @@
       }
     }
 
-    @if (detailObject(); as o) {
-      <dba-object-detail
-        [obj]="o"
+    @if (detailTarget(); as o) {
+      <dba-target-detail
+        [target]="o"
         [story]="story()"
         [handle]="handle()"
         [published]="isPublished()"
@@ -94,22 +94,22 @@
         [handle]="handle()"
         [published]="isPublished()"
         (back)="closeDetail()"
-        (openObject)="openObject($event)"
+        (openTarget)="openTarget($event)"
       />
     } @else {
-      <!-- Single flowing page: hero → Objects → Equipment -->
+      <!-- Single flowing page: hero → Targets → Equipment -->
       <dba-journey-hero
         [story]="story()"
         [handle]="handle()"
         [state]="state()"
         (share)="openShare()"
         (publish)="openPublish()"
-        (openObject)="openObject($event)"
+        (openTarget)="openTarget($event)"
         (enterSky)="openSky()"
       />
 
-      <dba-section-banner num="02" eyebrow="The Catalogue" title="Objects" glyph="galaxy" [seed]="4" [sub]="objectsSub()" />
-      <dba-object-section [story]="story()" (open)="openObject($event)" (share)="openObjectShare($event)" />
+      <dba-section-banner num="02" eyebrow="The Catalogue" title="Targets" glyph="galaxy" [seed]="4" [sub]="targetsSub()" />
+      <dba-target-section [story]="story()" (open)="openTarget($event)" (share)="openTargetShare($event)" />
 
       <dba-section-banner num="03" eyebrow="The Rig" title="Equipment" glyph="camera" [seed]="9" [sub]="equipmentSub()" />
       <dba-equipment-section [story]="story()" (open)="openEquipment($event)" />
@@ -143,13 +143,13 @@
       (closed)="showStudio.set(false)"
     />
   }
-  @if (shareObject(); as o) {
-    <dba-object-share-modal
-      [obj]="o"
+  @if (shareTarget(); as o) {
+    <dba-target-share-modal
+      [target]="o"
       [story]="story()"
       [handle]="handle()"
-      [shareUrl]="objectShareUrl()"
-      (closed)="shareObject.set(null)"
+      [shareUrl]="targetShareUrl()"
+      (closed)="shareTarget.set(null)"
     />
   }
 

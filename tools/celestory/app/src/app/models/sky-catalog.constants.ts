@@ -242,7 +242,7 @@ export const EXTRA_STARS: StarTuple[] = [
  * so storys that don't carry RA/Dec still light up the sky. Keyed by a
  * normalised designation (lowercased, alphanumerics only).
  */
-export const OBJECT_COORDS: Record<string, readonly [number, number]> = {
+export const TARGET_COORDS: Record<string, readonly [number, number]> = {
   m1: [83.63, 22.01], m8: [270.92, -24.38], m16: [274.7, -13.81], m17: [275.2, -16.17], m20: [270.68, -23.03],
   m27: [299.9, 22.72], m31: [10.68, 41.27], m32: [10.67, 40.87], m33: [23.46, 30.66], m42: [83.82, -5.39],
   m43: [83.88, -5.27], m45: [56.75, 24.12], m51: [202.47, 47.2], m57: [283.4, 33.03], m63: [198.96, 42.03],

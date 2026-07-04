@@ -43,7 +43,7 @@ export function parseUpload(raw: unknown): StoryUpload {
     dataFingerprint,
     totalIntegrationSeconds: intField(record, 'totalIntegrationSeconds'),
     lightFrameCount: intField(record, 'lightFrameCount'),
-    objectCount: intField(record, 'objectCount'),
+    targetCount: intField(record, 'targetCount'),
   };
 }
 
@@ -59,10 +59,10 @@ export async function recordUpload(upload: StoryUpload): Promise<void> {
   await sql`
     INSERT INTO story_uploads (
       install_id, data_fingerprint,
-      total_integration_seconds, light_frame_count, object_count
+      total_integration_seconds, light_frame_count, target_count
     ) VALUES (
       ${upload.installId}, ${upload.dataFingerprint},
-      ${upload.totalIntegrationSeconds}, ${upload.lightFrameCount}, ${upload.objectCount}
+      ${upload.totalIntegrationSeconds}, ${upload.lightFrameCount}, ${upload.targetCount}
     )
   `;
 }
@@ -88,7 +88,7 @@ export async function claimUploads(installId: string, handle: string): Promise<v
  * Replay the community totals from the upload log. The "counted set" is every
  * claimed owner once (their latest snapshot — authenticated users are never
  * double-counted) plus every anonymous upload (each unauthenticated upload is
- * its own journey). `chartedCount` is the counted-set row count; the hour/object/
+ * its own journey). `chartedCount` is the counted-set row count; the hour/target/
  * frame totals are its sums. `liveCount` is the published-profile count, read
  * separately from `stories`. No per-user story data is read.
  */
@@ -96,23 +96,23 @@ export async function communityStats(): Promise<CommunityStats> {
   const sql = getDb();
   const rows = await sql`
     WITH counted AS (
-      SELECT total_integration_seconds, object_count, light_frame_count
+      SELECT total_integration_seconds, target_count, light_frame_count
       FROM (
         SELECT DISTINCT ON (profile_id)
-          total_integration_seconds, object_count, light_frame_count
+          total_integration_seconds, target_count, light_frame_count
         FROM story_uploads
         WHERE profile_id IS NOT NULL
         ORDER BY profile_id, uploaded_at DESC
       ) claimed
       UNION ALL
-      SELECT total_integration_seconds, object_count, light_frame_count
+      SELECT total_integration_seconds, target_count, light_frame_count
       FROM story_uploads
       WHERE profile_id IS NULL
     )
     SELECT
       COUNT(*)::int AS charted_count,
       COALESCE(SUM(total_integration_seconds), 0)::bigint AS total_integration_seconds,
-      COALESCE(SUM(object_count), 0)::int AS object_count,
+      COALESCE(SUM(target_count), 0)::int AS target_count,
       COALESCE(SUM(light_frame_count), 0)::int AS light_frame_count
     FROM counted
   `;
@@ -120,7 +120,7 @@ export async function communityStats(): Promise<CommunityStats> {
   const row = rows[0] as {
     charted_count: number;
     total_integration_seconds: string | number;
-    object_count: number;
+    target_count: number;
     light_frame_count: number;
   };
   const liveRow = live[0] as { live_count: number };
@@ -128,7 +128,7 @@ export async function communityStats(): Promise<CommunityStats> {
     chartedCount: row.charted_count,
     liveCount: liveRow.live_count,
     totalIntegrationSeconds: Number(row.total_integration_seconds),
-    objectCount: row.object_count,
+    targetCount: row.target_count,
     lightFrameCount: row.light_frame_count,
   };
 }

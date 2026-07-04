@@ -4,13 +4,13 @@ import {
   catColor,
   galToRaDec,
   generateSky,
-  objectRaDec,
+  targetRaDec,
   raDecToAltAz,
 } from './celestial.util';
 
 describe('celestial.util', () => {
-  it('places an object at the local zenith when it transits at the observer latitude', () => {
-    // An object whose declination equals the latitude culminates near the zenith.
+  it('places a target at the local zenith when it transits at the observer latitude', () => {
+    // An target whose declination equals the latitude culminates near the zenith.
     const lat = 40;
     const lon = -74;
     const date = new Date('2026-03-20T00:00:00Z');
@@ -41,11 +41,11 @@ describe('celestial.util', () => {
     expect(dec).toBeCloseTo(-28.9, 0);
   });
 
-  it('prefers an object\'s own coordinates, else falls back to the catalogue', () => {
-    expect(objectRaDec({ ra: 10, dec: 20 })).toEqual([10, 20]);
+  it('prefers a target\'s own coordinates, else falls back to the catalogue', () => {
+    expect(targetRaDec({ ra: 10, dec: 20 })).toEqual([10, 20]);
     // M31 is in the fallback catalogue.
-    expect(objectRaDec({ designation: 'M31' })).not.toBeNull();
-    expect(objectRaDec({ designation: 'NOT-A-REAL-OBJECT' })).toBeNull();
+    expect(targetRaDec({ designation: 'M31' })).not.toBeNull();
+    expect(targetRaDec({ designation: 'NOT-A-REAL-TARGET' })).toBeNull();
   });
 
   it('generates a deterministic, well-formed sky', () => {

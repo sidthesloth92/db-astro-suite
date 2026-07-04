@@ -1,5 +1,5 @@
 /**
- * Procedural, deterministic vector art for deep-sky object thumbnails — a
+ * Procedural, deterministic vector art for deep-sky target thumbnails — a
  * premium category motif (galaxy spiral / nebula shell / globular swarm /
  * planetary nebula / cluster constellation / orbits) painted on a dark base.
  * Brand-pink/cyan palette, no green. This is a SEPARATE motif set from the
@@ -12,7 +12,7 @@ import { hexLerp } from './color.util';
 /** Palette the motifs paint with (placeholders use brand pink/cyan + gold). */
 const ART_PALETTE = { hero: BRAND_PINK, accent: BRAND_CYAN, mid: '#9b6cff', gold: '#ffd98a' };
 
-/** Seeded mulberry-ish RNG → deterministic art per object. */
+/** Seeded mulberry-ish RNG → deterministic art per target. */
 function mkRand(seed: number): () => number {
   let s = (seed | 0) || 1;
   return () => {
@@ -292,10 +292,10 @@ function drawOrbits(ctx: CanvasRenderingContext2D, cx: number, cy: number, R: nu
 }
 
 /**
- * Render the category motif for an object thumbnail onto `canvas`. Sizes the
+ * Render the category motif for a target thumbnail onto `canvas`. Sizes the
  * backing store to the element's box × a supersample factor for crisp art.
  */
-export function renderObjectArt(canvas: HTMLCanvasElement, category: string, seed: number): void {
+export function renderTargetArt(canvas: HTMLCanvasElement, category: string, seed: number): void {
   const rect = canvas.getBoundingClientRect();
   const cssW = Math.max(40, rect.width || canvas.clientWidth || 320);
   const cssH = Math.max(25, rect.height || canvas.clientHeight || Math.round(cssW * 0.625));
@@ -336,8 +336,8 @@ export function renderObjectArt(canvas: HTMLCanvasElement, category: string, see
   }
 }
 
-/** Deterministic seed from an object's id + category. */
-export function objectArtSeed(id: string, category: string): number {
+/** Deterministic seed from a target's id + category. */
+export function targetArtSeed(id: string, category: string): number {
   const s = `${id}|${category}`;
   let h = 0;
   for (let i = 0; i < s.length; i++) {

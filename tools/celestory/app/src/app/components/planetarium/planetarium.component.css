@@ -110,7 +110,7 @@
   -webkit-mask: radial-gradient(circle at 50% 50%, #000 60%, rgba(0, 0, 0, 0.6) 76%, transparent 92%);
   mask: radial-gradient(circle at 50% 50%, #000 60%, rgba(0, 0, 0, 0.6) 76%, transparent 92%);
 }
-.sky-mk-art dba-object-image {
+.sky-mk-art dba-target-image {
   display: block;
   width: 100%;
   height: 100%;

@@ -106,12 +106,12 @@ export default class PortfolioPageComponent {
     return state.status === 'loaded' ? state.profile : null;
   });
 
-  /** The focused object / equipment (from `?object=` / `?equipment=`), driving the OG image. */
+  /** The focused target / equipment (from `?target=` / `?equipment=`), driving the OG image. */
   private readonly focus = toSignal(
     this.route.queryParamMap.pipe(
-      map((pm) => ({ object: pm.get('object'), equipment: pm.get('equipment') })),
+      map((pm) => ({ target: pm.get('target'), equipment: pm.get('equipment') })),
     ),
-    { initialValue: { object: null as string | null, equipment: null as string | null } },
+    { initialValue: { target: null as string | null, equipment: null as string | null } },
   );
 
   /** Total integration seconds for the reveal's hours count-up (0 until loaded). */
@@ -126,7 +126,7 @@ export default class PortfolioPageComponent {
     afterNextRender(() => this.introActive.set(true));
 
     // Apply per-handle OG meta once the story resolves (runs during SSR too),
-    // focused on the object/equipment named in the URL query when present. An
+    // focused on the target/equipment named in the URL query when present. An
     // unknown handle gets a noindex "not found" head so it isn't indexed.
     effect(() => {
       const state = this.state();
@@ -144,7 +144,7 @@ export default class PortfolioPageComponent {
   }
 
   /** Sets the document title + full OG/Twitter unfurl tags, the canonical link
-   * and ProfilePage JSON-LD, focused on the object/equipment in the URL query
+   * and ProfilePage JSON-LD, focused on the target/equipment in the URL query
    * when present, else the whole profile. */
   private applyMeta(profile: StoryDetails, focus: ProfileShareFocus): void {
     const meta = profileShareMeta(profile, focus, resolveOrigin(this.baseUrl));

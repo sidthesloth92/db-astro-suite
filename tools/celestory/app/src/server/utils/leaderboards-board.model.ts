@@ -11,7 +11,7 @@ export type BoardId =
   | 'hours'
   | 'frames'
   | 'project'
-  | 'object'
+  | 'target'
   | 'cameras'
   | 'mounts'
   | 'telescopes'

@@ -13,6 +13,6 @@ export interface CommunityStats {
   /** Online, live published profiles ("Live Celestories"). */
   liveCount: number;
   totalIntegrationSeconds: number;
-  objectCount: number;
+  targetCount: number;
   lightFrameCount: number;
 }

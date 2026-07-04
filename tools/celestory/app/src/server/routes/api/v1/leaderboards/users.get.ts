@@ -5,7 +5,7 @@ import { success, toErrorResponse } from '../../../../utils/respond';
 
 /**
  * Users leaderboard — top published profiles by the chosen metric
- * (`?metric=integration|frames|objects|nights|longevity|pioneer|diversity|recent`,
+ * (`?metric=integration|frames|targets|nights|longevity|pioneer|diversity|recent`,
  * `?limit=`). Ranks published profiles only.
  */
 export default defineEventHandler(async (event) => {

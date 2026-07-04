@@ -72,9 +72,9 @@
             }
           </div>
         }
-        @if (h.objects.length) {
+        @if (h.targets.length) {
           <div class="t-objlist">
-            @for (o of h.objects; track o.name; let i = $index) {
+            @for (o of h.targets; track o.name; let i = $index) {
               @if (i < 4) {
                 <div class="t-objrow">
                   <span class="t-objname">{{ o.name }}</span>
@@ -82,8 +82,8 @@
                 </div>
               }
             }
-            @if (h.objects.length > 4) {
-              <div class="t-objmore">+{{ h.objects.length - 4 }} more</div>
+            @if (h.targets.length > 4) {
+              <div class="t-tgtmore">+{{ h.targets.length - 4 }} more</div>
             }
           </div>
         }

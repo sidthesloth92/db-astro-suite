@@ -1,22 +1,22 @@
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
-import type { CelestoryStory, StoryObject } from '../../models/story.model';
-import { ObjectCardComponent } from '../object-card/object-card.component';
+import type { CelestoryStory, StoryTarget } from '../../models/story.model';
+import { TargetCardComponent } from '../target-card/target-card.component';
 
-/** The "Objects" catalogue: category / equipment / year filters + a card grid. */
+/** The "Targets" catalogue: category / equipment / year filters + a card grid. */
 @Component({
-  selector: 'dba-object-section',
+  selector: 'dba-target-section',
   standalone: true,
-  imports: [ObjectCardComponent],
-  templateUrl: './object-section.component.html',
-  styleUrl: './object-section.component.css',
+  imports: [TargetCardComponent],
+  templateUrl: './target-section.component.html',
+  styleUrl: './target-section.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ObjectSectionComponent {
+export class TargetSectionComponent {
   /** The story to browse. */
   readonly story = input.required<CelestoryStory>();
-  /** Emits an object id to open its detail. */
+  /** Emits a target id to open its detail. */
   readonly open = output<string>();
-  /** Emits an object id to open its share card. */
+  /** Emits a target id to open its share card. */
   readonly share = output<string>();
 
   /** Active filters. */
@@ -26,7 +26,7 @@ export class ObjectSectionComponent {
 
   /** Categories present (with counts). */
   protected readonly categories = computed(() =>
-    this.story().summary.byCategory.filter((c) => c.objectCount > 0),
+    this.story().summary.byCategory.filter((c) => c.targetCount > 0),
   );
   /** Gear groups for the equipment filter. */
   protected readonly cameras = computed(() =>
@@ -41,7 +41,7 @@ export class ObjectSectionComponent {
   /** Distinct imaging years. */
   protected readonly years = computed(() => {
     const set = new Set<number>();
-    for (const o of this.story().objects) {
+    for (const o of this.story().targets) {
       for (const s of o.sessions) {
         const y = +s.date.slice(0, 4);
         if (y) {
@@ -52,12 +52,12 @@ export class ObjectSectionComponent {
     return [...set].sort((a, b) => a - b);
   });
 
-  /** Objects passing the active filters. */
-  protected readonly filtered = computed<StoryObject[]>(() => {
+  /** Targets passing the active filters. */
+  protected readonly filtered = computed<StoryTarget[]>(() => {
     const c = this.cat();
     const g = this.gear();
     const y = this.year();
-    return this.story().objects.filter((o) => {
+    return this.story().targets.filter((o) => {
       if (c !== 'All' && o.category !== c) {
         return false;
       }

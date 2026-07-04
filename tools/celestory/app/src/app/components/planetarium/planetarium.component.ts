@@ -15,15 +15,15 @@ import {
   viewChild,
   viewChildren,
 } from '@angular/core';
-import type { CelestoryStory, StoryObject } from '../../models/story.model';
+import type { CelestoryStory, StoryTarget } from '../../models/story.model';
 import { initialCamera } from '../../models/sky.constants';
 import type { AltAz, SkyLocation, SkyTarget } from '../../models/sky.types';
-import { altAzToVec, catColor, objectRaDec, raDecToAltAz } from '../../utils/celestial.util';
+import { altAzToVec, catColor, targetRaDec, raDecToAltAz } from '../../utils/celestial.util';
 import { PlanetariumRenderer } from '../../utils/planetarium-renderer.util';
 import { SkyLocationStore } from '../../services/sky-location-store.service';
 import { CelIconComponent } from '../cel-icon/cel-icon.component';
-import { ObjectImageComponent } from '../object-image/object-image.component';
-import { ObjectDetailComponent } from '../object-detail/object-detail.component';
+import { TargetImageComponent } from '../target-image/target-image.component';
+import { TargetDetailComponent } from '../target-detail/target-detail.component';
 
 /**
  * "View My Universe" — a stand-inside planetarium. The user's imaged targets are
@@ -34,7 +34,7 @@ import { ObjectDetailComponent } from '../object-detail/object-detail.component'
 @Component({
   selector: 'dba-planetarium',
   standalone: true,
-  imports: [CelIconComponent, ObjectImageComponent, ObjectDetailComponent],
+  imports: [CelIconComponent, TargetImageComponent, TargetDetailComponent],
   templateUrl: './planetarium.component.html',
   styleUrl: './planetarium.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -45,7 +45,7 @@ export class PlanetariumComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly locationStore = inject(SkyLocationStore);
 
-  /** The full story (objects with RA/Dec are plotted; equipment for the popup). */
+  /** The full story (targets with RA/Dec are plotted; equipment for the popup). */
   readonly story = input.required<CelestoryStory>();
 
   /** Close the planetarium and return to the journey. */
@@ -81,17 +81,17 @@ export class PlanetariumComponent {
   private drag: { x: number; y: number; moved: number } | null = null;
   private pinch: number | null = null;
 
-  /** Targets (objects carrying RA/Dec) projected to the current sky. */
+  /** Targets (targets carrying RA/Dec) projected to the current sky. */
   protected readonly targets = computed<SkyTarget[]>(() => {
     const loc = this.location();
     const out: SkyTarget[] = [];
-    for (const o of this.story().objects) {
-      const coords = objectRaDec(o);
+    for (const o of this.story().targets) {
+      const coords = targetRaDec(o);
       if (!coords) {
         continue;
       }
       const aa = raDecToAltAz(coords[0], coords[1], loc.lat, loc.lon, this.now);
-      out.push({ obj: o, v: altAzToVec(aa.alt, aa.az), alt: aa.alt, az: aa.az });
+      out.push({ target: o, v: altAzToVec(aa.alt, aa.az), alt: aa.alt, az: aa.az });
     }
     return out;
   });
@@ -105,7 +105,7 @@ export class PlanetariumComponent {
     if (!id) {
       return null;
     }
-    return this.targets().find((t) => t.obj.id === id) ?? null;
+    return this.targets().find((t) => t.target.id === id) ?? null;
   });
 
   /** Alt/az of the selected target (for the popup position indicator). */
@@ -162,8 +162,8 @@ export class PlanetariumComponent {
   }
 
   /** Marker accent colour for a target. */
-  protected markerColor(obj: StoryObject): string {
-    return catColor(obj.category);
+  protected markerColor(target: StoryTarget): string {
+    return catColor(target.category);
   }
 
   /** Open a target's detail popup. */
@@ -238,7 +238,7 @@ export class PlanetariumComponent {
     return loc.label || `${loc.lat.toFixed(2)}°, ${loc.lon.toFixed(2)}°`;
   }
 
-  /** Equipment navigation from the embedded ObjectDetail (parent closes the sky). */
+  /** Equipment navigation from the embedded TargetDetail (parent closes the sky). */
   protected onOpenEquipment(id: string): void {
     this.closePopup();
     this.openEquipment.emit(id);

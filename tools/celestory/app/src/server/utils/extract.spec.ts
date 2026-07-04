@@ -1,18 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import { extractRows } from './extract';
-import type { EquipmentItem, Story, ObjectTimeline } from './story.types';
+import type { EquipmentItem, Story, TargetTimeline } from './story.types';
 
 /** A minimal valid server-side Story, overridable per test. */
 function makeStory(overrides: Partial<Story> = {}): Story {
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
     generatedAt: '2026-06-19T00:00:00Z',
     tool: { name: 'celestory', version: 'test' },
     installId: 'install-1',
     dataFingerprint: 'fp-1',
     summary: {
       totalIntegrationSeconds: 0,
-      objectCount: 0,
+      targetCount: 0,
       nightCount: 0,
       lightFrameCount: 0,
       firstLight: '',
@@ -24,15 +24,15 @@ function makeStory(overrides: Partial<Story> = {}): Story {
       activity: [],
     },
     equipment: [],
-    objects: [],
+    targets: [],
     duplicates: [],
     skipped: [],
     ...overrides,
   };
 }
 
-/** An object timeline with sane defaults; pass sessions/ids per test. */
-function makeObject(overrides: Partial<ObjectTimeline> = {}): ObjectTimeline {
+/** A target timeline with sane defaults; pass sessions/ids per test. */
+function makeTarget(overrides: Partial<TargetTimeline> = {}): TargetTimeline {
   return {
     id: 'm31',
     displayName: 'Andromeda Galaxy',
@@ -64,10 +64,10 @@ describe('extractRows — equipment', () => {
       fRatio: null,
       totalIntegrationSeconds: 1000,
       lightFrameCount: 50,
-      objectCount: 2,
+      targetCount: 2,
       firstLight: '2025-01-01',
       latestSession: '2025-02-01',
-      objectIds: ['m31'],
+      targetIds: ['m31'],
     };
     const telescope: EquipmentItem = {
       id: 'telescope-redcat-51',
@@ -78,10 +78,10 @@ describe('extractRows — equipment', () => {
       fRatio: 4.9,
       totalIntegrationSeconds: 800,
       lightFrameCount: 40,
-      objectCount: 1,
+      targetCount: 1,
       firstLight: '',
       latestSession: '',
-      objectIds: [],
+      targetIds: [],
     };
 
     const { equipment } = extractRows(makeStory({ equipment: [camera, telescope] }));
@@ -101,9 +101,9 @@ describe('extractRows — equipment', () => {
   });
 });
 
-describe('extractRows — object months', () => {
-  it('buckets sessions by object and month, summing seconds and frames', () => {
-    const object = makeObject({
+describe('extractRows — target months', () => {
+  it('buckets sessions by target and month, summing seconds and frames', () => {
+    const target = makeTarget({
       sessions: [
         { date: '2025-09-10', integrationSeconds: 300, lightFrameCount: 5, filters: [], equipmentIds: [], focalLengthMm: null, fRatio: null },
         { date: '2025-09-20', integrationSeconds: 200, lightFrameCount: 3, filters: [], equipmentIds: [], focalLengthMm: null, fRatio: null },
@@ -111,13 +111,13 @@ describe('extractRows — object months', () => {
       ],
     });
 
-    const { objectMonths } = extractRows(makeStory({ objects: [object] }));
+    const { targetMonths } = extractRows(makeStory({ targets: [target] }));
 
-    expect(objectMonths).toHaveLength(2);
-    const september = objectMonths.find((m) => m.month === '2025-09-01');
-    const october = objectMonths.find((m) => m.month === '2025-10-01');
+    expect(targetMonths).toHaveLength(2);
+    const september = targetMonths.find((m) => m.month === '2025-09-01');
+    const october = targetMonths.find((m) => m.month === '2025-10-01');
     expect(september).toMatchObject({
-      objectId: 'm31',
+      targetId: 'm31',
       designation: 'M 31',
       category: 'Galaxy',
       integrationSeconds: 500,
@@ -127,21 +127,21 @@ describe('extractRows — object months', () => {
   });
 
   it('skips sessions with no parseable date', () => {
-    const object = makeObject({
+    const target = makeTarget({
       sessions: [
         { date: '', integrationSeconds: 999, lightFrameCount: 9, filters: [], equipmentIds: [], focalLengthMm: null, fRatio: null },
         { date: '2025-10-01', integrationSeconds: 100, lightFrameCount: 2, filters: [], equipmentIds: [], focalLengthMm: null, fRatio: null },
       ],
     });
 
-    const { objectMonths } = extractRows(makeStory({ objects: [object] }));
+    const { targetMonths } = extractRows(makeStory({ targets: [target] }));
 
-    expect(objectMonths).toHaveLength(1);
-    expect(objectMonths[0]).toMatchObject({ month: '2025-10-01', integrationSeconds: 100 });
+    expect(targetMonths).toHaveLength(1);
+    expect(targetMonths[0]).toMatchObject({ month: '2025-10-01', integrationSeconds: 100 });
   });
 
-  it('falls back to the display name when an object has no designation', () => {
-    const object = makeObject({
+  it('falls back to the display name when a target has no designation', () => {
+    const target = makeTarget({
       id: 'custom-target',
       designation: '',
       displayName: 'Backyard Nebula',
@@ -150,8 +150,8 @@ describe('extractRows — object months', () => {
       ],
     });
 
-    const { objectMonths } = extractRows(makeStory({ objects: [object] }));
+    const { targetMonths } = extractRows(makeStory({ targets: [target] }));
 
-    expect(objectMonths[0].designation).toBe('Backyard Nebula');
+    expect(targetMonths[0].designation).toBe('Backyard Nebula');
   });
 });

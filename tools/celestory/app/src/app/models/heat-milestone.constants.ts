@@ -8,7 +8,7 @@ import { BRAND_CYAN, BRAND_PINK } from './brand.constants';
  * exception to the "no hardcoded color" rule — they are domain accent colors
  * applied via an inline `--ms` custom property (the same pattern as FILTER_META
  * emission colors and brand.constants), not general UI styling, so they live in
- * a constants module rather than as theme tokens. `frames` and `object` reuse the
+ * a constants module rather than as theme tokens. `frames` and `target` reuse the
  * brand pink / cyan.
  */
 
@@ -25,8 +25,8 @@ export const MILESTONE_FRAMES: readonly { readonly at: number; readonly label: s
   { at: 50000, label: '50K' },
 ];
 
-/** Distinct-object thresholds (the Nth unique target first imaged). */
-export const MILESTONE_OBJECTS: readonly number[] = [10, 25, 50, 100];
+/** Distinct-target thresholds (the Nth unique target first imaged). */
+export const MILESTONE_TARGETS: readonly number[] = [10, 25, 50, 100];
 
 /** Night-count thresholds (the Nth night imaged). */
 export const MILESTONE_NIGHTS: readonly number[] = [50, 100, 200, 365];
@@ -35,7 +35,7 @@ export const MILESTONE_NIGHTS: readonly number[] = [50, 100, 200, 365];
 export const MILESTONE_COLOR: Record<HeatMilestoneKind, string> = {
   hours: '#9b8cff',
   frames: BRAND_PINK,
-  object: BRAND_CYAN,
+  target: BRAND_CYAN,
   night: '#ffd16a',
   best: '#ffd16a',
 };

@@ -38,7 +38,7 @@ export const STORY_TYPES: ShareOption[] = [
   { id: 'summary', label: 'Journey Summary', description: 'Your identity, hours & headline stats' },
   { id: 'year', label: 'Year In Review', description: 'One year, set in giant type' },
   { id: 'timeline', label: 'Timeline', description: 'First light to your latest night' },
-  { id: 'targets', label: 'Top Targets', description: 'Your most-imaged objects' },
+  { id: 'targets', label: 'Top Targets', description: 'Your most-imaged targets' },
   { id: 'spectrum', label: 'Filter Spectrum', description: 'Your light as emission lines' },
   { id: 'skydome', label: 'Sky Dome', description: 'Your targets across the dome' },
   { id: 'moons', label: 'Moon Phases', description: 'Your nights vs the lunar cycle' },

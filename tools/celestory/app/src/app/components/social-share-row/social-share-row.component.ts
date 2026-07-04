@@ -9,7 +9,7 @@ import { SocialIconComponent } from '../social-icon/social-icon.component';
  * Presentational social-share row: a chain-link "copy URL" button followed by
  * per-platform share-intent links (X, Facebook, Reddit, WhatsApp, Telegram,
  * Email) for the given public URL. Shared by the published-journey banner and
- * the object / gear share modals. No HTTP, no store — driven entirely by `url`.
+ * the target / gear share modals. No HTTP, no store — driven entirely by `url`.
  */
 @Component({
   selector: 'dba-cel-social-share-row',

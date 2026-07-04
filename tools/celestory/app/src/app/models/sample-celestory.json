@@ -1,8 +1,8 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "generatedAt": "2026-05-12T09:15:00Z",
   "observer": "Vera C.",
-  "site": "Backyard Observatory \u00b7 Bortle 5 \u00b7 47.6\u00b0N",
+  "site": "Backyard Observatory · Bortle 5 · 47.6°N",
   "tool": {
     "name": "celestory",
     "version": "1.0.0"
@@ -11,7 +11,7 @@
   "dataFingerprint": "sample-fixed-fingerprint",
   "summary": {
     "totalIntegrationSeconds": 3771870,
-    "objectCount": 36,
+    "targetCount": 36,
     "nightCount": 137,
     "lightFrameCount": 11226,
     "firstLight": "2016-01-08",
@@ -28,7 +28,7 @@
         "seconds": 660480
       },
       {
-        "name": "H\u03b1",
+        "name": "Hα",
         "seconds": 625740
       },
       {
@@ -55,55 +55,55 @@
     "byCategory": [
       {
         "category": "Galaxy",
-        "objectCount": 9,
+        "targetCount": 9,
         "integrationSeconds": 1216560,
         "lightFrameCount": 3145
       },
       {
         "category": "Emission Nebula",
-        "objectCount": 14,
+        "targetCount": 14,
         "integrationSeconds": 1208670,
         "lightFrameCount": 4544
       },
       {
         "category": "Supernova Remnant",
-        "objectCount": 4,
+        "targetCount": 4,
         "integrationSeconds": 643140,
         "lightFrameCount": 1682
       },
       {
         "category": "Reflection Nebula",
-        "objectCount": 1,
+        "targetCount": 1,
         "integrationSeconds": 217500,
         "lightFrameCount": 400
       },
       {
         "category": "Planetary Nebula",
-        "objectCount": 3,
+        "targetCount": 3,
         "integrationSeconds": 210120,
         "lightFrameCount": 601
       },
       {
         "category": "Comet",
-        "objectCount": 1,
+        "targetCount": 1,
         "integrationSeconds": 150900,
         "lightFrameCount": 298
       },
       {
         "category": "Dark Nebula",
-        "objectCount": 1,
+        "targetCount": 1,
         "integrationSeconds": 106560,
         "lightFrameCount": 406
       },
       {
         "category": "Globular Cluster",
-        "objectCount": 1,
+        "targetCount": 1,
         "integrationSeconds": 13080,
         "lightFrameCount": 101
       },
       {
         "category": "Open Cluster",
-        "objectCount": 2,
+        "targetCount": 2,
         "integrationSeconds": 5340,
         "lightFrameCount": 49
       }
@@ -113,7 +113,7 @@
         "date": "2016-01-08",
         "integrationSeconds": 2580,
         "lightFrameCount": 43,
-        "objectIds": [
+        "targetIds": [
           "m31"
         ]
       },
@@ -121,7 +121,7 @@
         "date": "2016-10-14",
         "integrationSeconds": 2700,
         "lightFrameCount": 45,
-        "objectIds": [
+        "targetIds": [
           "m31"
         ]
       },
@@ -129,7 +129,7 @@
         "date": "2016-11-18",
         "integrationSeconds": 1620,
         "lightFrameCount": 18,
-        "objectIds": [
+        "targetIds": [
           "ngc869"
         ]
       },
@@ -137,7 +137,7 @@
         "date": "2017-01-09",
         "integrationSeconds": 1740,
         "lightFrameCount": 29,
-        "objectIds": [
+        "targetIds": [
           "m31"
         ]
       },
@@ -145,7 +145,7 @@
         "date": "2017-01-10",
         "integrationSeconds": 5760,
         "lightFrameCount": 48,
-        "objectIds": [
+        "targetIds": [
           "m42"
         ]
       },
@@ -153,7 +153,7 @@
         "date": "2017-01-11",
         "integrationSeconds": 2100,
         "lightFrameCount": 35,
-        "objectIds": [
+        "targetIds": [
           "m42"
         ]
       },
@@ -161,7 +161,7 @@
         "date": "2017-04-20",
         "integrationSeconds": 1530,
         "lightFrameCount": 17,
-        "objectIds": [
+        "targetIds": [
           "m42"
         ]
       },
@@ -169,7 +169,7 @@
         "date": "2017-04-24",
         "integrationSeconds": 3720,
         "lightFrameCount": 31,
-        "objectIds": [
+        "targetIds": [
           "m45"
         ]
       },
@@ -177,7 +177,7 @@
         "date": "2018-01-18",
         "integrationSeconds": 10560,
         "lightFrameCount": 44,
-        "objectIds": [
+        "targetIds": [
           "m51"
         ]
       },
@@ -185,7 +185,7 @@
         "date": "2018-03-20",
         "integrationSeconds": 7560,
         "lightFrameCount": 42,
-        "objectIds": [
+        "targetIds": [
           "m27"
         ]
       },
@@ -193,7 +193,7 @@
         "date": "2018-08-08",
         "integrationSeconds": 5760,
         "lightFrameCount": 48,
-        "objectIds": [
+        "targetIds": [
           "m13"
         ]
       },
@@ -201,7 +201,7 @@
         "date": "2018-08-15",
         "integrationSeconds": 4320,
         "lightFrameCount": 18,
-        "objectIds": [
+        "targetIds": [
           "ngc7000"
         ]
       },
@@ -209,7 +209,7 @@
         "date": "2018-09-07",
         "integrationSeconds": 9840,
         "lightFrameCount": 41,
-        "objectIds": [
+        "targetIds": [
           "m27"
         ]
       },
@@ -217,7 +217,7 @@
         "date": "2018-09-14",
         "integrationSeconds": 6120,
         "lightFrameCount": 34,
-        "objectIds": [
+        "targetIds": [
           "m51"
         ]
       },
@@ -225,7 +225,7 @@
         "date": "2019-01-11",
         "integrationSeconds": 1560,
         "lightFrameCount": 13,
-        "objectIds": [
+        "targetIds": [
           "ngc7000"
         ]
       },
@@ -233,7 +233,7 @@
         "date": "2019-08-05",
         "integrationSeconds": 2280,
         "lightFrameCount": 19,
-        "objectIds": [
+        "targetIds": [
           "m13"
         ]
       },
@@ -241,7 +241,7 @@
         "date": "2019-08-07",
         "integrationSeconds": 2880,
         "lightFrameCount": 16,
-        "objectIds": [
+        "targetIds": [
           "m13"
         ]
       },
@@ -249,7 +249,7 @@
         "date": "2019-10-22",
         "integrationSeconds": 2160,
         "lightFrameCount": 18,
-        "objectIds": [
+        "targetIds": [
           "m13"
         ]
       },
@@ -257,7 +257,7 @@
         "date": "2019-11-24",
         "integrationSeconds": 9840,
         "lightFrameCount": 41,
-        "objectIds": [
+        "targetIds": [
           "m27"
         ]
       },
@@ -265,7 +265,7 @@
         "date": "2019-12-08",
         "integrationSeconds": 2880,
         "lightFrameCount": 16,
-        "objectIds": [
+        "targetIds": [
           "ngc7000"
         ]
       },
@@ -273,7 +273,7 @@
         "date": "2020-01-03",
         "integrationSeconds": 31800,
         "lightFrameCount": 106,
-        "objectIds": [
+        "targetIds": [
           "ngc2237"
         ]
       },
@@ -281,7 +281,7 @@
         "date": "2020-01-12",
         "integrationSeconds": 23400,
         "lightFrameCount": 130,
-        "objectIds": [
+        "targetIds": [
           "ngc2237"
         ]
       },
@@ -289,7 +289,7 @@
         "date": "2020-01-16",
         "integrationSeconds": 19980,
         "lightFrameCount": 111,
-        "objectIds": [
+        "targetIds": [
           "m57"
         ]
       },
@@ -297,7 +297,7 @@
         "date": "2020-01-24",
         "integrationSeconds": 25500,
         "lightFrameCount": 85,
-        "objectIds": [
+        "targetIds": [
           "ic434"
         ]
       },
@@ -305,7 +305,7 @@
         "date": "2020-02-04",
         "integrationSeconds": 8820,
         "lightFrameCount": 49,
-        "objectIds": [
+        "targetIds": [
           "ngc7635"
         ]
       },
@@ -313,7 +313,7 @@
         "date": "2020-02-19",
         "integrationSeconds": 33600,
         "lightFrameCount": 112,
-        "objectIds": [
+        "targetIds": [
           "ic434"
         ]
       },
@@ -321,7 +321,7 @@
         "date": "2020-02-21",
         "integrationSeconds": 33600,
         "lightFrameCount": 112,
-        "objectIds": [
+        "targetIds": [
           "m57"
         ]
       },
@@ -329,7 +329,7 @@
         "date": "2020-03-05",
         "integrationSeconds": 20100,
         "lightFrameCount": 67,
-        "objectIds": [
+        "targetIds": [
           "m101"
         ]
       },
@@ -337,7 +337,7 @@
         "date": "2020-04-03",
         "integrationSeconds": 29340,
         "lightFrameCount": 163,
-        "objectIds": [
+        "targetIds": [
           "ngc6888"
         ]
       },
@@ -345,7 +345,7 @@
         "date": "2020-04-07",
         "integrationSeconds": 14700,
         "lightFrameCount": 49,
-        "objectIds": [
+        "targetIds": [
           "m81"
         ]
       },
@@ -353,7 +353,7 @@
         "date": "2020-04-08",
         "integrationSeconds": 14760,
         "lightFrameCount": 82,
-        "objectIds": [
+        "targetIds": [
           "ic434"
         ]
       },
@@ -361,7 +361,7 @@
         "date": "2020-04-21",
         "integrationSeconds": 21600,
         "lightFrameCount": 120,
-        "objectIds": [
+        "targetIds": [
           "m101"
         ]
       },
@@ -369,7 +369,7 @@
         "date": "2020-08-06",
         "integrationSeconds": 20100,
         "lightFrameCount": 67,
-        "objectIds": [
+        "targetIds": [
           "ngc2237"
         ]
       },
@@ -377,7 +377,7 @@
         "date": "2020-08-07",
         "integrationSeconds": 18540,
         "lightFrameCount": 103,
-        "objectIds": [
+        "targetIds": [
           "ngc2237"
         ]
       },
@@ -385,7 +385,7 @@
         "date": "2020-08-08",
         "integrationSeconds": 11700,
         "lightFrameCount": 65,
-        "objectIds": [
+        "targetIds": [
           "ngc2237"
         ]
       },
@@ -393,7 +393,7 @@
         "date": "2020-08-21",
         "integrationSeconds": 14760,
         "lightFrameCount": 82,
-        "objectIds": [
+        "targetIds": [
           "ngc7635"
         ]
       },
@@ -401,7 +401,7 @@
         "date": "2020-09-17",
         "integrationSeconds": 22500,
         "lightFrameCount": 75,
-        "objectIds": [
+        "targetIds": [
           "m81"
         ]
       },
@@ -409,7 +409,7 @@
         "date": "2020-10-03",
         "integrationSeconds": 25200,
         "lightFrameCount": 84,
-        "objectIds": [
+        "targetIds": [
           "m101"
         ]
       },
@@ -417,7 +417,7 @@
         "date": "2020-10-04",
         "integrationSeconds": 27720,
         "lightFrameCount": 154,
-        "objectIds": [
+        "targetIds": [
           "ngc6888"
         ]
       },
@@ -425,7 +425,7 @@
         "date": "2020-10-08",
         "integrationSeconds": 13800,
         "lightFrameCount": 46,
-        "objectIds": [
+        "targetIds": [
           "m101"
         ]
       },
@@ -433,7 +433,7 @@
         "date": "2020-10-13",
         "integrationSeconds": 20700,
         "lightFrameCount": 69,
-        "objectIds": [
+        "targetIds": [
           "ngc6888"
         ]
       },
@@ -441,7 +441,7 @@
         "date": "2020-10-19",
         "integrationSeconds": 16560,
         "lightFrameCount": 92,
-        "objectIds": [
+        "targetIds": [
           "m81"
         ]
       },
@@ -449,7 +449,7 @@
         "date": "2020-11-17",
         "integrationSeconds": 12780,
         "lightFrameCount": 71,
-        "objectIds": [
+        "targetIds": [
           "ngc2237"
         ]
       },
@@ -457,7 +457,7 @@
         "date": "2020-12-08",
         "integrationSeconds": 32100,
         "lightFrameCount": 107,
-        "objectIds": [
+        "targetIds": [
           "ngc2237"
         ]
       },
@@ -465,7 +465,7 @@
         "date": "2021-02-25",
         "integrationSeconds": 15600,
         "lightFrameCount": 52,
-        "objectIds": [
+        "targetIds": [
           "m81"
         ]
       },
@@ -473,7 +473,7 @@
         "date": "2021-03-02",
         "integrationSeconds": 22500,
         "lightFrameCount": 75,
-        "objectIds": [
+        "targetIds": [
           "m101"
         ]
       },
@@ -481,7 +481,7 @@
         "date": "2021-03-04",
         "integrationSeconds": 18360,
         "lightFrameCount": 102,
-        "objectIds": [
+        "targetIds": [
           "ic1396"
         ]
       },
@@ -489,7 +489,7 @@
         "date": "2021-04-06",
         "integrationSeconds": 12000,
         "lightFrameCount": 40,
-        "objectIds": [
+        "targetIds": [
           "ic1396"
         ]
       },
@@ -497,7 +497,7 @@
         "date": "2021-04-12",
         "integrationSeconds": 8100,
         "lightFrameCount": 45,
-        "objectIds": [
+        "targetIds": [
           "ic434"
         ]
       },
@@ -505,7 +505,7 @@
         "date": "2021-04-13",
         "integrationSeconds": 13500,
         "lightFrameCount": 75,
-        "objectIds": [
+        "targetIds": [
           "ngc7635"
         ]
       },
@@ -513,7 +513,7 @@
         "date": "2021-04-14",
         "integrationSeconds": 36300,
         "lightFrameCount": 121,
-        "objectIds": [
+        "targetIds": [
           "ic1396"
         ]
       },
@@ -521,7 +521,7 @@
         "date": "2021-04-22",
         "integrationSeconds": 24600,
         "lightFrameCount": 82,
-        "objectIds": [
+        "targetIds": [
           "ic434"
         ]
       },
@@ -529,7 +529,7 @@
         "date": "2021-08-08",
         "integrationSeconds": 9360,
         "lightFrameCount": 52,
-        "objectIds": [
+        "targetIds": [
           "ic1396"
         ]
       },
@@ -537,7 +537,7 @@
         "date": "2021-08-11",
         "integrationSeconds": 24000,
         "lightFrameCount": 80,
-        "objectIds": [
+        "targetIds": [
           "ic1396"
         ]
       },
@@ -545,7 +545,7 @@
         "date": "2021-12-25",
         "integrationSeconds": 20160,
         "lightFrameCount": 112,
-        "objectIds": [
+        "targetIds": [
           "ngc6888"
         ]
       },
@@ -553,7 +553,7 @@
         "date": "2022-01-11",
         "integrationSeconds": 14400,
         "lightFrameCount": 48,
-        "objectIds": [
+        "targetIds": [
           "m8"
         ]
       },
@@ -561,7 +561,7 @@
         "date": "2022-01-12",
         "integrationSeconds": 45000,
         "lightFrameCount": 150,
-        "objectIds": [
+        "targetIds": [
           "ngc6960"
         ]
       },
@@ -569,7 +569,7 @@
         "date": "2022-02-09",
         "integrationSeconds": 36300,
         "lightFrameCount": 121,
-        "objectIds": [
+        "targetIds": [
           "m16"
         ]
       },
@@ -577,7 +577,7 @@
         "date": "2022-03-08",
         "integrationSeconds": 10800,
         "lightFrameCount": 60,
-        "objectIds": [
+        "targetIds": [
           "ic1848"
         ]
       },
@@ -585,7 +585,7 @@
         "date": "2022-03-22",
         "integrationSeconds": 30000,
         "lightFrameCount": 50,
-        "objectIds": [
+        "targetIds": [
           "ngc6960"
         ]
       },
@@ -593,7 +593,7 @@
         "date": "2022-03-23",
         "integrationSeconds": 18300,
         "lightFrameCount": 61,
-        "objectIds": [
+        "targetIds": [
           "sh2155"
         ]
       },
@@ -601,7 +601,7 @@
         "date": "2022-03-24",
         "integrationSeconds": 15900,
         "lightFrameCount": 53,
-        "objectIds": [
+        "targetIds": [
           "ic1848"
         ]
       },
@@ -609,7 +609,7 @@
         "date": "2022-04-11",
         "integrationSeconds": 11340,
         "lightFrameCount": 63,
-        "objectIds": [
+        "targetIds": [
           "ngc6960"
         ]
       },
@@ -617,7 +617,7 @@
         "date": "2022-04-13",
         "integrationSeconds": 36000,
         "lightFrameCount": 60,
-        "objectIds": [
+        "targetIds": [
           "ngc6992"
         ]
       },
@@ -625,7 +625,7 @@
         "date": "2022-04-15",
         "integrationSeconds": 30780,
         "lightFrameCount": 171,
-        "objectIds": [
+        "targetIds": [
           "ic1805",
           "ic1848"
         ]
@@ -634,7 +634,7 @@
         "date": "2022-04-23",
         "integrationSeconds": 15600,
         "lightFrameCount": 52,
-        "objectIds": [
+        "targetIds": [
           "ngc1499"
         ]
       },
@@ -642,7 +642,7 @@
         "date": "2022-09-23",
         "integrationSeconds": 19620,
         "lightFrameCount": 109,
-        "objectIds": [
+        "targetIds": [
           "sh2155"
         ]
       },
@@ -650,7 +650,7 @@
         "date": "2022-10-26",
         "integrationSeconds": 15000,
         "lightFrameCount": 50,
-        "objectIds": [
+        "targetIds": [
           "m20"
         ]
       },
@@ -658,7 +658,7 @@
         "date": "2022-11-22",
         "integrationSeconds": 34200,
         "lightFrameCount": 114,
-        "objectIds": [
+        "targetIds": [
           "ngc1499"
         ]
       },
@@ -666,7 +666,7 @@
         "date": "2022-12-08",
         "integrationSeconds": 15300,
         "lightFrameCount": 85,
-        "objectIds": [
+        "targetIds": [
           "ngc6992"
         ]
       },
@@ -674,7 +674,7 @@
         "date": "2022-12-12",
         "integrationSeconds": 28200,
         "lightFrameCount": 47,
-        "objectIds": [
+        "targetIds": [
           "m20"
         ]
       },
@@ -682,7 +682,7 @@
         "date": "2022-12-13",
         "integrationSeconds": 18900,
         "lightFrameCount": 63,
-        "objectIds": [
+        "targetIds": [
           "ic1848"
         ]
       },
@@ -690,7 +690,7 @@
         "date": "2022-12-24",
         "integrationSeconds": 6480,
         "lightFrameCount": 36,
-        "objectIds": [
+        "targetIds": [
           "m8"
         ]
       },
@@ -698,7 +698,7 @@
         "date": "2023-01-02",
         "integrationSeconds": 60000,
         "lightFrameCount": 100,
-        "objectIds": [
+        "targetIds": [
           "ngc6960"
         ]
       },
@@ -706,7 +706,7 @@
         "date": "2023-02-08",
         "integrationSeconds": 62700,
         "lightFrameCount": 150,
-        "objectIds": [
+        "targetIds": [
           "m8",
           "m16"
         ]
@@ -715,7 +715,7 @@
         "date": "2023-02-11",
         "integrationSeconds": 29100,
         "lightFrameCount": 97,
-        "objectIds": [
+        "targetIds": [
           "sh2155"
         ]
       },
@@ -723,7 +723,7 @@
         "date": "2023-02-15",
         "integrationSeconds": 16800,
         "lightFrameCount": 56,
-        "objectIds": [
+        "targetIds": [
           "ngc6960"
         ]
       },
@@ -731,7 +731,7 @@
         "date": "2023-03-06",
         "integrationSeconds": 20160,
         "lightFrameCount": 112,
-        "objectIds": [
+        "targetIds": [
           "ic1805"
         ]
       },
@@ -739,7 +739,7 @@
         "date": "2023-03-16",
         "integrationSeconds": 17100,
         "lightFrameCount": 57,
-        "objectIds": [
+        "targetIds": [
           "ngc1499"
         ]
       },
@@ -747,7 +747,7 @@
         "date": "2023-03-18",
         "integrationSeconds": 31800,
         "lightFrameCount": 106,
-        "objectIds": [
+        "targetIds": [
           "m20"
         ]
       },
@@ -755,7 +755,7 @@
         "date": "2023-04-08",
         "integrationSeconds": 35400,
         "lightFrameCount": 118,
-        "objectIds": [
+        "targetIds": [
           "m17"
         ]
       },
@@ -763,7 +763,7 @@
         "date": "2023-04-22",
         "integrationSeconds": 8640,
         "lightFrameCount": 48,
-        "objectIds": [
+        "targetIds": [
           "m8"
         ]
       },
@@ -771,7 +771,7 @@
         "date": "2023-04-25",
         "integrationSeconds": 72000,
         "lightFrameCount": 120,
-        "objectIds": [
+        "targetIds": [
           "ic1805"
         ]
       },
@@ -779,7 +779,7 @@
         "date": "2023-08-02",
         "integrationSeconds": 7020,
         "lightFrameCount": 39,
-        "objectIds": [
+        "targetIds": [
           "m20"
         ]
       },
@@ -787,7 +787,7 @@
         "date": "2023-08-03",
         "integrationSeconds": 6120,
         "lightFrameCount": 34,
-        "objectIds": [
+        "targetIds": [
           "sh2155"
         ]
       },
@@ -795,7 +795,7 @@
         "date": "2023-08-05",
         "integrationSeconds": 24120,
         "lightFrameCount": 134,
-        "objectIds": [
+        "targetIds": [
           "ic1805"
         ]
       },
@@ -803,7 +803,7 @@
         "date": "2023-08-19",
         "integrationSeconds": 23400,
         "lightFrameCount": 39,
-        "objectIds": [
+        "targetIds": [
           "ngc6992"
         ]
       },
@@ -811,7 +811,7 @@
         "date": "2023-08-21",
         "integrationSeconds": 21000,
         "lightFrameCount": 70,
-        "objectIds": [
+        "targetIds": [
           "ic1805"
         ]
       },
@@ -819,7 +819,7 @@
         "date": "2023-08-25",
         "integrationSeconds": 26100,
         "lightFrameCount": 145,
-        "objectIds": [
+        "targetIds": [
           "ngc6992"
         ]
       },
@@ -827,7 +827,7 @@
         "date": "2023-09-15",
         "integrationSeconds": 76800,
         "lightFrameCount": 128,
-        "objectIds": [
+        "targetIds": [
           "ic1805",
           "m16"
         ]
@@ -836,7 +836,7 @@
         "date": "2023-09-17",
         "integrationSeconds": 19800,
         "lightFrameCount": 33,
-        "objectIds": [
+        "targetIds": [
           "sh2155"
         ]
       },
@@ -844,7 +844,7 @@
         "date": "2023-09-23",
         "integrationSeconds": 4680,
         "lightFrameCount": 26,
-        "objectIds": [
+        "targetIds": [
           "ngc1499"
         ]
       },
@@ -852,7 +852,7 @@
         "date": "2023-10-09",
         "integrationSeconds": 48000,
         "lightFrameCount": 80,
-        "objectIds": [
+        "targetIds": [
           "ic1805"
         ]
       },
@@ -860,7 +860,7 @@
         "date": "2023-10-13",
         "integrationSeconds": 22500,
         "lightFrameCount": 125,
-        "objectIds": [
+        "targetIds": [
           "ngc1499"
         ]
       },
@@ -868,7 +868,7 @@
         "date": "2023-10-14",
         "integrationSeconds": 33000,
         "lightFrameCount": 55,
-        "objectIds": [
+        "targetIds": [
           "ngc6960"
         ]
       },
@@ -876,7 +876,7 @@
         "date": "2023-10-26",
         "integrationSeconds": 6300,
         "lightFrameCount": 35,
-        "objectIds": [
+        "targetIds": [
           "ic1848"
         ]
       },
@@ -884,7 +884,7 @@
         "date": "2023-11-04",
         "integrationSeconds": 10440,
         "lightFrameCount": 58,
-        "objectIds": [
+        "targetIds": [
           "m17"
         ]
       },
@@ -892,7 +892,7 @@
         "date": "2023-11-16",
         "integrationSeconds": 16920,
         "lightFrameCount": 94,
-        "objectIds": [
+        "targetIds": [
           "sh2155"
         ]
       },
@@ -900,7 +900,7 @@
         "date": "2024-01-16",
         "integrationSeconds": 27900,
         "lightFrameCount": 93,
-        "objectIds": [
+        "targetIds": [
           "c2022e3"
         ]
       },
@@ -908,7 +908,7 @@
         "date": "2024-01-22",
         "integrationSeconds": 27600,
         "lightFrameCount": 92,
-        "objectIds": [
+        "targetIds": [
           "m104"
         ]
       },
@@ -916,7 +916,7 @@
         "date": "2024-01-23",
         "integrationSeconds": 33900,
         "lightFrameCount": 113,
-        "objectIds": [
+        "targetIds": [
           "ic443"
         ]
       },
@@ -924,7 +924,7 @@
         "date": "2024-02-12",
         "integrationSeconds": 34200,
         "lightFrameCount": 57,
-        "objectIds": [
+        "targetIds": [
           "m78"
         ]
       },
@@ -932,7 +932,7 @@
         "date": "2024-03-16",
         "integrationSeconds": 137400,
         "lightFrameCount": 229,
-        "objectIds": [
+        "targetIds": [
           "m78",
           "ngc4565"
         ]
@@ -941,7 +941,7 @@
         "date": "2024-04-14",
         "integrationSeconds": 90000,
         "lightFrameCount": 150,
-        "objectIds": [
+        "targetIds": [
           "c2022e3",
           "ngc2403"
         ]
@@ -950,7 +950,7 @@
         "date": "2024-08-17",
         "integrationSeconds": 55800,
         "lightFrameCount": 93,
-        "objectIds": [
+        "targetIds": [
           "ngc4565"
         ]
       },
@@ -958,7 +958,7 @@
         "date": "2024-08-23",
         "integrationSeconds": 106800,
         "lightFrameCount": 228,
-        "objectIds": [
+        "targetIds": [
           "ngc4565",
           "sh2240"
         ]
@@ -967,7 +967,7 @@
         "date": "2024-09-25",
         "integrationSeconds": 39300,
         "lightFrameCount": 131,
-        "objectIds": [
+        "targetIds": [
           "m33"
         ]
       },
@@ -975,7 +975,7 @@
         "date": "2024-10-05",
         "integrationSeconds": 28200,
         "lightFrameCount": 94,
-        "objectIds": [
+        "targetIds": [
           "ngc891"
         ]
       },
@@ -983,7 +983,7 @@
         "date": "2024-10-17",
         "integrationSeconds": 74400,
         "lightFrameCount": 124,
-        "objectIds": [
+        "targetIds": [
           "ngc4565"
         ]
       },
@@ -991,7 +991,7 @@
         "date": "2024-12-10",
         "integrationSeconds": 46800,
         "lightFrameCount": 78,
-        "objectIds": [
+        "targetIds": [
           "ngc891"
         ]
       },
@@ -999,7 +999,7 @@
         "date": "2024-12-22",
         "integrationSeconds": 36300,
         "lightFrameCount": 121,
-        "objectIds": [
+        "targetIds": [
           "sh2240"
         ]
       },
@@ -1007,7 +1007,7 @@
         "date": "2025-01-16",
         "integrationSeconds": 75900,
         "lightFrameCount": 162,
-        "objectIds": [
+        "targetIds": [
           "ic443",
           "m78"
         ]
@@ -1016,7 +1016,7 @@
         "date": "2025-03-19",
         "integrationSeconds": 22800,
         "lightFrameCount": 76,
-        "objectIds": [
+        "targetIds": [
           "ngc891"
         ]
       },
@@ -1024,7 +1024,7 @@
         "date": "2025-04-23",
         "integrationSeconds": 41700,
         "lightFrameCount": 139,
-        "objectIds": [
+        "targetIds": [
           "ic443"
         ]
       },
@@ -1032,7 +1032,7 @@
         "date": "2025-08-02",
         "integrationSeconds": 89400,
         "lightFrameCount": 149,
-        "objectIds": [
+        "targetIds": [
           "ngc7293"
         ]
       },
@@ -1040,7 +1040,7 @@
         "date": "2025-08-04",
         "integrationSeconds": 18600,
         "lightFrameCount": 62,
-        "objectIds": [
+        "targetIds": [
           "sh2240"
         ]
       },
@@ -1048,7 +1048,7 @@
         "date": "2025-08-07",
         "integrationSeconds": 13200,
         "lightFrameCount": 44,
-        "objectIds": [
+        "targetIds": [
           "sh2240"
         ]
       },
@@ -1056,7 +1056,7 @@
         "date": "2025-09-05",
         "integrationSeconds": 29100,
         "lightFrameCount": 97,
-        "objectIds": [
+        "targetIds": [
           "ngc4565"
         ]
       },
@@ -1064,7 +1064,7 @@
         "date": "2025-10-18",
         "integrationSeconds": 22500,
         "lightFrameCount": 75,
-        "objectIds": [
+        "targetIds": [
           "m33"
         ]
       },
@@ -1072,7 +1072,7 @@
         "date": "2025-10-19",
         "integrationSeconds": 51000,
         "lightFrameCount": 85,
-        "objectIds": [
+        "targetIds": [
           "sh2240"
         ]
       },
@@ -1080,7 +1080,7 @@
         "date": "2025-10-23",
         "integrationSeconds": 37200,
         "lightFrameCount": 62,
-        "objectIds": [
+        "targetIds": [
           "sh2240"
         ]
       },
@@ -1088,7 +1088,7 @@
         "date": "2025-12-22",
         "integrationSeconds": 40200,
         "lightFrameCount": 67,
-        "objectIds": [
+        "targetIds": [
           "m33"
         ]
       },
@@ -1096,7 +1096,7 @@
         "date": "2026-01-09",
         "integrationSeconds": 28200,
         "lightFrameCount": 94,
-        "objectIds": [
+        "targetIds": [
           "m33"
         ]
       },
@@ -1104,7 +1104,7 @@
         "date": "2026-01-11",
         "integrationSeconds": 45600,
         "lightFrameCount": 152,
-        "objectIds": [
+        "targetIds": [
           "ngc4565"
         ]
       },
@@ -1112,7 +1112,7 @@
         "date": "2026-01-18",
         "integrationSeconds": 33300,
         "lightFrameCount": 111,
-        "objectIds": [
+        "targetIds": [
           "ngc2403"
         ]
       },
@@ -1120,7 +1120,7 @@
         "date": "2026-03-16",
         "integrationSeconds": 43200,
         "lightFrameCount": 72,
-        "objectIds": [
+        "targetIds": [
           "m78"
         ]
       },
@@ -1128,7 +1128,7 @@
         "date": "2026-03-19",
         "integrationSeconds": 53400,
         "lightFrameCount": 89,
-        "objectIds": [
+        "targetIds": [
           "m33"
         ]
       },
@@ -1136,7 +1136,7 @@
         "date": "2026-04-17",
         "integrationSeconds": 91200,
         "lightFrameCount": 152,
-        "objectIds": [
+        "targetIds": [
           "c2022e3"
         ]
       },
@@ -1144,7 +1144,7 @@
         "date": "2026-04-19",
         "integrationSeconds": 87000,
         "lightFrameCount": 145,
-        "objectIds": [
+        "targetIds": [
           "m33"
         ]
       },
@@ -1152,7 +1152,7 @@
         "date": "2026-08-03",
         "integrationSeconds": 83100,
         "lightFrameCount": 186,
-        "objectIds": [
+        "targetIds": [
           "m104",
           "ngc891"
         ]
@@ -1161,7 +1161,7 @@
         "date": "2026-09-06",
         "integrationSeconds": 43200,
         "lightFrameCount": 72,
-        "objectIds": [
+        "targetIds": [
           "m104"
         ]
       },
@@ -1169,7 +1169,7 @@
         "date": "2026-10-08",
         "integrationSeconds": 22500,
         "lightFrameCount": 75,
-        "objectIds": [
+        "targetIds": [
           "m78"
         ]
       },
@@ -1177,7 +1177,7 @@
         "date": "2026-10-24",
         "integrationSeconds": 18600,
         "lightFrameCount": 62,
-        "objectIds": [
+        "targetIds": [
           "ngc2403"
         ]
       },
@@ -1185,7 +1185,7 @@
         "date": "2026-11-03",
         "integrationSeconds": 16800,
         "lightFrameCount": 28,
-        "objectIds": [
+        "targetIds": [
           "ngc7293"
         ]
       },
@@ -1193,7 +1193,7 @@
         "date": "2026-11-09",
         "integrationSeconds": 16200,
         "lightFrameCount": 54,
-        "objectIds": [
+        "targetIds": [
           "ic443"
         ]
       },
@@ -1201,7 +1201,7 @@
         "date": "2026-12-06",
         "integrationSeconds": 23100,
         "lightFrameCount": 77,
-        "objectIds": [
+        "targetIds": [
           "ngc7293"
         ]
       },
@@ -1209,13 +1209,13 @@
         "date": "2026-12-19",
         "integrationSeconds": 78600,
         "lightFrameCount": 131,
-        "objectIds": [
+        "targetIds": [
           "ngc891"
         ]
       }
     ]
   },
-  "objects": [
+  "targets": [
     {
       "id": "c2022e3",
       "displayName": "Comet ZTF",
@@ -1262,7 +1262,7 @@
           "frames": 33
         },
         {
-          "name": "H\u03b1",
+          "name": "Hα",
           "seconds": 5700,
           "frames": 19
         }
@@ -1278,7 +1278,7 @@
           "lightFrameCount": 93,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 5700,
               "frames": 19
             },
@@ -1374,7 +1374,7 @@
           "frames": 78
         },
         {
-          "name": "H\u03b1",
+          "name": "Hα",
           "seconds": 20340,
           "frames": 81
         },
@@ -1446,7 +1446,7 @@
           "lightFrameCount": 112,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 14400,
               "frames": 48
             },
@@ -1472,7 +1472,7 @@
           "lightFrameCount": 82,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 5940,
               "frames": 33
             },
@@ -1588,7 +1588,7 @@
           "frames": 57
         },
         {
-          "name": "H\u03b1",
+          "name": "Hα",
           "seconds": 14700,
           "frames": 49
         }
@@ -1635,7 +1635,7 @@
           "lightFrameCount": 71,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 8400,
               "frames": 28
             },
@@ -1687,7 +1687,7 @@
           "lightFrameCount": 54,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 6300,
               "frames": 21
             },
@@ -1724,7 +1724,7 @@
           "frames": 101
         },
         {
-          "name": "H\u03b1",
+          "name": "Hα",
           "seconds": 20760,
           "frames": 76
         },
@@ -1765,7 +1765,7 @@
           "lightFrameCount": 102,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 3060,
               "frames": 17
             },
@@ -1791,7 +1791,7 @@
           "lightFrameCount": 40,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 6600,
               "frames": 22
             },
@@ -1864,7 +1864,7 @@
           "lightFrameCount": 80,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 11100,
               "frames": 37
             },
@@ -1896,7 +1896,7 @@
       "latestSession": "2023-10-09",
       "filters": [
         {
-          "name": "H\u03b1",
+          "name": "Hα",
           "seconds": 45600,
           "frames": 76
         },
@@ -2004,7 +2004,7 @@
           "lightFrameCount": 120,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 19200,
               "frames": 32
             },
@@ -2103,7 +2103,7 @@
           "lightFrameCount": 80,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 26400,
               "frames": 44
             },
@@ -2140,7 +2140,7 @@
       "latestSession": "2023-10-26",
       "filters": [
         {
-          "name": "H\u03b1",
+          "name": "Hα",
           "seconds": 30360,
           "frames": 128
         },
@@ -2171,7 +2171,7 @@
           "lightFrameCount": 60,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 6660,
               "frames": 37
             },
@@ -2192,7 +2192,7 @@
           "lightFrameCount": 53,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 8100,
               "frames": 27
             },
@@ -2213,7 +2213,7 @@
           "lightFrameCount": 75,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 5400,
               "frames": 30
             },
@@ -2234,7 +2234,7 @@
           "lightFrameCount": 63,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 10200,
               "frames": 34
             },
@@ -2304,7 +2304,7 @@
           "frames": 26
         },
         {
-          "name": "H\u03b1",
+          "name": "Hα",
           "seconds": 9720,
           "frames": 46
         },
@@ -2325,7 +2325,7 @@
           "lightFrameCount": 48,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 3600,
               "frames": 12
             },
@@ -2346,7 +2346,7 @@
           "lightFrameCount": 36,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 3240,
               "frames": 18
             },
@@ -2388,7 +2388,7 @@
           "lightFrameCount": 48,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 2880,
               "frames": 16
             },
@@ -2520,7 +2520,7 @@
       "latestSession": "2023-09-15",
       "filters": [
         {
-          "name": "H\u03b1",
+          "name": "Hα",
           "seconds": 38700,
           "frames": 83
         },
@@ -2597,7 +2597,7 @@
           "lightFrameCount": 91,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 11100,
               "frames": 37
             },
@@ -2623,7 +2623,7 @@
           "lightFrameCount": 91,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 27600,
               "frames": 46
             },
@@ -2672,7 +2672,7 @@
           "frames": 25
         },
         {
-          "name": "H\u03b1",
+          "name": "Hα",
           "seconds": 7200,
           "frames": 40
         },
@@ -2729,7 +2729,7 @@
           "lightFrameCount": 58,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 7200,
               "frames": 40
             },
@@ -2773,7 +2773,7 @@
           "frames": 70
         },
         {
-          "name": "H\u03b1",
+          "name": "Hα",
           "seconds": 17100,
           "frames": 57
         },
@@ -2799,7 +2799,7 @@
           "lightFrameCount": 50,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 6300,
               "frames": 21
             },
@@ -2841,7 +2841,7 @@
           "lightFrameCount": 106,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 10800,
               "frames": 36
             },
@@ -3075,7 +3075,7 @@
           "frames": 81
         },
         {
-          "name": "H\u03b1",
+          "name": "Hα",
           "seconds": 12600,
           "frames": 42
         },
@@ -3127,7 +3127,7 @@
           "lightFrameCount": 75,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 12600,
               "frames": 42
             },
@@ -3459,7 +3459,7 @@
           "frames": 77
         },
         {
-          "name": "H\u03b1",
+          "name": "Hα",
           "seconds": 16860,
           "frames": 71
         }
@@ -3475,7 +3475,7 @@
           "lightFrameCount": 111,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 6660,
               "frames": 37
             },
@@ -3501,7 +3501,7 @@
           "lightFrameCount": 112,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 10200,
               "frames": 34
             },
@@ -3545,7 +3545,7 @@
           "frames": 173
         },
         {
-          "name": "H\u03b1",
+          "name": "Hα",
           "seconds": 70500,
           "frames": 124
         },
@@ -3566,7 +3566,7 @@
           "lightFrameCount": 57,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 15600,
               "frames": 26
             },
@@ -3587,7 +3587,7 @@
           "lightFrameCount": 105,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 9600,
               "frames": 16
             },
@@ -3613,7 +3613,7 @@
           "lightFrameCount": 91,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 19200,
               "frames": 32
             },
@@ -3639,7 +3639,7 @@
           "lightFrameCount": 72,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 22200,
               "frames": 37
             },
@@ -3660,7 +3660,7 @@
           "lightFrameCount": 75,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 3900,
               "frames": 13
             },
@@ -3719,7 +3719,7 @@
           "frames": 46
         },
         {
-          "name": "H\u03b1",
+          "name": "Hα",
           "seconds": 8160,
           "frames": 32
         },
@@ -3782,7 +3782,7 @@
           "lightFrameCount": 92,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 2160,
               "frames": 12
             },
@@ -3808,7 +3808,7 @@
           "lightFrameCount": 52,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 6000,
               "frames": 20
             },
@@ -3852,7 +3852,7 @@
           "frames": 79
         },
         {
-          "name": "H\u03b1",
+          "name": "Hα",
           "seconds": 23640,
           "frames": 98
         },
@@ -3883,7 +3883,7 @@
           "lightFrameCount": 67,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 5100,
               "frames": 17
             },
@@ -3909,7 +3909,7 @@
           "lightFrameCount": 120,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 8640,
               "frames": 48
             },
@@ -3977,7 +3977,7 @@
           "lightFrameCount": 75,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 9900,
               "frames": 33
             },
@@ -4016,7 +4016,7 @@
       "latestSession": "2026-09-06",
       "filters": [
         {
-          "name": "H\u03b1",
+          "name": "Hα",
           "seconds": 48000,
           "frames": 93
         },
@@ -4042,7 +4042,7 @@
           "lightFrameCount": 92,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 7800,
               "frames": 26
             },
@@ -4068,7 +4068,7 @@
           "lightFrameCount": 91,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 17400,
               "frames": 29
             },
@@ -4094,7 +4094,7 @@
           "lightFrameCount": 72,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 22800,
               "frames": 38
             },
@@ -4189,7 +4189,7 @@
           "frames": 91
         },
         {
-          "name": "H\u03b1",
+          "name": "Hα",
           "seconds": 26700,
           "frames": 74
         },
@@ -4225,7 +4225,7 @@
           "lightFrameCount": 94,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 9300,
               "frames": 31
             },
@@ -4251,7 +4251,7 @@
           "lightFrameCount": 78,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 9000,
               "frames": 15
             },
@@ -4277,7 +4277,7 @@
           "lightFrameCount": 76,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 8400,
               "frames": 28
             },
@@ -4388,7 +4388,7 @@
           "frames": 33
         },
         {
-          "name": "H\u03b1",
+          "name": "Hα",
           "seconds": 7320,
           "frames": 30
         }
@@ -4456,7 +4456,7 @@
           "lightFrameCount": 57,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 4800,
               "frames": 16
             },
@@ -4477,7 +4477,7 @@
           "lightFrameCount": 26,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 2520,
               "frames": 14
             },
@@ -4557,7 +4557,7 @@
           "frames": 107
         },
         {
-          "name": "H\u03b1",
+          "name": "Hα",
           "seconds": 21960,
           "frames": 102
         },
@@ -4650,7 +4650,7 @@
           "lightFrameCount": 67,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 9000,
               "frames": 30
             },
@@ -4671,7 +4671,7 @@
           "lightFrameCount": 103,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 7380,
               "frames": 41
             },
@@ -4697,7 +4697,7 @@
           "lightFrameCount": 65,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 3420,
               "frames": 19
             },
@@ -4723,7 +4723,7 @@
           "lightFrameCount": 71,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 2160,
               "frames": 12
             },
@@ -4813,7 +4813,7 @@
           "frames": 28
         },
         {
-          "name": "H\u03b1",
+          "name": "Hα",
           "seconds": 10200,
           "frames": 34
         },
@@ -4896,7 +4896,7 @@
           "lightFrameCount": 62,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 10200,
               "frames": 34
             },
@@ -4950,7 +4950,7 @@
           "frames": 108
         },
         {
-          "name": "H\u03b1",
+          "name": "Hα",
           "seconds": 40200,
           "frames": 87
         },
@@ -5007,7 +5007,7 @@
           "lightFrameCount": 93,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 28200,
               "frames": 47
             },
@@ -5033,7 +5033,7 @@
           "lightFrameCount": 100,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 12000,
               "frames": 40
             },
@@ -5190,7 +5190,7 @@
           "frames": 35
         },
         {
-          "name": "H\u03b1",
+          "name": "Hα",
           "seconds": 10200,
           "frames": 34
         }
@@ -5268,7 +5268,7 @@
           "lightFrameCount": 69,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 10200,
               "frames": 34
             },
@@ -5348,7 +5348,7 @@
           "frames": 76
         },
         {
-          "name": "H\u03b1",
+          "name": "Hα",
           "seconds": 31260,
           "frames": 94
         },
@@ -5431,7 +5431,7 @@
           "lightFrameCount": 63,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 5760,
               "frames": 32
             },
@@ -5457,7 +5457,7 @@
           "lightFrameCount": 100,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 13800,
               "frames": 23
             },
@@ -5483,7 +5483,7 @@
           "lightFrameCount": 56,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 11700,
               "frames": 39
             },
@@ -5763,7 +5763,7 @@
           "frames": 42
         },
         {
-          "name": "H\u03b1",
+          "name": "Hα",
           "seconds": 22500,
           "frames": 60
         },
@@ -5829,7 +5829,7 @@
           "lightFrameCount": 28,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 9000,
               "frames": 15
             },
@@ -5853,7 +5853,7 @@
           "lightFrameCount": 77,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 13500,
               "frames": 45
             },
@@ -5905,7 +5905,7 @@
           "frames": 36
         },
         {
-          "name": "H\u03b1",
+          "name": "Hα",
           "seconds": 4860,
           "frames": 27
         },
@@ -5947,7 +5947,7 @@
           "lightFrameCount": 82,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 4860,
               "frames": 27
             },
@@ -6022,7 +6022,7 @@
           "frames": 43
         },
         {
-          "name": "H\u03b1",
+          "name": "Hα",
           "seconds": 11700,
           "frames": 39
         },
@@ -6105,7 +6105,7 @@
           "lightFrameCount": 97,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 11700,
               "frames": 39
             },
@@ -6217,7 +6217,7 @@
       "latestSession": "2025-10-23",
       "filters": [
         {
-          "name": "H\u03b1",
+          "name": "Hα",
           "seconds": 48900,
           "frames": 89
         },
@@ -6346,7 +6346,7 @@
           "lightFrameCount": 44,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 4500,
               "frames": 15
             },
@@ -6372,7 +6372,7 @@
           "lightFrameCount": 85,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 27000,
               "frames": 45
             },
@@ -6393,7 +6393,7 @@
           "lightFrameCount": 62,
           "filters": [
             {
-              "name": "H\u03b1",
+              "name": "Hα",
               "seconds": 17400,
               "frames": 29
             },
@@ -6422,10 +6422,10 @@
       "fRatio": null,
       "totalIntegrationSeconds": 21750,
       "lightFrameCount": 266,
-      "objectCount": 4,
+      "targetCount": 4,
       "firstLight": "2016-01-08",
       "latestSession": "2017-04-24",
-      "objectIds": [
+      "targetIds": [
         "m31",
         "m42",
         "m45",
@@ -6441,10 +6441,10 @@
       "fRatio": null,
       "totalIntegrationSeconds": 65760,
       "lightFrameCount": 350,
-      "objectCount": 4,
+      "targetCount": 4,
       "firstLight": "2018-01-18",
       "latestSession": "2019-12-08",
-      "objectIds": [
+      "targetIds": [
         "m13",
         "m27",
         "m51",
@@ -6460,10 +6460,10 @@
       "fRatio": null,
       "totalIntegrationSeconds": 718140,
       "lightFrameCount": 3037,
-      "objectCount": 8,
+      "targetCount": 8,
       "firstLight": "2020-01-03",
       "latestSession": "2021-12-25",
-      "objectIds": [
+      "targetIds": [
         "ic434",
         "ic1396",
         "m57",
@@ -6483,10 +6483,10 @@
       "fRatio": null,
       "totalIntegrationSeconds": 1804020,
       "lightFrameCount": 4500,
-      "objectCount": 11,
+      "targetCount": 11,
       "firstLight": "2022-01-11",
       "latestSession": "2026-11-09",
-      "objectIds": [
+      "targetIds": [
         "c2022e3",
         "ic443",
         "ic1805",
@@ -6509,10 +6509,10 @@
       "fRatio": null,
       "totalIntegrationSeconds": 321900,
       "lightFrameCount": 1219,
-      "objectCount": 4,
+      "targetCount": 4,
       "firstLight": "2022-03-08",
       "latestSession": "2023-11-16",
-      "objectIds": [
+      "targetIds": [
         "ic1848",
         "m17",
         "ngc6992",
@@ -6528,10 +6528,10 @@
       "fRatio": null,
       "totalIntegrationSeconds": 840300,
       "lightFrameCount": 1854,
-      "objectCount": 5,
+      "targetCount": 5,
       "firstLight": "2024-01-22",
       "latestSession": "2026-12-19",
-      "objectIds": [
+      "targetIds": [
         "m33",
         "m104",
         "ngc891",
@@ -6548,10 +6548,10 @@
       "fRatio": 2,
       "totalIntegrationSeconds": 1620,
       "lightFrameCount": 18,
-      "objectCount": 1,
+      "targetCount": 1,
       "firstLight": "2016-11-18",
       "latestSession": "2016-11-18",
-      "objectIds": [
+      "targetIds": [
         "ngc869"
       ]
     },
@@ -6564,10 +6564,10 @@
       "fRatio": 5.8,
       "totalIntegrationSeconds": 20130,
       "lightFrameCount": 248,
-      "objectCount": 3,
+      "targetCount": 3,
       "firstLight": "2016-01-08",
       "latestSession": "2017-04-24",
-      "objectIds": [
+      "targetIds": [
         "m31",
         "m42",
         "m45"
@@ -6582,10 +6582,10 @@
       "fRatio": 4.9,
       "totalIntegrationSeconds": 65760,
       "lightFrameCount": 350,
-      "objectCount": 4,
+      "targetCount": 4,
       "firstLight": "2018-01-18",
       "latestSession": "2019-12-08",
-      "objectIds": [
+      "targetIds": [
         "m13",
         "m27",
         "m51",
@@ -6601,10 +6601,10 @@
       "fRatio": 5.5,
       "totalIntegrationSeconds": 1178700,
       "lightFrameCount": 3946,
-      "objectCount": 11,
+      "targetCount": 11,
       "firstLight": "2020-01-24",
       "latestSession": "2023-11-04",
-      "objectIds": [
+      "targetIds": [
         "ic434",
         "ic1396",
         "ic1805",
@@ -6627,10 +6627,10 @@
       "fRatio": 7,
       "totalIntegrationSeconds": 337500,
       "lightFrameCount": 1228,
-      "objectCount": 4,
+      "targetCount": 4,
       "firstLight": "2022-01-11",
       "latestSession": "2026-11-09",
-      "objectIds": [
+      "targetIds": [
         "ic443",
         "ic1848",
         "m8",
@@ -6646,10 +6646,10 @@
       "fRatio": 4,
       "totalIntegrationSeconds": 417060,
       "lightFrameCount": 1692,
-      "objectCount": 4,
+      "targetCount": 4,
       "firstLight": "2020-01-03",
       "latestSession": "2023-11-16",
-      "objectIds": [
+      "targetIds": [
         "m57",
         "m101",
         "ngc2237",
@@ -6665,10 +6665,10 @@
       "fRatio": 8,
       "totalIntegrationSeconds": 1146300,
       "lightFrameCount": 2415,
-      "objectCount": 6,
+      "targetCount": 6,
       "firstLight": "2024-01-16",
       "latestSession": "2026-10-24",
-      "objectIds": [
+      "targetIds": [
         "c2022e3",
         "m78",
         "m104",
@@ -6686,10 +6686,10 @@
       "fRatio": 10,
       "totalIntegrationSeconds": 604800,
       "lightFrameCount": 1329,
-      "objectCount": 3,
+      "targetCount": 3,
       "firstLight": "2024-09-25",
       "latestSession": "2026-12-19",
-      "objectIds": [
+      "targetIds": [
         "m33",
         "ngc891",
         "ngc7293"
@@ -6704,10 +6704,10 @@
       "fRatio": null,
       "totalIntegrationSeconds": 129300,
       "lightFrameCount": 254,
-      "objectCount": 1,
+      "targetCount": 1,
       "firstLight": "2025-08-02",
       "latestSession": "2026-12-06",
-      "objectIds": [
+      "targetIds": [
         "ngc7293"
       ]
     }

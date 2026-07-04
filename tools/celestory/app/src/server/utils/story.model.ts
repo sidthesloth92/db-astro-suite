@@ -6,16 +6,16 @@
 /** Denormalized headline totals extracted from a story on create. */
 export interface StoryTotals {
   totalIntegrationSeconds: number;
-  objectCount: number;
+  targetCount: number;
   nightCount: number;
   lightFrameCount: number;
   firstLight: string | null;
   latestSession: string | null;
 }
 
-/** One row destined for the story_objects table. */
-export interface StoryObjectRow {
-  objectId: string;
+/** One row destined for the story_targets table. */
+export interface StoryTargetRow {
+  targetId: string;
   designation: string;
   category: string;
   integrationSeconds: number;
@@ -47,9 +47,9 @@ export interface StoryFilterRow {
   frames: number;
 }
 
-/** One per-object, per-month rollup row destined for story_object_months. */
-export interface StoryObjectMonthRow {
-  objectId: string;
+/** One per-target, per-month rollup row destined for story_target_months. */
+export interface StoryTargetMonthRow {
+  targetId: string;
   designation: string;
   category: string;
   /** First day of the month, ISO `YYYY-MM-01`. */
@@ -79,10 +79,10 @@ export interface StoryEquipmentMonthRow {
 /** The full set of child rows derived from a story on create. */
 export interface ExtractedRows {
   totals: StoryTotals;
-  objects: StoryObjectRow[];
+  targets: StoryTargetRow[];
   equipment: StoryEquipmentRow[];
   filters: StoryFilterRow[];
-  objectMonths: StoryObjectMonthRow[];
+  targetMonths: StoryTargetMonthRow[];
   filterMonths: StoryFilterMonthRow[];
   equipmentMonths: StoryEquipmentMonthRow[];
 }
@@ -94,7 +94,7 @@ export interface CommunityStats {
   /** Online, live published profiles (the `stories` table count). */
   liveCount: number;
   totalIntegrationSeconds: number;
-  objectCount: number;
+  targetCount: number;
   lightFrameCount: number;
 }
 
@@ -109,5 +109,5 @@ export interface StoryUpload {
   dataFingerprint: string;
   totalIntegrationSeconds: number;
   lightFrameCount: number;
-  objectCount: number;
+  targetCount: number;
 }

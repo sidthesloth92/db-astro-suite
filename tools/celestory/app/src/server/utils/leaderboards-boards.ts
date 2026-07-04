@@ -7,8 +7,8 @@ import {
   scopedEquipment,
   scopedFilters,
   scopedMonths,
-  scopedObjects,
   scopedProjects,
+  scopedTargets,
   scopedUserFrames,
   scopedUserIntegration,
 } from './leaderboards-scoped';
@@ -19,7 +19,7 @@ export const BOARD_IDS: readonly BoardId[] = [
   'hours',
   'frames',
   'project',
-  'object',
+  'target',
   'cameras',
   'mounts',
   'telescopes',
@@ -53,13 +53,13 @@ const BOARDS: Readonly<Record<BoardId, BoardConfig>> = {
     sub: 'designation',
     query: (scope, limit) => scopedProjects(scope, limit),
   },
-  object: {
-    id: 'object',
+  target: {
+    id: 'target',
     unit: 'imagers',
     transform: 'none',
     tag: 'category',
     sub: 'none',
-    query: (scope, limit) => scopedObjects(scope, limit),
+    query: (scope, limit) => scopedTargets(scope, limit),
   },
   cameras: {
     id: 'cameras',

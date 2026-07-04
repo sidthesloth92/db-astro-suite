@@ -1,11 +1,11 @@
 /**
  * Maps a parsed Story (the `story_json` of a published profile) into the OG card
- * models for the profile, a single object, or a single piece of equipment. Pure;
- * the object/equipment mappers return null when the id is not found so the route
+ * models for the profile, a single target, or a single piece of equipment. Pure;
+ * the target/equipment mappers return null when the id is not found so the route
  * can fall back to the profile/brand card.
  */
 import type { EquipmentItem, Story } from '../utils/story.types';
-import type { OgEquipmentModel, OgObjectModel, OgProfileModel } from './og-card.model';
+import type { OgEquipmentModel, OgProfileModel, OgTargetModel } from './og-card.model';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -52,7 +52,7 @@ function yearOf(iso: string): string {
 function mostUsedOn(story: Story, gear: EquipmentItem): string {
   let bestName = '';
   let bestSeconds = 0;
-  for (const o of story.objects ?? []) {
+  for (const o of story.targets ?? []) {
     let seconds = 0;
     for (const sess of o.sessions ?? []) {
       if ((sess.equipmentIds ?? []).includes(gear.id)) {
@@ -65,7 +65,7 @@ function mostUsedOn(story: Story, gear: EquipmentItem): string {
     }
   }
   if (!bestName) {
-    const first = story.objects?.find((x) => x.id === (gear.objectIds ?? [])[0]);
+    const first = story.targets?.find((x) => x.id === (gear.targetIds ?? [])[0]);
     bestName = first ? first.designation || first.displayName : '';
   }
   return bestName || '—';
@@ -74,16 +74,16 @@ function mostUsedOn(story: Story, gear: EquipmentItem): string {
 /** Map a story to the per-profile OG card model (headline stats + highlights). */
 export function toProfileOgModel(story: Story, handle: string): OgProfileModel {
   const s = story.summary;
-  const objects = story.objects ?? [];
-  const topTarget = [...objects].sort(
+  const targets = story.targets ?? [];
+  const topTarget = [...targets].sort(
     (a, b) => (b.totalIntegrationSeconds || 0) - (a.totalIntegrationSeconds || 0),
   )[0];
-  const mostImaged = [...objects].sort((a, b) => (b.lightFrameCount || 0) - (a.lightFrameCount || 0))[0];
+  const mostImaged = [...targets].sort((a, b) => (b.lightFrameCount || 0) - (a.lightFrameCount || 0))[0];
   const longestNight = (s.activity ?? []).reduce((m, a) => Math.max(m, a.integrationSeconds || 0), 0);
   return {
     handle,
     hours: hoursNum(s.totalIntegrationSeconds),
-    targets: countLabel(s.objectCount),
+    targets: countLabel(s.targetCount),
     nights: countLabel(s.nightCount),
     frames: countLabel(s.lightFrameCount),
     topTarget: topTarget ? topTarget.designation || topTarget.displayName : '—',
@@ -92,9 +92,9 @@ export function toProfileOgModel(story: Story, handle: string): OgProfileModel {
   };
 }
 
-/** Map a story object (by id) to the per-object OG card model, or null if absent. */
-export function toObjectOgModel(story: Story, handle: string, id: string): OgObjectModel | null {
-  const o = story.objects?.find((x) => x.id === id);
+/** Map a story target (by id) to the per-target OG card model, or null if absent. */
+export function toTargetOgModel(story: Story, handle: string, id: string): OgTargetModel | null {
+  const o = story.targets?.find((x) => x.id === id);
   if (!o) {
     return null;
   }
@@ -126,7 +126,7 @@ export function toEquipmentOgModel(
     name: e.displayName || 'Equipment',
     kind: e.kind || 'Gear',
     hours: hoursNum(e.totalIntegrationSeconds),
-    targets: countLabel(e.objectCount),
+    targets: countLabel(e.targetCount),
     frames: countLabel(e.lightFrameCount),
     mostUsedOn: mostUsedOn(story, e),
     inServiceYear: year ? `Since ${year}` : '—',

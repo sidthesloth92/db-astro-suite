@@ -74,7 +74,7 @@
   </div>
 
   <div class="metrics">
-    <div class="mtile"><div class="mv">{{ count(story().summary.objectCount) }}</div><div class="mk">Objects</div></div>
+    <div class="mtile"><div class="mv">{{ count(story().summary.targetCount) }}</div><div class="mk">Targets</div></div>
     <div class="mdiv"></div>
     <div class="mtile"><div class="mv">{{ count(story().summary.nightCount) }}</div><div class="mk">Nights imaged</div></div>
     <div class="mdiv"></div>
@@ -88,8 +88,8 @@
   </div>
   <div class="highlights">
     @for (h of highlights(); track h.key) {
-      @if (h.objectId; as oid) {
-        <button class="hl hl-link" type="button" (click)="openObject.emit(oid)">
+      @if (h.targetId; as oid) {
+        <button class="hl hl-link" type="button" (click)="openTarget.emit(oid)">
           <div class="hl-k eyebrow">{{ h.key }}</div>
           <div class="hl-v">{{ h.value }}</div>
           <div class="hl-s">{{ h.sub }}</div>
@@ -105,7 +105,7 @@
   </div>
 
   @if (hasSky()) {
-    <dba-universe-globe [objects]="story().objects" (enter)="enterSky.emit()" />
+    <dba-universe-globe [targets]="story().targets" (enter)="enterSky.emit()" />
   }
 
   <dba-section-banner num="01" eyebrow="The Record" title="Activity" glyph="chart" [seed]="2" [sub]="activitySub()" />

@@ -11,30 +11,30 @@ import {
   PLATFORM_ID,
   viewChild,
 } from '@angular/core';
-import { objectArtSeed, renderObjectArt } from '../../utils/astro-art.util';
+import { targetArtSeed, renderTargetArt } from '../../utils/astro-art.util';
 import { CelIconComponent, type CelIconName } from '../cel-icon/cel-icon.component';
 
 /**
- * An imaged object's thumbnail. Paints a premium, deterministic vector motif for
- * the object's category (galaxy spiral / nebula shell / globular swarm / …) on a
+ * An imaged target's thumbnail. Paints a premium, deterministic vector motif for
+ * the target's category (galaxy spiral / nebula shell / globular swarm / …) on a
  * `<canvas>` in the browser; falls back to a faint star field + category glyph on
  * the server / before paint. The parent controls size/aspect.
  */
 @Component({
-  selector: 'dba-object-image',
+  selector: 'dba-target-image',
   standalone: true,
   imports: [CelIconComponent],
-  templateUrl: './object-image.component.html',
-  styleUrl: './object-image.component.css',
+  templateUrl: './target-image.component.html',
+  styleUrl: './target-image.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ObjectImageComponent {
+export class TargetImageComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
-  /** The object's id (seeds deterministic art). */
-  readonly objectId = input<string>('');
-  /** The object's category (selects the motif). */
+  /** The target's id (seeds deterministic art). */
+  readonly targetId = input<string>('');
+  /** The target's category (selects the motif). */
   readonly category = input<string>('');
   /** Category glyph shown as the SSR/no-canvas fallback. */
   readonly icon = input<CelIconName>('galaxy');
@@ -56,9 +56,9 @@ export class ObjectImageComponent {
         this.resizeObserver.observe(canvas);
       }
     });
-    // Re-paint when the object/category changes (browser only — guarded by canvas presence).
+    // Re-paint when the target/category changes (browser only — guarded by canvas presence).
     effect(() => {
-      this.objectId();
+      this.targetId();
       this.category();
       this.paint();
     });
@@ -73,6 +73,6 @@ export class ObjectImageComponent {
     if (!canvas) {
       return;
     }
-    renderObjectArt(canvas, this.category(), objectArtSeed(this.objectId(), this.category()));
+    renderTargetArt(canvas, this.category(), targetArtSeed(this.targetId(), this.category()));
   }
 }

@@ -17,8 +17,8 @@ import type {
   EquipmentMetric,
   FilterMetric,
   MonthView,
-  ObjectMetric,
   SpecMetric,
+  TargetMetric,
   UserMetric,
 } from './leaderboards.types';
 
@@ -78,8 +78,8 @@ function userUnit(metric: UserMetric): string {
   switch (metric) {
     case 'frames':
       return 'frames';
-    case 'objects':
-      return 'objects';
+    case 'targets':
+      return 'targets';
     case 'nights':
       return 'nights';
     case 'diversity':
@@ -108,10 +108,10 @@ export async function topUsers(
         SELECT handle AS key, handle AS label, light_frame_count AS value
         FROM stories ORDER BY light_frame_count DESC NULLS LAST LIMIT ${limit}`;
       break;
-    case 'objects':
+    case 'targets':
       rows = await sql`
-        SELECT handle AS key, handle AS label, object_count AS value
-        FROM stories ORDER BY object_count DESC NULLS LAST LIMIT ${limit}`;
+        SELECT handle AS key, handle AS label, target_count AS value
+        FROM stories ORDER BY target_count DESC NULLS LAST LIMIT ${limit}`;
       break;
     case 'nights':
       rows = await sql`
@@ -142,7 +142,7 @@ export async function topUsers(
       rows = await sql`
         SELECT s.handle AS key, s.handle AS label,
           COUNT(DISTINCT so.category) AS value
-        FROM stories s JOIN story_objects so ON so.story_id = s.id
+        FROM stories s JOIN story_targets so ON so.story_id = s.id
         GROUP BY s.handle ORDER BY value DESC LIMIT ${limit}`;
       break;
     case 'recent':
@@ -162,9 +162,9 @@ export async function topUsers(
   return entriesFrom(rows, userUnit(metric), metaKeys);
 }
 
-/** Top imaged objects across the community, ranked by the chosen object metric. */
-export async function topObjects(
-  metric: ObjectMetric,
+/** Top imaged targets across the community, ranked by the chosen target metric. */
+export async function topTargets(
+  metric: TargetMetric,
   limit: number,
 ): Promise<LeaderboardEntry[]> {
   const sql = getDb();
@@ -177,65 +177,65 @@ export async function topObjects(
       unit = 'imagers';
       metaKeys = ['category', 'seconds'];
       rows = await sql`
-        SELECT object_id AS key, MAX(designation) AS label,
+        SELECT target_id AS key, MAX(designation) AS label,
           COUNT(DISTINCT story_id) AS value,
           MAX(category) AS category, SUM(integration_seconds) AS seconds
-        FROM story_objects WHERE object_id IS NOT NULL
-        GROUP BY object_id ORDER BY value DESC LIMIT ${limit}`;
+        FROM story_targets WHERE target_id IS NOT NULL
+        GROUP BY target_id ORDER BY value DESC LIMIT ${limit}`;
       break;
     case 'frames':
       unit = 'frames';
       rows = await sql`
-        SELECT object_id AS key, MAX(designation) AS label,
+        SELECT target_id AS key, MAX(designation) AS label,
           SUM(light_frame_count) AS value,
           MAX(category) AS category, COUNT(DISTINCT story_id) AS imagers
-        FROM story_objects WHERE object_id IS NOT NULL
-        GROUP BY object_id ORDER BY value DESC LIMIT ${limit}`;
+        FROM story_targets WHERE target_id IS NOT NULL
+        GROUP BY target_id ORDER BY value DESC LIMIT ${limit}`;
       break;
     case 'deepest':
       metaKeys = ['category', 'handle'];
       rows = await sql`
-        SELECT so.object_id AS key, so.designation AS label,
+        SELECT so.target_id AS key, so.designation AS label,
           so.integration_seconds AS value,
           so.category AS category, s.handle AS handle
-        FROM story_objects so JOIN stories s ON s.id = so.story_id
-        WHERE so.object_id IS NOT NULL
+        FROM story_targets so JOIN stories s ON s.id = so.story_id
+        WHERE so.target_id IS NOT NULL
         ORDER BY so.integration_seconds DESC NULLS LAST LIMIT ${limit}`;
       break;
     case 'rarest':
       metaKeys = ['category'];
       rows = await sql`
-        SELECT object_id AS key, MAX(designation) AS label,
+        SELECT target_id AS key, MAX(designation) AS label,
           SUM(integration_seconds) AS value, MAX(category) AS category
-        FROM story_objects WHERE object_id IS NOT NULL
-        GROUP BY object_id HAVING COUNT(DISTINCT story_id) = 1
+        FROM story_targets WHERE target_id IS NOT NULL
+        GROUP BY target_id HAVING COUNT(DISTINCT story_id) = 1
         ORDER BY value DESC LIMIT ${limit}`;
       break;
     case 'comets':
       unit = 'imagers';
       metaKeys = ['category', 'seconds'];
       rows = await sql`
-        SELECT object_id AS key, MAX(designation) AS label,
+        SELECT target_id AS key, MAX(designation) AS label,
           COUNT(DISTINCT story_id) AS value,
           MAX(category) AS category, SUM(integration_seconds) AS seconds
-        FROM story_objects
-        WHERE object_id IS NOT NULL
+        FROM story_targets
+        WHERE target_id IS NOT NULL
           AND (designation ~ '^[Cc]/[0-9]' OR designation ILIKE 'comet%')
-        GROUP BY object_id ORDER BY value DESC, seconds DESC LIMIT ${limit}`;
+        GROUP BY target_id ORDER BY value DESC, seconds DESC LIMIT ${limit}`;
       break;
     default:
       rows = await sql`
-        SELECT object_id AS key, MAX(designation) AS label,
+        SELECT target_id AS key, MAX(designation) AS label,
           SUM(integration_seconds) AS value,
           MAX(category) AS category, COUNT(DISTINCT story_id) AS imagers
-        FROM story_objects WHERE object_id IS NOT NULL
-        GROUP BY object_id ORDER BY value DESC LIMIT ${limit}`;
+        FROM story_targets WHERE target_id IS NOT NULL
+        GROUP BY target_id ORDER BY value DESC LIMIT ${limit}`;
   }
 
   return entriesFrom(rows, unit, metaKeys);
 }
 
-/** Most popular object categories across the community. */
+/** Most popular target categories across the community. */
 export async function topCategories(
   metric: CategoryMetric,
   limit: number,
@@ -245,17 +245,17 @@ export async function topCategories(
     const rows = await sql`
       SELECT category AS key, category AS label,
         SUM(integration_seconds) AS value,
-        COUNT(DISTINCT story_id) AS imagers, COUNT(*) AS objects
-      FROM story_objects WHERE category IS NOT NULL AND category <> ''
+        COUNT(DISTINCT story_id) AS imagers, COUNT(*) AS targets
+      FROM story_targets WHERE category IS NOT NULL AND category <> ''
       GROUP BY category ORDER BY value DESC LIMIT ${limit}`;
-    return entriesFrom(rows, 'seconds', ['imagers', 'objects']);
+    return entriesFrom(rows, 'seconds', ['imagers', 'targets']);
   }
   const rows = await sql`
     SELECT category AS key, category AS label, COUNT(*) AS value,
       COUNT(DISTINCT story_id) AS imagers, SUM(integration_seconds) AS seconds
-    FROM story_objects WHERE category IS NOT NULL AND category <> ''
+    FROM story_targets WHERE category IS NOT NULL AND category <> ''
     GROUP BY category ORDER BY value DESC LIMIT ${limit}`;
-  return entriesFrom(rows, 'objects', ['imagers', 'seconds']);
+  return entriesFrom(rows, 'targets', ['imagers', 'seconds']);
 }
 
 /** Most popular cameras or telescopes, ranked by the chosen equipment metric. */
@@ -384,7 +384,7 @@ export async function busiestMonths(
     const rows: Array<Record<string, unknown>> = await sql`
       SELECT EXTRACT(MONTH FROM month)::int AS month_num,
         SUM(integration_seconds) AS value, SUM(light_frame_count) AS frames
-      FROM story_object_months
+      FROM story_target_months
       WHERE month IS NOT NULL
         AND (${year}::int IS NULL OR EXTRACT(YEAR FROM month) = ${year})
       GROUP BY month_num ORDER BY value DESC LIMIT ${limit}`;
@@ -404,27 +404,27 @@ export async function busiestMonths(
   const rows = await sql`
     SELECT to_char(month, 'YYYY-MM') AS key, to_char(month, 'Mon YYYY') AS label,
       SUM(integration_seconds) AS value, SUM(light_frame_count) AS frames
-    FROM story_object_months
+    FROM story_target_months
     WHERE month IS NOT NULL
       AND (${year}::int IS NULL OR EXTRACT(YEAR FROM month) = ${year})
     GROUP BY month ORDER BY value DESC LIMIT ${limit}`;
   return entriesFrom(rows, 'seconds', ['frames']);
 }
 
-/** Top objects within a given `YYYY-MM-01` month (defaults to the latest month
+/** Top targets within a given `YYYY-MM-01` month (defaults to the latest month
  * present when `month` is null). */
-export async function topObjectsByMonth(
+export async function topTargetsByMonth(
   month: string | null,
   limit: number,
 ): Promise<LeaderboardEntry[]> {
   const sql = getDb();
   const rows = await sql`
-    SELECT object_id AS key, MAX(designation) AS label,
+    SELECT target_id AS key, MAX(designation) AS label,
       SUM(integration_seconds) AS value, SUM(light_frame_count) AS frames,
       MAX(category) AS category, to_char(month, 'YYYY-MM') AS month
-    FROM story_object_months
-    WHERE object_id IS NOT NULL
-      AND month = COALESCE(${month}::date, (SELECT MAX(month) FROM story_object_months))
-    GROUP BY object_id, month ORDER BY value DESC LIMIT ${limit}`;
+    FROM story_target_months
+    WHERE target_id IS NOT NULL
+      AND month = COALESCE(${month}::date, (SELECT MAX(month) FROM story_target_months))
+    GROUP BY target_id, month ORDER BY value DESC LIMIT ${limit}`;
   return entriesFrom(rows, 'seconds', ['category', 'month', 'frames']);
 }

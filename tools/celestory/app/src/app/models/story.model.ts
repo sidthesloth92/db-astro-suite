@@ -3,11 +3,11 @@
  * CLI emits and the web app consumes. Mirrors the server contract
  * (src/server/utils/story.types.ts) and the CLI source of truth
  * (tools/celestory/cli/internal/model/*.model.go). The current UI renders only
- * the `summary` subset; the richer arrays (objects, equipment, sessions,
+ * the `summary` subset; the richer arrays (targets, equipment, sessions,
  * activity) are carried for the upcoming gallery/timeline views.
  */
 
-/** Per-filter integration within an object or a single session. */
+/** Per-filter integration within a target or a single session. */
 export interface StoryFilterIntegration {
   name: string;
   seconds: number;
@@ -23,20 +23,20 @@ export interface StoryFilterTotal {
 /** Per-category breakdown (Galaxy, Nebula, …). */
 export interface StoryCategoryStat {
   category: string;
-  objectCount: number;
+  targetCount: number;
   integrationSeconds: number;
   lightFrameCount: number;
 }
 
-/** One night of activity across all objects (global timeline). */
+/** One night of activity across all targets (global timeline). */
 export interface StoryActivityEntry {
   date: string;
   integrationSeconds: number;
   lightFrameCount: number;
-  objectIds: string[];
+  targetIds: string[];
 }
 
-/** One per-night session for a single object (the per-object timeline node). */
+/** One per-night session for a single target (the per-target timeline node). */
 export interface StorySession {
   date: string;
   integrationSeconds: number;
@@ -50,7 +50,7 @@ export interface StorySession {
 }
 
 /** One imaged target with aggregated totals and per-night timeline. */
-export interface StoryObject {
+export interface StoryTarget {
   id: string;
   displayName: string;
   designation: string;
@@ -83,16 +83,16 @@ export interface StoryEquipment {
   fRatio: number | null;
   totalIntegrationSeconds: number;
   lightFrameCount: number;
-  objectCount: number;
+  targetCount: number;
   firstLight: string;
   latestSession: string;
-  objectIds: string[];
+  targetIds: string[];
 }
 
 /** Hero/summary rollup powering the hero band and filter chips. */
 export interface StorySummary {
   totalIntegrationSeconds: number;
-  objectCount: number;
+  targetCount: number;
   nightCount: number;
   lightFrameCount: number;
   firstLight: string;
@@ -126,7 +126,7 @@ export interface CelestoryStory {
   /** Stable hash of the normalized data, present on CLI-produced storys. */
   dataFingerprint?: string;
   summary: StorySummary;
-  objects: StoryObject[];
+  targets: StoryTarget[];
   equipment: StoryEquipment[];
   duplicates?: unknown[];
   skipped?: unknown[];

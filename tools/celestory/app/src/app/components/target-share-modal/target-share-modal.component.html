@@ -1,11 +1,11 @@
 <div class="overlay" (click)="onBackdrop($event)">
-  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="obj-share-title">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="tgt-share-title">
 
     <div class="studio">
       <!-- LEFT: canvas preview -->
       <div class="preview-panel">
         <div class="preview" [attr.data-fmt]="formatId()">
-          <canvas #cv class="card-canvas" aria-label="Object share card preview"></canvas>
+          <canvas #cv class="card-canvas" aria-label="Target share card preview"></canvas>
         </div>
       </div>
 
@@ -18,8 +18,8 @@
         </dba-ui-icon-button>
 
         <div class="ctrl-head">
-          <p class="ctrl-eyebrow">Object card</p>
-          <h2 id="obj-share-title" class="ctrl-title">{{ obj().displayName }}</h2>
+          <p class="ctrl-eyebrow">Target card</p>
+          <h2 id="tgt-share-title" class="ctrl-title">{{ target().displayName }}</h2>
           <p class="ctrl-desc">A shareable snapshot of this target — integration, frames, filters, gear &amp; first light.</p>
         </div>
 

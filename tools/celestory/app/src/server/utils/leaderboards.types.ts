@@ -8,15 +8,15 @@
 export type UserMetric =
   | 'integration'
   | 'frames'
-  | 'objects'
+  | 'targets'
   | 'nights'
   | 'longevity'
   | 'pioneer'
   | 'diversity'
   | 'recent';
 
-/** Ranking metric for the objects board (`/leaderboards/objects`). */
-export type ObjectMetric =
+/** Ranking metric for the targets board (`/leaderboards/targets`). */
+export type TargetMetric =
   | 'integration'
   | 'imagers'
   | 'frames'
@@ -25,7 +25,7 @@ export type ObjectMetric =
   | 'comets';
 
 /** Ranking metric for the categories board (`/leaderboards/categories`). */
-export type CategoryMetric = 'integration' | 'objects';
+export type CategoryMetric = 'integration' | 'targets';
 
 /** Ranking metric for the equipment board (`/leaderboards/equipment`). */
 export type EquipmentMetric = 'integration' | 'users' | 'frames';

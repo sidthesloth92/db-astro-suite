@@ -8,7 +8,7 @@ import {
   MILESTONE_FRAMES,
   MILESTONE_HOURS,
   MILESTONE_NIGHTS,
-  MILESTONE_OBJECTS,
+  MILESTONE_TARGETS,
 } from '../models/heat-milestone.constants';
 import type { CelestoryStory, StoryActivityEntry, StoryFilterTotal } from '../models/story.model';
 import type {
@@ -89,7 +89,7 @@ export function fmtRange(a: string, b: string): string {
   return `${fmtDate(a)} → ${fmtDate(b)}`;
 }
 
-/** Maps an object category to a glyph icon name (galaxy / star / telescope). */
+/** Maps a target category to a glyph icon name (galaxy / star / telescope). */
 export function categoryIcon(category: string): 'galaxy' | 'star' | 'telescope' {
   if (category.includes('Galaxy')) {
     return 'galaxy';
@@ -160,10 +160,10 @@ export function heroIdentity(story: CelestoryStory, handle: string): HeroIdentit
 /** The "Highlights of the journey" cards. */
 export function highlights(story: CelestoryStory): Highlight[] {
   const out: Highlight[] = [];
-  const objects = story.objects;
+  const targets = story.targets;
   const activity = story.summary.activity;
 
-  const top = objects.reduce<CelestoryStory['objects'][number] | null>(
+  const top = targets.reduce<CelestoryStory['targets'][number] | null>(
     (best, o) => (!best || o.totalIntegrationSeconds > best.totalIntegrationSeconds ? o : best),
     null,
   );
@@ -173,7 +173,7 @@ export function highlights(story: CelestoryStory): Highlight[] {
       key: 'Top target',
       value: top.designation || top.displayName,
       sub: formatDuration(top.totalIntegrationSeconds),
-      objectId: top.id,
+      targetId: top.id,
     });
   }
 
@@ -250,7 +250,7 @@ export function filterSlices(filters: readonly StoryFilterTotal[]): FilterSlice[
   });
 }
 
-/** Per-filter integration rows for an object's detail (sorted by time). */
+/** Per-filter integration rows for a target's detail (sorted by time). */
 export function filterRows(filters: readonly { name: string; seconds: number; frames: number }[]): FilterRow[] {
   const used = filters.filter((f) => f.seconds > 0);
   const total = used.reduce((s, f) => s + f.seconds, 0) || 1;
@@ -269,7 +269,7 @@ export function filterRows(filters: readonly { name: string; seconds: number; fr
     }));
 }
 
-/** Resolve an object's sessions into timeline view-models (gear names + pills). */
+/** Resolve a target's sessions into timeline view-models (gear names + pills). */
 export function sessionViews(
   sessions: readonly {
     date: string;
@@ -328,7 +328,7 @@ export function buildShareCardData(story: CelestoryStory, handle: string, displa
     yearLabel,
     heroTime: formatDuration(s.totalIntegrationSeconds),
     stats: [
-      { v: formatCount(s.objectCount), k: 'OBJECTS' },
+      { v: formatCount(s.targetCount), k: 'TARGETS' },
       { v: formatCount(s.nightCount), k: 'NIGHTS' },
       { v: formatCompact(s.lightFrameCount), k: 'FRAMES' },
     ],
@@ -350,9 +350,9 @@ export function buildShareCarouselData(
       ? `${span.from}`
       : `${span.from}–${String(span.to).slice(2)}`
     : '';
-  const cats = [...s.byCategory].filter((c) => c.objectCount > 0).sort((a, b) => b.objectCount - a.objectCount);
+  const cats = [...s.byCategory].filter((c) => c.targetCount > 0).sort((a, b) => b.targetCount - a.targetCount);
   const domeTargets: ShareDomeTarget[] = [];
-  for (const o of [...story.objects].sort((a, b) => b.totalIntegrationSeconds - a.totalIntegrationSeconds)) {
+  for (const o of [...story.targets].sort((a, b) => b.totalIntegrationSeconds - a.totalIntegrationSeconds)) {
     if (typeof o.ra === 'number' && typeof o.dec === 'number') {
       domeTargets.push({
         label: o.designation || o.displayName,
@@ -377,19 +377,19 @@ export function buildShareCarouselData(
     inReview: yearLabel.includes('–') ? 'IN REVIEW' : 'YEAR IN REVIEW',
     heroTime: formatDuration(s.totalIntegrationSeconds),
     clearNights: `≈ ${(s.totalIntegrationSeconds / 28800).toFixed(1)} clear nights`,
-    objectsStr: formatCount(s.objectCount),
+    targetsStr: formatCount(s.targetCount),
     nightsStr: formatCount(s.nightCount),
-    objectCountStr: formatCount(s.objectCount),
+    targetCountStr: formatCount(s.targetCount),
     equipmentCountStr: formatCount(story.equipment.length),
     nightsBigStr: formatCount(s.nightCount),
-    subObjects: `unique targets across ${cats.length} categories`,
+    subTargets: `unique targets across ${cats.length} categories`,
     subEquip: gearSummaryLine(story.equipment),
     rangeStr: fmtRange(s.firstLight, s.latestSession),
     categories: cats.slice(0, 6).map((c) => ({
       label: c.category,
       sub: `${formatHours(c.integrationSeconds)}h integration`,
-      valStr: formatCount(c.objectCount),
-      value: c.objectCount,
+      valStr: formatCount(c.targetCount),
+      value: c.targetCount,
     })),
     equipment: [...story.equipment]
       .sort((a, b) => b.totalIntegrationSeconds - a.totalIntegrationSeconds)
@@ -400,7 +400,7 @@ export function buildShareCarouselData(
         valStr: formatDuration(e.totalIntegrationSeconds),
         value: e.totalIntegrationSeconds,
       })),
-    topTargets: [...story.objects]
+    topTargets: [...story.targets]
       .sort((a, b) => b.totalIntegrationSeconds - a.totalIntegrationSeconds)
       .slice(0, 6)
       .map((o) => ({
@@ -434,11 +434,11 @@ export function heatStrip(story: CelestoryStory): HeatStripView {
       date: a.date,
       integrationSeconds: a.integrationSeconds,
       lightFrameCount: a.lightFrameCount,
-      objectCount: a.objectIds.length,
+      targetCount: a.targetIds.length,
       frac: a.integrationSeconds / max,
       leftPct: (daysBetween(start, a.date) / span) * 100,
       filters: det?.filters ?? [],
-      objects: det?.objects ?? [],
+      targets: det?.targets ?? [],
     };
   });
 
@@ -477,24 +477,24 @@ export function heatStrip(story: CelestoryStory): HeatStripView {
 }
 
 /**
- * Aggregates, per ISO date, the filters used and the objects imaged that night —
- * derived from each object's per-night sessions — to feed the heat-strip hover
- * tooltip. Filters and objects are each returned busiest-first.
+ * Aggregates, per ISO date, the filters used and the targets imaged that night —
+ * derived from each target's per-night sessions — to feed the heat-strip hover
+ * tooltip. Filters and targets are each returned busiest-first.
  */
 function buildNightDetails(
   story: CelestoryStory,
-): Map<string, Pick<HeatNight, 'filters' | 'objects'>> {
+): Map<string, Pick<HeatNight, 'filters' | 'targets'>> {
   const filterSecs = new Map<string, Map<string, number>>();
-  const objsByDate = new Map<string, HeatNight['objects']>();
-  for (const o of story.objects) {
+  const targetsByDate = new Map<string, HeatNight['targets']>();
+  for (const o of story.targets) {
     for (const sess of o.sessions) {
-      const list = objsByDate.get(sess.date) ?? [];
+      const list = targetsByDate.get(sess.date) ?? [];
       list.push({
         name: o.designation || o.displayName,
         type: o.type || o.category,
         seconds: sess.integrationSeconds,
       });
-      objsByDate.set(sess.date, list);
+      targetsByDate.set(sess.date, list);
 
       const fm = filterSecs.get(sess.date) ?? new Map<string, number>();
       for (const f of sess.filters) {
@@ -504,14 +504,14 @@ function buildNightDetails(
     }
   }
 
-  const out = new Map<string, Pick<HeatNight, 'filters' | 'objects'>>();
-  const dates = new Set<string>([...objsByDate.keys(), ...filterSecs.keys()]);
+  const out = new Map<string, Pick<HeatNight, 'filters' | 'targets'>>();
+  const dates = new Set<string>([...targetsByDate.keys(), ...filterSecs.keys()]);
   for (const date of dates) {
     const filters = [...(filterSecs.get(date) ?? new Map<string, number>()).entries()]
       .sort((a, b) => b[1] - a[1])
       .map(([name, seconds]) => ({ name, label: filterLabel(name), color: filterColor(name), seconds }));
-    const objects = [...(objsByDate.get(date) ?? [])].sort((a, b) => b.seconds - a.seconds);
-    out.set(date, { filters, objects });
+    const targets = [...(targetsByDate.get(date) ?? [])].sort((a, b) => b.seconds - a.seconds);
+    out.set(date, { filters, targets });
   }
   return out;
 }
@@ -519,7 +519,7 @@ function buildNightDetails(
 /**
  * Walks nights in chronological order and surfaces threshold-crossing
  * milestones — cumulative hours logged, cumulative light frames, the Nth distinct
- * object first imaged, the Nth night imaged, plus the single best-integration
+ * target first imaged, the Nth night imaged, plus the single best-integration
  * night. Each milestone is pinned to the night it occurred on.
  */
 function buildMilestones(
@@ -532,7 +532,7 @@ function buildMilestones(
 
   const hours = [...MILESTONE_HOURS];
   const frames = [...MILESTONE_FRAMES];
-  const objects = [...MILESTONE_OBJECTS];
+  const targets = [...MILESTONE_TARGETS];
   const nights = [...MILESTONE_NIGHTS];
   const seen = new Set<string>();
   let cumSeconds = 0;
@@ -551,9 +551,9 @@ function buildMilestones(
     const left = at(a.date);
     cumSeconds += a.integrationSeconds;
     cumFrames += a.lightFrameCount;
-    a.objectIds.forEach((id) => seen.add(id));
+    a.targetIds.forEach((id) => seen.add(id));
     const cumHours = cumSeconds / 3600;
-    const objectCount = seen.size;
+    const targetCount = seen.size;
     const nightNo = i + 1;
 
     while (hours.length && cumHours >= hours[0]) {
@@ -566,10 +566,10 @@ function buildMilestones(
       frames.shift();
       milestones.push({ date: a.date, leftPct: left, kind: 'frames', big: f.label, small: 'FRAMES' });
     }
-    while (objects.length && objectCount >= objects[0]) {
-      const t = objects[0];
-      objects.shift();
-      milestones.push({ date: a.date, leftPct: left, kind: 'object', big: `${t}th`, small: 'OBJECT' });
+    while (targets.length && targetCount >= targets[0]) {
+      const t = targets[0];
+      targets.shift();
+      milestones.push({ date: a.date, leftPct: left, kind: 'target', big: `${t}th`, small: 'TARGET' });
     }
     while (nights.length && nightNo >= nights[0]) {
       const t = nights[0];

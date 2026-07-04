@@ -34,23 +34,23 @@
   <div class="dstats">
     <div class="cell"><div class="k">Total integration</div><div class="v glow">{{ dur(equip().totalIntegrationSeconds) }}</div></div>
     <div class="cell"><div class="k">Light frames</div><div class="v">{{ count(equip().lightFrameCount) }}</div></div>
-    <div class="cell"><div class="k">Objects</div><div class="v">{{ count(equip().objectCount) }}</div></div>
+    <div class="cell"><div class="k">Targets</div><div class="v">{{ count(equip().targetCount) }}</div></div>
     <div class="cell"><div class="k">Active range</div><div class="v v-sm">{{ range(equip().firstLight, equip().latestSession) }}</div></div>
   </div>
 
   <div class="dsection">
     <div class="dsec-head">
       <h2 class="dsec-title">Captured with this {{ kindNoun() }}</h2>
-      <span class="dsec-count">{{ objects().length }} objects</span>
+      <span class="dsec-count">{{ targets().length }} targets</span>
     </div>
-    @if (objects().length) {
+    @if (targets().length) {
       <div class="minigrid">
-        @for (o of objects(); track o.id) {
-          <dba-mini-object-card [obj]="o" [equipId]="equip().id" (open)="openObject.emit($event)" />
+        @for (o of targets(); track o.id) {
+          <dba-mini-target-card [target]="o" [equipId]="equip().id" (open)="openTarget.emit($event)" />
         }
       </div>
     } @else {
-      <div class="muted">No objects recorded for this equipment.</div>
+      <div class="muted">No targets recorded for this equipment.</div>
     }
   </div>
 </section>

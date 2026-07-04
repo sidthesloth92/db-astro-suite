@@ -1,14 +1,14 @@
 import { StoryValidationError } from './celestory.error';
 import {
   MAX_EQUIPMENT,
-  MAX_OBJECTS,
+  MAX_TARGETS,
   SUPPORTED_SCHEMA_VERSION,
 } from './story.constants';
 import type {
   EquipmentItem,
   FilterIntegration,
   Story,
-  ObjectTimeline,
+  TargetTimeline,
   Session,
   Summary,
 } from './story.types';
@@ -72,12 +72,12 @@ function validateSession(value: unknown, field: string): Session {
   };
 }
 
-/** Validate one object timeline entry into a typed shape. */
-function validateObject(value: unknown, index: number): ObjectTimeline {
-  const record = asRecord(value, `objects[${index}]`);
+/** Validate one target timeline entry into a typed shape. */
+function validateTarget(value: unknown, index: number): TargetTimeline {
+  const record = asRecord(value, `targets[${index}]`);
   const id = str(record, 'id');
   if (!id) {
-    throw new StoryValidationError(`objects[${index}] is missing "id".`);
+    throw new StoryValidationError(`targets[${index}] is missing "id".`);
   }
   return {
     id,
@@ -93,13 +93,13 @@ function validateObject(value: unknown, index: number): ObjectTimeline {
     nightCount: num(record, 'nightCount'),
     firstLight: str(record, 'firstLight'),
     latestSession: str(record, 'latestSession'),
-    filters: validateFilters(record['filters'], `objects[${index}].filters`),
+    filters: validateFilters(record['filters'], `targets[${index}].filters`),
     equipmentIds: Array.isArray(record['equipmentIds'])
       ? (record['equipmentIds'] as unknown[]).map((e) => String(e))
       : [],
     sessions: Array.isArray(record['sessions'])
       ? (record['sessions'] as unknown[]).map((s) =>
-          validateSession(s, `objects[${index}].sessions`),
+          validateSession(s, `targets[${index}].sessions`),
         )
       : [],
     image: typeof record['image'] === 'string' ? record['image'] : null,
@@ -121,11 +121,11 @@ function validateEquipment(value: unknown, index: number): EquipmentItem {
     fRatio: typeof record['fRatio'] === 'number' ? record['fRatio'] : null,
     totalIntegrationSeconds: num(record, 'totalIntegrationSeconds'),
     lightFrameCount: num(record, 'lightFrameCount'),
-    objectCount: num(record, 'objectCount'),
+    targetCount: num(record, 'targetCount'),
     firstLight: str(record, 'firstLight'),
     latestSession: str(record, 'latestSession'),
-    objectIds: Array.isArray(record['objectIds'])
-      ? (record['objectIds'] as unknown[]).map((o) => String(o))
+    targetIds: Array.isArray(record['targetIds'])
+      ? (record['targetIds'] as unknown[]).map((o) => String(o))
       : [],
   };
 }
@@ -135,7 +135,7 @@ function validateSummary(value: unknown): Summary {
   const record = asRecord(value, 'summary');
   return {
     totalIntegrationSeconds: num(record, 'totalIntegrationSeconds'),
-    objectCount: num(record, 'objectCount'),
+    targetCount: num(record, 'targetCount'),
     nightCount: num(record, 'nightCount'),
     lightFrameCount: num(record, 'lightFrameCount'),
     firstLight: str(record, 'firstLight'),
@@ -153,7 +153,7 @@ function validateSummary(value: unknown): Summary {
           const cr = asRecord(c, 'summary.byCategory');
           return {
             category: str(cr, 'category'),
-            objectCount: num(cr, 'objectCount'),
+            targetCount: num(cr, 'targetCount'),
             integrationSeconds: num(cr, 'integrationSeconds'),
             lightFrameCount: num(cr, 'lightFrameCount'),
           };
@@ -166,8 +166,8 @@ function validateSummary(value: unknown): Summary {
             date: str(ar, 'date'),
             integrationSeconds: num(ar, 'integrationSeconds'),
             lightFrameCount: num(ar, 'lightFrameCount'),
-            objectIds: Array.isArray(ar['objectIds'])
-              ? (ar['objectIds'] as unknown[]).map((o) => String(o))
+            targetIds: Array.isArray(ar['targetIds'])
+              ? (ar['targetIds'] as unknown[]).map((o) => String(o))
               : [],
           };
         })
@@ -176,7 +176,7 @@ function validateSummary(value: unknown): Summary {
 }
 
 /**
- * Strictly validate a parsed request body as a schema-v1 Story. Throws
+ * Strictly validate a parsed request body as a schema-v3 Story. Throws
  * StoryValidationError on any structural breach or unsupported version.
  */
 export function validateStory(raw: unknown): Story {
@@ -190,9 +190,9 @@ export function validateStory(raw: unknown): Story {
     );
   }
 
-  const objectsRaw = asArray(root['objects'], 'objects');
-  if (objectsRaw.length > MAX_OBJECTS) {
-    throw new StoryValidationError(`Too many objects (max ${MAX_OBJECTS}).`);
+  const targetsRaw = asArray(root['targets'], 'targets');
+  if (targetsRaw.length > MAX_TARGETS) {
+    throw new StoryValidationError(`Too many targets (max ${MAX_TARGETS}).`);
   }
 
   const equipmentRaw = asArray(root['equipment'], 'equipment');
@@ -215,7 +215,7 @@ export function validateStory(raw: unknown): Story {
     },
     summary: validateSummary(root['summary']),
     equipment: equipmentRaw.map(validateEquipment),
-    objects: objectsRaw.map(validateObject),
+    targets: targetsRaw.map(validateTarget),
     duplicates: [],
     skipped: [],
   };

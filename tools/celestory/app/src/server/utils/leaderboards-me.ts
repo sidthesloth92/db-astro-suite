@@ -32,7 +32,7 @@ async function meUserMetric(
           WITH totals AS (
             SELECT story_id, SUM(light_frame_count) AS v,
               RANK() OVER (ORDER BY SUM(light_frame_count) DESC) AS rnk
-            FROM story_object_months
+            FROM story_target_months
             WHERE (
               ${scope} = 'all'
               OR (${scope} = 'year' AND month >= date_trunc('year', CURRENT_DATE))
@@ -45,7 +45,7 @@ async function meUserMetric(
           WITH totals AS (
             SELECT story_id, SUM(integration_seconds) AS v,
               RANK() OVER (ORDER BY SUM(integration_seconds) DESC) AS rnk
-            FROM story_object_months
+            FROM story_target_months
             WHERE (
               ${scope} = 'all'
               OR (${scope} = 'year' AND month >= date_trunc('year', CURRENT_DATE))
@@ -73,7 +73,7 @@ async function meUserMetric(
   };
 }
 
-/** Longest single-target project: the viewer's deepest object effort + its rank. */
+/** Longest single-target project: the viewer's deepest target effort + its rank. */
 async function meProject(
   scope: Scope,
   storyId: string,
@@ -82,16 +82,16 @@ async function meProject(
   const sql = getDb();
   const rows: Array<Record<string, unknown>> = await sql`
     WITH efforts AS (
-      SELECT story_id, object_id, MAX(designation) AS designation,
+      SELECT story_id, target_id, MAX(designation) AS designation,
         MAX(category) AS category, SUM(integration_seconds) AS v,
         RANK() OVER (ORDER BY SUM(integration_seconds) DESC) AS rnk
-      FROM story_object_months
-      WHERE object_id IS NOT NULL AND (
+      FROM story_target_months
+      WHERE target_id IS NOT NULL AND (
         ${scope} = 'all'
         OR (${scope} = 'year' AND month >= date_trunc('year', CURRENT_DATE))
         OR (${scope} = 'month' AND month >= date_trunc('month', CURRENT_DATE))
       )
-      GROUP BY story_id, object_id
+      GROUP BY story_id, target_id
     )
     SELECT v, rnk, designation, category FROM efforts
     WHERE story_id = ${storyId} ORDER BY v DESC LIMIT 1`;
@@ -119,34 +119,34 @@ async function meProject(
 }
 
 /** Most-imaged targets: the viewer's #1 target + that target's community rank. */
-async function meObject(scope: Scope, storyId: string): Promise<MeResult | null> {
+async function meTarget(scope: Scope, storyId: string): Promise<MeResult | null> {
   const sql = getDb();
   const rows: Array<Record<string, unknown>> = await sql`
     WITH mine AS (
-      SELECT object_id, MAX(designation) AS designation, MAX(category) AS category,
+      SELECT target_id, MAX(designation) AS designation, MAX(category) AS category,
         SUM(integration_seconds) AS v
-      FROM story_object_months
-      WHERE story_id = ${storyId} AND object_id IS NOT NULL AND (
+      FROM story_target_months
+      WHERE story_id = ${storyId} AND target_id IS NOT NULL AND (
         ${scope} = 'all'
         OR (${scope} = 'year' AND month >= date_trunc('year', CURRENT_DATE))
         OR (${scope} = 'month' AND month >= date_trunc('month', CURRENT_DATE))
       )
-      GROUP BY object_id ORDER BY v DESC LIMIT 1
+      GROUP BY target_id ORDER BY v DESC LIMIT 1
     ),
     community AS (
-      SELECT object_id, COUNT(DISTINCT story_id) AS imagers,
+      SELECT target_id, COUNT(DISTINCT story_id) AS imagers,
         RANK() OVER (ORDER BY COUNT(DISTINCT story_id) DESC) AS rnk
-      FROM story_object_months
-      WHERE object_id IS NOT NULL AND (
+      FROM story_target_months
+      WHERE target_id IS NOT NULL AND (
         ${scope} = 'all'
         OR (${scope} = 'year' AND month >= date_trunc('year', CURRENT_DATE))
         OR (${scope} = 'month' AND month >= date_trunc('month', CURRENT_DATE))
       )
-      GROUP BY object_id
+      GROUP BY target_id
     )
     SELECT m.designation AS label, m.category AS category,
       c.imagers AS value, c.rnk AS rank
-    FROM mine m JOIN community c ON c.object_id = m.object_id LIMIT 1`;
+    FROM mine m JOIN community c ON c.target_id = m.target_id LIMIT 1`;
   if (rows.length === 0) {
     return null;
   }
@@ -277,7 +277,7 @@ async function meMonth(scope: Scope, storyId: string): Promise<MeResult | null> 
   const rows: Array<Record<string, unknown>> = await sql`
     WITH mine AS (
       SELECT EXTRACT(MONTH FROM month)::int AS mnum, SUM(integration_seconds) AS v
-      FROM story_object_months
+      FROM story_target_months
       WHERE story_id = ${storyId} AND month IS NOT NULL AND (
         ${scope} = 'all'
         OR EXTRACT(YEAR FROM month) = EXTRACT(YEAR FROM CURRENT_DATE)
@@ -287,7 +287,7 @@ async function meMonth(scope: Scope, storyId: string): Promise<MeResult | null> 
     community AS (
       SELECT EXTRACT(MONTH FROM month)::int AS mnum, SUM(integration_seconds) AS s,
         RANK() OVER (ORDER BY SUM(integration_seconds) DESC) AS rnk
-      FROM story_object_months
+      FROM story_target_months
       WHERE month IS NOT NULL AND (
         ${scope} = 'all'
         OR EXTRACT(YEAR FROM month) = EXTRACT(YEAR FROM CURRENT_DATE)
@@ -326,8 +326,8 @@ export function meRow(
       return meUserMetric('frames', scope, storyId, handle);
     case 'project':
       return meProject(scope, storyId, handle);
-    case 'object':
-      return meObject(scope, storyId);
+    case 'target':
+      return meTarget(scope, storyId);
     case 'cameras':
       return meEquipment('camera', scope, storyId);
     case 'mounts':

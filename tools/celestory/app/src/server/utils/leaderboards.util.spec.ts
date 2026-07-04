@@ -6,7 +6,7 @@ import {
   parseLimit,
   parseMonth,
   parseMonthView,
-  parseObjectMetric,
+  parseTargetMetric,
   parseScope,
   parseUserMetric,
   parseYear,
@@ -34,8 +34,8 @@ describe('metric/view/kind parsing', () => {
   it('accepts allowed values and falls back to the default otherwise', () => {
     expect(parseUserMetric('longevity')).toBe('longevity');
     expect(parseUserMetric('bogus')).toBe('integration');
-    expect(parseObjectMetric('rarest')).toBe('rarest');
-    expect(parseObjectMetric(undefined)).toBe('integration');
+    expect(parseTargetMetric('rarest')).toBe('rarest');
+    expect(parseTargetMetric(undefined)).toBe('integration');
     expect(parseEquipmentKind('telescope')).toBe('telescope');
     expect(parseEquipmentKind('mount')).toBe('mount');
     expect(parseEquipmentKind('optic')).toBe('camera');

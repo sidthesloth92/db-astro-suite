@@ -9,14 +9,14 @@ import type {
   StoryEquipment,
   StoryFilterIntegration,
   StoryFilterTotal,
-  StoryObject,
+  StoryTarget,
 } from '../models/story.model';
 import type {
   ShareFilterDistribution,
   ShareIdentity,
   ShareModel,
   ShareModelEquipment,
-  ShareModelObject,
+  ShareModelTarget,
 } from '../models/share-model.model';
 import { filterKeyOf, parseDate } from './share-format.util';
 
@@ -45,8 +45,8 @@ function equipmentDetail(equip: StoryEquipment): string {
   return specs.join(' · ');
 }
 
-/** Projects one story object into a render-ready share object. */
-function toShareObject(obj: StoryObject): ShareModelObject {
+/** Projects one story target into a render-ready share target. */
+function toShareTarget(obj: StoryTarget): ShareModelTarget {
   return {
     id: obj.id,
     displayName: obj.displayName,
@@ -76,10 +76,10 @@ function toShareEquipment(equip: StoryEquipment): ShareModelEquipment {
     detail: equipmentDetail(equip),
     totalIntegrationSeconds: equip.totalIntegrationSeconds,
     totalLightFrames: equip.lightFrameCount,
-    objectCount: equip.objectCount,
+    targetCount: equip.targetCount,
     firstLight: equip.firstLight,
     latestSession: equip.latestSession,
-    objectIds: equip.objectIds,
+    targetIds: equip.targetIds,
   };
 }
 
@@ -88,7 +88,7 @@ export function buildShareModel(story: CelestoryStory, identity: ShareIdentity):
   const summary = story.summary;
   const byCategory: Record<string, { count: number; seconds: number }> = {};
   for (const cat of summary.byCategory ?? []) {
-    byCategory[cat.category] = { count: cat.objectCount, seconds: cat.integrationSeconds };
+    byCategory[cat.category] = { count: cat.targetCount, seconds: cat.integrationSeconds };
   }
   const activity = (summary.activity ?? [])
     .map((a) => ({ date: a.date, integrationSeconds: a.integrationSeconds }))
@@ -99,7 +99,7 @@ export function buildShareModel(story: CelestoryStory, identity: ShareIdentity):
     identity,
     summary: {
       totalIntegrationSeconds: summary.totalIntegrationSeconds,
-      uniqueObjects: summary.objectCount,
+      uniqueTargets: summary.targetCount,
       nightsImaged: summary.nightCount,
       totalLightFrames: summary.lightFrameCount,
       filterDistribution: toDistribution(summary.filters ?? []),
@@ -108,13 +108,13 @@ export function buildShareModel(story: CelestoryStory, identity: ShareIdentity):
       activity,
       byCategory,
     },
-    objects: (story.objects ?? []).map(toShareObject),
+    targets: (story.targets ?? []).map(toShareTarget),
     equipment: (story.equipment ?? []).map(toShareEquipment),
   };
 }
 
 /**
- * Narrows a model to a single calendar year — sessions, objects, equipment and
+ * Narrows a model to a single calendar year — sessions, targets, equipment and
  * summary aggregates recomputed from that year only. Used by the Year-in-Review
  * card and the timeframe pills. `year === 'all'` returns the model unchanged.
  */
@@ -124,8 +124,8 @@ export function scopeModelByYear(model: ShareModel, year: number | 'all'): Share
   }
   const inYear = (date: string): boolean => parseDate(date)?.getUTCFullYear() === year;
 
-  const objects: ShareModelObject[] = [];
-  for (const obj of model.objects) {
+  const targets: ShareModelTarget[] = [];
+  for (const obj of model.targets) {
     const sessions = obj.sessions.filter((s) => inYear(s.date));
     if (!sessions.length) {
       continue;
@@ -134,7 +134,7 @@ export function scopeModelByYear(model: ShareModel, year: number | 'all'): Share
     const totalLightFrames = sessions.reduce((a, s) => a + s.lightFrames, 0);
     const filterTotals = obj.filterTotals; // per-filter scoping not tracked in sessions; keep aggregate
     const dates = sessions.map((s) => s.date).sort();
-    objects.push({
+    targets.push({
       ...obj,
       totalIntegrationSeconds,
       totalLightFrames,
@@ -146,28 +146,28 @@ export function scopeModelByYear(model: ShareModel, year: number | 'all'): Share
   }
 
   const byCategory: Record<string, { count: number; seconds: number }> = {};
-  for (const obj of objects) {
+  for (const obj of targets) {
     const c = (byCategory[obj.category] ??= { count: 0, seconds: 0 });
     c.count += 1;
     c.seconds += obj.totalIntegrationSeconds;
   }
   const activity = model.summary.activity.filter((a) => inYear(a.date));
   const nightKeys = new Set(activity.map((a) => a.date.slice(0, 10)));
-  const totalIntegrationSeconds = objects.reduce((a, o) => a + o.totalIntegrationSeconds, 0);
-  const totalLightFrames = objects.reduce((a, o) => a + o.totalLightFrames, 0);
+  const totalIntegrationSeconds = targets.reduce((a, o) => a + o.totalIntegrationSeconds, 0);
+  const totalLightFrames = targets.reduce((a, o) => a + o.totalLightFrames, 0);
   const allDates = activity.map((a) => a.date).sort();
 
-  const objectIds = new Set(objects.map((o) => o.id));
+  const targetIds = new Set(targets.map((o) => o.id));
   const equipment = model.equipment
-    .map((e) => ({ ...e, objectIds: e.objectIds.filter((id) => objectIds.has(id)) }))
-    .filter((e) => e.objectIds.length);
+    .map((e) => ({ ...e, targetIds: e.targetIds.filter((id) => targetIds.has(id)) }))
+    .filter((e) => e.targetIds.length);
 
   return {
     ...model,
     summary: {
       ...model.summary,
       totalIntegrationSeconds,
-      uniqueObjects: objects.length,
+      uniqueTargets: targets.length,
       nightsImaged: nightKeys.size,
       totalLightFrames,
       firstLight: allDates[0] ?? model.summary.firstLight,
@@ -175,7 +175,7 @@ export function scopeModelByYear(model: ShareModel, year: number | 'all'): Share
       activity,
       byCategory,
     },
-    objects,
+    targets,
     equipment,
   };
 }

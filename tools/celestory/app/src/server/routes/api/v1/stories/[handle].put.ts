@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
       UPDATE stories SET
         story_json = ${storyJson},
         total_integration_seconds = ${totals.totalIntegrationSeconds},
-        object_count = ${totals.objectCount},
+        target_count = ${totals.targetCount},
         night_count = ${totals.nightCount},
         light_frame_count = ${totals.lightFrameCount},
         first_light = ${totals.firstLight},
@@ -58,19 +58,19 @@ export default defineEventHandler(async (event) => {
 
     // Rebuild child rows: clear the old, insert the new, atomically.
     const rebuild = [
-      sql`DELETE FROM story_objects WHERE story_id = ${storyId}`,
+      sql`DELETE FROM story_targets WHERE story_id = ${storyId}`,
       sql`DELETE FROM story_equipment WHERE story_id = ${storyId}`,
       sql`DELETE FROM story_filters WHERE story_id = ${storyId}`,
-      sql`DELETE FROM story_object_months WHERE story_id = ${storyId}`,
+      sql`DELETE FROM story_target_months WHERE story_id = ${storyId}`,
       sql`DELETE FROM story_filter_months WHERE story_id = ${storyId}`,
       sql`DELETE FROM story_equipment_months WHERE story_id = ${storyId}`,
-      ...rows.objects.map(
+      ...rows.targets.map(
         (o) => sql`
-          INSERT INTO story_objects (
-            story_id, object_id, designation, category,
+          INSERT INTO story_targets (
+            story_id, target_id, designation, category,
             integration_seconds, light_frame_count, night_count
           ) VALUES (
-            ${storyId}, ${o.objectId}, ${o.designation}, ${o.category},
+            ${storyId}, ${o.targetId}, ${o.designation}, ${o.category},
             ${o.integrationSeconds}, ${o.lightFrameCount}, ${o.nightCount}
           )`,
       ),
@@ -92,13 +92,13 @@ export default defineEventHandler(async (event) => {
             ${storyId}, ${f.name}, ${f.seconds}, ${f.frames}
           )`,
       ),
-      ...rows.objectMonths.map(
+      ...rows.targetMonths.map(
         (m) => sql`
-          INSERT INTO story_object_months (
-            story_id, object_id, designation, category,
+          INSERT INTO story_target_months (
+            story_id, target_id, designation, category,
             month, integration_seconds, light_frame_count
           ) VALUES (
-            ${storyId}, ${m.objectId}, ${m.designation}, ${m.category},
+            ${storyId}, ${m.targetId}, ${m.designation}, ${m.category},
             ${m.month}, ${m.integrationSeconds}, ${m.lightFrameCount}
           )`,
       ),
@@ -133,7 +133,7 @@ export default defineEventHandler(async (event) => {
           dataFingerprint: story.dataFingerprint,
           totalIntegrationSeconds: totals.totalIntegrationSeconds,
           lightFrameCount: totals.lightFrameCount,
-          objectCount: totals.objectCount,
+          targetCount: totals.targetCount,
         });
         await claimUploads(story.installId, handle);
       } catch (bookkeepingError) {

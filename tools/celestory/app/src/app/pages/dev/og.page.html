@@ -3,7 +3,7 @@
     <h1>OG card preview <span class="dev-tag">dev</span></h1>
     <p class="hint">
       Live 1200×630 social-unfurl cards. The brand / leaderboards cards need no database;
-      profile / object / equipment query the published story (set <code>DATABASE_URL</code>)
+      profile / target / equipment query the published story (set <code>DATABASE_URL</code>)
       and fall back to the brand card on an unknown handle / id.
     </p>
   </header>
@@ -14,8 +14,8 @@
       <input #hI [value]="handle()" (input)="setHandle(hI.value)" placeholder="astrowithdb" />
     </label>
     <label class="field">
-      <span>Object id</span>
-      <input #oI [value]="objectId()" (input)="setObjectId(oI.value)" placeholder="aeaurigae" />
+      <span>Target id</span>
+      <input #oI [value]="targetId()" (input)="setTargetId(oI.value)" placeholder="aeaurigae" />
     </label>
     <label class="field">
       <span>Equipment id</span>

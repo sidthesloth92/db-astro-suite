@@ -117,15 +117,15 @@ export interface ShareCardData {
   url: string;
 }
 
-/** The data a single-object share card renders. */
-export interface ObjectShareData {
-  /** Object display name (e.g. "Andromeda Galaxy"). */
+/** The data a single-target share card renders. */
+export interface TargetShareData {
+  /** Target display name (e.g. "Andromeda Galaxy"). */
   name: string;
   /** Catalogue designation (e.g. "M31"), optional. */
   designation: string;
-  /** Object category/type label. */
+  /** Target category/type label. */
   type: string;
-  /** Object category id (selects the placeholder motif). */
+  /** Target category id (selects the placeholder motif). */
   category: string;
   /** Hero integration time (e.g. "29h 36m"). */
   heroTime: string;
@@ -156,7 +156,7 @@ export interface EquipmentShareData {
   /** First-light → latest-session range string. */
   rangeStr: string;
   /** Names of the targets captured with this gear. */
-  objects: string[];
+  targets: string[];
   /** URL line printed on the card. */
   url: string;
 }
@@ -192,7 +192,7 @@ export interface ShareDomeTarget {
   dec: number;
   /** Total integration on this target, in hours (drives the marker size). */
   hours: number;
-  /** Object category (drives the marker accent). */
+  /** Target category (drives the marker accent). */
   category: string;
 }
 
@@ -203,12 +203,12 @@ export interface ShareCarouselData {
   inReview: string;
   heroTime: string;
   clearNights: string;
-  objectsStr: string;
+  targetsStr: string;
   nightsStr: string;
-  objectCountStr: string;
+  targetCountStr: string;
   equipmentCountStr: string;
   nightsBigStr: string;
-  subObjects: string;
+  subTargets: string;
   subEquip: string;
   rangeStr: string;
   categories: ShareListRow[];

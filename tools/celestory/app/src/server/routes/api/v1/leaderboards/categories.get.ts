@@ -7,8 +7,8 @@ import {
 import { success, toErrorResponse } from '../../../../utils/respond';
 
 /**
- * Categories leaderboard — most popular object categories across the community
- * (`?metric=objects|integration`, `?limit=`).
+ * Categories leaderboard — most popular target categories across the community
+ * (`?metric=targets|integration`, `?limit=`).
  */
 export default defineEventHandler(async (event) => {
   try {

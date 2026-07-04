@@ -2,14 +2,14 @@
   @if (!embedded()) {
     <div class="detail-top">
       <button class="backlink" type="button" (click)="back.emit()">
-        <dba-cel-icon name="back" [size]="14" /> All objects
+        <dba-cel-icon name="back" [size]="14" /> All targets
       </button>
     </div>
   }
 
   @if (showShare()) {
-    <dba-object-share-modal
-      [obj]="obj()"
+    <dba-target-share-modal
+      [target]="target()"
       [story]="story()"
       [handle]="handle()"
       [shareUrl]="shareUrl()"
@@ -18,15 +18,15 @@
   }
 
   <div class="detail-head">
-    <div class="dhero"><dba-object-image [objectId]="obj().id" [category]="obj().category" [icon]="icon()" label="Click to add your image" /></div>
+    <div class="dhero"><dba-target-image [targetId]="target().id" [category]="target().category" [icon]="icon()" label="Click to add your image" /></div>
     <div class="dtitle">
       <div class="dtitle-head">
         <div class="dtitle-id">
-          @if (obj().designation) {
-            <div class="desig">{{ obj().designation }}</div>
+          @if (target().designation) {
+            <div class="desig">{{ target().designation }}</div>
           }
-          <h1>{{ obj().displayName }}</h1>
-          <div class="otype">{{ obj().type || obj().category }}</div>
+          <h1>{{ target().displayName }}</h1>
+          <div class="ttype">{{ target().type || target().category }}</div>
         </div>
         <dba-ui-text-button class="sharebtn" variant="secondary" label="Share" (clicked)="showShare.set(true)">
           <dba-cel-icon slot="leading" name="share" [size]="14" />
@@ -42,15 +42,15 @@
       }
 
       <div class="dstats">
-        <div class="cell"><div class="k">Total integration</div><div class="v glow">{{ dur(obj().totalIntegrationSeconds) }}</div></div>
-        <div class="cell"><div class="k">Light frames</div><div class="v">{{ count(obj().lightFrameCount) }}</div></div>
-        <div class="cell"><div class="k">First light</div><div class="v">{{ date(obj().firstLight) }}</div></div>
-        <div class="cell"><div class="k">Latest session</div><div class="v">{{ date(obj().latestSession) }}</div></div>
+        <div class="cell"><div class="k">Total integration</div><div class="v glow">{{ dur(target().totalIntegrationSeconds) }}</div></div>
+        <div class="cell"><div class="k">Light frames</div><div class="v">{{ count(target().lightFrameCount) }}</div></div>
+        <div class="cell"><div class="k">First light</div><div class="v">{{ date(target().firstLight) }}</div></div>
+        <div class="cell"><div class="k">Latest session</div><div class="v">{{ date(target().latestSession) }}</div></div>
       </div>
 
-      @if (obj().aliases.length) {
+      @if (target().aliases.length) {
         <div class="aliases">
-          @for (a of obj().aliases; track a) {
+          @for (a of target().aliases; track a) {
             <span class="chip">{{ a }}</span>
           }
         </div>

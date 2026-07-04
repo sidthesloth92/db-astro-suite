@@ -178,7 +178,7 @@
   color: color-mix(in srgb, var(--db-color-text-faint) 78%, transparent);
 }
 
-/* Hover tooltip — rich nightly detail (filters + per-object breakdown) */
+/* Hover tooltip — rich nightly detail (filters + per-target breakdown) */
 .hs-tip {
   position: absolute;
   transform: translate(-50%, -100%);
@@ -260,7 +260,7 @@
   white-space: nowrap;
   flex: none;
 }
-.t-objmore {
+.t-tgtmore {
   font-family: var(--db-font-mono-code);
   font-size: 10.5px;
   color: var(--db-color-text-faint);

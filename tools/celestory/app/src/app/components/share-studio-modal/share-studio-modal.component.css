@@ -671,7 +671,7 @@
   flex: 1 1 auto;
   min-width: 0;
 }
-/* Object / gear modals: the "Share your link" row sits below the actions. */
+/* Target / gear modals: the "Share your link" row sits below the actions. */
 .share-link-grp {
   margin-top: 14px;
 }

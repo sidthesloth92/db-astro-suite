@@ -34,7 +34,7 @@ import {
 /**
  * Nightly-activity heat strip: a month-ticked baseline with one upward stem per
  * imaging night (sized by that night's integration). Notable nights — hours,
- * frames, Nth-object/night and best-night milestones — surface as labelled pills
+ * frames, Nth-target/night and best-night milestones — surface as labelled pills
  * packed into two staggered tiers, each joined to its night's spike by a
  * right-angle "corridor" leader. Hovering a night reveals its detail. The track
  * scrolls horizontally when a long history would otherwise crowd the nights.
@@ -172,7 +172,7 @@ export class HeatStripComponent {
    * Reveals a night and positions the tooltip from the hovered dot's measured
    * screen position, mapped into host coordinates and horizontally clamped to the
    * panel — the tooltip renders outside the horizontally-clipping scroller so its
-   * richer body (filters + objects) is never cut off. Browser-only (hover event).
+   * richer body (filters + targets) is never cut off. Browser-only (hover event).
    */
   protected onEnter(n: HeatNode, ev: MouseEvent): void {
     this.hovered.set(n);

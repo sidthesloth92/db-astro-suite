@@ -42,7 +42,7 @@ export function profileJsonLd(profile: StoryDetails, url: string | null): object
       '@type': 'Person',
       name: `@${profile.handle}`,
       alternateName: profile.handle,
-      description: `${summary.objectCount} targets across ${summary.nightCount} nights under the stars.`,
+      description: `${summary.targetCount} targets across ${summary.nightCount} nights under the stars.`,
     },
   };
 }

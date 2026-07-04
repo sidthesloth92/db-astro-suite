@@ -1,7 +1,7 @@
 :host {
   display: block;
 }
-.ocard {
+.tcard {
   position: relative;
   border: 1px solid color-mix(in srgb, var(--db-color-text-faint) 18%, transparent);
   border-radius: 14px;
@@ -12,14 +12,14 @@
   flex-direction: column;
   transition: transform 0.18s, border-color 0.18s, box-shadow 0.18s;
 }
-.ocard:hover {
+.tcard:hover {
   transform: translateY(-3px);
   border-color: var(--db-color-border-strong);
   box-shadow: 0 22px 44px rgba(0, 0, 0, 0.45);
 }
 
-/* Per-object share trigger — a glass icon in the top-right corner. */
-.obj-share-btn {
+/* Per-target share trigger — a glass icon in the top-right corner. */
+.tgt-share-btn {
   position: absolute;
   top: 11px;
   right: 11px;
@@ -39,22 +39,22 @@
   opacity: 0.82;
   transition: opacity 0.15s, background 0.15s, transform 0.12s, border-color 0.15s;
 }
-.obj-share-btn:hover {
+.tgt-share-btn:hover {
   opacity: 1;
   background: rgba(22, 28, 46, 0.82);
   border-color: rgba(255, 255, 255, 0.26);
 }
-.obj-share-btn:active {
+.tgt-share-btn:active {
   transform: translateY(1px);
 }
 
-.othumb {
+.tthumb {
   position: relative;
   aspect-ratio: 16 / 10;
   overflow: hidden;
   border-bottom: 1px solid var(--db-color-border);
 }
-.othumb::after {
+.tthumb::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -62,14 +62,14 @@
   pointer-events: none;
   background: linear-gradient(180deg, rgba(7, 7, 15, 0.16) 0%, rgba(7, 7, 15, 0.34) 50%, rgba(7, 7, 15, 0.74) 100%);
 }
-:host ::ng-deep .othumb img,
-:host ::ng-deep .othumb .oa-canvas {
+:host ::ng-deep .tthumb img,
+:host ::ng-deep .tthumb .oa-canvas {
   filter: brightness(0.8) saturate(0.92);
   opacity: 0.9;
   transition: filter 0.25s ease, opacity 0.25s ease;
 }
-.ocard:hover ::ng-deep .othumb img,
-.ocard:hover ::ng-deep .othumb .oa-canvas {
+.tcard:hover ::ng-deep .tthumb img,
+.tcard:hover ::ng-deep .tthumb .oa-canvas {
   filter: brightness(0.96) saturate(1);
   opacity: 1;
 }
@@ -98,7 +98,7 @@
   font-weight: 500;
   font-size: 18px;
 }
-.otype {
+.ttype {
   font-family: var(--db-font-mono-code);
   font-size: 10.5px;
   letter-spacing: 0.12em;

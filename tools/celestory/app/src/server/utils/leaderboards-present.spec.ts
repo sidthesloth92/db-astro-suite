@@ -33,7 +33,7 @@ describe('presentEntry', () => {
 
   it('tags targets with their category', () => {
     const r = presentEntry(
-      getBoardConfig('object'),
+      getBoardConfig('target'),
       entry({ value: 5, unit: 'imagers', label: 'M42', meta: { category: 'Emission Nebula' } }),
     );
     expect(r.tag).toBe('Emission Nebula');
@@ -63,7 +63,7 @@ describe('presentEntry', () => {
     expect(r.unit).toBe('h');
   });
 
-  it('uses the object designation as the projects sub line', () => {
+  it('uses the target designation as the projects sub line', () => {
     const r = presentEntry(
       getBoardConfig('project'),
       entry({ value: 3600, label: '@a', meta: { designation: 'M31', category: 'Galaxy' } }),

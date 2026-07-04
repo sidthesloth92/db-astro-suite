@@ -33,20 +33,20 @@ async function persistStory(
     sql`
       INSERT INTO stories (
         id, handle, password_hash, story_json,
-        total_integration_seconds, object_count, night_count,
+        total_integration_seconds, target_count, night_count,
         light_frame_count, first_light, latest_session
       ) VALUES (
         ${storyId}, ${handle}, ${passwordHash}, ${storyJson},
-        ${totals.totalIntegrationSeconds}, ${totals.objectCount}, ${totals.nightCount},
+        ${totals.totalIntegrationSeconds}, ${totals.targetCount}, ${totals.nightCount},
         ${totals.lightFrameCount}, ${totals.firstLight}, ${totals.latestSession}
       )`,
-    ...rows.objects.map(
+    ...rows.targets.map(
       (o) => sql`
-        INSERT INTO story_objects (
-          story_id, object_id, designation, category,
+        INSERT INTO story_targets (
+          story_id, target_id, designation, category,
           integration_seconds, light_frame_count, night_count
         ) VALUES (
-          ${storyId}, ${o.objectId}, ${o.designation}, ${o.category},
+          ${storyId}, ${o.targetId}, ${o.designation}, ${o.category},
           ${o.integrationSeconds}, ${o.lightFrameCount}, ${o.nightCount}
         )`,
     ),
@@ -68,13 +68,13 @@ async function persistStory(
           ${storyId}, ${f.name}, ${f.seconds}, ${f.frames}
         )`,
     ),
-    ...rows.objectMonths.map(
+    ...rows.targetMonths.map(
       (m) => sql`
-        INSERT INTO story_object_months (
-          story_id, object_id, designation, category,
+        INSERT INTO story_target_months (
+          story_id, target_id, designation, category,
           month, integration_seconds, light_frame_count
         ) VALUES (
-          ${storyId}, ${m.objectId}, ${m.designation}, ${m.category},
+          ${storyId}, ${m.targetId}, ${m.designation}, ${m.category},
           ${m.month}, ${m.integrationSeconds}, ${m.lightFrameCount}
         )`,
     ),
@@ -141,7 +141,7 @@ export default defineEventHandler(async (event) => {
           dataFingerprint: story.dataFingerprint,
           totalIntegrationSeconds: rows.totals.totalIntegrationSeconds,
           lightFrameCount: rows.totals.lightFrameCount,
-          objectCount: rows.totals.objectCount,
+          targetCount: rows.totals.targetCount,
         });
         await claimUploads(story.installId, handle);
       } catch (bookkeepingError) {

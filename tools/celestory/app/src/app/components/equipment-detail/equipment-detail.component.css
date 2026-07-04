@@ -39,7 +39,7 @@
   flex: none;
   margin-top: 6px;
 }
-/* Share = the design's soft-pink pill (matches the object detail page). */
+/* Share = the design's soft-pink pill (matches the target detail page). */
 .sharebtn ::ng-deep .text-button {
   color: var(--db-color-text-primary);
   background: color-mix(in srgb, var(--db-color-neon-pink) 10%, transparent);

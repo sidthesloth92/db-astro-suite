@@ -8,14 +8,14 @@
 export interface LeaderboardEntry {
   /** 1-based rank within the board. */
   rank: number;
-  /** Stable identifier for the ranked subject (handle, object/equipment id,
+  /** Stable identifier for the ranked subject (handle, target/equipment id,
    * filter name, focal length, month key, …). */
   key: string;
   /** Human-readable label for display. */
   label: string;
   /** The ranking value in `unit` terms. */
   value: number;
-  /** What `value` measures: `seconds | frames | objects | imagers | users |
+  /** What `value` measures: `seconds | frames | targets | imagers | users |
    * nights | days | categories`. */
   unit: string;
   /** Optional board-specific context (designation, category, kind, handle, …). */
@@ -24,7 +24,7 @@ export interface LeaderboardEntry {
 
 /** A single leaderboard: which board, the metric applied, and the ranked rows. */
 export interface Leaderboard {
-  /** Board identifier, e.g. `users`, `objects`, `equipment`, `months`. */
+  /** Board identifier, e.g. `users`, `targets`, `equipment`, `months`. */
   board: string;
   /** The ranking metric (or view) that produced these rows. */
   metric: string;

@@ -5,7 +5,7 @@
  */
 import { getDb } from '../utils/db';
 import { communityStats } from '../utils/uploads';
-import { topObjects } from '../utils/leaderboards';
+import { topTargets } from '../utils/leaderboards';
 import type { OgLandingModel, OgLeaderboardsModel } from './og-card.model';
 
 /** Rounded integration hours as a bare number string (the card adds "h"). */
@@ -22,7 +22,7 @@ function countLabel(n: number): string {
 async function distinctTargets(): Promise<number> {
   const sql = getDb();
   const rows = await sql`
-    SELECT COUNT(DISTINCT object_id)::int AS n FROM story_objects WHERE object_id IS NOT NULL`;
+    SELECT COUNT(DISTINCT target_id)::int AS n FROM story_targets WHERE target_id IS NOT NULL`;
   return Number((rows[0] as { n: number } | undefined)?.n ?? 0);
 }
 
@@ -41,8 +41,8 @@ export async function loadLeaderboardsOgModel(): Promise<OgLeaderboardsModel> {
   const [stats, targets, top, imaged] = await Promise.all([
     communityStats(),
     distinctTargets(),
-    topObjects('integration', 1),
-    topObjects('frames', 1),
+    topTargets('integration', 1),
+    topTargets('frames', 1),
   ]);
   return {
     hours: hoursNum(stats.totalIntegrationSeconds),

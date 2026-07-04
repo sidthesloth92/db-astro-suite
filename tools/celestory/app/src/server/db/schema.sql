@@ -19,7 +19,7 @@ CREATE TABLE stories (
   password_hash TEXT,
   story_json TEXT NOT NULL,
   total_integration_seconds BIGINT,
-  object_count INT,
+  target_count INT,
   night_count INT,
   light_frame_count INT,
   first_light TIMESTAMP,
@@ -32,10 +32,10 @@ CREATE TABLE stories (
 -- snapshot. These power the community leaderboards, which rank PUBLISHED
 -- profiles only.
 
-CREATE TABLE story_objects (
+CREATE TABLE story_targets (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   story_id UUID NOT NULL REFERENCES stories(id) ON DELETE CASCADE,
-  object_id TEXT,
+  target_id TEXT,
   designation TEXT,
   category TEXT,
   integration_seconds BIGINT,
@@ -67,13 +67,13 @@ CREATE TABLE story_filters (
   frames INT
 );
 
--- Per-object, per-month rollup powering the time/seasonality boards. `month` is
+-- Per-target, per-month rollup powering the time/seasonality boards. `month` is
 -- the first day of the month, so one DATE column serves per-year, all-time, and
 -- seasonality (month-of-year) views.
-CREATE TABLE story_object_months (
+CREATE TABLE story_target_months (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   story_id UUID NOT NULL REFERENCES stories(id) ON DELETE CASCADE,
-  object_id TEXT,
+  target_id TEXT,
   designation TEXT,
   category TEXT,
   month DATE,
@@ -82,7 +82,7 @@ CREATE TABLE story_object_months (
 );
 
 -- Per-filter, per-month rollup powering the time-windowed filters board. Built
--- from each object's per-night sessions (session.filters), bucketed by month.
+-- from each target's per-night sessions (session.filters), bucketed by month.
 CREATE TABLE story_filter_months (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   story_id UUID NOT NULL REFERENCES stories(id) ON DELETE CASCADE,
@@ -117,20 +117,20 @@ CREATE TABLE story_uploads (
   data_fingerprint TEXT NOT NULL,
   total_integration_seconds BIGINT,
   light_frame_count INT,
-  object_count INT,
+  target_count INT,
   uploaded_at TIMESTAMP DEFAULT NOW()
 );
 
 -- ── Indexes ───────────────────────────────────────────────────────────────────
 -- (stories.handle is already indexed by its UNIQUE constraint.)
-CREATE INDEX idx_story_objects_story_id        ON story_objects(story_id);
-CREATE INDEX idx_story_objects_object_id       ON story_objects(object_id);
+CREATE INDEX idx_story_targets_story_id        ON story_targets(story_id);
+CREATE INDEX idx_story_targets_target_id       ON story_targets(target_id);
 CREATE INDEX idx_story_equipment_story_id      ON story_equipment(story_id);
 CREATE INDEX idx_story_equipment_equipment_id  ON story_equipment(equipment_id);
 CREATE INDEX idx_story_filters_story_id        ON story_filters(story_id);
-CREATE INDEX idx_story_object_months_story_id  ON story_object_months(story_id);
-CREATE INDEX idx_story_object_months_month     ON story_object_months(month);
-CREATE INDEX idx_story_object_months_object_id ON story_object_months(object_id);
+CREATE INDEX idx_story_target_months_story_id  ON story_target_months(story_id);
+CREATE INDEX idx_story_target_months_month     ON story_target_months(month);
+CREATE INDEX idx_story_target_months_target_id ON story_target_months(target_id);
 CREATE INDEX idx_story_filter_months_story_id    ON story_filter_months(story_id);
 CREATE INDEX idx_story_filter_months_month       ON story_filter_months(month);
 CREATE INDEX idx_story_equipment_months_story_id ON story_equipment_months(story_id);

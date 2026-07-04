@@ -47,7 +47,7 @@
   letter-spacing: 0.04em;
   color: var(--db-color-text-faint);
 }
-.objgrid {
+.tgtgrid {
   display: grid;
   gap: 18px;
   margin-top: 22px;

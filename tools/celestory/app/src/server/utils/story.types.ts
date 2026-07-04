@@ -3,7 +3,7 @@
  * Source of truth: tools/celestory/cli/internal/model/*.model.go
  */
 
-/** Per-filter integration within an object or session. */
+/** Per-filter integration within a target or session. */
 export interface FilterIntegration {
   name: string;
   seconds: number;
@@ -19,20 +19,20 @@ export interface FilterTotal {
 /** Per-category breakdown (Galaxy, Nebula, …). */
 export interface CategoryStat {
   category: string;
-  objectCount: number;
+  targetCount: number;
   integrationSeconds: number;
   lightFrameCount: number;
 }
 
-/** One night of activity across all objects. */
+/** One night of activity across all targets. */
 export interface ActivityEntry {
   date: string;
   integrationSeconds: number;
   lightFrameCount: number;
-  objectIds: string[];
+  targetIds: string[];
 }
 
-/** One per-night session for a single object. */
+/** One per-night session for a single target. */
 export interface Session {
   date: string;
   integrationSeconds: number;
@@ -48,7 +48,7 @@ export interface Session {
 /** Top-level rollup powering the hero band and filter chips. */
 export interface Summary {
   totalIntegrationSeconds: number;
-  objectCount: number;
+  targetCount: number;
   nightCount: number;
   lightFrameCount: number;
   firstLight: string;
@@ -71,14 +71,14 @@ export interface EquipmentItem {
   fRatio: number | null;
   totalIntegrationSeconds: number;
   lightFrameCount: number;
-  objectCount: number;
+  targetCount: number;
   firstLight: string;
   latestSession: string;
-  objectIds: string[];
+  targetIds: string[];
 }
 
 /** One imaged target with aggregated totals and per-night timeline. */
-export interface ObjectTimeline {
+export interface TargetTimeline {
   id: string;
   displayName: string;
   designation: string;
@@ -117,7 +117,7 @@ export interface Story {
   dataFingerprint: string;
   summary: Summary;
   equipment: EquipmentItem[];
-  objects: ObjectTimeline[];
+  targets: TargetTimeline[];
   duplicates: unknown[];
   skipped: unknown[];
 }

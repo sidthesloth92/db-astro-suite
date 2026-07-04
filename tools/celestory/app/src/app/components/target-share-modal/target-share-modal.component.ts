@@ -13,11 +13,11 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import type { CelestoryStory, StoryObject } from '../../models/story.model';
+import type { CelestoryStory, StoryTarget } from '../../models/story.model';
 import type { ShareFormatId, ShareThemeId } from '../../models/share.types';
 import {
   ensureShareFonts,
-  renderObjectShareCard,
+  renderTargetShareCard,
   SHARE_FORMAT_LIST,
   SHARE_FORMATS,
   SHARE_THEME_LIST,
@@ -30,29 +30,29 @@ import { canShareFiles, copyCanvasToClipboard, shareCanvas } from '../../utils/s
 import { SocialShareRowComponent } from '../social-share-row/social-share-row.component';
 
 /**
- * Per-object Share — a single-item scope of the shared Share Studio shell: a live
+ * Per-target Share — a single-item scope of the shared Share Studio shell: a live
  * canvas preview, identity, theme + format pickers and download / copy / share.
  * Reuses the Share Studio stylesheet so it stays visually identical. Client-side.
  */
 @Component({
-  selector: 'dba-object-share-modal',
+  selector: 'dba-target-share-modal',
   standalone: true,
   imports: [TextButtonComponent, IconButtonComponent, SplitButtonComponent, SocialShareRowComponent],
-  templateUrl: './object-share-modal.component.html',
+  templateUrl: './target-share-modal.component.html',
   styleUrl: '../share-studio-modal/share-studio-modal.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { '(document:keydown.escape)': 'closed.emit()' },
 })
-export class ObjectShareModalComponent {
+export class TargetShareModalComponent {
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
-  /** The object to render. */
-  readonly obj = input.required<StoryObject>();
+  /** The target to render. */
+  readonly target = input.required<StoryTarget>();
   /** The full story (resolves equipment names). */
   readonly story = input.required<CelestoryStory>();
   /** Public handle for the card's URL line. */
   readonly handle = input<string>('');
-  /** Public deep-link to this object (empty when unpublished) — gates the share row. */
+  /** Public deep-link to this target (empty when unpublished) — gates the share row. */
   readonly shareUrl = input<string>('');
   /** Emits when the modal should close. */
   readonly closed = output<void>();
@@ -79,7 +79,7 @@ export class ObjectShareModalComponent {
 
   /** Caption under the preview ("designation · name"). */
   protected readonly caption = computed(() => {
-    const o = this.obj();
+    const o = this.target();
     return o.designation ? `${o.designation}  ·  ${o.displayName}` : o.displayName;
   });
   /** Pixel dimensions of the current format, for the footer note. */
@@ -102,10 +102,10 @@ export class ObjectShareModalComponent {
     const ident = this.session.identity();
     return buildShareModel(this.story(), { name: ident.name, username: ident.username || this.handle() });
   });
-  /** The matching render object for the input target. */
-  private readonly shareObject = computed(() => {
-    const id = this.obj().id;
-    return this.model().objects.find((o) => o.id === id) ?? this.model().objects[0];
+  /** The matching render target for the input target. */
+  private readonly shareTarget = computed(() => {
+    const id = this.target().id;
+    return this.model().targets.find((o) => o.id === id) ?? this.model().targets[0];
   });
 
   private fontsReady: Promise<void> | null = null;
@@ -117,12 +117,12 @@ export class ObjectShareModalComponent {
       const themeId = this.themeId();
       const formatId = this.formatId();
       const model = this.model();
-      const o = this.shareObject();
+      const o = this.shareTarget();
       if (!this.isBrowser || !canvas || !o) {
         return;
       }
       this.fontsReady ??= ensureShareFonts();
-      void this.fontsReady.then(() => renderObjectShareCard(canvas, model, o, themeId, formatId));
+      void this.fontsReady.then(() => renderTargetShareCard(canvas, model, o, themeId, formatId));
     });
   }
 
@@ -135,9 +135,9 @@ export class ObjectShareModalComponent {
     this.formatId.set(id);
   }
 
-  /** Filename stem for this object's card. */
+  /** Filename stem for this target's card. */
   private fileStem(): string {
-    return `${(this.obj().designation || this.obj().displayName).replace(/\s+/g, '-').toLowerCase()}-celestory`;
+    return `${(this.target().designation || this.target().displayName).replace(/\s+/g, '-').toLowerCase()}-celestory`;
   }
 
   /** Switches the active download format (from the split-button menu). */

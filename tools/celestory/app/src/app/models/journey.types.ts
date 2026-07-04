@@ -5,8 +5,8 @@
  */
 export type JourneyState = 'demo' | 'preview' | 'published';
 
-/** A reference to an open object/equipment detail within the journey shell. */
+/** A reference to an open target/equipment detail within the journey shell. */
 export interface DetailRef {
-  kind: 'object' | 'equipment';
+  kind: 'target' | 'equipment';
   id: string;
 }

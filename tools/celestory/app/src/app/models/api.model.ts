@@ -44,7 +44,7 @@ export interface AttemptPing {
   dataFingerprint: string;
   totalIntegrationSeconds: number;
   lightFrameCount: number;
-  objectCount: number;
+  targetCount: number;
 }
 
 /** A published (or sample) story fetched by handle; headline stats live in the

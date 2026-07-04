@@ -1,0 +1,32 @@
+<article class="tcard" (click)="open.emit(target().id)">
+  <button
+    class="tgt-share-btn"
+    type="button"
+    title="Share this target"
+    aria-label="Share this target"
+    (click)="$event.stopPropagation(); share.emit(target().id)"
+  >
+    <dba-cel-icon name="share" [size]="16" />
+  </button>
+  <div class="tthumb"><dba-target-image [targetId]="target().id" [category]="target().category" [icon]="icon()" label="Add image" /></div>
+  <div class="obody">
+    <div class="otitle">
+      @if (target().designation) {
+        <span class="desig">{{ target().designation }}</span>
+      }
+      <span class="nm">{{ target().displayName }}</span>
+    </div>
+    <div class="ttype">{{ target().type || target().category }}</div>
+    <div class="ometa">
+      <div class="m">
+        <div class="k">Integration</div>
+        <div class="v">{{ dur(target().totalIntegrationSeconds) }}</div>
+      </div>
+      <div class="m">
+        <div class="k">Frames</div>
+        <div class="v">{{ count(target().lightFrameCount) }}</div>
+      </div>
+    </div>
+    <dba-filter-distribution [filters]="target().filters" [legend]="false" size="mini" />
+  </div>
+</article>
