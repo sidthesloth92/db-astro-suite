@@ -479,7 +479,8 @@ func applyFilenameFallback(src string, m *fits.Metadata) {
 // sessionTimestamp picks the timestamp used to compute a frame's session date.
 //
 // Plain date grouping keeps using DATE-OBS. With session grouping on, the cutoff
-// must be compared against the observer's LOCAL clock, so the priority is:
+// must be compared against the observer's LOCAL clock, so the choice is
+// delegated to the shared capturetime.PickSessionTime priority chain:
 // (1) the local capture time decoded from the filename, (2) the DATE-LOC header
 // (local time, written by N.I.N.A.), (3) DATE-OBS (UTC) as a last resort. The
 // returned dateSource lets BuildPlan warn when it lands on DATE-OBS.
@@ -487,34 +488,7 @@ func sessionTimestamp(src string, m fits.Metadata, opts Options) (time.Time, dat
 	if !opts.GroupSession {
 		return m.DateObs, sourceDateObs
 	}
-	if ft, ok := capturetime.ParseFilenameTimestamp(filepath.Base(src)); ok && datesPlausible(ft, m.DateObs) {
-		return ft, sourceFilename
-	}
-	if !m.DateLoc.IsZero() {
-		return m.DateLoc, sourceDateLoc
-	}
-	return m.DateObs, sourceDateObs
-}
-
-// datesPlausible reports whether a filename-decoded local time is close enough to
-// DATE-OBS to trust for session grouping. A real UTC offset never shifts the
-// calendar day by more than one, so a gap beyond 24h means the filename time is
-// bogus (e.g. a batch-renamed file) and must not override the header. A
-// date-only filename token (midnight) is always trusted — it is an explicit
-// session date (e.g. N.I.N.A. $$DATEMINUS12$$), not a mislabel. A zero DATE-OBS
-// leaves nothing to compare against, so the filename wins.
-func datesPlausible(filenameTime, dateObs time.Time) bool {
-	if dateObs.IsZero() {
-		return true
-	}
-	if filenameTime.Hour() == 0 && filenameTime.Minute() == 0 && filenameTime.Second() == 0 {
-		return true
-	}
-	diff := filenameTime.Sub(dateObs)
-	if diff < 0 {
-		diff = -diff
-	}
-	return diff <= 24*time.Hour
+	return capturetime.PickSessionTime(src, m.DateLoc, m.DateObs)
 }
 
 // printSessionUTCWarning tells the user that some session-grouped frames were
