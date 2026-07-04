@@ -8,6 +8,8 @@
 -- Then recreate with:  psql "$DATABASE_URL" -f schema.sql
 
 DROP TABLE IF EXISTS story_target_months CASCADE;
+DROP TABLE IF EXISTS story_filter_months CASCADE;
+DROP TABLE IF EXISTS story_equipment_months CASCADE;
 DROP TABLE IF EXISTS story_targets CASCADE;
 DROP TABLE IF EXISTS story_equipment CASCADE;
 DROP TABLE IF EXISTS story_filters CASCADE;
