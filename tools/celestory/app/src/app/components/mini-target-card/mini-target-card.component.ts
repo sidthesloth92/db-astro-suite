@@ -22,6 +22,8 @@ import { TargetImageComponent } from '../target-image/target-image.component';
 export class MiniTargetCardComponent {
   /** The target to render. */
   readonly target = input.required<StoryTarget>();
+  /** Story-wide colours for unknown filter names, forwarded to the mini filter bar. */
+  readonly filterColors = input<ReadonlyMap<string, string> | null>(null);
   /** Scope the nights/date-range to sessions that used this equipment id. */
   readonly equipId = input<string>('');
   /** Emits the target id when the card is opened. */

@@ -24,10 +24,40 @@ export const FILTER_META: Readonly<Record<string, FilterMeta>> = {
   G: { label: 'G', color: '#46cf7c', long: 'Green' },
   B: { label: 'B', color: '#4d8df0', long: 'Blue' },
   RGB: { label: 'RGB', color: '#00e5ff', long: 'One-shot colour' },
+  OSC: { label: 'OSC', color: '#00e5ff', long: 'One-shot colour (Bayer)' },
+  'No Filter': { label: 'No Filter', color: '#9ca3af', long: 'No filter in the light path' },
 };
 
 /** Canonical render order for filters. */
-export const FILTER_ORDER: readonly string[] = ['Hα', 'SII', 'OIII', 'L', 'R', 'G', 'B', 'RGB'];
+export const FILTER_ORDER: readonly string[] = [
+  'Hα',
+  'SII',
+  'OIII',
+  'L',
+  'R',
+  'G',
+  'B',
+  'RGB',
+  'OSC',
+  'No Filter',
+];
 
 /** Fallback colour for an unrecognised filter name. */
 export const FILTER_FALLBACK = '#7af2c8';
+
+/**
+ * Fallback palette for unrecognised filter names (brand dual-bands like
+ * SV220, D2, L-eXtreme, …). Assigned deterministically per story so no two
+ * filters share a colour; curated to stay distinct from the signature colours
+ * above. The first entry is the legacy single-fallback mint.
+ */
+export const FILTER_FALLBACK_PALETTE: readonly string[] = [
+  '#7af2c8', // mint
+  '#c084fc', // violet
+  '#fbbf24', // amber
+  '#f472b6', // orchid
+  '#818cf8', // periwinkle
+  '#a3e635', // lime
+  '#38bdf8', // sky
+  '#fb923c', // orange
+];

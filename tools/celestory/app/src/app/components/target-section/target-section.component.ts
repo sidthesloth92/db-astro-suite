@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import type { CelestoryStory, StoryTarget } from '../../models/story.model';
+import { storyFilterColors } from '../../utils/portfolio.util';
 import { TargetCardComponent } from '../target-card/target-card.component';
 
 /** The "Targets" catalogue: category / equipment / year filters + a card grid. */
@@ -18,6 +19,9 @@ export class TargetSectionComponent {
   readonly open = output<string>();
   /** Emits a target id to open its share card. */
   readonly share = output<string>();
+
+  /** Story-wide colours for unknown filter names (keeps card strips consistent). */
+  protected readonly filterColors = computed(() => storyFilterColors(this.story()));
 
   /** Active filters. */
   protected readonly cat = signal('All');

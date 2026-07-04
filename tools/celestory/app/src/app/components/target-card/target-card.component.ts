@@ -19,6 +19,8 @@ import { TargetImageComponent } from '../target-image/target-image.component';
 export class TargetCardComponent {
   /** The target to render. */
   readonly target = input.required<StoryTarget>();
+  /** Story-wide colours for unknown filter names, forwarded to the mini filter bar. */
+  readonly filterColors = input<ReadonlyMap<string, string> | null>(null);
   /** Emits the target id when the card is opened. */
   readonly open = output<string>();
   /** Emits the target id when its share button is pressed. */

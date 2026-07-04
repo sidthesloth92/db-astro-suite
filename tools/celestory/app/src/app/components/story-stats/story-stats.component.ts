@@ -5,7 +5,7 @@ import {
   input,
 } from '@angular/core';
 import type { CelestoryStory } from '../../models/story.model';
-import { filterColor } from '../../utils/filter-color.util';
+import { filterColor, filterColorMap } from '../../utils/filter-color.util';
 import { formatCount, formatDuration } from '../../utils/format.util';
 
 /** A single filter bar segment for the distribution chart. */
@@ -52,11 +52,12 @@ export class StoryStatsComponent {
   /** Filter distribution as proportional bar segments. */
   protected readonly filters = computed<FilterBar[]>(() => {
     const filters = this.story().summary.filters;
+    const colors = filterColorMap(filters.map((f) => f.name));
     const total = filters.reduce((sum, f) => sum + f.seconds, 0) || 1;
     return filters.map((f) => ({
       name: f.name,
       label: formatDuration(f.seconds),
-      color: filterColor(f.name),
+      color: filterColor(f.name, colors),
       pct: (f.seconds / total) * 100,
     }));
   });

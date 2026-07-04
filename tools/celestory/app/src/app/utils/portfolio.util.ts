@@ -24,7 +24,7 @@ import type {
   YearSpan,
 } from '../models/portfolio-view.types';
 import type { ShareCardData, ShareCarouselData, ShareDomeTarget } from '../models/share.types';
-import { filterColor, filterLabel } from './filter-color.util';
+import { filterColor, filterColorMap, filterLabel } from './filter-color.util';
 import { formatCompact, formatCount, formatDuration, formatHours } from './format.util';
 
 const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -204,7 +204,7 @@ export function highlights(story: CelestoryStory): Highlight[] {
       key: 'Go-to filter',
       value: filterLabel(topFilter),
       sub: formatDuration(topFilterSecs),
-      color: filterColor(topFilter),
+      color: filterColor(topFilter, storyFilterColors(story)),
     });
   }
 
@@ -236,8 +236,21 @@ export function highlights(story: CelestoryStory): Highlight[] {
   return out;
 }
 
-/** Proportional filter-distribution slices, in canonical order. */
-export function filterSlices(filters: readonly StoryFilterTotal[]): FilterSlice[] {
+/** Deterministic colours for a story's unrecognised filter names (see filterColorMap). */
+export function storyFilterColors(story: CelestoryStory): ReadonlyMap<string, string> {
+  return filterColorMap(story.summary.filters.map((f) => f.name));
+}
+
+/**
+ * Proportional filter-distribution slices, in canonical order. Pass `colors`
+ * built from the story-wide filter list so unknown filters keep one colour
+ * across every view; without it, colours are assigned from `filters` itself.
+ */
+export function filterSlices(
+  filters: readonly StoryFilterTotal[],
+  colors?: ReadonlyMap<string, string>,
+): FilterSlice[] {
+  const colorOf = colors ?? filterColorMap(filters.map((f) => f.name));
   const byName = new Map(filters.map((f) => [f.name, f.seconds]));
   const ordered = [
     ...FILTER_ORDER.filter((n) => (byName.get(n) ?? 0) > 0),
@@ -246,12 +259,19 @@ export function filterSlices(filters: readonly StoryFilterTotal[]): FilterSlice[
   const total = ordered.reduce((sum, n) => sum + (byName.get(n) ?? 0), 0) || 1;
   return ordered.map((name) => {
     const seconds = byName.get(name) ?? 0;
-    return { name, label: filterLabel(name), color: filterColor(name), seconds, pct: (seconds / total) * 100 };
+    return { name, label: filterLabel(name), color: filterColor(name, colorOf), seconds, pct: (seconds / total) * 100 };
   });
 }
 
-/** Per-filter integration rows for a target's detail (sorted by time). */
-export function filterRows(filters: readonly { name: string; seconds: number; frames: number }[]): FilterRow[] {
+/**
+ * Per-filter integration rows for a target's detail (sorted by time). Pass
+ * story-wide `colors` for cross-view consistency (see filterSlices).
+ */
+export function filterRows(
+  filters: readonly { name: string; seconds: number; frames: number }[],
+  colors?: ReadonlyMap<string, string>,
+): FilterRow[] {
+  const colorOf = colors ?? filterColorMap(filters.map((f) => f.name));
   const used = filters.filter((f) => f.seconds > 0);
   const total = used.reduce((s, f) => s + f.seconds, 0) || 1;
   const max = used.reduce((m, f) => Math.max(m, f.seconds), 1);
@@ -260,7 +280,7 @@ export function filterRows(filters: readonly { name: string; seconds: number; fr
     .map((f) => ({
       name: f.name,
       label: filterLabel(f.name),
-      color: filterColor(f.name),
+      color: filterColor(f.name, colorOf),
       seconds: f.seconds,
       frames: f.frames,
       avg: f.frames ? Math.round(f.seconds / f.frames) : 0,
@@ -269,7 +289,10 @@ export function filterRows(filters: readonly { name: string; seconds: number; fr
     }));
 }
 
-/** Resolve a target's sessions into timeline view-models (gear names + pills). */
+/**
+ * Resolve a target's sessions into timeline view-models (gear names + pills).
+ * Pass story-wide `colors` for cross-view filter-colour consistency.
+ */
 export function sessionViews(
   sessions: readonly {
     date: string;
@@ -281,7 +304,9 @@ export function sessionViews(
     fRatio?: number | null;
   }[],
   equipNames: ReadonlyMap<string, string>,
+  colors?: ReadonlyMap<string, string>,
 ): SessionView[] {
+  const colorOf = colors ?? filterColorMap(sessions.flatMap((s) => s.filters.map((f) => f.name)));
   return [...sessions]
     .sort((a, b) => a.date.localeCompare(b.date))
     .map((s) => ({
@@ -291,7 +316,7 @@ export function sessionViews(
       filters: [...s.filters]
         .filter((f) => f.seconds > 0)
         .sort((a, b) => b.seconds - a.seconds)
-        .map((f) => ({ name: f.name, label: filterLabel(f.name), color: filterColor(f.name) })),
+        .map((f) => ({ name: f.name, label: filterLabel(f.name), color: filterColor(f.name, colorOf) })),
       gearNames: s.equipmentIds.map((id) => equipNames.get(id) ?? id),
       spec: sessionSpec(s.focalLengthMm ?? null, s.fRatio ?? null),
     }));
@@ -409,7 +434,7 @@ export function buildShareCarouselData(
         valStr: formatDuration(o.totalIntegrationSeconds),
         value: o.totalIntegrationSeconds,
       })),
-    filters: filterNames.map((n) => ({ name: n, label: filterLabel(n), color: filterColor(n), seconds: byName.get(n) ?? 0 })),
+    filters: filterNames.map((n) => ({ name: n, label: filterLabel(n), color: filterColor(n, storyFilterColors(story)), seconds: byName.get(n) ?? 0 })),
     activity: s.activity.map((a) => ({ date: a.date, seconds: a.integrationSeconds })),
     domeTargets,
     url: displayUrl,
@@ -484,6 +509,7 @@ export function heatStrip(story: CelestoryStory): HeatStripView {
 function buildNightDetails(
   story: CelestoryStory,
 ): Map<string, Pick<HeatNight, 'filters' | 'targets'>> {
+  const colors = storyFilterColors(story);
   const filterSecs = new Map<string, Map<string, number>>();
   const targetsByDate = new Map<string, HeatNight['targets']>();
   for (const o of story.targets) {
@@ -509,7 +535,7 @@ function buildNightDetails(
   for (const date of dates) {
     const filters = [...(filterSecs.get(date) ?? new Map<string, number>()).entries()]
       .sort((a, b) => b[1] - a[1])
-      .map(([name, seconds]) => ({ name, label: filterLabel(name), color: filterColor(name), seconds }));
+      .map(([name, seconds]) => ({ name, label: filterLabel(name), color: filterColor(name, colors), seconds }));
     const targets = [...(targetsByDate.get(date) ?? [])].sort((a, b) => b.seconds - a.seconds);
     out.set(date, { filters, targets });
   }

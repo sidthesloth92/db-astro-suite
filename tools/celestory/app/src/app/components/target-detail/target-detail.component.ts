@@ -12,6 +12,7 @@ import {
   filterRows,
   fmtDate,
   sessionViews,
+  storyFilterColors,
 } from '../../utils/portfolio.util';
 import { TextButtonComponent } from '@db-astro-suite/ui';
 import { CelIconComponent } from '../cel-icon/cel-icon.component';
@@ -66,8 +67,13 @@ export class TargetDetailComponent {
 
   /** Category glyph. */
   protected readonly icon = computed<CelIconName>(() => categoryIcon(this.target().category));
+  /** Story-wide colours for unknown filter names (keeps views consistent). */
+  private readonly filterColors = computed(() => storyFilterColors(this.story()));
+
   /** Per-filter integration rows. */
-  protected readonly rows = computed<FilterRow[]>(() => filterRows(this.target().filters));
+  protected readonly rows = computed<FilterRow[]>(() =>
+    filterRows(this.target().filters, this.filterColors()),
+  );
   /** Equipment used (resolved). */
   protected readonly gear = computed<StoryEquipment[]>(() => {
     const byId = new Map(this.story().equipment.map((e) => [e.id, e] as const));
@@ -75,7 +81,7 @@ export class TargetDetailComponent {
   });
   /** Session timeline view-models. */
   protected readonly sessions = computed<SessionView[]>(() =>
-    sessionViews(this.target().sessions, equipNameMap(this.story())),
+    sessionViews(this.target().sessions, equipNameMap(this.story()), this.filterColors()),
   );
 
   protected dur(s: number): string {

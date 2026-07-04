@@ -53,7 +53,7 @@
   } @else {
     <div class="tgtgrid">
       @for (o of filtered(); track o.id) {
-        <dba-target-card [target]="o" (open)="open.emit($event)" (share)="share.emit($event)" />
+        <dba-target-card [target]="o" [filterColors]="filterColors()" (open)="open.emit($event)" (share)="share.emit($event)" />
       }
     </div>
   }

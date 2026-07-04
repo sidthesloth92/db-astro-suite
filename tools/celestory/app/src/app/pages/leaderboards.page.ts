@@ -20,7 +20,7 @@ import {
   BOARD_VIEWS,
   SCOPE_OPTIONS,
 } from '../components/leaderboards/leaderboards.constants';
-import { filterColor } from '../utils/filter-color.util';
+import { filterColor, filterColorMap } from '../utils/filter-color.util';
 import { formatCompact, formatCount } from '../utils/format.util';
 import { leaderboardIconSvg } from '../utils/leaderboard-icon.util';
 import { leaderboardBackdrop, motifSvg } from '../utils/leaderboard-motif.util';
@@ -151,9 +151,10 @@ export default class LeaderboardsPageComponent implements OnInit {
   );
   protected readonly motif = computed<SafeHtml>(() => {
     const view = this.activeView();
+    const colors = filterColorMap(this.entries().map((entry) => entry.label));
     const swatches =
       view.id === 'filter'
-        ? this.entries().map((entry) => filterColor(entry.label))
+        ? this.entries().map((entry) => filterColor(entry.label, colors))
         : [];
     return safeSvg(
       this.sanitizer,

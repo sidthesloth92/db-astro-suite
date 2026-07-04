@@ -19,9 +19,17 @@ export class FilterDistributionComponent {
   readonly legend = input<boolean>(true);
   /** Bar thickness: 'tall' (12px, summary panel) or 'mini' (5px, target cards). */
   readonly size = input<'tall' | 'mini'>('tall');
+  /**
+   * Story-wide colours for unknown filter names (see filterColorMap). Pass when
+   * `filters` is a subset (target cards) so colours match the summary chart;
+   * omitted, colours are assigned from `filters` itself.
+   */
+  readonly colors = input<ReadonlyMap<string, string> | null>(null);
 
   /** Proportional, ordered slices. */
-  protected readonly slices = computed<FilterSlice[]>(() => filterSlices(this.filters()));
+  protected readonly slices = computed<FilterSlice[]>(() =>
+    filterSlices(this.filters(), this.colors() ?? undefined),
+  );
 
   /** Formats a duration for the legend. */
   protected dur(seconds: number): string {

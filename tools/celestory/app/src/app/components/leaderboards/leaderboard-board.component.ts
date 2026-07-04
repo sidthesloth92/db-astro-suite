@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { DomSanitizer, type SafeHtml } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
-import { filterColor } from '../../utils/filter-color.util';
+import { filterColor, filterColorMap } from '../../utils/filter-color.util';
 import { formatCount } from '../../utils/format.util';
 import { leaderboardIconSvg } from '../../utils/leaderboard-icon.util';
 import { safeSvg } from '../../utils/safe-svg.util';
@@ -63,8 +63,13 @@ export class LeaderboardBoardComponent {
   /** Whether to show a colour swatch (the filters board only). */
   protected readonly showSwatch = computed(() => this.view().id === 'filter');
 
+  /** Distinct colours for the board's unrecognised filter labels. */
+  private readonly swatchColors = computed(() =>
+    filterColorMap(this.entries().map((e) => e.label)),
+  );
+
   /** Brand colour for a filter swatch (presentation/theme). */
   protected swatch(label: string): string {
-    return filterColor(label);
+    return filterColor(label, this.swatchColors());
   }
 }

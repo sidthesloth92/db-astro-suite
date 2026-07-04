@@ -3,7 +3,7 @@ import type { CelestoryStory, StoryEquipment, StoryTarget } from '../../models/s
 import type { CelIconName } from '../cel-icon/cel-icon.component';
 import { profileUrl } from '../../models/app.constants';
 import { formatCount, formatDuration } from '../../utils/format.util';
-import { fmtRange } from '../../utils/portfolio.util';
+import { fmtRange, storyFilterColors } from '../../utils/portfolio.util';
 import { TextButtonComponent } from '@db-astro-suite/ui';
 import { CelIconComponent } from '../cel-icon/cel-icon.component';
 import { EquipmentShareModalComponent } from '../equipment-share-modal/equipment-share-modal.component';
@@ -50,6 +50,9 @@ export class EquipmentDetailComponent {
   });
   /** Header glyph (matches the gear kind). */
   protected readonly icon = computed<CelIconName>(() => this.kindNoun());
+  /** Story-wide colours for unknown filter names (keeps card strips consistent). */
+  protected readonly filterColors = computed(() => storyFilterColors(this.story()));
+
   /** Captured targets, busiest first. */
   protected readonly targets = computed<StoryTarget[]>(() => {
     const byId = new Map(this.story().targets.map((o) => [o.id, o] as const));

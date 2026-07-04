@@ -27,6 +27,6 @@
         <div class="v">{{ count(target().lightFrameCount) }}</div>
       </div>
     </div>
-    <dba-filter-distribution [filters]="target().filters" [legend]="false" size="mini" />
+    <dba-filter-distribution [filters]="target().filters" [colors]="filterColors()" [legend]="false" size="mini" />
   </div>
 </article>

@@ -46,7 +46,7 @@
     @if (targets().length) {
       <div class="minigrid">
         @for (o of targets(); track o.id) {
-          <dba-mini-target-card [target]="o" [equipId]="equip().id" (open)="openTarget.emit($event)" />
+          <dba-mini-target-card [target]="o" [filterColors]="filterColors()" [equipId]="equip().id" (open)="openTarget.emit($event)" />
         }
       </div>
     } @else {
