@@ -27,7 +27,10 @@ import (
 //
 // v2: Metadata gained StackCount (stacked-master detection); older entries must
 // be re-parsed so masters are correctly excluded from integration.
-const SchemaVersion = 2
+//
+// v3: Metadata gained DateLoc (local capture time for session grouping); older
+// entries would silently fall back to UTC DATE-OBS session dates.
+const SchemaVersion = 3
 
 // Entry is one cached file record.
 type Entry struct {

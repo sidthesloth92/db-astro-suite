@@ -10,6 +10,8 @@ require (
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/charmbracelet/x/term v0.2.1
 	github.com/sidthesloth92/db-astro-suite/libs/astrofits v0.0.0
+	github.com/sidthesloth92/db-astro-suite/libs/capturetime v0.0.0
+	github.com/sidthesloth92/db-astro-suite/libs/cliui v0.0.0
 )
 
 require (
@@ -40,3 +42,7 @@ require (
 )
 
 replace github.com/sidthesloth92/db-astro-suite/libs/astrofits => ../../../libs/astrofits
+
+replace github.com/sidthesloth92/db-astro-suite/libs/capturetime => ../../../libs/capturetime
+
+replace github.com/sidthesloth92/db-astro-suite/libs/cliui => ../../../libs/cliui

@@ -398,3 +398,74 @@ func TestUndatedFrameStillCounts(t *testing.T) {
 		t.Errorf("undated-only target nightCount = %d, want 0 (undated isn't a night)", m42.NightCount)
 	}
 }
+
+func TestSessionDatesUseLocalCaptureTimeChain(t *testing.T) {
+	// Captured 21:00 local on Aug 1; the UTC DATE-OBS has already rolled into
+	// Aug 2. The filename's local time must date the session (no UTC day split).
+	byName := frame("/a/M31_Ha_20250801-210029_0001.fits", "M31", "Ha", "Light", "ZWO ASI2600MM", 300, 1000,
+		time.Date(2025, 8, 2, 2, 0, 22, 0, time.UTC))
+
+	// No filename token → the DATE-LOC header (local wall clock) wins over DATE-OBS.
+	byLoc := frame("/a/m31_sub2.fits", "M31", "Ha", "Light", "ZWO ASI2600MM", 300, 1001,
+		time.Date(2025, 8, 3, 1, 30, 0, 0, time.UTC))
+	byLoc.Meta.DateLoc = time.Date(2025, 8, 2, 20, 30, 0, 0, time.UTC)
+
+	// After local midnight the literal calendar date applies — no observing-night
+	// rollover merges it into the previous evening.
+	afterMidnight := frame("/a/M31_Ha_20250804-013000_0001.fits", "M31", "Ha", "Light", "ZWO ASI2600MM", 300, 1002,
+		time.Date(2025, 8, 4, 5, 30, 0, 0, time.UTC))
+
+	// An implausible filename time (years away — batch rename) is rejected and
+	// the frame falls back to its DATE-OBS date.
+	bogus := frame("/a/m31_20200101-120000_0001.fits", "M31", "Ha", "Light", "ZWO ASI2600MM", 300, 1003,
+		time.Date(2025, 8, 5, 22, 0, 0, 0, time.UTC))
+
+	led := Build([]scan.Frame{byName, byLoc, afterMidnight, bogus}, nil, model.ToolInfo{})
+
+	m31 := findTarget(led.Targets, "m31")
+	if m31 == nil {
+		t.Fatal("expected target m31")
+	}
+	want := []string{"2025-08-01", "2025-08-02", "2025-08-04", "2025-08-05"}
+	if len(m31.Sessions) != len(want) {
+		t.Fatalf("sessions = %d, want %d: %+v", len(m31.Sessions), len(want), m31.Sessions)
+	}
+	for i, w := range want {
+		if m31.Sessions[i].Date != w {
+			t.Errorf("session[%d].Date = %q, want %q", i, m31.Sessions[i].Date, w)
+		}
+	}
+	if m31.FirstLight != "2025-08-01" {
+		t.Errorf("FirstLight = %q, want 2025-08-01 (local capture date, not UTC)", m31.FirstLight)
+	}
+	if m31.LatestSession != "2025-08-05" {
+		t.Errorf("LatestSession = %q, want 2025-08-05", m31.LatestSession)
+	}
+	if led.Summary.FirstLight != "2025-08-01" || led.Summary.LatestSession != "2025-08-05" {
+		t.Errorf("summary first/latest = %q/%q, want 2025-08-01/2025-08-05",
+			led.Summary.FirstLight, led.Summary.LatestSession)
+	}
+}
+
+func TestDuplicateReportKeepsUTCDateObs(t *testing.T) {
+	// The duplicate report identifies frames by their raw DATE-OBS instant; the
+	// session-date chain must not leak the local filename time into it.
+	obs := time.Date(2025, 8, 2, 2, 0, 22, 0, time.UTC)
+	a := frame("/a/M31_Ha_20250801-210029_0001.fits", "M31", "Ha", "Light", "ZWO ASI2600MM", 300, 1000, obs)
+	b := frame("/b/M31_Ha_20250801-210029_0001.fits", "M31", "Ha", "Light", "ZWO ASI2600MM", 300, 1000, obs)
+
+	lights, dropped := Enrich([]scan.Frame{a, b})
+	if dropped != 0 || len(lights) != 2 {
+		t.Fatalf("enrich: %d lights, %d dropped, want 2/0", len(lights), dropped)
+	}
+	rep := DetectDuplicates(lights)
+	if len(rep.Sets) != 1 {
+		t.Fatalf("duplicate sets = %d, want 1", len(rep.Sets))
+	}
+	if rep.Sets[0].DateObs != "2025-08-02T02:00:22Z" {
+		t.Errorf("DuplicateSet.DateObs = %q, want the raw UTC DATE-OBS 2025-08-02T02:00:22Z", rep.Sets[0].DateObs)
+	}
+	if got := dateKey(lights[0].SessionTime); got != "2025-08-01" {
+		t.Errorf("session key = %q, want 2025-08-01 (local filename time)", got)
+	}
+}

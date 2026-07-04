@@ -97,7 +97,7 @@ func buildTarget(frames []LightFrame) model.TargetTimeline {
 	var first, last time.Time
 
 	for _, lf := range frames {
-		k := dateKey(lf.Date)
+		k := dateKey(lf.SessionTime)
 		if _, seen := nights[k]; !seen {
 			nightOrder = append(nightOrder, k)
 		}
@@ -112,12 +112,12 @@ func buildTarget(frames []LightFrame) model.TargetTimeline {
 		if id := equipment.MountID(lf.Telescope); id != "" {
 			equipIDs[id] = struct{}{}
 		}
-		if !lf.Date.IsZero() {
-			if first.IsZero() || lf.Date.Before(first) {
-				first = lf.Date
+		if !lf.SessionTime.IsZero() {
+			if first.IsZero() || lf.SessionTime.Before(first) {
+				first = lf.SessionTime
 			}
-			if lf.Date.After(last) {
-				last = lf.Date
+			if lf.SessionTime.After(last) {
+				last = lf.SessionTime
 			}
 		}
 	}
@@ -160,8 +160,8 @@ func buildTarget(frames []LightFrame) model.TargetTimeline {
 		TotalIntegrationSeconds: total,
 		LightFrameCount:         len(frames),
 		NightCount:              nightCount,
-		FirstLight:              dateString(first),
-		LatestSession:           dateString(last),
+		FirstLight:              dateKey(first),
+		LatestSession:           dateKey(last),
 		RA:                      ra,
 		Dec:                     dec,
 		Filters:                 filterIntegration(frames),
@@ -297,17 +297,17 @@ func Summarize(targets []model.TargetTimeline, lights []LightFrame, dup Duplicat
 			filterOrder = append(filterOrder, lf.Filter)
 		}
 		filterSecs[lf.Filter] += lf.Exposure
-		if !lf.Date.IsZero() {
-			if first.IsZero() || lf.Date.Before(first) {
-				first = lf.Date
+		if !lf.SessionTime.IsZero() {
+			if first.IsZero() || lf.SessionTime.Before(first) {
+				first = lf.SessionTime
 			}
-			if lf.Date.After(last) {
-				last = lf.Date
+			if lf.SessionTime.After(last) {
+				last = lf.SessionTime
 			}
 		}
 	}
-	s.FirstLight = dateString(first)
-	s.LatestSession = dateString(last)
+	s.FirstLight = dateKey(first)
+	s.LatestSession = dateKey(last)
 
 	for _, name := range filterOrder {
 		s.Filters = append(s.Filters, model.FilterTotal{Name: name, Seconds: filterSecs[name]})
@@ -372,7 +372,7 @@ func activityByNight(lights []LightFrame) []model.ActivityEntry {
 	nights := map[string]*agg{}
 	var order []string
 	for _, lf := range lights {
-		k := dateKey(lf.Date)
+		k := dateKey(lf.SessionTime)
 		if k == "" {
 			continue
 		}
@@ -411,7 +411,7 @@ func toUsages(lights []LightFrame) []equipment.Usage {
 			FRatio:          lf.FRatio,
 			IsOSC:           lf.IsOSC,
 			ExposureSeconds: lf.Exposure,
-			Date:            lf.Date,
+			Date:            lf.SessionTime,
 		})
 	}
 	return out
@@ -441,9 +441,3 @@ func nonNil(s []string) []string {
 	return s
 }
 
-func dateString(t time.Time) string {
-	if t.IsZero() {
-		return ""
-	}
-	return t.UTC().Format("2006-01-02")
-}

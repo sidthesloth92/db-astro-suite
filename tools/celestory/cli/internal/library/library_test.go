@@ -207,3 +207,24 @@ func TestSaveLoadRoundTrip(t *testing.T) {
 		t.Errorf("reloaded index total = %v, want 300", got)
 	}
 }
+
+func TestUnionDatesOldRecordsFromDateObs(t *testing.T) {
+	// Records indexed by builds that predate the session-time chain carry no
+	// sessionTime — Union must fall back to the raw DATE-OBS so previously
+	// indexed frames keep a session date until their root is re-scanned.
+	d := time.Date(2025, 8, 1, 22, 0, 0, 0, time.UTC)
+	idx, err := Open(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	// light() intentionally leaves SessionTime zero, like an old record.
+	idx.Merge("/big", []aggregate.LightFrame{light("/big/l1.fits", "fp1", 300, d)}, false)
+
+	led := assembled(idx)
+	if len(led.Targets) != 1 || len(led.Targets[0].Sessions) != 1 {
+		t.Fatalf("expected one target with one session, got %+v", led.Targets)
+	}
+	if got := led.Targets[0].Sessions[0].Date; got != "2025-08-01" {
+		t.Errorf("session date = %q, want 2025-08-01 (fallback to DATE-OBS)", got)
+	}
+}

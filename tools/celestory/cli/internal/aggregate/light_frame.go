@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/sidthesloth92/db-astro-suite/libs/astrofits"
+	"github.com/sidthesloth92/db-astro-suite/libs/capturetime"
 	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/fingerprint"
 	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/identity"
 	"github.com/sidthesloth92/db-astro-suite/tools/celestory/cli/internal/scan"
@@ -40,7 +41,8 @@ type LightFrame struct {
 	FRatio      float64
 	IsOSC       bool // one-shot-colour (Bayer) sensor — used for camera sub-type classification
 	Exposure    float64
-	Date        time.Time // zero when DATE-OBS was missing/unparseable
+	Date        time.Time // raw DATE-OBS (UTC); zero when missing/unparseable — kept verbatim for the duplicate report
+	SessionTime time.Time // local capture time picked via filename → DATE-LOC → DATE-OBS; drives session/night grouping
 	RA          *float64  // J2000 RA (deg): the frame's FITS coords, else the catalog fallback
 	Dec         *float64  // J2000 Dec (deg): the frame's FITS coords, else the catalog fallback
 }
@@ -70,6 +72,7 @@ func Enrich(frames []scan.Frame) (lights []LightFrame, dropped int) {
 		}
 		fp, weak := frameIdentity(m, f.Path)
 		ra, dec := frameCoords(m, r)
+		sessionTime, _ := capturetime.PickSessionTime(f.Path, m.DateLoc, m.DateObs)
 		lights = append(lights, LightFrame{
 			Path:        f.Path,
 			Size:        f.Size,
@@ -89,6 +92,7 @@ func Enrich(frames []scan.Frame) (lights []LightFrame, dropped int) {
 			IsOSC:       m.IsOSC(),
 			Exposure:    m.Exposure,
 			Date:        m.DateObs,
+			SessionTime: sessionTime,
 			RA:          ra,
 			Dec:         dec,
 		})
@@ -155,10 +159,9 @@ func firstNonEmpty(values ...string) string {
 	return ""
 }
 
-// dateKey returns the YYYY-MM-DD night key for a frame, or "" when undated.
+// dateKey returns the YYYY-MM-DD night key for a frame's session time, or ""
+// when undated. The literal calendar date of the picked LOCAL capture time is
+// used — no UTC conversion and no observing-night rollover.
 func dateKey(t time.Time) string {
-	if t.IsZero() {
-		return ""
-	}
-	return t.UTC().Format("2006-01-02")
+	return capturetime.SessionDate(t, false, 0)
 }

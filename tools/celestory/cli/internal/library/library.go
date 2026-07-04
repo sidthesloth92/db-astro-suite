@@ -45,6 +45,7 @@ type frameRecord struct {
 	FRatio      float64   `json:"fRatio,omitempty"`
 	Exposure    float64   `json:"exposure"`
 	Date        time.Time `json:"date"`
+	SessionTime time.Time `json:"sessionTime,omitzero"`
 }
 
 // Index is the cumulative library, loaded from and saved to library.json.
@@ -271,10 +272,17 @@ func recordOf(lf aggregate.LightFrame) frameRecord {
 		FRatio:      lf.FRatio,
 		Exposure:    lf.Exposure,
 		Date:        lf.Date,
+		SessionTime: lf.SessionTime,
 	}
 }
 
 func lightFrom(rec frameRecord, fp, path string) aggregate.LightFrame {
+	// Records written before the session-time chain existed carry no
+	// sessionTime; fall back to the raw DATE-OBS so they keep a session date
+	// until their root is re-scanned.
+	if rec.SessionTime.IsZero() {
+		rec.SessionTime = rec.Date
+	}
 	return aggregate.LightFrame{
 		Path:        path,
 		Size:        rec.Size,
@@ -293,6 +301,7 @@ func lightFrom(rec frameRecord, fp, path string) aggregate.LightFrame {
 		FRatio:      rec.FRatio,
 		Exposure:    rec.Exposure,
 		Date:        rec.Date,
+		SessionTime: rec.SessionTime,
 	}
 }
 
