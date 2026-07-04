@@ -43,6 +43,7 @@ func TestReadMetadataRoundTrip(t *testing.T) {
 		fitsio.Card{Name: "FILTER", Value: "Ha"},
 		fitsio.Card{Name: "EXPTIME", Value: 300.0},
 		fitsio.Card{Name: "DATE-OBS", Value: "2025-08-01T22:14:03"},
+		fitsio.Card{Name: "DATE-LOC", Value: "2025-08-01T17:14:03"},
 		fitsio.Card{Name: "INSTRUME", Value: "ZWO ASI2600MM Pro"},
 		fitsio.Card{Name: "TELESCOP", Value: "William Optics RedCat 51"},
 		fitsio.Card{Name: "FOCALLEN", Value: 250.0},
@@ -75,6 +76,9 @@ func TestReadMetadataRoundTrip(t *testing.T) {
 	}
 	if m.DateObs.IsZero() {
 		t.Error("DateObs should be parsed")
+	}
+	if got := m.DateLoc.Format("2006-01-02T15:04:05"); got != "2025-08-01T17:14:03" {
+		t.Errorf("DateLoc = %q, want 2025-08-01T17:14:03", got)
 	}
 }
 

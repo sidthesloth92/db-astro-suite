@@ -3,7 +3,6 @@ package astrofits
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/astrogo/fitsio"
 )
@@ -95,24 +94,3 @@ func parseFloat(s string) (float64, bool) {
 	return f, true
 }
 
-// parseDateObs handles "2026-01-18T06:55:54" (FITS standard),
-// "2026-01-18T06:55:54.123" (programs that include milliseconds), and a
-// "2026-01-18" date-only fallback.
-func parseDateObs(s string) (time.Time, bool) {
-	s = strings.TrimSpace(s)
-	if s == "" {
-		return time.Time{}, false
-	}
-	formats := []string{
-		"2006-01-02T15:04:05.999999",
-		"2006-01-02T15:04:05.000",
-		"2006-01-02T15:04:05",
-		"2006-01-02",
-	}
-	for _, layout := range formats {
-		if t, err := time.Parse(layout, s); err == nil {
-			return t, true
-		}
-	}
-	return time.Time{}, false
-}

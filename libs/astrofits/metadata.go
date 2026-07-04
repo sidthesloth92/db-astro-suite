@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/astrogo/fitsio"
+	"github.com/sidthesloth92/db-astro-suite/libs/capturetime"
 )
 
 // watchedKeys are stashed raw into Metadata.RawValues for diagnostics and the
@@ -19,7 +20,7 @@ var watchedKeys = []string{
 	"INSTRUME", "CAMERA",
 	"TELESCOP", "TELESCOPE", "OPTIC",
 	"FILTER", "FILTNAME", "FWHEEL",
-	"DATE-OBS", "DATE",
+	"DATE-OBS", "DATE", "DATE-LOC",
 	"FOCALLEN", "FOCRATIO", "FRATIO", "APTDIA", "APERTURE",
 	"EXPTIME", "EXPOSURE", "EXP",
 	"GAIN", "XBINNING", "YBINNING", "CCD-TEMP", "CCDTEMP",
@@ -38,7 +39,8 @@ type Metadata struct {
 	CameraRaw    string    // raw INSTRUME (e.g. "ZWO ASI2600MM"), trimmed
 	Telescope    string    // raw TELESCOP / optic name, trimmed; may be empty
 	Filter       string    // FILTER (or synonym), trimmed; may be empty
-	DateObs      time.Time // parsed DATE-OBS (or DATE fallback)
+	DateObs      time.Time // parsed DATE-OBS (or DATE fallback), UTC per the FITS standard
+	DateLoc      time.Time // parsed DATE-LOC (local capture time, written by N.I.N.A.); zero when absent
 	RA           float64   // J2000 right ascension in decimal degrees; valid only when HasCoords
 	Dec          float64   // J2000 declination in decimal degrees; valid only when HasCoords
 	HasCoords    bool      // true when a usable RA/Dec pair was found in the header
@@ -125,8 +127,11 @@ func ReadMetadata(path string) (m Metadata, err error) {
 	m.Filter = src.str("FILTER", "FILTNAME", "FWHEEL")
 	m.BayerPattern = src.str("BAYERPAT", "COLORTYP")
 
-	if t, ok := parseDateObs(src.str("DATE-OBS", "DATE")); ok {
+	if t, ok := capturetime.ParseFitsDateTime(src.str("DATE-OBS", "DATE")); ok {
 		m.DateObs = t
+	}
+	if t, ok := capturetime.ParseFitsDateTime(src.str("DATE-LOC")); ok {
+		m.DateLoc = t
 	}
 	if ra, dec, ok := celestialCoords(src); ok {
 		m.RA = ra
