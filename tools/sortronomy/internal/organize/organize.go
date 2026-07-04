@@ -598,6 +598,13 @@ func applyFilterSuffix(name, filter string) string {
 		ext = name[loc[0]:]
 		name = name[:loc[0]]
 	}
+	// Idempotent: if the name already ends with exactly this filter suffix,
+	// leave it as-is rather than stripping and re-appending the same token.
+	// This also avoids duplicating a suffix whose filter contains an underscore
+	// (e.g. "SV_220"), which filterSuffixRe's [^_]+ cannot strip.
+	if strings.HasSuffix(name, "_f_"+filter) {
+		return name + ext
+	}
 	name = filterSuffixRe.ReplaceAllString(name, "")
 	return name + "_f_" + filter + ext
 }
