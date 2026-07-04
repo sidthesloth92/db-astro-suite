@@ -1,17 +1,21 @@
 // Package logger provides sortronomy's durable, user-shareable debug log.
 //
 // It writes a human-readable log/slog text stream to a file in the user's cache
-// directory so a user who hits an error can attach the log to a bug report.
-// Nothing is uploaded — the file stays on the user's machine; sharing it is the
-// user's choice.
+// directory so a user who hits an error — or a run whose output just looks
+// wrong — can attach the log to a bug report. Home-directory paths are masked
+// to "~" in every record, so the file never carries the user's username or
+// home folder layout. Nothing is uploaded — the file stays on the user's
+// machine; sharing it is the user's choice.
 package logger
 
 import (
+	"fmt"
 	"io"
 	"log/slog"
 	"os"
 	"path/filepath"
-	"strings"
+
+	"github.com/sidthesloth92/db-astro-suite/libs/redact"
 )
 
 // logFileName is the active log file. The single rollover backup gets a ".1"
@@ -19,32 +23,52 @@ import (
 const logFileName = "sortronomy.log"
 
 // maxLogBytes is the size at which the active log is rotated to "<name>.1" on
-// the next open, so the file can't grow without bound across many runs.
-const maxLogBytes int64 = 1 << 20 // 1 MiB
+// the next open, so the file can't grow without bound across many runs. 5 MiB
+// absorbs the per-file INFO detail of many large runs while keeping the
+// --report export comfortably attachable to a GitHub issue.
+const maxLogBytes int64 = 5 << 20 // 5 MiB
 
-// errorReportName is the on-error copy dropped into the working directory so a
-// user finds the relevant log right where they ran the command.
-const errorReportName = "sortronomy-error.log"
+// Session is one process's handle on the shared cache log: the logger to
+// write with, and the file records land in.
+type Session struct {
+	// Logger writes text records to the log file (or nowhere, for a discard
+	// session). Home-directory paths in messages and attribute values are
+	// masked to "~".
+	Logger *slog.Logger
+	// Path is the absolute log file path. Empty for a discard session, which
+	// report writers and footer printers treat as "no log to point at".
+	Path string
 
-// errorReportLines is how many trailing log lines the on-error copy keeps. The
-// failure context lives at the end of a run, so the tail is what matters; the
-// full history stays in the cache log.
-const errorReportLines = 50
+	closeFn func() error
+}
 
-// Open opens (creating if needed) the sortronomy log file under the user's cache
-// directory and returns a text slog.Logger that writes to it, the absolute path
-// of the file, and a close function the caller owns.
+// Close releases the underlying log file. Safe on a discard session.
+func (s *Session) Close() error {
+	if s.closeFn == nil {
+		return nil
+	}
+	return s.closeFn()
+}
+
+// Open opens (creating if needed) the sortronomy log file under the user's
+// cache directory and returns the session handle for it.
 //
 // Records append across runs; if the file already exceeds maxLogBytes it is
-// first rotated to "<name>.1" so history stays bounded. level sets the minimum
-// record level (Info by default; Debug adds per-file detail). The build version
-// is attached to every record.
-func Open(version string, level slog.Level) (*slog.Logger, string, func() error, error) {
-	base, err := os.UserCacheDir()
+// first rotated to "<name>.1" so history stays bounded. Logging is always at
+// Info level. The build version is attached to every record.
+func Open(version string) (*Session, error) {
+	dir, err := defaultLogDir()
 	if err != nil {
-		return nil, "", nil, err
+		return nil, err
 	}
-	return openIn(filepath.Join(base, "sortronomy"), version, level)
+	return openIn(dir, version)
+}
+
+// DiscardSession returns a Session whose logger drops every record, used when
+// the log file cannot be opened. Path is empty so report and footer callers
+// no-op.
+func DiscardSession() *Session {
+	return &Session{Logger: Discard()}
 }
 
 // Discard returns a logger that throws every record away. Used by callers that
@@ -53,23 +77,49 @@ func Discard() *slog.Logger {
 	return slog.New(slog.NewTextHandler(io.Discard, nil))
 }
 
+// DefaultLogPath returns the cache log path without opening or rotating the
+// file. Used by --report, which must read the log without touching it.
+func DefaultLogPath() (string, error) {
+	dir, err := defaultLogDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(dir, logFileName), nil
+}
+
+// defaultLogDir resolves the sortronomy cache directory, shared by Open and
+// DefaultLogPath so the two can't drift.
+func defaultLogDir() (string, error) {
+	base, err := os.UserCacheDir()
+	if err != nil {
+		return "", fmt.Errorf("resolve cache dir: %w", err)
+	}
+	return filepath.Join(base, "sortronomy"), nil
+}
+
 // openIn is the directory-injected core of Open, kept separate so tests can
 // target a temporary directory without touching the real cache dir.
-func openIn(dir, version string, level slog.Level) (*slog.Logger, string, func() error, error) {
+func openIn(dir, version string) (*Session, error) {
 	if err := os.MkdirAll(dir, 0o755); err != nil {
-		return nil, "", nil, err
+		return nil, fmt.Errorf("create log dir: %w", err)
 	}
 	path := filepath.Join(dir, logFileName)
 	rotateIfLarge(path, maxLogBytes)
 
 	file, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644)
 	if err != nil {
-		return nil, "", nil, err
+		return nil, fmt.Errorf("open log file: %w", err)
 	}
 
-	handler := slog.NewTextHandler(file, &slog.HandlerOptions{Level: level})
-	log := slog.New(handler).With("version", version)
-	return log, path, file.Close, nil
+	opts := &slog.HandlerOptions{Level: slog.LevelInfo}
+	// Mask the user's home directory out of every record so the log is safe
+	// to attach to a public bug report. Best-effort: with no resolvable home
+	// directory the log is simply written unmasked.
+	if masker, ok := redact.SystemMasker(); ok {
+		opts.ReplaceAttr = masker.ReplaceAttr
+	}
+	log := slog.New(slog.NewTextHandler(file, opts)).With("version", version)
+	return &Session{Logger: log, Path: path, closeFn: file.Close}, nil
 }
 
 // rotateIfLarge renames path to path+".1" when it already exceeds max, keeping a
@@ -81,41 +131,4 @@ func rotateIfLarge(path string, max int64) {
 		return
 	}
 	_ = os.Rename(path, path+".1")
-}
-
-// WriteErrorReport copies the last errorReportLines lines of the log at logPath
-// into "sortronomy-error.log" in the current working directory, so a user who
-// hits an error finds the relevant log right where they ran the command — no
-// hunting through the cache directory. It returns the absolute path written.
-//
-// Best-effort: callers should treat any error as "skip it and fall back to
-// pointing at the cache log" (e.g. the working directory may be read-only).
-func WriteErrorReport(logPath string) (string, error) {
-	tail, err := tailLines(logPath, errorReportLines)
-	if err != nil {
-		return "", err
-	}
-	cwd, err := os.Getwd()
-	if err != nil {
-		return "", err
-	}
-	dest := filepath.Join(cwd, errorReportName)
-	if err := os.WriteFile(dest, []byte(tail), 0o644); err != nil {
-		return "", err
-	}
-	return dest, nil
-}
-
-// tailLines returns the last n lines of the file at path (the whole file when it
-// has fewer than n). The log is size-capped, so reading it whole is cheap.
-func tailLines(path string, n int) (string, error) {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return "", err
-	}
-	lines := strings.Split(strings.TrimRight(string(data), "\n"), "\n")
-	if len(lines) > n {
-		lines = lines[len(lines)-n:]
-	}
-	return strings.Join(lines, "\n") + "\n", nil
 }

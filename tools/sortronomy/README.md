@@ -129,7 +129,7 @@ sortronomy --input ./raw --output ./organized --group-focal --yes
 | `--filter-desc S`   | Comment written alongside the FITS `FILTER` header. Optional — leave it out if you don't need a description.                                                                                                                                                                                    |
 | `--dry-run`         | Create the destination folders only — copy no files.                                                                                                                                                                                                                                            |
 | `--yes`, `-y`       | Skip all prompts and run non-interactively.                                                                                                                                                                                                                                                     |
-| `--debug`           | Verbose debug logging to the log file.                                                                                                                                                                                                                                                          |
+| `--report`          | Also save the entire debug log as `sortronomy-report.log` in the current folder when this run finishes — success, error, or cancelled — for attaching to a bug report. See [Troubleshooting & sharing logs](#troubleshooting--sharing-logs).                                                    |
 | `-h`, `--help`      | Show the tool description and every option.                                                                                                                                                                                                                                                     |
 | `-v`, `--version`   | Print the version and exit.                                                                                                                                                                                                                                                                     |
 
@@ -158,11 +158,48 @@ sortronomy --input ./raw --output ./organized --dry-run --yes
 
 Handy when scripting with `--yes`:
 
-| Code | Meaning                                                                                                                                   |
-| ---- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `0`  | Success — including a dry run, or when no FITS files were found.                                                                          |
-| `1`  | Run failure — e.g. a file couldn't be copied. A debug report is saved for bug reports.                                                    |
-| `2`  | Invalid usage — an unknown flag, a missing/invalid `--input`, or an incomplete filter. No report is written; the input just needs fixing. |
+| Code  | Meaning                                                                                                                                        |
+| ----- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `0`   | Success — including a dry run, or when no FITS files were found.                                                                               |
+| `1`   | Run failure — e.g. a file couldn't be copied. The entire debug log is saved as `sortronomy-error.log` in the folder you ran from (or as `sortronomy-report.log` if `--report` was passed). |
+| `2`   | Invalid usage — an unknown flag, a missing/invalid `--input`, or an incomplete filter. No report is written; the input just needs fixing.      |
+| `130` | Cancelled — Ctrl-C pressed inside a wizard prompt. No report is written. (Choosing **Cancel** on the review screen is a normal exit, `0`.)     |
+
+### Troubleshooting & sharing logs
+
+Every run appends to a debug log so problems can be diagnosed after the fact — including runs
+that finish without an error but produce a folder layout you didn't expect.
+
+**Two report files, both written to the folder you ran the command from:**
+
+- `sortronomy-error.log` — written **automatically when a run fails** (exit `1`), only if `--report`
+  was not passed. Contains the entire debug log (all recent runs, up to the rotation cap). The error
+  output names this file — attach it to your report.
+- `sortronomy-report.log` — written whenever `--report` is passed, regardless of the outcome
+  (success, error, or cancelled). Contains the entire debug log (all recent runs, up to the rotation
+  cap). Use this when a run *succeeded* but the output looks wrong, or when you want to capture
+  context for any outcome: run `sortronomy --report` and attach the file it creates. When both
+  `--report` is passed and a run fails, only `sortronomy-report.log` is written (not the error log).
+
+To report a problem, open a [GitHub issue](https://github.com/sidthesloth92/db-astro-suite/issues/new),
+attach the relevant file above, and describe what you were doing.
+
+**Where the log lives** (the report files are copies of it):
+
+| OS      | Location                                                              |
+| ------- | --------------------------------------------------------------------- |
+| macOS   | `~/Library/Caches/sortronomy/sortronomy.log`                          |
+| Linux   | `$XDG_CACHE_HOME/sortronomy/sortronomy.log` (default `~/.cache/…`)    |
+| Windows | `%LocalAppData%\sortronomy\sortronomy.log`                            |
+
+The log records what each run was asked to do (every option), what was decided per file
+(source → destination and the metadata that drove it), anything skipped and why, and how the run
+ended. The log rotates at 5 MiB with a single `.1` backup.
+
+**Privacy:** paths under your home directory are masked as `~` in the log, so it never carries
+your username or home folder layout. Paths *outside* your home (e.g. `/Volumes/T7/...`) appear
+as-is — glance over a report before attaching it if that matters to you. Nothing is ever
+uploaded; the log and both report files stay on your machine unless you share them.
 
 ## Development
 

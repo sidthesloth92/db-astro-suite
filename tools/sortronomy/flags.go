@@ -15,7 +15,7 @@ type parsedArgs struct {
 	Options organize.Options
 	DryRun  bool // --dry-run: create folders only, copy nothing
 	Yes     bool // --yes/-y: run non-interactively, no prompts
-	Debug   bool // --debug: verbose logging
+	Report  bool // --report: save the entire debug log as ./sortronomy-report.log when this run finishes
 	Version bool // -v/--version: print version and exit
 	Help    bool // -h/--help: print usage and exit
 }
@@ -47,7 +47,7 @@ func parseArgs(args []string, cfg config.Config) (parsedArgs, error) {
 	filterName := fs.String("filter-name", "", "FITS FILTER value, e.g. SV220")
 	filterDesc := fs.String("filter-desc", "", "FITS FILTER description (comment)")
 	dryRun := fs.Bool("dry-run", false, "create the destination folders only; copy no files")
-	debug := fs.Bool("debug", false, "verbose debug logging to the log file")
+	report := fs.Bool("report", false, "save the entire debug log as ./sortronomy-report.log when this run finishes")
 
 	var yes, version bool
 	fs.BoolVar(&yes, "yes", false, "skip prompts and run non-interactively")
@@ -82,7 +82,7 @@ func parseArgs(args []string, cfg config.Config) (parsedArgs, error) {
 		},
 		DryRun:  *dryRun,
 		Yes:     yes,
-		Debug:   *debug,
+		Report:  *report,
 		Version: version,
 	}, nil
 }
