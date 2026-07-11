@@ -8,6 +8,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -57,6 +58,7 @@ type Options struct {
 	Cache      Cache
 	Workers    int                   // defaults to runtime.NumCPU()
 	OnProgress func(done, total int) // optional; called as files complete
+	Log        *slog.Logger          // optional; nil discards every record
 }
 
 type job struct {
@@ -67,6 +69,7 @@ type outcome struct {
 	frame   Frame
 	skipped Skipped
 	ok      bool
+	cached  bool
 }
 
 // Scan walks opts.Root, reads every FITS header (via the worker pool), and
@@ -76,15 +79,21 @@ func Scan(ctx context.Context, opts Options) (Result, error) {
 	if opts.Reader == nil {
 		return Result{}, errors.New("scan: nil MetadataReader")
 	}
+	log := opts.Log
+	if log == nil {
+		log = slog.New(slog.DiscardHandler)
+	}
 	workers := opts.Workers
 	if workers < 1 {
 		workers = runtime.NumCPU()
 	}
 
-	paths, err := walkFITS(opts.Root)
+	start := time.Now()
+	paths, err := walkFITS(opts.Root, log)
 	if err != nil {
 		return Result{}, err
 	}
+	log.Info("scan start", "root", opts.Root, "workers", workers, "files", len(paths))
 
 	jobs := make(chan job)
 	outcomes := make(chan outcome)
@@ -118,17 +127,31 @@ func Scan(ctx context.Context, opts Options) (Result, error) {
 
 	res := Result{Total: len(paths)}
 	done := 0
+	cacheHits := 0
 	for o := range outcomes {
 		done++
+		if o.cached {
+			cacheHits++
+		}
 		if o.ok {
 			res.Frames = append(res.Frames, o.frame)
 		} else {
 			res.Skipped = append(res.Skipped, o.skipped)
+			log.Warn("skipped: unreadable file", "file", o.skipped.Path, "reason", o.skipped.Reason)
 		}
 		if opts.OnProgress != nil {
 			opts.OnProgress(done, len(paths))
 		}
 	}
+
+	// Logged before the cancellation check so an interrupted run still records
+	// how far it got.
+	log.Info("scan complete",
+		"total", res.Total,
+		"parsed", len(res.Frames),
+		"skipped", len(res.Skipped),
+		"cacheHits", cacheHits,
+		"elapsed", time.Since(start).Round(time.Millisecond).String())
 
 	if err := ctx.Err(); err != nil {
 		return res, err
@@ -147,7 +170,7 @@ func process(path string, reader MetadataReader, cache Cache) outcome {
 
 	if cache != nil {
 		if meta, ok := cache.Get(path, size, mtime); ok {
-			return outcome{frame: Frame{Path: path, Size: size, Meta: meta}, ok: true}
+			return outcome{frame: Frame{Path: path, Size: size, Meta: meta}, ok: true, cached: true}
 		}
 	}
 
@@ -172,7 +195,8 @@ func safeRead(reader MetadataReader, path string) (meta astrofits.Metadata, err 
 }
 
 // walkFITS returns every FITS file under root (recursive, dotfiles excluded).
-func walkFITS(root string) ([]string, error) {
+// Unreadable subtrees are logged and skipped rather than aborting the walk.
+func walkFITS(root string, log *slog.Logger) ([]string, error) {
 	info, err := os.Stat(root)
 	if err != nil {
 		return nil, err
@@ -185,8 +209,10 @@ func walkFITS(root string) ([]string, error) {
 		if err != nil {
 			// Skip unreadable subtrees rather than aborting the whole walk.
 			if d != nil && d.IsDir() {
+				log.Warn("unreadable directory skipped", "dir", p, "err", err)
 				return filepath.SkipDir
 			}
+			log.Warn("unreadable entry skipped", "path", p, "err", err)
 			return nil
 		}
 		if d.IsDir() {

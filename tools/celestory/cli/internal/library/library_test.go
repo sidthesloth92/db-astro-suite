@@ -33,7 +33,7 @@ func TestCumulativeMergePreservesAndDedups(t *testing.T) {
 	d2 := time.Date(2025, 8, 1, 22, 5, 0, 0, time.UTC)
 	d3 := time.Date(2025, 8, 2, 22, 0, 0, 0, time.UTC)
 
-	idx, err := Open(t.TempDir())
+	idx, err := Open(nil, t.TempDir())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -67,7 +67,7 @@ func TestCumulativeMergePreservesAndDedups(t *testing.T) {
 
 func TestUnpluggedDiskKeepsItsFrames(t *testing.T) {
 	d1 := time.Date(2025, 8, 1, 22, 0, 0, 0, time.UTC)
-	idx, _ := Open(t.TempDir())
+	idx, _ := Open(nil, t.TempDir())
 	idx.Merge("/big", []aggregate.LightFrame{light("/big/l1.fits", "fp1", 300, d1)}, false)
 
 	// Re-run scanning only the (now empty / unplugged) small disk: a scan of one
@@ -84,7 +84,7 @@ func TestRescanReconcilesOnlyTheScannedRoot(t *testing.T) {
 	d2 := time.Date(2025, 8, 1, 22, 5, 0, 0, time.UTC)
 	d3 := time.Date(2025, 8, 2, 22, 0, 0, 0, time.UTC)
 
-	idx, _ := Open(t.TempDir())
+	idx, _ := Open(nil, t.TempDir())
 	idx.Merge("/big", []aggregate.LightFrame{
 		light("/big/l1.fits", "fp1", 300, d1),
 		light("/big/l2.fits", "fp2", 300, d2),
@@ -105,7 +105,7 @@ func TestRescanReconcilesOnlyTheScannedRoot(t *testing.T) {
 
 func TestNestedRootsDoNotSelfDuplicate(t *testing.T) {
 	d := time.Date(2025, 9, 10, 21, 0, 0, 0, time.UTC)
-	idx, _ := Open(t.TempDir())
+	idx, _ := Open(nil, t.TempDir())
 	// The same physical file is covered by a parent root and a nested root.
 	idx.Merge("/data", []aggregate.LightFrame{light("/data/NGC7000/001.fits", "fp1", 600, d)}, false)
 	idx.Merge("/data/NGC7000", []aggregate.LightFrame{light("/data/NGC7000/001.fits", "fp1", 600, d)}, false)
@@ -121,7 +121,7 @@ func TestNestedRootsDoNotSelfDuplicate(t *testing.T) {
 
 func TestDeletedDuplicateCopyClearsOnRescan(t *testing.T) {
 	d := time.Date(2025, 8, 1, 22, 0, 0, 0, time.UTC)
-	idx, _ := Open(t.TempDir())
+	idx, _ := Open(nil, t.TempDir())
 
 	// One exposure backed up to two paths under the same root → a duplicate.
 	idx.Merge("/data", []aggregate.LightFrame{
@@ -150,7 +150,7 @@ func TestDeletedDuplicateCopyClearsOnRescan(t *testing.T) {
 func TestDeletedUniqueSubStaysCountedWithKeepDeleted(t *testing.T) {
 	d1 := time.Date(2025, 8, 1, 22, 0, 0, 0, time.UTC)
 	d2 := time.Date(2025, 8, 1, 22, 5, 0, 0, time.UTC)
-	idx, _ := Open(t.TempDir())
+	idx, _ := Open(nil, t.TempDir())
 
 	idx.Merge("/data", []aggregate.LightFrame{
 		light("/data/l1.fits", "fp1", 300, d1),
@@ -171,7 +171,7 @@ func TestDeletedUniqueSubStaysCountedWithKeepDeleted(t *testing.T) {
 func TestDeletedUniqueSubDroppedByDefault(t *testing.T) {
 	d1 := time.Date(2025, 8, 1, 22, 0, 0, 0, time.UTC)
 	d2 := time.Date(2025, 8, 1, 22, 5, 0, 0, time.UTC)
-	idx, _ := Open(t.TempDir())
+	idx, _ := Open(nil, t.TempDir())
 
 	idx.Merge("/data", []aggregate.LightFrame{
 		light("/data/l1.fits", "fp1", 300, d1),
@@ -193,13 +193,13 @@ func TestDeletedUniqueSubDroppedByDefault(t *testing.T) {
 func TestSaveLoadRoundTrip(t *testing.T) {
 	d1 := time.Date(2025, 8, 1, 22, 0, 0, 0, time.UTC)
 	dir := t.TempDir()
-	idx, _ := Open(dir)
+	idx, _ := Open(nil, dir)
 	idx.Merge("/big", []aggregate.LightFrame{light("/big/l1.fits", "fp1", 300, d1)}, false)
 	if err := idx.Save(); err != nil {
 		t.Fatal(err)
 	}
 
-	reopened, err := Open(dir)
+	reopened, err := Open(nil, dir)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -213,7 +213,7 @@ func TestUnionDatesOldRecordsFromDateObs(t *testing.T) {
 	// sessionTime — Union must fall back to the raw DATE-OBS so previously
 	// indexed frames keep a session date until their root is re-scanned.
 	d := time.Date(2025, 8, 1, 22, 0, 0, 0, time.UTC)
-	idx, err := Open(t.TempDir())
+	idx, err := Open(nil, t.TempDir())
 	if err != nil {
 		t.Fatal(err)
 	}

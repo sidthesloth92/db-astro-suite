@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"math"
 	"time"
@@ -38,8 +37,6 @@ var (
 	dupRemove = cliui.Fail
 	dupDim    = cliui.Dim
 )
-
-func flagUsage() { flag.Usage() }
 
 // printRunSummary prints the headline stats, the folder-scoped duplicate report
 // (plus a hint when more duplicates exist elsewhere), the celestory.json path, and

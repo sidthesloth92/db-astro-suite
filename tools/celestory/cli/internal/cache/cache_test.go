@@ -1,8 +1,10 @@
 package cache
 
 import (
+	"log/slog"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -11,7 +13,7 @@ import (
 
 func TestCacheReusesUnchangedAndReparsesChanged(t *testing.T) {
 	dir := t.TempDir()
-	c, err := Open(dir, dir)
+	c, err := Open(nil, dir, dir)
 	if err != nil {
 		t.Fatalf("Open: %v", err)
 	}
@@ -39,7 +41,7 @@ func TestCachePersistsAcrossOpen(t *testing.T) {
 	dir := t.TempDir()
 	mtime := time.Unix(1_700_000_000, 0)
 
-	c1, err := Open(dir, "/some/root")
+	c1, err := Open(nil, dir, "/some/root")
 	if err != nil {
 		t.Fatalf("Open: %v", err)
 	}
@@ -48,7 +50,7 @@ func TestCachePersistsAcrossOpen(t *testing.T) {
 		t.Fatalf("Save: %v", err)
 	}
 
-	c2, err := Open(dir, "/some/root")
+	c2, err := Open(nil, dir, "/some/root")
 	if err != nil {
 		t.Fatalf("re-Open: %v", err)
 	}
@@ -62,19 +64,19 @@ func TestCacheSavePrunesUnseenEntries(t *testing.T) {
 	dir := t.TempDir()
 	mtime := time.Unix(1_700_000_000, 0)
 
-	c1, _ := Open(dir, "/r")
+	c1, _ := Open(nil, dir, "/r")
 	c1.Put("/r/keep.fits", 1, mtime, astrofits.Metadata{Target: "Keep"})
 	c1.Put("/r/drop.fits", 2, mtime, astrofits.Metadata{Target: "Drop"})
 	_ = c1.Save()
 
 	// Re-open; only touch keep.fits, then save → drop.fits should be pruned.
-	c2, _ := Open(dir, "/r")
+	c2, _ := Open(nil, dir, "/r")
 	if _, ok := c2.Get("/r/keep.fits", 1, mtime); !ok {
 		t.Fatal("keep.fits should be present")
 	}
 	_ = c2.Save()
 
-	c3, _ := Open(dir, "/r")
+	c3, _ := Open(nil, dir, "/r")
 	if _, ok := c3.Get("/r/drop.fits", 2, mtime); ok {
 		t.Error("drop.fits should have been pruned (not seen last run)")
 	}
@@ -89,7 +91,7 @@ func TestPurgeRemovesCacheFilesOnly(t *testing.T) {
 
 	// Seed two per-root cache files plus a non-json bystander.
 	for _, root := range []string{"/root/a", "/root/b"} {
-		c, err := Open(dir, root)
+		c, err := Open(nil, dir, root)
 		if err != nil {
 			t.Fatalf("Open %s: %v", root, err)
 		}
@@ -120,7 +122,7 @@ func TestPurgeRemovesCacheFilesOnly(t *testing.T) {
 	}
 
 	// A purged cache reads back empty.
-	c, err := Open(dir, "/root/a")
+	c, err := Open(nil, dir, "/root/a")
 	if err != nil {
 		t.Fatalf("re-Open after purge: %v", err)
 	}
@@ -133,5 +135,35 @@ func TestPurgeMissingDirIsNoOp(t *testing.T) {
 	missing := filepath.Join(t.TempDir(), "does-not-exist")
 	if err := Purge(missing); err != nil {
 		t.Fatalf("Purge on a missing dir should be a no-op, got: %v", err)
+	}
+}
+
+func TestOpenLogsCorruptCacheAndStartsFresh(t *testing.T) {
+	dir := t.TempDir()
+	mtime := time.Unix(1_700_000_000, 0)
+
+	// Seed a valid cache file, then corrupt it on disk.
+	seed, err := Open(nil, dir, "/r")
+	if err != nil {
+		t.Fatalf("Open: %v", err)
+	}
+	seed.Put("/r/a.fits", 1, mtime, astrofits.Metadata{Target: "M31"})
+	if err := seed.Save(); err != nil {
+		t.Fatalf("Save: %v", err)
+	}
+	if err := os.WriteFile(seed.Path(), []byte("{not json"), 0o644); err != nil {
+		t.Fatalf("corrupt cache: %v", err)
+	}
+
+	var buf strings.Builder
+	c, err := Open(slog.New(slog.NewTextHandler(&buf, nil)), dir, "/r")
+	if err != nil {
+		t.Fatalf("Open on a corrupt cache should not fail: %v", err)
+	}
+	if _, ok := c.Get("/r/a.fits", 1, mtime); ok {
+		t.Error("a corrupt cache should read back empty")
+	}
+	if !strings.Contains(buf.String(), "scan cache corrupt") {
+		t.Errorf("expected a corrupt-cache log record, got:\n%s", buf.String())
 	}
 }

@@ -12,6 +12,7 @@ require (
 	github.com/sidthesloth92/db-astro-suite/libs/astrofits v0.0.0
 	github.com/sidthesloth92/db-astro-suite/libs/capturetime v0.0.0
 	github.com/sidthesloth92/db-astro-suite/libs/cliui v0.0.0
+	github.com/sidthesloth92/db-astro-suite/libs/redact v0.0.0
 )
 
 require (
@@ -46,3 +47,5 @@ replace github.com/sidthesloth92/db-astro-suite/libs/astrofits => ../../../libs/
 replace github.com/sidthesloth92/db-astro-suite/libs/capturetime => ../../../libs/capturetime
 
 replace github.com/sidthesloth92/db-astro-suite/libs/cliui => ../../../libs/cliui
+
+replace github.com/sidthesloth92/db-astro-suite/libs/redact => ../../../libs/redact

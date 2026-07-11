@@ -19,6 +19,7 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"time"
@@ -49,8 +50,11 @@ type frameRecord struct {
 }
 
 // Index is the cumulative library, loaded from and saved to library.json.
+// The unexported fields are invisible to encoding/json, so the on-disk shape
+// is unchanged.
 type Index struct {
 	path    string
+	log     *slog.Logger
 	Folders map[string]map[string]string `json:"folders"` // folderAbs -> fileRel -> frameFP
 	Frames  map[string]frameRecord       `json:"frames"`  // frameFP -> frame record
 }
@@ -72,19 +76,25 @@ func IndexPath(dir string) string {
 	return filepath.Join(dir, indexFileName)
 }
 
-// Open loads (or creates) the cumulative index under dir.
-func Open(dir string) (*Index, error) {
+// Open loads (or creates) the cumulative index under dir. A nil log discards
+// the index's records.
+func Open(log *slog.Logger, dir string) (*Index, error) {
+	if log == nil {
+		log = slog.New(slog.DiscardHandler)
+	}
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return nil, fmt.Errorf("create library dir: %w", err)
 	}
 	idx := &Index{
 		path:    IndexPath(dir),
+		log:     log,
 		Folders: map[string]map[string]string{},
 		Frames:  map[string]frameRecord{},
 	}
 	if err := idx.load(); err != nil {
 		return nil, err
 	}
+	log.Info("library opened", "path", idx.path, "folders", len(idx.Folders), "frames", len(idx.Frames))
 	return idx, nil
 }
 
@@ -101,6 +111,7 @@ func (i *Index) load() error {
 	}
 	// A corrupt index is non-fatal — start fresh rather than failing the run.
 	if err := json.Unmarshal(data, i); err != nil {
+		i.log.Warn("library index corrupt; starting fresh", "path", i.path)
 		i.Folders = map[string]map[string]string{}
 		i.Frames = map[string]frameRecord{}
 	}
@@ -143,6 +154,12 @@ func (i *Index) Merge(rootAbs string, lights []aggregate.LightFrame, keepDeleted
 		i.Folders[rootAbs] = i.reconcileAppendOnly(rootAbs, current)
 	}
 	i.compact()
+	i.log.Info("index merged",
+		"root", rootAbs,
+		"scannedFiles", len(current),
+		"partitionFiles", len(i.Folders[rootAbs]),
+		"totalFrames", len(i.Frames),
+		"keepDeleted", keepDeleted)
 }
 
 // reconcileAppendOnly returns the new partition for rootAbs: the fresh scan plus
@@ -185,10 +202,12 @@ func (i *Index) reconcileAppendOnly(rootAbs string, current map[string]string) m
 func (i *Index) Forget(rootAbs string) bool {
 	rootAbs = absOrSelf(rootAbs)
 	if _, ok := i.Folders[rootAbs]; !ok {
+		i.log.Info("partition forgotten", "root", rootAbs, "found", false)
 		return false
 	}
 	delete(i.Folders, rootAbs)
 	i.compact()
+	i.log.Info("partition forgotten", "root", rootAbs, "found", true)
 	return true
 }
 
@@ -197,6 +216,7 @@ func (i *Index) Forget(rootAbs string) bool {
 func (i *Index) Reset() {
 	i.Folders = map[string]map[string]string{}
 	i.Frames = map[string]frameRecord{}
+	i.log.Info("index reset")
 }
 
 // Union returns every indexed frame across all roots as enriched LightFrames.
@@ -237,6 +257,7 @@ func (i *Index) Save() error {
 	if err := atomicwrite.WriteFile(i.path, data, 0o644); err != nil {
 		return fmt.Errorf("write library %s: %w", i.path, err)
 	}
+	i.log.Info("library saved", "path", i.path, "folders", len(i.Folders), "frames", len(i.Frames))
 	return nil
 }
 

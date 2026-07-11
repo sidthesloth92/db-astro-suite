@@ -47,18 +47,25 @@ type LightFrame struct {
 	Dec         *float64  // J2000 Dec (deg): the frame's FITS coords, else the catalog fallback
 }
 
+// Dropped records a frame excluded from integration and why, so the exclusion
+// is explainable (and loggable) instead of a bare count.
+type Dropped struct {
+	Path   string
+	Reason string
+}
+
 // Enrich keeps only genuine single light sub-exposures: it drops calibration
 // frames (Flat/Dark/Bias) and stacked masters (which carry summed exposure and
 // would double-count their subs), resolves each remaining frame's target
 // identity + filter, and assigns its content/path-independent FrameFP (falling
 // back to a content hash for undated frames). It returns the light frames plus
-// the count of frames excluded.
-func Enrich(frames []scan.Frame) (lights []LightFrame, dropped int) {
+// every excluded frame with the reason it was dropped.
+func Enrich(frames []scan.Frame) (lights []LightFrame, dropped []Dropped) {
 	lights = make([]LightFrame, 0, len(frames))
 	for _, f := range frames {
 		m := f.Meta
-		if astrofits.IsCalibration(m.FrameType) || m.IsStacked() || looksStacked(f.Path) {
-			dropped++
+		if reason := excludeReason(f.Path, m); reason != "" {
+			dropped = append(dropped, Dropped{Path: f.Path, Reason: reason})
 			continue
 		}
 		r := identity.Resolve(m.Target)
@@ -98,6 +105,18 @@ func Enrich(frames []scan.Frame) (lights []LightFrame, dropped int) {
 		})
 	}
 	return lights, dropped
+}
+
+// excludeReason returns why a frame is excluded from integration, or "" for a
+// genuine single light sub-exposure.
+func excludeReason(path string, m astrofits.Metadata) string {
+	if astrofits.IsCalibration(m.FrameType) {
+		return "calibration frame"
+	}
+	if m.IsStacked() || looksStacked(path) {
+		return "stacked master"
+	}
+	return ""
 }
 
 // frameIdentity returns the dedup fingerprint for a frame and whether it is a

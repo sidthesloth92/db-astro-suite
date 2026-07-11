@@ -47,7 +47,7 @@ func (i *Index) ReconcileMoved(scannedRoot string, probe DiskProbe) {
 	}
 
 	reachable := map[string]bool{}
-	changed := false
+	healed := 0
 	for root, files := range i.Folders {
 		if root == scannedRoot {
 			continue
@@ -68,12 +68,23 @@ func (i *Index) ReconcileMoved(scannedRoot string, probe DiskProbe) {
 				continue // real second copy — keep and report as a duplicate
 			}
 			delete(files, rel) // moved or deleted: heal the stale reference
-			changed = true
+			i.log.Info("healed stale reference", "root", root, "file", rel)
+			healed++
 		}
 	}
-	if changed {
+	if healed > 0 {
 		i.compact()
 	}
+	unreachableRoots := 0
+	for _, r := range reachable {
+		if !r {
+			unreachableRoots++
+		}
+	}
+	i.log.Info("reconcile complete",
+		"healed", healed,
+		"rootsProbed", len(reachable),
+		"unreachableRoots", unreachableRoots)
 }
 
 // VerifiablePath returns a predicate reporting whether a union path can be
@@ -86,7 +97,9 @@ func (i *Index) VerifiablePath(probe DiskProbe) func(path string) bool {
 	for root := range i.Folders {
 		if probe.RootReachable(root) {
 			reachable = append(reachable, root)
+			continue
 		}
+		i.log.Info("root unreachable; its copies are unverifiable", "root", root)
 	}
 	return func(path string) bool {
 		for _, root := range reachable {

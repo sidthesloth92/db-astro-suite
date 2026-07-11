@@ -1,6 +1,8 @@
 package library
 
 import (
+	"log/slog"
+	"strings"
 	"testing"
 	"time"
 
@@ -19,7 +21,7 @@ func (p fakeProbe) FileExists(path string) bool    { return p.existingFiles[path
 
 func TestReconcileMovedHealsStaleEntryWhenOldCopyIsGone(t *testing.T) {
 	d := time.Date(2025, 8, 1, 22, 0, 0, 0, time.UTC)
-	idx, _ := Open(t.TempDir())
+	idx, _ := Open(nil, t.TempDir())
 
 	// Scan A, then the user moves the file to B and scans B. A is still
 	// reachable (same machine) but the file is gone from it: a move.
@@ -44,7 +46,7 @@ func TestReconcileMovedHealsStaleEntryWhenOldCopyIsGone(t *testing.T) {
 
 func TestReconcileMovedKeepsGenuineDuplicateCopy(t *testing.T) {
 	d := time.Date(2025, 8, 1, 22, 0, 0, 0, time.UTC)
-	idx, _ := Open(t.TempDir())
+	idx, _ := Open(nil, t.TempDir())
 
 	// The same sub really does exist in both folders (a backup): both entries
 	// stay, and the duplicate is reported.
@@ -65,7 +67,7 @@ func TestReconcileMovedKeepsGenuineDuplicateCopy(t *testing.T) {
 
 func TestReconcileMovedKeepsEntriesOnUnreachableDisk(t *testing.T) {
 	d := time.Date(2025, 8, 1, 22, 0, 0, 0, time.UTC)
-	idx, _ := Open(t.TempDir())
+	idx, _ := Open(nil, t.TempDir())
 
 	// The overlapping copy lives on a disconnected disk: unverifiable, so the
 	// entry is kept untouched (the report suppresses it separately).
@@ -84,7 +86,7 @@ func TestReconcileMovedKeepsEntriesOnUnreachableDisk(t *testing.T) {
 func TestReconcileMovedNeverTouchesNonOverlappingFrames(t *testing.T) {
 	d1 := time.Date(2025, 8, 1, 22, 0, 0, 0, time.UTC)
 	d2 := time.Date(2025, 8, 1, 22, 5, 0, 0, time.UTC)
-	idx, _ := Open(t.TempDir())
+	idx, _ := Open(nil, t.TempDir())
 
 	// A holds one overlapping frame (moved to B) and one unique frame whose
 	// file also happens to be missing right now. Only the overlapping entry
@@ -110,9 +112,35 @@ func TestReconcileMovedNeverTouchesNonOverlappingFrames(t *testing.T) {
 	}
 }
 
+func TestReconcileMovedLogsHealsAndSummary(t *testing.T) {
+	d := time.Date(2025, 8, 1, 22, 0, 0, 0, time.UTC)
+	var buf strings.Builder
+	idx, _ := Open(slog.New(slog.NewTextHandler(&buf, nil)), t.TempDir())
+
+	idx.Merge("/a", []aggregate.LightFrame{light("/a/sub.fits", "fp1", 300, d)}, false)
+	idx.Merge("/b", []aggregate.LightFrame{light("/b/sub.fits", "fp1", 300, d)}, false)
+	idx.ReconcileMoved("/b", fakeProbe{
+		reachableRoots: map[string]bool{"/a": true, "/b": true},
+		existingFiles:  map[string]bool{"/b/sub.fits": true},
+	})
+
+	out := buf.String()
+	for _, want := range []string{
+		"index merged",
+		"healed stale reference",
+		"file=sub.fits",
+		"reconcile complete",
+		"healed=1",
+	} {
+		if !strings.Contains(out, want) {
+			t.Errorf("log missing %q in:\n%s", want, out)
+		}
+	}
+}
+
 func TestVerifiablePathTracksReachableRoots(t *testing.T) {
 	d := time.Date(2025, 8, 1, 22, 0, 0, 0, time.UTC)
-	idx, _ := Open(t.TempDir())
+	idx, _ := Open(nil, t.TempDir())
 	idx.Merge("/online", []aggregate.LightFrame{light("/online/sub.fits", "fp1", 300, d)}, false)
 	idx.Merge("/offline", []aggregate.LightFrame{light("/offline/sub.fits", "fp1", 300, d)}, false)
 

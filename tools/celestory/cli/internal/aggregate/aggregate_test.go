@@ -36,6 +36,30 @@ func findTarget(targets []model.TargetTimeline, id string) *model.TargetTimeline
 	return nil
 }
 
+func TestEnrichReportsDroppedFramesWithReasons(t *testing.T) {
+	d := time.Date(2025, 8, 1, 22, 0, 0, 0, time.UTC)
+	light := frame("/a/light.fits", "M31", "Ha", "Light", "ZWO ASI2600MM", 300, 1000, d)
+	dark := frame("/a/dark.fits", "M31", "Ha", "Dark", "ZWO ASI2600MM", 300, 1001, d)
+	master := frame("/a/master_stack.fits", "M31", "Ha", "Light", "ZWO ASI2600MM", 3000, 1002, d)
+
+	lights, dropped := Enrich([]scan.Frame{light, dark, master})
+	if len(lights) != 1 {
+		t.Fatalf("lights = %d, want 1", len(lights))
+	}
+	want := map[string]string{
+		"/a/dark.fits":         "calibration frame",
+		"/a/master_stack.fits": "stacked master",
+	}
+	if len(dropped) != len(want) {
+		t.Fatalf("dropped = %+v, want %d entries", dropped, len(want))
+	}
+	for _, dr := range dropped {
+		if reason, ok := want[dr.Path]; !ok || reason != dr.Reason {
+			t.Errorf("dropped %q reason = %q, want %q", dr.Path, dr.Reason, want[dr.Path])
+		}
+	}
+}
+
 func TestTargetCoordsHybrid(t *testing.T) {
 	// Distinct dates so the (target-independent) frame fingerprint keeps all three.
 	d1 := time.Date(2025, 1, 2, 3, 0, 0, 0, time.UTC)
@@ -455,8 +479,8 @@ func TestDuplicateReportKeepsUTCDateObs(t *testing.T) {
 	b := frame("/b/M31_Ha_20250801-210029_0001.fits", "M31", "Ha", "Light", "ZWO ASI2600MM", 300, 1000, obs)
 
 	lights, dropped := Enrich([]scan.Frame{a, b})
-	if dropped != 0 || len(lights) != 2 {
-		t.Fatalf("enrich: %d lights, %d dropped, want 2/0", len(lights), dropped)
+	if len(dropped) != 0 || len(lights) != 2 {
+		t.Fatalf("enrich: %d lights, %d dropped, want 2/0", len(lights), len(dropped))
 	}
 	rep := DetectDuplicates(lights)
 	if len(rep.Sets) != 1 {

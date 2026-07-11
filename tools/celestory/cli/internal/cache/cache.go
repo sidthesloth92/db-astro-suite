@@ -12,6 +12,7 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
@@ -44,6 +45,7 @@ type Entry struct {
 // namespaced per scanned root. It satisfies the scan.Cache interface.
 type Cache struct {
 	path    string
+	log     *slog.Logger
 	mu      sync.Mutex
 	entries map[string]Entry
 	seen    map[string]struct{}
@@ -60,7 +62,11 @@ func DefaultDir() (string, error) {
 
 // Open loads (or creates) the cache file for root inside dir. The file is
 // namespaced by a hash of the absolute root so different folders never collide.
-func Open(dir, root string) (*Cache, error) {
+// A nil log discards the cache's records.
+func Open(log *slog.Logger, dir, root string) (*Cache, error) {
+	if log == nil {
+		log = slog.New(slog.DiscardHandler)
+	}
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return nil, fmt.Errorf("create cache dir: %w", err)
 	}
@@ -73,12 +79,14 @@ func Open(dir, root string) (*Cache, error) {
 
 	c := &Cache{
 		path:    path,
+		log:     log,
 		entries: map[string]Entry{},
 		seen:    map[string]struct{}{},
 	}
 	if err := c.load(); err != nil {
 		return nil, err
 	}
+	log.Info("cache opened", "path", path, "entries", len(c.entries), "schema", SchemaVersion)
 	return c, nil
 }
 
@@ -117,6 +125,7 @@ func (c *Cache) load() error {
 	}
 	if err := json.Unmarshal(data, &c.entries); err != nil {
 		// A corrupt cache is non-fatal — start fresh rather than failing a scan.
+		c.log.Warn("scan cache corrupt; starting fresh", "path", c.path)
 		c.entries = map[string]Entry{}
 	}
 	return nil
@@ -164,11 +173,13 @@ func (c *Cache) markSeen(path string) {
 // corrupt cache file).
 func (c *Cache) Save() error {
 	c.mu.Lock()
+	before := len(c.entries)
 	for p := range c.entries {
 		if _, ok := c.seen[p]; !ok {
 			delete(c.entries, p)
 		}
 	}
+	kept := len(c.entries)
 	data, err := json.Marshal(c.entries)
 	c.mu.Unlock()
 	if err != nil {
@@ -177,5 +188,6 @@ func (c *Cache) Save() error {
 	if err := atomicwrite.WriteFile(c.path, data, 0o644); err != nil {
 		return fmt.Errorf("write cache %s: %w", c.path, err)
 	}
+	c.log.Info("cache pruned", "kept", kept, "pruned", before-kept)
 	return nil
 }
