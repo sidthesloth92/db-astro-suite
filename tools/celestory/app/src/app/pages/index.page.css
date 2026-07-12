@@ -232,6 +232,21 @@ header.hero {
   color: var(--glow);
   font-weight: 700;
 }
+/* "Public beta" chip between the logo lockup and the headline. */
+.beta-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  margin-bottom: 14px;
+  border-radius: 999px;
+  border: 1px solid var(--glow);
+  color: var(--glow);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
 .hero h1,
 .hero-headline {
   font-family: var(--serif);
@@ -608,6 +623,15 @@ p.sub {
 }
 .cmd--gap {
   margin-top: 8px;
+}
+/* Linux / manual-download line beneath the install + scan commands. */
+.alt-install {
+  margin-top: 10px;
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+.alt-install a {
+  color: var(--glow);
 }
 .cmd .pr {
   color: var(--glow);

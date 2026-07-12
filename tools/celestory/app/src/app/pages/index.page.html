@@ -35,6 +35,7 @@
           <dba-celestory-mark variant="full" [animated]="true" [size]="76" />
           <span class="hero-wm">Cele<b>story</b></span>
         </div>
+        <span class="beta-chip">Public beta</span>
         <h1 class="hero-headline">Your journey under the <em>stars</em>, charted.</h1>
         <p class="lead">
           Point Celestory at your light frames. It reads every sub, every filter, every year — and
@@ -142,11 +143,13 @@
                 <div class="sh"><span class="sn">01</span><span class="st">Install &amp; scan your captures</span></div>
                 <div class="sd">Install the CLI, then point it at your captures — it reads your FITS headers and writes one <span class="mono">celestory.json</span>. Or just run <span class="mono">celestory</span> for a guided wizard.</div>
                 <div class="tabs" role="tablist">
-                  <button type="button" class="tab" [class.on]="installTool() === 'brew'" (click)="selectInstall('brew')">{{ installLabels.brew }}</button>
-                  <button type="button" class="tab" [class.on]="installTool() === 'scoop'" (click)="selectInstall('scoop')">{{ installLabels.scoop }}</button>
+                  @for (tool of installTools; track tool) {
+                    <button type="button" class="tab" [class.on]="installTool() === tool" (click)="selectInstall(tool)">{{ installLabels[tool] }}</button>
+                  }
                 </div>
                 <div class="cmd"><span class="pr">$</span><code>{{ installCommand() }}</code><button type="button" class="copy" (click)="copy('install', installCommand())">{{ copied() === 'install' ? 'Copied' : 'Copy' }}</button></div>
                 <div class="cmd cmd--gap"><span class="pr">$</span><code>{{ scanCommand }}</code><button type="button" class="copy" (click)="copy('scan', scanCommand)">{{ copied() === 'scan' ? 'Copied' : 'Copy' }}</button></div>
+                <div class="alt-install">Linux or manual install? Grab a binary from the <a [href]="releasesUrl" target="_blank" rel="noopener">releases page</a>.</div>
               </div>
               <div class="step-demo">
                 <div class="term demo-term" aria-hidden="true">

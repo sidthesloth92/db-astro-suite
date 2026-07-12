@@ -42,6 +42,8 @@ import {
   INSTAGRAM_URL,
   INSTALL_COMMANDS,
   INSTALL_LABELS,
+  INSTALL_TOOLS,
+  RELEASES_URL,
   SCAN_COMMAND,
   STARWIZZ_URL,
 } from "../models/landing.constants";
@@ -114,6 +116,10 @@ export default class LandingPageComponent implements OnInit {
   );
   /** Tab label per install channel. */
   protected readonly installLabels = INSTALL_LABELS;
+  /** Install-channel tabs in display order. */
+  protected readonly installTools = INSTALL_TOOLS;
+  /** GitHub Releases link for Linux / manual binary downloads. */
+  protected readonly releasesUrl = RELEASES_URL;
   /** Scan command shown beneath the install command. */
   protected readonly scanCommand = SCAN_COMMAND;
   /** DB Astro Suite hub URL the footer "All tools" link points back to. */
