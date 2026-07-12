@@ -2,6 +2,9 @@
 
 **Your astrophotography imaging history, read straight from your files.**
 
+> **Public beta** — fully usable today, iterating quickly. Found a rough edge?
+> [Open an issue](https://github.com/sidthesloth92/db-astro-suite/issues/new).
+
 Point Celestory at a folder of captures and it recursively reads the **FITS
 headers** (never the pixel data), figures out every **object** you've imaged, the
 **equipment** and **filters** you used, and the **integration hours per object over
@@ -17,18 +20,51 @@ is **read-only** — it never moves, renames, or deletes anything.
 
 No runtime to install — it's a single static binary.
 
-```sh
-# Homebrew (macOS / Linux)
-brew install sidthesloth92/tap/celestory
+### Homebrew (macOS)
 
-# Scoop (Windows)
+```sh
+brew install --cask sidthesloth92/tap/celestory
+```
+
+### Windows (PowerShell)
+
+The simplest option — nothing else to install, since `irm`/`iex` ship with
+Windows PowerShell. Downloads the latest release, verifies its checksum, and
+installs `celestory.exe` to `%LOCALAPPDATA%\Programs\Celestory` (added to your
+PATH):
+
+```powershell
+irm https://raw.githubusercontent.com/sidthesloth92/db-astro-suite/main/tools/celestory/install.ps1 | iex
+```
+
+Re-run the same command to upgrade. (Inspect [`install.ps1`](install.ps1) first
+if you'd rather not pipe a script straight into PowerShell.)
+
+### Winget (Windows)
+
+```powershell
+winget install sidthesloth92.Celestory
+```
+
+(Appears once the first Celestory submission to the community
+[winget-pkgs](https://github.com/microsoft/winget-pkgs) repository is merged —
+use the PowerShell one-liner above in the meantime.)
+
+### Scoop (Windows)
+
+If you already use [Scoop](https://scoop.sh):
+
+```powershell
 scoop bucket add sidthesloth92 https://github.com/sidthesloth92/scoop-bucket
 scoop install celestory
 ```
 
-…or download a binary for your OS/arch from the
-[GitHub Releases](https://github.com/sidthesloth92/db-astro-suite/releases) page
-(macOS, Linux, Windows × amd64/arm64).
+### Direct download (Linux, or any OS)
+
+Grab a pre-built archive for your OS/arch from the
+[Releases page](https://github.com/sidthesloth92/db-astro-suite/releases?q=celestory)
+(macOS, Linux, Windows × amd64/arm64). Extract and move the `celestory` binary
+somewhere on your `PATH`.
 
 ## Quick start
 
@@ -53,6 +89,24 @@ Open the [Celestory web app](https://celestory.dbastrosuite.com) and drop your
 `celestory.json` onto the page. It renders **100% in your browser** — nothing is
 uploaded, and your data never leaves your machine. From there you can explore your
 whole imaging journey and export gallery-grade cards to share.
+
+## Publish & leaderboards
+
+Dropping `celestory.json` on the web app gives you a **private, in-browser
+preview** — nothing is uploaded. From there, publishing is **opt-in**:
+
+- **Claim a handle** to publish your story to a public profile at
+  `celestory.dbastrosuite.com/user/<your-handle>`, protected by a password you
+  set (owner sessions are per-tab — close the tab and you're signed out).
+- Published stories feed the community
+  [leaderboards](https://celestory.dbastrosuite.com/leaderboards) — rankings by
+  integration time, targets, filters, and equipment.
+- `celestory -profile <name>` saves your handle locally so publishing is
+  pre-filled, and gives your stories a stable owner anchor when you generate
+  from more than one machine.
+
+Remember: `celestory.json` carries no local file paths, and nothing leaves your
+machine unless you choose to publish.
 
 ## Where your files are saved
 
@@ -113,7 +167,24 @@ for confirmation first (`-yes` skips the prompt for scripts).
 | `-config`         | Print the output, cache, and config locations, then exit.                          |
 | `-v`, `-version`  | Print the version and exit.                                                         |
 
+**Diagnostics**
+
+| Flag      | Description                                                                                                                                                                                                |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `-report` | Also save the entire debug log as `celestory-report.log` in the current folder when this run finishes — success, error, or cancelled. See [Troubleshooting & sharing logs](#troubleshooting--sharing-logs). |
+
 It always parses headers using all your CPU cores.
+
+## Exit codes
+
+Handy when scripting:
+
+| Code  | Meaning                                                                                                                                                                                                  |
+| ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `0`   | Success — including when no FITS files were found, and info-only runs (`-config`, `-version`, saving a profile).                                                                                            |
+| `1`   | Run failure. The entire debug log is saved as `celestory-error.log` in the folder you ran from (or as `celestory-report.log` if `-report` was passed).                                                      |
+| `2`   | Invalid usage — an unknown flag, a missing/invalid `-input`, or a destructive op (`-reset` / `-fresh` / `-forget`) refused without `-yes` on a non-interactive run. No report is written; the input just needs fixing. |
+| `130` | Cancelled — Ctrl-C, Esc inside a wizard prompt, or a declined confirmation. No report is written (unless `-report` was passed).                                                                             |
 
 ## How the cache works
 
@@ -163,6 +234,44 @@ filter. Scope is FITS (`.fit`/`.fits`); a bad file is skipped, never fatal.
 modified. And `celestory.json` carries **no local file paths**: the duplicate and
 skipped-file lists that reference paths are shown only on the terminal, so your
 folder layout never leaves your machine even when you upload the file.
+
+## Troubleshooting & sharing logs
+
+Every run appends to a debug log so problems can be diagnosed after the fact.
+
+**Two report files, both written to the folder you ran the command from:**
+
+- `celestory-error.log` — written **automatically when a run fails** (exit `1`),
+  only if `-report` was not passed. Contains the entire debug log (all recent
+  runs, up to the rotation cap). The error output names this file — attach it to
+  your report.
+- `celestory-report.log` — written whenever `-report` is passed, regardless of
+  the outcome (success, error, or cancelled). Use this when a run *succeeded*
+  but the numbers look wrong, or to capture context for any outcome: run
+  `celestory -report` and attach the file it creates. When both `-report` is
+  passed and a run fails, only `celestory-report.log` is written (not the error
+  log).
+
+To report a problem, open a [GitHub issue](https://github.com/sidthesloth92/db-astro-suite/issues/new),
+attach the relevant file above, and describe what you were doing.
+
+**Where the log lives** (the report files are copies of it):
+
+| OS      | Location                                                          |
+| ------- | ----------------------------------------------------------------- |
+| macOS   | `~/Library/Caches/celestory/celestory.log`                        |
+| Linux   | `$XDG_CACHE_HOME/celestory/celestory.log` (default `~/.cache/…`)  |
+| Windows | `%LocalAppData%\celestory\celestory.log`                          |
+
+The log records what each run was asked to do, per-file scan decisions, anything
+skipped and why, and how the run ended. It rotates at 5 MiB with a single `.1`
+backup.
+
+**Privacy:** paths under your home directory are masked as `~` in the log, so it
+never carries your username or home folder layout. Paths *outside* your home
+(e.g. `/Volumes/T7/...`) appear as-is — glance over a report before attaching it
+if that matters to you. Nothing is ever uploaded; the log and both report files
+stay on your machine unless you share them.
 
 ## Build from source
 
