@@ -13,6 +13,7 @@ import {
   IconComponent,
   StarryBackgroundComponent,
   cpuIcon,
+  sparklesIcon,
 } from '@db-astro-suite/ui';
 import { CrescentLogoComponent } from '../components/crescent-logo/crescent-logo.component';
 import { AstroMarkComponent } from '../components/astro-mark/astro-mark.component';
@@ -66,6 +67,9 @@ export default class HomePageComponent {
 
   /** CPU glyph used as the Sortronomy CLI card icon. */
   protected readonly cpuIcon = cpuIcon;
+
+  /** Sparkles glyph used as the Celestory card icon. */
+  protected readonly sparklesIcon = sparklesIcon;
 
   /** App version shown in the hero status pill (mirrors the footer). */
   protected readonly version = packageJson.version;

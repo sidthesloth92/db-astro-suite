@@ -14,5 +14,8 @@ export const STARWIZZ_LAUNCH_URL = '/starwizz/';
 export const SORTRONOMY_REPO_URL =
   'https://github.com/sidthesloth92/db-astro-suite/tree/main/tools/sortronomy';
 
+/** Launch target for the Celestory web app. */
+export const CELESTORY_APP_URL = 'https://celestory.dbastrosuite.com';
+
 /** Main DB Astro Suite source repository — used by the "View on GitHub" CTAs. */
 export const GITHUB_REPO_URL = 'https://github.com/sidthesloth92/db-astro-suite';
