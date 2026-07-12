@@ -235,8 +235,7 @@ jobs:
           workdir: tools/celestory/cli
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.TAP_PAT }}
-          SCOOP_TAP_GITHUB_TOKEN: ${{ secrets.TAP_PAT }}
+          CLI_RELEASE_PAT: ${{ secrets.CLI_RELEASE_PAT }}
 
   deploy:
     name: Deploy to GitHub Pages
