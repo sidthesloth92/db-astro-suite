@@ -45,7 +45,7 @@ homebrew_casks:
     repository:
       owner: sidthesloth92
       name: homebrew-tap
-      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+      token: "{{ .Env.CLI_RELEASE_PAT }}"
     homepage: "https://github.com/sidthesloth92/db-astro-suite/tree/main/tools/celestory"
     description: "Scan astrophotography FITS captures into a per-target integration timeline + equipment ledger."
     binaries:
@@ -56,10 +56,37 @@ scoops:
     repository:
       owner: sidthesloth92
       name: scoop-bucket
-      token: "{{ .Env.SCOOP_TAP_GITHUB_TOKEN }}"
+      token: "{{ .Env.CLI_RELEASE_PAT }}"
     homepage: "https://github.com/sidthesloth92/db-astro-suite/tree/main/tools/celestory"
     description: "Scan astrophotography FITS captures into a per-target integration timeline + equipment ledger."
     license: "MIT"
+
+winget:
+  - name: celestory
+    publisher: sidthesloth92
+    package_identifier: sidthesloth92.Celestory
+    short_description: "Scan astrophotography FITS captures into a per-target integration timeline + equipment ledger."
+    license: MIT
+    homepage: "https://github.com/sidthesloth92/db-astro-suite/tree/main/tools/celestory"
+    author: sidthesloth92
+    publisher_url: "https://dbastrosuite.com"
+    tags:
+      - astrophotography
+      - fits
+      - astronomy
+      - cli
+    repository:
+      owner: sidthesloth92
+      name: winget-pkgs
+      branch: "celestory-{{ .Version }}"
+      token: "{{ .Env.CLI_RELEASE_PAT }}"
+      pull_request:
+        enabled: true
+        draft: false
+        base:
+          owner: microsoft
+          name: winget-pkgs
+          branch: master
 
 release:
   github:
