@@ -10,8 +10,9 @@
       "release-type": "go",
       "component": "sortronomy",
       "tag-separator": "-",
-      "include-component-in-tag": true
+      "include-component-in-tag": true,
+      "release-as": "0.0.1"
     }
   },
-  "separate-pull-requests": false
+  "separate-pull-requests": true
 }
