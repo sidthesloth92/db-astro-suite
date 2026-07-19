@@ -18,6 +18,9 @@ type parsedArgs struct {
 	Report  bool // --report: save the entire debug log as ./sortronomy-report.log when this run finishes
 	Version bool // -v/--version: print version and exit
 	Help    bool // -h/--help: print usage and exit
+	// Uninstall (--uninstall) removes the installed sortronomy binary and exits;
+	// saved settings and the log are left in place.
+	Uninstall bool
 }
 
 // parseArgs parses CLI flags into organize options + meta-flags. Paths,
@@ -49,11 +52,12 @@ func parseArgs(args []string, cfg config.Config) (parsedArgs, error) {
 	dryRun := fs.Bool("dry-run", false, "create the destination folders only; copy no files")
 	report := fs.Bool("report", false, "save the entire debug log as ./sortronomy-report.log when this run finishes")
 
-	var yes, version bool
+	var yes, version, uninstall bool
 	fs.BoolVar(&yes, "yes", false, "skip prompts and run non-interactively")
 	fs.BoolVar(&yes, "y", false, "shorthand for --yes")
 	fs.BoolVar(&version, "version", false, "print the version and exit")
 	fs.BoolVar(&version, "v", false, "shorthand for --version")
+	fs.BoolVar(&uninstall, "uninstall", false, "remove the installed sortronomy binary and exit")
 
 	if err := fs.Parse(args); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
@@ -80,9 +84,10 @@ func parseArgs(args []string, cfg config.Config) (parsedArgs, error) {
 				Description: *filterDesc,
 			},
 		},
-		DryRun:  *dryRun,
-		Yes:     yes,
-		Report:  *report,
-		Version: version,
+		DryRun:    *dryRun,
+		Yes:       yes,
+		Report:    *report,
+		Version:   version,
+		Uninstall: uninstall,
 	}, nil
 }
