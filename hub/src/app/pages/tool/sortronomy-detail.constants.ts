@@ -21,8 +21,8 @@ export const SORTRONOMY_DETAIL: ToolDetailConfig = {
   tagline: 'Drop in a folder, get a clean library',
   missionLabel: 'Tool · Sortronomy',
   moduleLabel: 'Tool 03',
-  status: 'wip',
-  statusLabel: 'In Progress',
+  status: 'ready',
+  statusLabel: 'Ready',
   description:
     'A command-line wizard that sorts your astrophotography captures into a clean, ready-to-process library — by camera, target, date, and filter. Works with every major capture app, and runs entirely offline: nothing ever leaves your machine.',
 
