@@ -77,7 +77,9 @@
       </button>
 
       <h2 class="install-card__title">Install Sortronomy</h2>
-      <p class="install-card__sub">Pick your platform — copy, paste, run.</p>
+      <p class="install-card__sub">
+        One line — nothing else to install. Pick your platform, copy, paste, run.
+      </p>
 
       <div class="install-os" [class.install-os--match]="detectedOs() === 'mac'">
         <div class="install-os__head">
@@ -86,7 +88,7 @@
             <span class="install-os__badge">Your system</span>
           }
         </div>
-        <pre class="install-os__cmd"><code>brew install --cask sidthesloth92/tap/sortronomy</code></pre>
+        <pre class="install-os__cmd"><code>curl -fsSL https://raw.githubusercontent.com/sidthesloth92/db-astro-suite/main/tools/sortronomy/scripts/install.sh | sh</code></pre>
       </div>
 
       <div class="install-os" [class.install-os--match]="detectedOs() === 'windows'">
@@ -96,8 +98,7 @@
             <span class="install-os__badge">Your system</span>
           }
         </div>
-        <pre class="install-os__cmd"><code>scoop bucket add sidthesloth92 https://github.com/sidthesloth92/scoop-bucket
-scoop install sortronomy</code></pre>
+        <pre class="install-os__cmd"><code>irm https://raw.githubusercontent.com/sidthesloth92/db-astro-suite/main/tools/sortronomy/scripts/install.ps1 | iex</code></pre>
       </div>
 
       <div class="install-os" [class.install-os--match]="detectedOs() === 'linux'">
@@ -107,16 +108,7 @@ scoop install sortronomy</code></pre>
             <span class="install-os__badge">Your system</span>
           }
         </div>
-        <p class="install-os__note">
-          Grab the Linux build from the
-          <a
-            href="https://github.com/sidthesloth92/db-astro-suite/releases?q=sortronomy"
-            target="_blank"
-            rel="noopener noreferrer"
-            >releases page</a
-          >
-          and drop it on your <code>PATH</code>.
-        </p>
+        <pre class="install-os__cmd"><code>curl -fsSL https://raw.githubusercontent.com/sidthesloth92/db-astro-suite/main/tools/sortronomy/scripts/install.sh | sh</code></pre>
       </div>
     </div>
   </div>
