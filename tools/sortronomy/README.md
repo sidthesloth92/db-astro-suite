@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/brand/sortronomy-mark.svg" width="96" alt="Sortronomy logo — a directory tree whose root and leaves are four-point stars" />
+</p>
+
 # Sortronomy
 
 > Organize astrophotography FITS files by camera, target, date, and filter — read straight from the headers.
