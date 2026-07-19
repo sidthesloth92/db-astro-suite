@@ -55,43 +55,6 @@
   color: var(--db-color-text-primary);
 }
 
-/*
- * Placeholder shown inside a demo-frame until the real media (walkthrough
- * video / before-after screenshots) is captured. Sized to roughly match a
- * 16:9 capture so the layout doesn't shift when a real <img>/<video> lands.
- */
-.media-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  min-height: 220px;
-  padding: 28px 24px;
-  text-align: center;
-  background: var(--db-color-surface-bg);
-  border: 1px dashed var(--db-color-border);
-}
-
-.media-placeholder--video {
-  min-height: 300px;
-}
-
-.media-placeholder__title {
-  font-family: var(--db-font-display-major);
-  font-size: 0.95rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--db-color-text-dim);
-}
-
-.media-placeholder__hint {
-  max-width: 42ch;
-  font-size: 0.85rem;
-  line-height: 1.6;
-  color: var(--db-color-text-faint);
-}
-
 @media (max-width: 720px) {
   .output-pair {
     grid-template-columns: 1fr;
@@ -99,126 +62,142 @@
   }
 }
 
-/* ===== Install dialog (OS-specific install commands) ===== */
-.install-dialog {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
+/* ===== How it works — inline numbered step cards ===== */
+.how-steps {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
-  background: rgba(0, 0, 0, 0.88);
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
-  cursor: zoom-out;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 2rem;
 }
 
-.install-card {
-  position: relative;
-  width: 100%;
-  max-width: 560px;
-  max-height: 90vh;
-  overflow-y: auto;
-  cursor: auto;
-  padding: 32px 30px;
+.how-steps__lead {
+  margin: 0 0 8px;
+  max-width: 62ch;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--db-color-text-dim);
+}
+
+/* One step card: explanation + commands left, terminal mock right. */
+.how-step {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
   background: var(--db-color-surface-raised);
   border: 1px solid var(--db-color-border);
-  border-radius: var(--db-radius-lg);
 }
 
-.install-card__close {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  width: 32px;
-  height: 32px;
+.how-step__text {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  background: none;
-  border: 0;
-  font-size: 16px;
-  color: var(--db-color-text-dim);
-  cursor: pointer;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 26px 28px;
+  min-width: 0;
 }
 
-.install-card__close:hover {
-  color: var(--db-color-text-primary);
+.how-step__head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
 }
 
-.install-card__title {
-  margin: 0 0 6px;
+.how-step__num {
   font-family: var(--db-font-display-major);
   font-weight: 600;
-  font-size: 1.4rem;
+  font-size: 14px;
+  color: var(--db-color-neon-pink);
+}
+
+.how-step__title {
+  margin: 0;
+  font-family: var(--db-font-display-major);
+  font-weight: 600;
+  font-size: 1.05rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
   color: var(--db-color-text-primary);
 }
 
-.install-card__sub {
-  margin: 0 0 22px;
+.how-step__desc {
+  margin: 0;
   font-size: 0.9rem;
+  line-height: 1.7;
   color: var(--db-color-text-dim);
 }
 
-.install-os {
-  padding: 16px 18px;
-  border: 1px solid var(--db-color-border);
-  border-radius: var(--db-radius-md);
+.how-step__desc code {
+  font-family: var(--db-font-mono-code);
+  font-size: 0.85em;
+  color: var(--db-color-text-primary);
 }
 
-.install-os + .install-os {
-  margin-top: 14px;
-}
-
-.install-os--match {
-  border-color: var(--db-color-cyan);
-}
-
-.install-os__head {
+/* Copyable command line: $ prompt, the command, and a copy button. */
+.how-step__cmd {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 10px;
-  font-family: var(--db-font-display-major);
-  font-weight: 600;
-  font-size: 0.95rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--db-color-text-primary);
-}
-
-.install-os__badge {
-  padding: 2px 8px;
-  font-family: var(--db-font-ui);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--db-color-cyan);
-  border: 1px solid var(--db-color-cyan);
-  border-radius: 999px;
-}
-
-.install-os__cmd {
-  margin: 0;
-  padding: 12px 14px;
-  overflow-x: auto;
+  align-self: stretch;
+  padding: 10px 12px;
   background: var(--db-color-surface-bg);
+  border: 1px solid var(--db-color-border);
   border-radius: var(--db-radius-sm);
+}
+
+.how-step__cmd code {
+  flex: 1;
+  overflow-x: auto;
+  white-space: nowrap;
   font-family: var(--db-font-mono-code);
   font-size: 12.5px;
   line-height: 1.6;
   color: var(--db-color-text-primary);
 }
 
-.install-os__note {
+.how-step__prompt {
+  font-family: var(--db-font-mono-code);
+  font-size: 12.5px;
+  color: var(--db-color-cyan);
+}
+
+.how-step__note {
+  margin: -6px 0 0;
+  font-size: 0.8rem;
+  color: var(--db-color-text-faint);
+}
+
+.how-step__alt {
   margin: 0;
   font-size: 0.85rem;
   line-height: 1.6;
   color: var(--db-color-text-dim);
 }
 
-.install-os__note a {
+.how-step__alt a {
   color: var(--db-color-text-link);
+}
+
+.how-step__visual {
+  display: grid;
+  align-items: center;
+  min-width: 0;
+  padding: 20px;
+  background: var(--db-color-surface-bg);
+  border-left: 1px solid var(--db-color-border);
+}
+
+/* The step mocks are shorter than the before/after trees — drop the floor. */
+.ascii-tree--mock {
+  min-height: 0;
+  color: var(--db-color-text-primary);
+}
+
+@media (max-width: 880px) {
+  .how-step {
+    grid-template-columns: 1fr;
+  }
+
+  .how-step__visual {
+    border-left: 0;
+    border-top: 1px solid var(--db-color-border);
+  }
 }

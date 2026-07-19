@@ -27,12 +27,6 @@ export interface ToolDetailStep {
   readonly title: string;
   /** One-line explanation of the step. */
   readonly body: string;
-  /**
-   * When set, the step renders as a button that emits this id via the
-   * `stepAction` output — letting the host page react (e.g. open a dialog).
-   * Omit for a plain, non-interactive step.
-   */
-  readonly actionId?: string;
 }
 
 /**
@@ -108,8 +102,17 @@ export interface ToolDetailConfig {
 
   /** Capabilities for the "What it does" grid. */
   readonly features: readonly ToolDetailFeature[];
-  /** Steps for the "How it works" strip. */
+  /**
+   * Steps for the "How it works" strip. Leave empty to render the host
+   * page's projected `[how]` content in place of the default step list.
+   */
   readonly steps: readonly ToolDetailStep[];
+  /**
+   * Optional meta label beside the "How it works" title; falls back to the
+   * computed `'NN STEPS'`. Set it when `steps` is empty and the section body
+   * is supplied via the `[how]` projection slot.
+   */
+  readonly stepsMeta?: string;
 
   /** Kicker for the Output section. */
   readonly outputKicker: string;
