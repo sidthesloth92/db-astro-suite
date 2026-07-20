@@ -10,9 +10,7 @@ import {
   AnalyticsService,
   BlackHoleLoaderComponent,
   FooterComponent,
-  IconComponent,
   StarryBackgroundComponent,
-  cpuIcon,
 } from '@db-astro-suite/ui';
 import { CrescentLogoComponent } from '../components/crescent-logo/crescent-logo.component';
 import { AstroMarkComponent } from '../components/astro-mark/astro-mark.component';
@@ -36,7 +34,6 @@ import type { HubTool } from './hub-tool.types';
     BlackHoleLoaderComponent,
     FooterComponent,
     StarryBackgroundComponent,
-    IconComponent,
     CrescentLogoComponent,
     AstroMarkComponent,
     LiveStarfieldComponent,
@@ -63,9 +60,6 @@ export default class HomePageComponent {
    * own staged entrance; only later (Back) constructions read it as `true`.
    */
   protected readonly introAlreadyPlayed = this.introState.hasIntroPlayed();
-
-  /** CPU glyph used as the File Grouper CLI card icon. */
-  protected readonly cpuIcon = cpuIcon;
 
   /** App version shown in the hero status pill (mirrors the footer). */
   protected readonly version = packageJson.version;

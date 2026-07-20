@@ -207,7 +207,7 @@ export abstract class AnalyticsService {
 
   /**
    * Track a click on a tool card on the Hub home page.
-   * @param tool Identifier of the tool whose card was clicked ('astrogram' | 'starwizz' | 'file-grouper')
+   * @param tool Identifier of the tool whose card was clicked ('astrogram' | 'starwizz' | 'sortronomy')
    * @param target Which area of the card was clicked ('card' = anywhere in the card body, 'learn_more' = the LEARN MORE CTA)
    */
   abstract trackHubToolCardClicked(
@@ -218,7 +218,7 @@ export abstract class AnalyticsService {
   /**
    * Track a click on the Launch Tool / Access Repository button on a Hub tool page.
    * This is the conversion event for the Hub → tool funnel.
-   * @param tool Identifier of the tool being launched ('astrogram' | 'starwizz' | 'file-grouper')
+   * @param tool Identifier of the tool being launched ('astrogram' | 'starwizz' | 'sortronomy')
    * @param destination The href the user is being sent to
    */
   abstract trackHubLaunchToolClicked(tool: string, destination: string): void;

@@ -138,7 +138,7 @@
   align-items: center;
 }
 
-/* File Grouper projects no mark — collapse the slot so the title isn't indented. */
+/* Sortronomy projects no mark — collapse the slot so the title isn't indented. */
 .hero__mark:empty {
   display: none;
 }

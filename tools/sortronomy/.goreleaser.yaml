@@ -1,0 +1,62 @@
+version: 2
+
+project_name: sortronomy
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: sortronomy
+    main: ./cmd/sortronomy
+    binary: sortronomy
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+      - -buildvcs=false
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      # release-please stamps a component-prefixed tag (`sortronomy-v0.0.1`).
+      # OSS GoReleaser can't strip that prefix (`monorepo.tag_prefix` is Pro-only),
+      # so derive the bare semver from the tag ourselves for the version string.
+      - -X main.version={{ trimprefix .Tag "sortronomy-v" }}
+
+archives:
+  - id: default
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+    formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+
+checksum:
+  name_template: "checksums.txt"
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-snapshot-{{.ShortCommit}}"
+
+# ── Package-manager publishing (Homebrew / Scoop / winget) ────────────────────
+# Intentionally NOT handled by GoReleaser. OSS GoReleaser can't derive a clean
+# semver from the component-prefixed release tag (`sortronomy-v0.0.1`) — its
+# brew/scoop/winget manifests would carry the raw tag as the version, which
+# winget rejects (`monorepo.tag_prefix`, which would fix this, is Pro-only).
+# These are published in a follow-up via free, purpose-built tools that take the
+# stripped version explicitly (winget-releaser action; a rendered cask/bucket
+# committed to the tap repos), built against the real release assets so the
+# download URLs + checksums are verifiable. The binary archives, checksums, and
+# GitHub release below are unaffected and version correctly via `trimprefix`.
+
+release:
+  github:
+    owner: sidthesloth92
+    name: db-astro-suite
+  name_template: 'sortronomy {{ trimprefix .Tag "sortronomy-v" }}'
+  prerelease: auto

@@ -1,0 +1,203 @@
+@import './tool-media.css';
+
+/* Output section — before/after folder-structure screenshots side by side. */
+.output-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.output-pair__item {
+  margin: 0;
+  min-width: 0;
+}
+
+/* Dual-color sub-header above each screenshot — subordinate to the section title. */
+.output-pair__title {
+  margin: 0 0 14px;
+  font-family: var(--db-font-display-major);
+  font-weight: 600;
+  font-size: clamp(1.1rem, 2vw, 1.45rem);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--db-color-text-primary);
+}
+
+.output-pair__title-accent {
+  color: var(--db-color-neon-pink);
+}
+
+/*
+ * ASCII folder trees that stand in for before/after screenshots. Rendered as
+ * monospace text so the box-drawing characters line up. The "before" tree is
+ * dimmed to read as a messy dump; the "after" tree is brighter to read as the
+ * clean, sorted result.
+ */
+.ascii-tree {
+  margin: 0;
+  padding: 18px 20px;
+  min-height: 220px;
+  overflow-x: auto;
+  background: var(--db-color-surface-bg);
+  font-family: var(--db-font-mono-code);
+  font-size: 12.5px;
+  line-height: 1.7;
+  white-space: pre;
+  tab-size: 2;
+}
+
+.ascii-tree--before {
+  color: var(--db-color-text-dim);
+}
+
+.ascii-tree--after {
+  color: var(--db-color-text-primary);
+}
+
+@media (max-width: 720px) {
+  .output-pair {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+/* ===== How it works — inline numbered step cards ===== */
+.how-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 2rem;
+}
+
+.how-steps__lead {
+  margin: 0 0 8px;
+  max-width: 62ch;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--db-color-text-dim);
+}
+
+/* One step card: explanation + commands left, terminal mock right. */
+.how-step {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  background: var(--db-color-surface-raised);
+  border: 1px solid var(--db-color-border);
+}
+
+.how-step__text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 26px 28px;
+  min-width: 0;
+}
+
+.how-step__head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.how-step__num {
+  font-family: var(--db-font-display-major);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--db-color-neon-pink);
+}
+
+.how-step__title {
+  margin: 0;
+  font-family: var(--db-font-display-major);
+  font-weight: 600;
+  font-size: 1.05rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--db-color-text-primary);
+}
+
+.how-step__desc {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--db-color-text-dim);
+}
+
+.how-step__desc code {
+  font-family: var(--db-font-mono-code);
+  font-size: 0.85em;
+  color: var(--db-color-text-primary);
+}
+
+/* Copyable command line: $ prompt, the command, and a copy button. */
+.how-step__cmd {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  align-self: stretch;
+  padding: 10px 12px;
+  background: var(--db-color-surface-bg);
+  border: 1px solid var(--db-color-border);
+  border-radius: var(--db-radius-sm);
+}
+
+.how-step__cmd code {
+  flex: 1;
+  overflow-x: auto;
+  white-space: nowrap;
+  font-family: var(--db-font-mono-code);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--db-color-text-primary);
+}
+
+.how-step__prompt {
+  font-family: var(--db-font-mono-code);
+  font-size: 12.5px;
+  color: var(--db-color-cyan);
+}
+
+.how-step__note {
+  margin: -6px 0 0;
+  font-size: 0.8rem;
+  color: var(--db-color-text-faint);
+}
+
+.how-step__alt {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--db-color-text-dim);
+}
+
+.how-step__alt a {
+  color: var(--db-color-text-link);
+}
+
+.how-step__visual {
+  display: grid;
+  align-items: center;
+  min-width: 0;
+  padding: 20px;
+  background: var(--db-color-surface-bg);
+  border-left: 1px solid var(--db-color-border);
+}
+
+/* The step mocks are shorter than the before/after trees — drop the floor. */
+.ascii-tree--mock {
+  min-height: 0;
+  color: var(--db-color-text-primary);
+}
+
+@media (max-width: 880px) {
+  .how-step {
+    grid-template-columns: 1fr;
+  }
+
+  .how-step__visual {
+    border-left: 0;
+    border-top: 1px solid var(--db-color-border);
+  }
+}

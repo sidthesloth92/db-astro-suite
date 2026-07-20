@@ -1,7 +1,7 @@
 import { Locator, Page, expect } from "@playwright/test";
 
 /** Hub tool slugs — map 1:1 to `/tool/<slug>` URLs. */
-export type HubToolSlug = "astrogram" | "starwizz" | "file-grouper";
+export type HubToolSlug = "astrogram" | "starwizz" | "sortronomy";
 
 /**
  * Page Object for the three hub tool detail pages (`/tool/<slug>`). They share
@@ -23,7 +23,7 @@ export class HubToolPage {
     await expect(this.getHeroHeading()).toBeVisible();
   }
 
-  /** The single `<h1>` tool title (e.g. "ASTROGRAM", "FILE GROUPER"). */
+  /** The single `<h1>` tool title (e.g. "ASTROGRAM", "SORTRONOMY"). */
   getHeroHeading(): Locator {
     return this.page.getByRole("heading", { level: 1 });
   }
@@ -51,6 +51,21 @@ export class HubToolPage {
   /** The hero primary CTA link ("Launch …" / "Access Repository") by name. */
   getPrimaryCta(name: string | RegExp): Locator {
     return this.page.getByRole("link", { name }).first();
+  }
+
+  /** Switches the inline install command to the given OS (Sortronomy). */
+  async selectInstallOs(name: "macOS" | "Windows" | "Linux"): Promise<void> {
+    await this.page.getByRole("tab", { name }).click();
+  }
+
+  /** The visible install/run command text in the how-it-works section. */
+  getCommandText(text: string): Locator {
+    return this.page.getByText(text, { exact: false });
+  }
+
+  /** The "releases page" manual-install link in the install step (Sortronomy). */
+  getReleasesLink(): Locator {
+    return this.page.getByRole("link", { name: "releases page" });
   }
 
   /** A demo image by its `alt` text. */
