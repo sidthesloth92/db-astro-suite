@@ -1,7 +1,7 @@
 import { Locator, Page, expect } from "@playwright/test";
 
 /** Hub tool slugs — map 1:1 to `/tool/<slug>` URLs. */
-export type HubToolSlug = "astrogram" | "starwizz" | "sortronomy";
+export type HubToolSlug = "astrogram" | "starwizz" | "sortronomy" | "celestory";
 
 /**
  * Page Object for the three hub tool detail pages (`/tool/<slug>`). They share
@@ -66,6 +66,35 @@ export class HubToolPage {
   /** The "releases page" manual-install link in the install step (Sortronomy). */
   getReleasesLink(): Locator {
     return this.page.getByRole("link", { name: "releases page" });
+  }
+
+  /**
+   * Opens the install dialog by activating an actionable how-it-works step
+   * (Celestory's "Install" step renders as a button that pops the dialog).
+   */
+  async openInstallDialog(
+    stepTitle: string,
+    dialogName: string,
+  ): Promise<void> {
+    await this.page
+      .getByRole("button")
+      .filter({
+        has: this.page.getByRole("heading", { level: 4, name: stepTitle }),
+      })
+      .click();
+    await expect(this.getInstallDialog(dialogName)).toBeVisible();
+  }
+
+  /** The install dialog (`role="dialog"`), named per tool. */
+  getInstallDialog(name: string): Locator {
+    return this.page.getByRole("dialog", { name });
+  }
+
+  /** Closes the install dialog via its dedicated close button. */
+  async closeInstallDialog(): Promise<void> {
+    await this.page
+      .getByRole("button", { name: "Close install instructions" })
+      .click();
   }
 
   /** A demo image by its `alt` text. */
