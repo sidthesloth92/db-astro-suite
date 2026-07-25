@@ -222,6 +222,45 @@ export abstract class AnalyticsService {
    * @param destination The href the user is being sent to
    */
   abstract trackHubLaunchToolClicked(tool: string, destination: string): void;
+
+  // ====================== CELESTORY EVENTS ======================
+
+  /**
+   * Track a Celestory story being visualised (a ledger dropped/loaded and charted).
+   * Fired once per attempt, alongside the anonymous server-side upload ping.
+   * @param flow Which path the user took ('preview' = private preview, 'publish' = straight to publish)
+   * @param targetCount Number of targets in the visualised story
+   */
+  abstract trackCelestoryStoryVisualised(
+    flow: "preview" | "publish",
+    targetCount: number
+  ): void;
+
+  /**
+   * Track a successful Celestory profile publish — the landing → live-profile
+   * conversion event. Deliberately carries no handle or story contents.
+   */
+  abstract trackCelestoryStoryPublished(): void;
+
+  /**
+   * Track a Celestory share-card export (download from a share surface).
+   * @param surface Which share surface exported ('studio' | 'target' | 'equipment')
+   * @param format Export format ('png' | 'jpeg' | 'all-slides')
+   */
+  abstract trackCelestoryShareExported(surface: string, format: string): void;
+
+  /**
+   * Track a Celestory leaderboard board view (page open or board tab switch).
+   * @param boardId Identifier of the board viewed (e.g. 'hours', 'targets')
+   */
+  abstract trackCelestoryLeaderboardViewed(boardId: string): void;
+
+  /**
+   * Track an install-command copy on the Celestory landing — the closest
+   * available proxy for CLI installs, since the CLI itself never phones home.
+   * @param channel Install channel copied ('curl' | 'powershell')
+   */
+  abstract trackCelestoryInstallCopied(channel: string): void;
 }
 
 
