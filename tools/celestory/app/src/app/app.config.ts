@@ -13,6 +13,11 @@ import {
 } from '@angular/platform-browser';
 import { withInMemoryScrolling } from '@angular/router';
 import { provideFileRouter, requestContextInterceptor } from '@analogjs/router';
+import {
+  AnalyticsService,
+  GoogleAnalyticsService,
+  provideRouteAnalytics,
+} from '@db-astro-suite/ui';
 
 /** Client-side application config for the Celestory web app. */
 export const appConfig: ApplicationConfig = {
@@ -26,5 +31,7 @@ export const appConfig: ApplicationConfig = {
     ),
     provideHttpClient(withFetch(), withInterceptors([requestContextInterceptor])),
     provideClientHydration(withEventReplay()),
+    { provide: AnalyticsService, useClass: GoogleAnalyticsService },
+    provideRouteAnalytics(),
   ],
 };

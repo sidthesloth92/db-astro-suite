@@ -12,6 +12,7 @@ import {
   viewChild,
 } from '@angular/core';
 import {
+  AnalyticsService,
   IconButtonComponent,
   SplitButtonComponent,
   TextButtonComponent,
@@ -140,6 +141,7 @@ export class ShareStudioModalComponent {
 
   /** Editable identity (name/username), shared live with the portfolio hero. */
   protected readonly session = inject(SessionStore);
+  private readonly analytics = inject(AnalyticsService);
   /** Username printed on the card: the edited identity wins, else the published handle. */
   private readonly effectiveUsername = computed(() => this.session.identity().username || this.handle());
   /** URL slug for the claim bar: derived from the username, else the published handle. */
@@ -284,6 +286,7 @@ export class ShareStudioModalComponent {
     if (!canvas) {
       return;
     }
+    this.analytics.trackCelestoryShareExported('studio', format);
     const mime = format === 'jpeg' ? 'image/jpeg' : 'image/png';
     canvas.toBlob(
       (blob) => {
@@ -309,6 +312,7 @@ export class ShareStudioModalComponent {
     if (!canvas) {
       return;
     }
+    this.analytics.trackCelestoryShareExported('studio', 'all-slides');
     try {
       await (this.fontsReady ??= ensureShareFonts());
       const themeId = this.themeId();

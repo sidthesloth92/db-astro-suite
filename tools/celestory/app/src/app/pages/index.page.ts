@@ -23,6 +23,7 @@ import { applySocialMeta } from "../utils/social-meta.util";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { Router, RouterLink } from "@angular/router";
 import {
+  AnalyticsService,
   ConstellationFieldComponent,
   FeatureCardComponent,
   IconButtonComponent,
@@ -85,6 +86,7 @@ const COUNT_UP_MS = 1600;
 })
 export default class LandingPageComponent implements OnInit {
   private readonly storyService = inject(StoryService);
+  private readonly analytics = inject(AnalyticsService);
   private readonly previewStore = inject(PreviewStore);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
@@ -303,6 +305,9 @@ export default class LandingPageComponent implements OnInit {
       if (!ok) {
         return;
       }
+      if (key === "install") {
+        this.analytics.trackCelestoryInstallCopied(this.installTool());
+      }
       this.copied.set(key);
       setTimeout(() => {
         if (this.copied() === key) {
@@ -376,6 +381,10 @@ export default class LandingPageComponent implements OnInit {
       return;
     }
     this.recordAttempt(story);
+    this.analytics.trackCelestoryStoryVisualised(
+      "publish",
+      story.summary.targetCount,
+    );
     this.showChoose.set(false);
     this.showPublish.set(true);
   }
@@ -386,6 +395,7 @@ export default class LandingPageComponent implements OnInit {
    * the branded reveal as its loading screen.
    */
   onPublished(handle: string): void {
+    this.analytics.trackCelestoryStoryPublished();
     void this.router.navigate(["/user", handle]);
   }
   /** Close the publish modal, discarding the staged story. */
@@ -405,6 +415,10 @@ export default class LandingPageComponent implements OnInit {
       return;
     }
     this.recordAttempt(story);
+    this.analytics.trackCelestoryStoryVisualised(
+      "preview",
+      story.summary.targetCount,
+    );
     this.previewStore.story.set(story);
     this.previewStore.fresh.set(true);
     this.previewStore.autoPublish.set(autoPublish);

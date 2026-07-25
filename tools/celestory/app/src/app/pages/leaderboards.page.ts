@@ -12,7 +12,7 @@ import {
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { DomSanitizer, Meta, type SafeHtml, Title } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
-import { ConstellationFieldComponent } from '@db-astro-suite/ui';
+import { AnalyticsService, ConstellationFieldComponent } from '@db-astro-suite/ui';
 import { catchError, combineLatest, map, of, startWith, switchMap } from 'rxjs';
 import { CelestoryWordmarkComponent } from '../components/celestory-wordmark/celestory-wordmark.component';
 import { LeaderboardBoardComponent } from '../components/leaderboards/leaderboard-board.component';
@@ -61,6 +61,7 @@ import type { MeRow } from '../models/me-row.model';
 export default class LeaderboardsPageComponent implements OnInit {
   private readonly sanitizer = inject(DomSanitizer);
   private readonly service = inject(LeaderboardsService);
+  private readonly analytics = inject(AnalyticsService);
   private readonly storyService = inject(StoryService);
   private readonly session = inject(SessionStore);
   private readonly title = inject(Title);
@@ -163,7 +164,10 @@ export default class LeaderboardsPageComponent implements OnInit {
   });
 
   constructor() {
-    afterNextRender(() => this.browser.set(true));
+    afterNextRender(() => {
+      this.browser.set(true);
+      this.analytics.trackCelestoryLeaderboardViewed(this.boardId());
+    });
   }
 
   /** Set the document title + full social unfurl tags (SSR-rendered for crawlers). */
@@ -187,6 +191,7 @@ export default class LeaderboardsPageComponent implements OnInit {
   /** Switch the active board. */
   protected selectBoard(id: BoardId): void {
     this.boardId.set(id);
+    this.analytics.trackCelestoryLeaderboardViewed(id);
   }
 
   /** Switch the active time scope. */

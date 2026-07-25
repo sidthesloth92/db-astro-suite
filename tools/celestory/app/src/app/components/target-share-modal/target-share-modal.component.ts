@@ -22,7 +22,12 @@ import {
   SHARE_FORMATS,
   SHARE_THEME_LIST,
 } from '../../utils/share-card.util';
-import { IconButtonComponent, SplitButtonComponent, TextButtonComponent } from '@db-astro-suite/ui';
+import {
+  AnalyticsService,
+  IconButtonComponent,
+  SplitButtonComponent,
+  TextButtonComponent,
+} from '@db-astro-suite/ui';
 import { DOWNLOAD_FORMAT_MENU } from '../../models/share.constants';
 import { buildShareModel } from '../../utils/share-model.util';
 import { SessionStore } from '../../services/session-store.service';
@@ -61,6 +66,7 @@ export class TargetShareModalComponent {
 
   /** Shared session identity (name / handle) printed on the card. */
   protected readonly session = inject(SessionStore);
+  private readonly analytics = inject(AnalyticsService);
 
   /** Picker options. */
   protected readonly themes = SHARE_THEME_LIST;
@@ -151,6 +157,7 @@ export class TargetShareModalComponent {
     if (!canvas) {
       return;
     }
+    this.analytics.trackCelestoryShareExported('target', format);
     const mime = format === 'jpeg' ? 'image/jpeg' : 'image/png';
     canvas.toBlob(
       (blob) => {
