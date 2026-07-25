@@ -6,7 +6,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import type { DetectedOs } from './sortronomy.types';
+import type { DetectedOs } from '../../utils/detect-os.types';
 import { AnalyticsService } from '@db-astro-suite/ui';
 import { DemoFrameComponent } from '../../components/demo-frame/demo-frame.component';
 import { ToolDetailComponent } from '../../components/tool-detail/tool-detail.component';

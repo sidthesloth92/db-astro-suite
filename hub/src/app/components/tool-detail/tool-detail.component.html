@@ -125,27 +125,31 @@
             <span class="sec-head__accent">{{ howTitle[0] }}</span>{{ howTitle[1] }}
           </h2>
         </div>
-        <span class="meta">{{ stepCount() }} STEPS</span>
+        <span class="meta">{{ stepsMetaLabel() }}</span>
       </div>
-      <ol class="steps">
-        @for (s of config().steps; track s.title; let i = $index) {
-          @if (s.actionId; as actionId) {
-            <li class="step step--action">
-              <button type="button" class="step__btn" (click)="stepAction.emit(actionId)">
+      @if (config().steps.length > 0) {
+        <ol class="steps">
+          @for (s of config().steps; track s.title; let i = $index) {
+            @if (s.actionId; as actionId) {
+              <li class="step step--action">
+                <button type="button" class="step__btn" (click)="stepAction.emit(actionId)">
+                  <div class="step__num">{{ i + 1 < 10 ? '0' + (i + 1) : i + 1 }}</div>
+                  <h4 class="step__title">{{ s.title }}</h4>
+                  <p class="step__body">{{ s.body }}</p>
+                </button>
+              </li>
+            } @else {
+              <li class="step">
                 <div class="step__num">{{ i + 1 < 10 ? '0' + (i + 1) : i + 1 }}</div>
                 <h4 class="step__title">{{ s.title }}</h4>
                 <p class="step__body">{{ s.body }}</p>
-              </button>
-            </li>
-          } @else {
-            <li class="step">
-              <div class="step__num">{{ i + 1 < 10 ? '0' + (i + 1) : i + 1 }}</div>
-              <h4 class="step__title">{{ s.title }}</h4>
-              <p class="step__body">{{ s.body }}</p>
-            </li>
+              </li>
+            }
           }
-        }
-      </ol>
+        </ol>
+      } @else {
+        <ng-content select="[how]" />
+      }
     </section>
 
     <!-- OUTPUT -->

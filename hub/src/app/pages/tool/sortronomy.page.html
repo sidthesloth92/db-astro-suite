@@ -1,28 +1,148 @@
-<dba-hub-tool-detail
-  [config]="config"
-  (primaryClicked)="onLaunch()"
-  (stepAction)="onStepAction($event)"
->
-  <!--
-    TODO(logo): drop in a Sortronomy brand mark when one exists, e.g.
-    <img mark class="tool-mark" src="assets/img/sortronomy.png" alt="Sortronomy logo" />
-  -->
+<dba-hub-tool-detail [config]="config" (primaryClicked)="onLaunch()">
+  <img mark class="tool-mark" src="assets/img/sortronomy.png" alt="Sortronomy logo" />
 
   <div preview>
-    <!--
-      TODO(demo): replace this placeholder with the captured walkthrough, e.g.
-      <video class="demo-media" src="assets/img/sortronomy_demo.mp4" poster="…" controls></video>
-      or an animated GIF, once it has been recorded.
-    -->
     <dba-hub-demo-frame label="sortronomy — walkthrough" status="Demo">
-      <div class="media-placeholder media-placeholder--video">
-        <span class="media-placeholder__title">Walkthrough demo coming soon</span>
-        <span class="media-placeholder__hint">
-          A short screen recording of the wizard: point it at a folder, confirm, and
-          watch the frames sort themselves — entirely on your machine.
-        </span>
-      </div>
+      <video
+        class="demo-media"
+        width="1286"
+        height="916"
+        controls
+        playsinline
+        preload="metadata"
+        poster="assets/img/sortronomy-demo-poster.jpg"
+        aria-label="Sortronomy walkthrough demo: the wizard asks for folders and grouping options, then sorts a night's frames into the library"
+      >
+        <source src="assets/img/sortronomy_demo.mp4" type="video/mp4" />
+      </video>
     </dba-hub-demo-frame>
+  </div>
+
+  <div how class="how-steps">
+    <p class="how-steps__lead">
+      Three steps from a messy capture folder to a clean library — one small
+      program, no account, nothing uploaded.
+    </p>
+
+    <!-- STEP 01 — Install the CLI -->
+    <article class="how-step">
+      <div class="how-step__text">
+        <div class="how-step__head">
+          <span class="how-step__num">01</span>
+          <h4 class="how-step__title">Install the CLI</h4>
+        </div>
+        <p class="how-step__desc">
+          One command installs the right build for your system — a single small
+          binary, nothing else. It verifies the download and puts
+          <code>sortronomy</code> on your PATH.
+        </p>
+        <dba-ui-segmented-tabs
+          [options]="osTabs"
+          [value]="selectedOs()"
+          (valueChange)="onOsChange($event)"
+        />
+        <div class="how-step__cmd">
+          <span class="how-step__prompt" aria-hidden="true">$</span>
+          <code>{{ installCommand() }}</code>
+          <dba-ui-icon-button
+            title="Copy install command"
+            [size]="30"
+            [success]="copied() === 'install'"
+            (clicked)="copyCommand('install', installCommand())"
+          >
+            @if (copied() === 'install') {
+              <dba-ui-icon [def]="checkIcon" [size]="14" />
+            } @else {
+              <dba-ui-icon [def]="copyIcon" [size]="14" />
+            }
+          </dba-ui-icon-button>
+        </div>
+        @if (selectedOs() === 'windows') {
+          <p class="how-step__note">Run it in PowerShell.</p>
+        }
+        <p class="how-step__alt">
+          Prefer a manual install? Grab a binary from the
+          <a [href]="releasesUrl" target="_blank" rel="noopener noreferrer">releases page</a>.
+        </p>
+      </div>
+      <div class="how-step__visual">
+        <dba-hub-demo-frame label="terminal — install">
+          <pre
+            class="ascii-tree ascii-tree--mock"
+            role="img"
+            aria-label="A terminal running the one-line installer: it downloads Sortronomy, verifies the checksum, installs the binary, and sortronomy --version confirms it works."
+          >{{ stepInstallMock }}</pre>
+        </dba-hub-demo-frame>
+      </div>
+    </article>
+
+    <!-- STEP 02 — Run the wizard -->
+    <article class="how-step">
+      <div class="how-step__text">
+        <div class="how-step__head">
+          <span class="how-step__num">02</span>
+          <h4 class="how-step__title">Run the wizard</h4>
+        </div>
+        <p class="how-step__desc">
+          Type <code>sortronomy</code> and answer a few questions — where your
+          captures are, where the library should go, and how to group it
+          (focal length, date, filter, imaging session). A review screen
+          confirms everything before anything runs, and a dry run creates the
+          folders without copying a single file. One-shot-colour rig? Tag a
+          filter once and every frame gets labelled.
+        </p>
+        <div class="how-step__cmd">
+          <span class="how-step__prompt" aria-hidden="true">$</span>
+          <code>{{ runCommand }}</code>
+          <dba-ui-icon-button
+            title="Copy run command"
+            [size]="30"
+            [success]="copied() === 'run'"
+            (clicked)="copyCommand('run', runCommand)"
+          >
+            @if (copied() === 'run') {
+              <dba-ui-icon [def]="checkIcon" [size]="14" />
+            } @else {
+              <dba-ui-icon [def]="copyIcon" [size]="14" />
+            }
+          </dba-ui-icon-button>
+        </div>
+      </div>
+      <div class="how-step__visual">
+        <dba-hub-demo-frame label="terminal — sortronomy">
+          <pre
+            class="ascii-tree ascii-tree--mock"
+            role="img"
+            aria-label="The Sortronomy wizard asking for input and output folders and grouping choices, then a review screen offering Execute, Dry run, Go back, or Cancel."
+          >{{ stepReviewMock }}</pre>
+        </dba-hub-demo-frame>
+      </div>
+    </article>
+
+    <!-- STEP 03 — Get a clean library -->
+    <article class="how-step">
+      <div class="how-step__text">
+        <div class="how-step__head">
+          <span class="how-step__num">03</span>
+          <h4 class="how-step__title">Get a clean library</h4>
+        </div>
+        <p class="how-step__desc">
+          Confirm, and every frame is copied into place — camera, focal length,
+          target, session date, filter — with calibration frames in their own
+          area. Your originals are never moved or renamed. Re-run it any time:
+          existing files are left alone and only what's missing is filled in.
+        </p>
+      </div>
+      <div class="how-step__visual">
+        <dba-hub-demo-frame label="~/Astro Library">
+          <pre
+            class="ascii-tree ascii-tree--mock"
+            role="img"
+            aria-label="The organised library: frames grouped by camera, focal length, target, session date, and filter, with darks, flats, and bias frames in a separate calibration area."
+          >{{ stepTreeMock }}</pre>
+        </dba-hub-demo-frame>
+      </div>
+    </article>
   </div>
 
   <div output>
@@ -55,69 +175,3 @@
     </div>
   </div>
 </dba-hub-tool-detail>
-
-@if (isInstallOpen()) {
-  <div
-    class="install-dialog"
-    role="dialog"
-    aria-modal="true"
-    aria-label="Install Sortronomy"
-    tabindex="-1"
-    (click)="closeInstall()"
-    (keydown.escape)="closeInstall()"
-  >
-    <div class="install-card" (click)="$event.stopPropagation()">
-      <button
-        type="button"
-        class="install-card__close"
-        aria-label="Close install instructions"
-        (click)="closeInstall()"
-      >
-        &#x2715;
-      </button>
-
-      <h2 class="install-card__title">Install Sortronomy</h2>
-      <p class="install-card__sub">Pick your platform — copy, paste, run.</p>
-
-      <div class="install-os" [class.install-os--match]="detectedOs() === 'mac'">
-        <div class="install-os__head">
-          macOS
-          @if (detectedOs() === 'mac') {
-            <span class="install-os__badge">Your system</span>
-          }
-        </div>
-        <pre class="install-os__cmd"><code>brew install --cask sidthesloth92/tap/sortronomy</code></pre>
-      </div>
-
-      <div class="install-os" [class.install-os--match]="detectedOs() === 'windows'">
-        <div class="install-os__head">
-          Windows
-          @if (detectedOs() === 'windows') {
-            <span class="install-os__badge">Your system</span>
-          }
-        </div>
-        <pre class="install-os__cmd"><code>scoop bucket add sidthesloth92 https://github.com/sidthesloth92/scoop-bucket
-scoop install sortronomy</code></pre>
-      </div>
-
-      <div class="install-os" [class.install-os--match]="detectedOs() === 'linux'">
-        <div class="install-os__head">
-          Linux
-          @if (detectedOs() === 'linux') {
-            <span class="install-os__badge">Your system</span>
-          }
-        </div>
-        <p class="install-os__note">
-          Grab the Linux build from the
-          <a
-            href="https://github.com/sidthesloth92/db-astro-suite/releases?q=sortronomy"
-            target="_blank"
-            rel="noopener noreferrer"
-            >releases page</a
-          >
-          and drop it on your <code>PATH</code>.
-        </p>
-      </div>
-    </div>
-  </div>
-}

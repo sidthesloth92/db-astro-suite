@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/brand/sortronomy-mark.svg" width="96" alt="Sortronomy logo — a directory tree whose root and leaves are four-point stars" />
+</p>
+
 # Sortronomy
 
 > Organize astrophotography FITS files by camera, target, date, and filter — read straight from the headers.
@@ -55,39 +59,53 @@ configuration, because every program writes the same `IMAGETYP`, `OBJECT`,
 
 ## Install
 
-### Homebrew (macOS, Linux)
+One line — nothing else to install. The script downloads the right binary for
+your OS, verifies its checksum, and puts it on your `PATH`.
+
+### macOS & Linux
 
 ```bash
-brew install --cask sidthesloth92/tap/sortronomy
+curl -fsSL https://raw.githubusercontent.com/sidthesloth92/db-astro-suite/main/tools/sortronomy/scripts/install.sh | sh
 ```
+
+No `curl`? Use `wget`:
+
+```bash
+wget -qO- https://raw.githubusercontent.com/sidthesloth92/db-astro-suite/main/tools/sortronomy/scripts/install.sh | sh
+```
+
+Installs to `~/.local/bin`. The script is small and [public](scripts/install.sh) —
+read it first if you'd rather not pipe it straight to a shell.
 
 ### Windows (PowerShell)
 
-The simplest option — nothing else to install, since `irm`/`iex` ship with
-Windows PowerShell. Downloads the latest release, verifies its checksum, and
-installs `sortronomy.exe` to `%LOCALAPPDATA%\Programs\Sortronomy` (added to your
-PATH):
-
 ```powershell
-irm https://raw.githubusercontent.com/sidthesloth92/db-astro-suite/main/tools/sortronomy/install.ps1 | iex
+irm https://raw.githubusercontent.com/sidthesloth92/db-astro-suite/main/tools/sortronomy/scripts/install.ps1 | iex
 ```
 
-Re-run the same command to upgrade. (Inspect [`install.ps1`](install.ps1) first if you'd
-rather not pipe a script straight into PowerShell.)
+Installs `sortronomy.exe` to `%LOCALAPPDATA%\Programs\Sortronomy` and adds it to your PATH.
 
-### Scoop (Windows)
+### Upgrade
 
-If you already use [Scoop](https://scoop.sh):
+Re-run the same install command — it replaces the binary in place with the latest release.
 
-```powershell
-scoop bucket add sidthesloth92 https://github.com/sidthesloth92/scoop-bucket
-scoop install sortronomy
+### Uninstall
+
+```bash
+sortronomy --uninstall
 ```
 
-### Direct download
+Removes the binary. Your saved settings and log (a few KB) are left alone — delete
+`~/.config/sortronomy` and `~/.cache/sortronomy` by hand if you want those gone too.
 
-Grab a pre-built archive from the [Releases page](https://github.com/sidthesloth92/db-astro-suite/releases?q=sortronomy).
-Extract and move the `sortronomy` binary somewhere on your `PATH`.
+### Manual download
+
+Prefer to grab it yourself? Download the archive for your platform from the
+[Releases page](https://github.com/sidthesloth92/db-astro-suite/releases?q=sortronomy),
+extract it, and move the `sortronomy` binary onto your `PATH`.
+
+> **Coming soon:** one-line installs via **Homebrew**, **Scoop**, and **winget**
+> in a following release.
 
 ## Usage
 
@@ -204,7 +222,12 @@ uploaded; the log and both report files stay on your machine unless you share th
 ## Development
 
 ```bash
-go run .                      # launch the wizard
-go build -buildvcs=false  -o sortronomy .       # build a local binary
-goreleaser release --snapshot --clean   # dry-run the cross-platform release
+go run ./cmd/sortronomy                                    # launch the wizard
+go build -buildvcs=false -o sortronomy ./cmd/sortronomy    # build a local binary
+goreleaser release --snapshot --clean                      # dry-run the cross-platform release
 ```
+
+## License
+
+Sortronomy is part of the [DB Astro Suite](https://dbastrosuite.com) and is released under the
+[MIT License](../../LICENSE).

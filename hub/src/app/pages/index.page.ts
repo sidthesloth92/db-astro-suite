@@ -10,9 +10,7 @@ import {
   AnalyticsService,
   BlackHoleLoaderComponent,
   FooterComponent,
-  IconComponent,
   StarryBackgroundComponent,
-  cpuIcon,
   sparklesIcon,
 } from '@db-astro-suite/ui';
 import { CrescentLogoComponent } from '../components/crescent-logo/crescent-logo.component';
@@ -37,7 +35,6 @@ import type { HubTool } from './hub-tool.types';
     BlackHoleLoaderComponent,
     FooterComponent,
     StarryBackgroundComponent,
-    IconComponent,
     CrescentLogoComponent,
     AstroMarkComponent,
     LiveStarfieldComponent,
@@ -64,9 +61,6 @@ export default class HomePageComponent {
    * own staged entrance; only later (Back) constructions read it as `true`.
    */
   protected readonly introAlreadyPlayed = this.introState.hasIntroPlayed();
-
-  /** CPU glyph used as the Sortronomy CLI card icon. */
-  protected readonly cpuIcon = cpuIcon;
 
   /** Sparkles glyph used as the Celestory card icon. */
   protected readonly sparklesIcon = sparklesIcon;

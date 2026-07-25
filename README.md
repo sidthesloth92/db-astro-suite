@@ -21,6 +21,14 @@ A professional, organizational-style monorepo containing a suite of Astro-based 
 
 ---
 
+## 🔭 Tools
+
+|  | Tool | What it does |
+| --- | --- | --- |
+| <img src="tools/sortronomy/assets/brand/sortronomy-mark.svg" width="28" alt="Sortronomy logo" /> | [Sortronomy](tools/sortronomy/) | Offline CLI wizard that sorts astrophotography FITS captures into a clean library — by camera, target, date, and filter, read straight from the headers. |
+
+---
+
 ## 🚀 Getting Started
 
 ### Prerequisites

@@ -185,7 +185,7 @@ test.describe("Sortronomy Tool Page", () => {
     await expect(hubTool.getHeroHeading()).toContainText("SORTRONOMY");
     await expect(hubTool.getSectionHeading(/What Sortronomy is/i)).toBeVisible();
     await expect(
-      page.getByText("Sortronomy is a command-line wizard", {
+      page.getByText("Sortronomy is a small command-line wizard", {
         exact: false,
       }),
     ).toBeVisible();
@@ -201,31 +201,54 @@ test.describe("Sortronomy Tool Page", () => {
     ).toBeVisible();
   });
 
-  test("opens an OS-specific install dialog from the Install step", async ({
-    page,
-  }) => {
-    await page.getByRole("button", { name: /Install/i }).first().click();
-    const dialog = page.getByRole("dialog", { name: "Install Sortronomy" });
-    await expect(dialog).toBeVisible();
+  test("should render the three inline how-it-works steps", async () => {
+    await expect(hubTool.getStepHeadings()).toHaveCount(3);
     await expect(
-      dialog.getByText("brew install --cask sidthesloth92/tap/sortronomy"),
+      hubTool.getStepHeadings().filter({ hasText: "Install the CLI" }),
     ).toBeVisible();
-    await dialog.press("Escape");
-    await expect(dialog).toBeHidden();
   });
 
-  test("exposes the access-repository CTA", async () => {
+  test("should show the install command inline and switch it per OS tab", async () => {
+    await expect(
+      hubTool.getCommandText("curl -fsSL https://raw.githubusercontent.com"),
+    ).toBeVisible();
+
+    await hubTool.selectInstallOs("Windows");
+    await expect(
+      hubTool.getCommandText("irm https://raw.githubusercontent.com"),
+    ).toBeVisible();
+    await expect(hubTool.getCommandText("Run it in PowerShell")).toBeVisible();
+
+    await hubTool.selectInstallOs("macOS");
+    await expect(
+      hubTool.getCommandText("curl -fsSL https://raw.githubusercontent.com"),
+    ).toBeVisible();
+  });
+
+  test("should link to the releases page for manual installs", async () => {
+    await expect(hubTool.getReleasesLink()).toHaveAttribute(
+      "href",
+      "https://github.com/sidthesloth92/db-astro-suite/releases?q=sortronomy",
+    );
+  });
+
+  test("exposes the access-repository CTA and the demo video", async () => {
     await expect(hubTool.getPrimaryCta(/Access Repository/i)).toHaveAttribute(
       "href",
       /github\.com.*sortronomy/,
     );
+    await expect(
+      hubTool.getDemoVideo(
+        "Sortronomy walkthrough demo: the wizard asks for folders and grouping options, then sorts a night's frames into the library",
+      ),
+    ).toBeVisible();
   });
 
   test("should expose the canonical, og, and twitter SEO meta tags", async ({
     page,
   }) => {
     await expect(page).toHaveTitle(
-      "Sortronomy - Organise Your FITS Captures Offline",
+      "Sortronomy - Organize Your FITS Captures Offline",
     );
 
     const ogTitle = await page.getAttribute(

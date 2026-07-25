@@ -53,6 +53,21 @@ export class HubToolPage {
     return this.page.getByRole("link", { name }).first();
   }
 
+  /** Switches the inline install command to the given OS (Sortronomy). */
+  async selectInstallOs(name: "macOS" | "Windows" | "Linux"): Promise<void> {
+    await this.page.getByRole("tab", { name }).click();
+  }
+
+  /** The visible install/run command text in the how-it-works section. */
+  getCommandText(text: string): Locator {
+    return this.page.getByText(text, { exact: false });
+  }
+
+  /** The "releases page" manual-install link in the install step (Sortronomy). */
+  getReleasesLink(): Locator {
+    return this.page.getByRole("link", { name: "releases page" });
+  }
+
   /** A demo image by its `alt` text. */
   getDemoImage(altText: string): Locator {
     return this.page.getByAltText(altText);

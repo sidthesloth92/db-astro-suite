@@ -1,8 +1,9 @@
 # GoReleaser snapshot output
 dist/
 
-# Local-only dev binary
-sortronomy
+# Local-only dev binary at the module root (anchored so it doesn't also match
+# the cmd/sortronomy/ package directory).
+/sortronomy
 
 # Generated debug-report artifacts (dropped into the cwd by failed runs and --report)
 sortronomy-error.log

@@ -107,20 +107,19 @@ import { FooterComponent } from '../../../../../libs/ui/src/lib/footer/footer.co
                 <span class="step-label">INSTALL (macOS / Linux)</span>
                 <pre
                   class="code-block"
-                ><code>brew install --cask sidthesloth92/tap/sortronomy</code></pre>
+                ><code>curl -fsSL https://raw.githubusercontent.com/sidthesloth92/db-astro-suite/main/tools/sortronomy/scripts/install.sh | sh</code></pre>
               </div>
               <div class="protocol-step">
                 <span class="step-label">INSTALL (Windows)</span>
                 <pre
                   class="code-block"
-                ><code>scoop bucket add sidthesloth92 https://github.com/sidthesloth92/scoop-bucket
-scoop install sortronomy</code></pre>
+                ><code>irm https://raw.githubusercontent.com/sidthesloth92/db-astro-suite/main/tools/sortronomy/scripts/install.ps1 | iex</code></pre>
               </div>
               <div class="protocol-step">
-                <span class="step-label">INSTALL (Go users)</span>
+                <span class="step-label">UNINSTALL</span>
                 <pre
                   class="code-block"
-                ><code>go install github.com/sidthesloth92/db-astro-suite/tools/sortronomy&#64;latest</code></pre>
+                ><code>sortronomy --uninstall</code></pre>
               </div>
               <div class="protocol-step">
                 <span class="step-label">EXECUTION</span>

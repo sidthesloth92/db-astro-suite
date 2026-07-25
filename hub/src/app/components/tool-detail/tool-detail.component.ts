@@ -25,7 +25,9 @@ import type { ToolDetailConfig } from './tool-detail.model';
  *
  * The brand mark, the demo / live preview, and the output media are supplied
  * by the host page via content projection (`[mark]`, `[preview]`, `[output]`),
- * keeping all tool-specific markup out of this component.
+ * keeping all tool-specific markup out of this component. A host page can
+ * also take over the "How it works" body by passing an empty `steps` array
+ * and projecting `[how]` content (see `ToolDetailConfig.stepsMeta`).
  */
 @Component({
   selector: 'dba-hub-tool-detail',
@@ -66,6 +68,11 @@ export class ToolDetailComponent {
   /** Step count, zero-padded to two digits for the section meta. */
   protected readonly stepCount = computed(() =>
     String(this.config().steps.length).padStart(2, '0'),
+  );
+
+  /** How-it-works meta label — `stepsMeta` override, or the computed count. */
+  protected readonly stepsMetaLabel = computed(
+    () => this.config().stepsMeta ?? `${this.stepCount()} STEPS`,
   );
 
   /** Fires the primary CTA analytics event. */

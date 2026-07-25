@@ -10,6 +10,7 @@ import (
 	"github.com/sidthesloth92/db-astro-suite/libs/redact"
 	"github.com/sidthesloth92/db-astro-suite/tools/sortronomy/internal/config"
 	"github.com/sidthesloth92/db-astro-suite/tools/sortronomy/internal/logger"
+	"github.com/sidthesloth92/db-astro-suite/tools/sortronomy/internal/uninstall"
 	"github.com/sidthesloth92/db-astro-suite/tools/sortronomy/internal/wizard"
 )
 
@@ -31,6 +32,7 @@ Usage:
   sortronomy [flags] --yes    Run non-interactively — no prompts, no review
   sortronomy -h, --help       Show this help and exit
   sortronomy -v, --version    Print the version and exit
+  sortronomy --uninstall      Remove the installed sortronomy binary and exit
 
 Flags (every wizard option has one):
   --input DIR        Folder of images to organize. Required to run with --yes; must exist.
@@ -88,6 +90,9 @@ func main() {
 	if args.Version {
 		fmt.Printf("sortronomy %s\n", version)
 		return
+	}
+	if args.Uninstall {
+		os.Exit(uninstall.Run(os.Stdout, os.Stderr))
 	}
 
 	os.Exit(run(args, cfg, cfgErr))

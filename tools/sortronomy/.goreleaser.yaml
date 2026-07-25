@@ -8,7 +8,7 @@ before:
 
 builds:
   - id: sortronomy
-    main: .
+    main: ./cmd/sortronomy
     binary: sortronomy
     env:
       - CGO_ENABLED=0
@@ -24,7 +24,10 @@ builds:
       - arm64
     ldflags:
       - -s -w
-      - -X main.version={{.Version}}
+      # release-please stamps a component-prefixed tag (`sortronomy-v0.0.1`).
+      # OSS GoReleaser can't strip that prefix (`monorepo.tag_prefix` is Pro-only),
+      # so derive the bare semver from the tag ourselves for the version string.
+      - -X main.version={{ trimprefix .Tag "sortronomy-v" }}
 
 archives:
   - id: default
@@ -40,57 +43,20 @@ checksum:
 snapshot:
   version_template: "{{ incpatch .Version }}-snapshot-{{.ShortCommit}}"
 
-homebrew_casks:
-  - name: sortronomy
-    repository:
-      owner: sidthesloth92
-      name: homebrew-tap
-      token: "{{ .Env.CLI_RELEASE_PAT }}"
-    homepage: "https://github.com/sidthesloth92/db-astro-suite/tree/main/tools/sortronomy"
-    description: "Organize astrophotography FITS files by camera, target, date, and filter — from headers."
-    binaries:
-      - sortronomy
-
-scoops:
-  - name: sortronomy
-    repository:
-      owner: sidthesloth92
-      name: scoop-bucket
-      token: "{{ .Env.CLI_RELEASE_PAT }}"
-    homepage: "https://github.com/sidthesloth92/db-astro-suite/tree/main/tools/sortronomy"
-    description: "Organize astrophotography FITS files by camera, target, date, and filter — from headers."
-    license: "MIT"
-
-winget:
-  - name: sortronomy
-    publisher: sidthesloth92
-    package_identifier: sidthesloth92.Sortronomy
-    short_description: "Organize astrophotography FITS files by camera, target, date, and filter — from headers."
-    license: MIT
-    homepage: "https://github.com/sidthesloth92/db-astro-suite/tree/main/tools/sortronomy"
-    author: sidthesloth92
-    publisher_url: "https://dbastrosuite.com"
-    tags:
-      - astrophotography
-      - fits
-      - astronomy
-      - cli
-    repository:
-      owner: sidthesloth92
-      name: winget-pkgs
-      branch: "sortronomy-{{ .Version }}"
-      token: "{{ .Env.CLI_RELEASE_PAT }}"
-      pull_request:
-        enabled: true
-        draft: false
-        base:
-          owner: microsoft
-          name: winget-pkgs
-          branch: master
+# ── Package-manager publishing (Homebrew / Scoop / winget) ────────────────────
+# Intentionally NOT handled by GoReleaser. OSS GoReleaser can't derive a clean
+# semver from the component-prefixed release tag (`sortronomy-v0.0.1`) — its
+# brew/scoop/winget manifests would carry the raw tag as the version, which
+# winget rejects (`monorepo.tag_prefix`, which would fix this, is Pro-only).
+# These are published in a follow-up via free, purpose-built tools that take the
+# stripped version explicitly (winget-releaser action; a rendered cask/bucket
+# committed to the tap repos), built against the real release assets so the
+# download URLs + checksums are verifiable. The binary archives, checksums, and
+# GitHub release below are unaffected and version correctly via `trimprefix`.
 
 release:
   github:
     owner: sidthesloth92
     name: db-astro-suite
-  name_template: "sortronomy {{.Version}}"
+  name_template: 'sortronomy {{ trimprefix .Tag "sortronomy-v" }}'
   prerelease: auto
