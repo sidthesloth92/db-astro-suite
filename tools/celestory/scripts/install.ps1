@@ -9,9 +9,11 @@
     published checksums, extracts celestory.exe into
     %LOCALAPPDATA%\Programs\Celestory, and adds that folder to the user PATH.
 
-    A Scoop-free way to install on Windows. Run in PowerShell:
+    No other tool required (PowerShell ships with Windows). Run in PowerShell:
 
-        irm https://raw.githubusercontent.com/sidthesloth92/db-astro-suite/main/tools/celestory/install.ps1 | iex
+        irm https://raw.githubusercontent.com/sidthesloth92/db-astro-suite/main/tools/celestory/scripts/install.ps1 | iex
+
+    Re-run the same command to upgrade in place.
 #>
 
 $ErrorActionPreference = 'Stop'
@@ -65,6 +67,10 @@ if ($sumsAsset) {
 New-Item -ItemType Directory -Force -Path $InstallDir | Out-Null
 Expand-Archive -Path $tmp -DestinationPath $InstallDir -Force
 Remove-Item $tmp -Force
+
+# Clear Mark-of-the-Web on the extracted binary so SmartScreen doesn't block it.
+Get-ChildItem -Path $InstallDir -Filter '*.exe' |
+    ForEach-Object { Unblock-File -Path $_.FullName -ErrorAction SilentlyContinue }
 
 # Add the install dir to the user PATH if it isn't already there.
 $userPath = [Environment]::GetEnvironmentVariable('Path', 'User')
