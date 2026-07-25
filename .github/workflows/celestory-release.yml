@@ -1,0 +1,103 @@
+name: celestory-release
+
+# Builds the celestory CLI for all six release targets and uploads the
+# archives + checksums.txt to the GitHub release of a `celestory-v*` tag.
+#
+# Two entry points:
+#   - workflow_call: invoked by pipeline.yml right after release-please creates
+#     the release. The tag itself can never trigger a workflow here —
+#     release-please runs on the default GITHUB_TOKEN, and GitHub suppresses
+#     workflow triggers for events created by GITHUB_TOKEN. With no tag input,
+#     the version is read from .release-please-manifest.json at the release
+#     commit.
+#   - workflow_dispatch: manual recovery — rebuild and re-upload the assets for
+#     an existing tag (e.g. after a failed release run). Lives in its own
+#     workflow because pipeline.yml's workflow_dispatch also builds and deploys
+#     the backend.
+#
+# GoReleaser is intentionally not used: OSS GoReleaser hard-fails parsing the
+# component-prefixed tag (`celestory-v0.0.1`) as semver, and the fix
+# (monorepo.tag_prefix) is Pro-only. tools/celestory/cli/.goreleaser.yaml
+# remains for local snapshot builds only.
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: 'celestory release tag; empty derives it from the manifest at the current commit'
+        required: false
+        type: string
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing celestory tag (e.g. celestory-v0.0.1) to rebuild + re-upload assets for'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-upload:
+    name: Build & upload release assets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.sha }}
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: tools/celestory/cli/go.mod
+          cache-dependency-path: tools/celestory/cli/go.sum
+
+      - name: Resolve version
+        id: ver
+        run: |
+          set -euo pipefail
+          if [ -n "${{ inputs.tag }}" ]; then
+            tag="${{ inputs.tag }}"
+          else
+            tag="celestory-v$(jq -r '.["tools/celestory"]' .release-please-manifest.json)"
+          fi
+          case "$tag" in
+            celestory-v*) ;;
+            *) echo "expected a celestory-v* tag, got '$tag'" >&2; exit 1 ;;
+          esac
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "version=${tag#celestory-v}" >> "$GITHUB_OUTPUT"
+
+      - name: Build archives
+        working-directory: tools/celestory/cli
+        # Archive layout is a contract with scripts/install.sh + install.ps1:
+        # bare binary at the archive root, asset names celestory_<os>_<arch>
+        # (.tar.gz, .zip for windows), and a two-column sha256sum checksums.txt.
+        # The build target is `.` — celestory's package main sits at the cli
+        # module root — and the module's replace directives resolve against
+        # ../../../libs/*, which the full checkout above provides.
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          for target in darwin/amd64 darwin/arm64 linux/amd64 linux/arm64 windows/amd64 windows/arm64; do
+            goos="${target%/*}"; goarch="${target#*/}"
+            bin=celestory; [ "$goos" = windows ] && bin=celestory.exe
+            CGO_ENABLED=0 GOOS="$goos" GOARCH="$goarch" \
+              go build -trimpath -buildvcs=false \
+              -ldflags "-s -w -X main.version=${{ steps.ver.outputs.version }}" \
+              -o "dist/$bin" .
+            if [ "$goos" = windows ]; then
+              (cd dist && zip -q "celestory_${goos}_${goarch}.zip" "$bin" && rm "$bin")
+            else
+              tar -czf "dist/celestory_${goos}_${goarch}.tar.gz" -C dist "$bin"
+              rm "dist/$bin"
+            fi
+          done
+          (cd dist && sha256sum *.tar.gz *.zip > checksums.txt)
+
+      - name: Upload release assets
+        working-directory: tools/celestory/cli
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "${{ steps.ver.outputs.tag }}" dist/* --clobber

@@ -40,57 +40,20 @@ checksum:
 snapshot:
   version_template: "{{ incpatch .Version }}-snapshot-{{.ShortCommit}}"
 
-homebrew_casks:
-  - name: celestory
-    repository:
-      owner: sidthesloth92
-      name: homebrew-tap
-      token: "{{ .Env.CLI_RELEASE_PAT }}"
-    homepage: "https://github.com/sidthesloth92/db-astro-suite/tree/main/tools/celestory"
-    description: "Scan astrophotography FITS captures into a per-target integration timeline + equipment ledger."
-    binaries:
-      - celestory
-
-scoops:
-  - name: celestory
-    repository:
-      owner: sidthesloth92
-      name: scoop-bucket
-      token: "{{ .Env.CLI_RELEASE_PAT }}"
-    homepage: "https://github.com/sidthesloth92/db-astro-suite/tree/main/tools/celestory"
-    description: "Scan astrophotography FITS captures into a per-target integration timeline + equipment ledger."
-    license: "MIT"
-
-winget:
-  - name: celestory
-    publisher: sidthesloth92
-    package_identifier: sidthesloth92.Celestory
-    short_description: "Scan astrophotography FITS captures into a per-target integration timeline + equipment ledger."
-    license: MIT
-    homepage: "https://github.com/sidthesloth92/db-astro-suite/tree/main/tools/celestory"
-    author: sidthesloth92
-    publisher_url: "https://dbastrosuite.com"
-    tags:
-      - astrophotography
-      - fits
-      - astronomy
-      - cli
-    repository:
-      owner: sidthesloth92
-      name: winget-pkgs
-      branch: "celestory-{{ .Version }}"
-      token: "{{ .Env.CLI_RELEASE_PAT }}"
-      pull_request:
-        enabled: true
-        draft: false
-        base:
-          owner: microsoft
-          name: winget-pkgs
-          branch: master
+# ── Package-manager publishing (Homebrew / Scoop / winget) ────────────────────
+# Intentionally NOT handled by GoReleaser. OSS GoReleaser can't derive a clean
+# semver from the component-prefixed release tag (`celestory-v0.0.1`) — its
+# brew/scoop/winget manifests would carry the raw tag as the version, which
+# winget rejects (`monorepo.tag_prefix`, which would fix this, is Pro-only).
+# These are published in a follow-up via free, purpose-built tools that take the
+# stripped version explicitly (winget-releaser action; a rendered cask/bucket
+# committed to the tap repos), built against the real release assets so the
+# download URLs + checksums are verifiable. The binary archives, checksums, and
+# GitHub release below are unaffected and version correctly via `trimprefix`.
 
 release:
   github:
     owner: sidthesloth92
     name: db-astro-suite
-  name_template: "celestory {{.Version}}"
+  name_template: 'celestory {{ trimprefix .Tag "celestory-v" }}'
   prerelease: auto
