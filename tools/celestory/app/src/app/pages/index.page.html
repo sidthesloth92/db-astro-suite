@@ -149,7 +149,7 @@
                 </div>
                 <div class="cmd"><span class="pr">$</span><code>{{ installCommand() }}</code><button type="button" class="copy" (click)="copy('install', installCommand())">{{ copied() === 'install' ? 'Copied' : 'Copy' }}</button></div>
                 <div class="cmd cmd--gap"><span class="pr">$</span><code>{{ scanCommand }}</code><button type="button" class="copy" (click)="copy('scan', scanCommand)">{{ copied() === 'scan' ? 'Copied' : 'Copy' }}</button></div>
-                <div class="alt-install">Linux or manual install? Grab a binary from the <a [href]="releasesUrl" target="_blank" rel="noopener">releases page</a>.</div>
+                <div class="alt-install">Prefer a manual install? Grab a binary from the <a [href]="releasesUrl" target="_blank" rel="noopener">releases page</a>. Homebrew, winget, and Scoop are coming soon.</div>
               </div>
               <div class="step-demo">
                 <div class="term demo-term" aria-hidden="true">

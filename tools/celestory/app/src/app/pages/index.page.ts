@@ -109,7 +109,7 @@ export default class LandingPageComponent implements OnInit {
   protected readonly showPublish = signal(false);
 
   /** Selected CLI install channel in the "Get started" walkthrough. */
-  protected readonly installTool = signal<InstallTool>("brew");
+  protected readonly installTool = signal<InstallTool>("curl");
   /** Install command for the selected channel. */
   protected readonly installCommand = computed(
     () => INSTALL_COMMANDS[this.installTool()],

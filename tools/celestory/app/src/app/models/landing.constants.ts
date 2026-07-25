@@ -2,29 +2,19 @@ import type { InstallTool } from './landing.types';
 
 /** Real install command per channel (see tools/celestory/README.md). */
 export const INSTALL_COMMANDS: Record<InstallTool, string> = {
-  brew: 'brew install --cask sidthesloth92/tap/celestory',
+  curl: 'curl -fsSL https://raw.githubusercontent.com/sidthesloth92/db-astro-suite/main/tools/celestory/scripts/install.sh | sh',
   powershell:
-    'irm https://raw.githubusercontent.com/sidthesloth92/db-astro-suite/main/tools/celestory/install.ps1 | iex',
-  winget: 'winget install sidthesloth92.Celestory',
-  scoop:
-    'scoop bucket add sidthesloth92 https://github.com/sidthesloth92/scoop-bucket && scoop install celestory',
+    'irm https://raw.githubusercontent.com/sidthesloth92/db-astro-suite/main/tools/celestory/scripts/install.ps1 | iex',
 };
 
 /** Label shown on each install tab. */
 export const INSTALL_LABELS: Record<InstallTool, string> = {
-  brew: 'brew · macOS',
+  curl: 'curl · macOS / Linux',
   powershell: 'powershell · Windows',
-  winget: 'winget · Windows',
-  scoop: 'scoop · Windows',
 };
 
 /** Install-channel tabs in display order. */
-export const INSTALL_TOOLS: readonly InstallTool[] = [
-  'brew',
-  'powershell',
-  'winget',
-  'scoop',
-];
+export const INSTALL_TOOLS: readonly InstallTool[] = ['curl', 'powershell'];
 
 /** GitHub Releases filtered to celestory — Linux and manual downloads. */
 export const RELEASES_URL =

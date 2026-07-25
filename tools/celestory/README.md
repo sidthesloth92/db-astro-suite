@@ -18,53 +18,44 @@ is **read-only** — it never moves, renames, or deletes anything.
 
 ## Install
 
-No runtime to install — it's a single static binary.
+One line — nothing else to install. The script downloads the right binary for
+your OS, verifies its checksum, and puts it on your `PATH`.
 
-### Homebrew (macOS)
+### macOS & Linux
 
-```sh
-brew install --cask sidthesloth92/tap/celestory
+```bash
+curl -fsSL https://raw.githubusercontent.com/sidthesloth92/db-astro-suite/main/tools/celestory/scripts/install.sh | sh
 ```
+
+No `curl`? Use `wget`:
+
+```bash
+wget -qO- https://raw.githubusercontent.com/sidthesloth92/db-astro-suite/main/tools/celestory/scripts/install.sh | sh
+```
+
+Installs to `~/.local/bin`. The script is small and [public](scripts/install.sh) —
+read it first if you'd rather not pipe it straight to a shell.
 
 ### Windows (PowerShell)
 
-The simplest option — nothing else to install, since `irm`/`iex` ship with
-Windows PowerShell. Downloads the latest release, verifies its checksum, and
-installs `celestory.exe` to `%LOCALAPPDATA%\Programs\Celestory` (added to your
-PATH):
-
 ```powershell
-irm https://raw.githubusercontent.com/sidthesloth92/db-astro-suite/main/tools/celestory/install.ps1 | iex
+irm https://raw.githubusercontent.com/sidthesloth92/db-astro-suite/main/tools/celestory/scripts/install.ps1 | iex
 ```
 
-Re-run the same command to upgrade. (Inspect [`install.ps1`](install.ps1) first
-if you'd rather not pipe a script straight into PowerShell.)
+Installs `celestory.exe` to `%LOCALAPPDATA%\Programs\Celestory` and adds it to your PATH.
 
-### Winget (Windows)
+### Upgrade
 
-```powershell
-winget install sidthesloth92.Celestory
-```
+Re-run the same install command — it replaces the binary in place with the latest release.
 
-(Appears once the first Celestory submission to the community
-[winget-pkgs](https://github.com/microsoft/winget-pkgs) repository is merged —
-use the PowerShell one-liner above in the meantime.)
+### Manual download
 
-### Scoop (Windows)
+Prefer to grab it yourself? Download the archive for your platform from the
+[Releases page](https://github.com/sidthesloth92/db-astro-suite/releases?q=celestory),
+extract it, and move the `celestory` binary onto your `PATH`.
 
-If you already use [Scoop](https://scoop.sh):
-
-```powershell
-scoop bucket add sidthesloth92 https://github.com/sidthesloth92/scoop-bucket
-scoop install celestory
-```
-
-### Direct download (Linux, or any OS)
-
-Grab a pre-built archive for your OS/arch from the
-[Releases page](https://github.com/sidthesloth92/db-astro-suite/releases?q=celestory)
-(macOS, Linux, Windows × amd64/arm64). Extract and move the `celestory` binary
-somewhere on your `PATH`.
+> **Coming soon:** one-line installs via **Homebrew**, **Scoop**, and **winget**
+> in a following release.
 
 ## Quick start
 
