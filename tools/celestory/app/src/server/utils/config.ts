@@ -16,11 +16,25 @@ interface ServerConfig {
   readonly sessionSecret: string;
 }
 
+/** Dev-only HMAC fallback — forgeable by anyone reading this file. */
+const DEV_SESSION_SECRET = 'celestory-dev-session-secret';
+
+const sessionSecret =
+  process.env['CELESTORY_SESSION_SECRET'] ?? DEV_SESSION_SECRET;
+
+// Fail fast rather than serve forgeable owner-session tokens: a production
+// process signing with the public dev fallback would let anyone mint a valid
+// edit/delete session for any published profile.
+if (process.env['NODE_ENV'] === 'production' && sessionSecret === DEV_SESSION_SECRET) {
+  throw new Error(
+    'CELESTORY_SESSION_SECRET must be set in production; the dev fallback signs forgeable session tokens.',
+  );
+}
+
 /** Frozen, process-wide server configuration. */
 export const config: ServerConfig = Object.freeze({
   databaseUrl: process.env['DATABASE_URL'] ?? '',
   publicBaseUrl:
     process.env['CELESTORY_PUBLIC_BASE_URL'] ?? 'http://localhost:5173',
-  sessionSecret:
-    process.env['CELESTORY_SESSION_SECRET'] ?? 'celestory-dev-session-secret',
+  sessionSecret,
 });
