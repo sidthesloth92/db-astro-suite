@@ -86,7 +86,7 @@
             <span class="install-os__badge">Your system</span>
           }
         </div>
-        <pre class="install-os__cmd"><code>brew install --cask sidthesloth92/tap/celestory</code></pre>
+        <pre class="install-os__cmd"><code>curl -fsSL https://raw.githubusercontent.com/sidthesloth92/db-astro-suite/main/tools/celestory/scripts/install.sh | sh</code></pre>
       </div>
 
       <div class="install-os" [class.install-os--match]="detectedOs() === 'windows'">
@@ -96,13 +96,9 @@
             <span class="install-os__badge">Your system</span>
           }
         </div>
-        <pre class="install-os__cmd"><code>irm https://raw.githubusercontent.com/sidthesloth92/db-astro-suite/main/tools/celestory/install.ps1 | iex</code></pre>
+        <pre class="install-os__cmd"><code>irm https://raw.githubusercontent.com/sidthesloth92/db-astro-suite/main/tools/celestory/scripts/install.ps1 | iex</code></pre>
         <p class="install-os__note">
-          Prefer a package manager?
-          <code>winget install sidthesloth92.Celestory</code> — or with Scoop:
-          <code>scoop bucket add sidthesloth92
-            https://github.com/sidthesloth92/scoop-bucket</code>
-          then <code>scoop install celestory</code>.
+          Package managers (Homebrew, winget, Scoop) are coming soon.
         </p>
       </div>
 
@@ -113,8 +109,9 @@
             <span class="install-os__badge">Your system</span>
           }
         </div>
+        <pre class="install-os__cmd"><code>curl -fsSL https://raw.githubusercontent.com/sidthesloth92/db-astro-suite/main/tools/celestory/scripts/install.sh | sh</code></pre>
         <p class="install-os__note">
-          Grab the Linux build from the
+          Prefer a manual install? Grab a binary from the
           <a
             href="https://github.com/sidthesloth92/db-astro-suite/releases?q=celestory"
             target="_blank"

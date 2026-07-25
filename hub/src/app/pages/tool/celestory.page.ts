@@ -7,6 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import type { DetectedOs } from '../../utils/detect-os.types';
+import { detectOsFromUserAgent } from '../../utils/detect-os.util';
 import { AnalyticsService } from '@db-astro-suite/ui';
 import { DemoFrameComponent } from '../../components/demo-frame/demo-frame.component';
 import { ToolDetailComponent } from '../../components/tool-detail/tool-detail.component';
@@ -61,7 +62,9 @@ export default class CelestoryPageComponent {
   /** Handles an interactive step activation from the shared layout. */
   onStepAction(actionId: string): void {
     if (actionId === 'install') {
-      this.detectedOs.set(this.detectOs());
+      this.detectedOs.set(
+        detectOsFromUserAgent(this.document.defaultView?.navigator.userAgent ?? ''),
+      );
       this.isInstallOpen.set(true);
       this.document.body.style.overflow = 'hidden';
     }
@@ -71,15 +74,6 @@ export default class CelestoryPageComponent {
   closeInstall(): void {
     this.isInstallOpen.set(false);
     this.document.body.style.overflow = '';
-  }
-
-  /** Best-effort OS detection from the user agent (browser-only). */
-  private detectOs(): DetectedOs {
-    const ua = this.document.defaultView?.navigator.userAgent.toLowerCase() ?? '';
-    if (ua.includes('win')) return 'windows';
-    if (ua.includes('mac')) return 'mac';
-    if (ua.includes('linux') || ua.includes('x11')) return 'linux';
-    return '';
   }
 
   /** Ensures a `<link rel="canonical">` exists pointing at the supplied URL. */
