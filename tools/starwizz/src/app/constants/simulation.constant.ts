@@ -129,7 +129,7 @@ export const CONTROLS: Record<ControlKey, ControlMetadata> = {
   twinkleStrength: {
     label: 'Star Twinkle',
     description:
-      'Controls how strongly stars shimmer in brightness. 0 disables the twinkle; higher values make the pulsing more pronounced.',
+      'Controls how strongly stars shimmer. 0 disables the twinkle, 1–3 gives a subtle shimmer that survives video export cleanly, and higher values make stars pulse dramatically — at 10 they blink in and out.',
     min: 0,
     max: 10,
     step: 1,
@@ -139,7 +139,7 @@ export const CONTROLS: Record<ControlKey, ControlMetadata> = {
   spikeAmount: {
     label: 'Diffraction Spikes',
     description:
-      'Controls how many of the brightest stars show four-point diffraction spikes. 0 disables spikes; higher values let more stars earn them.',
+      'Controls the four-point spikes on bright stars: how many stars get them and how long and bright the arms grow. 0 disables spikes; at 10 most stars carry prominent crosses.',
     min: 0,
     max: 10,
     step: 1,

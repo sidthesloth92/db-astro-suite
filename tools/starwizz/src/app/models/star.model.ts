@@ -198,8 +198,8 @@ export class Star {
         const size = radius * 8;
         ctx.drawImage(glow, px - size / 2, py - size / 2, size, size);
 
-        // Only the brightest stars earn diffraction spikes, drawn wider and
-        // fainter than the glow so they read as glints rather than crosses.
+        // Stars above the slider-driven magnitude threshold earn diffraction
+        // spikes; the same slider also stretches and brightens the arms.
         const spike = sprites?.spikes[this.colorIndex] ?? null;
         const spikeAmount = this.simService.controls.spikeAmount();
         if (spike && this.magnitude >= spikeThresholdForAmount(spikeAmount)) {
