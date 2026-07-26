@@ -1,18 +1,15 @@
 import { StarColor } from '../models/star-appearance.model';
 
 /**
- * Natural star tints loosely modelled on real spectral classes, weighted so
- * the field stays predominantly near-white with occasional warm and cool
- * accents. Each RGB is a fully vivid anchor — the rendered tint mixes from
+ * Star tint palette: white plus three intense, clearly distinguishable
+ * colours. Each RGB is a fully vivid anchor — the rendered tint mixes from
  * white toward this anchor according to the Star Color Intensity control.
  */
 export const STAR_COLORS: readonly StarColor[] = [
-  { r: 90, g: 140, b: 255, weight: 0.18 }, // blue (B/A class)
-  { r: 248, g: 247, b: 255, weight: 0.38 }, // white (A/F class)
-  { r: 255, g: 238, b: 170, weight: 0.22 }, // yellow-white (G class)
-  { r: 255, g: 210, b: 110, weight: 0.12 }, // yellow (K class)
-  { r: 255, g: 165, b: 80, weight: 0.07 }, // orange (K/M class)
-  { r: 255, g: 120, b: 90, weight: 0.03 }, // red (M class)
+  { r: 30, g: 140, b: 255, weight: 0.28 }, // azure blue
+  { r: 248, g: 247, b: 255, weight: 0.34 }, // white
+  { r: 255, g: 205, b: 60, weight: 0.22 }, // yellow
+  { r: 255, g: 130, b: 30, weight: 0.16 }, // orange
 ];
 
 /** Palette index of the plain white entry — shooting stars always use it. */
@@ -54,11 +51,11 @@ export const CORE_TINT_FACTOR = 0.85;
 export const COLORFUL_RATIO_NEUTRAL = 50;
 
 /**
- * Twinkle amplitude contributed per Star Twinkle slider unit. The default
- * slider value of 40 yields a gentle 0.18 swing that survives H.264 export
- * without flicker artefacts.
+ * Twinkle amplitude contributed per Star Twinkle slider unit (0–10 scale).
+ * The default slider value of 4 yields a gentle 0.18 swing that survives
+ * H.264 export without flicker artefacts.
  */
-export const TWINKLE_AMPLITUDE_PER_STRENGTH = 0.0045;
+export const TWINKLE_AMPLITUDE_PER_STRENGTH = 0.045;
 
 /** Angular speed of the twinkle oscillation in radians per second. */
 export const TWINKLE_SPEED = 2.1;
@@ -67,10 +64,11 @@ export const TWINKLE_SPEED = 2.1;
 export const SPIKE_THRESHOLD_BASE = 1;
 
 /**
- * Threshold reduction per Diffraction Spikes slider unit. The default slider
- * value of 30 yields a 0.82 threshold — roughly the brightest tenth of stars.
+ * Threshold reduction per Diffraction Spikes slider unit (0–10 scale). The
+ * default slider value of 3 yields a 0.82 threshold — roughly the brightest
+ * tenth of stars.
  */
-export const SPIKE_THRESHOLD_PER_AMOUNT = 0.006;
+export const SPIKE_THRESHOLD_PER_AMOUNT = 0.06;
 
 /** Spike sprite draw size relative to the star's glow sprite size. */
 export const SPIKE_SIZE_FACTOR = 2.2;

@@ -48,7 +48,7 @@ describe('twinkleAmplitudeForStrength', () => {
   });
 
   it('should reproduce the gentle default amplitude at the default strength', () => {
-    expect(twinkleAmplitudeForStrength(40)).toBeCloseTo(0.18, 10);
+    expect(twinkleAmplitudeForStrength(4)).toBeCloseTo(0.18, 10);
   });
 });
 
@@ -58,11 +58,11 @@ describe('spikeThresholdForAmount', () => {
   });
 
   it('should reproduce the brightest-tenth default threshold at the default amount', () => {
-    expect(spikeThresholdForAmount(30)).toBeCloseTo(0.82, 10);
+    expect(spikeThresholdForAmount(3)).toBeCloseTo(0.82, 10);
   });
 
   it('should lower the threshold as the amount grows', () => {
-    expect(spikeThresholdForAmount(100)).toBeLessThan(spikeThresholdForAmount(30));
+    expect(spikeThresholdForAmount(10)).toBeLessThan(spikeThresholdForAmount(3));
   });
 });
 

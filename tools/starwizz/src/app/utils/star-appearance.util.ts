@@ -39,10 +39,10 @@ export function tintForIntensity(color: RgbColor, intensity: number): RgbColor {
 }
 
 /**
- * Maps the Star Twinkle slider (0–100) to the fractional brightness swing of
+ * Maps the Star Twinkle slider (0–10) to the fractional brightness swing of
  * the twinkle oscillation. 0 disables the twinkle entirely.
  *
- * @param strength - Star Twinkle slider value (0–100)
+ * @param strength - Star Twinkle slider value (0–10)
  * @returns The twinkle amplitude
  */
 export function twinkleAmplitudeForStrength(strength: number): number {
@@ -50,11 +50,11 @@ export function twinkleAmplitudeForStrength(strength: number): number {
 }
 
 /**
- * Maps the Diffraction Spikes slider (0–100) to the minimum magnitude a star
+ * Maps the Diffraction Spikes slider (0–10) to the minimum magnitude a star
  * needs to earn spikes. At 0 the threshold sits at 1, so no star qualifies;
  * higher values lower the bar so more bright stars get spikes.
  *
- * @param amount - Diffraction Spikes slider value (0–100)
+ * @param amount - Diffraction Spikes slider value (0–10)
  * @returns The magnitude threshold for drawing spikes
  */
 export function spikeThresholdForAmount(amount: number): number {
