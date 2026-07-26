@@ -3,8 +3,6 @@ import {
   MAGNITUDE_ALPHA_MIN,
   MAGNITUDE_SIZE_MAX,
   MAGNITUDE_SIZE_MIN,
-  SPIKE_ALPHA,
-  SPIKE_SIZE_FACTOR,
   TWINKLE_SPEED,
 } from '../constants/star-appearance.constant';
 import { StarSprites } from './star-appearance.model';
@@ -12,6 +10,8 @@ import { SimulationService } from '../services/simulation.service';
 import {
   pickWeightedColorIndex,
   randomMagnitude,
+  spikeAlphaForAmount,
+  spikeSizeFactorForAmount,
   spikeThresholdForAmount,
   twinkleAmplitudeForStrength,
 } from '../utils/star-appearance.util';
@@ -201,10 +201,10 @@ export class Star {
         // Only the brightest stars earn diffraction spikes, drawn wider and
         // fainter than the glow so they read as glints rather than crosses.
         const spike = sprites?.spikes[this.colorIndex] ?? null;
-        const spikeThreshold = spikeThresholdForAmount(this.simService.controls.spikeAmount());
-        if (spike && this.magnitude >= spikeThreshold) {
-          const spikeSize = size * SPIKE_SIZE_FACTOR;
-          ctx.globalAlpha = Math.min(1.0, effectiveAlpha * SPIKE_ALPHA);
+        const spikeAmount = this.simService.controls.spikeAmount();
+        if (spike && this.magnitude >= spikeThresholdForAmount(spikeAmount)) {
+          const spikeSize = size * spikeSizeFactorForAmount(spikeAmount);
+          ctx.globalAlpha = Math.min(1.0, effectiveAlpha * spikeAlphaForAmount(spikeAmount));
           ctx.drawImage(spike, px - spikeSize / 2, py - spikeSize / 2, spikeSize, spikeSize);
         }
       } else {

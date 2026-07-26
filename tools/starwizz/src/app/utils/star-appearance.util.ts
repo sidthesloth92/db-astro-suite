@@ -1,6 +1,10 @@
 import {
   COLORFUL_RATIO_NEUTRAL,
   MAGNITUDE_EXPONENT,
+  SPIKE_ALPHA_BASE,
+  SPIKE_ALPHA_PER_AMOUNT,
+  SPIKE_SIZE_FACTOR_BASE,
+  SPIKE_SIZE_FACTOR_PER_AMOUNT,
   SPIKE_THRESHOLD_BASE,
   SPIKE_THRESHOLD_PER_AMOUNT,
   STAR_COLORS,
@@ -59,6 +63,28 @@ export function twinkleAmplitudeForStrength(strength: number): number {
  */
 export function spikeThresholdForAmount(amount: number): number {
   return SPIKE_THRESHOLD_BASE - amount * SPIKE_THRESHOLD_PER_AMOUNT;
+}
+
+/**
+ * Maps the Diffraction Spikes slider (0–10) to the spike arm length relative
+ * to the star's glow size — higher values stretch the arms.
+ *
+ * @param amount - Diffraction Spikes slider value (0–10)
+ * @returns The spike sprite size factor
+ */
+export function spikeSizeFactorForAmount(amount: number): number {
+  return SPIKE_SIZE_FACTOR_BASE + amount * SPIKE_SIZE_FACTOR_PER_AMOUNT;
+}
+
+/**
+ * Maps the Diffraction Spikes slider (0–10) to the spike arm alpha, clamped
+ * to 1 — higher values brighten the arms as well as adding more of them.
+ *
+ * @param amount - Diffraction Spikes slider value (0–10)
+ * @returns The spike alpha multiplier
+ */
+export function spikeAlphaForAmount(amount: number): number {
+  return Math.min(1, SPIKE_ALPHA_BASE + amount * SPIKE_ALPHA_PER_AMOUNT);
 }
 
 /**

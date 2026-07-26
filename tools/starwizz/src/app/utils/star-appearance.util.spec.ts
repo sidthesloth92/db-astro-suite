@@ -7,6 +7,8 @@ import {
   mixRgb,
   pickWeightedColorIndex,
   randomMagnitude,
+  spikeAlphaForAmount,
+  spikeSizeFactorForAmount,
   spikeThresholdForAmount,
   tintForIntensity,
   twinkleAmplitudeForStrength,
@@ -47,8 +49,12 @@ describe('twinkleAmplitudeForStrength', () => {
     expect(twinkleAmplitudeForStrength(0)).toBe(0);
   });
 
-  it('should reproduce the gentle default amplitude at the default strength', () => {
-    expect(twinkleAmplitudeForStrength(4)).toBeCloseTo(0.18, 10);
+  it('should reproduce the gentle H.264-safe amplitude at strength 2', () => {
+    expect(twinkleAmplitudeForStrength(2)).toBeCloseTo(0.18, 10);
+  });
+
+  it('should pulse hard at full strength', () => {
+    expect(twinkleAmplitudeForStrength(10)).toBeCloseTo(0.9, 10);
   });
 });
 
@@ -57,12 +63,28 @@ describe('spikeThresholdForAmount', () => {
     expect(spikeThresholdForAmount(0)).toBe(1);
   });
 
-  it('should reproduce the brightest-tenth default threshold at the default amount', () => {
-    expect(spikeThresholdForAmount(3)).toBeCloseTo(0.82, 10);
+  it('should keep spikes on only the brightest stars at the default amount', () => {
+    expect(spikeThresholdForAmount(3)).toBeCloseTo(0.715, 10);
   });
 
   it('should lower the threshold as the amount grows', () => {
     expect(spikeThresholdForAmount(10)).toBeLessThan(spikeThresholdForAmount(3));
+  });
+});
+
+describe('spikeSizeFactorForAmount', () => {
+  it('should stretch the arms as the amount grows', () => {
+    expect(spikeSizeFactorForAmount(10)).toBeGreaterThan(spikeSizeFactorForAmount(3));
+  });
+});
+
+describe('spikeAlphaForAmount', () => {
+  it('should reach full arm brightness at the top of the slider', () => {
+    expect(spikeAlphaForAmount(10)).toBe(1);
+  });
+
+  it('should keep the arms translucent at the default amount', () => {
+    expect(spikeAlphaForAmount(3)).toBeLessThan(1);
   });
 });
 

@@ -52,10 +52,10 @@ export const COLORFUL_RATIO_NEUTRAL = 50;
 
 /**
  * Twinkle amplitude contributed per Star Twinkle slider unit (0–10 scale).
- * The default slider value of 4 yields a gentle 0.18 swing that survives
- * H.264 export without flicker artefacts.
+ * Deliberately steep so the slider reads instantly: 2 gives the gentle
+ * H.264-safe 0.18 swing, the default 4 shimmers visibly, 10 pulses hard.
  */
-export const TWINKLE_AMPLITUDE_PER_STRENGTH = 0.045;
+export const TWINKLE_AMPLITUDE_PER_STRENGTH = 0.09;
 
 /** Angular speed of the twinkle oscillation in radians per second. */
 export const TWINKLE_SPEED = 2.1;
@@ -64,14 +64,26 @@ export const TWINKLE_SPEED = 2.1;
 export const SPIKE_THRESHOLD_BASE = 1;
 
 /**
- * Threshold reduction per Diffraction Spikes slider unit (0–10 scale). The
- * default slider value of 3 yields a 0.82 threshold — roughly the brightest
- * tenth of stars.
+ * Threshold reduction per Diffraction Spikes slider unit (0–10 scale).
+ * Deliberately steep so the slider reads instantly: the default 3 spikes
+ * roughly the brightest seventh of stars, 10 spikes about three quarters.
  */
-export const SPIKE_THRESHOLD_PER_AMOUNT = 0.06;
+export const SPIKE_THRESHOLD_PER_AMOUNT = 0.095;
 
-/** Spike sprite draw size relative to the star's glow sprite size. */
-export const SPIKE_SIZE_FACTOR = 2.2;
+/** Spike arm length (relative to glow size) when the slider sits at 0. */
+export const SPIKE_SIZE_FACTOR_BASE = 2.0;
 
-/** Alpha applied to the spike sprite so glints stay subtle. */
-export const SPIKE_ALPHA = 0.55;
+/**
+ * Extra spike arm length per Diffraction Spikes slider unit — at 10 the arms
+ * stretch to 4.5× the glow so the slider's top end is unmistakable.
+ */
+export const SPIKE_SIZE_FACTOR_PER_AMOUNT = 0.25;
+
+/** Spike arm alpha when the slider sits at 0. */
+export const SPIKE_ALPHA_BASE = 0.4;
+
+/**
+ * Extra spike arm alpha per Diffraction Spikes slider unit (clamped to 1),
+ * so higher slider values brighten the arms as well as adding more of them.
+ */
+export const SPIKE_ALPHA_PER_AMOUNT = 0.06;
