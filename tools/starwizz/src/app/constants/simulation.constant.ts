@@ -72,7 +72,7 @@ export const CONTROLS: Record<ControlKey, ControlMetadata> = {
     min: 1,
     max: 8,
     step: 0.5,
-    initial: 4,
+    initial: 3,
     precision: 1,
   },
   starSpeed: {
@@ -81,7 +81,7 @@ export const CONTROLS: Record<ControlKey, ControlMetadata> = {
     min: 0.5,
     max: 10,
     step: 0.5,
-    initial: 5,
+    initial: 4,
     precision: 1,
     // Slider 5 maps to the previous sweet-spot internal speed of 0.6 (0.6 / 5),
     // giving symmetric headroom to speed up (→10) or slow down (→0.5).
@@ -113,17 +113,17 @@ export const CONTROLS: Record<ControlKey, ControlMetadata> = {
     min: 1,
     max: 10,
     step: 1,
-    initial: 3,
+    initial: 4,
     precision: 0,
   },
   colorfulStarRatio: {
     label: 'Colorful Stars',
     description:
-      'Controls how many stars get a colour other than white. 0 makes the whole field white; higher values trade white stars for blue, yellow, orange and red ones.',
-    min: 0,
-    max: 100,
+      'Controls how many stars get a colour other than white. 1 keeps the field mostly white; higher values trade white stars for blue, yellow and orange ones.',
+    min: 1,
+    max: 10,
     step: 1,
-    initial: 65,
+    initial: 4,
     precision: 0,
   },
   twinkleStrength: {
@@ -133,7 +133,7 @@ export const CONTROLS: Record<ControlKey, ControlMetadata> = {
     min: 0,
     max: 10,
     step: 1,
-    initial: 4,
+    initial: 6,
     precision: 0,
   },
   spikeAmount: {
@@ -143,7 +143,7 @@ export const CONTROLS: Record<ControlKey, ControlMetadata> = {
     min: 0,
     max: 10,
     step: 1,
-    initial: 3,
+    initial: 7,
     precision: 0,
   },
 };

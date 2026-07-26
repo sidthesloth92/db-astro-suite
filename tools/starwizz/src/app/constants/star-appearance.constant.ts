@@ -9,7 +9,7 @@ export const STAR_COLORS: readonly StarColor[] = [
   { r: 130, g: 165, b: 255, weight: 0.28 }, // natural blue (B-class, Rigel-like)
   { r: 248, g: 247, b: 255, weight: 0.34 }, // white
   { r: 255, g: 205, b: 60, weight: 0.22 }, // yellow
-  { r: 255, g: 170, b: 95, weight: 0.16 }, // natural orange (K-class amber)
+  { r: 255, g: 140, b: 50, weight: 0.28 }, // natural orange (K-class amber)
 ];
 
 /** Palette index of the plain white entry — shooting stars always use it. */
@@ -60,11 +60,12 @@ export const COLOR_INTENSITY_MAX_LEVEL = 10;
 export const COLOR_INTENSITY_MAX_MIX = 1.6;
 
 /**
- * Colorful Stars slider value at which the palette weights apply unscaled;
- * below it non-white weights shrink toward an all-white field, above it they
- * grow quadratically.
+ * Colorful Stars slider level (1–10 scale) at which the palette weights
+ * apply unscaled; below it non-white weights shrink toward a mostly-white
+ * field, above it they grow quadratically. 10/3 places the default level of
+ * 4 slightly colour-favoured (equivalent to the old 60/100 setting).
  */
-export const COLORFUL_RATIO_NEUTRAL = 50;
+export const COLORFUL_RATIO_NEUTRAL = 10 / 3;
 
 /**
  * Twinkle amplitude contributed per Star Twinkle slider unit (0–10 scale).

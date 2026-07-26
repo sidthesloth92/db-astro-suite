@@ -1,4 +1,5 @@
 import {
+  COLORFUL_RATIO_NEUTRAL,
   MAGNITUDE_EXPONENT,
   STAR_COLORS,
   WHITE_STAR_INDEX,
@@ -15,7 +16,7 @@ import {
   twinkleAmplitudeForStrength,
 } from './star-appearance.util';
 
-const NEUTRAL_RATIO = 50;
+const DEFAULT_RATIO = 4;
 
 describe('mixRgb', () => {
   it('should return the endpoints at t = 0 and t = 1', () => {
@@ -119,18 +120,18 @@ describe('spikeAlphaForAmount', () => {
 describe('pickWeightedColorIndex', () => {
   it('should always return a valid palette index', () => {
     for (let i = 0; i < 500; i++) {
-      const index = pickWeightedColorIndex(NEUTRAL_RATIO);
+      const index = pickWeightedColorIndex(DEFAULT_RATIO);
       expect(index).toBeGreaterThanOrEqual(0);
       expect(index).toBeLessThan(STAR_COLORS.length);
     }
   });
 
   it('should pick the first colour when the roll lands at the bottom of the range', () => {
-    expect(pickWeightedColorIndex(NEUTRAL_RATIO, () => 0)).toBe(0);
+    expect(pickWeightedColorIndex(DEFAULT_RATIO, () => 0)).toBe(0);
   });
 
   it('should pick the last colour when the roll lands at the top of the range', () => {
-    expect(pickWeightedColorIndex(NEUTRAL_RATIO, () => 0.999999)).toBe(STAR_COLORS.length - 1);
+    expect(pickWeightedColorIndex(DEFAULT_RATIO, () => 0.999999)).toBe(STAR_COLORS.length - 1);
   });
 
   it('should always pick white when the colorful ratio is 0', () => {
@@ -139,20 +140,21 @@ describe('pickWeightedColorIndex', () => {
     }
   });
 
-  it('should produce more coloured stars at ratio 100 than at the neutral ratio', () => {
-    let coloredAtNeutral = 0;
+  it('should produce more coloured stars at the top level than at the default', () => {
+    let coloredAtDefault = 0;
     let coloredAtMax = 0;
     for (let i = 0; i < 5000; i++) {
-      if (pickWeightedColorIndex(NEUTRAL_RATIO) !== WHITE_STAR_INDEX) coloredAtNeutral++;
-      if (pickWeightedColorIndex(100) !== WHITE_STAR_INDEX) coloredAtMax++;
+      if (pickWeightedColorIndex(DEFAULT_RATIO) !== WHITE_STAR_INDEX) coloredAtDefault++;
+      if (pickWeightedColorIndex(10) !== WHITE_STAR_INDEX) coloredAtMax++;
     }
-    expect(coloredAtMax).toBeGreaterThan(coloredAtNeutral);
+    expect(coloredAtMax).toBeGreaterThan(coloredAtDefault);
   });
 
   it('should favour heavier-weighted colours over many rolls', () => {
     const counts = new Array(STAR_COLORS.length).fill(0);
     for (let i = 0; i < 5000; i++) {
-      counts[pickWeightedColorIndex(NEUTRAL_RATIO)]++;
+      // Neutral level — base weights apply unscaled, so the base ordering holds.
+      counts[pickWeightedColorIndex(COLORFUL_RATIO_NEUTRAL)]++;
     }
     const heaviest = STAR_COLORS.reduce(
       (best, color, index) => (color.weight > STAR_COLORS[best].weight ? index : best),

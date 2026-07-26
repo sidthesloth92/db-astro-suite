@@ -120,11 +120,11 @@ export function spikeAlphaForAmount(amount: number): number {
 /**
  * Rolls a palette index over {@link STAR_COLORS} proportionally to each
  * entry's weight, with every non-white weight scaled quadratically by the
- * Colorful Stars ratio: at 0 the field is all white, at
+ * Colorful Stars level: low levels keep the field mostly white, at
  * {@link COLORFUL_RATIO_NEUTRAL} the base weights apply unchanged, and higher
- * values trade white stars for coloured ones.
+ * levels trade white stars for coloured ones.
  *
- * @param colorfulRatio - Colorful Stars slider value (0–100)
+ * @param colorfulRatio - Colorful Stars slider value (1–10)
  * @param random - Uniform [0, 1) source, injectable for deterministic tests
  * @returns An index into {@link STAR_COLORS}
  */
