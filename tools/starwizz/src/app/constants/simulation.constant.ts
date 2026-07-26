@@ -113,7 +113,7 @@ export const CONTROLS: Record<ControlKey, ControlMetadata> = {
     min: 0,
     max: 100,
     step: 1,
-    initial: 70,
+    initial: 85,
     precision: 0,
   },
   colorfulStarRatio: {
@@ -123,7 +123,7 @@ export const CONTROLS: Record<ControlKey, ControlMetadata> = {
     min: 0,
     max: 100,
     step: 1,
-    initial: 50,
+    initial: 65,
     precision: 0,
   },
   twinkleStrength: {

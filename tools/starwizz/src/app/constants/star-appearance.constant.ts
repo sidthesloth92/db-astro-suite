@@ -7,7 +7,7 @@ import { StarColor } from '../models/star-appearance.model';
  * white toward this anchor according to the Star Color Intensity control.
  */
 export const STAR_COLORS: readonly StarColor[] = [
-  { r: 110, g: 155, b: 255, weight: 0.18 }, // blue (B/A class)
+  { r: 90, g: 140, b: 255, weight: 0.18 }, // blue (B/A class)
   { r: 248, g: 247, b: 255, weight: 0.38 }, // white (A/F class)
   { r: 255, g: 238, b: 170, weight: 0.22 }, // yellow-white (G class)
   { r: 255, g: 210, b: 110, weight: 0.12 }, // yellow (K class)
@@ -30,8 +30,12 @@ export const MAGNITUDE_EXPONENT = 2.2;
 /** Size multiplier applied at magnitude 0 (dimmest star). */
 export const MAGNITUDE_SIZE_MIN = 0.6;
 
-/** Size multiplier applied at magnitude 1 (brightest star). */
-export const MAGNITUDE_SIZE_MAX = 1.6;
+/**
+ * Size multiplier applied at magnitude 1 (brightest star). Deliberately
+ * generous — the rare bright stars are the only ones large enough on screen
+ * to carry visible colour, so they double as the field's colour carriers.
+ */
+export const MAGNITUDE_SIZE_MAX = 2.4;
 
 /** Alpha multiplier applied at magnitude 0; magnitude 1 renders at full alpha. */
 export const MAGNITUDE_ALPHA_MIN = 0.5;
@@ -40,7 +44,7 @@ export const MAGNITUDE_ALPHA_MIN = 0.5;
  * How much of the sprite's hot core takes the tint at full colour intensity.
  * Small stars show mostly core, so without core tinting they read as white.
  */
-export const CORE_TINT_FACTOR = 0.6;
+export const CORE_TINT_FACTOR = 0.85;
 
 /**
  * Colorful Stars slider value at which the palette weights apply unscaled;
