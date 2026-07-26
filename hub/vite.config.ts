@@ -23,6 +23,7 @@ export default defineConfig(({ mode }) => ({
           '/tool/starwizz',
           '/tool/astrogram',
           '/tool/sortronomy',
+          '/tool/celestory',
         ],
       },
       nitro: {

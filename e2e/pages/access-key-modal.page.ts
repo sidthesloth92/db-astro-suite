@@ -40,7 +40,7 @@ export class AccessKeyModalPage {
   }
 
   /**
-   * The access key input rendered by <dba-ui-input label="Access Key">.
+   * The access key input rendered by <dba-ui-micro-input ariaLabel="Access Key">.
    * Only present in the key-entry view.
    *
    * Uses `{ exact: true }` because the dialog itself is labelled

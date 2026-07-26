@@ -1,0 +1,43 @@
+<section class="stats">
+  <p class="stats__kicker">TOTAL INTEGRATION</p>
+  <p class="stats__hero">{{ heroIntegration() }}</p>
+
+  <div class="stats__strip">
+    <div class="stat">
+      <span class="stat__num">{{ targetCount() }}</span>
+      <span class="stat__label">TARGETS</span>
+    </div>
+    <div class="stat">
+      <span class="stat__num">{{ nightCount() }}</span>
+      <span class="stat__label">NIGHTS</span>
+    </div>
+    <div class="stat">
+      <span class="stat__num">{{ frameCount() }}</span>
+      <span class="stat__label">LIGHT FRAMES</span>
+    </div>
+  </div>
+
+  @if (filters().length) {
+    <div class="filters">
+      <p class="filters__title">FILTER DISTRIBUTION</p>
+      <div class="filters__bar" role="img" aria-label="Filter distribution by integration time">
+        @for (f of filters(); track f.name) {
+          <span
+            class="filters__seg"
+            [style.width.%]="f.pct"
+            [style.background]="f.color"
+          ></span>
+        }
+      </div>
+      <ul class="filters__legend">
+        @for (f of filters(); track f.name) {
+          <li class="filters__chip">
+            <span class="filters__dot" [style.background]="f.color"></span>
+            <span class="filters__name">{{ f.name }}</span>
+            <span class="filters__val">{{ f.label }}</span>
+          </li>
+        }
+      </ul>
+    </div>
+  }
+</section>

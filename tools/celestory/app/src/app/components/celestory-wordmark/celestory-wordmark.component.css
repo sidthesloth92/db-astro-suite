@@ -1,0 +1,20 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--db-color-text-primary);
+}
+.cw-name {
+  font-family: var(--db-font-display-major);
+  font-weight: 700;
+  letter-spacing: 0.005em;
+  line-height: 1;
+}
+.cw-name b {
+  color: var(--db-color-neon-pink);
+  font-weight: 700;
+}
+.cw-prefix {
+  color: var(--db-color-text-primary);
+  font-weight: 700;
+}

@@ -35,7 +35,7 @@
     <section class="tools" aria-labelledby="tools-title">
       <div class="tools__head">
         <span class="kicker"><span class="kicker__dot"></span>Tools</span>
-        <h2 id="tools-title" class="tools__count">03 modules · 03 ready</h2>
+        <h2 id="tools-title" class="tools__count">04 modules · 03 ready</h2>
       </div>
 
       <div class="tools__grid">
@@ -143,6 +143,48 @@
             One command turns a night's messy capture folder into a clean,
             processing-ready library — sorted by camera, target, date, and
             filter. Entirely offline.
+          </p>
+          <span class="tool-card__more"
+            >Learn more <span aria-hidden="true">›</span></span
+          >
+        </a>
+
+        <a
+          class="tool-card"
+          [routerLink]="['/tool/celestory']"
+          (click)="onCardClick('celestory')"
+        >
+          <div class="tool-card__head">
+            <div class="tool-card__id">
+              <img
+                class="tool-card__logo"
+                src="assets/img/celestory.png"
+                alt="Celestory logo"
+                width="38"
+                height="38"
+              />
+              <div>
+                <div class="tool-card__name">CELESTORY</div>
+                <div class="tool-card__tag">Imaging Journey · CLI + Web</div>
+              </div>
+            </div>
+            <span class="status-pill status-pill--wip">
+              <span class="status-pill__dot" aria-hidden="true"></span>Beta
+            </span>
+          </div>
+          <div class="tool-card__preview tool-card__preview--terminal">
+            <code>
+              <span class="terminal__prompt">$</span> celestory<br />
+              → reading FITS headers · 12,489 files<br />
+              <span class="terminal__ok"
+                >✓ 19 targets · 214 nights → celestory.json</span
+              >
+            </code>
+          </div>
+          <p class="tool-card__desc">
+            Scan your FITS library into a per-target integration timeline and
+            equipment ledger — then chart your whole imaging journey in the
+            browser and share it, all read straight from the headers.
           </p>
           <span class="tool-card__more"
             >Learn more <span aria-hidden="true">›</span></span

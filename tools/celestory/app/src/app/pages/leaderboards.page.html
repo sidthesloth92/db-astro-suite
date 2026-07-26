@@ -1,0 +1,80 @@
+<dba-ui-constellation-field>
+  <div
+    id="pagebg"
+    class="lb-bg"
+    aria-hidden="true"
+    [style.background]="backdrop()"
+    [innerHTML]="motif()"
+  ></div>
+
+  <nav class="top">
+    <a class="brand" routerLink="/"><dba-celestory-wordmark /></a>
+    <div class="spacer"></div>
+    <div class="scope" role="tablist" aria-label="Time scope" [style.--acc]="activeView().accent">
+      @for (opt of scopes; track opt.id) {
+        <button
+          type="button"
+          role="tab"
+          [class.on]="scope() === opt.id"
+          (click)="selectScope(opt.id)"
+        >
+          {{ opt.label }}
+        </button>
+      }
+    </div>
+    <a class="btn-mini" routerLink="/">Make yours →</a>
+  </nav>
+
+  <div class="wrap">
+    <header class="lbhero">
+      <span class="eyebrow"><span class="d"></span> Community · Aggregate &amp; anonymous</span>
+      <h1>Leader<em>boards</em></h1>
+      <p>
+        How the Celestory community stacks up under the sky — ranked by photons, not
+        popularity. Your own numbers stay on your machine.
+      </p>
+      <div class="hero-stats">
+        <div class="hs">
+          <span class="hv">{{ statImagers() }}</span>
+          <span class="hk">Astrophotographers</span>
+        </div>
+        <div class="hs">
+          <span class="hv">{{ statHours() }}</span>
+          <span class="hk">Hours integrated</span>
+        </div>
+        <div class="hs">
+          <span class="hv">{{ boardCount }}</span>
+          <span class="hk">Leaderboards</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="tabrow" role="tablist" aria-label="Leaderboards">
+      @for (tab of tabs; track tab.view.id) {
+        <button
+          type="button"
+          class="lbtab"
+          role="tab"
+          [class.on]="boardId() === tab.view.id"
+          [style.--tac]="tab.view.accent"
+          (click)="selectBoard(tab.view.id)"
+        >
+          <span class="lic-wrap" [innerHTML]="tab.icon"></span><span>{{ tab.view.short }}</span>
+        </button>
+      }
+    </div>
+
+    <div class="board-stage">
+      <dba-leaderboard-board
+        [view]="activeView()"
+        [entries]="entries()"
+        [myRow]="myRow()"
+        [loading]="loading()"
+        [hasError]="hasError()"
+      />
+      <div class="board-foot">
+        Updated nightly · figures are aggregate community totals, never your private data
+      </div>
+    </div>
+  </div>
+</dba-ui-constellation-field>

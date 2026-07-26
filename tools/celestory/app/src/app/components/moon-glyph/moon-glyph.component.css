@@ -1,0 +1,12 @@
+:host {
+  display: inline-flex;
+  width: 15px;
+  height: 15px;
+  flex: none;
+  color: var(--db-color-text-dim);
+  line-height: 0;
+}
+svg {
+  width: 100%;
+  height: 100%;
+}

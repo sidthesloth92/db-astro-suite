@@ -1,0 +1,288 @@
+/**
+ * Celestory Contact — DB Astro Suite skin. Colours resolve from
+ * @db-astro-suite/theme tokens via the :host aliases below (same scheme as the
+ * landing page); no raw brand hex lives here.
+ */
+:host {
+  /* Accents */
+  --glow: var(--db-color-neon-pink);
+  --glow-2: var(--db-color-cyan);
+  --cyan: var(--db-color-cyan);
+
+  /* Surfaces */
+  --void: var(--db-color-surface-bg);
+  --panel: var(--db-color-surface);
+  --panel-2: var(--db-color-surface-raised);
+
+  /* Lines */
+  --line: var(--db-color-border);
+  --line-2: var(--db-color-border-strong);
+
+  /* Ink scale */
+  --ink: var(--db-color-text-primary);
+  --ink-2: var(--db-color-text-dim);
+  --ink-3: var(--db-color-text-faint);
+  --ink-4: color-mix(in srgb, var(--db-color-text-faint) 78%, transparent);
+
+  /* Glow tints */
+  --glow-12: color-mix(in srgb, var(--glow) 12%, transparent);
+  --glow-50: color-mix(in srgb, var(--glow) 50%, transparent);
+
+  /* Type families */
+  --display: var(--db-font-display);
+  --serif: var(--db-font-display-major);
+  --sans: var(--db-font-ui);
+  --mono: var(--db-font-mono-code);
+
+  --maxw: 1140px;
+  --radius: 14px;
+
+  display: block;
+  font-family: var(--sans);
+  color: var(--ink);
+}
+
+/* nebula wash */
+.neb {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(900px 620px at 82% -6%, var(--glow-12), transparent 60%),
+    radial-gradient(820px 600px at 6% 8%, color-mix(in srgb, var(--cyan) 9%, transparent), transparent 62%);
+}
+
+.contact {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-weight: 500;
+}
+.ico {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+
+/* nav */
+nav.top {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 14px 20px;
+  max-width: var(--maxw);
+  margin: 0 auto;
+  width: 100%;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+nav.top .spacer {
+  margin-left: auto;
+}
+.nlink {
+  font-size: 13.5px;
+  color: var(--ink-3);
+  padding: 8px 12px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  text-decoration: none;
+  transition: color 0.14s;
+}
+.nlink:hover {
+  color: var(--ink);
+}
+
+/* layout */
+main {
+  position: relative;
+  z-index: 2;
+  flex: 1 0 auto;
+  max-width: 560px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 48px 20px 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* intro */
+.intro {
+  text-align: center;
+  margin-bottom: 28px;
+}
+.intro h1 {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: clamp(34px, 7vw, 52px);
+  line-height: 1.04;
+  letter-spacing: -0.025em;
+  text-transform: none;
+  margin: 16px 0 18px;
+}
+.intro h1 em {
+  font-style: normal;
+  color: var(--glow);
+  text-shadow: 0 0 42px var(--glow-50);
+}
+.intro p {
+  color: var(--ink-2);
+  font-size: 16px;
+  max-width: 440px;
+  margin: 0 auto;
+  line-height: 1.65;
+}
+
+/* card */
+.card {
+  position: relative;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  padding: 30px 30px 28px;
+  background:
+    radial-gradient(120% 130% at 85% -20%, color-mix(in srgb, var(--glow) 10%, transparent), transparent 55%),
+    radial-gradient(90% 120% at 5% 120%, color-mix(in srgb, var(--cyan) 7%, transparent), transparent 55%),
+    linear-gradient(180deg, var(--panel), var(--panel-2));
+}
+.ch {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 18px;
+}
+
+/* fields */
+.field {
+  margin-bottom: 16px;
+}
+.field label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 8px;
+}
+.field input,
+.field textarea {
+  width: 100%;
+  background: color-mix(in srgb, var(--void) 55%, transparent);
+  border: 1px solid var(--line-2);
+  border-radius: 10px;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 15px;
+  padding: 13px 14px;
+  transition: border-color 0.14s, box-shadow 0.14s;
+  outline: none;
+}
+.field textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+.field input:focus,
+.field textarea:focus {
+  border-color: var(--glow);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--glow) 14%, transparent);
+}
+.req {
+  color: var(--glow);
+}
+.err {
+  display: none;
+  margin-top: 7px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--db-color-text-error);
+  letter-spacing: 0.02em;
+}
+.field.invalid input,
+.field.invalid textarea {
+  border-color: var(--db-color-text-error);
+}
+.field.invalid .err {
+  display: block;
+}
+
+/* primary submit button (shared dba-ui-text-button, stretched full-width) */
+.send-btn {
+  display: flex;
+  width: 100%;
+  margin-top: 4px;
+}
+
+/* sent confirmation */
+.sent {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--cyan) 30%, transparent);
+  background: color-mix(in srgb, var(--cyan) 7%, transparent);
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--glow-2);
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.formnote {
+  margin-top: 13px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.03em;
+  color: var(--ink-4);
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* footer */
+footer {
+  position: relative;
+  z-index: 2;
+  flex: none;
+  border-top: 1px solid var(--line);
+  padding: 26px 20px;
+  margin-top: 20px;
+}
+.foot-inner {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  color: var(--ink-4);
+}
+.foot-inner a {
+  color: var(--ink-3);
+  text-decoration: none;
+  transition: color 0.14s;
+}
+.foot-inner a:hover {
+  color: var(--ink);
+}

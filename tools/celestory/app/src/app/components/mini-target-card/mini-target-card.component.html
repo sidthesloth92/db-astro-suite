@@ -1,0 +1,13 @@
+<article class="minicard" (click)="open.emit(target().id)">
+  <div class="minithumb"><dba-target-image [targetId]="target().id" [category]="target().category" [icon]="icon()" label="" /></div>
+  <div class="minibody">
+    <div class="mt">
+      @if (target().designation) {
+        <span class="d">{{ target().designation }}</span>
+      }<span class="n">{{ target().displayName }}</span>
+    </div>
+    <div class="mmeta"><span class="glow">{{ dur(target().totalIntegrationSeconds) }}</span> · {{ count(target().lightFrameCount) }} frames</div>
+    <dba-filter-distribution [filters]="target().filters" [colors]="filterColors()" [legend]="false" size="mini" />
+    <div class="mininights"><span class="num">{{ nights() }}</span> nights · {{ range() }}</div>
+  </div>
+</article>

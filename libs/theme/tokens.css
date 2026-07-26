@@ -182,7 +182,9 @@
 
   /* Text scale */
   --db-color-text-dim: #8B92A6;
-  --db-color-text-faint: #5A6175;
+  /* Lifted from #5A6175 → #85839a (2026-06): the old faint ink failed WCAG AA
+     on the near-black surfaces and read as "almost not readable" across apps. */
+  --db-color-text-faint: #85839a;
   --db-color-text-link: #7AA7D9;
 
   /* Typography families */

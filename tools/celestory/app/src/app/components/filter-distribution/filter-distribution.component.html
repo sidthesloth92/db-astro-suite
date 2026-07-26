@@ -1,0 +1,18 @@
+@if (slices().length) {
+  <div class="fd-bar" [class.mini]="size() === 'mini'" role="img" aria-label="Filter distribution by integration time">
+    @for (s of slices(); track s.name) {
+      <span class="seg" [style.width.%]="s.pct" [style.background]="s.color"></span>
+    }
+  </div>
+  @if (legend()) {
+    <ul class="fd-legend">
+      @for (s of slices(); track s.name) {
+        <li class="chip">
+          <span class="dot" [style.background]="s.color" [style.color]="s.color"></span>
+          <span class="nm">{{ s.label }}</span>
+          <span class="val">{{ dur(s.seconds) }}</span>
+        </li>
+      }
+    </ul>
+  }
+}

@@ -372,4 +372,56 @@ export class GoogleAnalyticsService implements AnalyticsService {
   trackHubLaunchToolClicked(tool: string, destination: string): void {
     this.trackEvent("hub_launch_tool_clicked", { tool, destination });
   }
+
+  /**
+   * Tracks a Celestory story being visualised (charted in the browser).
+   *
+   * @param flow - Path taken: 'preview' (private preview) or 'publish'.
+   * @param targetCount - Number of targets in the visualised story.
+   */
+  trackCelestoryStoryVisualised(
+    flow: "preview" | "publish",
+    targetCount: number
+  ): void {
+    this.trackEvent("celestory_story_visualised", {
+      flow,
+      target_count: targetCount,
+    });
+  }
+
+  /**
+   * Tracks a successful Celestory profile publish (conversion event).
+   * Carries no handle or story contents by design.
+   */
+  trackCelestoryStoryPublished(): void {
+    this.trackEvent("celestory_story_published");
+  }
+
+  /**
+   * Tracks a Celestory share-card export.
+   *
+   * @param surface - Share surface used ('studio' | 'target' | 'equipment').
+   * @param format - Export format ('png' | 'jpeg' | 'all-slides').
+   */
+  trackCelestoryShareExported(surface: string, format: string): void {
+    this.trackEvent("celestory_share_exported", { surface, format });
+  }
+
+  /**
+   * Tracks a Celestory leaderboard board view.
+   *
+   * @param boardId - Identifier of the board viewed.
+   */
+  trackCelestoryLeaderboardViewed(boardId: string): void {
+    this.trackEvent("celestory_leaderboard_viewed", { board_id: boardId });
+  }
+
+  /**
+   * Tracks an install-command copy on the Celestory landing.
+   *
+   * @param channel - Install channel copied ('curl' | 'powershell').
+   */
+  trackCelestoryInstallCopied(channel: string): void {
+    this.trackEvent("celestory_install_copied", { channel });
+  }
 }

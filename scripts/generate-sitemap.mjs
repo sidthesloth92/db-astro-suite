@@ -24,6 +24,7 @@ const ROUTES = [
   { path: '/tool/starwizz', changefreq: 'monthly', priority: '0.7' },
   { path: '/tool/astrogram', changefreq: 'monthly', priority: '0.7' },
   { path: '/tool/sortronomy', changefreq: 'monthly', priority: '0.7' },
+  { path: '/tool/celestory', changefreq: 'monthly', priority: '0.7' },
   { path: '/starwizz/', changefreq: 'weekly', priority: '0.8' },
   { path: '/astrogram/', changefreq: 'weekly', priority: '0.8' },
 ];

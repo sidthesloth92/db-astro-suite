@@ -383,6 +383,37 @@
   color: var(--db-color-text-dim);
 }
 
+/* Interactive step (e.g. "Install" → opens a dialog): the whole tile is a button. */
+.step--action {
+  padding: 0;
+}
+
+.step__btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 0;
+  padding: 24px 22px;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition: background var(--db-transition-fast);
+}
+
+.step--action:hover {
+  border-color: var(--db-color-border-active);
+}
+
+.step__btn:hover {
+  background: var(--db-color-surface-hi);
+}
+
+.step__btn:focus-visible {
+  outline: 2px solid var(--db-color-cyan);
+  outline-offset: -2px;
+}
+
 /* ===== Output ===== */
 .output {
   margin-top: 1.75rem;

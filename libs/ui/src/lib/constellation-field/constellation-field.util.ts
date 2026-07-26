@@ -19,9 +19,9 @@ export function lerpLineColor(t: number): string {
   return `rgb(${channel(0)},${channel(1)},${channel(2)})`;
 }
 
-/** Seeds the drifting background points for a `w`×`h` field. */
-export function createPoints(w: number, h: number): FieldPoint[] {
-  const count = Math.round(Math.min(CF_MAX_POINTS, (w * h) / CF_DENSITY_DIVISOR));
+/** Seeds the drifting background points for a `w`×`h` field, capped at `maxPoints`. */
+export function createPoints(w: number, h: number, maxPoints = CF_MAX_POINTS): FieldPoint[] {
+  const count = Math.round(Math.min(maxPoints, (w * h) / CF_DENSITY_DIVISOR));
   const points: FieldPoint[] = [];
   for (let i = 0; i < count; i++) {
     points.push({
@@ -38,10 +38,10 @@ export function createPoints(w: number, h: number): FieldPoint[] {
   return points;
 }
 
-/** Seeds the tagged anchor stars (alternating pink / cyan reticles). */
-export function createTagged(w: number, h: number): TaggedStar[] {
+/** Seeds `count` tagged anchor stars (alternating pink / cyan reticles). */
+export function createTagged(w: number, h: number, count = CF_TAGGED_COUNT): TaggedStar[] {
   const tagged: TaggedStar[] = [];
-  for (let i = 0; i < CF_TAGGED_COUNT; i++) {
+  for (let i = 0; i < count; i++) {
     tagged.push({
       x: (0.18 + 0.66 * Math.random()) * w,
       y: (0.18 + 0.64 * Math.random()) * h,

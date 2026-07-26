@@ -9,7 +9,10 @@
   width: 100%;
   min-height: 100vh;
   background: var(--db-color-surface-bg);
-  overflow: hidden;
+  /* `clip` (not `hidden`) so this decorative wrapper still clips horizontal
+     overflow but is NOT a scroll container — otherwise it traps `position:
+     sticky` descendants (e.g. the Celestory journey banner) and they never pin. */
+  overflow: clip;
 }
 
 /* Viewport-fixed backdrop: the field stays put and fills the visible screen

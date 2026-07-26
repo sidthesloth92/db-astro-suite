@@ -1,0 +1,119 @@
+<dba-hub-tool-detail
+  [config]="config"
+  (primaryClicked)="onLaunch()"
+  (stepAction)="onStepAction($event)"
+>
+  <img mark class="tool-mark" src="assets/img/celestory.png" alt="Celestory logo" />
+
+  <div preview>
+    <!-- Placeholder until the walkthrough demo video is recorded. -->
+    <dba-hub-demo-frame label="celestory — walkthrough" status="Demo">
+      <div class="media-placeholder media-placeholder--video">
+        <span class="media-placeholder__title">Walkthrough demo coming soon</span>
+        <span class="media-placeholder__hint">
+          A short screen recording of the flow: scan a library with the CLI, drop
+          celestory.json on the web app, and watch the journey chart itself.
+        </span>
+      </div>
+    </dba-hub-demo-frame>
+  </div>
+
+  <div output>
+    <div class="output-pair">
+      <figure class="output-pair__item">
+        <h3 class="output-pair__title">
+          <span class="output-pair__title-accent">Scan</span> — one command
+        </h3>
+        <dba-hub-demo-frame label="terminal">
+          <pre
+            class="ascii-tree ascii-tree--before"
+            role="img"
+            aria-label="A celestory scan on the terminal: it reads FITS headers from twelve and a half thousand files, keeps the light frames, prints a story summary of nineteen targets across two hundred and fourteen nights, and writes celestory.json."
+          >{{ terminal }}</pre>
+        </dba-hub-demo-frame>
+      </figure>
+
+      <figure class="output-pair__item">
+        <h3 class="output-pair__title">
+          <span class="output-pair__title-accent">Story</span> — celestory.json
+        </h3>
+        <dba-hub-demo-frame label="celestory.json">
+          <pre
+            class="ascii-tree ascii-tree--after"
+            role="img"
+            aria-label="A trimmed celestory.json: a summary block with total integration, target and night counts, plus equipment and per-target timeline arrays. It contains no local file paths."
+          >{{ jsonExcerpt }}</pre>
+        </dba-hub-demo-frame>
+      </figure>
+    </div>
+  </div>
+</dba-hub-tool-detail>
+
+@if (isInstallOpen()) {
+  <div
+    class="install-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Install Celestory"
+    tabindex="-1"
+    (click)="closeInstall()"
+    (keydown.escape)="closeInstall()"
+  >
+    <div class="install-card" (click)="$event.stopPropagation()">
+      <button
+        type="button"
+        class="install-card__close"
+        aria-label="Close install instructions"
+        (click)="closeInstall()"
+      >
+        &#x2715;
+      </button>
+
+      <h2 class="install-card__title">Install Celestory</h2>
+      <p class="install-card__sub">Pick your platform — copy, paste, run.</p>
+
+      <div class="install-os" [class.install-os--match]="detectedOs() === 'mac'">
+        <div class="install-os__head">
+          macOS
+          @if (detectedOs() === 'mac') {
+            <span class="install-os__badge">Your system</span>
+          }
+        </div>
+        <pre class="install-os__cmd"><code>curl -fsSL https://raw.githubusercontent.com/sidthesloth92/db-astro-suite/main/tools/celestory/scripts/install.sh | sh</code></pre>
+      </div>
+
+      <div class="install-os" [class.install-os--match]="detectedOs() === 'windows'">
+        <div class="install-os__head">
+          Windows
+          @if (detectedOs() === 'windows') {
+            <span class="install-os__badge">Your system</span>
+          }
+        </div>
+        <pre class="install-os__cmd"><code>irm https://raw.githubusercontent.com/sidthesloth92/db-astro-suite/main/tools/celestory/scripts/install.ps1 | iex</code></pre>
+        <p class="install-os__note">
+          Package managers (Homebrew, winget, Scoop) are coming soon.
+        </p>
+      </div>
+
+      <div class="install-os" [class.install-os--match]="detectedOs() === 'linux'">
+        <div class="install-os__head">
+          Linux
+          @if (detectedOs() === 'linux') {
+            <span class="install-os__badge">Your system</span>
+          }
+        </div>
+        <pre class="install-os__cmd"><code>curl -fsSL https://raw.githubusercontent.com/sidthesloth92/db-astro-suite/main/tools/celestory/scripts/install.sh | sh</code></pre>
+        <p class="install-os__note">
+          Prefer a manual install? Grab a binary from the
+          <a
+            href="https://github.com/sidthesloth92/db-astro-suite/releases?q=celestory"
+            target="_blank"
+            rel="noopener noreferrer"
+            >releases page</a
+          >
+          and drop it on your <code>PATH</code>.
+        </p>
+      </div>
+    </div>
+  </div>
+}

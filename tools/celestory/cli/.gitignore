@@ -1,0 +1,9 @@
+# GoReleaser snapshot output
+dist/
+
+# Local-only dev binary
+celestory
+
+# Generated debug-report artifacts (dropped into the cwd by failed runs and -report)
+celestory-error.log
+celestory-report.log

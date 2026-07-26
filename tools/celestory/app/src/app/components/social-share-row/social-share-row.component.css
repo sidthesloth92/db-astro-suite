@@ -1,0 +1,94 @@
+.share-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* URL + Copy row (shown when [showUrl] is set, e.g. in the share modals) */
+.share-url-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--db-color-border-strong);
+  border-radius: 10px;
+  padding: 7px 7px 7px 12px;
+  background: color-mix(in srgb, var(--db-color-text-faint) 6%, transparent);
+}
+.share-url-text {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--db-font-mono-code);
+  font-size: 12.5px;
+  color: var(--db-color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.share-url-copy {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--db-font-mono-code);
+  font-size: 11.5px;
+  color: var(--db-color-text-dim);
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--db-color-text-faint) 28%, transparent);
+  border-radius: 7px;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.share-url-copy:hover {
+  color: var(--db-color-cyan);
+  border-color: color-mix(in srgb, var(--db-color-cyan) 45%, transparent);
+}
+.share-or {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0 10px;
+  font-family: var(--db-font-mono-code);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--db-color-text-faint);
+}
+.share-or::before,
+.share-or::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: color-mix(in srgb, var(--db-color-text-faint) 22%, transparent);
+}
+
+.share-btn {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 9px;
+  color: var(--db-color-text-dim);
+  background: color-mix(in srgb, var(--db-color-text-faint) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--db-color-text-faint) 22%, transparent);
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.share-btn:hover {
+  color: var(--db-color-cyan);
+  border-color: color-mix(in srgb, var(--db-color-cyan) 50%, transparent);
+  background: color-mix(in srgb, var(--db-color-cyan) 10%, transparent);
+}
+
+.share-glyph {
+  font-family: var(--db-font-mono-code);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+}

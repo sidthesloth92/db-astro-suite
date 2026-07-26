@@ -1,0 +1,158 @@
+:host {
+  display: block;
+}
+.detail-top {
+  display: flex;
+  align-items: center;
+  margin-bottom: 18px;
+}
+.backlink {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--db-font-mono-code);
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--db-color-text-dim);
+  padding: 0;
+}
+.backlink:hover {
+  color: var(--db-color-cyan);
+}
+
+/* Header: identity on the left, the Share action top-right. */
+.detail-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 22px;
+}
+.detail-head-id {
+  min-width: 0;
+}
+.detail-head .sharebtn {
+  flex: none;
+  margin-top: 6px;
+}
+/* Share = the design's soft-pink pill (matches the target detail page). */
+.sharebtn ::ng-deep .text-button {
+  color: var(--db-color-text-primary);
+  background: color-mix(in srgb, var(--db-color-neon-pink) 10%, transparent);
+  border-color: color-mix(in srgb, var(--db-color-neon-pink) 35%, transparent);
+  border-radius: 999px;
+  text-transform: none;
+  letter-spacing: normal;
+}
+.sharebtn ::ng-deep .text-button:hover {
+  background: color-mix(in srgb, var(--db-color-neon-pink) 18%, transparent);
+  border-color: color-mix(in srgb, var(--db-color-neon-pink) 55%, transparent);
+}
+.sharebtn ::ng-deep [slot='leading'] {
+  color: var(--db-color-neon-pink);
+}
+
+/* Pink kind eyebrow ("[icon] CAMERA"). */
+.kindrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--db-color-neon-pink);
+  font-family: var(--db-font-mono-code);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 10px;
+}
+/* Big, title-case Outfit name — override the global uppercase/Orbitron heading rule. */
+h1 {
+  font-family: var(--db-font-display-major);
+  font-weight: 600;
+  font-size: clamp(30px, 5.2vw, 52px);
+  line-height: 1.04;
+  letter-spacing: -0.01em;
+  text-transform: none;
+  margin: 0;
+}
+.edetail {
+  font-family: var(--db-font-mono-code);
+  font-size: 13px;
+  color: var(--db-color-text-dim);
+  margin-top: 10px;
+}
+
+/* Bordered stat box with thin dividers (the gap reveals the container colour). */
+.dstats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  margin-top: 22px;
+  background: color-mix(in srgb, var(--db-color-text-faint) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--db-color-text-faint) 18%, transparent);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.cell {
+  padding: 16px 18px;
+  background: color-mix(in srgb, var(--db-color-surface-raised) 55%, var(--db-color-surface-bg));
+}
+.cell .k {
+  font-family: var(--db-font-mono-code);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--db-color-text-faint);
+}
+.cell .v {
+  font-family: var(--db-font-mono-code);
+  font-weight: 500;
+  font-size: 16px;
+  color: var(--db-color-text-primary);
+  margin-top: 8px;
+}
+.cell .v.glow {
+  color: var(--db-color-neon-pink);
+}
+.v-sm {
+  font-size: 13px;
+}
+
+.dsection {
+  margin-top: 32px;
+}
+.dsec-head {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.dsec-title {
+  font-family: var(--db-font-display-major);
+  font-weight: 600;
+  font-size: 22px;
+  margin: 0;
+}
+.dsec-count {
+  font-family: var(--db-font-mono-code);
+  font-size: 12px;
+  color: var(--db-color-text-faint);
+}
+.minigrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 16px;
+}
+.muted {
+  font-family: var(--db-font-mono-code);
+  font-size: 12px;
+  color: var(--db-color-text-faint);
+}
+@media (min-width: 640px) {
+  .dstats {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
