@@ -6,10 +6,10 @@ import { StarColor } from '../models/star-appearance.model';
  * white toward this anchor according to the Star Color Intensity control.
  */
 export const STAR_COLORS: readonly StarColor[] = [
-  { r: 30, g: 140, b: 255, weight: 0.28 }, // azure blue
+  { r: 130, g: 165, b: 255, weight: 0.28 }, // natural blue (B-class, Rigel-like)
   { r: 248, g: 247, b: 255, weight: 0.34 }, // white
   { r: 255, g: 205, b: 60, weight: 0.22 }, // yellow
-  { r: 255, g: 130, b: 30, weight: 0.16 }, // orange
+  { r: 255, g: 170, b: 95, weight: 0.16 }, // natural orange (K-class amber)
 ];
 
 /** Palette index of the plain white entry — shooting stars always use it. */
