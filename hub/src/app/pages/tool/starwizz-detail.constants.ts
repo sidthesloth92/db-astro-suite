@@ -3,8 +3,10 @@ import {
   cogIcon,
   concentricIcon,
   globeGridIcon,
+  paletteIcon,
   photoIcon,
   playCircleIcon,
+  sparklesIcon,
 } from '@db-astro-suite/ui';
 import type { ToolDetailConfig } from '../../components/tool-detail/tool-detail.model';
 import { GITHUB_REPO_URL, STARWIZZ_LAUNCH_URL } from './tool.constants';
@@ -46,7 +48,7 @@ export const STARWIZZ_DETAIL: ToolDetailConfig = {
   aboutMeta: 'The longer story',
   about: [
     'Creating cinematic space videos used to require expensive 3D software, powerful hardware, and a steep learning curve. Starwizz changes that by putting a professional-grade space animation studio directly in your browser. No subscriptions, no installations, and no complicated setup.',
-    'Upload your own galaxy or nebula image, then bring it to life with intuitive controls for star density, motion, zoom, rotation, and shooting stars. Want more cinematic movement? Create custom camera paths and preview every change in real time.',
+    'Upload your own galaxy or nebula image, then bring it to life with intuitive controls for star density, natural star colors, twinkle, diffraction spikes, motion, zoom, rotation, and shooting stars. Want more cinematic movement? Create custom camera paths and preview every change in real time.',
     'When your scene is ready, export a high-quality MP4 optimized for your platform of choice — whether that’s Reels, Shorts, TikTok, square, portrait, or widescreen 16:9. Perfect for title sequences, presentations, music visualizers, livestreams, and social media content.',
   ],
   aboutPull: '“From idea to finished animation in minutes.”',
@@ -83,6 +85,16 @@ export const STARWIZZ_DETAIL: ToolDetailConfig = {
       body: 'Take total control over the density and depth of the background stars to perfectly match your aesthetic.',
     },
     {
+      icon: paletteIcon,
+      name: 'Natural star colors',
+      body: 'Stars glow in lifelike blue, yellow and orange hues — with sliders for how vivid the tints are and how many stars carry them.',
+    },
+    {
+      icon: sparklesIcon,
+      name: 'Twinkle & diffraction spikes',
+      body: 'Give the brightest stars four-point diffraction spikes and dial the twinkle from a subtle shimmer to a dramatic pulse.',
+    },
+    {
       icon: playCircleIcon,
       name: 'Meteor showers on demand',
       body: 'Inject streaks of shooting stars to bring sudden energy and life to your deep-sky scenes.',
@@ -106,7 +118,7 @@ export const STARWIZZ_DETAIL: ToolDetailConfig = {
     },
     {
       title: 'Set parameters',
-      body: 'Dial star density, velocity, rotation, zoom and shooting-star rate.',
+      body: 'Dial star density, colors, twinkle, velocity, rotation, zoom and shooting-star rate.',
     },
     {
       title: 'Preview live',

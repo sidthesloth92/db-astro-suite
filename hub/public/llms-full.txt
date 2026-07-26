@@ -38,6 +38,10 @@ record a perfectly looped 4K starfield in minutes.
 ### Features
 
 - **Population Control**: Modify star density to simulate different galactic sectors.
+- **Natural Star Colors**: Stars carry lifelike blue, yellow and orange tints with
+  sliders for color intensity and how many stars are colored.
+- **Twinkle & Diffraction Spikes**: Adjustable shimmer from subtle to dramatic, plus
+  four-point diffraction spikes on the brightest stars.
 - **Velocity Vectors**: Adjust travel speed from slow ambient drift to high-warp effects.
 - **Rotational Dynamics**: Fine-tune camera rotation for chaotic orbits or stable traversals.
 - **Galaxy Mode**: Renders full galaxy background with dynamic nebula cloud overlays.
