@@ -24,7 +24,7 @@ import {
 } from '../../constants/star-appearance.constant';
 import { RgbColor, StarSprites } from '../../models/star-appearance.model';
 import { SimulationService } from '../../services/simulation.service';
-import { mixRgb, tintForIntensity } from '../../utils/star-appearance.util';
+import { colorMixForIntensity, mixRgb, tintForIntensity } from '../../utils/star-appearance.util';
 import { ClearImageButton } from './clear-image-button/clear-image-button';
 import { HudOverlay } from './hud-overlay/hud-overlay';
 import { ImageUploadOverlay } from './image-upload-overlay/image-upload-overlay';
@@ -321,7 +321,8 @@ export class Simulator implements AfterViewInit {
       const tint = tintForIntensity(color, intensity);
       // Tint part of the hot core too — small stars show mostly core, so a
       // pure-white core would leave the whole field reading as white.
-      const coreTint = mixRgb({ r: 255, g: 255, b: 255 }, tint, CORE_TINT_FACTOR * (intensity / 100));
+      const coreMix = CORE_TINT_FACTOR * Math.min(1, colorMixForIntensity(intensity));
+      const coreTint = mixRgb({ r: 255, g: 255, b: 255 }, tint, coreMix);
       const glowSprite = this.renderGlowSprite(tint, coreTint);
       const spikeSprite = this.renderSpikeSprite(tint);
       if (!glowSprite || !spikeSprite) return;

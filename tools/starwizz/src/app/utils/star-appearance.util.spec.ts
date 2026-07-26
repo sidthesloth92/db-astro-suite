@@ -4,6 +4,7 @@ import {
   WHITE_STAR_INDEX,
 } from '../constants/star-appearance.constant';
 import {
+  colorMixForIntensity,
   mixRgb,
   pickWeightedColorIndex,
   randomMagnitude,
@@ -34,13 +35,40 @@ describe('mixRgb', () => {
   });
 });
 
-describe('tintForIntensity', () => {
-  it('should render pure white at intensity 0', () => {
-    expect(tintForIntensity({ r: 110, g: 155, b: 255 }, 0)).toEqual({ r: 255, g: 255, b: 255 });
+describe('colorMixForIntensity', () => {
+  it('should reproduce the natural reference mix at the default level', () => {
+    expect(colorMixForIntensity(3)).toBeCloseTo(0.85, 10);
   });
 
-  it('should render the vivid anchor at intensity 100', () => {
-    expect(tintForIntensity({ r: 110, g: 155, b: 255 }, 100)).toEqual({ r: 110, g: 155, b: 255 });
+  it('should extrapolate past the anchor at the top level', () => {
+    expect(colorMixForIntensity(10)).toBeCloseTo(1.6, 10);
+  });
+});
+
+describe('tintForIntensity', () => {
+  it('should match the plain white-to-anchor mix at the reference level', () => {
+    const anchor = { r: 130, g: 165, b: 255 };
+    expect(tintForIntensity(anchor, 3)).toEqual(
+      mixRgb({ r: 255, g: 255, b: 255 }, anchor, 0.85),
+    );
+  });
+
+  it('should be deeper than the reference tint at the top level', () => {
+    const anchor = { r: 130, g: 165, b: 255 };
+    const reference = tintForIntensity(anchor, 3);
+    const deep = tintForIntensity(anchor, 10);
+    expect(deep.r).toBeLessThan(reference.r);
+    expect(deep.g).toBeLessThan(reference.g);
+  });
+
+  it('should clamp every channel into [0, 255] at the top level', () => {
+    for (const color of STAR_COLORS) {
+      const tint = tintForIntensity(color, 10);
+      for (const value of [tint.r, tint.g, tint.b]) {
+        expect(value).toBeGreaterThanOrEqual(0);
+        expect(value).toBeLessThanOrEqual(255);
+      }
+    }
   });
 });
 

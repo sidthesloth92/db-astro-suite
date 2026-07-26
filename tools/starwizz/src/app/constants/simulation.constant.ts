@@ -109,11 +109,11 @@ export const CONTROLS: Record<ControlKey, ControlMetadata> = {
   starColorIntensity: {
     label: 'Star Color Intensity',
     description:
-      'Controls how saturated the natural star tints are. 0 renders every star pure white; higher values make blue, yellow, orange and red stars more vivid.',
-    min: 0,
-    max: 100,
+      'Controls how saturated the star colours are. 1 is a light pastel wash, 3 is the natural default, and higher values push the tints into deep, vivid saturation.',
+    min: 1,
+    max: 10,
     step: 1,
-    initial: 85,
+    initial: 3,
     precision: 0,
   },
   colorfulStarRatio: {

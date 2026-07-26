@@ -1,5 +1,9 @@
 import {
   COLORFUL_RATIO_NEUTRAL,
+  COLOR_INTENSITY_MAX_LEVEL,
+  COLOR_INTENSITY_MAX_MIX,
+  COLOR_INTENSITY_REFERENCE_LEVEL,
+  COLOR_INTENSITY_REFERENCE_MIX,
   MAGNITUDE_EXPONENT,
   SPIKE_ALPHA_BASE,
   SPIKE_ALPHA_PER_AMOUNT,
@@ -31,15 +35,41 @@ export function mixRgb(from: RgbColor, to: RgbColor, t: number): RgbColor {
 }
 
 /**
- * Resolves the rendered tint for a palette anchor at the given Star Color
- * Intensity: 0 renders pure white, 100 renders the fully vivid anchor.
+ * Maps the Star Color Intensity slider (1–10) to the white→anchor mix
+ * factor. Levels up to {@link COLOR_INTENSITY_REFERENCE_LEVEL} ramp linearly
+ * to the natural reference mix; higher levels continue past 1 so the tint
+ * extrapolates beyond the anchor into deeper saturation.
  *
- * @param color - Vivid palette anchor colour
- * @param intensity - Star Color Intensity slider value (0–100)
+ * @param level - Star Color Intensity slider value (1–10)
+ * @returns The mix factor (may exceed 1)
+ */
+export function colorMixForIntensity(level: number): number {
+  if (level <= COLOR_INTENSITY_REFERENCE_LEVEL) {
+    return (level / COLOR_INTENSITY_REFERENCE_LEVEL) * COLOR_INTENSITY_REFERENCE_MIX;
+  }
+  const levelRange = COLOR_INTENSITY_MAX_LEVEL - COLOR_INTENSITY_REFERENCE_LEVEL;
+  const mixRange = COLOR_INTENSITY_MAX_MIX - COLOR_INTENSITY_REFERENCE_MIX;
+  return (
+    COLOR_INTENSITY_REFERENCE_MIX +
+    ((level - COLOR_INTENSITY_REFERENCE_LEVEL) / levelRange) * mixRange
+  );
+}
+
+/**
+ * Resolves the rendered tint for a palette anchor at the given Star Color
+ * Intensity level: low levels wash toward white, the reference level renders
+ * the natural anchor mix, and top levels oversaturate past the anchor with
+ * per-channel clamping.
+ *
+ * @param color - Palette anchor colour
+ * @param level - Star Color Intensity slider value (1–10)
  * @returns The tint to render sprites with
  */
-export function tintForIntensity(color: RgbColor, intensity: number): RgbColor {
-  return mixRgb({ r: 255, g: 255, b: 255 }, color, intensity / 100);
+export function tintForIntensity(color: RgbColor, level: number): RgbColor {
+  const mix = colorMixForIntensity(level);
+  const channel = (value: number) =>
+    Math.round(Math.min(255, Math.max(0, 255 + (value - 255) * mix)));
+  return { r: channel(color.r), g: channel(color.g), b: channel(color.b) };
 }
 
 /**

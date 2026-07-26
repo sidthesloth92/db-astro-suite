@@ -43,6 +43,22 @@ export const MAGNITUDE_ALPHA_MIN = 0.5;
  */
 export const CORE_TINT_FACTOR = 0.85;
 
+/** Star Color Intensity slider level that reproduces the reference natural look. */
+export const COLOR_INTENSITY_REFERENCE_LEVEL = 3;
+
+/** White→anchor mix applied at the reference intensity level. */
+export const COLOR_INTENSITY_REFERENCE_MIX = 0.85;
+
+/** Top level of the Star Color Intensity slider. */
+export const COLOR_INTENSITY_MAX_LEVEL = 10;
+
+/**
+ * Mix reached at the top intensity level. Values above 1 extrapolate past the
+ * palette anchor (with per-channel clamping), deepening saturation beyond the
+ * natural tint for users who want obviously coloured stars.
+ */
+export const COLOR_INTENSITY_MAX_MIX = 1.6;
+
 /**
  * Colorful Stars slider value at which the palette weights apply unscaled;
  * below it non-white weights shrink toward an all-white field, above it they
