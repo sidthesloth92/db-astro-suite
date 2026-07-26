@@ -55,10 +55,12 @@ jobs:
 
       - name: Resolve version
         id: ver
+        env:
+          TAG_INPUT: ${{ inputs.tag }}
         run: |
           set -euo pipefail
-          if [ -n "${{ inputs.tag }}" ]; then
-            tag="${{ inputs.tag }}"
+          if [ -n "$TAG_INPUT" ]; then
+            tag="$TAG_INPUT"
           else
             tag="sortronomy-v$(jq -re '.["tools/sortronomy"]' .release-please-manifest.json)"
           fi
@@ -71,6 +73,8 @@ jobs:
 
       - name: Build archives
         working-directory: tools/sortronomy
+        env:
+          VERSION: ${{ steps.ver.outputs.version }}
         # Archive layout is a contract with scripts/install.sh + install.ps1:
         # bare binary at the archive root, asset names sortronomy_<os>_<arch>
         # (.tar.gz, .zip for windows), and a two-column sha256sum checksums.txt.
@@ -82,7 +86,7 @@ jobs:
             bin=sortronomy; [ "$goos" = windows ] && bin=sortronomy.exe
             CGO_ENABLED=0 GOOS="$goos" GOARCH="$goarch" \
               go build -trimpath -buildvcs=false \
-              -ldflags "-s -w -X main.version=${{ steps.ver.outputs.version }}" \
+              -ldflags "-s -w -X main.version=$VERSION" \
               -o "dist/$bin" ./cmd/sortronomy
             if [ "$goos" = windows ]; then
               (cd dist && zip -q "sortronomy_${goos}_${goarch}.zip" "$bin" && rm "$bin")
@@ -97,4 +101,5 @@ jobs:
         working-directory: tools/sortronomy
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload "${{ steps.ver.outputs.tag }}" dist/* --clobber
+          TAG: ${{ steps.ver.outputs.tag }}
+        run: gh release upload "$TAG" dist/* --clobber
