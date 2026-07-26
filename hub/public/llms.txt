@@ -14,7 +14,8 @@ social media content through automation and high-fidelity generation.
 A free browser-based 4K starfield and galaxy animation generator.
 - Live: https://dbastrosuite.com/starwizz/
 - LLMs: https://dbastrosuite.com/starwizz/llms.txt
-- Features: real-time starfield simulation, galaxy background rendering, shooting stars,
+- Features: real-time starfield simulation, natural star colors with twinkle and
+  diffraction spikes, galaxy background rendering, shooting stars,
   in-browser 4K video recording and download via MediaRecorder API
 
 ### Astrogram
