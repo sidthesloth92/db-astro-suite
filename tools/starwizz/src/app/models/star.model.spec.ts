@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { AnalyticsService } from '@db-astro-suite/ui';
 
 import { STAR_DEPTH_FACTOR } from '../constants/simulation.constant';
-import { STAR_COLORS } from '../constants/star-appearance.constant';
+import { STAR_COLORS, WHITE_STAR_INDEX } from '../constants/star-appearance.constant';
 import { SimulationService } from '../services/simulation.service';
 import { Star } from './star.model';
 
@@ -145,5 +145,21 @@ describe('Star', () => {
 
     expect(star.colorIndex).toBe(colorIndex);
     expect(star.magnitude).toBe(magnitude);
+  });
+
+  it('should spawn pure white when the colorful stars ratio is 0', () => {
+    service.controls.colorfulStarRatio.set(0);
+    const star = new Star(WIDTH, HEIGHT, service);
+
+    expect(star.colorIndex).toBe(WHITE_STAR_INDEX);
+  });
+
+  it('should adopt the new colorful stars ratio when its colour is re-rolled', () => {
+    const star = new Star(WIDTH, HEIGHT, service);
+
+    service.controls.colorfulStarRatio.set(0);
+    star.rerollColor();
+
+    expect(star.colorIndex).toBe(WHITE_STAR_INDEX);
   });
 });

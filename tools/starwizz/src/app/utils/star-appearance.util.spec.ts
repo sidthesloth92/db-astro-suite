@@ -1,27 +1,108 @@
-import { MAGNITUDE_EXPONENT, STAR_COLORS } from '../constants/star-appearance.constant';
-import { pickWeightedColorIndex, randomMagnitude } from './star-appearance.util';
+import {
+  MAGNITUDE_EXPONENT,
+  STAR_COLORS,
+  WHITE_STAR_INDEX,
+} from '../constants/star-appearance.constant';
+import {
+  mixRgb,
+  pickWeightedColorIndex,
+  randomMagnitude,
+  spikeThresholdForAmount,
+  tintForIntensity,
+  twinkleAmplitudeForStrength,
+} from './star-appearance.util';
+
+const NEUTRAL_RATIO = 50;
+
+describe('mixRgb', () => {
+  it('should return the endpoints at t = 0 and t = 1', () => {
+    const from = { r: 0, g: 100, b: 200 };
+    const to = { r: 255, g: 0, b: 50 };
+
+    expect(mixRgb(from, to, 0)).toEqual(from);
+    expect(mixRgb(from, to, 1)).toEqual(to);
+  });
+
+  it('should clamp the mix factor into [0, 1]', () => {
+    const from = { r: 0, g: 0, b: 0 };
+    const to = { r: 100, g: 100, b: 100 };
+
+    expect(mixRgb(from, to, -1)).toEqual(from);
+    expect(mixRgb(from, to, 2)).toEqual(to);
+  });
+});
+
+describe('tintForIntensity', () => {
+  it('should render pure white at intensity 0', () => {
+    expect(tintForIntensity({ r: 110, g: 155, b: 255 }, 0)).toEqual({ r: 255, g: 255, b: 255 });
+  });
+
+  it('should render the vivid anchor at intensity 100', () => {
+    expect(tintForIntensity({ r: 110, g: 155, b: 255 }, 100)).toEqual({ r: 110, g: 155, b: 255 });
+  });
+});
+
+describe('twinkleAmplitudeForStrength', () => {
+  it('should disable the twinkle at strength 0', () => {
+    expect(twinkleAmplitudeForStrength(0)).toBe(0);
+  });
+
+  it('should reproduce the gentle default amplitude at the default strength', () => {
+    expect(twinkleAmplitudeForStrength(40)).toBeCloseTo(0.18, 10);
+  });
+});
+
+describe('spikeThresholdForAmount', () => {
+  it('should put the threshold out of reach at amount 0', () => {
+    expect(spikeThresholdForAmount(0)).toBe(1);
+  });
+
+  it('should reproduce the brightest-tenth default threshold at the default amount', () => {
+    expect(spikeThresholdForAmount(30)).toBeCloseTo(0.82, 10);
+  });
+
+  it('should lower the threshold as the amount grows', () => {
+    expect(spikeThresholdForAmount(100)).toBeLessThan(spikeThresholdForAmount(30));
+  });
+});
 
 describe('pickWeightedColorIndex', () => {
   it('should always return a valid palette index', () => {
     for (let i = 0; i < 500; i++) {
-      const index = pickWeightedColorIndex();
+      const index = pickWeightedColorIndex(NEUTRAL_RATIO);
       expect(index).toBeGreaterThanOrEqual(0);
       expect(index).toBeLessThan(STAR_COLORS.length);
     }
   });
 
   it('should pick the first colour when the roll lands at the bottom of the range', () => {
-    expect(pickWeightedColorIndex(() => 0)).toBe(0);
+    expect(pickWeightedColorIndex(NEUTRAL_RATIO, () => 0)).toBe(0);
   });
 
   it('should pick the last colour when the roll lands at the top of the range', () => {
-    expect(pickWeightedColorIndex(() => 0.999999)).toBe(STAR_COLORS.length - 1);
+    expect(pickWeightedColorIndex(NEUTRAL_RATIO, () => 0.999999)).toBe(STAR_COLORS.length - 1);
+  });
+
+  it('should always pick white when the colorful ratio is 0', () => {
+    for (let i = 0; i < 200; i++) {
+      expect(pickWeightedColorIndex(0)).toBe(WHITE_STAR_INDEX);
+    }
+  });
+
+  it('should produce more coloured stars at ratio 100 than at the neutral ratio', () => {
+    let coloredAtNeutral = 0;
+    let coloredAtMax = 0;
+    for (let i = 0; i < 5000; i++) {
+      if (pickWeightedColorIndex(NEUTRAL_RATIO) !== WHITE_STAR_INDEX) coloredAtNeutral++;
+      if (pickWeightedColorIndex(100) !== WHITE_STAR_INDEX) coloredAtMax++;
+    }
+    expect(coloredAtMax).toBeGreaterThan(coloredAtNeutral);
   });
 
   it('should favour heavier-weighted colours over many rolls', () => {
     const counts = new Array(STAR_COLORS.length).fill(0);
     for (let i = 0; i < 5000; i++) {
-      counts[pickWeightedColorIndex()]++;
+      counts[pickWeightedColorIndex(NEUTRAL_RATIO)]++;
     }
     const heaviest = STAR_COLORS.reduce(
       (best, color, index) => (color.weight > STAR_COLORS[best].weight ? index : best),

@@ -106,6 +106,46 @@ export const CONTROLS: Record<ControlKey, ControlMetadata> = {
     initial: 1000,
     precision: 0,
   },
+  starColorIntensity: {
+    label: 'Star Color Intensity',
+    description:
+      'Controls how saturated the natural star tints are. 0 renders every star pure white; higher values make blue, yellow, orange and red stars more vivid.',
+    min: 0,
+    max: 100,
+    step: 1,
+    initial: 70,
+    precision: 0,
+  },
+  colorfulStarRatio: {
+    label: 'Colorful Stars',
+    description:
+      'Controls how many stars get a colour other than white. 0 makes the whole field white; higher values trade white stars for blue, yellow, orange and red ones.',
+    min: 0,
+    max: 100,
+    step: 1,
+    initial: 50,
+    precision: 0,
+  },
+  twinkleStrength: {
+    label: 'Star Twinkle',
+    description:
+      'Controls how strongly stars shimmer in brightness. 0 disables the twinkle; higher values make the pulsing more pronounced.',
+    min: 0,
+    max: 100,
+    step: 1,
+    initial: 40,
+    precision: 0,
+  },
+  spikeAmount: {
+    label: 'Diffraction Spikes',
+    description:
+      'Controls how many of the brightest stars show four-point diffraction spikes. 0 disables spikes; higher values let more stars earn them.',
+    min: 0,
+    max: 100,
+    step: 1,
+    initial: 30,
+    precision: 0,
+  },
 };
 
 /**
@@ -123,6 +163,10 @@ export const STAR_FIELD_CONTROL_KEYS: readonly ControlKey[] = [
   'starSpeed',
   'baseStarSize',
   'starCount',
+  'starColorIntensity',
+  'colorfulStarRatio',
+  'spikeAmount',
+  'twinkleStrength',
 ];
 
 /**

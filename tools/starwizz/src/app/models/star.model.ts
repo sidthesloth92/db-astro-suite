@@ -4,14 +4,17 @@ import {
   MAGNITUDE_SIZE_MAX,
   MAGNITUDE_SIZE_MIN,
   SPIKE_ALPHA,
-  SPIKE_MAGNITUDE_THRESHOLD,
   SPIKE_SIZE_FACTOR,
-  TWINKLE_AMPLITUDE,
   TWINKLE_SPEED,
 } from '../constants/star-appearance.constant';
 import { StarSprites } from './star-appearance.model';
 import { SimulationService } from '../services/simulation.service';
-import { pickWeightedColorIndex, randomMagnitude } from '../utils/star-appearance.util';
+import {
+  pickWeightedColorIndex,
+  randomMagnitude,
+  spikeThresholdForAmount,
+  twinkleAmplitudeForStrength,
+} from '../utils/star-appearance.util';
 
 /**
  * @class Star
@@ -25,8 +28,8 @@ export class Star {
   z = 0; // Z position in 3D space (depth from camera)
   initialZ = 0;
 
-  /** Index into the star colour palette — fixed for the star's lifetime. */
-  readonly colorIndex = pickWeightedColorIndex();
+  /** @private Palette index backing {@link colorIndex}; re-rolled via {@link rerollColor}. */
+  private _colorIndex = 0;
 
   /** Intrinsic brightness in [0, 1] (1 = brightest) — fixed for the star's lifetime. */
   readonly magnitude = randomMagnitude();
@@ -35,11 +38,26 @@ export class Star {
   private readonly twinklePhase = Math.random() * Math.PI * 2;
 
   constructor(
-    private width: number, 
+    private width: number,
     private height: number,
     private simService: SimulationService
   ) {
+    this.rerollColor();
     this.reset(true);
+  }
+
+  /** Index into the star colour palette — stable until {@link rerollColor} is called. */
+  get colorIndex(): number {
+    return this._colorIndex;
+  }
+
+  /**
+   * Re-picks the star's palette colour against the current Colorful Stars
+   * ratio. Called for the whole field when the user moves that slider, since
+   * colours are otherwise fixed at spawn.
+   */
+  rerollColor() {
+    this._colorIndex = pickWeightedColorIndex(this.simService.controls.colorfulStarRatio());
   }
 
   /**
@@ -157,7 +175,11 @@ export class Star {
     const sizeFactor =
       MAGNITUDE_SIZE_MIN + (MAGNITUDE_SIZE_MAX - MAGNITUDE_SIZE_MIN) * this.magnitude;
     const magnitudeAlpha = MAGNITUDE_ALPHA_MIN + (1 - MAGNITUDE_ALPHA_MIN) * this.magnitude;
-    const twinkle = 1 + TWINKLE_AMPLITUDE * Math.sin(timeSeconds * TWINKLE_SPEED + this.twinklePhase);
+    const twinkleAmplitude = twinkleAmplitudeForStrength(
+      this.simService.controls.twinkleStrength(),
+    );
+    const twinkle =
+      1 + twinkleAmplitude * Math.sin(timeSeconds * TWINKLE_SPEED + this.twinklePhase);
 
     // Base size scaled by proximity and zoom compensation
     const radius =
@@ -179,7 +201,8 @@ export class Star {
         // Only the brightest stars earn diffraction spikes, drawn wider and
         // fainter than the glow so they read as glints rather than crosses.
         const spike = sprites?.spikes[this.colorIndex] ?? null;
-        if (spike && this.magnitude >= SPIKE_MAGNITUDE_THRESHOLD) {
+        const spikeThreshold = spikeThresholdForAmount(this.simService.controls.spikeAmount());
+        if (spike && this.magnitude >= spikeThreshold) {
           const spikeSize = size * SPIKE_SIZE_FACTOR;
           ctx.globalAlpha = Math.min(1.0, effectiveAlpha * SPIKE_ALPHA);
           ctx.drawImage(spike, px - spikeSize / 2, py - spikeSize / 2, spikeSize, spikeSize);

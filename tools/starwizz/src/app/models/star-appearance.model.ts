@@ -1,13 +1,19 @@
 /**
- * A palette entry describing one natural star tint and how often it occurs.
+ * A plain RGB colour with 0–255 channels.
  */
-export interface StarColor {
+export interface RgbColor {
   /** Red channel, 0–255. */
   r: number;
   /** Green channel, 0–255. */
   g: number;
   /** Blue channel, 0–255. */
   b: number;
+}
+
+/**
+ * A palette entry describing one natural star tint and how often it occurs.
+ */
+export interface StarColor extends RgbColor {
   /** Relative spawn weight — larger values make the colour more common. */
   weight: number;
 }
