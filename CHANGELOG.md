@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.33.0](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.32.0...db-astro-suite-v1.33.0) (2026-07-26)
+
+
+### Features
+
+* **starwizz:** natural star colors with user-adjustable appearance controls ([#110](https://github.com/sidthesloth92/db-astro-suite/issues/110)) ([26a9309](https://github.com/sidthesloth92/db-astro-suite/commit/26a9309a4d7b18dd333fdef0c30c2a77d2e08d88))
+
+
+### Bug Fixes
+
+* **ci:** release sortronomy via native cross-compile and a reliable release gate ([#107](https://github.com/sidthesloth92/db-astro-suite/issues/107)) ([da3bbaf](https://github.com/sidthesloth92/db-astro-suite/commit/da3bbaf23d6b8e185f1de1679f8247db9e088838))
+
 ## [1.32.0](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.31.4...db-astro-suite-v1.32.0) (2026-07-20)
 
 
