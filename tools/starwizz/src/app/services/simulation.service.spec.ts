@@ -723,6 +723,132 @@ describe('SimulationService', () => {
       });
     });
 
+    describe('clip-end behavior (loop / duration / freeze)', () => {
+      it('should auto-stop at the custom duration and restart the animation when Loop is on', fakeAsync(() => {
+        service.durationEnabled.set(true);
+        service.recordingDurationSeconds.set(5);
+        startRecordingAsApp();
+        recorders[0].emitChunk(1000);
+
+        tick(4999);
+        expect(recorders[0].state).toBe('recording');
+        tick(1);
+        expect(recorders[0].state).toBe('inactive');
+        expect(service.restartAnimationRequested()).toBe(true);
+        expect(service.sceneFrozen()).toBe(false);
+        discardPeriodicTasks();
+      }));
+
+      it('should hold the final frame at the clip end when Loop is off', fakeAsync(() => {
+        service.setLoopEnabled(false);
+        service.durationEnabled.set(true);
+        service.recordingDurationSeconds.set(3);
+        startRecordingAsApp();
+        recorders[0].emitChunk(1000);
+
+        tick(3000);
+
+        expect(recorders[0].state).toBe('inactive');
+        expect(service.sceneFrozen()).toBe(true);
+        expect(service.restartAnimationRequested()).toBe(false);
+        discardPeriodicTasks();
+      }));
+
+      it('should keep the default 30s cap when no custom duration is set', fakeAsync(() => {
+        startRecordingAsApp();
+        recorders[0].emitChunk(1000);
+
+        tick(29_999);
+        expect(recorders[0].state).toBe('recording');
+        tick(1);
+        expect(recorders[0].state).toBe('inactive');
+        discardPeriodicTasks();
+      }));
+
+      it('should freeze mid-clip and resume motion after the hold', fakeAsync(() => {
+        service.durationEnabled.set(true);
+        service.recordingDurationSeconds.set(10);
+        service.freezeFrameEnabled.set(true);
+        service.freezeAtSeconds.set(3);
+        service.freezeHoldSeconds.set(4);
+        startRecordingAsApp();
+        recorders[0].emitChunk(1000);
+
+        tick(3000);
+        expect(service.sceneFrozen()).toBe(true);
+        tick(4000);
+        expect(service.sceneFrozen()).toBe(false);
+        expect(recorders[0].state).toBe('recording');
+        tick(3000);
+        expect(recorders[0].state).toBe('inactive');
+        discardPeriodicTasks();
+      }));
+
+      it('should stay frozen to the clip end when the hold overruns the duration', fakeAsync(() => {
+        service.setLoopEnabled(false);
+        service.durationEnabled.set(true);
+        service.recordingDurationSeconds.set(5);
+        service.freezeFrameEnabled.set(true);
+        service.freezeAtSeconds.set(2);
+        service.freezeHoldSeconds.set(30);
+        startRecordingAsApp();
+        recorders[0].emitChunk(1000);
+
+        tick(2000);
+        expect(service.sceneFrozen()).toBe(true);
+        tick(3000);
+        expect(recorders[0].state).toBe('inactive');
+        expect(service.sceneFrozen()).toBe(true);
+        discardPeriodicTasks();
+      }));
+
+      it('should end a path clip after the end-of-pass hold when freeze is on', fakeAsync(() => {
+        service.updateDirection('path');
+        service.setCameraStart();
+        service.setCameraEnd();
+        service.finalizePath();
+        service.freezeFrameEnabled.set(true);
+        service.freezeHoldSeconds.set(2);
+        startRecordingAsApp();
+
+        service.onPathPassComplete();
+
+        expect(service.sceneFrozen()).toBe(true);
+        expect(recorders[0].state).toBe('recording');
+        tick(2000);
+        expect(recorders[0].state).toBe('inactive');
+        discardPeriodicTasks();
+      }));
+
+      it('should end a path clip immediately at pass end when freeze is off', fakeAsync(() => {
+        service.updateDirection('path');
+        service.setCameraStart();
+        service.setCameraEnd();
+        service.finalizePath();
+        startRecordingAsApp();
+
+        service.onPathPassComplete();
+
+        expect(recorders[0].state).toBe('inactive');
+        expect(service.restartAnimationRequested()).toBe(true);
+        discardPeriodicTasks();
+      }));
+
+      it('should ignore a pass completion when nothing is recording', () => {
+        service.onPathPassComplete();
+
+        expect(service.sceneFrozen()).toBe(false);
+      });
+
+      it('should release a held frame when Loop is switched back on', () => {
+        service.sceneFrozen.set(true);
+
+        service.setLoopEnabled(true);
+
+        expect(service.sceneFrozen()).toBe(false);
+      });
+    });
+
     describe('finalization and download', () => {
       let createdUrls: string[];
       let revokedUrls: string[];

@@ -338,7 +338,7 @@
       [disabled]="isRecordDisabled()"
       [menuDisabled]="isRecordingActive()"
       [dataState]="recordingState()"
-      [dbaTooltip]="'Record up to 30 seconds of the animation as a video file'"
+      [dbaTooltip]="'Record the animation as a video file — set the clip length with the Duration option below'"
       (mainClick)="toggleRecording()"
       (menuSelect)="selectPreset($event)"
     ></dba-ui-split-button>
@@ -385,5 +385,89 @@
         <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
       </span>
     </div>
+
+    <div class="record-aux">
+      <dba-ui-switch
+        ariaLabel="Loop animation when the clip ends"
+        [checked]="simService.loopEnabled()"
+        [disabled]="simService.recordingState() !== 'idle'"
+        (checkedChange)="simService.setLoopEnabled($event)"
+      ></dba-ui-switch>
+      <span class="record-aux-label">Loop</span>
+      <span class="help-icon" tabindex="0" [dbaTooltip]="loopHelp" [attr.aria-label]="loopHelp">
+        <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
+      </span>
+    </div>
+
+    @if (!simService.isPathMode()) {
+      <div class="record-aux">
+        <dba-ui-switch
+          ariaLabel="Custom recording duration"
+          [checked]="simService.durationEnabled()"
+          [disabled]="simService.recordingState() !== 'idle'"
+          (checkedChange)="simService.durationEnabled.set($event)"
+        ></dba-ui-switch>
+        <span class="record-aux-label">Duration</span>
+        @if (simService.durationEnabled()) {
+          <dba-ui-micro-input
+            class="record-seconds-input"
+            type="number"
+            suffix="s"
+            ariaLabel="Recording duration in seconds"
+            [value]="'' + simService.recordingDurationSeconds()"
+            (valueChange)="onDurationSecondsChange($event)"
+          ></dba-ui-micro-input>
+        }
+        <span
+          class="help-icon"
+          tabindex="0"
+          [dbaTooltip]="clipDurationHelp"
+          [attr.aria-label]="clipDurationHelp"
+        >
+          <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
+        </span>
+      </div>
+    }
+
+    <div class="record-aux">
+      <dba-ui-switch
+        ariaLabel="Freeze frame during the clip"
+        [checked]="simService.freezeFrameEnabled()"
+        [disabled]="simService.recordingState() !== 'idle'"
+        (checkedChange)="simService.freezeFrameEnabled.set($event)"
+      ></dba-ui-switch>
+      <span class="record-aux-label">Freeze frame</span>
+      @if (simService.freezeFrameEnabled()) {
+        @if (!simService.isPathMode()) {
+          <dba-ui-micro-input
+            class="record-seconds-input"
+            type="number"
+            prefix="at"
+            suffix="s"
+            ariaLabel="Freeze the animation at this many seconds"
+            [value]="'' + simService.freezeAtSeconds()"
+            (valueChange)="onFreezeAtChange($event)"
+          ></dba-ui-micro-input>
+        }
+        <dba-ui-micro-input
+          class="record-seconds-input"
+          type="number"
+          prefix="hold"
+          suffix="s"
+          ariaLabel="Hold the frozen frame for this many seconds"
+          [value]="'' + simService.freezeHoldSeconds()"
+          (valueChange)="onFreezeHoldChange($event)"
+        ></dba-ui-micro-input>
+      }
+      <span class="help-icon" tabindex="0" [dbaTooltip]="freezeHelp" [attr.aria-label]="freezeHelp">
+        <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
+      </span>
+    </div>
+
+    @if (simService.isLongClipWarning()) {
+      <p class="record-warning">
+        Clips over 60s may lose quality on social platforms — shorter is recommended.
+      </p>
+    }
   </div>
 </section>

@@ -107,6 +107,90 @@ describe('ControlPanel', () => {
     });
   });
 
+  describe('clip-end controls (loop / duration / freeze)', () => {
+    it('should count down the remaining seconds while recording', () => {
+      simService.durationEnabled.set(true);
+      simService.recordingDurationSeconds.set(10);
+      simService.recordingState.set('recording');
+      simService.recordingDuration.set(3);
+
+      expect(component.buttonText()).toBe('Recording... 7s');
+    });
+
+    it('should reflect a custom duration in the idle label and the size estimates', () => {
+      simService.durationEnabled.set(true);
+      simService.recordingDurationSeconds.set(60);
+
+      expect(component.buttonText()).toBe('Start Recording · 60s · Social Media');
+      // Double the default 30s clip → double the ~47 MB social estimate.
+      expect(component.presetMenuItems()[0].detail).toBe('~93 MB');
+    });
+
+    it('should count elapsed seconds (not a countdown) for a finalized path clip', () => {
+      simService.updateDirection('path');
+      simService.setCameraStart();
+      simService.setCameraEnd();
+      simService.finalizePath();
+      simService.recordingState.set('recording');
+      simService.recordingDuration.set(7);
+
+      expect(component.buttonText()).toBe('Recording... (7s)');
+    });
+
+    it('should clamp typed duration values into the allowed range', () => {
+      component.onDurationSecondsChange('9999');
+      expect(simService.recordingDurationSeconds()).toBe(300);
+
+      component.onDurationSecondsChange('0');
+      expect(simService.recordingDurationSeconds()).toBe(1);
+
+      component.onDurationSecondsChange('nonsense');
+      expect(simService.recordingDurationSeconds()).toBe(30);
+    });
+
+    it('should render the loop, duration and freeze rows with the seconds inputs', () => {
+      simService.durationEnabled.set(true);
+      simService.freezeFrameEnabled.set(true);
+      fixture.detectChanges();
+
+      const host = fixture.nativeElement as HTMLElement;
+      const labels = Array.from(host.querySelectorAll('.record-row .record-aux-label')).map(
+        (el) => el.textContent?.trim(),
+      );
+      expect(labels).toContain('Loop');
+      expect(labels).toContain('Duration');
+      expect(labels).toContain('Freeze frame');
+      // Duration + freeze-at + freeze-hold inputs.
+      expect(host.querySelectorAll('.record-row .record-seconds-input').length).toBe(3);
+    });
+
+    it('should hide the duration row and freeze-at input in Custom Path mode', () => {
+      simService.updateDirection('path');
+      simService.freezeFrameEnabled.set(true);
+      fixture.detectChanges();
+
+      const host = fixture.nativeElement as HTMLElement;
+      const labels = Array.from(host.querySelectorAll('.record-row .record-aux-label')).map(
+        (el) => el.textContent?.trim(),
+      );
+      expect(labels).not.toContain('Duration');
+      // Only the end-of-pass hold input remains.
+      expect(host.querySelectorAll('.record-row .record-seconds-input').length).toBe(1);
+    });
+
+    it('should show the long-clip quality warning only past sixty seconds', () => {
+      const host = fixture.nativeElement as HTMLElement;
+      simService.durationEnabled.set(true);
+      simService.recordingDurationSeconds.set(45);
+      fixture.detectChanges();
+      expect(host.querySelector('.record-warning')).toBeNull();
+
+      simService.recordingDurationSeconds.set(90);
+      fixture.detectChanges();
+      expect(host.querySelector('.record-warning')).not.toBeNull();
+    });
+  });
+
   describe('recording error and last-video row', () => {
     it('should show the recording error only when one is set', () => {
       const host = fixture.nativeElement as HTMLElement;

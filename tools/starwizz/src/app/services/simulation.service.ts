@@ -16,12 +16,17 @@ import {
   PATH_STAR_SPEED_FACTOR,
 } from '../constants/simulation.constant';
 import {
+  DEFAULT_FREEZE_AT_SECONDS,
+  DEFAULT_FREEZE_HOLD_SECONDS,
+  DEFAULT_RECORDING_DURATION_SECONDS,
   DEFAULT_RECORDING_PRESET,
   MAX_RECORDING_SECONDS,
+  PATH_RECORDING_SAFETY_CAP_SECONDS,
   RECORDING_ERROR_EMPTY,
   RECORDING_ERROR_SHARE,
   RECORDING_ERROR_UNSUPPORTED,
   RECORDING_PRESETS,
+  RECORDING_QUALITY_WARNING_SECONDS,
   RECORDING_REQUEST_DATA_NUDGE_MS,
   RECORDING_TIMESLICE_MS,
   RECORDING_WATCHDOG_MS,
@@ -238,6 +243,56 @@ export class SimulationService implements OnDestroy {
   recordFromBeginning = signal<boolean>(false);
 
   /**
+   * Whether the animation restarts from its starting state when the clip ends
+   * (seamlessly loopable video). When off, the animation stops on the final
+   * frame instead and the scene stays held until restarted.
+   */
+  loopEnabled = signal<boolean>(true);
+
+  /** Whether a custom total recording duration is active (regular modes only). */
+  durationEnabled = signal<boolean>(false);
+
+  /** Custom total recording duration in seconds (regular modes only). */
+  recordingDurationSeconds = signal<number>(DEFAULT_RECORDING_DURATION_SECONDS);
+
+  /**
+   * Whether the Freeze frame option is active: a mid-clip pause in regular
+   * modes, or an end-of-pass hold in Custom Path mode.
+   */
+  freezeFrameEnabled = signal<boolean>(false);
+
+  /** Seconds into the clip at which the animation freezes (regular modes only). */
+  freezeAtSeconds = signal<number>(DEFAULT_FREEZE_AT_SECONDS);
+
+  /**
+   * Seconds the frozen frame is held: mid-clip in regular modes (the
+   * animation resumes afterwards), or at the end of the pass in path mode.
+   */
+  freezeHoldSeconds = signal<number>(DEFAULT_FREEZE_HOLD_SECONDS);
+
+  /**
+   * Whether the scene is currently frozen: the simulator keeps rendering (so
+   * an active recording keeps capturing) but skips all motion updates.
+   */
+  sceneFrozen = signal<boolean>(false);
+
+  /**
+   * Effective total clip length in seconds for regular (non-path) modes: the
+   * custom duration when enabled, otherwise the default recording cap.
+   */
+  recordingTargetSeconds = computed<number>(() =>
+    this.durationEnabled() ? this.recordingDurationSeconds() : MAX_RECORDING_SECONDS,
+  );
+
+  /**
+   * Whether the configured clip length is long enough that social platforms
+   * are likely to recompress it noticeably (drives the panel hint).
+   */
+  isLongClipWarning = computed<boolean>(
+    () => !this.isPathMode() && this.recordingTargetSeconds() > RECORDING_QUALITY_WARNING_SECONDS,
+  );
+
+  /**
    * Signal to request animation reset before recording.
    * When set to true, the simulator will reset its animation state
    * and then start recording. This is set back to false after handling.
@@ -374,6 +429,15 @@ export class SimulationService implements OnDestroy {
 
   /** Interval handle for updating recording duration counter */
   private timerInterval: ReturnType<typeof setInterval> | null = null;
+
+  /** Timeout handle that freezes the scene mid-clip (regular modes). */
+  private freezeTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  /** Timeout handle that resumes motion after a mid-clip hold (regular modes). */
+  private freezeResumeTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  /** Timeout handle that ends the clip after a path-end hold (path mode). */
+  private pathHoldTimeout: ReturnType<typeof setTimeout> | null = null;
 
   /** Canvas being recorded — retained so a codec fallback can re-capture it. */
   private recordingCanvas: HTMLCanvasElement | null = null;
@@ -1036,10 +1100,11 @@ export class SimulationService implements OnDestroy {
       // so the counter always matches actually-captured footage.
       this.recordingDuration.set(0);
       this.clearRecordingTimers();
+      this.sceneFrozen.set(false);
       this.timerInterval = setInterval(() => {
         this.recordingDuration.update((d) => d + 1);
       }, 1000);
-      this.recordingTimeout = setTimeout(() => this.stopRecording(), MAX_RECORDING_SECONDS * 1000);
+      this.armClipEndTimers();
       this.armEncoderWatchdog(this.mediaRecorder);
     } catch (e) {
       console.error('Error starting recording attempt:', e);
@@ -1144,7 +1209,89 @@ export class SimulationService implements OnDestroy {
     this.recordingState.set('idle');
   }
 
-  /** Clears the duration interval, auto-stop, watchdog, and nudge timers. */
+  /**
+   * Arms the timers that end the clip at its planned boundary for one
+   * recording attempt.
+   *
+   * Regular modes: the clip always ends at {@link recordingTargetSeconds};
+   * when Freeze frame is on (and the freeze point falls inside the clip) the
+   * scene freezes at F seconds and resumes at F + hold — unless the hold
+   * runs past the clip end, in which case it stays frozen until the finish.
+   *
+   * Custom Path mode: the clip ends when the A→B pass completes (the
+   * simulator calls {@link onPathPassComplete}); the timeout armed here is
+   * only a runaway safety net.
+   */
+  private armClipEndTimers(): void {
+    if (this.isPathMode() && this.pathFinalized()) {
+      this.recordingTimeout = setTimeout(
+        () => this.finishClip(),
+        PATH_RECORDING_SAFETY_CAP_SECONDS * 1000,
+      );
+      return;
+    }
+
+    const target = this.recordingTargetSeconds();
+    this.recordingTimeout = setTimeout(() => this.finishClip(), target * 1000);
+
+    const freezeAt = this.freezeAtSeconds();
+    if (this.freezeFrameEnabled() && freezeAt < target) {
+      this.freezeTimeout = setTimeout(() => this.sceneFrozen.set(true), freezeAt * 1000);
+      const resumeAt = freezeAt + this.freezeHoldSeconds();
+      if (resumeAt < target) {
+        this.freezeResumeTimeout = setTimeout(
+          () => this.sceneFrozen.set(false),
+          resumeAt * 1000,
+        );
+      }
+    }
+  }
+
+  /**
+   * Ends the clip at its planned boundary: stops the recorder, then applies
+   * the Loop setting — on, the animation restarts from its starting state at
+   * this exact moment so the exported video loops seamlessly; off, the scene
+   * holds its final frame until the user restarts or records again.
+   */
+  private finishClip(): void {
+    this.stopRecording();
+    if (this.loopEnabled()) {
+      this.sceneFrozen.set(false);
+      this.restartAnimationRequested.set(true);
+    } else {
+      this.sceneFrozen.set(true);
+    }
+  }
+
+  /**
+   * Called by the simulator when a Custom Path A→B pass completes while a
+   * recording is active: optionally holds the final frame for the configured
+   * seconds (the recording keeps capturing), then ends the clip.
+   */
+  onPathPassComplete(): void {
+    if (!this.isRecording()) {
+      return;
+    }
+    if (this.freezeFrameEnabled() && this.freezeHoldSeconds() > 0) {
+      this.sceneFrozen.set(true);
+      this.pathHoldTimeout = setTimeout(() => this.finishClip(), this.freezeHoldSeconds() * 1000);
+    } else {
+      this.finishClip();
+    }
+  }
+
+  /**
+   * Updates the Loop option; switching it on releases a clip-end hold so the
+   * scene visibly resumes.
+   */
+  setLoopEnabled(on: boolean): void {
+    this.loopEnabled.set(on);
+    if (on) {
+      this.sceneFrozen.set(false);
+    }
+  }
+
+  /** Clears the duration interval, auto-stop, freeze, watchdog, and nudge timers. */
   private clearRecordingTimers(): void {
     if (this.recordingTimeout) {
       clearTimeout(this.recordingTimeout);
@@ -1153,6 +1300,18 @@ export class SimulationService implements OnDestroy {
     if (this.timerInterval) {
       clearInterval(this.timerInterval);
       this.timerInterval = null;
+    }
+    if (this.freezeTimeout) {
+      clearTimeout(this.freezeTimeout);
+      this.freezeTimeout = null;
+    }
+    if (this.freezeResumeTimeout) {
+      clearTimeout(this.freezeResumeTimeout);
+      this.freezeResumeTimeout = null;
+    }
+    if (this.pathHoldTimeout) {
+      clearTimeout(this.pathHoldTimeout);
+      this.pathHoldTimeout = null;
     }
     if (this.watchdogTimeout) {
       clearTimeout(this.watchdogTimeout);

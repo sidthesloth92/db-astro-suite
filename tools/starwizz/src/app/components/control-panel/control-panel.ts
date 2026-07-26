@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import {
   IconComponent,
+  MicroInputComponent,
   MicroSliderComponent,
   SelectComponent,
   SplitButtonComponent,
@@ -21,7 +22,11 @@ import {
   type SplitButtonMenuItem,
 } from '@db-astro-suite/ui';
 import {
-  MAX_RECORDING_SECONDS,
+  DEFAULT_FREEZE_AT_SECONDS,
+  DEFAULT_FREEZE_HOLD_SECONDS,
+  DEFAULT_RECORDING_DURATION_SECONDS,
+  MAX_RECORDING_DURATION_SECONDS,
+  MIN_RECORDING_DURATION_SECONDS,
   RECORDING_PRESETS,
   RECORDING_PRESET_ORDER,
 } from '../../constants/recording.constant';
@@ -47,6 +52,7 @@ import {
 import { RecordingPreset } from '../../models/recording.model';
 import { ControlKey, ControlMetadata, TravelDirection } from '../../models/simulation.model';
 import { SimulationService } from '../../services/simulation.service';
+import { clampSecondsInput } from '../../utils/recording-duration.util';
 import {
   computeRecordingBitsPerSecond,
   estimateRecordingSizeMb,
@@ -71,6 +77,7 @@ const PATH_HIDDEN_CONTROLS: ReadonlySet<ControlKey> = new Set<ControlKey>([
   standalone: true,
   imports: [
     NgTemplateOutlet,
+    MicroInputComponent,
     MicroSliderComponent,
     SelectComponent,
     SplitButtonComponent,
@@ -132,6 +139,15 @@ export class ControlPanel {
   /** Tooltip text shown on the help icon next to the "From beginning" switch. */
   protected readonly fromBeginningHelp =
     'When enabled, the animation resets to its initial position before recording starts.';
+  /** Tooltip text shown on the help icon next to the "Loop" switch. */
+  protected readonly loopHelp =
+    'What happens when the clip ends. On: the animation restarts at that exact moment, so the exported video loops seamlessly. Off: the animation stops and the clip ends on a held frame.';
+  /** Tooltip text shown on the help icon next to the "Duration" switch. */
+  protected readonly clipDurationHelp =
+    'Total length of the recorded clip in seconds. When off, recordings stop after 30 seconds. In Custom Path mode the path itself defines the length.';
+  /** Tooltip text shown on the help icon next to the "Freeze frame" switch. */
+  protected readonly freezeHelp =
+    'Pauses the animation mid-clip while the recording keeps going: it freezes at the chosen second, holds for the chosen time, then resumes. In Custom Path mode the hold applies at the end of the A→B pass instead.';
   /** Tooltip text shown on the help icon next to the "Shooting Stars" switch. */
   protected readonly shootingStarsHelp =
     'Turn the occasional shooting-star streaks on or off. When off, the Shooting Star Speed slider is hidden.';
@@ -197,11 +213,19 @@ export class ControlPanel {
   /** Label rendered inside the record button — varies with recording state. */
   readonly buttonText = computed<string>(() => {
     const state = this.simService.recordingState();
-    const duration = this.simService.recordingDuration();
-    if (state === 'recording') return `Recording... (${duration}s)`;
+    const elapsed = this.simService.recordingDuration();
+    const isPathClip = this.simService.isPathMode() && this.simService.pathFinalized();
+    if (state === 'recording') {
+      // Path clips end with the A→B pass (no fixed length) — count up. All
+      // other clips have a known total — count down to zero.
+      if (isPathClip) return `Recording... (${elapsed}s)`;
+      const remaining = Math.max(0, this.simService.recordingTargetSeconds() - elapsed);
+      return `Recording... ${remaining}s`;
+    }
     if (state === 'processing') return 'Processing...';
     const preset = RECORDING_PRESETS[this.simService.recordingPreset()];
-    return `Start Recording · ${MAX_RECORDING_SECONDS}s · ${preset.label}`;
+    if (isPathClip) return `Start Recording · Path · ${preset.label}`;
+    return `Start Recording · ${this.simService.recordingTargetSeconds()}s · ${preset.label}`;
   });
 
   /** True when the record button is disabled (no image, mid-processing). */
@@ -220,10 +244,11 @@ export class ControlPanel {
    */
   readonly presetMenuItems = computed<readonly SplitButtonMenuItem[]>(() => {
     const { width, height } = this.simService.canvasDimensions();
+    const durationSeconds = this.simService.recordingTargetSeconds();
     return RECORDING_PRESET_ORDER.map((key) => {
       const preset = RECORDING_PRESETS[key];
       const bitsPerSecond = computeRecordingBitsPerSecond(width, height, preset);
-      const sizeMb = estimateRecordingSizeMb(bitsPerSecond, MAX_RECORDING_SECONDS);
+      const sizeMb = estimateRecordingSizeMb(bitsPerSecond, durationSeconds);
       return {
         value: key,
         label: preset.label,
@@ -330,6 +355,42 @@ export class ControlPanel {
   /** Sets the sideways-drift angle (degrees). */
   updateStarDirection(value: number): void {
     this.simService.updateStarDirection(value);
+  }
+
+  /** Applies a clamped Duration seconds value typed into the micro input. */
+  onDurationSecondsChange(raw: string): void {
+    this.simService.recordingDurationSeconds.set(
+      clampSecondsInput(
+        raw,
+        MIN_RECORDING_DURATION_SECONDS,
+        MAX_RECORDING_DURATION_SECONDS,
+        DEFAULT_RECORDING_DURATION_SECONDS,
+      ),
+    );
+  }
+
+  /** Applies a clamped freeze-at seconds value typed into the micro input. */
+  onFreezeAtChange(raw: string): void {
+    this.simService.freezeAtSeconds.set(
+      clampSecondsInput(
+        raw,
+        MIN_RECORDING_DURATION_SECONDS,
+        MAX_RECORDING_DURATION_SECONDS,
+        DEFAULT_FREEZE_AT_SECONDS,
+      ),
+    );
+  }
+
+  /** Applies a clamped freeze-hold seconds value typed into the micro input. */
+  onFreezeHoldChange(raw: string): void {
+    this.simService.freezeHoldSeconds.set(
+      clampSecondsInput(
+        raw,
+        MIN_RECORDING_DURATION_SECONDS,
+        MAX_RECORDING_DURATION_SECONDS,
+        DEFAULT_FREEZE_HOLD_SECONDS,
+      ),
+    );
   }
 
   /** Delegates to {@link SimulationService.toggleRecording}. */

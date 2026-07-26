@@ -247,6 +247,16 @@
   color: var(--db-color-text-dim);
 }
 
+.record-seconds-input {
+  width: 84px;
+}
+
+.record-warning {
+  margin: 0;
+  font: 500 11px/1.4 var(--db-font-ui);
+  color: var(--db-color-text-muted);
+}
+
 .path-section,
 .stars-section {
   display: flex;
