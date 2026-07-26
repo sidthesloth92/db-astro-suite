@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { AnalyticsService } from '@db-astro-suite/ui';
 
 import { STAR_DEPTH_FACTOR } from '../constants/simulation.constant';
+import { STAR_COLORS } from '../constants/star-appearance.constant';
 import { SimulationService } from '../services/simulation.service';
 import { Star } from './star.model';
 
@@ -124,5 +125,25 @@ describe('Star', () => {
     expect(star.x).toBe(0);
     expect(star.y).toBe(0);
     expect(star.z).toBe(500);
+  });
+
+  it('should be born with a valid palette colour and a magnitude within [0, 1]', () => {
+    const star = new Star(WIDTH, HEIGHT, service);
+
+    expect(star.colorIndex).toBeGreaterThanOrEqual(0);
+    expect(star.colorIndex).toBeLessThan(STAR_COLORS.length);
+    expect(star.magnitude).toBeGreaterThanOrEqual(0);
+    expect(star.magnitude).toBeLessThanOrEqual(1);
+  });
+
+  it('should keep its colour and magnitude when recycled via reset', () => {
+    const star = new Star(WIDTH, HEIGHT, service);
+    const colorIndex = star.colorIndex;
+    const magnitude = star.magnitude;
+
+    star.reset();
+
+    expect(star.colorIndex).toBe(colorIndex);
+    expect(star.magnitude).toBe(magnitude);
   });
 });

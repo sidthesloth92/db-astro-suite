@@ -1,5 +1,17 @@
 import { STAR_DEPTH_FACTOR, STAR_LATERAL_FACTOR } from '../constants/simulation.constant';
+import {
+  MAGNITUDE_ALPHA_MIN,
+  MAGNITUDE_SIZE_MAX,
+  MAGNITUDE_SIZE_MIN,
+  SPIKE_ALPHA,
+  SPIKE_MAGNITUDE_THRESHOLD,
+  SPIKE_SIZE_FACTOR,
+  TWINKLE_AMPLITUDE,
+  TWINKLE_SPEED,
+} from '../constants/star-appearance.constant';
+import { StarSprites } from './star-appearance.model';
 import { SimulationService } from '../services/simulation.service';
+import { pickWeightedColorIndex, randomMagnitude } from '../utils/star-appearance.util';
 
 /**
  * @class Star
@@ -12,6 +24,15 @@ export class Star {
   y = 0; // Y position in 3D space (relative to center)
   z = 0; // Z position in 3D space (depth from camera)
   initialZ = 0;
+
+  /** Index into the star colour palette — fixed for the star's lifetime. */
+  readonly colorIndex = pickWeightedColorIndex();
+
+  /** Intrinsic brightness in [0, 1] (1 = brightest) — fixed for the star's lifetime. */
+  readonly magnitude = randomMagnitude();
+
+  /** Per-star phase offset so the field never twinkles in unison. */
+  private readonly twinklePhase = Math.random() * Math.PI * 2;
 
   constructor(
     private width: number, 
@@ -100,9 +121,20 @@ export class Star {
   }
 
   /**
-   * Projects the 3D position to 2D canvas coordinates and renders the star.
+   * Projects the 3D position to 2D canvas coordinates and renders the star
+   * with its intrinsic tint, magnitude-driven size/brightness, a gentle
+   * twinkle, and diffraction spikes on the brightest stars.
+   *
+   * @param sprites - Pre-rendered per-colour glow/spike sprites (null falls back to plain arcs)
+   * @param timeSeconds - Monotonic time in seconds driving the twinkle oscillation
    */
-  draw(ctx: CanvasRenderingContext2D, width: number, currentScale: number, sprite: HTMLCanvasElement | null) {
+  draw(
+    ctx: CanvasRenderingContext2D,
+    width: number,
+    currentScale: number,
+    sprites: StarSprites | null,
+    timeSeconds: number,
+  ) {
     // The whole layer is drawn inside the canvas zoom transform. We cancel that
     // zoom for the stars (position AND size) so the starfield stays a constant,
     // frame-filling foreground layer — otherwise zooming in magnifies the field
@@ -119,22 +151,39 @@ export class Star {
     // We use a fixed reference (MAX_DEPTH) so stars are visible even before they move.
     const MAX_DEPTH = width;
     const proximity = 1 - this.z / MAX_DEPTH;
-    const opacity = proximity;
-    
+
+    // Intrinsic appearance: magnitude drives both footprint and brightness,
+    // and the twinkle gently modulates brightness around its resting value.
+    const sizeFactor =
+      MAGNITUDE_SIZE_MIN + (MAGNITUDE_SIZE_MAX - MAGNITUDE_SIZE_MIN) * this.magnitude;
+    const magnitudeAlpha = MAGNITUDE_ALPHA_MIN + (1 - MAGNITUDE_ALPHA_MIN) * this.magnitude;
+    const twinkle = 1 + TWINKLE_AMPLITUDE * Math.sin(timeSeconds * TWINKLE_SPEED + this.twinklePhase);
+
     // Base size scaled by proximity and zoom compensation
-    const radius = proximity * this.simService.controls.baseStarSize() * scaleCompensation * 0.2;
-    const effectiveAlpha = Math.min(1.0, opacity * 1.0); // Restored to natural opacity
+    const radius =
+      proximity * this.simService.controls.baseStarSize() * scaleCompensation * 0.2 * sizeFactor;
+    const effectiveAlpha = Math.min(1.0, proximity * magnitudeAlpha * twinkle);
 
     if (radius > 0.1) {
       // Star is large enough to be visible on screen
       ctx.save();
       ctx.globalCompositeOperation = 'lighter'; // Additive blending for glow effect
       ctx.globalAlpha = effectiveAlpha;
-      
-      if (sprite) {
+
+      const glow = sprites?.glow[this.colorIndex] ?? null;
+      if (glow) {
         // Glow texture available, use high-performance sprite rendering
         const size = radius * 8;
-        ctx.drawImage(sprite, px - size / 2, py - size / 2, size, size);
+        ctx.drawImage(glow, px - size / 2, py - size / 2, size, size);
+
+        // Only the brightest stars earn diffraction spikes, drawn wider and
+        // fainter than the glow so they read as glints rather than crosses.
+        const spike = sprites?.spikes[this.colorIndex] ?? null;
+        if (spike && this.magnitude >= SPIKE_MAGNITUDE_THRESHOLD) {
+          const spikeSize = size * SPIKE_SIZE_FACTOR;
+          ctx.globalAlpha = Math.min(1.0, effectiveAlpha * SPIKE_ALPHA);
+          ctx.drawImage(spike, px - spikeSize / 2, py - spikeSize / 2, spikeSize, spikeSize);
+        }
       } else {
         // Fallback to basic arc drawing for simple circles
         ctx.fillStyle = `rgba(255, 255, 255, ${effectiveAlpha})`;
