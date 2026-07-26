@@ -190,6 +190,9 @@ export default class LeaderboardsPageComponent implements OnInit {
 
   /** Switch the active board. */
   protected selectBoard(id: BoardId): void {
+    if (id === this.boardId()) {
+      return;
+    }
     this.boardId.set(id);
     this.analytics.trackCelestoryLeaderboardViewed(id);
   }

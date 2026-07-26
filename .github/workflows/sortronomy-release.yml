@@ -60,7 +60,7 @@ jobs:
           if [ -n "${{ inputs.tag }}" ]; then
             tag="${{ inputs.tag }}"
           else
-            tag="sortronomy-v$(jq -r '.["tools/sortronomy"]' .release-please-manifest.json)"
+            tag="sortronomy-v$(jq -re '.["tools/sortronomy"]' .release-please-manifest.json)"
           fi
           case "$tag" in
             sortronomy-v*) ;;

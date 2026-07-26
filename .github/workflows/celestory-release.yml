@@ -60,7 +60,7 @@ jobs:
           if [ -n "${{ inputs.tag }}" ]; then
             tag="${{ inputs.tag }}"
           else
-            tag="celestory-v$(jq -r '.["tools/celestory"]' .release-please-manifest.json)"
+            tag="celestory-v$(jq -re '.["tools/celestory"]' .release-please-manifest.json)"
           fi
           case "$tag" in
             celestory-v*) ;;

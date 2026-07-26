@@ -386,7 +386,7 @@ FITS bytes itself.
 | File | Purpose |
 | ---- | ------- |
 | [go.mod](tools/celestory/cli/go.mod) / `go.sum` | Module deps: `astrogo/fitsio` (FITS), the `charmbracelet` stack (`huh`, `lipgloss`, `x/term`) for the TUI, and the local `libs/astrofits` via `replace`. |
-| [.goreleaser.yaml](tools/celestory/cli/.goreleaser.yaml) | Cross-builds static binaries (darwin/linux/windows × amd64/arm64, `CGO_ENABLED=0`), injects the version via `-ldflags -X main.version`, and publishes Homebrew cask + Scoop manifests to the tap repos. |
+| [.goreleaser.yaml](tools/celestory/cli/.goreleaser.yaml) | Local snapshot builds only (darwin/linux/windows × amd64/arm64, `CGO_ENABLED=0`, `-ldflags -X main.version`). Real releases are built by `.github/workflows/celestory-release.yml` (native cross-compile); Homebrew/Scoop/winget publishing is deferred to follow-up tooling. |
 | [.gitignore](tools/celestory/cli/.gitignore) | Ignores GoReleaser `dist/` and the local-only `celestory` dev binary. |
 | [cmd/genfixtures/main.go](tools/celestory/cli/cmd/genfixtures/main.go) | **Dev aid (not shipped):** writes a small tree of real FITS files (varied targets/filters/cameras/dates, a duplicate, an undated OSC frame, a calibration frame, and a garbage file) for exercising the CLI end-to-end. |
 
