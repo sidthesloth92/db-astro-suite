@@ -1,0 +1,43 @@
+<dba-hub-tool-detail [config]="config" (primaryClicked)="onLaunch()">
+  <img mark class="tool-mark" src="assets/img/astrospike.png" alt="AstroSpike logo" />
+
+  <div preview>
+    <dba-hub-demo-frame label="astrospike.app" status="Live" [live]="true">
+      <img
+        class="demo-media"
+        src="assets/img/astrospike-after.jpg"
+        alt="AstroSpike canvas showing detected stars rendered with four-armed Classic diffraction spikes"
+      />
+    </dba-hub-demo-frame>
+  </div>
+
+  <div output>
+    <div class="output-pair">
+      <figure class="output-pair__item">
+        <h3 class="output-pair__title">
+          <span class="output-pair__title-accent">Before</span>
+        </h3>
+        <dba-hub-demo-frame label="astrospike.app / original">
+          <img
+            class="demo-media"
+            src="assets/img/astrospike-before.jpg"
+            alt="The original astrophoto before any spikes were added"
+          />
+        </dba-hub-demo-frame>
+      </figure>
+
+      <figure class="output-pair__item">
+        <h3 class="output-pair__title">
+          <span class="output-pair__title-accent">After</span>
+        </h3>
+        <dba-hub-demo-frame label="astrospike.app / spiked" status="Exported">
+          <img
+            class="demo-media"
+            src="assets/img/astrospike-after.jpg"
+            alt="The same astrophoto exported with brightness-scaled diffraction spikes"
+          />
+        </dba-hub-demo-frame>
+      </figure>
+    </div>
+  </div>
+</dba-hub-tool-detail>

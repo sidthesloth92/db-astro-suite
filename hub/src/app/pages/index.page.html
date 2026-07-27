@@ -26,16 +26,17 @@
         built to get your space photos off your hard drive and onto social media
         as cool, shareable videos and posts. Seamlessly transform your captures
         into cinematic starfield animations with Starwizz or professional
-        Instagram exposure cards with Astrogram — and keep the raw library behind
-        them tidy with Sortronomy. Spend less time processing data and more time
-        capturing the cosmos.
+        Instagram exposure cards with Astrogram, give your stars real diffraction
+        spikes with AstroSpike — and keep the raw library behind them tidy with
+        Sortronomy. Spend less time processing data and more time capturing the
+        cosmos.
       </p>
     </header>
 
     <section class="tools" aria-labelledby="tools-title">
       <div class="tools__head">
         <span class="kicker"><span class="kicker__dot"></span>Tools</span>
-        <h2 id="tools-title" class="tools__count">03 modules · 03 ready</h2>
+        <h2 id="tools-title" class="tools__count">04 modules · 04 ready</h2>
       </div>
 
       <div class="tools__grid">
@@ -103,6 +104,46 @@
             Transform your astrophotography session into a professional
             infographic card, annotated sky map, and social-ready caption in
             seconds.
+          </p>
+          <span class="tool-card__more"
+            >Learn more <span aria-hidden="true">›</span></span
+          >
+        </a>
+
+        <a
+          class="tool-card"
+          [routerLink]="['/tool/astrospike']"
+          (click)="onCardClick('astrospike')"
+        >
+          <div class="tool-card__head">
+            <div class="tool-card__id">
+              <img
+                class="tool-card__logo"
+                src="assets/img/astrospike.png"
+                alt="AstroSpike logo"
+                width="38"
+                height="38"
+              />
+              <div>
+                <div class="tool-card__name">ASTROSPIKE</div>
+                <div class="tool-card__tag">Diffraction Spike Studio</div>
+              </div>
+            </div>
+            <span class="status-pill">
+              <span class="status-pill__dot" aria-hidden="true"></span>Ready
+            </span>
+          </div>
+          <div class="tool-card__preview">
+            <img
+              src="assets/img/astrospike-after.jpg"
+              alt="AstroSpike demo showing stars rendered with diffraction spikes"
+              loading="lazy"
+            />
+          </div>
+          <p class="tool-card__desc">
+            Give your stars Newtonian or JWST-style diffraction spikes. Stars
+            are detected automatically and every pixel is processed in your
+            browser — nothing is ever uploaded.
           </p>
           <span class="tool-card__more"
             >Learn more <span aria-hidden="true">›</span></span

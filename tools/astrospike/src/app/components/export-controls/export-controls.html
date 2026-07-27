@@ -1,0 +1,47 @@
+<div class="export-controls">
+  <dba-ui-split-button
+    class="export-split"
+    menuPlacement="up"
+    menuAriaLabel="Choose export format"
+    [label]="exportLabel()"
+    [menuItems]="menuItems"
+    [selectedValue]="editor.exportFormat()"
+    [disabled]="isExportDisabled()"
+    (mainClick)="onExport()"
+    (menuSelect)="onMenuSelect($event)"
+  ></dba-ui-split-button>
+
+  @if (isJpegSelected()) {
+    <div class="slider-row">
+      <div class="slider-label-row">
+        <label class="row-label">Quality</label>
+        <span class="row-value">{{ jpegQualityPercent() }}%</span>
+      </div>
+      <dba-ui-micro-slider
+        [value]="editor.jpegQuality()"
+        [min]="jpegQualityMin"
+        [max]="jpegQualityMax"
+        [step]="jpegQualityStep"
+        [showReadout]="false"
+        (valueChange)="onJpegQualityChange($event)"
+      ></dba-ui-micro-slider>
+    </div>
+  }
+
+  @if (editor.exportError(); as error) {
+    <p class="export-error" role="alert">{{ error }}</p>
+  }
+
+  @if (lastExportSummary(); as summary) {
+    <div class="export-last">
+      <span class="export-last-label" [title]="summary">{{ summary }}</span>
+      <dba-ui-text-button
+        label="Save again"
+        variant="secondary"
+        size="sm"
+        [disabled]="isExportDisabled()"
+        (clicked)="onExport()"
+      />
+    </div>
+  }
+</div>

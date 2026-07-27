@@ -28,6 +28,6 @@ describe('App', () => {
     const container = fixture.nativeElement.querySelector('main.as-container');
     expect(container).toBeTruthy();
     expect(container?.querySelector('dba-as-spike-stage')).toBeTruthy();
-    expect(container?.querySelector('dba-as-side-panel')).toBeTruthy();
+    expect(container?.querySelector('dba-as-control-panel')).toBeTruthy();
   });
 });

@@ -1,0 +1,84 @@
+/* The host covers the whole preview frame so its rect is the drag track, but
+   stays click-through so the marker canvas underneath still gets hover and
+   click events everywhere except on the divider itself. */
+:host {
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  pointer-events: none;
+}
+
+.compare-divider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 28px;
+  /* Travel is inset by half the grip at each end so the grip is never clipped
+     by the stage's rounded, overflow-hidden frame. The mapping still puts the
+     divider dead centre at 0.5; the sub-grip drift only appears at the very
+     extremes, where one side of the wipe is empty anyway. */
+  left: calc(14px + (100% - 28px) * var(--compare-pos, 0));
+  margin-left: -14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: ew-resize;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.compare-divider__line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  transform: translateX(-50%);
+  background: var(--db-color-cyan);
+  box-shadow: 0 0 12px -2px var(--db-color-cyan);
+}
+
+.compare-divider__grip {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--db-color-surface-raised);
+  border: 1px solid var(--db-color-cyan);
+  box-shadow: 0 0 14px -4px var(--db-color-cyan);
+  transition: background var(--db-transition-fast);
+}
+
+.compare-divider__arrow {
+  width: 0;
+  height: 0;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+}
+
+.compare-divider__arrow--left {
+  border-right: 5px solid var(--db-color-cyan);
+}
+
+.compare-divider__arrow--right {
+  border-left: 5px solid var(--db-color-cyan);
+}
+
+.compare-divider:hover .compare-divider__grip,
+.compare-divider.is-dragging .compare-divider__grip {
+  background: var(--db-color-cyan-soft);
+}
+
+/* Focus lands on the divider but the ring reads better on the grip. */
+.compare-divider:focus {
+  outline: none;
+}
+
+.compare-divider:focus-visible .compare-divider__grip {
+  outline: 2px solid var(--db-color-neon-pink);
+  outline-offset: 3px;
+}

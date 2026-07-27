@@ -23,9 +23,11 @@ const ROUTES = [
   { path: '/about', changefreq: 'monthly', priority: '0.5' },
   { path: '/tool/starwizz', changefreq: 'monthly', priority: '0.7' },
   { path: '/tool/astrogram', changefreq: 'monthly', priority: '0.7' },
+  { path: '/tool/astrospike', changefreq: 'monthly', priority: '0.7' },
   { path: '/tool/sortronomy', changefreq: 'monthly', priority: '0.7' },
   { path: '/starwizz/', changefreq: 'weekly', priority: '0.8' },
   { path: '/astrogram/', changefreq: 'weekly', priority: '0.8' },
+  { path: '/astrospike/', changefreq: 'weekly', priority: '0.8' },
 ];
 
 /**

@@ -1,3 +1,4 @@
+import { SPIKE_ALPHA_FLOOR } from '../constants/spike-geometry.constants';
 import { SpikePreset } from '../models/spike-preset.model';
 import { computeSpikeGeometry, starSpikeScale } from './spike-brightness.util';
 
@@ -23,8 +24,13 @@ describe('starSpikeScale', () => {
   const cases: ReadonlyArray<{ name: string; flux: number; fluxRef: number; expected: number }> = [
     { name: 'returns 1 for the reference flux itself', flux: 100, fluxRef: 100, expected: 1 },
     { name: 'clamps fluxes above the reference to 1', flux: 250, fluxRef: 100, expected: 1 },
-    // pow(0.5, 0.35) = 0.784584...
-    { name: 'follows pow(flux/fluxRef, 0.35) below the reference', flux: 50, fluxRef: 100, expected: 0.7846 },
+    // pow(0.5, 0.6) = 0.659754...
+    {
+      name: 'follows pow(flux/fluxRef, 0.6) below the reference',
+      flux: 50,
+      fluxRef: 100,
+      expected: 0.6598,
+    },
     { name: 'returns 0 for zero flux', flux: 0, fluxRef: 100, expected: 0 },
     { name: 'returns 0 for negative flux', flux: -5, fluxRef: 100, expected: 0 },
     { name: 'guards a zero reference flux', flux: 50, fluxRef: 0, expected: 0 },
@@ -45,6 +51,16 @@ describe('starSpikeScale', () => {
     expect(medium).toBeGreaterThan(faint);
     expect(brightest).toBeGreaterThan(medium);
   });
+
+  it('should separate faint stars from bright ones strongly enough to avoid uniform spikes', () => {
+    // Regression guard: with a flat exponent every spiked star ends up roughly
+    // the same size, which renders dense fields as an artificial crosshatch.
+    // A star at a tenth of the reference flux must stay well under half its
+    // spike length.
+    expect(starSpikeScale(10, 100)).toBeLessThan(0.45);
+    // ...while still being visible rather than collapsing to nothing.
+    expect(starSpikeScale(10, 100)).toBeGreaterThan(0.1);
+  });
 });
 
 describe('computeSpikeGeometry', () => {
@@ -52,7 +68,7 @@ describe('computeSpikeGeometry', () => {
     const geometry = computeSpikeGeometry(100, 100, makePreset(), 1, 1, 2000, 1);
     // lengthPx = 2000 * 0.12 * 1 * 1 * 1 = 240.
     expect(geometry.lengthPx).toBeCloseTo(240, 6);
-    // alphaPeak = 0.8 * 1 * (0.35 + 0.65 * 1) = 0.8.
+    // s = 1, so the alpha ramp reaches its full value: 0.8 * 1 = 0.8.
     expect(geometry.alphaPeak).toBeCloseTo(0.8, 6);
     // thicknessPx = 240 * 0.035 = 8.4, inside the [1.5, 16] clamp.
     expect(geometry.thicknessPx).toBeCloseTo(8.4, 6);
@@ -62,7 +78,7 @@ describe('computeSpikeGeometry', () => {
     expect(geometry.glowAlpha).toBeCloseTo(0.35, 6);
   });
 
-  it('should scale down a faint star and clamp thickness to the 1.5 px floor', () => {
+  it('should scale down a faint star and clamp thickness to the floor', () => {
     const preset = makePreset({
       lengthScale: 0.06,
       intensityScale: 0.55,
@@ -71,20 +87,19 @@ describe('computeSpikeGeometry', () => {
       glowIntensity: 0.22,
     });
     const geometry = computeSpikeGeometry(1, 100, preset, 1, 1, 1000, 0.5);
-    // s = pow(0.01, 0.35) = 0.199526.
-    // lengthPx = 1000 * 0.06 * 1 * 0.199526 * 0.5 = 5.9858.
-    expect(geometry.lengthPx).toBeCloseTo(5.9858, 3);
-    // alphaPeak = 0.55 * (0.35 + 0.65 * 0.199526) = 0.26383.
-    expect(geometry.alphaPeak).toBeCloseTo(0.26383, 4);
-    // Raw thickness 5.9858 * 0.03 = 0.1796 clamps up to 1.5.
+    // s = pow(0.01, 0.6) = 0.0630957.
+    // lengthPx = 1000 * 0.06 * 1 * 0.0630957 * 0.5 = 1.89287.
+    expect(geometry.lengthPx).toBeCloseTo(1.89287, 4);
+    // ramp = 0.15 + 0.85 * 0.0630957 = 0.203631; alphaPeak = 0.55 * ramp.
+    expect(geometry.alphaPeak).toBeCloseTo(0.55 * 0.203631, 4);
+    // Raw thickness 1.89287 * 0.03 = 0.0568 clamps up to 1.5.
     expect(geometry.thicknessPx).toBe(1.5);
     // glowRadiusPx = 1.5 * 2.5 = 3.75.
     expect(geometry.glowRadiusPx).toBeCloseTo(3.75, 6);
-    // glowAlpha = 0.22 * (0.35 + 0.65 * 0.199526) = 0.10553.
-    expect(geometry.glowAlpha).toBeCloseTo(0.10553, 4);
+    expect(geometry.glowAlpha).toBeCloseTo(0.22 * 0.203631, 4);
   });
 
-  it('should clamp thickness to the 16 px ceiling and alphas to 1', () => {
+  it('should clamp thickness to the ceiling and alphas to 1', () => {
     const preset = makePreset({
       lengthScale: 0.16,
       intensityScale: 0.9,
@@ -102,12 +117,12 @@ describe('computeSpikeGeometry', () => {
     expect(geometry.glowAlpha).toBeCloseTo(0.8, 6);
   });
 
-  it('should keep a floor alpha for a zero-flux star while its length collapses', () => {
+  it('should keep the floor alpha for a zero-flux star while its length collapses', () => {
     const geometry = computeSpikeGeometry(0, 100, makePreset(), 1, 1, 2000, 1);
-    // s = 0: no arm length, but alpha keeps the 0.35 base term.
+    // s = 0: no arm length, but alpha keeps the configured floor term.
     expect(geometry.lengthPx).toBe(0);
     expect(geometry.thicknessPx).toBe(1.5);
-    expect(geometry.alphaPeak).toBeCloseTo(0.8 * 0.35, 6);
-    expect(geometry.glowAlpha).toBeCloseTo(0.35 * 0.35, 6);
+    expect(geometry.alphaPeak).toBeCloseTo(0.8 * SPIKE_ALPHA_FLOOR, 6);
+    expect(geometry.glowAlpha).toBeCloseTo(0.35 * SPIKE_ALPHA_FLOOR, 6);
   });
 });

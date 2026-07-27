@@ -10,6 +10,9 @@ export const ASTROGRAM_LAUNCH_URL = '/astrogram/';
 /** Launch target for the Starwizz tool. */
 export const STARWIZZ_LAUNCH_URL = '/starwizz/';
 
+/** Launch target for the AstroSpike tool. */
+export const ASTROSPIKE_LAUNCH_URL = '/astrospike/';
+
 /** External repository URL for the Sortronomy CLI utility. */
 export const SORTRONOMY_REPO_URL =
   'https://github.com/sidthesloth92/db-astro-suite/tree/main/tools/sortronomy';

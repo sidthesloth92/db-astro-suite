@@ -1,5 +1,22 @@
 import { LuminanceImage } from '../models/detection.types';
-import { downsampleLuminance } from './downsample.util';
+import {
+  downsampleFactorFor,
+  downsampleLuminance,
+  downsampleLuminanceFromRgba,
+} from './downsample.util';
+import { toLuminance } from './luminance.util';
+
+/** Builds a deterministic RGBA buffer for the fused-path tests. */
+const makeRgba = (width: number, height: number): Uint8ClampedArray => {
+  const rgba = new Uint8ClampedArray(width * height * 4);
+  for (let i = 0; i < width * height; i++) {
+    rgba[i * 4] = (i * 7) % 256;
+    rgba[i * 4 + 1] = (i * 13 + 40) % 256;
+    rgba[i * 4 + 2] = (i * 29 + 90) % 256;
+    rgba[i * 4 + 3] = 255;
+  }
+  return rgba;
+};
 
 /** Builds a LuminanceImage from a plain number array for test input. */
 const makePlane = (values: readonly number[], width: number, height: number): LuminanceImage => ({
@@ -78,6 +95,61 @@ describe('downsample.util', () => {
       for (const value of result.image.data) {
         expect(value).toBe(7);
       }
+    });
+  });
+
+  describe('downsampleFactorFor', () => {
+    it('should never return a factor below 1 for images smaller than the limit', () => {
+      expect(downsampleFactorFor(100, 80, 1536)).toBe(1);
+    });
+
+    it('should round up to cover the larger dimension', () => {
+      expect(downsampleFactorFor(4000, 3000, 1000)).toBe(4);
+      expect(downsampleFactorFor(500, 2500, 1000)).toBe(3);
+    });
+  });
+
+  describe('downsampleLuminanceFromRgba', () => {
+    const equivalenceCases: ReadonlyArray<{
+      name: string;
+      width: number;
+      height: number;
+      maxDimension: number;
+    }> = [
+      { name: 'exact multiple', width: 16, height: 8, maxDimension: 4 },
+      { name: 'non-divisible edge blocks', width: 15, height: 7, maxDimension: 4 },
+      { name: 'no downsampling required', width: 6, height: 5, maxDimension: 32 },
+      { name: 'height-driven factor', width: 5, height: 20, maxDimension: 6 },
+    ];
+
+    for (const c of equivalenceCases) {
+      it(`should match toLuminance + downsampleLuminance exactly: ${c.name}`, () => {
+        const rgba = makeRgba(c.width, c.height);
+        const fused = downsampleLuminanceFromRgba(rgba, c.width, c.height, c.maxDimension);
+        const twoStep = downsampleLuminance(
+          toLuminance(rgba, c.width, c.height),
+          c.maxDimension,
+        );
+
+        expect(fused.factor).toBe(twoStep.factor);
+        expect(fused.image.width).toBe(twoStep.image.width);
+        expect(fused.image.height).toBe(twoStep.image.height);
+        fused.image.data.forEach((value, i) => {
+          expect(value).toBeCloseTo(twoStep.image.data[i], 3);
+        });
+      });
+    }
+
+    it('should allocate only the downsampled plane, never a full-resolution one', () => {
+      // Regression guard for peak memory on 60+ megapixel frames: the output
+      // must be sized by the downsampled dimensions, not the source ones.
+      const width = 800;
+      const height = 600;
+      const result = downsampleLuminanceFromRgba(makeRgba(width, height), width, height, 100);
+
+      expect(result.factor).toBe(8);
+      expect(result.image.data.length).toBe(100 * 75);
+      expect(result.image.data.length).toBeLessThan(width * height);
     });
   });
 });

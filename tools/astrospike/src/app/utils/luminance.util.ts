@@ -1,3 +1,4 @@
+import { REC709_B, REC709_G, REC709_R } from '../constants/luminance.constants';
 import { LuminanceImage } from '../models/detection.types';
 
 /**
@@ -16,7 +17,7 @@ export function toLuminance(rgba: Uint8ClampedArray, width: number, height: numb
   const data = new Float32Array(pixelCount);
   for (let i = 0; i < pixelCount; i++) {
     const offset = i * 4;
-    data[i] = 0.2126 * rgba[offset] + 0.7152 * rgba[offset + 1] + 0.0722 * rgba[offset + 2];
+    data[i] = REC709_R * rgba[offset] + REC709_G * rgba[offset + 1] + REC709_B * rgba[offset + 2];
   }
   return { data, width, height };
 }

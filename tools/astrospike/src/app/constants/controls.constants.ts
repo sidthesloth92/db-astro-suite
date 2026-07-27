@@ -10,7 +10,10 @@ export const CONTROLS: Record<EditorControlKey, ControlMetadata> = {
     min: 0,
     max: 1,
     step: 0.01,
-    initial: 0.75,
+    // The cut is log-scaled (n = total^value), so this lands on ~45 of 2000
+    // stars in a dense field and ~8 of 70 in a sparse one. Higher defaults
+    // spike so many stars that dense frames read as an artificial crosshatch.
+    initial: 0.5,
   },
   length: {
     label: 'Length',

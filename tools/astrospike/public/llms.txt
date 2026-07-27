@@ -1,18 +1,37 @@
 # AstroSpike
 
-AstroSpike is a client-side diffraction-spike tool for astrophotographers built with Angular. Upload an astrophoto, let it detect the stars, and add realistic diffraction spikes — then export the result. Nothing is uploaded anywhere: every pixel is processed in your browser.
+AstroSpike is a client-side diffraction-spike studio for astrophotographers, built with
+Angular. Drop in an astrophoto, let it detect the stars, and it renders diffraction spikes
+scaled to each star's real brightness — then export the result at full resolution. Nothing
+is uploaded anywhere: every pixel is processed in your browser.
 
 ## Core Features
-- **Automatic Star Detection**: Finds bright stars in the uploaded image without manual selection.
-- **Diffraction Spike Presets**: Classic four-point Newtonian spikes, refractor-style crosses, and adjustable spike parameters.
-- **Export**: Download the finished image as high-quality JPEG or PNG.
-- **100% Client-Side**: All processing runs in the browser — your image never leaves your machine.
+- **Automatic Star Detection**: Converts the image to luminance, models the sky background
+  so nebulosity and gradients do not trigger false detections, thresholds above the noise,
+  and measures each connected source. Hot pixels, satellite trails, and large diffuse blobs
+  are rejected so only genuine point sources are spiked. Detection runs in a Web Worker.
+- **Diffraction Spike Presets**: Subtle, Classic (the four-armed Newtonian look), and JWST
+  (six-armed). Each preset bundles the falloff curve, glow radius, and thickness.
+- **Brightness-Aware Rendering**: Spike length and intensity scale with each star's measured
+  flux, and the spike colour is sampled from the star's own core. Spikes composite additively
+  over the original pixels.
+- **Minimal Controls**: How many of the brightest stars get spikes, spike length, brightness,
+  rotation, and a 4- or 6-spike toggle. Individual stars can be clicked to include or exclude
+  them, and a comparison divider wipes between the original and the result.
+- **Export**: PNG (lossless) or JPEG (adjustable quality), always at the source image's
+  original resolution.
+- **100% Client-Side**: No backend, no account, no uploads. Works offline once loaded.
+
+## Supported Input
+PNG and JPEG. Large frames (60+ megapixels) are supported: the preview is downscaled for
+responsiveness while the export renders at native resolution.
 
 ## Tech Stack
-- **Framework**: Angular (Standalone Components, Signals)
+- **Framework**: Angular 21 (Standalone Components, Signals)
 - **State Management**: Angular Signals
-- **Styling**: TailwindCSS
-- **Image Processing**: Canvas-based, fully client-side
+- **Styling**: TailwindCSS 4
+- **Image Processing**: Framework-free TypeScript detection and rendering functions running
+  on Canvas, with detection off the main thread in a Web Worker
 
 ## URL
 - Repo: https://github.com/sidthesloth92/db-astro-suite

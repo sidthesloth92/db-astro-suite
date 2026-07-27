@@ -1,5 +1,31 @@
 <div class="stage" (dragover)="onStageDragOver($event)" (drop)="onStageDrop($event)">
-  <canvas #afterCanvas class="after-canvas" [class.is-hidden]="!editor.hasImage()"></canvas>
+  <div
+    class="stage-frame"
+    [class.is-hidden]="!editor.hasImage()"
+    [style.--as-frame-aspect]="frameAspect()"
+  >
+    <canvas #beforeCanvas class="stage-canvas before-canvas"></canvas>
+    <canvas
+      #afterCanvas
+      class="stage-canvas after-canvas"
+      [style.clip-path]="afterClipPath()"
+    ></canvas>
+    <canvas
+      #markerCanvas
+      class="stage-canvas marker-canvas"
+      [class.is-over-star]="isOverStar()"
+      (pointermove)="onStagePointerMove($event)"
+      (pointerleave)="onStagePointerLeave()"
+      (click)="onStageClick($event)"
+    ></canvas>
+
+    @if (showCompareHandle()) {
+      <dba-as-compare-handle
+        [position]="editor.comparePosition()"
+        (positionChange)="onComparePositionChange($event)"
+      />
+    }
+  </div>
 
   @if (showDropzone()) {
     <dba-as-image-dropzone (imageSelected)="onFileSelected($event)" />

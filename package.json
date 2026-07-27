@@ -24,7 +24,7 @@
     "test:e2e:docker:visual": "docker run --rm --ipc=host --network host -e SKIP_NATIVE_DEPS_TESTS=1 -v $(pwd):/work -w /work mcr.microsoft.com/playwright:v1.58.2-noble npx playwright test --grep \"[Vv]isual\"",
     "test:e2e:docker:update": "docker run --rm --ipc=host --network host -e SKIP_NATIVE_DEPS_TESTS=1 -v $(pwd):/work -w /work mcr.microsoft.com/playwright:v1.58.2-noble npx playwright test --update-snapshots",
     "build:hub": "pnpm --filter hub build",
-    "build:flatten": "mkdir -p dist/tool && (cp dist/about/index.html dist/about.html 2>/dev/null || true) && (cp dist/tool/astrogram/index.html dist/tool/astrogram.html 2>/dev/null || true) && (cp dist/tool/starwizz/index.html dist/tool/starwizz.html 2>/dev/null || true) && (cp dist/tool/sortronomy/index.html dist/tool/sortronomy.html 2>/dev/null || true)",
+    "build:flatten": "mkdir -p dist/tool && (cp dist/about/index.html dist/about.html 2>/dev/null || true) && (cp dist/tool/astrogram/index.html dist/tool/astrogram.html 2>/dev/null || true) && (cp dist/tool/starwizz/index.html dist/tool/starwizz.html 2>/dev/null || true) && (cp dist/tool/astrospike/index.html dist/tool/astrospike.html 2>/dev/null || true) && (cp dist/tool/sortronomy/index.html dist/tool/sortronomy.html 2>/dev/null || true)",
     "build:starwizz": "pnpm --filter @db-astro-suite/starwizz build:prod",
     "build:astrogram": "pnpm --filter @db-astro-suite/astrogram build:prod",
     "build:astrospike": "pnpm --filter @db-astro-suite/astrospike build:prod",

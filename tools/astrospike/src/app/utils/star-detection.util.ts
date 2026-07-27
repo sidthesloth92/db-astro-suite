@@ -2,8 +2,7 @@ import { DetectedStar } from '../models/detected-star.model';
 import { DetectionOptions } from '../models/detection.types';
 import { estimateBackground } from './background.util';
 import { labelComponents } from './connected-components.util';
-import { downsampleLuminance } from './downsample.util';
-import { toLuminance } from './luminance.util';
+import { downsampleLuminanceFromRgba } from './downsample.util';
 import { isValidSource } from './star-filter.util';
 import { measureSource } from './star-measure.util';
 import { refineStar } from './star-refine.util';
@@ -12,8 +11,10 @@ import { thresholdMask } from './threshold.util';
 /**
  * Runs the full star detection pipeline over a full-resolution RGBA image.
  *
- * The image is converted to Rec.709 luminance, downsampled so its larger
- * dimension does not exceed `opts.maxDimension`, background-modeled with a
+ * The image is converted to Rec.709 luminance and downsampled in one pass so
+ * its larger dimension does not exceed `opts.maxDimension` (fused so a
+ * full-resolution luminance plane is never allocated — on a 60+ megapixel frame
+ * that plane alone would cost hundreds of megabytes), background-modeled with a
  * `opts.tileSize` mesh, thresholded at `opts.kSigma` sigma, and segmented
  * into 8-connected components (components larger than `opts.maxArea` are
  * consumed but dropped). Each surviving component is measured, filtered by
@@ -36,8 +37,7 @@ export function detectStars(
   height: number,
   opts: DetectionOptions,
 ): DetectedStar[] {
-  const luminance = toLuminance(rgba, width, height);
-  const { image, factor } = downsampleLuminance(luminance, opts.maxDimension);
+  const { image, factor } = downsampleLuminanceFromRgba(rgba, width, height, opts.maxDimension);
   const background = estimateBackground(image, opts.tileSize);
   const mask = thresholdMask(image, background, opts.kSigma);
   const components = labelComponents(mask, image.width, image.height, opts.maxArea);

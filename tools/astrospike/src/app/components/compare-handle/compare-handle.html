@@ -1,0 +1,25 @@
+<!-- No native element models a two-way split divider, so this is the ARIA
+     slider pattern: a focusable element with an explicit role and value. -->
+<div
+  #divider
+  class="compare-divider"
+  [class.is-dragging]="isDragging()"
+  [style.--compare-pos]="positionFraction()"
+  role="slider"
+  tabindex="0"
+  [attr.aria-label]="ariaLabel"
+  [attr.aria-valuemin]="ariaMin"
+  [attr.aria-valuemax]="ariaMax"
+  [attr.aria-valuenow]="ariaValueNow()"
+  (pointerdown)="onPointerDown($event)"
+  (pointermove)="onPointerMove($event)"
+  (pointerup)="onPointerUp($event)"
+  (pointercancel)="onPointerUp($event)"
+  (keydown)="onKeyDown($event)"
+>
+  <span class="compare-divider__line" aria-hidden="true"></span>
+  <span class="compare-divider__grip" aria-hidden="true">
+    <span class="compare-divider__arrow compare-divider__arrow--left"></span>
+    <span class="compare-divider__arrow compare-divider__arrow--right"></span>
+  </span>
+</div>

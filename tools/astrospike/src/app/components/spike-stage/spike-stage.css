@@ -3,6 +3,13 @@
   flex: 1 1 auto;
   min-width: 0;
   min-height: 0;
+
+  /* Marker colors live here so the overlay renderer stays theme-token driven:
+     the component resolves these two custom properties off the host and hands
+     the resolved strings to the canvas. Cyan reads as "interactive" for the
+     hovered star; orange reads as "excluded" for stars switched off. */
+  --as-marker-hover-color: var(--db-color-cyan);
+  --as-marker-disabled-color: var(--db-color-orange);
 }
 
 .stage {
@@ -12,26 +19,59 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  /* Size container so the frame below can fit itself to the stage box with
+     100cqw / 100cqh instead of percentage sizing. */
+  container-type: size;
   background: var(--db-color-space-black);
   border: 1px solid var(--db-color-border);
   border-radius: 12px;
   box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
 }
 
-/* The canvas keeps its intrinsic aspect ratio from the backing-store
-   dimensions; width/height stay auto and only the max constraints clamp.
-   Deriving one axis from a percentage of the other collapses to 0 in
-   WebKit — see the width-derivation caveat in starwizz simulator.css. */
-.after-canvas {
-  display: block;
+/* One box shared by the before, after, and marker canvases plus the compare
+   divider, so all four are pixel-aligned and a `left: X%` on the divider lines
+   up exactly with an `inset(0 0 0 X%)` clip on the after canvas.
+
+   The width is stated explicitly and the height derived from the aspect ratio:
+   deriving the width from a percentage height collapses to 0 in WebKit — see
+   the width-derivation caveat in starwizz simulator.css. */
+.stage-frame {
+  position: relative;
+  width: min(100cqw, calc(100cqh * var(--as-frame-aspect, 1)));
+  aspect-ratio: var(--as-frame-aspect, 1);
   max-width: 100%;
   max-height: 100%;
-  width: auto;
-  height: auto;
 }
 
-.after-canvas.is-hidden {
+.stage-frame.is-hidden {
   visibility: hidden;
+}
+
+.stage-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.before-canvas {
+  z-index: 1;
+}
+
+.after-canvas {
+  z-index: 2;
+}
+
+/* Topmost and fully transparent: it carries the hover / disabled rings and
+   receives every stage pointer event. */
+.marker-canvas {
+  z-index: 3;
+  cursor: default;
+}
+
+.marker-canvas.is-over-star {
+  cursor: pointer;
 }
 
 .stage-overlay {

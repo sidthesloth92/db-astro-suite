@@ -1,0 +1,169 @@
+:host {
+  display: block;
+  flex: 0 0 352px;
+  width: 352px;
+  min-height: 0;
+}
+
+.control-panel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--db-color-surface);
+  border: 1px solid var(--db-color-border);
+  border-radius: 12px;
+  color: var(--db-color-text-primary);
+  font-family: var(--db-font-ui);
+}
+
+.panel-header {
+  flex: 0 0 auto;
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--db-color-border);
+}
+
+.panel-title {
+  margin: 0;
+  font-family: var(--db-font-ui);
+  font-weight: 400;
+  font-size: 14px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--db-color-neon-pink);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--db-color-neon-pink) 30%, transparent);
+}
+
+/* The whole control stack scrolls so the Export section stays reachable
+   at short viewport heights. */
+.panel-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
+}
+
+.panel-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 18px;
+}
+
+.panel-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.panel-file {
+  font-family: var(--db-font-mono-code);
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  color: var(--db-color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.panel-dims {
+  font-family: var(--db-font-mono-code);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--db-color-text-dim);
+}
+
+.panel-stars {
+  margin: 0;
+  font-family: var(--db-font-mono-code);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--db-color-cyan);
+}
+
+.panel-empty {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--db-color-text-dim);
+}
+
+.divider {
+  height: 1px;
+  margin: 0 18px;
+  border: none;
+  background: var(--db-color-border);
+}
+
+.section-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 2px 18px 16px;
+  min-width: 0;
+}
+
+.slider-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.slider-label-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.row-label {
+  font-family: var(--db-font-ui);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--db-color-text-dim);
+}
+
+.row-value {
+  margin-left: auto;
+  font: 500 11px/1 var(--db-font-mono-code);
+  font-variant-numeric: tabular-nums;
+  color: var(--db-color-text-primary);
+}
+
+.help-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--db-color-text-primary);
+  cursor: help;
+  transition: color 150ms ease;
+}
+
+.help-icon:hover,
+.help-icon:focus-visible {
+  color: var(--db-color-cyan);
+  outline: none;
+}
+
+.arms-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.arms-row dba-ui-segmented-tabs {
+  margin-left: auto;
+  min-width: 0;
+}
+
+.panel-footer {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 18px;
+  border-top: 1px solid var(--db-color-border);
+}

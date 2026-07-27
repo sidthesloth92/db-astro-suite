@@ -1,0 +1,67 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.export-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.export-split {
+  display: block;
+}
+
+.slider-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.slider-label-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.row-label {
+  font-family: var(--db-font-ui);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--db-color-text-dim);
+}
+
+.row-value {
+  margin-left: auto;
+  font: 500 11px/1 var(--db-font-mono-code);
+  font-variant-numeric: tabular-nums;
+  color: var(--db-color-text-primary);
+}
+
+.export-error {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--db-color-text-error);
+}
+
+.export-last {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.export-last-label {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--db-font-mono-code);
+  font-size: 10.5px;
+  color: var(--db-color-text-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
