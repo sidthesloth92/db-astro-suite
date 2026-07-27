@@ -5,7 +5,38 @@
   tagline="Diffraction spike studio"
 ></dba-ui-header>
 
-<main class="as-container">
-  <dba-as-spike-stage></dba-as-spike-stage>
-  <dba-as-control-panel></dba-as-control-panel>
-</main>
+@if (breakpoints.isMobile()) {
+  <main class="as-container as-container--mobile">
+    <dba-as-spike-stage></dba-as-spike-stage>
+
+    @if (!sheetExpanded()) {
+      <dba-ui-icon-button
+        class="as-mobile-fab"
+        accent="cyan"
+        [size]="52"
+        title="Open controls"
+        (clicked)="toggleSheet()"
+      >
+        <dba-ui-icon [def]="slidersIcon" [size]="24" />
+      </dba-ui-icon-button>
+    }
+
+    <dba-ui-floating-sheet
+      class="as-mobile-sheet"
+      [class.as-mobile-sheet--ghosted]="isAdjusting()"
+      [(expanded)]="sheetExpanded"
+      title="Controls"
+      [maxHeightPercent]="62"
+      (pointerdown)="onAdjustStart($event)"
+      (pointerup)="onAdjustEnd()"
+      (pointercancel)="onAdjustEnd()"
+    >
+      <dba-as-control-panel class="in-sheet"></dba-as-control-panel>
+    </dba-ui-floating-sheet>
+  </main>
+} @else {
+  <main class="as-container">
+    <dba-as-spike-stage></dba-as-spike-stage>
+    <dba-as-control-panel></dba-as-control-panel>
+  </main>
+}

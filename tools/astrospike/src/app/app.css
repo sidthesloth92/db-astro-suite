@@ -8,8 +8,8 @@
   font-family: var(--db-font-ui);
 }
 
-/* Desktop-first two-pane studio: stage fills the left, the fixed-width
-   controls panel sits on the right. Mobile polish arrives in M3. */
+/* Desktop two-pane studio: the stage fills the left, the fixed-width controls
+   panel sits on the right. */
 .as-container {
   flex: 1;
   min-height: 0;
@@ -20,4 +20,47 @@
   width: 100%;
   padding: 0.75rem;
   overflow: hidden;
+}
+
+/* Mobile: the stage goes full-bleed and the controls live in a sheet stacked
+   above it, so the preview is never pushed off screen. */
+.as-container--mobile {
+  position: relative;
+  flex-direction: column;
+  gap: 0;
+  padding: 0.5rem;
+}
+
+.as-mobile-fab {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 40;
+  --db-icon-button-color: var(--db-color-text-primary);
+  --db-icon-button-border-color: transparent;
+  --db-icon-button-background: rgba(11, 14, 22, 0.72);
+  --db-icon-button-radius: 50%;
+  backdrop-filter: blur(6px);
+  box-shadow: var(--db-shadow-sheet);
+}
+
+.as-mobile-sheet {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 45;
+  transition: opacity var(--db-transition-normal);
+}
+
+/* Dragging a slider inside the sheet fades it so the canvas stays readable. */
+.as-mobile-sheet--ghosted {
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+/* Inside the sheet the panel is already framed by the sheet chrome, so it
+   drops its own border, fixed width, and header. */
+.as-mobile-sheet .in-sheet {
+  flex: 1 1 auto;
+  width: 100%;
 }

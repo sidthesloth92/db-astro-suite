@@ -5,6 +5,22 @@
   min-height: 0;
 }
 
+/* Inside the mobile sheet the panel is already framed and titled by the sheet
+   chrome, so it goes full width and drops its own frame and header. */
+:host(.in-sheet) .control-panel {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+
+:host(.in-sheet) .panel-header {
+  display: none;
+}
+
+:host(.in-sheet) .panel-scroll {
+  overflow: visible;
+}
+
 .control-panel {
   height: 100%;
   display: flex;
