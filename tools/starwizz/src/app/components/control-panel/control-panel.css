@@ -62,6 +62,11 @@
   display: none;
 }
 
+/* The panel is a stretch-aligned flex column — pull the tab pills to the middle. */
+.panel-tabs {
+  align-self: center;
+}
+
 :host(.in-sheet) .record-row {
   padding-top: 4px;
   border-top: none;
