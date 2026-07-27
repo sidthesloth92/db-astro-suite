@@ -1,3 +1,4 @@
+import { REC709_B, REC709_G, REC709_R } from '../constants/luminance.constants';
 import { StarColor } from '../models/detected-star.model';
 import { RefinedStar } from '../models/detection.types';
 
@@ -6,7 +7,7 @@ import { RefinedStar } from '../models/detection.types';
  */
 function lumaAt(rgba: Uint8ClampedArray, idx: number): number {
   const offset = idx * 4;
-  return 0.2126 * rgba[offset] + 0.7152 * rgba[offset + 1] + 0.0722 * rgba[offset + 2];
+  return REC709_R * rgba[offset] + REC709_G * rgba[offset + 1] + REC709_B * rgba[offset + 2];
 }
 
 /**

@@ -25,7 +25,7 @@
   background: var(--db-color-space-black);
   border: 1px solid var(--db-color-border);
   border-radius: 12px;
-  box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--db-shadow-stage);
 }
 
 /* One box shared by the before, after, and marker canvases plus the compare
@@ -82,7 +82,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.45);
+  background: var(--db-color-scrim);
   backdrop-filter: blur(4px);
   color: var(--db-color-cyan);
 }
@@ -124,7 +124,7 @@
   gap: 0.9rem;
   padding: 1.5rem;
   text-align: center;
-  background: rgba(11, 14, 22, 0.7);
+  background: var(--db-color-sheet-bg);
   backdrop-filter: blur(4px);
 }
 

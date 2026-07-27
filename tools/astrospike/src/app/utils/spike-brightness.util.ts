@@ -53,13 +53,20 @@ export function computeSpikeGeometry(
 ): SpikeGeometry {
   const s = starSpikeScale(flux, fluxRef);
   const ramp = alphaRamp(s);
-  const lengthPx = imageMaxDimension * preset.lengthScale * lengthFactor * s * scale;
-  const alphaPeak = clamp(preset.intensityScale * intensityFactor * ramp, 0, 1);
-  const thicknessPx = clamp(
-    lengthPx * preset.thicknessRatio,
+  // Geometry is resolved in full-resolution image space and only then scaled to
+  // the target canvas. Clamping after scaling would let the thickness bounds
+  // bite at different points in the downscaled preview than in the
+  // full-resolution export, so the exported spikes would not match what the
+  // user tuned on screen.
+  const imageLengthPx = imageMaxDimension * preset.lengthScale * lengthFactor * s;
+  const imageThicknessPx = clamp(
+    imageLengthPx * preset.thicknessRatio,
     SPIKE_THICKNESS_MIN_PX,
     SPIKE_THICKNESS_MAX_PX,
   );
+  const lengthPx = imageLengthPx * scale;
+  const alphaPeak = clamp(preset.intensityScale * intensityFactor * ramp, 0, 1);
+  const thicknessPx = imageThicknessPx * scale;
   const glowRadiusPx = thicknessPx * preset.glowRadiusRatio;
   const glowAlpha = clamp(preset.glowIntensity * intensityFactor * ramp, 0, 1);
   return { lengthPx, alphaPeak, thicknessPx, glowRadiusPx, glowAlpha };

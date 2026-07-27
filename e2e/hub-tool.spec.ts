@@ -171,6 +171,71 @@ test.describe("Starwizz Tool Page", () => {
   });
 });
 
+test.describe("AstroSpike Tool Page", () => {
+  let hubTool: HubToolPage;
+
+  test.beforeEach(async ({ page }) => {
+    hubTool = new HubToolPage(page);
+    await hubTool.navigate("astrospike");
+  });
+
+  test("AstroSpike tool visual test", async ({ page }) => {
+    await expect(page).toHaveScreenshot("astrospike-tool.png", {
+      fullPage: true,
+      timeout: 15000,
+    });
+  });
+
+  test("AstroSpike tool SEO meta tags are correct", async ({ page }) => {
+    await expect(page).toHaveTitle(
+      "AstroSpike - Add Diffraction Spikes to Astrophotos",
+    );
+
+    const ogTitle = await page.getAttribute(
+      'meta[property="og:title"]',
+      "content",
+    );
+    expect(ogTitle).toBe("AstroSpike - Add Diffraction Spikes to Astrophotos");
+
+    const description = await page.getAttribute(
+      'meta[name="description"]',
+      "content",
+    );
+    expect(description).toBeTruthy();
+    expect(description!.toLowerCase()).toContain("diffraction spikes");
+
+    const canonical = await page.getAttribute('link[rel="canonical"]', "href");
+    expect(canonical).toBe("https://dbastrosuite.com/tool/astrospike");
+  });
+
+  test("renders the hero and the shared detail sections", async () => {
+    await expect(hubTool.getHeroHeading()).toContainText("ASTROSPIKE");
+    await expect(hubTool.getSectionHeading(/Why AstroSpike/i)).toBeVisible();
+    await expect(hubTool.getSectionHeading(/How it works/i)).toBeVisible();
+  });
+
+  test("lists every capability and step from the page config", async () => {
+    // 10 capability tiles plus the two "Before"/"After" output titles, which
+    // share the same heading level.
+    await expect(hubTool.getFeatureHeadings()).toHaveCount(12);
+    await expect(hubTool.getStepHeadings()).toHaveCount(5);
+  });
+
+  test("exposes the launch CTA and the before/after stills", async ({
+    page,
+  }) => {
+    await expect(hubTool.getPrimaryCta(/Launch AstroSpike/i)).toHaveAttribute(
+      "href",
+      "/astrospike/",
+    );
+    await expect(
+      page.getByRole("img", {
+        name: /original astrophoto before any spikes/i,
+      }),
+    ).toBeVisible();
+  });
+});
+
 test.describe("Sortronomy Tool Page", () => {
   let hubTool: HubToolPage;
 

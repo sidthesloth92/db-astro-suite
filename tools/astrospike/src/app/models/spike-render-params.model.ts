@@ -7,6 +7,15 @@ import { SpikePreset } from './spike-preset.model';
 export interface SpikeRenderParams {
   /** Stars to render, coordinates in full-resolution image pixels. */
   stars: readonly DetectedStar[];
+
+  /**
+   * Flux of the brightest *detected* star, which anchors every star's relative
+   * spike scale. It is deliberately not derived from `stars`: excluding the
+   * brightest star with a per-star toggle would otherwise re-anchor the scale
+   * and grow every remaining star's spikes, turning a local click into a global
+   * change.
+   */
+  fluxRef: number;
   /** Active spike preset supplying geometry and intensity ratios. */
   preset: SpikePreset;
   /** Number of spike arms per star (may override the preset's count). */

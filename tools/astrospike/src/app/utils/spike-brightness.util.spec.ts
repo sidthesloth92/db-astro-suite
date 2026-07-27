@@ -92,10 +92,12 @@ describe('computeSpikeGeometry', () => {
     expect(geometry.lengthPx).toBeCloseTo(1.89287, 4);
     // ramp = 0.15 + 0.85 * 0.0630957 = 0.203631; alphaPeak = 0.55 * ramp.
     expect(geometry.alphaPeak).toBeCloseTo(0.55 * 0.203631, 4);
-    // Raw thickness 1.89287 * 0.03 = 0.0568 clamps up to 1.5.
-    expect(geometry.thicknessPx).toBe(1.5);
-    // glowRadiusPx = 1.5 * 2.5 = 3.75.
-    expect(geometry.glowRadiusPx).toBeCloseTo(3.75, 6);
+    // Thickness is clamped in image space (3.7857 * 0.03 = 0.1136 -> 1.5) and
+    // only then scaled to the canvas, so the preview stays proportional to the
+    // full-resolution export: 1.5 * 0.5 = 0.75.
+    expect(geometry.thicknessPx).toBeCloseTo(0.75, 6);
+    // glowRadiusPx = 0.75 * 2.5 = 1.875.
+    expect(geometry.glowRadiusPx).toBeCloseTo(1.875, 6);
     expect(geometry.glowAlpha).toBeCloseTo(0.22 * 0.203631, 4);
   });
 
@@ -115,6 +117,35 @@ describe('computeSpikeGeometry', () => {
     expect(geometry.alphaPeak).toBe(1);
     // glowAlpha raw = 0.4 * 2 * 1 = 0.8 stays unclamped.
     expect(geometry.glowAlpha).toBeCloseTo(0.8, 6);
+  });
+
+  it('should keep preview geometry proportional to the export geometry', () => {
+    // What the user tunes on the downscaled preview is what the full-resolution
+    // export must produce. Clamping thickness after applying the scale would
+    // let the bounds bite at different points in each, so the two are compared
+    // here at a scale where the export hits the thickness ceiling.
+    const preset = makePreset();
+    const imageMaxDimension = 6000;
+    const previewScale = 2048 / imageMaxDimension;
+
+    const exported = computeSpikeGeometry(100, 100, preset, 1, 1, imageMaxDimension, 1);
+    const preview = computeSpikeGeometry(
+      100,
+      100,
+      preset,
+      1,
+      1,
+      imageMaxDimension,
+      previewScale,
+    );
+
+    expect(exported.thicknessPx).toBe(16); // ceiling reached at full resolution
+    expect(preview.lengthPx).toBeCloseTo(exported.lengthPx * previewScale, 6);
+    expect(preview.thicknessPx).toBeCloseTo(exported.thicknessPx * previewScale, 6);
+    expect(preview.glowRadiusPx).toBeCloseTo(exported.glowRadiusPx * previewScale, 6);
+    // Alpha is scale-independent — brightness must not change with zoom.
+    expect(preview.alphaPeak).toBeCloseTo(exported.alphaPeak, 6);
+    expect(preview.glowAlpha).toBeCloseTo(exported.glowAlpha, 6);
   });
 
   it('should keep the floor alpha for a zero-flux star while its length collapses', () => {

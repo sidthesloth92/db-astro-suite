@@ -14,7 +14,7 @@
   width: 100%;
   max-width: 400px;
   padding: 2.5rem 2rem;
-  background: rgba(11, 14, 22, 0.55);
+  background: var(--db-color-sheet-header-bg);
   border: 2px dashed var(--db-color-border-active);
   border-radius: 14px;
   display: flex;

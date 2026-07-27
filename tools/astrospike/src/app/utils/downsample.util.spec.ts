@@ -1,10 +1,9 @@
 import { LuminanceImage } from '../models/detection.types';
 import {
-  downsampleFactorFor,
   downsampleLuminance,
-  downsampleLuminanceFromRgba,
-} from './downsample.util';
-import { toLuminance } from './luminance.util';
+  toLuminance,
+} from '../../testing/luminance-reference.util';
+import { downsampleFactorFor, downsampleLuminanceFromRgba } from './downsample.util';
 
 /** Builds a deterministic RGBA buffer for the fused-path tests. */
 const makeRgba = (width: number, height: number): Uint8ClampedArray => {

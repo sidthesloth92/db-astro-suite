@@ -58,10 +58,6 @@ export function renderSpikes(
   if (params.stars.length === 0) {
     return;
   }
-  let fluxRef = 0;
-  for (const star of params.stars) {
-    fluxRef = Math.max(fluxRef, star.flux);
-  }
   ctx.save();
   try {
     ctx.globalCompositeOperation = 'lighter';
@@ -71,7 +67,7 @@ export function renderSpikes(
       const armSprite = getArmSprite(spriteCache, star.color, params.preset.falloffGamma);
       const geometry = computeSpikeGeometry(
         star.flux,
-        fluxRef,
+        params.fluxRef,
         params.preset,
         params.lengthFactor,
         params.intensityFactor,

@@ -19,6 +19,7 @@ const STAR: DetectedStar = {
 /** Render params for an 8x8 source image at full resolution. */
 const PARAMS: SpikeRenderParams = {
   stars: [STAR],
+  fluxRef: STAR.flux,
   preset: SPIKE_PRESETS['classic'],
   spikeCount: 4,
   lengthFactor: 1,

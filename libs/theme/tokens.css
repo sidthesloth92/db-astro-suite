@@ -204,6 +204,11 @@
   /** Floating-sheet drop shadow. */
   --db-shadow-sheet: 0 -8px 30px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(0, 0, 0, 0.3);
 
+  /** Dimming scrim laid over media, e.g. behind a canvas overlay. */
+  --db-color-scrim: rgba(0, 0, 0, 0.45);
+  /** Ambient drop shadow that lifts a media stage off the page background. */
+  --db-shadow-stage: 0 0 50px rgba(0, 0, 0, 0.5);
+
   /** Star colour used by the StarryBackground gradients. */
   --db-color-star: 255, 255, 255;
 

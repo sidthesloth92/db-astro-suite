@@ -10,6 +10,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { ConstellationLoaderComponent, PillBadgeComponent, TextButtonComponent } from '@db-astro-suite/ui';
+import { COMPARE_TRACK_INSET_PX } from '../../constants/compare-handle.constants';
 import {
   HIT_TEST_RADIUS_CSS_PX,
   PREVIEW_MAX_DIMENSION,
@@ -155,9 +156,16 @@ export class SpikeStage {
    * This is deliberately a template binding rather than part of the render
    * effect — dragging the divider updates a clip-path and costs zero spike
    * re-renders.
+   *
+   * The seam is expressed over the same inset track the divider travels on
+   * (see `compare-handle.css`), so the line always sits exactly on the cut
+   * rather than drifting from it near the edges.
    */
   protected readonly afterClipPath = computed(
-    () => `inset(0 0 0 ${this.editor.comparePosition() * 100}%)`,
+    () =>
+      `inset(0 0 0 calc(${COMPARE_TRACK_INSET_PX}px + (100% - ${
+        COMPARE_TRACK_INSET_PX * 2
+      }px) * ${this.editor.comparePosition()}))`,
   );
 
   /**
@@ -172,6 +180,10 @@ export class SpikeStage {
       this.resizeCanvases(0, 0);
       return;
     }
+    // Sprites are keyed by star colour, so a new image's palette would
+    // otherwise accumulate on top of the previous one's for the life of the
+    // component (each arm sprite is 512x64 RGBA).
+    this.spriteCache.clear();
     const scale = Math.min(1, PREVIEW_MAX_DIMENSION / Math.max(bitmap.width, bitmap.height));
     const width = Math.max(1, Math.round(bitmap.width * scale));
     const height = Math.max(1, Math.round(bitmap.height * scale));

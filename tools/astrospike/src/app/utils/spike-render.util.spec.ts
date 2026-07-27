@@ -45,6 +45,7 @@ function makeStar(overrides: Partial<DetectedStar> = {}): DetectedStar {
 function makeParams(overrides: Partial<SpikeRenderParams> = {}): SpikeRenderParams {
   return {
     stars: [makeStar()],
+    fluxRef: 100,
     preset: makePreset(),
     spikeCount: 4,
     lengthFactor: 1,

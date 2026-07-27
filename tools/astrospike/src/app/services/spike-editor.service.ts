@@ -152,8 +152,12 @@ export class SpikeEditorService implements OnDestroy {
     if (this.sourceImage() === null || meta === null || this.isDetecting()) {
       return null;
     }
+    const all = this.allStars();
     return {
       stars: this.renderedStars(),
+      // Anchored on the brightest detected star, not the brightest rendered
+      // one, so toggling a star off never rescales the others.
+      fluxRef: all.length > 0 ? all[0].flux : 0,
       preset: this.preset(),
       spikeCount: this.spikeCount(),
       lengthFactor: this.controls.length(),

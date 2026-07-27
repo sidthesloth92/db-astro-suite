@@ -1,4 +1,4 @@
-import { toLuminance } from './luminance.util';
+import { toLuminance } from './luminance-reference.util';
 
 describe('luminance.util', () => {
   describe('toLuminance', () => {
