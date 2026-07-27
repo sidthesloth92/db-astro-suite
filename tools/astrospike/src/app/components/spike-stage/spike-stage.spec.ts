@@ -346,11 +346,32 @@ describe('SpikeStage', () => {
       expect(data.some((channel) => channel > 0)).toBe(true);
     });
 
+    /** Dispatches a press-and-release pair, optionally travelling between. */
+    function pressAndRelease(
+      downX: number,
+      downY: number,
+      upX = downX,
+      upY = downY,
+    ): void {
+      const canvas = markerCanvas();
+      canvas.dispatchEvent(
+        new PointerEvent('pointerdown', { bubbles: true, pointerId: 1, clientX: downX, clientY: downY }),
+      );
+      if (upX !== downX || upY !== downY) {
+        canvas.dispatchEvent(
+          new PointerEvent('pointermove', { bubbles: true, pointerId: 1, clientX: upX, clientY: upY }),
+        );
+      }
+      canvas.dispatchEvent(
+        new PointerEvent('pointerup', { bubbles: true, pointerId: 1, clientX: upX, clientY: upY }),
+      );
+    }
+
     it('should toggle the star under the pointer when the preview is clicked', () => {
       const toggleSpy = spyOn(editor, 'toggleStar');
       const { clientX, clientY } = clientPointFor(300, 150);
 
-      markerCanvas().dispatchEvent(new MouseEvent('click', { bubbles: true, clientX, clientY }));
+      pressAndRelease(clientX, clientY);
 
       expect(toggleSpy).toHaveBeenCalledOnceWith(1);
     });
@@ -359,9 +380,19 @@ describe('SpikeStage', () => {
       const toggleSpy = spyOn(editor, 'toggleStar');
       const { clientX, clientY } = clientPointFor(200, 20);
 
-      markerCanvas().dispatchEvent(new MouseEvent('click', { bubbles: true, clientX, clientY }));
+      pressAndRelease(clientX, clientY);
 
       expect(toggleSpy).not.toHaveBeenCalled();
+    });
+
+    it('should still toggle after sub-threshold pointer jitter', () => {
+      const toggleSpy = spyOn(editor, 'toggleStar');
+      const { clientX, clientY } = clientPointFor(300, 150);
+
+      // 2px of travel is finger shake, not a drag.
+      pressAndRelease(clientX, clientY, clientX + 2, clientY + 1);
+
+      expect(toggleSpy).toHaveBeenCalledOnceWith(1);
     });
 
     it('should find a faint star below the brightness cut so it can be enabled', () => {

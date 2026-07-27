@@ -1,3 +1,8 @@
+import {
+  REFINE_CORE_PADDING_PX,
+  REFINE_CORE_RADIUS_MIN_PX,
+  REFINE_PLATEAU_FRACTION,
+} from '../constants/detection.constants';
 import { REC709_B, REC709_G, REC709_R } from '../constants/luminance.constants';
 import { StarColor } from '../models/detected-star.model';
 import { RefinedStar } from '../models/detection.types';
@@ -30,13 +35,23 @@ function medianOf(values: readonly number[]): number {
  * (clamped to the image bounds) is examined; luma is computed per pixel on
  * the fly — no full-resolution luminance plane is ever allocated. The local
  * background is the median luma of the window BORDER pixels; per-pixel
- * weights are `max(0, luma - localBackground)` and yield the refined
- * sub-pixel centroid and the peak. The star color is the luma-weighted mean
- * RGB over window pixels whose weight exceeds 50% of the peak, excluding
- * pixels with any channel at 255 whenever at least one unsaturated
- * qualifying pixel exists, then normalized so the brightest channel is 255.
- * When no pixel qualifies (or the window is empty) the color falls back to
- * white and the approximate position is returned unchanged.
+ * weights are `max(0, luma - localBackground)`.
+ *
+ * The centroid is anchored on the PEAK, not the whole window: first the peak
+ * pixel is located, then the extent of its near-peak plateau (weights within
+ * `REFINE_PLATEAU_FRACTION` of the peak — a saturated core is a flat plateau),
+ * and the sub-pixel centroid is computed only over pixels within
+ * plateau-radius + padding of the peak pixel. Centroiding the whole window
+ * instead lets a star's own (usually asymmetric) diffraction arms and bright
+ * neighbours drag the centre off the core — which renders spikes visibly
+ * misaligned on real telescope data.
+ *
+ * The star color is the luma-weighted mean RGB over that same core region's
+ * pixels whose weight exceeds 50% of the peak, excluding pixels with any
+ * channel at 255 whenever at least one unsaturated qualifying pixel exists,
+ * then normalized so the brightest channel is 255. When no pixel qualifies
+ * (or the window is empty) the color falls back to white and the approximate
+ * position is returned unchanged.
  *
  * @param rgba Row-major full-resolution RGBA bytes, length = width * height * 4.
  * @param width Full-resolution image width in pixels.
@@ -81,21 +96,66 @@ export function refineStar(
   }
   const localBackground = medianOf(borderLumas);
 
-  // Weighted re-centroid and peak over the window.
-  let weightSum = 0;
-  let weightedX = 0;
-  let weightedY = 0;
+  // Pass 1: locate the peak pixel inside the window.
   let peak = 0;
+  let peakX = centerX;
+  let peakY = centerY;
   for (let y = y0; y <= y1; y++) {
     const row = y * width;
     for (let x = x0; x <= x1; x++) {
       const w = Math.max(0, lumaAt(rgba, row + x) - localBackground);
+      if (w > peak) {
+        peak = w;
+        peakX = x;
+        peakY = y;
+      }
+    }
+  }
+
+  // Pass 2: measure the near-peak plateau extent (a saturated core is a flat
+  // plateau; an unsaturated star's plateau is essentially just its peak).
+  const plateauThreshold = peak * REFINE_PLATEAU_FRACTION;
+  let plateauRadiusSq = 0;
+  if (peak > 0) {
+    for (let y = y0; y <= y1; y++) {
+      const row = y * width;
+      for (let x = x0; x <= x1; x++) {
+        const w = lumaAt(rgba, row + x) - localBackground;
+        if (w >= plateauThreshold) {
+          const d2 = (x - peakX) * (x - peakX) + (y - peakY) * (y - peakY);
+          if (d2 > plateauRadiusSq) {
+            plateauRadiusSq = d2;
+          }
+        }
+      }
+    }
+  }
+  const coreRadius = Math.min(
+    windowRadius,
+    Math.max(REFINE_CORE_RADIUS_MIN_PX, Math.ceil(Math.sqrt(plateauRadiusSq)) + REFINE_CORE_PADDING_PX),
+  );
+  const coreRadiusSq = coreRadius * coreRadius;
+
+  // Pass 3: weighted centroid over the core region around the peak only.
+  let weightSum = 0;
+  let weightedX = 0;
+  let weightedY = 0;
+  const cx0 = Math.max(x0, peakX - coreRadius);
+  const cx1 = Math.min(x1, peakX + coreRadius);
+  const cy0 = Math.max(y0, peakY - coreRadius);
+  const cy1 = Math.min(y1, peakY + coreRadius);
+  for (let y = cy0; y <= cy1; y++) {
+    const row = y * width;
+    const dy = y - peakY;
+    for (let x = cx0; x <= cx1; x++) {
+      const dx = x - peakX;
+      if (dx * dx + dy * dy > coreRadiusSq) {
+        continue;
+      }
+      const w = Math.max(0, lumaAt(rgba, row + x) - localBackground);
       weightSum += w;
       weightedX += w * x;
       weightedY += w * y;
-      if (w > peak) {
-        peak = w;
-      }
     }
   }
   const refinedX = weightSum > 0 ? weightedX / weightSum : approxX;
@@ -112,9 +172,14 @@ export function refineStar(
   let unsatR = 0;
   let unsatG = 0;
   let unsatB = 0;
-  for (let y = y0; y <= y1; y++) {
+  for (let y = cy0; y <= cy1; y++) {
     const row = y * width;
-    for (let x = x0; x <= x1; x++) {
+    const dy = y - peakY;
+    for (let x = cx0; x <= cx1; x++) {
+      const dx = x - peakX;
+      if (dx * dx + dy * dy > coreRadiusSq) {
+        continue;
+      }
       const idx = row + x;
       const w = Math.max(0, lumaAt(rgba, idx) - localBackground);
       if (w <= 0 || w <= coreThreshold) {

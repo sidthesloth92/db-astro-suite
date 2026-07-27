@@ -37,15 +37,40 @@ const REAL_STARS: readonly SyntheticStar[] = [
 /** Single-pixel hot spike: huge amplitude, sigma so tiny it occupies 1 px. */
 const HOT_PIXEL: SyntheticStar = { x: 770, y: 500, amplitude: 240, sigma: 0.25 };
 
-/** Elongated streak simulated as a row of overlapping small Gaussians. */
+/**
+ * Satellite trail simulated as a long row of overlapping small Gaussians —
+ * long enough that its flux is spread far beyond the concentration disc, as a
+ * real trail's is.
+ */
 const STREAK_Y = 340;
-const STREAK_X_START = 430;
-const STREAK_X_END = 458;
-const STREAK: readonly SyntheticStar[] = Array.from({ length: 15 }, (_, i) => ({
+const STREAK_X_START = 380;
+const STREAK_X_END = 380 + 59 * 2;
+const STREAK: readonly SyntheticStar[] = Array.from({ length: 60 }, (_, i) => ({
   x: STREAK_X_START + i * 2,
   y: STREAK_Y,
   amplitude: 130,
   sigma: 1.2,
+}));
+
+/**
+ * Big saturated star: the flat clamped core inflates its blob far beyond
+ * maxArea, which used to make detection silently drop it — the defect reported
+ * from real M82 data where the brightest stars got no spikes.
+ */
+const SATURATED_STAR: SyntheticStar = { x: 170.5, y: 170.5, amplitude: 4000, sigma: 6 };
+
+/**
+ * Elongated diffuse galaxy: overlapping wide Gaussians along y. Its
+ * concentration is low even though its elongation is similar to a star with
+ * asymmetric arms, so it must stay undetected.
+ */
+const GALAXY_X = 120;
+const GALAXY_Y = 520;
+const GALAXY: readonly SyntheticStar[] = Array.from({ length: 5 }, (_, i) => ({
+  x: GALAXY_X,
+  y: GALAXY_Y - 40 + i * 20,
+  amplitude: 110,
+  sigma: 13,
 }));
 
 /** Detection-friendly options: maxDimension >= 900 keeps factor at 1. */
@@ -55,8 +80,12 @@ const OPTS: DetectionOptions = {
   tileSize: 64,
   minArea: 3,
   maxArea: 400,
+  maxAreaHard: 6400,
   maxElongation: 1.8,
   maxPeakFluxRatio: 0.9,
+  minConcentration: 0.35,
+  concentrationRadius: 8,
+  extendedMinPeak: 100,
   maxStars: 500,
 };
 
@@ -84,7 +113,7 @@ describe('detectStars (engine integration)', () => {
     rgba = renderSyntheticField(
       WIDTH,
       HEIGHT,
-      [...REAL_STARS, HOT_PIXEL, ...STREAK],
+      [...REAL_STARS, HOT_PIXEL, ...STREAK, SATURATED_STAR, ...GALAXY],
       NEBULOSITY,
       2,
       1234,
@@ -132,11 +161,31 @@ describe('detectStars (engine integration)', () => {
     }
   });
 
-  it('should only report detections that correspond to injected real stars', () => {
-    expect(result.length).toBe(REAL_STARS.length);
+  it('should only report detections that correspond to injected stars', () => {
+    const injected = [...REAL_STARS, SATURATED_STAR];
+    expect(result.length).toBe(injected.length);
     for (const star of result) {
-      const distances = REAL_STARS.map((s) => Math.hypot(star.x - s.x, star.y - s.y));
-      expect(Math.min(...distances)).toBeLessThanOrEqual(1);
+      const distances = injected.map((s) => Math.hypot(star.x - s.x, star.y - s.y));
+      expect(Math.min(...distances)).toBeLessThanOrEqual(2);
+    }
+  });
+
+  it('should detect the big saturated star and centre it on its core', () => {
+    // Regression for the M82 report: the brightest stars in a frame got no
+    // spikes because their oversized blobs were consumed before measurement.
+    const match = nearestDetection(result, SATURATED_STAR.x, SATURATED_STAR.y);
+    expect(match).not.toBeNull();
+    if (match !== null) {
+      expect(Math.hypot(match.x - SATURATED_STAR.x, match.y - SATURATED_STAR.y)).toBeLessThan(2);
+      // It is by far the brightest source, so it must lead the flux ordering.
+      expect(match.id).toBe(0);
+    }
+  });
+
+  it('should not report the diffuse elongated galaxy as a star', () => {
+    for (const star of result) {
+      const distance = Math.hypot(star.x - GALAXY_X, star.y - GALAXY_Y);
+      expect(distance).withContext('detection inside the galaxy').toBeGreaterThan(30);
     }
   });
 

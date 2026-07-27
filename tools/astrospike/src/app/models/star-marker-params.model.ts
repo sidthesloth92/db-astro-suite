@@ -15,6 +15,10 @@ export interface StarMarkerParams {
   disabledStars: readonly DetectedStar[];
   /** Scale from full-resolution image pixels to marker canvas pixels. */
   scale: number;
+  /** Horizontal canvas-pixel offset added after scaling (viewport pan). */
+  offsetX: number;
+  /** Vertical canvas-pixel offset added after scaling (viewport pan). */
+  offsetY: number;
   /** Radius of the hover ring in canvas pixels. */
   hoverRadiusPx: number;
   /** Radius of each disabled-star ring in canvas pixels. */

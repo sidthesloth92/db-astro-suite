@@ -57,6 +57,51 @@ describe('refineStar', () => {
     expect(Math.abs(refined.y - 32)).toBeLessThan(0.5);
   });
 
+  it('should stay centred on the core when the star drags an asymmetric bright arm', () => {
+    // Regression for the misalignment reported on real telescope data: stars
+    // already carry their own diffraction arms in the source image, and the
+    // arms are rarely symmetric. A whole-window centroid gets dragged along
+    // the brighter arm; the peak-anchored core centroid must not.
+    const width = 160;
+    const height = 120;
+    const starX = 80;
+    const starY = 60;
+    const rgba = new Uint8ClampedArray(width * height * 4);
+    const put = (x: number, y: number, v: number): void => {
+      const i = (y * width + x) * 4;
+      const clamped = Math.min(255, rgba[i] + v);
+      rgba[i] = clamped;
+      rgba[i + 1] = clamped;
+      rgba[i + 2] = clamped;
+      rgba[i + 3] = 255;
+    };
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        put(x, y, 10); // flat sky
+      }
+    }
+    // Bright star: the core saturates (as real bright stars do — the core
+    // always clips before its arms), leaving a flat 255 plateau.
+    for (let y = starY - 12; y <= starY + 12; y++) {
+      for (let x = starX - 12; x <= starX + 12; x++) {
+        const d2 = (x - starX) ** 2 + (y - starY) ** 2;
+        put(x, y, Math.round(1200 * Math.exp(-d2 / (2 * 2.5 * 2.5))));
+      }
+    }
+    // One long bright arm to the right, a stubby dim one to the left.
+    for (let t = 3; t < 60; t++) {
+      put(starX + t, starY, Math.round(160 * (1 - t / 60) ** 2));
+    }
+    for (let t = 3; t < 15; t++) {
+      put(starX - t, starY, Math.round(50 * (1 - t / 15) ** 2));
+    }
+
+    const refined = refineStar(rgba, width, height, starX + 1.5, starY - 1, 40);
+
+    expect(Math.abs(refined.x - starX)).toBeLessThan(1);
+    expect(Math.abs(refined.y - starY)).toBeLessThan(1);
+  });
+
   it('should clamp the window at the image edges without crashing', () => {
     const width = 40;
     const height = 40;

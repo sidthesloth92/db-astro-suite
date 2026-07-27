@@ -14,9 +14,14 @@
       #markerCanvas
       class="stage-canvas marker-canvas"
       [class.is-over-star]="isOverStar()"
+      [class.is-panning]="isPanning()"
+      (pointerdown)="onStagePointerDown($event)"
       (pointermove)="onStagePointerMove($event)"
+      (pointerup)="onStagePointerUp($event)"
+      (pointercancel)="onStagePointerUp($event)"
       (pointerleave)="onStagePointerLeave()"
-      (click)="onStageClick($event)"
+      (wheel)="onStageWheel($event)"
+      (dblclick)="onStageDoubleClick()"
     ></canvas>
 
     @if (showCompareHandle()) {

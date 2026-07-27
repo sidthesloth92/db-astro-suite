@@ -74,6 +74,11 @@
   cursor: pointer;
 }
 
+/* While panning a zoomed view the whole stage is a grab surface. */
+.marker-canvas.is-panning {
+  cursor: grabbing;
+}
+
 .stage-overlay {
   position: absolute;
   inset: 0;

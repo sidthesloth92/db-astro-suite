@@ -24,3 +24,13 @@ export const SPIKE_THICKNESS_MIN_PX = 1.5;
 
 /** Widest spike arm, in pixels — keeps bright stars from turning into bars. */
 export const SPIKE_THICKNESS_MAX_PX = 16;
+
+/**
+ * Minimum flux (as a fraction of the reference flux) granted to a star the
+ * user manually forced on. pow(0.18, SPIKE_BRIGHTNESS_EXPONENT) ~= 0.36, so a
+ * forced faint star renders at roughly a third of the brightest star's spike
+ * scale — clearly visible, clearly not dominant. Without this floor, clicking
+ * a faint star "adds spikes" that are too small to see, which reads as the
+ * click doing nothing.
+ */
+export const FORCED_FLUX_FLOOR_RATIO = 0.18;

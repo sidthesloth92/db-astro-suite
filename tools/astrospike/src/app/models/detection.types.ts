@@ -58,6 +58,15 @@ export interface SourceMeasurement {
   area: number;
   /** sqrt(l1 / l2) from second central moment eigenvalues; 1 = round. */
   elongation: number;
+  /**
+   * Fraction of the component's flux lying within `concentrationRadius` of its
+   * peak pixel (0..1). Point sources stay high even when their own diffraction
+   * arms inflate the blob; galaxies and satellite trails spread flux out and
+   * score low. This is what separates a bright star from an extended object —
+   * elongation alone cannot (a star with one long arm measures as elongated as
+   * a galaxy).
+   */
+  concentration: number;
 }
 
 /**
@@ -87,12 +96,40 @@ export interface DetectionOptions {
   tileSize: number;
   /** Minimum component pixel count for a valid star. */
   minArea: number;
-  /** Maximum component pixel count; larger components are discarded. */
+  /**
+   * Pixel count above which the compact-source fast path no longer applies;
+   * larger components must qualify through flux concentration instead.
+   */
   maxArea: number;
-  /** Maximum allowed elongation; more elongated sources are rejected. */
+  /**
+   * Hard component size cap: labelling consumes but never returns anything
+   * bigger. Bounds per-component memory against nebula sheets and gradients.
+   */
+  maxAreaHard: number;
+  /** Maximum elongation for the compact-source fast path. */
   maxElongation: number;
   /** Maximum allowed peak/flux ratio; rejects single-pixel artifacts. */
   maxPeakFluxRatio: number;
+  /**
+   * Minimum flux concentration for sources that fail the compact fast path
+   * (too large or too elongated). Saturated stars and stars with their own
+   * diffraction arms pass; galaxies and satellite trails do not.
+   */
+  minConcentration: number;
+  /**
+   * Minimum floor radius (detection-scale px) of the disc concentration is
+   * measured over. The effective disc grows with the source's near-peak core
+   * (by pixel count, so scattered bright noise along a trail cannot inflate
+   * it) so heavily saturated plateaus are not penalised.
+   */
+  concentrationRadius: number;
+  /**
+   * Minimum background-subtracted peak for the concentration path. Only
+   * genuinely bright sources produce plateaus and their own diffraction arms;
+   * without this floor, tiny elongated noise clumps (trivially "concentrated")
+   * would slip through.
+   */
+  extendedMinPeak: number;
   /** Maximum number of stars kept after flux-descending sort. */
   maxStars: number;
 }

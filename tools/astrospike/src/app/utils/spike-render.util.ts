@@ -1,3 +1,4 @@
+import { FORCED_FLUX_FLOOR_RATIO } from '../constants/spike-geometry.constants';
 import { StarColor } from '../models/detected-star.model';
 import { SpikeRenderParams, SpriteCache } from '../models/spike-render-params.model';
 import { computeSpikeGeometry } from './spike-brightness.util';
@@ -65,8 +66,11 @@ export function renderSpikes(
     for (const star of params.stars) {
       const glowSprite = getGlowSprite(spriteCache, star.color);
       const armSprite = getArmSprite(spriteCache, star.color, params.preset.falloffGamma);
+      const effectiveFlux = params.forcedStarIds.has(star.id)
+        ? Math.max(star.flux, params.fluxRef * FORCED_FLUX_FLOOR_RATIO)
+        : star.flux;
       const geometry = computeSpikeGeometry(
-        star.flux,
+        effectiveFlux,
         params.fluxRef,
         params.preset,
         params.lengthFactor,
@@ -74,8 +78,8 @@ export function renderSpikes(
         params.imageMaxDimension,
         params.scale,
       );
-      const cx = star.x * params.scale;
-      const cy = star.y * params.scale;
+      const cx = star.x * params.scale + params.offsetX;
+      const cy = star.y * params.scale + params.offsetY;
 
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.globalAlpha = geometry.glowAlpha;

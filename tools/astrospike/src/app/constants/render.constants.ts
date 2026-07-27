@@ -30,3 +30,19 @@ export const ARM_SPRITE_HEIGHT = 64;
  * Width and height in pixels of the square pre-rendered glow sprite.
  */
 export const GLOW_SPRITE_SIZE = 64;
+
+/** Lowest stage zoom — the whole image fitted to the frame. */
+export const STAGE_MIN_ZOOM = 1;
+
+/** Highest stage zoom. The zoomed view renders from the full-resolution
+ * bitmap, so this is real detail, not preview upscaling. */
+export const STAGE_MAX_ZOOM = 8;
+
+/** Zoom multiplier applied per wheel step. */
+export const STAGE_WHEEL_ZOOM_FACTOR = 1.2;
+
+/**
+ * Pointer travel (CSS px) below which a press-and-release counts as a click
+ * that toggles a star; beyond it, the gesture pans the zoomed view.
+ */
+export const STAGE_DRAG_THRESHOLD_CSS_PX = 5;

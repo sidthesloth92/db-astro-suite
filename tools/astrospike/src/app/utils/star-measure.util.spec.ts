@@ -72,7 +72,7 @@ describe('star-measure.util', () => {
       const bg = flatBackground(width * height, base, 1);
       const component = componentAbove(lum, bg, 10);
 
-      const m = measureSource(component, lum, bg);
+      const m = measureSource(component, lum, bg, 8);
 
       expect(Math.abs(m.cx - starX)).toBeLessThan(0.2);
       expect(Math.abs(m.cy - starY)).toBeLessThan(0.2);
@@ -95,11 +95,32 @@ describe('star-measure.util', () => {
       ]);
       const bg = flatBackground(lum.data.length, 0, 1);
 
-      const m = measureSource(component, lum, bg);
+      const m = measureSource(component, lum, bg, 8);
 
       expect(m.cx).toBeCloseTo(3, 6);
       expect(m.cy).toBeCloseTo(2, 6);
       expect(m.elongation).toBeGreaterThan(1.8);
+    });
+
+    it('should report high concentration for a point source and low for a spread line', () => {
+      // Compact star: all flux within the concentration disc.
+      const compact = planeWithPixels(24, 24, [
+        { x: 12, y: 12, value: 200 },
+        { x: 13, y: 12, value: 120 },
+        { x: 12, y: 13, value: 120 },
+      ]);
+      const compactBg = flatBackground(compact.lum.data.length, 0, 1);
+      const compactM = measureSource(compact.component, compact.lum, compactBg, 4);
+      expect(compactM.concentration).toBeCloseTo(1, 6);
+
+      // Trail-like line: uniform flux spread far beyond the disc around the
+      // (arbitrary) peak pixel.
+      const linePixels = Array.from({ length: 30 }, (_, i) => ({ x: 1 + i, y: 5, value: 100 }));
+      const line = planeWithPixels(34, 10, linePixels);
+      const lineBg = flatBackground(line.lum.data.length, 0, 1);
+      const lineM = measureSource(line.component, line.lum, lineBg, 4);
+      // At most 9 of the 30 uniform pixels can sit within 4px of the peak.
+      expect(lineM.concentration).toBeLessThan(0.35);
     });
 
     it('should clamp below-background pixels to zero weight', () => {
@@ -109,7 +130,7 @@ describe('star-measure.util', () => {
       ]);
       const bg = flatBackground(lum.data.length, 10, 1);
 
-      const m = measureSource(component, lum, bg);
+      const m = measureSource(component, lum, bg, 8);
 
       // The 5-valued pixel is below the background of 10 and contributes 0.
       expect(m.flux).toBeCloseTo(40, 6);

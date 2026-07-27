@@ -25,8 +25,8 @@ export function drawStarMarkers(ctx: CanvasRenderingContext2D, params: StarMarke
       for (const star of disabledStars) {
         ctx.beginPath();
         ctx.arc(
-          star.x * params.scale,
-          star.y * params.scale,
+          star.x * params.scale + params.offsetX,
+          star.y * params.scale + params.offsetY,
           params.disabledRadiusPx,
           0,
           Math.PI * 2,
@@ -40,8 +40,8 @@ export function drawStarMarkers(ctx: CanvasRenderingContext2D, params: StarMarke
       ctx.setLineDash([]);
       ctx.beginPath();
       ctx.arc(
-        hoveredStar.x * params.scale,
-        hoveredStar.y * params.scale,
+        hoveredStar.x * params.scale + params.offsetX,
+        hoveredStar.y * params.scale + params.offsetY,
         params.hoverRadiusPx,
         0,
         Math.PI * 2,

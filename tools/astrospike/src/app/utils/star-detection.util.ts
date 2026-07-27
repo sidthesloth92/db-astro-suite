@@ -1,3 +1,4 @@
+import { REFINE_WINDOW_RADIUS_MAX } from '../constants/detection.constants';
 import { DetectedStar } from '../models/detected-star.model';
 import { DetectionOptions } from '../models/detection.types';
 import { estimateBackground } from './background.util';
@@ -16,8 +17,9 @@ import { thresholdMask } from './threshold.util';
  * full-resolution luminance plane is never allocated — on a 60+ megapixel frame
  * that plane alone would cost hundreds of megabytes), background-modeled with a
  * `opts.tileSize` mesh, thresholded at `opts.kSigma` sigma, and segmented
- * into 8-connected components (components larger than `opts.maxArea` are
- * consumed but dropped). Each surviving component is measured, filtered by
+ * into 8-connected components (only components beyond `opts.maxAreaHard` are
+ * consumed but dropped — large sources are kept for measurement so saturated
+ * stars can qualify through flux concentration). Each surviving component is measured, filtered by
  * `isValidSource`, mapped back to approximate full-resolution coordinates
  * (`(c + 0.5) * factor - 0.5`), and refined at full resolution with a window
  * radius of `max(4, round(2 * sqrt(area) * factor))`. Results keep the
@@ -40,17 +42,24 @@ export function detectStars(
   const { image, factor } = downsampleLuminanceFromRgba(rgba, width, height, opts.maxDimension);
   const background = estimateBackground(image, opts.tileSize);
   const mask = thresholdMask(image, background, opts.kSigma);
-  const components = labelComponents(mask, image.width, image.height, opts.maxArea);
+  // Labelling only enforces the HARD cap; the nuanced star-vs-extended call
+  // (which needs measurements) happens in isValidSource. Capping at maxArea
+  // here would silently consume big saturated stars before they could ever be
+  // measured.
+  const components = labelComponents(mask, image.width, image.height, opts.maxAreaHard);
 
   const candidates: Omit<DetectedStar, 'id'>[] = [];
   for (const component of components) {
-    const measurement = measureSource(component, image, background);
+    const measurement = measureSource(component, image, background, opts.concentrationRadius);
     if (!isValidSource(measurement, opts)) {
       continue;
     }
     const approxX = (measurement.cx + 0.5) * factor - 0.5;
     const approxY = (measurement.cy + 0.5) * factor - 0.5;
-    const windowRadius = Math.max(4, Math.round(2 * Math.sqrt(measurement.area) * factor));
+    const windowRadius = Math.min(
+      REFINE_WINDOW_RADIUS_MAX,
+      Math.max(4, Math.round(2 * Math.sqrt(measurement.area) * factor)),
+    );
     const refined = refineStar(rgba, width, height, approxX, approxY, windowRadius);
     candidates.push({
       x: refined.x,

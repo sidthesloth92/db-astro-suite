@@ -14,6 +14,10 @@ import { COMPARE_TRACK_INSET_PX } from '../../constants/compare-handle.constants
 import {
   HIT_TEST_RADIUS_CSS_PX,
   PREVIEW_MAX_DIMENSION,
+  STAGE_DRAG_THRESHOLD_CSS_PX,
+  STAGE_MAX_ZOOM,
+  STAGE_MIN_ZOOM,
+  STAGE_WHEEL_ZOOM_FACTOR,
 } from '../../constants/render.constants';
 import {
   DISABLED_MARKER_DASH_CSS_PX,
@@ -23,11 +27,18 @@ import {
 } from '../../constants/star-marker.constants';
 import { DetectedStar } from '../../models/detected-star.model';
 import { SpriteCache } from '../../models/spike-render-params.model';
+import { StageViewport } from '../../models/stage-viewport.model';
 import { SpikeEditorService } from '../../services/spike-editor.service';
 import { pointerToImagePoint } from '../../utils/canvas-coords.util';
 import { selectDisabledStars } from '../../utils/disabled-stars.util';
 import { findNearestStar } from '../../utils/hit-test.util';
 import { renderSpikes } from '../../utils/spike-render.util';
+import {
+  clampViewport,
+  panViewport,
+  viewportOrigin,
+  zoomViewportAt,
+} from '../../utils/stage-viewport.util';
 import { drawStarMarkers } from '../../utils/star-markers.util';
 import { CompareHandle } from '../compare-handle/compare-handle';
 import { ImageDropzone } from '../image-dropzone/image-dropzone';
@@ -92,6 +103,37 @@ export class SpikeStage {
 
   /** Scale from full-resolution image pixels to preview canvas pixels. */
   private readonly previewScale = signal(1);
+
+  /**
+   * Zoom/pan state in image space. Zoomed frames render straight from the
+   * full-resolution bitmap, so zooming reveals true detail rather than
+   * upscaled preview pixels.
+   */
+  protected readonly viewport = signal<StageViewport>({ zoom: 1, centerX: 0, centerY: 0 });
+
+  /** True while a pan drag is in progress — drives the grabbing cursor. */
+  protected readonly isPanning = signal(false);
+
+  /**
+   * Offscreen cache of the source image at preview scale — the blit source for
+   * un-zoomed frames, so the full bitmap is only resampled when zoomed.
+   */
+  private basePreviewCanvas: HTMLCanvasElement | null = null;
+
+  /** Pointer id of the press being tracked for the click-vs-pan decision. */
+  private dragPointerId: number | null = null;
+
+  /** CSS position of the tracked press, to measure travel against. */
+  private dragStartX = 0;
+
+  /** CSS y of the tracked press. */
+  private dragStartY = 0;
+
+  /** CSS position of the previous pan step. */
+  private dragLastX = 0;
+
+  /** CSS y of the previous pan step. */
+  private dragLastY = 0;
 
   /** Pending requestAnimationFrame id, or null when no frame is scheduled. */
   private frameId: number | null = null;
@@ -188,11 +230,17 @@ export class SpikeStage {
     const width = Math.max(1, Math.round(bitmap.width * scale));
     const height = Math.max(1, Math.round(bitmap.height * scale));
     this.resizeCanvases(width, height);
-    const baseCtx = this.beforeCanvasRef().nativeElement.getContext('2d');
+    if (this.basePreviewCanvas === null) {
+      this.basePreviewCanvas = document.createElement('canvas');
+    }
+    this.basePreviewCanvas.width = width;
+    this.basePreviewCanvas.height = height;
+    const baseCtx = this.basePreviewCanvas.getContext('2d');
     if (baseCtx === null) {
       return;
     }
     baseCtx.drawImage(bitmap, 0, 0, width, height);
+    this.viewport.set({ zoom: 1, centerX: bitmap.width / 2, centerY: bitmap.height / 2 });
     this.previewScale.set(scale);
     this.scheduleRender();
   });
@@ -205,6 +253,7 @@ export class SpikeStage {
   private readonly _renderEffect = effect(() => {
     this.editor.renderParams();
     this.previewScale();
+    this.viewport();
     this.scheduleRender();
   });
 
@@ -221,8 +270,10 @@ export class SpikeStage {
       this.editor.visibleStarCount(),
       this.editor.renderedStars(),
     );
-    // Read so the overlay is repainted after a resize cleared its backing store.
+    // Read so the overlay is repainted after a resize cleared its backing
+    // store, and after every zoom/pan step so rings track their stars.
     const scale = this.previewScale();
+    this.viewport();
     const hoveredStar = hoveredId === null ? null : (stars.find((s) => s.id === hoveredId) ?? null);
     this.drawMarkers(hoveredStar, disabledStars, scale);
   });
@@ -264,10 +315,65 @@ export class SpikeStage {
     }
   }
 
-  /** Pointer moved over the preview — track the star under it, if any. */
+  /**
+   * Pointer pressed — start tracking it. Whether this becomes a click (toggle
+   * the star under it) or a pan is decided by how far it travels.
+   */
+  protected onStagePointerDown(event: PointerEvent): void {
+    if (!this.editor.hasImage() || this.isProcessing()) {
+      return;
+    }
+    this.dragPointerId = event.pointerId;
+    this.dragStartX = event.clientX;
+    this.dragStartY = event.clientY;
+    this.dragLastX = event.clientX;
+    this.dragLastY = event.clientY;
+  }
+
+  /**
+   * Pointer moved — hover-track the star under it; while pressed and past the
+   * drag threshold on a zoomed view, pan the viewport instead.
+   */
   protected onStagePointerMove(event: PointerEvent): void {
+    if (this.dragPointerId === event.pointerId) {
+      const travel = Math.hypot(event.clientX - this.dragStartX, event.clientY - this.dragStartY);
+      if (this.isPanning() || (travel > STAGE_DRAG_THRESHOLD_CSS_PX && this.viewport().zoom > 1)) {
+        if (!this.isPanning()) {
+          this.isPanning.set(true);
+          this.markerCanvasRef().nativeElement.setPointerCapture(event.pointerId);
+          this.editor.hoveredStarId.set(null);
+        }
+        this.panBy(this.dragLastX - event.clientX, this.dragLastY - event.clientY);
+        this.dragLastX = event.clientX;
+        this.dragLastY = event.clientY;
+        return;
+      }
+    }
     const star = this.starAt(event.clientX, event.clientY);
     this.editor.hoveredStarId.set(star?.id ?? null);
+  }
+
+  /**
+   * Pointer released — a press that never became a pan toggles the star under
+   * it; a pan just ends.
+   */
+  protected onStagePointerUp(event: PointerEvent): void {
+    if (this.dragPointerId !== event.pointerId) {
+      return;
+    }
+    this.dragPointerId = null;
+    const canvas = this.markerCanvasRef().nativeElement;
+    if (canvas.hasPointerCapture(event.pointerId)) {
+      canvas.releasePointerCapture(event.pointerId);
+    }
+    if (this.isPanning()) {
+      this.isPanning.set(false);
+      return;
+    }
+    const star = this.starAt(event.clientX, event.clientY);
+    if (star !== null) {
+      this.editor.toggleStar(star.id);
+    }
   }
 
   /** Pointer left the preview — nothing is hovered any more. */
@@ -275,12 +381,75 @@ export class SpikeStage {
     this.editor.hoveredStarId.set(null);
   }
 
-  /** Click on the preview — toggle spikes on the star under the pointer. */
-  protected onStageClick(event: MouseEvent): void {
-    const star = this.starAt(event.clientX, event.clientY);
-    if (star !== null) {
-      this.editor.toggleStar(star.id);
+  /** Wheel over the preview — zoom toward the cursor. */
+  protected onStageWheel(event: WheelEvent): void {
+    if (!this.editor.hasImage() || this.isProcessing()) {
+      return;
     }
+    event.preventDefault();
+    const bitmap = this.editor.sourceImage();
+    if (bitmap === null) {
+      return;
+    }
+    const anchor = this.imagePointAt(event.clientX, event.clientY);
+    if (anchor === null) {
+      return;
+    }
+    const factor = event.deltaY < 0 ? STAGE_WHEEL_ZOOM_FACTOR : 1 / STAGE_WHEEL_ZOOM_FACTOR;
+    this.viewport.set(
+      zoomViewportAt(
+        this.viewport(),
+        anchor.x,
+        anchor.y,
+        factor,
+        bitmap.width,
+        bitmap.height,
+        STAGE_MIN_ZOOM,
+        STAGE_MAX_ZOOM,
+      ),
+    );
+  }
+
+  /** Double click — reset the view to the whole image. */
+  protected onStageDoubleClick(): void {
+    const bitmap = this.editor.sourceImage();
+    if (bitmap === null) {
+      return;
+    }
+    this.viewport.set(
+      clampViewport(
+        { zoom: 1, centerX: bitmap.width / 2, centerY: bitmap.height / 2 },
+        bitmap.width,
+        bitmap.height,
+        STAGE_MIN_ZOOM,
+        STAGE_MAX_ZOOM,
+      ),
+    );
+  }
+
+  /** Pans the viewport by a CSS-pixel delta, converted into image space. */
+  private panBy(cssDx: number, cssDy: number): void {
+    const bitmap = this.editor.sourceImage();
+    if (bitmap === null) {
+      return;
+    }
+    const canvas = this.markerCanvasRef().nativeElement;
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width === 0) {
+      return;
+    }
+    const cssToImage = canvas.width / rect.width / this.effectiveScale();
+    this.viewport.set(
+      panViewport(
+        this.viewport(),
+        cssDx * cssToImage,
+        cssDy * cssToImage,
+        bitmap.width,
+        bitmap.height,
+        STAGE_MIN_ZOOM,
+        STAGE_MAX_ZOOM,
+      ),
+    );
   }
 
   /** Divider moved — store the new compare position for the clip-path wipe. */
@@ -297,24 +466,44 @@ export class SpikeStage {
     if (!this.editor.hasImage() || this.isProcessing()) {
       return null;
     }
-    const canvas = this.markerCanvasRef().nativeElement;
-    const rect = canvas.getBoundingClientRect();
-    if (canvas.width === 0 || rect.width === 0 || rect.height === 0) {
+    const point = this.imagePointAt(clientX, clientY);
+    if (point === null) {
       return null;
     }
-    const scale = this.previewScale();
-    const point = pointerToImagePoint(
+    const canvas = this.markerCanvasRef().nativeElement;
+    const rect = canvas.getBoundingClientRect();
+    // The hit radius is on-screen CSS pixels: convert it to canvas pixels
+    // through the element's CSS ratio, then to full-resolution image pixels.
+    const radius = (HIT_TEST_RADIUS_CSS_PX * canvas.width) / rect.width / this.effectiveScale();
+    return findNearestStar(this.editor.allStars(), point.x, point.y, radius);
+  }
+
+  /** Scale from full-resolution image pixels to canvas pixels, zoom included. */
+  private effectiveScale(): number {
+    return this.previewScale() * this.viewport().zoom;
+  }
+
+  /**
+   * Maps a client position to full-resolution image coordinates through the
+   * current viewport, or null while the canvas has no layout.
+   */
+  private imagePointAt(clientX: number, clientY: number): { x: number; y: number } | null {
+    const bitmap = this.editor.sourceImage();
+    const canvas = this.markerCanvasRef().nativeElement;
+    const rect = canvas.getBoundingClientRect();
+    if (bitmap === null || canvas.width === 0 || rect.width === 0 || rect.height === 0) {
+      return null;
+    }
+    const offset = pointerToImagePoint(
       clientX,
       clientY,
       rect,
       canvas.width,
       canvas.height,
-      scale,
+      this.effectiveScale(),
     );
-    // The hit radius is on-screen CSS pixels: convert it to canvas pixels
-    // through the element's CSS ratio, then to full-resolution image pixels.
-    const radius = (HIT_TEST_RADIUS_CSS_PX * canvas.width) / rect.width / scale;
-    return findNearestStar(this.editor.allStars(), point.x, point.y, radius);
+    const origin = viewportOrigin(this.viewport(), bitmap.width, bitmap.height);
+    return { x: origin.x + offset.x, y: origin.y + offset.y };
   }
 
   /** Resizes every canvas backing store, which also clears their contents. */
@@ -343,18 +532,51 @@ export class SpikeStage {
    * full-res, so `scale` maps them).
    */
   private renderFrame(): void {
-    const base = this.beforeCanvasRef().nativeElement;
-    if (base.width === 0 || base.height === 0) {
+    const before = this.beforeCanvasRef().nativeElement;
+    const bitmap = this.editor.sourceImage();
+    if (before.width === 0 || before.height === 0 || bitmap === null) {
       return;
     }
+    const beforeCtx = before.getContext('2d');
     const ctx = this.canvasRef().nativeElement.getContext('2d');
-    if (ctx === null) {
+    if (beforeCtx === null || ctx === null) {
       return;
     }
-    ctx.drawImage(base, 0, 0);
+    const view = this.viewport();
+    if (view.zoom === 1 && this.basePreviewCanvas !== null) {
+      // Fast path: the fitted view blits the cached preview.
+      beforeCtx.drawImage(this.basePreviewCanvas, 0, 0);
+    } else {
+      // Zoomed: resample the visible region straight from the full-resolution
+      // bitmap, so zooming shows true detail instead of preview upscaling.
+      const origin = viewportOrigin(view, bitmap.width, bitmap.height);
+      beforeCtx.drawImage(
+        bitmap,
+        origin.x,
+        origin.y,
+        bitmap.width / view.zoom,
+        bitmap.height / view.zoom,
+        0,
+        0,
+        before.width,
+        before.height,
+      );
+    }
+    ctx.drawImage(before, 0, 0);
     const params = this.editor.renderParams();
     if (params !== null) {
-      renderSpikes(ctx, { ...params, scale: this.previewScale() }, this.spriteCache);
+      const scale = this.effectiveScale();
+      const origin = viewportOrigin(view, bitmap.width, bitmap.height);
+      renderSpikes(
+        ctx,
+        {
+          ...params,
+          scale,
+          offsetX: -origin.x * scale,
+          offsetY: -origin.y * scale,
+        },
+        this.spriteCache,
+      );
     }
   }
 
@@ -380,10 +602,17 @@ export class SpikeStage {
     const rect = canvas.getBoundingClientRect();
     const cssToCanvas = rect.width === 0 ? 1 : canvas.width / rect.width;
     this.resolveMarkerColors();
+    const bitmap = this.editor.sourceImage();
+    const view = this.viewport();
+    const effectiveScale = scale * view.zoom;
+    const origin =
+      bitmap === null ? { x: 0, y: 0 } : viewportOrigin(view, bitmap.width, bitmap.height);
     drawStarMarkers(ctx, {
       hoveredStar,
       disabledStars,
-      scale,
+      scale: effectiveScale,
+      offsetX: -origin.x * effectiveScale,
+      offsetY: -origin.y * effectiveScale,
       hoverRadiusPx: HOVER_MARKER_RADIUS_CSS_PX * cssToCanvas,
       disabledRadiusPx: DISABLED_MARKER_RADIUS_CSS_PX * cssToCanvas,
       lineWidthPx: MARKER_LINE_WIDTH_CSS_PX * cssToCanvas,

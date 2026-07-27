@@ -16,6 +16,19 @@ export interface SpikeRenderParams {
    * change.
    */
   fluxRef: number;
+
+  /**
+   * Ids of stars the user manually forced ON. They render with a minimum
+   * brightness scale so the click has a visible result even for stars whose
+   * own flux would produce sub-pixel spikes.
+   */
+  forcedStarIds: ReadonlySet<number>;
+
+  /** Horizontal canvas-pixel offset added after scaling (viewport pan). */
+  offsetX: number;
+
+  /** Vertical canvas-pixel offset added after scaling (viewport pan). */
+  offsetY: number;
   /** Active spike preset supplying geometry and intensity ratios. */
   preset: SpikePreset;
   /** Number of spike arms per star (may override the preset's count). */

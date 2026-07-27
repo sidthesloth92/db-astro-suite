@@ -46,6 +46,9 @@ function makeParams(overrides: Partial<SpikeRenderParams> = {}): SpikeRenderPara
   return {
     stars: [makeStar()],
     fluxRef: 100,
+    forcedStarIds: new Set<number>(),
+    offsetX: 0,
+    offsetY: 0,
     preset: makePreset(),
     spikeCount: 4,
     lengthFactor: 1,
@@ -197,5 +200,69 @@ describe('renderSpikes', () => {
     const spritesAfterRerender = Array.from(cache.values());
     expect(spritesAfterRerender[0]).toBe(cachedSprites[0]);
     expect(spritesAfterRerender[1]).toBe(cachedSprites[1]);
+  });
+
+  it('should render a manually forced faint star with clearly visible spikes', () => {
+    const canvasOwn = document.createElement('canvas');
+    canvasOwn.width = 100;
+    canvasOwn.height = 100;
+    const ctxOwn = canvasOwn.getContext('2d');
+    if (ctxOwn === null) {
+      throw new Error('spec canvas has no 2d context');
+    }
+    const faint = makeStar({ id: 7, flux: 0.5 }); // 0.5% of fluxRef: sub-pixel spikes
+    const armSampler = (ctx: CanvasRenderingContext2D): number => {
+      // Mean brightness along one 45-degree arm, past the glow radius.
+      let sum = 0;
+      for (let r = 12; r <= 30; r++) {
+        const x = Math.round(50 + r * Math.SQRT1_2);
+        const y = Math.round(50 + r * Math.SQRT1_2);
+        const d = ctx.getImageData(x, y, 1, 1).data;
+        sum += d[0] + d[1] + d[2];
+      }
+      return sum;
+    };
+
+    renderSpikes(ctxOwn, makeParams({ stars: [faint] }), new Map());
+    const unforced = armSampler(ctxOwn);
+
+    ctxOwn.clearRect(0, 0, 100, 100);
+    renderSpikes(
+      ctxOwn,
+      makeParams({ stars: [faint], forcedStarIds: new Set([7]) }),
+      new Map(),
+    );
+    const forced = armSampler(ctxOwn);
+
+    expect(forced).toBeGreaterThan(unforced + 200);
+  });
+
+  it('should shift every drawn element by the viewport offset', () => {
+    const canvasOwn = document.createElement('canvas');
+    canvasOwn.width = 100;
+    canvasOwn.height = 100;
+    const ctxOwn = canvasOwn.getContext('2d');
+    if (ctxOwn === null) {
+      throw new Error('spec canvas has no 2d context');
+    }
+    // Star at (30, 30) with a +20px offset must light up around (50, 50).
+    // Short arms (lengthFactor 0.2) keep the drawing local, so the probe at
+    // the un-offset position cannot accidentally sit on an arm.
+    renderSpikes(
+      ctxOwn,
+      makeParams({
+        stars: [makeStar({ x: 30, y: 30 })],
+        offsetX: 20,
+        offsetY: 20,
+        lengthFactor: 0.2,
+      }),
+      new Map(),
+    );
+    const at = (x: number, y: number): number => {
+      const d = ctxOwn.getImageData(x, y, 1, 1).data;
+      return d[0] + d[1] + d[2];
+    };
+    expect(at(50, 50)).toBeGreaterThan(0);
+    expect(at(30, 30)).toBe(0);
   });
 });

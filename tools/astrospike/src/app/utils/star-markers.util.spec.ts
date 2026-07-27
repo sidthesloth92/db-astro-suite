@@ -26,6 +26,8 @@ function makeParams(overrides: Partial<StarMarkerParams> = {}): StarMarkerParams
     hoveredStar: null,
     disabledStars: [],
     scale: 1,
+    offsetX: 0,
+    offsetY: 0,
     hoverRadiusPx: HOVER_RADIUS,
     disabledRadiusPx: DISABLED_RADIUS,
     lineWidthPx: 2,

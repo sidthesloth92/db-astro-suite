@@ -20,6 +20,9 @@ const STAR: DetectedStar = {
 const PARAMS: SpikeRenderParams = {
   stars: [STAR],
   fluxRef: STAR.flux,
+  forcedStarIds: new Set<number>(),
+  offsetX: 0,
+  offsetY: 0,
   preset: SPIKE_PRESETS['classic'],
   spikeCount: 4,
   lengthFactor: 1,

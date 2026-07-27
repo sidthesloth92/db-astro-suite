@@ -153,11 +153,20 @@ export class SpikeEditorService implements OnDestroy {
       return null;
     }
     const all = this.allStars();
+    const forcedStarIds = new Set<number>();
+    for (const [id, forcedOn] of this.overrides()) {
+      if (forcedOn) {
+        forcedStarIds.add(id);
+      }
+    }
     return {
       stars: this.renderedStars(),
       // Anchored on the brightest detected star, not the brightest rendered
       // one, so toggling a star off never rescales the others.
       fluxRef: all.length > 0 ? all[0].flux : 0,
+      forcedStarIds,
+      offsetX: 0,
+      offsetY: 0,
       preset: this.preset(),
       spikeCount: this.spikeCount(),
       lengthFactor: this.controls.length(),

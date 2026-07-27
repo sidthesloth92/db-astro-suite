@@ -1,4 +1,8 @@
 import {
+  CONCENTRATION_PLATEAU_FRACTION,
+  CONCENTRATION_RADIUS_SCALE,
+} from '../constants/detection.constants';
+import {
   BackgroundMap,
   LuminanceImage,
   SourceComponent,
@@ -12,21 +16,29 @@ import {
  * pixel centroid when every weight is zero, to avoid NaN). Elongation is
  * `sqrt(l1 / max(l2, 1e-6))` where l1 >= l2 are the eigenvalues of the
  * flux-weighted second central moment matrix — 1 means perfectly round.
+ * Concentration is the fraction of the flux lying within
+ * `concentrationRadius` of the peak pixel — high for point sources (even ones
+ * dragging their own diffraction arms), low for galaxies and trails.
  *
  * @param component Component pixels (flat indices) at detection resolution.
  * @param lum Detection-resolution luminance plane the component was found in.
  * @param bg Per-pixel background model matching `lum`.
- * @returns Centroid, flux, peak, area, and elongation of the source.
+ * @param concentrationRadius Floor radius (px) of the concentration disc; the
+ *   effective disc grows with the source's near-peak core size.
+ * @returns Centroid, flux, peak, area, elongation, and concentration.
  */
 export function measureSource(
   component: SourceComponent,
   lum: LuminanceImage,
   bg: BackgroundMap,
+  concentrationRadius: number,
 ): SourceMeasurement {
   const width = lum.width;
 
   let flux = 0;
   let peak = 0;
+  let peakX = 0;
+  let peakY = 0;
   let sumX = 0;
   let sumY = 0;
   for (let i = 0; i < component.count; i++) {
@@ -39,6 +51,8 @@ export function measureSource(
     sumY += w * y;
     if (w > peak) {
       peak = w;
+      peakX = x;
+      peakY = y;
     }
   }
 
@@ -66,6 +80,8 @@ export function measureSource(
   let mxx = 0;
   let myy = 0;
   let mxy = 0;
+  let corePixelCount = 0;
+  const coreWeightThreshold = peak * CONCENTRATION_PLATEAU_FRACTION;
   if (flux > 0) {
     for (let i = 0; i < component.count; i++) {
       const idx = component.pixels[i];
@@ -76,6 +92,9 @@ export function measureSource(
       mxx += w * dx * dx;
       myy += w * dy * dy;
       mxy += w * dx * dy;
+      if (w >= coreWeightThreshold) {
+        corePixelCount++;
+      }
     }
     mxx /= flux;
     myy /= flux;
@@ -87,5 +106,30 @@ export function measureSource(
   const l2 = (mxx + myy - discriminant) / 2;
   const elongation = Math.sqrt(l1 / Math.max(l2, 1e-6));
 
-  return { cx, cy, flux, peak, area: component.count, elongation };
+  let concentration = 1;
+  if (flux > 0) {
+    // The disc adapts to the near-peak core so a heavily saturated plateau is
+    // not penalised for its sheer size. It grows with the core's
+    // area-equivalent radius — derived from the pixel COUNT, never from pixel
+    // distances, so bright pixels scattered along a trail cannot inflate it.
+    const coreEquivalentRadius = Math.sqrt(corePixelCount / Math.PI);
+    const effectiveRadius = Math.max(
+      concentrationRadius,
+      CONCENTRATION_RADIUS_SCALE * coreEquivalentRadius,
+    );
+    const radiusSq = effectiveRadius * effectiveRadius;
+    let nearFlux = 0;
+    for (let i = 0; i < component.count; i++) {
+      const idx = component.pixels[i];
+      const x = idx % width;
+      const dx = x - peakX;
+      const dy = (idx - x) / width - peakY;
+      if (dx * dx + dy * dy <= radiusSq) {
+        nearFlux += Math.max(0, lum.data[idx] - bg.background[idx]);
+      }
+    }
+    concentration = nearFlux / flux;
+  }
+
+  return { cx, cy, flux, peak, area: component.count, elongation, concentration };
 }
