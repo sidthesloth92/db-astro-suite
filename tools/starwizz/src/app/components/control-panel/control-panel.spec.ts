@@ -46,9 +46,9 @@ describe('ControlPanel', () => {
     const host = fixture.nativeElement as HTMLElement;
     const starsSection = host.querySelector('.stars-section');
     expect(starsSection).not.toBeNull();
-    // Stars on: the field sliders and the Shooting Stars toggle live in the section.
+    // Stars on: the field sliders and the Shooting Stars sub-header live in the section.
     expect(starsSection?.querySelectorAll('.slider-row').length).toBeGreaterThan(0);
-    expect(starsSection?.querySelector('.record-aux')).not.toBeNull();
+    expect(starsSection?.querySelector('.stars-subheader')).not.toBeNull();
 
     simService.starsEnabled.set(false);
     fixture.detectChanges();
@@ -57,7 +57,7 @@ describe('ControlPanel', () => {
     // controls are gone — leaving the user to focus on the camera/recording controls.
     expect(host.querySelector('.stars-section')).not.toBeNull();
     expect(host.querySelectorAll('.stars-section .slider-row').length).toBe(0);
-    expect(host.querySelector('.stars-section .record-aux')).toBeNull();
+    expect(host.querySelector('.stars-section .stars-subheader')).toBeNull();
   });
 
   describe('panel tabs (Scene / Stars)', () => {

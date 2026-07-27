@@ -370,21 +370,23 @@
         ></ng-container>
       }
 
-      <div class="record-aux">
+      <div class="stars-section-header stars-subheader">
+        <div class="format-label-row">
+          <label class="row-label">Shooting Stars</label>
+          <span
+            class="help-icon"
+            tabindex="0"
+            [dbaTooltip]="shootingStarsHelp"
+            [attr.aria-label]="shootingStarsHelp"
+          >
+            <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
+          </span>
+        </div>
         <dba-ui-switch
           ariaLabel="Shooting stars"
           [checked]="simService.shootingStarsEnabled()"
           (checkedChange)="simService.shootingStarsEnabled.set($event)"
         ></dba-ui-switch>
-        <span class="record-aux-label">Shooting Stars</span>
-        <span
-          class="help-icon"
-          tabindex="0"
-          [dbaTooltip]="shootingStarsHelp"
-          [attr.aria-label]="shootingStarsHelp"
-        >
-          <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
-        </span>
       </div>
 
       @if (isShootingStarSpeedVisible()) {

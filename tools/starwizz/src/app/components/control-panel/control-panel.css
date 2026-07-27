@@ -291,6 +291,20 @@
   gap: 10px;
 }
 
+/* Section headers read stronger than the slider labels beneath them. */
+.stars-section-header .row-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--db-color-text-primary);
+}
+
+/* Sub-headers (e.g. Shooting Stars) separate their group from the sliders above. */
+.stars-subheader {
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid var(--db-color-border);
+}
+
 .path-hint {
   margin: 0;
   font-family: var(--db-font-ui);
