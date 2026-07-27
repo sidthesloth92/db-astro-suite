@@ -41,6 +41,8 @@ describe('ControlPanel', () => {
   });
 
   it('should collapse every star control when the starfield is removed', () => {
+    simService.activePanelSection.set('stars');
+    fixture.detectChanges();
     const host = fixture.nativeElement as HTMLElement;
     const starsSection = host.querySelector('.stars-section');
     expect(starsSection).not.toBeNull();
@@ -56,6 +58,46 @@ describe('ControlPanel', () => {
     expect(host.querySelector('.stars-section')).not.toBeNull();
     expect(host.querySelectorAll('.stars-section .slider-row').length).toBe(0);
     expect(host.querySelector('.stars-section .record-aux')).toBeNull();
+  });
+
+  describe('panel tabs (Scene / Stars)', () => {
+    it('should default to the Scene tab with scene controls and no star sliders', () => {
+      const host = fixture.nativeElement as HTMLElement;
+
+      expect(simService.activePanelSection()).toBe('scene');
+      expect(host.querySelector('.record-options')).not.toBeNull();
+      expect(host.querySelector('.stars-section')).toBeNull();
+    });
+
+    it('should swap to star controls when the Stars tab is selected', () => {
+      component.onPanelSectionChange('stars');
+      fixture.detectChanges();
+
+      const host = fixture.nativeElement as HTMLElement;
+      expect(host.querySelector('.stars-section')).not.toBeNull();
+      expect(host.querySelector('.record-options')).toBeNull();
+    });
+
+    it('should keep the reset buttons and record button visible on both tabs', () => {
+      const host = fixture.nativeElement as HTMLElement;
+      expect(host.querySelector('.panel-actions')).not.toBeNull();
+      expect(host.querySelector('.record-split')).not.toBeNull();
+
+      simService.activePanelSection.set('stars');
+      fixture.detectChanges();
+
+      expect(host.querySelector('.panel-actions')).not.toBeNull();
+      expect(host.querySelector('.record-split')).not.toBeNull();
+    });
+
+    it('should render the record button as the last control of the panel', () => {
+      const host = fixture.nativeElement as HTMLElement;
+      const recordRow = host.querySelector('.record-row');
+
+      expect(recordRow?.lastElementChild?.classList.contains('record-split')).toBeTrue();
+      // The record row itself is the panel's final rendered block.
+      expect(recordRow?.nextElementSibling).toBeNull();
+    });
   });
 
   describe('record split-button', () => {
@@ -154,14 +196,14 @@ describe('ControlPanel', () => {
       fixture.detectChanges();
 
       const host = fixture.nativeElement as HTMLElement;
-      const labels = Array.from(host.querySelectorAll('.record-row .record-aux-label')).map(
+      const labels = Array.from(host.querySelectorAll('.record-options .record-aux-label')).map(
         (el) => el.textContent?.trim(),
       );
       expect(labels).toContain('Loop');
       expect(labels).toContain('Duration');
       expect(labels).toContain('Freeze frame');
       // Duration + freeze-at + freeze-hold inputs.
-      expect(host.querySelectorAll('.record-row .record-seconds-input').length).toBe(3);
+      expect(host.querySelectorAll('.record-options .record-seconds-input').length).toBe(3);
     });
 
     it('should hide the duration row and freeze-at input in Custom Path mode', () => {
@@ -170,12 +212,12 @@ describe('ControlPanel', () => {
       fixture.detectChanges();
 
       const host = fixture.nativeElement as HTMLElement;
-      const labels = Array.from(host.querySelectorAll('.record-row .record-aux-label')).map(
+      const labels = Array.from(host.querySelectorAll('.record-options .record-aux-label')).map(
         (el) => el.textContent?.trim(),
       );
       expect(labels).not.toContain('Duration');
       // Only the end-of-pass hold input remains.
-      expect(host.querySelectorAll('.record-row .record-seconds-input').length).toBe(1);
+      expect(host.querySelectorAll('.record-options .record-seconds-input').length).toBe(1);
     });
 
     it('should show the long-clip quality warning only past sixty seconds', () => {

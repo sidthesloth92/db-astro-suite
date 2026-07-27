@@ -37,6 +37,7 @@ import { RecordingResult } from '../models/recording-result.model';
 import {
   CameraKeyframe,
   ControlKey,
+  PanelSection,
   RecordingState,
   StarDepth,
   TravelDirection,
@@ -235,6 +236,12 @@ export class SimulationService implements OnDestroy {
    * Increments every second while recording is active.
    */
   recordingDuration = signal<number>(0);
+
+  /**
+   * Active control-panel tab, shared between the desktop panel's segmented
+   * tabs and the mobile sheet's bottom navigation.
+   */
+  activePanelSection = signal<PanelSection>('scene');
 
   /**
    * Whether to reset animation to the beginning before recording.

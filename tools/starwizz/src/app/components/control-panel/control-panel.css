@@ -57,6 +57,11 @@
   display: none;
 }
 
+/* In-sheet, the sheet's bottom navigation drives the tab switching. */
+:host(.in-sheet) .panel-tabs {
+  display: none;
+}
+
 :host(.in-sheet) .record-row {
   padding-top: 4px;
   border-top: none;
@@ -248,7 +253,13 @@
 }
 
 .record-seconds-input {
-  width: 84px;
+  width: 104px;
+}
+
+.record-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .record-warning {

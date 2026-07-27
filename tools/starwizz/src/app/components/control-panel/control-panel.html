@@ -12,6 +12,15 @@
     </button>
   </header>
 
+  <dba-ui-segmented-tabs
+    class="panel-tabs"
+    size="sm"
+    [options]="panelSectionTabs"
+    [value]="simService.activePanelSection()"
+    (valueChange)="onPanelSectionChange($event)"
+  ></dba-ui-segmented-tabs>
+
+  @if (simService.activePanelSection() === 'scene') {
   <div class="format-row">
     <div class="format-label-row">
       <label class="row-label">Format</label>
@@ -217,32 +226,6 @@
     </div>
   }
 
-  <!-- Reusable slider-row markup, instantiated once per visible control key. -->
-  <ng-template #sliderRow let-control>
-    <div class="slider-row">
-      <div class="slider-label-row">
-        <label class="row-label">{{ controlMeta(control).label }}</label>
-        <span
-          class="help-icon"
-          tabindex="0"
-          [dbaTooltip]="controlMeta(control).description"
-          [attr.aria-label]="controlMeta(control).description"
-        >
-          <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
-        </span>
-        <span class="row-value">{{ formatControlValue(control) }}</span>
-      </div>
-      <dba-ui-micro-slider
-        [value]="getControlValue(control)"
-        [min]="controlMeta(control).min"
-        [max]="controlMeta(control).max"
-        [step]="controlMeta(control).step"
-        [showReadout]="false"
-        (valueChange)="updateControlValue(control, $event)"
-      ></dba-ui-micro-slider>
-    </div>
-  </ng-template>
-
   <!-- Camera / scene sliders (Zoom & Rotation Speed) — independent of the stars. -->
   @for (control of cameraControlNames(); track control) {
     <ng-container
@@ -251,123 +234,8 @@
     ></ng-container>
   }
 
-  <!-- Stars: master switch plus every star-related control, grouped together. -->
-  <div class="stars-section">
-    <div class="stars-section-header">
-      <div class="format-label-row">
-        <label class="row-label">Stars</label>
-        <span
-          class="help-icon"
-          tabindex="0"
-          [dbaTooltip]="starsHelp"
-          [attr.aria-label]="starsHelp"
-        >
-          <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
-        </span>
-      </div>
-      <dba-ui-switch
-        ariaLabel="Show stars"
-        [checked]="simService.starsEnabled()"
-        (checkedChange)="simService.starsEnabled.set($event)"
-      ></dba-ui-switch>
-    </div>
-
-    @if (simService.starsEnabled()) {
-      @for (control of starFieldControlNames(); track control) {
-        <ng-container
-          [ngTemplateOutlet]="sliderRow"
-          [ngTemplateOutletContext]="{ $implicit: control }"
-        ></ng-container>
-      }
-
-      <div class="record-aux">
-        <dba-ui-switch
-          ariaLabel="Shooting stars"
-          [checked]="simService.shootingStarsEnabled()"
-          (checkedChange)="simService.shootingStarsEnabled.set($event)"
-        ></dba-ui-switch>
-        <span class="record-aux-label">Shooting Stars</span>
-        <span
-          class="help-icon"
-          tabindex="0"
-          [dbaTooltip]="shootingStarsHelp"
-          [attr.aria-label]="shootingStarsHelp"
-        >
-          <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
-        </span>
-      </div>
-
-      @if (isShootingStarSpeedVisible()) {
-        <ng-container
-          [ngTemplateOutlet]="sliderRow"
-          [ngTemplateOutletContext]="{ $implicit: 'shootingStarSpeed' }"
-        ></ng-container>
-      }
-    }
-  </div>
-
-  <div class="panel-actions">
-    <dba-ui-text-button
-      label="Reset Animation"
-      variant="secondary"
-      size="sm"
-      [disabled]="!simService.isImageLoaded() || simService.recordingState() !== 'idle'"
-      (clicked)="restartAnimation()"
-    >
-      <dba-ui-icon slot="leading" [def]="rotateCcwIcon" [size]="12" />
-    </dba-ui-text-button>
-    <dba-ui-text-button
-      label="Reset Params"
-      variant="secondary"
-      size="sm"
-      [disabled]="simService.recordingState() !== 'idle'"
-      (clicked)="resetParams()"
-    >
-      <dba-ui-icon slot="leading" [def]="rotateCcwIcon" [size]="12" />
-    </dba-ui-text-button>
-  </div>
-
-  <div class="record-row">
-    <dba-ui-split-button
-      class="record-split"
-      menuPlacement="up"
-      menuAriaLabel="Choose recording quality"
-      [label]="buttonText()"
-      [menuItems]="presetMenuItems()"
-      [selectedValue]="simService.recordingPreset()"
-      [disabled]="isRecordDisabled()"
-      [menuDisabled]="isRecordingActive()"
-      [dataState]="recordingState()"
-      [dbaTooltip]="'Record the animation as a video file — set the clip length with the Duration option below'"
-      (mainClick)="toggleRecording()"
-      (menuSelect)="selectPreset($event)"
-    ></dba-ui-split-button>
-
-    @if (simService.recordingError(); as recordingError) {
-      <p class="record-error" role="alert">{{ recordingError }}</p>
-    }
-
-    @if (simService.lastRecording(); as lastRecording) {
-      <div class="record-last">
-        <span class="record-last-label">Last video · ~{{ lastRecording.sizeMb }} MB</span>
-        <dba-ui-text-button
-          label="Save"
-          variant="secondary"
-          size="sm"
-          [dbaTooltip]="'Download the last recording again — useful if the automatic download failed'"
-          (clicked)="saveLastRecording()"
-        ></dba-ui-text-button>
-        @if (simService.canShareLastRecording()) {
-          <dba-ui-text-button
-            label="Share"
-            variant="secondary"
-            size="sm"
-            (clicked)="shareLastRecording()"
-          ></dba-ui-text-button>
-        }
-      </div>
-    }
-
+  <!-- Recording options — how the clip starts and ends. -->
+  <div class="record-options">
     <div class="record-aux">
       <dba-ui-switch
         ariaLabel="Record from beginning"
@@ -452,7 +320,7 @@
         <dba-ui-micro-input
           class="record-seconds-input"
           type="number"
-          prefix="hold"
+          prefix="for"
           suffix="s"
           ariaLabel="Hold the frozen frame for this many seconds"
           [value]="'' + simService.freezeHoldSeconds()"
@@ -470,4 +338,152 @@
       </p>
     }
   </div>
+  }
+
+  @if (simService.activePanelSection() === 'stars') {
+  <!-- Stars: master switch plus every star-related control, grouped together. -->
+  <div class="stars-section">
+    <div class="stars-section-header">
+      <div class="format-label-row">
+        <label class="row-label">Stars</label>
+        <span
+          class="help-icon"
+          tabindex="0"
+          [dbaTooltip]="starsHelp"
+          [attr.aria-label]="starsHelp"
+        >
+          <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
+        </span>
+      </div>
+      <dba-ui-switch
+        ariaLabel="Show stars"
+        [checked]="simService.starsEnabled()"
+        (checkedChange)="simService.starsEnabled.set($event)"
+      ></dba-ui-switch>
+    </div>
+
+    @if (simService.starsEnabled()) {
+      @for (control of starFieldControlNames(); track control) {
+        <ng-container
+          [ngTemplateOutlet]="sliderRow"
+          [ngTemplateOutletContext]="{ $implicit: control }"
+        ></ng-container>
+      }
+
+      <div class="record-aux">
+        <dba-ui-switch
+          ariaLabel="Shooting stars"
+          [checked]="simService.shootingStarsEnabled()"
+          (checkedChange)="simService.shootingStarsEnabled.set($event)"
+        ></dba-ui-switch>
+        <span class="record-aux-label">Shooting Stars</span>
+        <span
+          class="help-icon"
+          tabindex="0"
+          [dbaTooltip]="shootingStarsHelp"
+          [attr.aria-label]="shootingStarsHelp"
+        >
+          <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
+        </span>
+      </div>
+
+      @if (isShootingStarSpeedVisible()) {
+        <ng-container
+          [ngTemplateOutlet]="sliderRow"
+          [ngTemplateOutletContext]="{ $implicit: 'shootingStarSpeed' }"
+        ></ng-container>
+      }
+    }
+  </div>
+  }
+
+  <div class="panel-actions">
+    <dba-ui-text-button
+      label="Reset Animation"
+      variant="secondary"
+      size="sm"
+      [disabled]="!simService.isImageLoaded() || simService.recordingState() !== 'idle'"
+      (clicked)="restartAnimation()"
+    >
+      <dba-ui-icon slot="leading" [def]="rotateCcwIcon" [size]="12" />
+    </dba-ui-text-button>
+    <dba-ui-text-button
+      label="Reset Params"
+      variant="secondary"
+      size="sm"
+      [disabled]="simService.recordingState() !== 'idle'"
+      (clicked)="resetParams()"
+    >
+      <dba-ui-icon slot="leading" [def]="rotateCcwIcon" [size]="12" />
+    </dba-ui-text-button>
+  </div>
+
+  <div class="record-row">
+    @if (simService.recordingError(); as recordingError) {
+      <p class="record-error" role="alert">{{ recordingError }}</p>
+    }
+
+    @if (simService.lastRecording(); as lastRecording) {
+      <div class="record-last">
+        <span class="record-last-label">Last video · ~{{ lastRecording.sizeMb }} MB</span>
+        <dba-ui-text-button
+          label="Save"
+          variant="secondary"
+          size="sm"
+          [dbaTooltip]="'Download the last recording again — useful if the automatic download failed'"
+          (clicked)="saveLastRecording()"
+        ></dba-ui-text-button>
+        @if (simService.canShareLastRecording()) {
+          <dba-ui-text-button
+            label="Share"
+            variant="secondary"
+            size="sm"
+            (clicked)="shareLastRecording()"
+          ></dba-ui-text-button>
+        }
+      </div>
+    }
+
+    <dba-ui-split-button
+      class="record-split"
+      menuPlacement="up"
+      menuAriaLabel="Choose recording quality"
+      [label]="buttonText()"
+      [menuItems]="presetMenuItems()"
+      [selectedValue]="simService.recordingPreset()"
+      [disabled]="isRecordDisabled()"
+      [menuDisabled]="isRecordingActive()"
+      [dataState]="recordingState()"
+      [dbaTooltip]="'Record the animation as a video file — set the clip length with the Duration option in the Scene tab'"
+      (mainClick)="toggleRecording()"
+      (menuSelect)="selectPreset($event)"
+    ></dba-ui-split-button>
+  </div>
+
+  <!-- Reusable slider-row markup, instantiated once per visible control key.
+       Lives outside the tab conditionals so both tab bodies can outlet it. -->
+  <ng-template #sliderRow let-control>
+    <div class="slider-row">
+      <div class="slider-label-row">
+        <label class="row-label">{{ controlMeta(control).label }}</label>
+        <span
+          class="help-icon"
+          tabindex="0"
+          [dbaTooltip]="controlMeta(control).description"
+          [attr.aria-label]="controlMeta(control).description"
+        >
+          <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
+        </span>
+        <span class="row-value">{{ formatControlValue(control) }}</span>
+      </div>
+      <dba-ui-micro-slider
+        [value]="getControlValue(control)"
+        [min]="controlMeta(control).min"
+        [max]="controlMeta(control).max"
+        [step]="controlMeta(control).step"
+        [showReadout]="false"
+        (valueChange)="updateControlValue(control, $event)"
+      ></dba-ui-micro-slider>
+    </div>
+  </ng-template>
 </section>

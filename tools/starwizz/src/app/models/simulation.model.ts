@@ -1,5 +1,8 @@
 export type RecordingState = 'idle' | 'recording' | 'processing';
 
+/** Which control-panel tab is active: scene/camera/recording vs star options. */
+export type PanelSection = 'scene' | 'stars';
+
 export type ControlKey =
   | 'zoomRate'
   | 'rotationRate'

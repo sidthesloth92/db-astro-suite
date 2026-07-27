@@ -10,6 +10,7 @@ import {
   IconComponent,
   MicroInputComponent,
   MicroSliderComponent,
+  SegmentedTabsComponent,
   SelectComponent,
   SplitButtonComponent,
   SwitchComponent,
@@ -39,6 +40,7 @@ import {
   FormatKey,
   MAX_ZOOM,
   MIN_SCALE,
+  PANEL_SECTION_TABS,
   PATH_DURATION_MAX,
   PATH_DURATION_MIN,
   PATH_SPEED_MAX,
@@ -50,7 +52,12 @@ import {
   STAR_FIELD_CONTROL_KEYS,
 } from '../../constants/simulation.constant';
 import { RecordingPreset } from '../../models/recording.model';
-import { ControlKey, ControlMetadata, TravelDirection } from '../../models/simulation.model';
+import {
+  ControlKey,
+  ControlMetadata,
+  PanelSection,
+  TravelDirection,
+} from '../../models/simulation.model';
 import { SimulationService } from '../../services/simulation.service';
 import { clampSecondsInput } from '../../utils/recording-duration.util';
 import {
@@ -79,6 +86,7 @@ const PATH_HIDDEN_CONTROLS: ReadonlySet<ControlKey> = new Set<ControlKey>([
     NgTemplateOutlet,
     MicroInputComponent,
     MicroSliderComponent,
+    SegmentedTabsComponent,
     SelectComponent,
     SplitButtonComponent,
     SwitchComponent,
@@ -103,6 +111,15 @@ export class ControlPanel {
 
   /** Emitted when the user clicks the panel-header "watch the demo" button. */
   readonly demoRequested = output<void>();
+
+  /** Tab definitions for the Scene / Stars panel switcher. */
+  protected readonly panelSectionTabs = PANEL_SECTION_TABS;
+
+  /** Applies a tab selection from the segmented switcher. */
+  onPanelSectionChange(id: string): void {
+    // Narrowing cast: the segmented tabs only emit ids from PANEL_SECTION_TABS.
+    this.simService.activePanelSection.set(id as PanelSection);
+  }
 
   /** Tooltip text shown on the help icon next to the format selector. */
   protected readonly formatHelp =
