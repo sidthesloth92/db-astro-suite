@@ -179,6 +179,15 @@ describe('ControlPanel', () => {
       expect(component.buttonText()).toBe('Recording... (7s)');
     });
 
+    it('should restart the clip preview when a duration or freeze setting changes', () => {
+      component.onDurationSecondsChange('12');
+      expect(simService.restartAnimationRequested()).toBeTrue();
+
+      simService.restartAnimationRequested.set(false);
+      component.onFreezeToggle(true);
+      expect(simService.restartAnimationRequested()).toBeTrue();
+    });
+
     it('should clamp typed duration values into the allowed range', () => {
       component.onDurationSecondsChange('9999');
       expect(simService.recordingDurationSeconds()).toBe(300);

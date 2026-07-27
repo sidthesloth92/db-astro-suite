@@ -273,7 +273,7 @@
           ariaLabel="Custom recording duration"
           [checked]="simService.durationEnabled()"
           [disabled]="simService.recordingState() !== 'idle'"
-          (checkedChange)="simService.durationEnabled.set($event)"
+          (checkedChange)="onDurationToggle($event)"
         ></dba-ui-switch>
         <span class="record-aux-label">Duration</span>
         @if (simService.durationEnabled()) {
@@ -302,7 +302,7 @@
         ariaLabel="Freeze frame during the clip"
         [checked]="simService.freezeFrameEnabled()"
         [disabled]="simService.recordingState() !== 'idle'"
-        (checkedChange)="simService.freezeFrameEnabled.set($event)"
+        (checkedChange)="onFreezeToggle($event)"
       ></dba-ui-switch>
       <span class="record-aux-label">Freeze frame</span>
       @if (simService.freezeFrameEnabled()) {

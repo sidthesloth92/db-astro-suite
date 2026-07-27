@@ -489,6 +489,60 @@ describe('SimulationService', () => {
     });
   });
 
+  describe('clip preview timeline', () => {
+    it('should mirror the freeze and resume schedule of a recording', fakeAsync(() => {
+      service.durationEnabled.set(true);
+      service.recordingDurationSeconds.set(10);
+      service.freezeFrameEnabled.set(true);
+      service.freezeAtSeconds.set(2);
+      service.freezeHoldSeconds.set(3);
+
+      service.startClipPreview();
+      expect(service.previewActive()).toBe(true);
+
+      tick(2000);
+      expect(service.sceneFrozen()).toBe(true);
+      tick(3000);
+      expect(service.sceneFrozen()).toBe(false);
+      expect(service.previewElapsedSeconds()).toBe(5);
+      tick(5000);
+      // Loop on: the preview requests a restart at the clip end.
+      expect(service.restartAnimationRequested()).toBe(true);
+      expect(service.previewActive()).toBe(false);
+      discardPeriodicTasks();
+    }));
+
+    it('should hold the final frame at the preview end when Loop is off', fakeAsync(() => {
+      service.setLoopEnabled(false);
+      service.durationEnabled.set(true);
+      service.recordingDurationSeconds.set(4);
+      service.startClipPreview();
+
+      tick(4000);
+
+      expect(service.sceneFrozen()).toBe(true);
+      expect(service.restartAnimationRequested()).toBe(false);
+      discardPeriodicTasks();
+    }));
+
+    it('should end a path preview with the configured hold after the pass', fakeAsync(() => {
+      service.updateDirection('path');
+      service.setCameraStart();
+      service.setCameraEnd();
+      service.finalizePath();
+      service.freezeFrameEnabled.set(true);
+      service.freezeHoldSeconds.set(2);
+      service.startClipPreview();
+
+      service.onPathPassComplete();
+
+      expect(service.sceneFrozen()).toBe(true);
+      tick(2000);
+      expect(service.restartAnimationRequested()).toBe(true);
+      discardPeriodicTasks();
+    }));
+  });
+
   describe('startRecording', () => {
     /** Recorder instances created by the test double, in construction order. */
     let recorders: FakeMediaRecorder[];

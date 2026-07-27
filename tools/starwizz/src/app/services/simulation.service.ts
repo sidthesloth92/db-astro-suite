@@ -284,6 +284,38 @@ export class SimulationService implements OnDestroy {
   sceneFrozen = signal<boolean>(false);
 
   /**
+   * Whether a preview clip timeline is running: after a restart the animation
+   * plays exactly as a recording would (freeze, hold, duration end, loop),
+   * so the user can visualise the clip without recording it.
+   */
+  previewActive = signal<boolean>(false);
+
+  /** Elapsed seconds of the active preview timeline. */
+  previewElapsedSeconds = signal<number>(0);
+
+  /** Whether the on-canvas clip timer should be shown. */
+  isClipTimerVisible = computed<boolean>(
+    () => this.recordingState() === 'recording' || this.previewActive(),
+  );
+
+  /**
+   * On-canvas clip timer text: elapsed vs. the clip's planned length. Path
+   * clips show the derived pass length (plus any end hold) as an estimate.
+   */
+  clipTimerLabel = computed<string>(() => {
+    const elapsed =
+      this.recordingState() === 'recording'
+        ? this.recordingDuration()
+        : this.previewElapsedSeconds();
+    if (this.isPathMode() && this.pathFinalized()) {
+      const hold = this.freezeFrameEnabled() ? this.freezeHoldSeconds() : 0;
+      const total = Math.round(this.pathDurationSeconds() + hold);
+      return `${elapsed}s / ~${total}s`;
+    }
+    return `${elapsed}s / ${this.recordingTargetSeconds()}s`;
+  });
+
+  /**
    * Effective total clip length in seconds for regular (non-path) modes: the
    * custom duration when enabled, otherwise the default recording cap.
    */
@@ -445,6 +477,12 @@ export class SimulationService implements OnDestroy {
 
   /** Timeout handle that ends the clip after a path-end hold (path mode). */
   private pathHoldTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  /** Timeout handles driving the preview clip timeline (freeze/resume/end). */
+  private previewTimeouts: ReturnType<typeof setTimeout>[] = [];
+
+  /** Interval handle ticking the preview elapsed-seconds counter. */
+  private previewInterval: ReturnType<typeof setInterval> | null = null;
 
   /** Canvas being recorded — retained so a codec fallback can re-capture it. */
   private recordingCanvas: HTMLCanvasElement | null = null;
@@ -1107,6 +1145,7 @@ export class SimulationService implements OnDestroy {
       // so the counter always matches actually-captured footage.
       this.recordingDuration.set(0);
       this.clearRecordingTimers();
+      this.stopClipPreview();
       this.sceneFrozen.set(false);
       this.timerInterval = setInterval(() => {
         this.recordingDuration.update((d) => d + 1);
@@ -1272,18 +1311,92 @@ export class SimulationService implements OnDestroy {
 
   /**
    * Called by the simulator when a Custom Path A→B pass completes while a
-   * recording is active: optionally holds the final frame for the configured
-   * seconds (the recording keeps capturing), then ends the clip.
+   * recording or a preview timeline is active: optionally holds the final
+   * frame for the configured seconds, then ends the clip (or its preview).
    */
   onPathPassComplete(): void {
-    if (!this.isRecording()) {
+    const holdSeconds = this.freezeFrameEnabled() ? this.freezeHoldSeconds() : 0;
+    if (this.isRecording()) {
+      if (holdSeconds > 0) {
+        this.sceneFrozen.set(true);
+        this.pathHoldTimeout = setTimeout(() => this.finishClip(), holdSeconds * 1000);
+      } else {
+        this.finishClip();
+      }
       return;
     }
-    if (this.freezeFrameEnabled() && this.freezeHoldSeconds() > 0) {
-      this.sceneFrozen.set(true);
-      this.pathHoldTimeout = setTimeout(() => this.finishClip(), this.freezeHoldSeconds() * 1000);
+    if (this.previewActive()) {
+      if (holdSeconds > 0) {
+        this.sceneFrozen.set(true);
+        this.previewTimeouts.push(setTimeout(() => this.finishPreview(), holdSeconds * 1000));
+      } else {
+        this.finishPreview();
+      }
+    }
+  }
+
+  /**
+   * Plays the animation exactly as a recording would — same freeze, hold,
+   * duration end and Loop behaviour — so the user can visualise the clip
+   * without recording. Started on every animation restart; a real recording
+   * supersedes it.
+   */
+  startClipPreview(): void {
+    if (this.isRecording()) {
+      return;
+    }
+    this.stopClipPreview();
+    this.sceneFrozen.set(false);
+    this.previewActive.set(true);
+    this.previewElapsedSeconds.set(0);
+    this.previewInterval = setInterval(() => {
+      this.previewElapsedSeconds.update((s) => s + 1);
+    }, 1000);
+
+    // Path clips end when the pass completes (onPathPassComplete drives it).
+    if (this.isPathMode() && this.pathFinalized()) {
+      return;
+    }
+
+    const target = this.recordingTargetSeconds();
+    const freezeAt = this.freezeAtSeconds();
+    if (this.freezeFrameEnabled() && freezeAt < target) {
+      this.previewTimeouts.push(setTimeout(() => this.sceneFrozen.set(true), freezeAt * 1000));
+      const resumeAt = freezeAt + this.freezeHoldSeconds();
+      if (resumeAt < target) {
+        this.previewTimeouts.push(
+          setTimeout(() => this.sceneFrozen.set(false), resumeAt * 1000),
+        );
+      }
+    }
+    this.previewTimeouts.push(setTimeout(() => this.finishPreview(), target * 1000));
+  }
+
+  /**
+   * Ends the preview at the clip boundary, applying the Loop setting the way
+   * a real clip end would: on → restart (which begins the next preview run);
+   * off → hold the final frame.
+   */
+  private finishPreview(): void {
+    this.stopClipPreview();
+    if (this.loopEnabled()) {
+      this.sceneFrozen.set(false);
+      this.restartAnimationRequested.set(true);
     } else {
-      this.finishClip();
+      this.sceneFrozen.set(true);
+    }
+  }
+
+  /** Cancels the preview timeline and its timers (a recording supersedes it). */
+  stopClipPreview(): void {
+    this.previewActive.set(false);
+    for (const timeout of this.previewTimeouts) {
+      clearTimeout(timeout);
+    }
+    this.previewTimeouts = [];
+    if (this.previewInterval) {
+      clearInterval(this.previewInterval);
+      this.previewInterval = null;
     }
   }
 
@@ -1387,6 +1500,7 @@ export class SimulationService implements OnDestroy {
       this.pendingObjectUrl = null;
     }
     this.clearRecordingTimers();
+    this.stopClipPreview();
   }
 
   /**

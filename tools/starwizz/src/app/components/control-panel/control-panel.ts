@@ -374,7 +374,7 @@ export class ControlPanel {
     this.simService.updateStarDirection(value);
   }
 
-  /** Applies a clamped Duration seconds value typed into the micro input. */
+  /** Applies a clamped Duration seconds value and restarts the clip preview. */
   onDurationSecondsChange(raw: string): void {
     this.simService.recordingDurationSeconds.set(
       clampSecondsInput(
@@ -384,9 +384,16 @@ export class ControlPanel {
         DEFAULT_RECORDING_DURATION_SECONDS,
       ),
     );
+    this.restartAnimation();
   }
 
-  /** Applies a clamped freeze-at seconds value typed into the micro input. */
+  /** Toggles the Duration option and restarts the clip preview. */
+  onDurationToggle(on: boolean): void {
+    this.simService.durationEnabled.set(on);
+    this.restartAnimation();
+  }
+
+  /** Applies a clamped freeze-at seconds value and restarts the clip preview. */
   onFreezeAtChange(raw: string): void {
     this.simService.freezeAtSeconds.set(
       clampSecondsInput(
@@ -396,9 +403,10 @@ export class ControlPanel {
         DEFAULT_FREEZE_AT_SECONDS,
       ),
     );
+    this.restartAnimation();
   }
 
-  /** Applies a clamped freeze-hold seconds value typed into the micro input. */
+  /** Applies a clamped freeze-hold seconds value and restarts the clip preview. */
   onFreezeHoldChange(raw: string): void {
     this.simService.freezeHoldSeconds.set(
       clampSecondsInput(
@@ -408,6 +416,13 @@ export class ControlPanel {
         DEFAULT_FREEZE_HOLD_SECONDS,
       ),
     );
+    this.restartAnimation();
+  }
+
+  /** Toggles the Freeze frame option and restarts the clip preview. */
+  onFreezeToggle(on: boolean): void {
+    this.simService.freezeFrameEnabled.set(on);
+    this.restartAnimation();
   }
 
   /** Delegates to {@link SimulationService.toggleRecording}. */

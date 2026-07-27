@@ -180,6 +180,9 @@ export class Simulator implements AfterViewInit {
         this.panY = 0;
       }
       this.simService.restartAnimationRequested.set(false);
+      // Every restart plays the clip timeline as a recording would, so the
+      // user can preview freeze/duration/loop behaviour without recording.
+      this.simService.startClipPreview();
     }
   });
 
@@ -540,9 +543,9 @@ export class Simulator implements AfterViewInit {
 
     if (t >= 1) {
       // We've reached B this frame (lerp at t=1 == end).
-      if (this.simService.isRecording()) {
-        // The clip ends with the pass — the service applies the optional
-        // end-of-path hold and the Loop setting.
+      if (this.simService.isRecording() || this.simService.previewActive()) {
+        // The clip (or its preview) ends with the pass — the service applies
+        // the optional end-of-path hold and the Loop setting.
         this.simService.onPathPassComplete();
       } else if (this.simService.loopEnabled()) {
         // Restart the timer so the next frame begins a fresh A→B leg —
