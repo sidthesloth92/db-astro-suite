@@ -190,6 +190,53 @@ describe('SpikeEditorService', () => {
     });
   });
 
+  describe('moveStar', () => {
+    beforeEach(() => {
+      service.imageMeta.set({ fileName: 'm82.png', width: 500, height: 300 });
+      service.allStars.set(STARS);
+    });
+
+    it('should reposition the star and keep every other property intact', () => {
+      const original = service.allStars();
+
+      service.moveStar(1, 250.5, 120.25);
+
+      const moved = service.allStars().find((s) => s.id === 1);
+      expect(moved?.x).toBe(250.5);
+      expect(moved?.y).toBe(120.25);
+      expect(moved?.flux).toBe(300);
+      // Immutable replacement, not in-place mutation.
+      expect(service.allStars()).not.toBe(original);
+      expect(original.find((s) => s.id === 1)?.x).toBe(11);
+    });
+
+    it('should clamp the target position to the image bounds', () => {
+      service.moveStar(0, -40, 900);
+
+      const moved = service.allStars().find((s) => s.id === 0);
+      expect(moved?.x).toBe(0);
+      expect(moved?.y).toBe(300);
+    });
+
+    it('should flow the new position into the rendered stars', () => {
+      service.updateControl('stars', 1);
+      service.moveStar(2, 33, 44);
+      const rendered = service.renderedStars().find((s) => s.id === 2);
+      expect(rendered?.x).toBe(33);
+      expect(rendered?.y).toBe(44);
+    });
+
+    it('should ignore an unknown id and a missing image', () => {
+      const before = service.allStars();
+      service.moveStar(99, 5, 5);
+      expect(service.allStars()).toBe(before);
+
+      service.imageMeta.set(null);
+      service.moveStar(0, 5, 5);
+      expect(service.allStars()).toBe(before);
+    });
+  });
+
   describe('exportCurrent', () => {
     it('should set a guard error when no image is ready', async () => {
       await service.exportCurrent();

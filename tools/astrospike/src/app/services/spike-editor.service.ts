@@ -344,6 +344,34 @@ export class SpikeEditorService implements OnDestroy {
     });
   }
 
+  /**
+   * Moves a detected star to a new position, clamped to the image bounds. This
+   * is the manual escape hatch for imperfect detection: the user drags the
+   * detection onto the star's true centre and the spikes follow. The star list
+   * is replaced immutably; flux ordering, ids, overrides, and colour are
+   * untouched, so the move survives every slider change exactly like a toggle.
+   * @param id Id of the star to move.
+   * @param x Target x in full-resolution image pixels.
+   * @param y Target y in full-resolution image pixels.
+   */
+  moveStar(id: number, x: number, y: number): void {
+    const meta = this.imageMeta();
+    if (meta === null) {
+      return;
+    }
+    const clampedX = Math.min(meta.width, Math.max(0, x));
+    const clampedY = Math.min(meta.height, Math.max(0, y));
+    this.allStars.update((stars) => {
+      const index = stars.findIndex((star) => star.id === id);
+      if (index === -1) {
+        return stars;
+      }
+      const next = stars.slice();
+      next[index] = { ...next[index], x: clampedX, y: clampedY };
+      return next;
+    });
+  }
+
   // ==================== Export ====================
 
   /**

@@ -1,6 +1,9 @@
 import {
+  REFINE_ANCHOR_MIN_PEAK_FRACTION,
+  REFINE_ANCHOR_RADIUS_PX,
   REFINE_CORE_PADDING_PX,
   REFINE_CORE_RADIUS_MIN_PX,
+  REFINE_CORE_RADIUS_SCALE,
   REFINE_PLATEAU_FRACTION,
 } from '../constants/detection.constants';
 import { REC709_B, REC709_G, REC709_R } from '../constants/luminance.constants';
@@ -37,14 +40,15 @@ function medianOf(values: readonly number[]): number {
  * background is the median luma of the window BORDER pixels; per-pixel
  * weights are `max(0, luma - localBackground)`.
  *
- * The centroid is anchored on the PEAK, not the whole window: first the peak
- * pixel is located, then the extent of its near-peak plateau (weights within
- * `REFINE_PLATEAU_FRACTION` of the peak — a saturated core is a flat plateau),
- * and the sub-pixel centroid is computed only over pixels within
- * plateau-radius + padding of the peak pixel. Centroiding the whole window
- * instead lets a star's own (usually asymmetric) diffraction arms and bright
- * neighbours drag the centre off the core — which renders spikes visibly
- * misaligned on real telescope data.
+ * The centroid is anchored on the star's own peak, not the whole window: the
+ * anchor is the brightest pixel near the approximate position (falling back
+ * to the window's global peak only when nothing bright sits nearby), the core
+ * region is sized from the near-peak plateau's pixel count, and the sub-pixel
+ * centroid is computed only over that core disc. Centroiding the whole window
+ * lets a star's own (usually asymmetric) diffraction arms and bright
+ * neighbours drag the centre off the core; sizing the core from pixel
+ * distances lets one bright noise pixel balloon it back into a whole-window
+ * centroid — both render spikes visibly misaligned on real telescope data.
  *
  * The star color is the luma-weighted mean RGB over that same core region's
  * pixels whose weight exceeds 50% of the peak, excluding pixels with any
@@ -96,43 +100,66 @@ export function refineStar(
   }
   const localBackground = medianOf(borderLumas);
 
-  // Pass 1: locate the peak pixel inside the window.
-  let peak = 0;
-  let peakX = centerX;
-  let peakY = centerY;
+  // Pass 1: locate the anchor peak. The search prefers the neighbourhood of
+  // the approximate position — detection's centroid is at worst a few pixels
+  // off its own star, so the true peak is close by. Searching the whole
+  // window unconditionally lets a brighter neighbour star capture the anchor
+  // and drag the refined centre off this star entirely.
+  let globalPeak = 0;
+  let globalPeakX = centerX;
+  let globalPeakY = centerY;
+  let nearPeak = 0;
+  let nearPeakX = centerX;
+  let nearPeakY = centerY;
+  const anchorRadiusSq = REFINE_ANCHOR_RADIUS_PX * REFINE_ANCHOR_RADIUS_PX;
   for (let y = y0; y <= y1; y++) {
     const row = y * width;
     for (let x = x0; x <= x1; x++) {
       const w = Math.max(0, lumaAt(rgba, row + x) - localBackground);
-      if (w > peak) {
-        peak = w;
-        peakX = x;
-        peakY = y;
+      if (w > globalPeak) {
+        globalPeak = w;
+        globalPeakX = x;
+        globalPeakY = y;
+      }
+      const dx = x - centerX;
+      const dy = y - centerY;
+      if (dx * dx + dy * dy <= anchorRadiusSq && w > nearPeak) {
+        nearPeak = w;
+        nearPeakX = x;
+        nearPeakY = y;
       }
     }
   }
+  const anchorIsTrustworthy = nearPeak >= globalPeak * REFINE_ANCHOR_MIN_PEAK_FRACTION;
+  const peak = anchorIsTrustworthy ? nearPeak : globalPeak;
+  const peakX = anchorIsTrustworthy ? nearPeakX : globalPeakX;
+  const peakY = anchorIsTrustworthy ? nearPeakY : globalPeakY;
 
-  // Pass 2: measure the near-peak plateau extent (a saturated core is a flat
-  // plateau; an unsaturated star's plateau is essentially just its peak).
+  // Pass 2: size the core region from the near-peak plateau's pixel COUNT
+  // (area-equivalent radius). Sizing it from pixel distances instead lets one
+  // bright noise pixel or a similar-brightness neighbour anywhere in the
+  // window balloon the core back into a whole-window centroid — which is what
+  // renders markers floating between stars.
   const plateauThreshold = peak * REFINE_PLATEAU_FRACTION;
-  let plateauRadiusSq = 0;
+  let plateauCount = 0;
   if (peak > 0) {
     for (let y = y0; y <= y1; y++) {
       const row = y * width;
       for (let x = x0; x <= x1; x++) {
         const w = lumaAt(rgba, row + x) - localBackground;
         if (w >= plateauThreshold) {
-          const d2 = (x - peakX) * (x - peakX) + (y - peakY) * (y - peakY);
-          if (d2 > plateauRadiusSq) {
-            plateauRadiusSq = d2;
-          }
+          plateauCount++;
         }
       }
     }
   }
+  const plateauEquivalentRadius = Math.sqrt(plateauCount / Math.PI);
   const coreRadius = Math.min(
     windowRadius,
-    Math.max(REFINE_CORE_RADIUS_MIN_PX, Math.ceil(Math.sqrt(plateauRadiusSq)) + REFINE_CORE_PADDING_PX),
+    Math.max(
+      REFINE_CORE_RADIUS_MIN_PX,
+      Math.ceil(REFINE_CORE_RADIUS_SCALE * plateauEquivalentRadius) + REFINE_CORE_PADDING_PX,
+    ),
   );
   const coreRadiusSq = coreRadius * coreRadius;
 

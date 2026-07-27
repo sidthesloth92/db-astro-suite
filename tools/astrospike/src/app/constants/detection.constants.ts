@@ -51,10 +51,34 @@ export const REFINE_WINDOW_RADIUS_MAX = 128;
 export const REFINE_PLATEAU_FRACTION = 0.9;
 
 /**
+ * Multiplier applied to the plateau's area-equivalent radius when sizing the
+ * refinement core region. The radius comes from the near-peak pixel COUNT,
+ * never from pixel distances — a lone bright noise pixel or a similar
+ * neighbour elsewhere in the window must not balloon the core back into a
+ * whole-window centroid.
+ */
+export const REFINE_CORE_RADIUS_SCALE = 1.5;
+
+/**
  * Padding (px) added around the measured plateau radius to form the
  * refinement core region.
  */
 export const REFINE_CORE_PADDING_PX = 3;
+
+/**
+ * Radius (px) around the approximate position the anchor peak is searched in
+ * first. Detection's centroid is at worst a few pixels off its star, so the
+ * true peak is nearby; searching the whole window instead lets a brighter
+ * neighbour capture the anchor.
+ */
+export const REFINE_ANCHOR_RADIUS_PX = 12;
+
+/**
+ * Minimum weight of the near-approx anchor, as a fraction of the window's
+ * global peak, for it to be trusted. Below this the approximate position is
+ * assumed to have missed the star and the global peak is used instead.
+ */
+export const REFINE_ANCHOR_MIN_PEAK_FRACTION = 0.15;
 
 /** Smallest refinement core radius, so tiny stars still gather enough pixels. */
 export const REFINE_CORE_RADIUS_MIN_PX = 4;

@@ -385,6 +385,46 @@ describe('SpikeStage', () => {
       expect(toggleSpy).not.toHaveBeenCalled();
     });
 
+    it('should reposition a star when the press on it travels beyond the threshold', () => {
+      const toggleSpy = spyOn(editor, 'toggleStar');
+      const moveSpy = spyOn(editor, 'moveStar');
+      const from = clientPointFor(300, 150);
+      const to = clientPointFor(320, 160);
+      const canvas = markerCanvas();
+      spyOn(canvas, 'setPointerCapture');
+      spyOn(canvas, 'hasPointerCapture').and.returnValue(false);
+
+      canvas.dispatchEvent(
+        new PointerEvent('pointerdown', { bubbles: true, pointerId: 1, clientX: from.clientX, clientY: from.clientY }),
+      );
+      canvas.dispatchEvent(
+        new PointerEvent('pointermove', { bubbles: true, pointerId: 1, clientX: to.clientX, clientY: to.clientY }),
+      );
+      canvas.dispatchEvent(
+        new PointerEvent('pointerup', { bubbles: true, pointerId: 1, clientX: to.clientX, clientY: to.clientY }),
+      );
+
+      expect(moveSpy).toHaveBeenCalled();
+      const [movedId, movedX, movedY] = moveSpy.calls.mostRecent().args;
+      expect(movedId).toBe(1);
+      expect(movedX).toBeCloseTo(320, -1);
+      expect(movedY).toBeCloseTo(160, -1);
+      // A drag never doubles as a toggle.
+      expect(toggleSpy).not.toHaveBeenCalled();
+    });
+
+    it('should not pan or move anything when dragging empty sky at zoom 1', () => {
+      const toggleSpy = spyOn(editor, 'toggleStar');
+      const moveSpy = spyOn(editor, 'moveStar');
+      const from = clientPointFor(200, 20);
+      const to = clientPointFor(260, 60);
+
+      pressAndRelease(from.clientX, from.clientY, to.clientX, to.clientY);
+
+      expect(moveSpy).not.toHaveBeenCalled();
+      expect(toggleSpy).not.toHaveBeenCalled();
+    });
+
     it('should still toggle after sub-threshold pointer jitter', () => {
       const toggleSpy = spyOn(editor, 'toggleStar');
       const { clientX, clientY } = clientPointFor(300, 150);

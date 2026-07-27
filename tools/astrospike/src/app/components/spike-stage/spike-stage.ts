@@ -120,8 +120,17 @@ export class SpikeStage {
    */
   private basePreviewCanvas: HTMLCanvasElement | null = null;
 
-  /** Pointer id of the press being tracked for the click-vs-pan decision. */
+  /** Pointer id of the press being tracked for the click-vs-drag decision. */
   private dragPointerId: number | null = null;
+
+  /**
+   * Star under the pointer when it was pressed, or null when the press began
+   * on empty sky. A travelling press moves this star; on empty sky it pans.
+   */
+  private dragStarId: number | null = null;
+
+  /** True while the tracked press is repositioning a star. */
+  protected readonly isMovingStar = signal(false);
 
   /** CSS position of the tracked press, to measure travel against. */
   private dragStartX = 0;
@@ -324,6 +333,7 @@ export class SpikeStage {
       return;
     }
     this.dragPointerId = event.pointerId;
+    this.dragStarId = this.starAt(event.clientX, event.clientY)?.id ?? null;
     this.dragStartX = event.clientX;
     this.dragStartY = event.clientY;
     this.dragLastX = event.clientX;
@@ -337,6 +347,22 @@ export class SpikeStage {
   protected onStagePointerMove(event: PointerEvent): void {
     if (this.dragPointerId === event.pointerId) {
       const travel = Math.hypot(event.clientX - this.dragStartX, event.clientY - this.dragStartY);
+
+      // A travelling press that started ON a star repositions that star —
+      // the manual fix for a detection that missed the core.
+      if (this.isMovingStar() || (travel > STAGE_DRAG_THRESHOLD_CSS_PX && this.dragStarId !== null)) {
+        if (!this.isMovingStar()) {
+          this.isMovingStar.set(true);
+          this.markerCanvasRef().nativeElement.setPointerCapture(event.pointerId);
+        }
+        const point = this.imagePointAt(event.clientX, event.clientY);
+        if (point !== null && this.dragStarId !== null) {
+          this.editor.moveStar(this.dragStarId, point.x, point.y);
+          this.editor.hoveredStarId.set(this.dragStarId);
+        }
+        return;
+      }
+
       if (this.isPanning() || (travel > STAGE_DRAG_THRESHOLD_CSS_PX && this.viewport().zoom > 1)) {
         if (!this.isPanning()) {
           this.isPanning.set(true);
@@ -362,12 +388,23 @@ export class SpikeStage {
       return;
     }
     this.dragPointerId = null;
+    this.dragStarId = null;
     const canvas = this.markerCanvasRef().nativeElement;
     if (canvas.hasPointerCapture(event.pointerId)) {
       canvas.releasePointerCapture(event.pointerId);
     }
+    if (this.isMovingStar()) {
+      this.isMovingStar.set(false);
+      return;
+    }
     if (this.isPanning()) {
       this.isPanning.set(false);
+      return;
+    }
+    // A press that travelled is a (possibly aborted) drag, never a click — an
+    // empty-sky drag that happens to end over a star must not toggle it.
+    const travel = Math.hypot(event.clientX - this.dragStartX, event.clientY - this.dragStartY);
+    if (travel > STAGE_DRAG_THRESHOLD_CSS_PX) {
       return;
     }
     const star = this.starAt(event.clientX, event.clientY);

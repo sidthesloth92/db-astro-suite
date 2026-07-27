@@ -15,6 +15,7 @@
       class="stage-canvas marker-canvas"
       [class.is-over-star]="isOverStar()"
       [class.is-panning]="isPanning()"
+      [class.is-moving-star]="isMovingStar()"
       (pointerdown)="onStagePointerDown($event)"
       (pointermove)="onStagePointerMove($event)"
       (pointerup)="onStagePointerUp($event)"

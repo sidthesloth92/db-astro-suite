@@ -74,8 +74,9 @@
   cursor: pointer;
 }
 
-/* While panning a zoomed view the whole stage is a grab surface. */
-.marker-canvas.is-panning {
+/* While panning a zoomed view or dragging a star, the stage is a grab surface. */
+.marker-canvas.is-panning,
+.marker-canvas.is-moving-star {
   cursor: grabbing;
 }
 

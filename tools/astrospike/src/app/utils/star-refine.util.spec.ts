@@ -102,6 +102,74 @@ describe('refineStar', () => {
     expect(Math.abs(refined.y - starY)).toBeLessThan(1);
   });
 
+  it('should not let a brighter neighbour in the window capture the anchor', () => {
+    const width = 200;
+    const height = 100;
+    const rgba = new Uint8ClampedArray(width * height * 4);
+    const put = (x: number, y: number, v: number): void => {
+      const i = (y * width + x) * 4;
+      const clamped = Math.min(255, rgba[i] + v);
+      rgba[i] = clamped;
+      rgba[i + 1] = clamped;
+      rgba[i + 2] = clamped;
+      rgba[i + 3] = 255;
+    };
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        put(x, y, 10);
+      }
+    }
+    const gauss = (cx: number, cy: number, amp: number, sigma: number): void => {
+      const r = Math.ceil(sigma * 5);
+      for (let y = cy - r; y <= cy + r; y++) {
+        for (let x = cx - r; x <= cx + r; x++) {
+          const d2 = (x - cx) ** 2 + (y - cy) ** 2;
+          put(x, y, Math.round(amp * Math.exp(-d2 / (2 * sigma * sigma))));
+        }
+      }
+    };
+    gauss(80, 50, 120, 2.2); // the star being refined
+    gauss(115, 50, 240, 2.6); // much brighter neighbour inside the window
+
+    const refined = refineStar(rgba, width, height, 81, 49, 40);
+
+    expect(Math.abs(refined.x - 80)).toBeLessThan(1.5);
+    expect(Math.abs(refined.y - 50)).toBeLessThan(1.5);
+  });
+
+  it('should keep the core tight when a lone bright pixel sits elsewhere in the window', () => {
+    const width = 160;
+    const height = 100;
+    const rgba = new Uint8ClampedArray(width * height * 4);
+    const put = (x: number, y: number, v: number): void => {
+      const i = (y * width + x) * 4;
+      const clamped = Math.min(255, rgba[i] + v);
+      rgba[i] = clamped;
+      rgba[i + 1] = clamped;
+      rgba[i + 2] = clamped;
+      rgba[i + 3] = 255;
+    };
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        put(x, y, 10);
+      }
+    }
+    for (let y = 44; y <= 56; y++) {
+      for (let x = 74; x <= 86; x++) {
+        const d2 = (x - 80) ** 2 + (y - 50) ** 2;
+        put(x, y, Math.round(150 * Math.exp(-d2 / (2 * 2 * 2))));
+      }
+    }
+    // A hot pixel of comparable brightness 30 px away. With a distance-based
+    // plateau this widened the core to include it and dragged the centroid.
+    put(110, 50, 150);
+
+    const refined = refineStar(rgba, width, height, 80, 50, 35);
+
+    expect(Math.abs(refined.x - 80)).toBeLessThan(1);
+    expect(Math.abs(refined.y - 50)).toBeLessThan(1);
+  });
+
   it('should clamp the window at the image edges without crashing', () => {
     const width = 40;
     const height = 40;
