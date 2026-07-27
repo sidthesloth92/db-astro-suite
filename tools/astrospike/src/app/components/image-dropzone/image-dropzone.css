@@ -1,0 +1,87 @@
+:host {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  pointer-events: auto;
+}
+
+.dropzone {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  padding: 2.5rem 2rem;
+  background: rgba(11, 14, 22, 0.55);
+  border: 2px dashed var(--db-color-border-active);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  text-align: center;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(6px);
+}
+
+.dropzone:hover {
+  border-color: var(--db-color-neon-pink);
+  background: var(--db-color-pink-soft);
+  transform: translateY(-2px);
+}
+
+.dropzone.is-dragging {
+  border-color: var(--db-color-neon-pink);
+  background: var(--db-color-pink-soft);
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px -8px var(--db-color-neon-pink);
+}
+
+.dropzone__glyph {
+  color: var(--db-color-neon-pink);
+  /* Ignore pointer events on children so dragleave doesn't flicker
+     while the drag moves across the card's inner elements. */
+  pointer-events: none;
+}
+
+.dropzone__title {
+  margin: 0;
+  font-family: var(--db-font-ui);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--db-color-text-primary);
+  pointer-events: none;
+}
+
+.dropzone__help {
+  margin: 0;
+  font-family: var(--db-font-mono-code);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--db-color-neon-pink);
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.dropzone__privacy {
+  margin: 0.4rem 0 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--db-font-mono-code);
+  font-size: 0.65rem;
+  letter-spacing: 0.05em;
+  color: var(--db-color-text-dim);
+  pointer-events: none;
+}
+
+.dropzone__privacy-icon {
+  display: inline-flex;
+  color: var(--db-color-cyan);
+}

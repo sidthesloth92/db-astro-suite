@@ -10,7 +10,7 @@ Path-specific rule files in `.claude/rules/` provide detailed per-stack rules â€
 
 | Path                                                               | Stack                          | Rule file                  |
 | ------------------------------------------------------------------ | ------------------------------ | -------------------------- |
-| `/hub/**`, `/tools/astrogram/**`, `/tools/starwizz/**`, `/libs/**` | Angular 21 (v17+ signal APIs)  | `.claude/rules/angular.md` |
+| `/hub/**`, `/tools/astrogram/**`, `/tools/starwizz/**`, `/tools/astrospike/**`, `/libs/**` | Angular 21 (v17+ signal APIs)  | `.claude/rules/angular.md` |
 | `/tools/astro-gen-go/**`                                           | Go                             | `.claude/rules/go.md`      |
 | `/tools/astrosolve/server/**`                                      | Node.js ESM (Fastify)          | `.claude/rules/node.md`    |
 | `/e2e/**`                                                          | Playwright                     | `.claude/rules/e2e.md`     |

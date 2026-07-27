@@ -1,0 +1,34 @@
+<div class="stage" (dragover)="onStageDragOver($event)" (drop)="onStageDrop($event)">
+  <canvas #afterCanvas class="after-canvas" [class.is-hidden]="!editor.hasImage()"></canvas>
+
+  @if (showDropzone()) {
+    <dba-as-image-dropzone (imageSelected)="onFileSelected($event)" />
+  }
+
+  @if (isProcessing()) {
+    <div class="stage-overlay" role="status" aria-live="polite">
+      <div class="stage-loader" aria-hidden="true">
+        <dba-ui-constellation-loader [fill]="true" />
+      </div>
+      <p class="stage-status">{{ statusLine() }}</p>
+    </div>
+  }
+
+  @if (stageError(); as error) {
+    <div class="stage-error" role="alert">
+      <p class="stage-error__message">{{ error }}</p>
+      <dba-ui-text-button
+        label="Try another image"
+        variant="secondary"
+        size="sm"
+        (clicked)="onTryAnother()"
+      />
+    </div>
+  }
+
+  @if (showStarPill()) {
+    <dba-ui-pill-badge class="star-pill" tone="cyan">
+      {{ editor.allStars().length }} stars detected
+    </dba-ui-pill-badge>
+  }
+</div>

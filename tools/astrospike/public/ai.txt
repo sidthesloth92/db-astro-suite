@@ -1,0 +1,31 @@
+User-agent: *
+Allow: /
+
+# AstroSpike
+
+AstroSpike is a free web application for astrophotographers that adds realistic
+diffraction spikes to astrophotography images — entirely in the browser.
+
+## What it does
+You upload an astrophoto and AstroSpike detects the stars automatically, then renders
+configurable diffraction spikes on them — from the classic four-point Newtonian look to
+refractor-style crosses. The finished image exports as JPEG or PNG. All processing is
+100% client-side: your image never leaves your browser and is never uploaded to a server.
+
+## Core Features
+- Automatic star detection
+- Diffraction spike presets with adjustable parameters
+- High-quality JPEG and PNG export
+- 100% client-side processing — no uploads, no server, full privacy
+
+## Tech Stack
+Angular 21 (Standalone Components, Signals), TailwindCSS 4, Canvas-based
+client-side image processing
+
+## Author
+Dinesh Balaji Venkataraj
+
+## Links
+- Live app: https://dbastrosuite.com/astrospike/
+- Repo: https://github.com/sidthesloth92/db-astro-suite
+- LLMs context: https://dbastrosuite.com/astrospike/llms.txt
