@@ -17,6 +17,7 @@ import { ImageLoadError } from '../models/image-load.error';
 import { LoadedImage, LoadedImageResult } from '../models/loaded-image.model';
 import { SpikePresetId } from '../models/spike-preset.model';
 import { SpikeRenderParams } from '../models/spike-render-params.model';
+import { fluxReferenceFor } from '../utils/flux-reference.util';
 import { applyOverrides } from '../utils/star-overrides.util';
 import { sliceCountForValue } from '../utils/stars-cut.util';
 import { ImageLoadService } from './image-load.service';
@@ -161,9 +162,10 @@ export class SpikeEditorService implements OnDestroy {
     }
     return {
       stars: this.renderedStars(),
-      // Anchored on the brightest detected star, not the brightest rendered
-      // one, so toggling a star off never rescales the others.
-      fluxRef: all.length > 0 ? all[0].flux : 0,
+      // Anchored on the detected list (never the rendered one, so toggling a
+      // star off cannot rescale the others) through the outlier-robust
+      // reference pick.
+      fluxRef: fluxReferenceFor(all),
       forcedStarIds,
       offsetX: 0,
       offsetY: 0,

@@ -24,12 +24,26 @@ describe('starSpikeScale', () => {
   const cases: ReadonlyArray<{ name: string; flux: number; fluxRef: number; expected: number }> = [
     { name: 'returns 1 for the reference flux itself', flux: 100, fluxRef: 100, expected: 1 },
     { name: 'clamps fluxes above the reference to 1', flux: 250, fluxRef: 100, expected: 1 },
-    // pow(0.5, 0.6) = 0.659754...
+    // 1 - 0.2 * log2(2) = 0.8: one octave below the reference.
     {
-      name: 'follows pow(flux/fluxRef, 0.6) below the reference',
+      name: 'loses SPIKE_MAGNITUDE_SLOPE per octave below the reference',
       flux: 50,
       fluxRef: 100,
-      expected: 0.6598,
+      expected: 0.8,
+    },
+    // 1 - 0.2 * log2(10) = 0.3356.
+    {
+      name: 'keeps sinking with further octaves',
+      flux: 10,
+      fluxRef: 100,
+      expected: 0.3356,
+    },
+    // 1 - 0.2 * log2(1000) would be negative: the floor keeps it visible.
+    {
+      name: 'clamps very faint stars to the visible scale floor',
+      flux: 0.1,
+      fluxRef: 100,
+      expected: 0.15,
     },
     { name: 'returns 0 for zero flux', flux: 0, fluxRef: 100, expected: 0 },
     { name: 'returns 0 for negative flux', flux: -5, fluxRef: 100, expected: 0 },
@@ -53,10 +67,10 @@ describe('starSpikeScale', () => {
   });
 
   it('should separate faint stars from bright ones strongly enough to avoid uniform spikes', () => {
-    // Regression guard: with a flat exponent every spiked star ends up roughly
-    // the same size, which renders dense fields as an artificial crosshatch.
-    // A star at a tenth of the reference flux must stay well under half its
-    // spike length.
+    // Regression guard: with too flat a slope every spiked star ends up
+    // roughly the same size, which renders dense fields as an artificial
+    // crosshatch. A star at a tenth of the reference flux must stay well
+    // under half its spike length.
     expect(starSpikeScale(10, 100)).toBeLessThan(0.45);
     // ...while still being visible rather than collapsing to nothing.
     expect(starSpikeScale(10, 100)).toBeGreaterThan(0.1);
@@ -87,18 +101,18 @@ describe('computeSpikeGeometry', () => {
       glowIntensity: 0.22,
     });
     const geometry = computeSpikeGeometry(1, 100, preset, 1, 1, 1000, 0.5);
-    // s = pow(0.01, 0.6) = 0.0630957.
-    // lengthPx = 1000 * 0.06 * 1 * 0.0630957 * 0.5 = 1.89287.
-    expect(geometry.lengthPx).toBeCloseTo(1.89287, 4);
-    // ramp = 0.15 + 0.85 * 0.0630957 = 0.203631; alphaPeak = 0.55 * ramp.
-    expect(geometry.alphaPeak).toBeCloseTo(0.55 * 0.203631, 4);
-    // Thickness is clamped in image space (3.7857 * 0.03 = 0.1136 -> 1.5) and
-    // only then scaled to the canvas, so the preview stays proportional to the
+    // 100x below the reference bottoms out at the scale floor: s = 0.15.
+    // lengthPx = 1000 * 0.06 * 1 * 0.15 * 0.5 = 4.5.
+    expect(geometry.lengthPx).toBeCloseTo(4.5, 6);
+    // ramp = 0.15 + 0.85 * 0.15 = 0.2775; alphaPeak = 0.55 * ramp.
+    expect(geometry.alphaPeak).toBeCloseTo(0.55 * 0.2775, 4);
+    // Thickness is clamped in image space (9 * 0.03 = 0.27 -> 1.5) and only
+    // then scaled to the canvas, so the preview stays proportional to the
     // full-resolution export: 1.5 * 0.5 = 0.75.
     expect(geometry.thicknessPx).toBeCloseTo(0.75, 6);
     // glowRadiusPx = 0.75 * 2.5 = 1.875.
     expect(geometry.glowRadiusPx).toBeCloseTo(1.875, 6);
-    expect(geometry.glowAlpha).toBeCloseTo(0.22 * 0.203631, 4);
+    expect(geometry.glowAlpha).toBeCloseTo(0.22 * 0.2775, 4);
   });
 
   it('should clamp thickness to the ceiling and alphas to 1', () => {

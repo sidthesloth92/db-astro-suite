@@ -1,17 +1,40 @@
 /**
  * Tuning constants for how a star's measured brightness maps onto the geometry
- * of its diffraction spikes. These were chosen against dense real star fields:
- * a flatter exponent or a higher alpha floor makes every spiked star look
- * roughly the same size, which reads as an artificial crosshatch rather than
- * real diffraction.
+ * of its diffraction spikes.
+ *
+ * The mapping is logarithmic (linear in stellar magnitude), not a power law on
+ * raw flux. Real frames bury a power law: saturated bright stars integrate to
+ * flux hundreds of times the median star's (a real M82 frame measured 8300:1
+ * across 582 stars), so a power law renders everything past the top handful at
+ * sub-pixel size and the Stars slider appears to do nothing. Physically, a
+ * spike's VISIBLE length ends where its falloff meets the sky, which grows
+ * with the logarithm of the star's flux — so the log model is also the one
+ * that looks like a telescope.
  */
 
 /**
- * Exponent applied to the flux ratio when deriving a star's relative spike
- * scale. Lower values compress the range (faint stars get almost as much spike
- * as bright ones); higher values make only the very brightest stars stand out.
+ * Spike-scale loss per factor-of-two of flux below the reference star. Chosen
+ * visually on a real M82 frame (582 stars) and a dense 82-megapixel nebula
+ * field: smaller values flatten toward an artificial uniform crosshatch,
+ * larger ones sink mid-list stars into invisibility again.
  */
-export const SPIKE_BRIGHTNESS_EXPONENT = 0.6;
+export const SPIKE_MAGNITUDE_SLOPE = 0.2;
+
+/**
+ * Minimum relative spike scale for any rendered star. Everything the user
+ * chooses to spike must be visibly spiked — the brightness ordering still
+ * shows in every star above the floor.
+ */
+export const SPIKE_SCALE_FLOOR = 0.15;
+
+/**
+ * Rank (1-based) of the star whose flux anchors the scale. Anchoring on the
+ * single brightest source lets one monster star — or a bright galaxy core —
+ * drag every other star toward the floor; the 4th-brightest is robust to a
+ * few such outliers while staying independent of how many stars the field
+ * has (a count-based quantile would flatten star-rich fields).
+ */
+export const FLUX_REF_RANK = 4;
 
 /**
  * Minimum share of the preset's peak alpha given to the faintest spiked star,
@@ -27,10 +50,9 @@ export const SPIKE_THICKNESS_MAX_PX = 16;
 
 /**
  * Minimum flux (as a fraction of the reference flux) granted to a star the
- * user manually forced on. pow(0.18, SPIKE_BRIGHTNESS_EXPONENT) ~= 0.36, so a
- * forced faint star renders at roughly a third of the brightest star's spike
- * scale — clearly visible, clearly not dominant. Without this floor, clicking
- * a faint star "adds spikes" that are too small to see, which reads as the
- * click doing nothing.
+ * user manually forced on. Under the magnitude model this yields a spike
+ * scale of roughly a third — clearly visible, clearly not dominant. Without
+ * it, clicking a very faint star "adds spikes" at the bare floor scale, which
+ * can read as the click doing nothing.
  */
-export const FORCED_FLUX_FLOOR_RATIO = 0.18;
+export const FORCED_FLUX_FLOOR_RATIO = 0.1;

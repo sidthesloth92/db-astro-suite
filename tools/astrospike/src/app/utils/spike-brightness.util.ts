@@ -1,6 +1,7 @@
 import {
   SPIKE_ALPHA_FLOOR,
-  SPIKE_BRIGHTNESS_EXPONENT,
+  SPIKE_MAGNITUDE_SLOPE,
+  SPIKE_SCALE_FLOOR,
   SPIKE_THICKNESS_MAX_PX,
   SPIKE_THICKNESS_MIN_PX,
 } from '../constants/spike-geometry.constants';
@@ -23,16 +24,22 @@ function alphaRamp(scale: number): number {
 }
 
 /**
- * Relative spike scale (0-1) of a star given its flux and the reference flux of
- * the brightest star: `pow(flux / fluxRef, SPIKE_BRIGHTNESS_EXPONENT)` clamped
- * to [0, 1]. Guards non-positive `fluxRef` (and non-positive flux) by
+ * Relative spike scale (0-1) of a star given its flux and the reference flux:
+ * linear in stellar magnitude, losing `SPIKE_MAGNITUDE_SLOPE` per factor-of-two
+ * of flux below the reference and clamped to `[SPIKE_SCALE_FLOOR, 1]`. A power
+ * law on raw flux collapses here: real frames span thousands-to-one in
+ * integrated flux, which rendered everything beyond the brightest handful at
+ * sub-pixel size. Guards non-positive `fluxRef` (and non-positive flux) by
  * returning 0.
  */
 export function starSpikeScale(flux: number, fluxRef: number): number {
   if (fluxRef <= 0 || flux <= 0) {
     return 0;
   }
-  return clamp(Math.pow(flux / fluxRef, SPIKE_BRIGHTNESS_EXPONENT), 0, 1);
+  if (flux >= fluxRef) {
+    return 1;
+  }
+  return clamp(1 - SPIKE_MAGNITUDE_SLOPE * Math.log2(fluxRef / flux), SPIKE_SCALE_FLOOR, 1);
 }
 
 /**

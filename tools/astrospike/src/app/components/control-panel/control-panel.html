@@ -76,6 +76,14 @@
             (valueChange)="onSpikeCountChange($event)"
           ></dba-ui-segmented-tabs>
         </div>
+
+        @if (editor.hasImage()) {
+          <p class="canvas-hint">
+            Click a star to add or remove its spikes — a dashed ring marks one
+            you switched off. Drag a star to re-centre its detection, scroll to
+            zoom, drag empty sky to pan.
+          </p>
+        }
       </div>
     </dba-ui-inspector-section>
 
