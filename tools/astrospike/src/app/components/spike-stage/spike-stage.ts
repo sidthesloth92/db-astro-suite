@@ -20,8 +20,6 @@ import {
   STAGE_WHEEL_ZOOM_FACTOR,
 } from '../../constants/render.constants';
 import {
-  DISABLED_MARKER_DASH_CSS_PX,
-  DISABLED_MARKER_RADIUS_CSS_PX,
   HOVER_MARKER_RADIUS_CSS_PX,
   MARKER_LINE_WIDTH_CSS_PX,
 } from '../../constants/star-marker.constants';
@@ -30,7 +28,6 @@ import { SpriteCache } from '../../models/spike-render-params.model';
 import { StageViewport } from '../../models/stage-viewport.model';
 import { SpikeEditorService } from '../../services/spike-editor.service';
 import { pointerToImagePoint } from '../../utils/canvas-coords.util';
-import { selectDisabledStars } from '../../utils/disabled-stars.util';
 import { findNearestStar } from '../../utils/hit-test.util';
 import { renderSpikes } from '../../utils/spike-render.util';
 import {
@@ -150,10 +147,7 @@ export class SpikeStage {
   /** Resolved CSS color of the hover ring, or '' before it is read. */
   private hoverMarkerColor = '';
 
-  /** Resolved CSS color of the disabled-star rings, or '' before it is read. */
-  private disabledMarkerColor = '';
-
-  /** True once both marker colors resolved to a non-empty value. */
+  /** True once the marker color resolved to a non-empty value. */
   private hasMarkerColors = false;
 
   /** True while the image is loading or star detection is running. */
@@ -267,24 +261,19 @@ export class SpikeStage {
   });
 
   /**
-   * Effect: repaint the marker overlay whenever the hovered star or the set of
-   * manually disabled stars changes. It touches only the overlay canvas, so
-   * hovering never costs a spike re-render.
+   * Effect: repaint the marker overlay whenever the hovered star changes. It
+   * touches only the overlay canvas, so hovering never costs a spike
+   * re-render.
    */
   private readonly _markerEffect = effect(() => {
     const hoveredId = this.editor.hoveredStarId();
     const stars = this.editor.allStars();
-    const disabledStars = selectDisabledStars(
-      stars,
-      this.editor.visibleStarCount(),
-      this.editor.renderedStars(),
-    );
     // Read so the overlay is repainted after a resize cleared its backing
-    // store, and after every zoom/pan step so rings track their stars.
+    // store, and after every zoom/pan step so the ring tracks its star.
     const scale = this.previewScale();
     this.viewport();
     const hoveredStar = hoveredId === null ? null : (stars.find((s) => s.id === hoveredId) ?? null);
-    this.drawMarkers(hoveredStar, disabledStars, scale);
+    this.drawMarkers(hoveredStar, scale);
   });
 
   constructor() {
@@ -622,11 +611,7 @@ export class SpikeStage {
    * CSS pixels to canvas pixels so they stay a constant on-screen size however
    * far the preview is downscaled.
    */
-  private drawMarkers(
-    hoveredStar: DetectedStar | null,
-    disabledStars: readonly DetectedStar[],
-    scale: number,
-  ): void {
+  private drawMarkers(hoveredStar: DetectedStar | null, scale: number): void {
     const canvas = this.markerCanvasRef().nativeElement;
     const ctx = canvas.getContext('2d');
     if (ctx === null) {
@@ -646,23 +631,19 @@ export class SpikeStage {
       bitmap === null ? { x: 0, y: 0 } : viewportOrigin(view, bitmap.width, bitmap.height);
     drawStarMarkers(ctx, {
       hoveredStar,
-      disabledStars,
       scale: effectiveScale,
       offsetX: -origin.x * effectiveScale,
       offsetY: -origin.y * effectiveScale,
       hoverRadiusPx: HOVER_MARKER_RADIUS_CSS_PX * cssToCanvas,
-      disabledRadiusPx: DISABLED_MARKER_RADIUS_CSS_PX * cssToCanvas,
       lineWidthPx: MARKER_LINE_WIDTH_CSS_PX * cssToCanvas,
-      disabledDashPx: DISABLED_MARKER_DASH_CSS_PX.map((dash) => dash * cssToCanvas),
       hoverColor: this.hoverMarkerColor,
-      disabledColor: this.disabledMarkerColor,
     });
   }
 
   /**
-   * Reads the marker colors from the host's computed style so the overlay
-   * stays theme-driven and the marker renderer stays DOM-free. Retries until
-   * both custom properties resolve, then caches them.
+   * Reads the marker color from the host's computed style so the overlay stays
+   * theme-driven and the marker renderer stays DOM-free. Retries until the
+   * custom property resolves, then caches it.
    */
   private resolveMarkerColors(): void {
     if (this.hasMarkerColors) {
@@ -670,7 +651,6 @@ export class SpikeStage {
     }
     const styles = getComputedStyle(this.host.nativeElement);
     this.hoverMarkerColor = styles.getPropertyValue('--as-marker-hover-color').trim();
-    this.disabledMarkerColor = styles.getPropertyValue('--as-marker-disabled-color').trim();
-    this.hasMarkerColors = this.hoverMarkerColor !== '' && this.disabledMarkerColor !== '';
+    this.hasMarkerColors = this.hoverMarkerColor !== '';
   }
 }

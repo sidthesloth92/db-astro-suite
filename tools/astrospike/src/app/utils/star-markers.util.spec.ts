@@ -4,7 +4,6 @@ import { drawStarMarkers } from './star-markers.util';
 
 const CANVAS_SIZE = 120;
 const HOVER_RADIUS = 20;
-const DISABLED_RADIUS = 12;
 
 /** Builds a star at the given position with the fields markers never read. */
 function makeStar(id: number, x: number, y: number): DetectedStar {
@@ -24,16 +23,12 @@ function makeStar(id: number, x: number, y: number): DetectedStar {
 function makeParams(overrides: Partial<StarMarkerParams> = {}): StarMarkerParams {
   return {
     hoveredStar: null,
-    disabledStars: [],
     scale: 1,
     offsetX: 0,
     offsetY: 0,
     hoverRadiusPx: HOVER_RADIUS,
-    disabledRadiusPx: DISABLED_RADIUS,
     lineWidthPx: 2,
-    disabledDashPx: [4, 4],
     hoverColor: '#00e5ff',
-    disabledColor: '#ff6b3d',
     ...overrides,
   };
 }
@@ -105,34 +100,19 @@ describe('drawStarMarkers', () => {
     expect(alphaAt(ctx, 25 + HOVER_RADIUS, 25)).toBe(0);
   });
 
-  it('should mark every star the user switched off', () => {
+  it('should shift the ring by the viewport offset', () => {
     const ctx = makeContext();
 
     drawStarMarkers(
       ctx,
-      makeParams({ disabledStars: [makeStar(1, 30, 30), makeStar(2, 90, 90)] }),
+      makeParams({ hoveredStar: makeStar(0, 30, 30), offsetX: 30, offsetY: 30 }),
     );
 
-    // The dash pattern starts at angle 0, so the rightmost point is painted.
-    expect(alphaAt(ctx, 30 + DISABLED_RADIUS, 30)).toBeGreaterThan(0);
-    expect(alphaAt(ctx, 90 + DISABLED_RADIUS, 90)).toBeGreaterThan(0);
+    expect(alphaAt(ctx, 60 + HOVER_RADIUS, 60)).toBeGreaterThan(0);
+    expect(alphaAt(ctx, 30 + HOVER_RADIUS, 30)).toBe(0);
   });
 
-  it('should draw the disabled ring dashed so it reads differently from hover', () => {
-    const dashed = makeContext();
-    const solid = makeContext();
-
-    drawStarMarkers(dashed, makeParams({ disabledStars: [makeStar(1, 60, 60)] }));
-    drawStarMarkers(
-      solid,
-      makeParams({ hoveredStar: makeStar(1, 60, 60), hoverRadiusPx: DISABLED_RADIUS }),
-    );
-
-    expect(paintedPixelCount(dashed)).toBeGreaterThan(0);
-    expect(paintedPixelCount(dashed)).toBeLessThan(paintedPixelCount(solid));
-  });
-
-  it('should draw nothing when no star is hovered and none are switched off', () => {
+  it('should draw nothing when no star is hovered', () => {
     const ctx = makeContext();
 
     drawStarMarkers(ctx, makeParams());
@@ -145,10 +125,7 @@ describe('drawStarMarkers', () => {
     ctx.strokeStyle = '#123456';
     ctx.lineWidth = 7;
 
-    drawStarMarkers(
-      ctx,
-      makeParams({ hoveredStar: makeStar(0, 60, 60), disabledStars: [makeStar(1, 30, 30)] }),
-    );
+    drawStarMarkers(ctx, makeParams({ hoveredStar: makeStar(0, 60, 60) }));
 
     expect(ctx.strokeStyle).toBe('#123456');
     expect(ctx.lineWidth).toBe(7);

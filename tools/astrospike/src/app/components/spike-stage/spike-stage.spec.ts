@@ -332,8 +332,9 @@ describe('SpikeStage', () => {
       expect(data.some((channel) => channel > 0)).toBe(false);
     });
 
-    it('should mark a star the user switched off so it can be found again', () => {
-      // Star 0 is inside the cut, so switching it off is a visible decision.
+    it('should leave no badge on a star the user switched off', () => {
+      // Switching a star off is its own feedback — the spikes disappear, and
+      // clicking again brings them back. A lingering marker just adds noise.
       editor.toggleStar(0);
       fixture.detectChanges();
 
@@ -343,7 +344,7 @@ describe('SpikeStage', () => {
         throw new Error('2D context unavailable in test');
       }
       const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      expect(data.some((channel) => channel > 0)).toBe(true);
+      expect(data.some((channel) => channel > 0)).toBe(false);
     });
 
     /** Dispatches a press-and-release pair, optionally travelling between. */

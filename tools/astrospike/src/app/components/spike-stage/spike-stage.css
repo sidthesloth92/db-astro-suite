@@ -3,13 +3,8 @@
   flex: 1 1 auto;
   min-width: 0;
   min-height: 0;
-
-  /* Marker colors live here so the overlay renderer stays theme-token driven:
-     the component resolves these two custom properties off the host and hands
-     the resolved strings to the canvas. Cyan reads as "interactive" for the
-     hovered star; orange reads as "excluded" for stars switched off. */
+  /* Cyan reads as "interactive" against warm star colours. */
   --as-marker-hover-color: var(--db-color-cyan);
-  --as-marker-disabled-color: var(--db-color-orange);
 }
 
 .stage {
