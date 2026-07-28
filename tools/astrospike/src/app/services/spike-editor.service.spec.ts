@@ -190,6 +190,44 @@ describe('SpikeEditorService', () => {
     });
   });
 
+  describe('star selection', () => {
+    beforeEach(() => {
+      service.allStars.set(STARS);
+    });
+
+    it('should select the star a toggle acts on so its ring persists', () => {
+      service.toggleStar(2);
+      expect(service.selectedStarId()).toBe(2);
+
+      // Toggling it back off keeps it selected — the click subject is unchanged.
+      service.toggleStar(2);
+      expect(service.selectedStarId()).toBe(2);
+    });
+
+    it('should move the selection to the most recently clicked star', () => {
+      service.toggleStar(1);
+      service.toggleStar(3);
+      expect(service.selectedStarId()).toBe(3);
+    });
+
+    it('should not select an unknown star id', () => {
+      service.toggleStar(99);
+      expect(service.selectedStarId()).toBeNull();
+    });
+
+    it('should clear the selection on demand', () => {
+      service.toggleStar(0);
+      service.clearStarSelection();
+      expect(service.selectedStarId()).toBeNull();
+    });
+
+    it('should drop the selection when the image is cleared', () => {
+      service.toggleStar(0);
+      service.clearImage();
+      expect(service.selectedStarId()).toBeNull();
+    });
+  });
+
   describe('moveStar', () => {
     beforeEach(() => {
       service.imageMeta.set({ fileName: 'm82.png', width: 500, height: 300 });

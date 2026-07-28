@@ -18,7 +18,7 @@
 
     <hr class="divider" aria-hidden="true" />
 
-    <dba-ui-inspector-section title="Preset" sub="Diffraction spike style">
+    <dba-ui-inspector-section title="Preset" sub="Diffraction spike style" [compact]="true">
       <dba-ui-icon slot="icon" [def]="sparklesIcon" [size]="14" />
       <div class="section-body">
         <dba-as-preset-cards
@@ -30,7 +30,7 @@
 
     <hr class="divider" aria-hidden="true" />
 
-    <dba-ui-inspector-section title="Spikes" sub="Shape the spike pattern">
+    <dba-ui-inspector-section title="Spikes" sub="Shape the spike pattern" [compact]="true">
       <dba-ui-icon slot="icon" [def]="starsIcon" [size]="14" />
 
       <!-- Reusable slider-row markup, instantiated once per editor control. -->
@@ -79,31 +79,26 @@
 
         @if (editor.hasImage()) {
           <p class="canvas-hint">
-            Click a star to add or remove its spikes. Drag a star to re-centre
-            its detection, scroll to zoom, drag empty sky to pan.
+            Click a star to add or remove its spikes — it stays ringed until
+            you click elsewhere. Drag a star to re-centre its detection, scroll
+            to zoom, drag empty sky to pan.
           </p>
         }
       </div>
     </dba-ui-inspector-section>
-
-    <hr class="divider" aria-hidden="true" />
-
-    <dba-ui-inspector-section title="Export" sub="Save the full-resolution image">
-      <dba-ui-icon slot="icon" [def]="downloadIcon" [size]="14" />
-      <div class="section-body">
-        <dba-as-export-controls />
-      </div>
-    </dba-ui-inspector-section>
   </div>
 
-  @if (editor.hasImage()) {
-    <div class="panel-footer">
+  <!-- Pinned to the bottom of the pane so the download action never scrolls
+       out of reach; it stays disabled until an image is loaded. -->
+  <div class="panel-footer">
+    <dba-as-export-controls />
+    @if (editor.hasImage()) {
       <dba-ui-text-button
         label="New image"
         variant="secondary"
         size="sm"
         (clicked)="onClearImage()"
       />
-    </div>
-  }
+    }
+  </div>
 </section>

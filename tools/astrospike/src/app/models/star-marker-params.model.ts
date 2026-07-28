@@ -12,6 +12,11 @@ import { DetectedStar } from './detected-star.model';
 export interface StarMarkerParams {
   /** Star currently under the pointer, or null when nothing is hovered. */
   hoveredStar: DetectedStar | null;
+  /**
+   * Star the user last clicked, or null. Its ring persists after the click so
+   * the current subject of any per-star action stays obvious.
+   */
+  selectedStar: DetectedStar | null;
   /** Scale from full-resolution image pixels to marker canvas pixels. */
   scale: number;
   /** Horizontal canvas-pixel offset added after scaling (viewport pan). */
@@ -20,8 +25,12 @@ export interface StarMarkerParams {
   offsetY: number;
   /** Radius of the hover ring in canvas pixels. */
   hoverRadiusPx: number;
+  /** Radius of the persistent selection ring in canvas pixels. */
+  selectedRadiusPx: number;
   /** Stroke width of the hover ring in canvas pixels. */
   lineWidthPx: number;
   /** Resolved CSS color for the hover ring. */
   hoverColor: string;
+  /** Resolved CSS color for the selection ring. */
+  selectedColor: string;
 }

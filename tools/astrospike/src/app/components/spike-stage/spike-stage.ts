@@ -10,7 +10,6 @@ import {
   viewChild,
 } from '@angular/core';
 import { ConstellationLoaderComponent, PillBadgeComponent, TextButtonComponent } from '@db-astro-suite/ui';
-import { COMPARE_TRACK_INSET_PX } from '../../constants/compare-handle.constants';
 import {
   HIT_TEST_RADIUS_CSS_PX,
   PREVIEW_MAX_DIMENSION,
@@ -22,6 +21,7 @@ import {
 import {
   HOVER_MARKER_RADIUS_CSS_PX,
   MARKER_LINE_WIDTH_CSS_PX,
+  SELECTED_MARKER_RADIUS_CSS_PX,
 } from '../../constants/star-marker.constants';
 import { DetectedStar } from '../../models/detected-star.model';
 import { SpriteCache } from '../../models/spike-render-params.model';
@@ -147,7 +147,10 @@ export class SpikeStage {
   /** Resolved CSS color of the hover ring, or '' before it is read. */
   private hoverMarkerColor = '';
 
-  /** True once the marker color resolved to a non-empty value. */
+  /** Resolved CSS color of the selection ring, or '' before it is read. */
+  private selectedMarkerColor = '';
+
+  /** True once both marker colors resolved to a non-empty value. */
   private hasMarkerColors = false;
 
   /** True while the image is loading or star detection is running. */
@@ -202,15 +205,11 @@ export class SpikeStage {
    * effect — dragging the divider updates a clip-path and costs zero spike
    * re-renders.
    *
-   * The seam is expressed over the same inset track the divider travels on
-   * (see `compare-handle.css`), so the line always sits exactly on the cut
-   * rather than drifting from it near the edges.
+   * The seam is the raw position, and the divider line uses the same mapping,
+   * so the line always sits exactly on the cut and both reach the true edges.
    */
   protected readonly afterClipPath = computed(
-    () =>
-      `inset(0 0 0 calc(${COMPARE_TRACK_INSET_PX}px + (100% - ${
-        COMPARE_TRACK_INSET_PX * 2
-      }px) * ${this.editor.comparePosition()}))`,
+    () => `inset(0 0 0 ${this.editor.comparePosition() * 100}%)`,
   );
 
   /**
@@ -261,19 +260,21 @@ export class SpikeStage {
   });
 
   /**
-   * Effect: repaint the marker overlay whenever the hovered star changes. It
-   * touches only the overlay canvas, so hovering never costs a spike
-   * re-render.
+   * Effect: repaint the marker overlay whenever the hovered or selected star
+   * changes. It touches only the overlay canvas, so hovering and selecting
+   * never cost a spike re-render.
    */
   private readonly _markerEffect = effect(() => {
     const hoveredId = this.editor.hoveredStarId();
+    const selectedId = this.editor.selectedStarId();
     const stars = this.editor.allStars();
     // Read so the overlay is repainted after a resize cleared its backing
-    // store, and after every zoom/pan step so the ring tracks its star.
+    // store, and after every zoom/pan step so the rings track their stars.
     const scale = this.previewScale();
     this.viewport();
-    const hoveredStar = hoveredId === null ? null : (stars.find((s) => s.id === hoveredId) ?? null);
-    this.drawMarkers(hoveredStar, scale);
+    const byId = (id: number | null) =>
+      id === null ? null : (stars.find((s) => s.id === id) ?? null);
+    this.drawMarkers(byId(hoveredId), byId(selectedId), scale);
   });
 
   constructor() {
@@ -398,8 +399,12 @@ export class SpikeStage {
     }
     const star = this.starAt(event.clientX, event.clientY);
     if (star !== null) {
+      // Toggling also selects, so the ring stays on the clicked star.
       this.editor.toggleStar(star.id);
+      return;
     }
+    // Clicking empty sky is how the user dismisses the selection.
+    this.editor.clearStarSelection();
   }
 
   /** Pointer left the preview — nothing is hovered any more. */
@@ -611,7 +616,11 @@ export class SpikeStage {
    * CSS pixels to canvas pixels so they stay a constant on-screen size however
    * far the preview is downscaled.
    */
-  private drawMarkers(hoveredStar: DetectedStar | null, scale: number): void {
+  private drawMarkers(
+    hoveredStar: DetectedStar | null,
+    selectedStar: DetectedStar | null,
+    scale: number,
+  ): void {
     const canvas = this.markerCanvasRef().nativeElement;
     const ctx = canvas.getContext('2d');
     if (ctx === null) {
@@ -631,19 +640,22 @@ export class SpikeStage {
       bitmap === null ? { x: 0, y: 0 } : viewportOrigin(view, bitmap.width, bitmap.height);
     drawStarMarkers(ctx, {
       hoveredStar,
+      selectedStar,
       scale: effectiveScale,
       offsetX: -origin.x * effectiveScale,
       offsetY: -origin.y * effectiveScale,
       hoverRadiusPx: HOVER_MARKER_RADIUS_CSS_PX * cssToCanvas,
+      selectedRadiusPx: SELECTED_MARKER_RADIUS_CSS_PX * cssToCanvas,
       lineWidthPx: MARKER_LINE_WIDTH_CSS_PX * cssToCanvas,
       hoverColor: this.hoverMarkerColor,
+      selectedColor: this.selectedMarkerColor,
     });
   }
 
   /**
-   * Reads the marker color from the host's computed style so the overlay stays
-   * theme-driven and the marker renderer stays DOM-free. Retries until the
-   * custom property resolves, then caches it.
+   * Reads the marker colors from the host's computed style so the overlay
+   * stays theme-driven and the marker renderer stays DOM-free. Retries until
+   * both custom properties resolve, then caches them.
    */
   private resolveMarkerColors(): void {
     if (this.hasMarkerColors) {
@@ -651,6 +663,7 @@ export class SpikeStage {
     }
     const styles = getComputedStyle(this.host.nativeElement);
     this.hoverMarkerColor = styles.getPropertyValue('--as-marker-hover-color').trim();
-    this.hasMarkerColors = this.hoverMarkerColor !== '';
+    this.selectedMarkerColor = styles.getPropertyValue('--as-marker-selected-color').trim();
+    this.hasMarkerColors = this.hoverMarkerColor !== '' && this.selectedMarkerColor !== '';
   }
 }

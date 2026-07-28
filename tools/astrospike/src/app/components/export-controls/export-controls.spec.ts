@@ -190,32 +190,20 @@ describe('ExportControls', () => {
     expect(error?.textContent).toContain('The export failed. Please try again.');
   });
 
-  it('should summarise the last export with its file name and size', () => {
+  it('should confirm the last export with its size', () => {
+    // The footer is tight and the source file name already sits at the top of
+    // the panel, so the confirmation carries the size only.
     editor.lastExport.set(buildExportResult('m42_astrospike_1600_1100.png', 4404019));
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain(
-      'Saved · m42_astrospike_1600_1100.png · 4.2 MB',
-    );
+    expect(fixture.nativeElement.textContent).toContain('Saved · 4.2 MB');
   });
 
-  it('should re-run the export when the last-export save action is used', async () => {
-    exportService.exportImage.and.resolveTo(buildExportResult('m42_astrospike_6_4.png', 2048));
-    await loadImage();
-    editor.lastExport.set(buildExportResult('m42_astrospike_6_4.png', 2048));
+  it('should state that the export matches the source resolution', () => {
+    editor.imageMeta.set({ fileName: 'm42.png', width: 1600, height: 1100 });
     fixture.detectChanges();
 
-    const buttons: NodeListOf<HTMLButtonElement> =
-      fixture.nativeElement.querySelectorAll('button.text-button');
-    const saveAgain = Array.from(buttons).find((button) =>
-      button.textContent?.includes('Save again'),
-    );
-    if (saveAgain === undefined) {
-      throw new Error('Save again button not rendered');
-    }
-    saveAgain.click();
-
-    expect(exportService.exportImage).toHaveBeenCalledTimes(1);
-    await fixture.whenStable();
+    expect(fixture.nativeElement.textContent).toContain('1600 × 1100 px · same as source');
   });
+
 });

@@ -6,6 +6,7 @@
       class="preset-card"
       [class.is-active]="preset.id === activeId()"
       [attr.aria-checked]="preset.id === activeId()"
+      [title]="preset.description"
       (click)="presetSelected.emit(preset.id)"
     >
       <span class="preset-glyph" aria-hidden="true">

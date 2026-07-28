@@ -77,7 +77,17 @@ export class ExportControls {
     if (result === null) {
       return null;
     }
-    return `Saved · ${result.filename} · ${formatBytes(result.sizeBytes)}`;
+    return `Saved · ${formatBytes(result.sizeBytes)}`;
+  });
+
+  /**
+   * Output-size line. Export always renders at the source image's own
+   * resolution — there is no output-size choice to make — so the panel states
+   * the size rather than offering it.
+   */
+  protected readonly outputSizeLabel = computed(() => {
+    const meta = this.editor.imageMeta();
+    return meta === null ? null : `${meta.width} × ${meta.height} px · same as source`;
   });
 
   /** Exports the current image using the already-selected format. */

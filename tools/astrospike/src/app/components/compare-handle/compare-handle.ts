@@ -21,9 +21,11 @@ import {
  *
  * The host stretches over the whole preview frame and stays click-through, so
  * the host's bounding rect is the drag track: a pointer at `rect.left` means
- * 0, at `rect.right` means 1. Only the thin divider itself takes pointer
- * events, and it captures the pointer on press so a drag keeps tracking after
- * it leaves the divider.
+ * 0, at `rect.right` means 1 — the divider therefore reaches both true edges.
+ * Only the round grip takes pointer events, and it captures the pointer on
+ * press so a drag keeps tracking after it leaves the grip. The line renders at
+ * the exact position (matching the stage's wipe seam) while the grip clamps
+ * half its width inside the frame so it is never clipped.
  *
  * It owns no state beyond the transient drag flag — the position is supplied
  * by the parent and every change is emitted back out.
@@ -69,7 +71,7 @@ export class CompareHandle {
   /** Position reported to assistive tech as a whole number of percent. */
   protected readonly ariaValueNow = computed(() => Math.round(this.positionPercent()));
 
-  /** Pointer pressed on the divider — capture it and jump to the position. */
+  /** Pointer pressed on the grip — capture it and track from there. */
   protected onPointerDown(event: PointerEvent): void {
     event.preventDefault();
     this.divider().nativeElement.setPointerCapture(event.pointerId);

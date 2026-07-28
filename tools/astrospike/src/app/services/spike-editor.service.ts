@@ -108,6 +108,13 @@ export class SpikeEditorService implements OnDestroy {
   /** Id of the star currently under the pointer, or null. */
   public readonly hoveredStarId = signal<number | null>(null);
 
+  /**
+   * Id of the star the user last clicked, or null. Selection persists after
+   * the click — the ring stays put until the user selects another star or
+   * clicks empty sky — so per-star options can hang off it later.
+   */
+  public readonly selectedStarId = signal<number | null>(null);
+
   /** Before/after compare divider position in [0, 1]. */
   public readonly comparePosition = signal<number>(0);
 
@@ -323,7 +330,8 @@ export class SpikeEditorService implements OnDestroy {
    * Toggles whether a star receives spikes. The override map is replaced
    * immutably; when the toggled state equals the star's default visibility
    * (inside the brightness cut) the entry is deleted instead of stored, so
-   * the map only ever holds true deviations from the cut.
+   * the map only ever holds true deviations from the cut. The star also
+   * becomes the selected one, so its ring stays visible after the click.
    * @param id Id of the star to toggle.
    */
   toggleStar(id: number): void {
@@ -332,6 +340,7 @@ export class SpikeEditorService implements OnDestroy {
     if (index === -1) {
       return;
     }
+    this.selectedStarId.set(id);
     const isRendered = this.renderedStars().some((star) => star.id === id);
     const target = !isRendered;
     const defaultVisible = index < this.visibleStarCount();
@@ -344,6 +353,11 @@ export class SpikeEditorService implements OnDestroy {
       }
       return next;
     });
+  }
+
+  /** Drops the current star selection, hiding its persistent ring. */
+  clearStarSelection(): void {
+    this.selectedStarId.set(null);
   }
 
   /**
@@ -422,6 +436,7 @@ export class SpikeEditorService implements OnDestroy {
   private resetInteractionState(): void {
     this.overrides.set(new Map());
     this.hoveredStarId.set(null);
+    this.selectedStarId.set(null);
     this.comparePosition.set(0);
   }
 

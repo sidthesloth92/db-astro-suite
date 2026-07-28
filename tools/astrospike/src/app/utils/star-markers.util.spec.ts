@@ -4,6 +4,7 @@ import { drawStarMarkers } from './star-markers.util';
 
 const CANVAS_SIZE = 120;
 const HOVER_RADIUS = 20;
+const SELECTED_RADIUS = 12;
 
 /** Builds a star at the given position with the fields markers never read. */
 function makeStar(id: number, x: number, y: number): DetectedStar {
@@ -23,12 +24,15 @@ function makeStar(id: number, x: number, y: number): DetectedStar {
 function makeParams(overrides: Partial<StarMarkerParams> = {}): StarMarkerParams {
   return {
     hoveredStar: null,
+    selectedStar: null,
     scale: 1,
     offsetX: 0,
     offsetY: 0,
     hoverRadiusPx: HOVER_RADIUS,
+    selectedRadiusPx: SELECTED_RADIUS,
     lineWidthPx: 2,
     hoverColor: '#00e5ff',
+    selectedColor: '#ff2d95',
     ...overrides,
   };
 }
@@ -112,7 +116,42 @@ describe('drawStarMarkers', () => {
     expect(alphaAt(ctx, 30 + HOVER_RADIUS, 30)).toBe(0);
   });
 
-  it('should draw nothing when no star is hovered', () => {
+  it('should keep a ring on the selected star after the pointer moves away', () => {
+    const ctx = makeContext();
+
+    // Nothing hovered — the selection ring alone must still be drawn.
+    drawStarMarkers(ctx, makeParams({ selectedStar: makeStar(1, 60, 60) }));
+
+    expect(alphaAt(ctx, 60 + SELECTED_RADIUS, 60)).toBeGreaterThan(0);
+    expect(alphaAt(ctx, 60 - SELECTED_RADIUS, 60)).toBeGreaterThan(0);
+  });
+
+  it('should draw the selection ring in its own theme color', () => {
+    const ctx = makeContext();
+
+    drawStarMarkers(
+      ctx,
+      makeParams({ selectedStar: makeStar(1, 60, 60), selectedColor: '#ff0000' }),
+    );
+
+    const pixel = ctx.getImageData(60 + SELECTED_RADIUS, 60, 1, 1).data;
+    expect(pixel[0]).toBeGreaterThan(pixel[1]);
+    expect(pixel[0]).toBeGreaterThan(pixel[2]);
+  });
+
+  it('should draw both rings when the selected star is also hovered', () => {
+    const ctx = makeContext();
+
+    drawStarMarkers(
+      ctx,
+      makeParams({ hoveredStar: makeStar(1, 60, 60), selectedStar: makeStar(1, 60, 60) }),
+    );
+
+    expect(alphaAt(ctx, 60 + HOVER_RADIUS, 60)).toBeGreaterThan(0);
+    expect(alphaAt(ctx, 60 + SELECTED_RADIUS, 60)).toBeGreaterThan(0);
+  });
+
+  it('should draw nothing when nothing is hovered or selected', () => {
     const ctx = makeContext();
 
     drawStarMarkers(ctx, makeParams());

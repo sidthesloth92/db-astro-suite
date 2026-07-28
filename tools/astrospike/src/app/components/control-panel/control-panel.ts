@@ -2,7 +2,6 @@ import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import {
   circleHelpIcon,
-  downloadIcon,
   IconComponent,
   InspectorSectionComponent,
   MicroSliderComponent,
@@ -65,8 +64,6 @@ export class ControlPanel {
   /** Chip glyph for the Spikes section. */
   protected readonly starsIcon = starsIcon;
 
-  /** Chip glyph for the Export section. */
-  protected readonly downloadIcon = downloadIcon;
 
   /** Editor slider keys, in display order. */
   protected readonly controlKeys = EDITOR_CONTROL_KEYS;

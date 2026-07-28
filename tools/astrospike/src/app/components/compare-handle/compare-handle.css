@@ -6,52 +6,56 @@
   inset: 0;
   z-index: 15;
   pointer-events: none;
+  --compare-grip-size: 28px;
+  --compare-grip-half: 14px;
 }
 
 .compare-divider {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 28px;
-  /* Travel is inset by half the grip at each end so the grip is never clipped
-     by the stage's rounded, overflow-hidden frame. The stage clips the spiked
-     canvas over this exact track (COMPARE_TRACK_INSET_PX in
-     compare-handle.constants.ts), so the line always sits on the seam. Keep
-     the 14px here in step with that constant. */
-  left: calc(14px + (100% - 28px) * var(--compare-pos, 0));
-  margin-left: -14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  inset: 0;
   cursor: ew-resize;
-  pointer-events: auto;
+  pointer-events: none;
   touch-action: none;
 }
 
+/* The line sits exactly on the wipe seam and can reach both true edges, so
+   the divider always agrees with what the user sees. */
 .compare-divider__line {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: 50%;
+  left: calc(var(--compare-pos, 0) * 100%);
   width: 2px;
   transform: translateX(-50%);
   background: var(--db-color-cyan);
   box-shadow: 0 0 12px -2px var(--db-color-cyan);
+  pointer-events: none;
 }
 
+/* The grip follows the line but clamps half its width inside the frame, so it
+   is never clipped at the extremes while the line stays on the seam. */
 .compare-divider__grip {
-  position: relative;
+  position: absolute;
+  top: 50%;
+  left: clamp(
+    var(--compare-grip-half),
+    calc(var(--compare-pos, 0) * 100%),
+    calc(100% - var(--compare-grip-half))
+  );
+  transform: translate(-50%, -50%);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 4px;
-  width: 28px;
-  height: 28px;
+  width: var(--compare-grip-size);
+  height: var(--compare-grip-size);
   border-radius: 50%;
   background: var(--db-color-surface-raised);
   border: 1px solid var(--db-color-cyan);
   box-shadow: 0 0 14px -4px var(--db-color-cyan);
   transition: background var(--db-transition-fast);
+  pointer-events: auto;
+  cursor: ew-resize;
 }
 
 .compare-divider__arrow {
@@ -69,7 +73,7 @@
   border-left: 5px solid var(--db-color-cyan);
 }
 
-.compare-divider:hover .compare-divider__grip,
+.compare-divider__grip:hover,
 .compare-divider.is-dragging .compare-divider__grip {
   background: var(--db-color-cyan-soft);
 }

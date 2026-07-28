@@ -6,7 +6,7 @@
 .export-controls {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .export-split {
@@ -48,19 +48,20 @@
   color: var(--db-color-text-error);
 }
 
-.export-last {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-}
-
-.export-last-label {
-  flex: 1;
-  min-width: 0;
+/* Output size is stated, not chosen — export always matches the source. */
+.export-size {
+  margin: 0;
   font-family: var(--db-font-mono-code);
   font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
   color: var(--db-color-text-dim);
+}
+
+.export-last {
+  margin: 0;
+  font-family: var(--db-font-mono-code);
+  font-size: 10.5px;
+  color: var(--db-color-cyan);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

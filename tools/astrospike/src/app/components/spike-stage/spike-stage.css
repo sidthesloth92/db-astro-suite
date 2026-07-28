@@ -3,8 +3,10 @@
   flex: 1 1 auto;
   min-width: 0;
   min-height: 0;
-  /* Cyan reads as "interactive" against warm star colours. */
+  /* Cyan reads as "interactive" against warm star colours; the pink accent
+     marks the star the user actually selected. */
   --as-marker-hover-color: var(--db-color-cyan);
+  --as-marker-selected-color: var(--db-color-neon-pink);
 }
 
 .stage {

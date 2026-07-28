@@ -53,9 +53,9 @@ describe('CompareHandle', () => {
   });
 
   it('should render the divider at the bound position', () => {
-    // Position is published as a 0-1 fraction; the stylesheet turns it into an
-    // offset whose travel is inset by half the grip, so the grip is never
-    // clipped by the stage's overflow-hidden frame at the extremes.
+    // Position is published as a 0-1 fraction; the stylesheet puts the line on
+    // exactly that fraction (matching the stage's wipe seam) and clamps only
+    // the round grip so it is never clipped at the extremes.
     expect(divider.style.getPropertyValue('--compare-pos')).toBe('0.25');
 
     fixture.componentRef.setInput('position', 0.8);

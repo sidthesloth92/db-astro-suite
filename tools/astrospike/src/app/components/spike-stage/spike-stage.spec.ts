@@ -332,21 +332,6 @@ describe('SpikeStage', () => {
       expect(data.some((channel) => channel > 0)).toBe(false);
     });
 
-    it('should leave no badge on a star the user switched off', () => {
-      // Switching a star off is its own feedback — the spikes disappear, and
-      // clicking again brings them back. A lingering marker just adds noise.
-      editor.toggleStar(0);
-      fixture.detectChanges();
-
-      const canvas = markerCanvas();
-      const ctx = canvas.getContext('2d');
-      if (ctx === null) {
-        throw new Error('2D context unavailable in test');
-      }
-      const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      expect(data.some((channel) => channel > 0)).toBe(false);
-    });
-
     /** Dispatches a press-and-release pair, optionally travelling between. */
     function pressAndRelease(
       downX: number,
@@ -367,6 +352,50 @@ describe('SpikeStage', () => {
         new PointerEvent('pointerup', { bubbles: true, pointerId: 1, clientX: upX, clientY: upY }),
       );
     }
+
+    /** Painted-pixel count of the marker overlay. */
+    function markerInk(): number {
+      const canvas = markerCanvas();
+      const ctx = canvas.getContext('2d');
+      if (ctx === null) {
+        throw new Error('2D context unavailable in test');
+      }
+      const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      let painted = 0;
+      for (let i = 3; i < data.length; i += 4) {
+        if (data[i] > 0) {
+          painted++;
+        }
+      }
+      return painted;
+    }
+
+    it('should keep a ring on the clicked star after the pointer moves away', () => {
+      const { clientX, clientY } = clientPointFor(300, 150);
+      pressAndRelease(clientX, clientY);
+      // Move the pointer off every star so only the selection can be drawn.
+      markerCanvas().dispatchEvent(
+        new PointerEvent('pointermove', { bubbles: true, pointerId: 1, clientX: 1, clientY: 1 }),
+      );
+      fixture.detectChanges();
+
+      expect(editor.selectedStarId()).toBe(1);
+      expect(markerInk()).toBeGreaterThan(0);
+    });
+
+    it('should drop the selection when the user clicks empty sky', () => {
+      const star = clientPointFor(300, 150);
+      pressAndRelease(star.clientX, star.clientY);
+      expect(editor.selectedStarId()).toBe(1);
+
+      const sky = clientPointFor(200, 20);
+      pressAndRelease(sky.clientX, sky.clientY);
+      fixture.detectChanges();
+
+      expect(editor.selectedStarId()).toBeNull();
+      expect(markerInk()).toBe(0);
+    });
+
 
     it('should toggle the star under the pointer when the preview is clicked', () => {
       const toggleSpy = spyOn(editor, 'toggleStar');
