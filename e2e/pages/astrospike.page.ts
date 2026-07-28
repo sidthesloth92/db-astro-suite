@@ -174,6 +174,21 @@ export class AstroSpikePage {
 
   /** Clears the loaded image and returns the editor to its empty state. */
   async clearImage(): Promise<void> {
-    await this.page.getByRole("button", { name: "New image" }).click();
+    await this.page.getByRole("button", { name: "Remove image" }).click();
+  }
+
+  /** Locator for one of the canvas tool-rail buttons, by its accessible name. */
+  getCanvasTool(name: "Zoom in" | "Zoom out" | "Reset view" | "Remove image") {
+    return this.page.getByRole("button", { name });
+  }
+
+  /** Opens a star's own controls by double-clicking it on the canvas. */
+  async openStarControls(clientX: number, clientY: number): Promise<void> {
+    await this.page.mouse.dblclick(clientX, clientY);
+  }
+
+  /** Locator for the per-star controls popover. */
+  getStarControls() {
+    return this.page.getByRole("dialog", { name: /spike controls/i });
   }
 }

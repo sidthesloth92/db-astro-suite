@@ -7,6 +7,8 @@
      marks the star the user actually selected. */
   --as-marker-hover-color: var(--db-color-cyan);
   --as-marker-selected-color: var(--db-color-neon-pink);
+  /* Half the compare grip plus a little breathing room. */
+  --as-stage-inset: 18px;
 }
 
 .stage {
@@ -16,6 +18,9 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  /* Horizontal room for the compare grip to sit centred on the divider line
+     even at the extremes, without the stage's clip cutting it in half. */
+  padding-inline: var(--as-stage-inset);
   /* Size container so the frame below can fit itself to the stage box with
      100cqw / 100cqh instead of percentage sizing. */
   container-type: size;
@@ -143,6 +148,31 @@
 .star-pill {
   position: absolute;
   top: 12px;
-  left: 12px;
+  right: 12px;
   z-index: 25;
+}
+
+/* Canvas tool rail: zoom in / out / reset plus remove, stacked on the right
+   below the star count — the same shape astrogram uses on its stellar map. */
+.stage-tools {
+  position: absolute;
+  right: 12px;
+  top: 44px;
+  z-index: 26;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stage-tools dba-ui-icon-button {
+  --db-icon-button-background: var(--db-color-sheet-bg);
+  --db-icon-button-border-color: var(--db-color-border);
+  --db-icon-button-color: var(--db-color-text-primary);
+  backdrop-filter: blur(6px);
+}
+
+.stage-tools .tool-remove {
+  margin-top: 6px;
+  --db-icon-button-color: var(--db-color-red);
+  --db-icon-button-border-color: color-mix(in srgb, var(--db-color-red) 45%, transparent);
 }

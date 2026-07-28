@@ -1,0 +1,124 @@
+:host {
+  position: absolute;
+  z-index: 30;
+  display: block;
+  width: var(--as-star-panel-w);
+
+  /* Anchored beside the star, then clamped so the panel always stays fully
+     inside the frame however near an edge the star sits. The declared size
+     below must stay in step with the panel's real box. */
+  --as-star-panel-w: 232px;
+  --as-star-panel-h: 216px;
+  --as-star-gap: 16px;
+
+  left: clamp(
+    0px,
+    calc(var(--as-star-left, 0) * 1% + var(--as-star-gap)),
+    max(0px, calc(100% - var(--as-star-panel-w)))
+  );
+  top: clamp(
+    0px,
+    calc(var(--as-star-top, 0) * 1% - var(--as-star-panel-h) / 2),
+    max(0px, calc(100% - var(--as-star-panel-h)))
+  );
+}
+
+.star-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 10px 12px 11px;
+  border: 1px solid var(--db-color-border-strong);
+  border-radius: 10px;
+  background: var(--db-color-sheet-bg);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--db-shadow-sheet);
+  color: var(--db-color-text-primary);
+  font-family: var(--db-font-ui);
+}
+
+.star-controls__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.star-controls__title {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--db-font-mono-code);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--db-color-neon-pink);
+}
+
+.slider-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.slider-label-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.row-label {
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--db-color-text-dim);
+}
+
+.row-value {
+  margin-left: auto;
+  font: 500 10.5px/1 var(--db-font-mono-code);
+  font-variant-numeric: tabular-nums;
+  color: var(--db-color-text-primary);
+}
+
+.star-controls__actions {
+  display: flex;
+  gap: 6px;
+  padding-top: 2px;
+}
+
+.star-action {
+  flex: 1;
+  padding: 5px 8px;
+  border: 1px solid var(--db-color-border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--db-color-text-dim);
+  font-family: var(--db-font-ui);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    color 150ms ease,
+    border-color 150ms ease;
+}
+
+.star-action:hover:not(:disabled) {
+  color: var(--db-color-text-primary);
+  border-color: var(--db-color-border-active);
+}
+
+.star-action:focus-visible {
+  outline: 2px solid var(--db-color-cyan);
+  outline-offset: 2px;
+}
+
+.star-action:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.star-action--danger:hover {
+  color: var(--db-color-red);
+  border-color: color-mix(in srgb, var(--db-color-red) 45%, transparent);
+}

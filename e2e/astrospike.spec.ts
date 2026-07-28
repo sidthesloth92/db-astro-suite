@@ -120,6 +120,21 @@ test.describe("AstroSpike", () => {
     expect(filename).toMatch(/\.png$/);
   });
 
+  test("should offer zoom and remove tools on the canvas", async ({ page }) => {
+    const astroSpike = new AstroSpikePage(page);
+    await astroSpike.navigate();
+    await astroSpike.loadImage(STARFIELD_FIXTURE);
+    await astroSpike.waitForDetectedStars();
+
+    // The whole image is in view, so zooming out is not available yet.
+    await expect(astroSpike.getCanvasTool("Zoom out")).toBeDisabled();
+    await astroSpike.getCanvasTool("Zoom in").click();
+    await expect(astroSpike.getCanvasTool("Zoom out")).toBeEnabled();
+
+    await astroSpike.getCanvasTool("Reset view").click();
+    await expect(astroSpike.getCanvasTool("Zoom out")).toBeDisabled();
+  });
+
   test("should return to the dropzone when the image is cleared", async ({
     page,
   }) => {

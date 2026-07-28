@@ -47,6 +47,7 @@ function makeParams(overrides: Partial<SpikeRenderParams> = {}): SpikeRenderPara
     stars: [makeStar()],
     fluxRef: 100,
     forcedStarIds: new Set<number>(),
+    adjustments: new Map(),
     offsetX: 0,
     offsetY: 0,
     preset: makePreset(),

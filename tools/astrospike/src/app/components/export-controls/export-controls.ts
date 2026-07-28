@@ -1,9 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import {
-  MicroSliderComponent,
-  SplitButtonComponent,
-  TextButtonComponent,
-} from '@db-astro-suite/ui';
+import { MicroSliderComponent, SplitButtonComponent } from '@db-astro-suite/ui';
 import {
   EXPORT_FORMAT_BY_MENU_VALUE,
   EXPORT_MENU_ITEMS,
@@ -25,7 +21,7 @@ import { formatBytes } from '../../utils/format-bytes.util';
 @Component({
   selector: 'dba-as-export-controls',
   standalone: true,
-  imports: [MicroSliderComponent, SplitButtonComponent, TextButtonComponent],
+  imports: [MicroSliderComponent, SplitButtonComponent],
   templateUrl: './export-controls.html',
   styleUrl: './export-controls.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

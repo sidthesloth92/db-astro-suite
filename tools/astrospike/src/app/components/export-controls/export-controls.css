@@ -11,6 +11,13 @@
 
 .export-split {
   display: block;
+  /* Pink primary action, matching the record button in starwizz. */
+  --dba-split-button-bg: var(--db-color-neon-pink);
+  --dba-split-button-color: var(--db-color-text-primary);
+  --dba-split-button-divider: color-mix(in srgb, var(--db-color-text-primary) 30%, transparent);
+  --dba-split-button-shadow:
+    0 0 0 1px var(--db-color-neon-pink),
+    0 4px 12px var(--db-color-pink-soft);
 }
 
 .slider-row {

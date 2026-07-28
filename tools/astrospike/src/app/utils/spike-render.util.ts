@@ -1,4 +1,5 @@
 import { FORCED_FLUX_FLOOR_RATIO } from '../constants/spike-geometry.constants';
+import { DEFAULT_STAR_ADJUSTMENT } from '../constants/star-adjustment.constants';
 import { StarColor } from '../models/detected-star.model';
 import { SpikeRenderParams, SpriteCache } from '../models/spike-render-params.model';
 import { computeSpikeGeometry } from './spike-brightness.util';
@@ -62,19 +63,21 @@ export function renderSpikes(
   ctx.save();
   try {
     ctx.globalCompositeOperation = 'lighter';
-    const baseAngle = ((params.rotationDeg + params.preset.rotationOffsetDeg) * Math.PI) / 180;
     for (const star of params.stars) {
       const glowSprite = getGlowSprite(spriteCache, star.color);
       const armSprite = getArmSprite(spriteCache, star.color, params.preset.falloffGamma);
       const effectiveFlux = params.forcedStarIds.has(star.id)
         ? Math.max(star.flux, params.fluxRef * FORCED_FLUX_FLOOR_RATIO)
         : star.flux;
+      // Per-star tweaks multiply the global controls, so an untouched star is
+      // identical to one carrying no adjustment at all.
+      const adjustment = params.adjustments.get(star.id) ?? DEFAULT_STAR_ADJUSTMENT;
       const geometry = computeSpikeGeometry(
         effectiveFlux,
         params.fluxRef,
         params.preset,
-        params.lengthFactor,
-        params.intensityFactor,
+        params.lengthFactor * adjustment.lengthFactor,
+        params.intensityFactor * adjustment.intensityFactor,
         params.imageMaxDimension,
         params.scale,
       );
@@ -91,6 +94,10 @@ export function renderSpikes(
         geometry.glowRadiusPx * 2,
       );
 
+      const baseAngle =
+        ((params.rotationDeg + adjustment.rotationDeg + params.preset.rotationOffsetDeg) *
+          Math.PI) /
+        180;
       for (let i = 0; i < params.spikeCount; i++) {
         const angle = baseAngle + (i * 2 * Math.PI) / params.spikeCount;
         ctx.setTransform(1, 0, 0, 1, cx, cy);

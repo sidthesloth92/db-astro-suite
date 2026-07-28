@@ -32,16 +32,13 @@
   pointer-events: none;
 }
 
-/* The grip follows the line but clamps half its width inside the frame, so it
-   is never clipped at the extremes while the line stays on the seam. */
+/* The grip is centred on the line at every position — the stage insets the
+   frame by more than half a grip, so it has room to sit on the true edges
+   without being clipped. */
 .compare-divider__grip {
   position: absolute;
   top: 50%;
-  left: clamp(
-    var(--compare-grip-half),
-    calc(var(--compare-pos, 0) * 100%),
-    calc(100% - var(--compare-grip-half))
-  );
+  left: calc(var(--compare-pos, 0) * 100%);
   transform: translate(-50%, -50%);
   display: flex;
   align-items: center;

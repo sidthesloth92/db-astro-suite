@@ -1,4 +1,5 @@
 import { DetectedStar } from './detected-star.model';
+import { StarAdjustment } from './star-adjustment.model';
 import { SpikePreset } from './spike-preset.model';
 
 /**
@@ -23,6 +24,12 @@ export interface SpikeRenderParams {
    * own flux would produce sub-pixel spikes.
    */
   forcedStarIds: ReadonlySet<number>;
+
+  /**
+   * Per-star tweaks keyed by star id. A star absent from the map renders on
+   * the global controls alone.
+   */
+  adjustments: ReadonlyMap<number, StarAdjustment>;
 
   /** Horizontal canvas-pixel offset added after scaling (viewport pan). */
   offsetX: number;

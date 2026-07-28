@@ -8,7 +8,6 @@ import {
   SegmentedTabsComponent,
   sparklesIcon,
   starsIcon,
-  TextButtonComponent,
   TooltipDirective,
 } from '@db-astro-suite/ui';
 import { CONTROLS, EDITOR_CONTROL_KEYS } from '../../constants/controls.constants';
@@ -44,7 +43,6 @@ import { PresetCards } from '../preset-cards/preset-cards';
     MicroSliderComponent,
     PresetCards,
     SegmentedTabsComponent,
-    TextButtonComponent,
     TooltipDirective,
   ],
   templateUrl: './control-panel.html',
@@ -138,8 +136,4 @@ export class ControlPanel {
     this.editor.setSpikeCount(SPIKE_COUNT_BY_TAB_ID[tabId]);
   }
 
-  /** Clears the loaded image and resets the editor to its empty state. */
-  protected onClearImage(): void {
-    this.editor.clearImage();
-  }
 }

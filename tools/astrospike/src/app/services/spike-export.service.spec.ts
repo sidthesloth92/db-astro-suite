@@ -21,6 +21,7 @@ const PARAMS: SpikeRenderParams = {
   stars: [STAR],
   fluxRef: STAR.flux,
   forcedStarIds: new Set<number>(),
+  adjustments: new Map(),
   offsetX: 0,
   offsetY: 0,
   preset: SPIKE_PRESETS['classic'],

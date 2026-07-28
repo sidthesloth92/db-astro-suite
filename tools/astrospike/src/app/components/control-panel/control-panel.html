@@ -79,8 +79,8 @@
 
         @if (editor.hasImage()) {
           <p class="canvas-hint">
-            Click a star to add or remove its spikes — it stays ringed until
-            you click elsewhere. Drag a star to re-centre its detection, scroll
+            Click a star to add or remove its spikes; double-click it for that
+            star's own controls. Drag a star to re-centre its detection, scroll
             to zoom, drag empty sky to pan.
           </p>
         }
@@ -92,13 +92,5 @@
        out of reach; it stays disabled until an image is loaded. -->
   <div class="panel-footer">
     <dba-as-export-controls />
-    @if (editor.hasImage()) {
-      <dba-ui-text-button
-        label="New image"
-        variant="secondary"
-        size="sm"
-        (clicked)="onClearImage()"
-      />
-    }
   </div>
 </section>

@@ -9,6 +9,7 @@ import {
 } from '../constants/editor-messages.constants';
 import { DEFAULT_JPEG_QUALITY } from '../constants/export.constants';
 import { DEFAULT_PRESET_ID, SPIKE_PRESETS } from '../constants/spike-presets.constants';
+import { DEFAULT_STAR_ADJUSTMENT } from '../constants/star-adjustment.constants';
 import { DetectedStar } from '../models/detected-star.model';
 import { StarDetectionError, SupersededError } from '../models/detection.error';
 import { EditorControlKey } from '../models/editor-controls.model';
@@ -17,6 +18,7 @@ import { ImageLoadError } from '../models/image-load.error';
 import { LoadedImage, LoadedImageResult } from '../models/loaded-image.model';
 import { SpikePresetId } from '../models/spike-preset.model';
 import { SpikeRenderParams } from '../models/spike-render-params.model';
+import { StarAdjustment } from '../models/star-adjustment.model';
 import { fluxReferenceFor } from '../utils/flux-reference.util';
 import { applyOverrides } from '../utils/star-overrides.util';
 import { sliceCountForValue } from '../utils/stars-cut.util';
@@ -115,6 +117,12 @@ export class SpikeEditorService implements OnDestroy {
    */
   public readonly selectedStarId = signal<number | null>(null);
 
+  /**
+   * Per-star spike tweaks keyed by star id. Only stars the user actually
+   * adjusted appear here; everything else renders on the global controls.
+   */
+  public readonly starAdjustments = signal<ReadonlyMap<number, StarAdjustment>>(new Map());
+
   /** Before/after compare divider position in [0, 1]. */
   public readonly comparePosition = signal<number>(0);
 
@@ -174,6 +182,7 @@ export class SpikeEditorService implements OnDestroy {
       // reference pick.
       fluxRef: fluxReferenceFor(all),
       forcedStarIds,
+      adjustments: this.starAdjustments(),
       offsetX: 0,
       offsetY: 0,
       preset: this.preset(),
@@ -361,6 +370,55 @@ export class SpikeEditorService implements OnDestroy {
   }
 
   /**
+   * Returns the tweaks applied to a star, or the neutral default when it has
+   * never been adjusted.
+   * @param id Id of the star to read.
+   */
+  adjustmentFor(id: number): StarAdjustment {
+    return this.starAdjustments().get(id) ?? DEFAULT_STAR_ADJUSTMENT;
+  }
+
+  /**
+   * Applies a partial tweak to one star, merging it over whatever that star
+   * already carried. The map is replaced immutably, and an adjustment that
+   * returns to the neutral default is deleted rather than stored so the map
+   * only ever holds real deviations.
+   * @param id Id of the star to adjust.
+   * @param patch The fields to change.
+   */
+  adjustStar(id: number, patch: Partial<StarAdjustment>): void {
+    this.starAdjustments.update((current) => {
+      const next = new Map(current);
+      const merged: StarAdjustment = { ...this.adjustmentFor(id), ...patch };
+      const isDefault =
+        merged.lengthFactor === DEFAULT_STAR_ADJUSTMENT.lengthFactor &&
+        merged.intensityFactor === DEFAULT_STAR_ADJUSTMENT.intensityFactor &&
+        merged.rotationDeg === DEFAULT_STAR_ADJUSTMENT.rotationDeg;
+      if (isDefault) {
+        next.delete(id);
+      } else {
+        next.set(id, merged);
+      }
+      return next;
+    });
+  }
+
+  /**
+   * Drops a star's tweaks, returning it to the global controls.
+   * @param id Id of the star to reset.
+   */
+  resetStarAdjustment(id: number): void {
+    this.starAdjustments.update((current) => {
+      if (!current.has(id)) {
+        return current;
+      }
+      const next = new Map(current);
+      next.delete(id);
+      return next;
+    });
+  }
+
+  /**
    * Moves a detected star to a new position, clamped to the image bounds. This
    * is the manual escape hatch for imperfect detection: the user drags the
    * detection onto the star's true centre and the spikes follow. The star list
@@ -435,6 +493,7 @@ export class SpikeEditorService implements OnDestroy {
   /** Clears overrides, hover, and the compare divider for a fresh image. */
   private resetInteractionState(): void {
     this.overrides.set(new Map());
+    this.starAdjustments.set(new Map());
     this.hoveredStarId.set(null);
     this.selectedStarId.set(null);
     this.comparePosition.set(0);

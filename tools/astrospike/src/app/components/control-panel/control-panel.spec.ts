@@ -211,22 +211,4 @@ describe('ControlPanel', () => {
     expect(error?.textContent).toContain('The export failed. Please try again.');
   });
 
-  it('should clear the image when the New image button is clicked', async () => {
-    const clearSpy = spyOn(editor, 'clearImage');
-    editor.sourceImage.set(await buildBitmap(6, 4));
-    editor.imageMeta.set({ fileName: 'm42.png', width: 6, height: 4 });
-    fixture.detectChanges();
-
-    const buttons: NodeListOf<HTMLButtonElement> =
-      fixture.nativeElement.querySelectorAll('button.text-button');
-    const newImage = Array.from(buttons).find((button) =>
-      button.textContent?.includes('New image'),
-    );
-    if (newImage === undefined) {
-      throw new Error('New image button not rendered');
-    }
-    newImage.click();
-
-    expect(clearSpy).toHaveBeenCalledTimes(1);
-  });
 });

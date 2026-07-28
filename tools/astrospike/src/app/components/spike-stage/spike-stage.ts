@@ -9,7 +9,17 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { ConstellationLoaderComponent, PillBadgeComponent, TextButtonComponent } from '@db-astro-suite/ui';
+import {
+  ConstellationLoaderComponent,
+  IconButtonComponent,
+  IconComponent,
+  PillBadgeComponent,
+  TextButtonComponent,
+  minusIcon,
+  plusIcon,
+  rotateCcwIcon,
+  trashIcon,
+} from '@db-astro-suite/ui';
 import {
   HIT_TEST_RADIUS_CSS_PX,
   PREVIEW_MAX_DIMENSION,
@@ -39,6 +49,7 @@ import {
 import { drawStarMarkers } from '../../utils/star-markers.util';
 import { CompareHandle } from '../compare-handle/compare-handle';
 import { ImageDropzone } from '../image-dropzone/image-dropzone';
+import { StarControls } from '../star-controls/star-controls';
 
 /**
  * Preview stage — owns the render pipeline from the loaded source image to the
@@ -67,8 +78,11 @@ import { ImageDropzone } from '../image-dropzone/image-dropzone';
   imports: [
     CompareHandle,
     ConstellationLoaderComponent,
+    IconButtonComponent,
+    IconComponent,
     ImageDropzone,
     PillBadgeComponent,
+    StarControls,
     TextButtonComponent,
   ],
   templateUrl: './spike-stage.html',
@@ -187,6 +201,51 @@ export class SpikeStage {
   /** True while the pointer sits on a star — drives the pointer cursor. */
   protected readonly isOverStar = computed(() => this.editor.hoveredStarId() !== null);
 
+  /**
+   * Id of the star whose controls popover is open, or null. Double-clicking a
+   * star opens it; anything that changes the selection closes it.
+   */
+  protected readonly starControlsId = signal<number | null>(null);
+
+  /**
+   * Anchor for the open star-controls popover, as percentages of the stage
+   * frame, so it tracks the star through zoom and pan.
+   */
+  protected readonly starControlsAnchor = computed(() => {
+    const id = this.starControlsId();
+    const bitmap = this.editor.sourceImage();
+    if (id === null || bitmap === null) {
+      return null;
+    }
+    const star = this.editor.allStars().find((s) => s.id === id);
+    if (star === undefined) {
+      return null;
+    }
+    const view = this.viewport();
+    const origin = viewportOrigin(view, bitmap.width, bitmap.height);
+    const leftPct = ((star.x - origin.x) / (bitmap.width / view.zoom)) * 100;
+    const topPct = ((star.y - origin.y) / (bitmap.height / view.zoom)) * 100;
+    return { leftPct, topPct };
+  });
+
+  /** Zoom-in glyph for the canvas tool rail. */
+  protected readonly plusIcon = plusIcon;
+
+  /** Zoom-out glyph for the canvas tool rail. */
+  protected readonly minusIcon = minusIcon;
+
+  /** Reset-view glyph for the canvas tool rail. */
+  protected readonly rotateCcwIcon = rotateCcwIcon;
+
+  /** Remove-image glyph for the canvas tool rail. */
+  protected readonly trashIcon = trashIcon;
+
+  /** True once the view is fully zoomed in — disables the zoom-in button. */
+  protected readonly isMaxZoom = computed(() => this.viewport().zoom >= STAGE_MAX_ZOOM);
+
+  /** True while the whole image is in view — disables the zoom-out button. */
+  protected readonly isMinZoom = computed(() => this.viewport().zoom <= STAGE_MIN_ZOOM);
+
   /** Aspect ratio (width / height) the preview frame is laid out at. */
   protected readonly frameAspect = computed(() => {
     const bitmap = this.editor.sourceImage();
@@ -221,6 +280,7 @@ export class SpikeStage {
     const bitmap = this.editor.sourceImage();
     if (bitmap === null) {
       this.previewScale.set(1);
+      this.starControlsId.set(null);
       this.resizeCanvases(0, 0);
       return;
     }
@@ -399,11 +459,16 @@ export class SpikeStage {
     }
     const star = this.starAt(event.clientX, event.clientY);
     if (star !== null) {
-      // Toggling also selects, so the ring stays on the clicked star.
+      // Toggling also selects, so the ring stays on the clicked star. Moving
+      // to a different star takes its controls with it.
+      if (this.starControlsId() !== null && this.starControlsId() !== star.id) {
+        this.starControlsId.set(null);
+      }
       this.editor.toggleStar(star.id);
       return;
     }
-    // Clicking empty sky is how the user dismisses the selection.
+    // Clicking empty sky is how the user dismisses selection and controls.
+    this.starControlsId.set(null);
     this.editor.clearStarSelection();
   }
 
@@ -441,8 +506,49 @@ export class SpikeStage {
     );
   }
 
-  /** Double click — reset the view to the whole image. */
-  protected onStageDoubleClick(): void {
+  /** Tool rail: zoom in one step about the centre of the view. */
+  protected onZoomIn(): void {
+    this.zoomAboutCentre(STAGE_WHEEL_ZOOM_FACTOR);
+  }
+
+  /** Tool rail: zoom out one step about the centre of the view. */
+  protected onZoomOut(): void {
+    this.zoomAboutCentre(1 / STAGE_WHEEL_ZOOM_FACTOR);
+  }
+
+  /** Tool rail: restore the fitted, whole-image view. */
+  protected onResetView(): void {
+    this.resetViewport();
+  }
+
+  /** Tool rail: drop the loaded image and return to the dropzone. */
+  protected onRemoveImage(): void {
+    this.editor.clearImage();
+  }
+
+  /** Applies a zoom step anchored on the current view centre. */
+  private zoomAboutCentre(factor: number): void {
+    const bitmap = this.editor.sourceImage();
+    if (bitmap === null) {
+      return;
+    }
+    const view = this.viewport();
+    this.viewport.set(
+      zoomViewportAt(
+        view,
+        view.centerX,
+        view.centerY,
+        factor,
+        bitmap.width,
+        bitmap.height,
+        STAGE_MIN_ZOOM,
+        STAGE_MAX_ZOOM,
+      ),
+    );
+  }
+
+  /** Restores the fitted, whole-image view. */
+  private resetViewport(): void {
     const bitmap = this.editor.sourceImage();
     if (bitmap === null) {
       return;
@@ -456,6 +562,26 @@ export class SpikeStage {
         STAGE_MAX_ZOOM,
       ),
     );
+  }
+
+  /**
+   * Double click — on a star it opens that star's controls; on empty sky it
+   * resets the view to the whole image.
+   */
+  protected onStageDoubleClick(event: MouseEvent): void {
+    const star = this.starAt(event.clientX, event.clientY);
+    if (star !== null) {
+      this.editor.selectedStarId.set(star.id);
+      this.starControlsId.set(star.id);
+      return;
+    }
+    this.starControlsId.set(null);
+    this.resetViewport();
+  }
+
+  /** The star-controls popover asked to close. */
+  protected onStarControlsClosed(): void {
+    this.starControlsId.set(null);
   }
 
   /** Pans the viewport by a CSS-pixel delta, converted into image space. */

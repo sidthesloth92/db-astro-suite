@@ -269,6 +269,61 @@ describe('SpikeStage', () => {
     });
   });
 
+  describe('canvas tools', () => {
+    beforeEach(async () => {
+      await loadStubImage();
+      editor.allStars.set([makeStar(0, 100, 50), makeStar(1, 300, 150)]);
+      fixture.detectChanges();
+    });
+
+    /** Finds a tool-rail button by its title. */
+    function tool(title: string): HTMLButtonElement {
+      const button: HTMLButtonElement | null = fixture.nativeElement.querySelector(
+        `.stage-tools button[title="${title}"]`,
+      );
+      if (button === null) {
+        throw new Error(`${title} button not rendered`);
+      }
+      return button;
+    }
+
+    it('should offer zoom, reset, and remove tools on the canvas', () => {
+      expect(tool('Zoom in')).toBeTruthy();
+      expect(tool('Zoom out')).toBeTruthy();
+      expect(tool('Reset view')).toBeTruthy();
+      expect(tool('Remove image')).toBeTruthy();
+    });
+
+    it('should disable zoom out until the view is zoomed in', () => {
+      expect(tool('Zoom out').disabled).toBeTrue();
+
+      tool('Zoom in').click();
+      fixture.detectChanges();
+
+      expect(tool('Zoom out').disabled).toBeFalse();
+    });
+
+    it('should return to the fitted view when reset is used', () => {
+      tool('Zoom in').click();
+      tool('Zoom in').click();
+      fixture.detectChanges();
+      expect(tool('Zoom out').disabled).toBeFalse();
+
+      tool('Reset view').click();
+      fixture.detectChanges();
+
+      expect(tool('Zoom out').disabled).toBeTrue();
+    });
+
+    it('should clear the image from the remove tool', () => {
+      const clearSpy = spyOn(editor, 'clearImage');
+
+      tool('Remove image').click();
+
+      expect(clearSpy).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe('star interaction', () => {
     beforeEach(async () => {
       await loadStubImage();

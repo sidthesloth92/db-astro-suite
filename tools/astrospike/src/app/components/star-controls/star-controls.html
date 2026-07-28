@@ -1,0 +1,70 @@
+<div
+  class="star-controls"
+  role="dialog"
+  [attr.aria-label]="starLabel() + ' spike controls'"
+  (pointerdown)="$event.stopPropagation()"
+  (click)="$event.stopPropagation()"
+  (dblclick)="$event.stopPropagation()"
+  (wheel)="$event.stopPropagation()"
+>
+  <header class="star-controls__head">
+    <span class="star-controls__title">{{ starLabel() }}</span>
+    <dba-ui-icon-button title="Close star controls" [size]="24" (clicked)="onClose()">
+      <dba-ui-icon [def]="closeIcon" [size]="12" />
+    </dba-ui-icon-button>
+  </header>
+
+  <div class="slider-row">
+    <div class="slider-label-row">
+      <label class="row-label">Length</label>
+      <span class="row-value">{{ adjustment().lengthFactor }}×</span>
+    </div>
+    <dba-ui-micro-slider
+      [value]="adjustment().lengthFactor"
+      [min]="lengthMin"
+      [max]="lengthMax"
+      [step]="factorStep"
+      [showReadout]="false"
+      (valueChange)="onLengthChange($event)"
+    ></dba-ui-micro-slider>
+  </div>
+
+  <div class="slider-row">
+    <div class="slider-label-row">
+      <label class="row-label">Brightness</label>
+      <span class="row-value">{{ adjustment().intensityFactor }}×</span>
+    </div>
+    <dba-ui-micro-slider
+      [value]="adjustment().intensityFactor"
+      [min]="intensityMin"
+      [max]="intensityMax"
+      [step]="factorStep"
+      [showReadout]="false"
+      (valueChange)="onIntensityChange($event)"
+    ></dba-ui-micro-slider>
+  </div>
+
+  <div class="slider-row">
+    <div class="slider-label-row">
+      <label class="row-label">Rotation</label>
+      <span class="row-value">{{ adjustment().rotationDeg }}°</span>
+    </div>
+    <dba-ui-micro-slider
+      [value]="adjustment().rotationDeg"
+      [min]="rotationMin"
+      [max]="rotationMax"
+      [step]="rotationStep"
+      [showReadout]="false"
+      (valueChange)="onRotationChange($event)"
+    ></dba-ui-micro-slider>
+  </div>
+
+  <div class="star-controls__actions">
+    <button type="button" class="star-action" [disabled]="!isAdjusted()" (click)="onReset()">
+      Reset
+    </button>
+    <button type="button" class="star-action star-action--danger" (click)="onRemoveSpikes()">
+      Remove spikes
+    </button>
+  </div>
+</div>

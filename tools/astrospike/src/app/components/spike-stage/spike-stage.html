@@ -22,8 +22,55 @@
       (pointercancel)="onStagePointerUp($event)"
       (pointerleave)="onStagePointerLeave()"
       (wheel)="onStageWheel($event)"
-      (dblclick)="onStageDoubleClick()"
+      (dblclick)="onStageDoubleClick($event)"
     ></canvas>
+
+
+    @if (showStarPill()) {
+      <dba-ui-pill-badge class="star-pill" tone="cyan">
+        {{ editor.allStars().length }} stars detected
+      </dba-ui-pill-badge>
+
+      <div class="stage-tools">
+        <dba-ui-icon-button
+          title="Zoom in"
+          [size]="32"
+          [disabled]="isMaxZoom()"
+          (clicked)="onZoomIn()"
+        >
+          <dba-ui-icon [def]="plusIcon" [size]="15" />
+        </dba-ui-icon-button>
+        <dba-ui-icon-button
+          title="Zoom out"
+          [size]="32"
+          [disabled]="isMinZoom()"
+          (clicked)="onZoomOut()"
+        >
+          <dba-ui-icon [def]="minusIcon" [size]="15" />
+        </dba-ui-icon-button>
+        <dba-ui-icon-button title="Reset view" [size]="32" (clicked)="onResetView()">
+          <dba-ui-icon [def]="rotateCcwIcon" [size]="15" />
+        </dba-ui-icon-button>
+        <dba-ui-icon-button
+          class="tool-remove"
+          accent="red"
+          title="Remove image"
+          [size]="32"
+          (clicked)="onRemoveImage()"
+        >
+          <dba-ui-icon [def]="trashIcon" [size]="15" />
+        </dba-ui-icon-button>
+      </div>
+    }
+
+    @if (starControlsAnchor(); as anchor) {
+      <dba-as-star-controls
+        [starId]="starControlsId() ?? 0"
+        [style.--as-star-left]="anchor.leftPct"
+        [style.--as-star-top]="anchor.topPct"
+        (closed)="onStarControlsClosed()"
+      />
+    }
 
     @if (showCompareHandle()) {
       <dba-as-compare-handle
@@ -58,9 +105,4 @@
     </div>
   }
 
-  @if (showStarPill()) {
-    <dba-ui-pill-badge class="star-pill" tone="cyan">
-      {{ editor.allStars().length }} stars detected
-    </dba-ui-pill-badge>
-  }
 </div>
