@@ -59,6 +59,19 @@ export interface SpikeRenderParams {
 export type SpriteCache = Map<string, HTMLCanvasElement>;
 
 /**
+ * Per-star bloom geometry for a `glow` star, in target canvas pixels and
+ * 0–1 alpha. Its radius is sized from the image and the star's brightness
+ * rather than from arm thickness, which is what lets a bloom stay
+ * brightness-ordered on a star that has no arms at all.
+ */
+export interface GlowGeometry {
+  /** Radius of the bloom in canvas pixels. */
+  radiusPx: number;
+  /** Alpha (0–1) applied when drawing the glow sprite. */
+  alpha: number;
+}
+
+/**
  * Per-star spike geometry derived from flux, preset, and user controls —
  * all values in target canvas pixels or 0–1 alpha.
  */

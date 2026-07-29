@@ -8,6 +8,7 @@ export const DEFAULT_STAR_ADJUSTMENT: StarAdjustment = {
   lengthFactor: 1,
   intensityFactor: 1,
   rotationDeg: 0,
+  style: null,
 };
 
 /** Lower bound of a single star's extra length multiplier. */

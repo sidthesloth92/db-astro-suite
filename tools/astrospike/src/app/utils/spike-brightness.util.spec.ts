@@ -6,10 +6,12 @@ import { computeSpikeGeometry, starSpikeScale } from './spike-brightness.util';
 function makePreset(overrides: Partial<SpikePreset> = {}): SpikePreset {
   return {
     id: 'classic',
+    style: 'spikes',
     label: 'Test',
     description: 'Test preset',
     spikeCount: 4,
     lengthScale: 0.12,
+    glowRadiusScale: 0.013,
     intensityScale: 0.8,
     thicknessRatio: 0.035,
     falloffGamma: 2.2,

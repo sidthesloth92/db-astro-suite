@@ -196,6 +196,12 @@
   min-width: 0;
 }
 
+/* Kept in place rather than removed, so choosing a bloom preset does not
+   shuffle the controls under the pointer. */
+.arms-row.is-inert .row-label {
+  opacity: 0.45;
+}
+
 .arms-row dba-ui-segmented-tabs {
   margin-left: auto;
   min-width: 0;

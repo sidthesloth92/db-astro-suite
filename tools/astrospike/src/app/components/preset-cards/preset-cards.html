@@ -10,7 +10,14 @@
       (click)="presetSelected.emit(preset.id)"
     >
       <span class="preset-glyph" aria-hidden="true">
-        @if (preset.spikeCount === 6) {
+        @if (preset.style === 'glow') {
+          <!-- Concentric rings read as a bloom where an X reads as arms. -->
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="9" opacity="0.35" />
+            <circle cx="12" cy="12" r="5.5" opacity="0.7" />
+            <circle cx="12" cy="12" r="2" />
+          </svg>
+        } @else if (preset.spikeCount === 6) {
           <svg viewBox="0 0 24 24">
             <path d="M12 2.5V21.5" />
             <path d="M3.8 7.25 20.2 16.75" />
@@ -32,7 +39,9 @@
         <span class="preset-description">{{ preset.description }}</span>
       </span>
 
-      <span class="preset-arms">{{ preset.spikeCount }} arms</span>
+      <span class="preset-arms">
+        {{ preset.style === 'glow' ? 'no arms' : preset.spikeCount + ' arms' }}
+      </span>
     </button>
   }
 </div>

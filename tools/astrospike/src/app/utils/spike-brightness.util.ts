@@ -6,7 +6,7 @@ import {
   SPIKE_THICKNESS_MIN_PX,
 } from '../constants/spike-geometry.constants';
 import { SpikePreset } from '../models/spike-preset.model';
-import { SpikeGeometry } from '../models/spike-render-params.model';
+import { GlowGeometry, SpikeGeometry } from '../models/spike-render-params.model';
 
 /**
  * Clamps a value into the inclusive [min, max] range.
@@ -77,4 +77,32 @@ export function computeSpikeGeometry(
   const glowRadiusPx = thicknessPx * preset.glowRadiusRatio;
   const glowAlpha = clamp(preset.glowIntensity * intensityFactor * ramp, 0, 1);
   return { lengthPx, alphaPeak, thicknessPx, glowRadiusPx, glowAlpha };
+}
+
+/**
+ * Computes the bloom geometry for a star drawn in the `glow` style: a radius
+ * sized from the image's larger dimension, the preset's `lengthScale`, the
+ * user length factor, and the star's relative brightness, plus the glow alpha.
+ *
+ * The radius is deliberately NOT the `glowRadiusPx` of
+ * {@link computeSpikeGeometry}. That one hangs off arm thickness, which hangs
+ * off arm length, so a star with no arms would bloom at the clamped minimum
+ * thickness — the same few pixels for the brightest star in the frame as for
+ * the faintest, and the brightness ordering that makes a diffusion filter
+ * readable would be gone.
+ */
+export function computeGlowGeometry(
+  flux: number,
+  fluxRef: number,
+  preset: SpikePreset,
+  lengthFactor: number,
+  intensityFactor: number,
+  imageMaxDimension: number,
+  scale: number,
+): GlowGeometry {
+  const s = starSpikeScale(flux, fluxRef);
+  const ramp = alphaRamp(s);
+  const radiusPx = imageMaxDimension * preset.glowRadiusScale * lengthFactor * s * scale;
+  const alpha = clamp(preset.glowIntensity * intensityFactor * ramp, 0, 1);
+  return { radiusPx, alpha };
 }

@@ -91,6 +91,7 @@ describe('StarControls', () => {
       lengthFactor: 1,
       intensityFactor: 1,
       rotationDeg: 0,
+      style: null,
     });
   });
 
@@ -104,6 +105,7 @@ describe('StarControls', () => {
       lengthFactor: 2,
       intensityFactor: 1.5,
       rotationDeg: 30,
+      style: null,
     });
     // Neighbours are untouched.
     expect(editor.starAdjustments().has(0)).toBeFalse();
@@ -162,6 +164,45 @@ describe('StarControls', () => {
     action('Remove spikes').click();
 
     expect(closed).toBe(0);
+  });
+
+  /** The Spikes/Glow tabs inside the star panel. */
+  function styleTab(label: string): HTMLButtonElement {
+    const tabs: HTMLButtonElement[] = Array.from(
+      fixture.nativeElement.querySelectorAll('button[role="tab"]'),
+    );
+    const match = tabs.find((tab) => tab.textContent?.trim() === label);
+    if (match === undefined) {
+      throw new Error(`${label} tab not rendered`);
+    }
+    return match;
+  }
+
+  it('should start on whatever effect the active preset draws', () => {
+    expect(styleTab('Spikes').getAttribute('aria-selected')).toBe('true');
+
+    editor.applyPreset('diffusion');
+    fixture.detectChanges();
+
+    expect(styleTab('Glow').getAttribute('aria-selected')).toBe('true');
+  });
+
+  it('should switch this star to a bloom without touching its neighbours', () => {
+    styleTab('Glow').click();
+    fixture.detectChanges();
+
+    expect(editor.adjustmentFor(1).style).toBe('glow');
+    expect(editor.starAdjustments().has(0)).toBeFalse();
+    expect(editor.starAdjustments().has(2)).toBeFalse();
+  });
+
+  it('should drop the rotation slider for a bloom, which has nothing to turn', () => {
+    expect(sliders().length).toBe(3);
+
+    styleTab('Glow').click();
+    fixture.detectChanges();
+
+    expect(sliders().length).toBe(2);
   });
 
   it('should emit closed from the action that returns to the global controls', () => {

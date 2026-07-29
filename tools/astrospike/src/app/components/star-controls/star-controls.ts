@@ -1,5 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
-import { IconComponent, MicroSliderComponent, chevronLeftIcon } from '@db-astro-suite/ui';
+import {
+  IconComponent,
+  MicroSliderComponent,
+  SegmentedTabsComponent,
+  chevronLeftIcon,
+} from '@db-astro-suite/ui';
 import {
   STAR_FACTOR_STEP,
   STAR_INTENSITY_MAX,
@@ -10,6 +15,7 @@ import {
   STAR_ROTATION_MIN,
   STAR_ROTATION_STEP,
 } from '../../constants/star-adjustment.constants';
+import { SPIKE_STYLE_BY_TAB_ID, SPIKE_STYLE_TABS } from '../../constants/spike-style.constants';
 import { SpikeEditorService } from '../../services/spike-editor.service';
 
 /**
@@ -24,7 +30,7 @@ import { SpikeEditorService } from '../../services/spike-editor.service';
 @Component({
   selector: 'dba-as-star-controls',
   standalone: true,
-  imports: [IconComponent, MicroSliderComponent],
+  imports: [IconComponent, MicroSliderComponent, SegmentedTabsComponent],
   templateUrl: './star-controls.html',
   styleUrl: './star-controls.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -77,6 +83,20 @@ export class StarControls {
     this.editor.renderedStars().some((star) => star.id === this.starId()),
   );
 
+  /** Segmented-tab options for what this star draws. */
+  protected readonly styleTabs = SPIKE_STYLE_TABS;
+
+  /**
+   * Effect this star draws: its own choice when it has made one, otherwise
+   * whatever the active preset draws.
+   */
+  protected readonly styleTabId = computed(
+    () => this.adjustment().style ?? this.editor.presetStyle(),
+  );
+
+  /** True while this star draws a bloom, which has no arms to rotate. */
+  protected readonly isGlowing = computed(() => this.styleTabId() === 'glow');
+
   /** Human-readable rank of the star within the flux-sorted list. */
   protected readonly starLabel = computed(() => `Star #${this.starId() + 1}`);
 
@@ -93,6 +113,14 @@ export class StarControls {
   /** Applies a new per-star rotation offset. */
   protected onRotationChange(value: number): void {
     this.editor.adjustStar(this.starId(), { rotationDeg: value });
+  }
+
+  /**
+   * Switches this star between arms and a bloom, independently of the preset.
+   * @param tabId The chosen segmented-tab id.
+   */
+  protected onStyleChange(tabId: string): void {
+    this.editor.adjustStar(this.starId(), { style: SPIKE_STYLE_BY_TAB_ID[tabId] });
   }
 
   /** Returns this star to the global controls. */

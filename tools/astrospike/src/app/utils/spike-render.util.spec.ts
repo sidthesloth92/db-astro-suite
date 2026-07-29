@@ -11,11 +11,13 @@ const SAMPLE_RADIUS = 15;
 function makePreset(overrides: Partial<SpikePreset> = {}): SpikePreset {
   return {
     id: 'classic',
+    style: 'spikes',
     label: 'Test',
     description: 'Test preset',
     spikeCount: 4,
     // lengthPx = 100 * 0.4 = 40, thicknessPx = 4, glowRadiusPx = 8.
     lengthScale: 0.4,
+    glowRadiusScale: 0.08,
     intensityScale: 1,
     thicknessRatio: 0.1,
     falloffGamma: 1,
@@ -291,5 +293,76 @@ describe('renderSpikes', () => {
     };
     expect(at(50, 50)).toBeGreaterThan(0);
     expect(at(30, 30)).toBe(0);
+  });
+
+  it('should draw a bloom and no arms for a glow preset', () => {
+    const glowCtx = makeBlackContext();
+    renderSpikes(
+      glowCtx,
+      makeParams({ preset: makePreset({ style: 'glow', glowRadiusScale: 0.15, glowIntensity: 0.9 }) }),
+      new Map(),
+    );
+    const spikeCtx = makeBlackContext();
+    renderSpikes(spikeCtx, makeParams(), new Map());
+
+    // Lit at the core, so the bloom is drawn at all.
+    expect(brightnessAtAngle(glowCtx, 45, 4)).toBeGreaterThan(0);
+    // Dark out where the spike preset's 40px arms clearly reach, which is the
+    // whole claim: the same star under glow grows no arms.
+    expect(brightnessAtAngle(spikeCtx, 45, 30)).toBeGreaterThan(0);
+    expect(brightnessAtAngle(glowCtx, 45, 30)).toBe(0);
+  });
+
+  it('should size a bloom by the star brightness rather than the arm thickness', () => {
+    const bloomRadius = (flux: number): number => {
+      const ctx = makeBlackContext();
+      renderSpikes(
+        ctx,
+        makeParams({
+          stars: [makeStar({ flux })],
+          preset: makePreset({ style: 'glow', glowRadiusScale: 0.3, glowIntensity: 1 }),
+        }),
+        new Map(),
+      );
+      let radius = 0;
+      for (let r = 1; r < CENTER; r++) {
+        if (brightnessAtAngle(ctx, 0, r) > 0) {
+          radius = r;
+        }
+      }
+      return radius;
+    };
+
+    // Under the old arm-derived formula both would clamp to the same few
+    // pixels, and the brightness ordering would be invisible.
+    expect(bloomRadius(100)).toBeGreaterThan(bloomRadius(3) + 2);
+  });
+
+  it('should let one star bloom while the rest of the field keeps its spikes', () => {
+    const ctx = makeBlackContext();
+    renderSpikes(
+      ctx,
+      makeParams({
+        stars: [makeStar({ id: 0, x: 25, y: 50 }), makeStar({ id: 1, x: 75, y: 50 })],
+        lengthFactor: 0.3,
+        adjustments: new Map([
+          [1, { lengthFactor: 1, intensityFactor: 1, rotationDeg: 0, style: 'glow' as const }],
+        ]),
+      }),
+      new Map(),
+    );
+
+    const armOf = (cx: number): number => {
+      const d = ctx.getImageData(Math.round(cx + 6), Math.round(50 + 6), 1, 1).data;
+      return d[0] + d[1] + d[2];
+    };
+    const offAxisOf = (cx: number): number => {
+      const d = ctx.getImageData(Math.round(cx + 8), 50, 1, 1).data;
+      return d[0] + d[1] + d[2];
+    };
+
+    // Star 0 keeps its diagonal arms; star 1 is round.
+    expect(armOf(25)).toBeGreaterThan(offAxisOf(25) + 30);
+    expect(Math.abs(armOf(75) - offAxisOf(75))).toBeLessThan(30);
   });
 });

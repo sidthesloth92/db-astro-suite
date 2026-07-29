@@ -243,6 +243,54 @@ describe('SpikeEditorService', () => {
     });
   });
 
+  describe('effect style', () => {
+    beforeEach(() => {
+      service.allStars.set(STARS);
+    });
+
+    it('should report the effect the active preset draws', () => {
+      expect(service.presetStyle()).toBe('spikes');
+      service.applyPreset('diffusion');
+      expect(service.presetStyle()).toBe('glow');
+    });
+
+    it('should keep the arm controls live while the preset draws arms', () => {
+      expect(service.isArmControlInert()).toBeFalse();
+    });
+
+    it('should retire the arm controls when nothing on the canvas has arms', () => {
+      service.applyPreset('diffusion');
+      expect(service.isArmControlInert()).toBeTrue();
+    });
+
+    it('should revive the arm controls when a single star is switched to spikes', () => {
+      service.applyPreset('diffusion');
+      service.adjustStar(1, { style: 'spikes' });
+      expect(service.isArmControlInert()).toBeFalse();
+    });
+
+    it('should not revive them for a star merely switched to a bloom', () => {
+      service.applyPreset('diffusion');
+      service.adjustStar(1, { style: 'glow' });
+      expect(service.isArmControlInert()).toBeTrue();
+    });
+
+    it('should store a per-star effect and drop it again on reset', () => {
+      service.adjustStar(1, { style: 'glow' });
+      expect(service.adjustmentFor(1).style).toBe('glow');
+
+      service.resetStarAdjustment(1);
+
+      expect(service.adjustmentFor(1).style).toBeNull();
+      expect(service.starAdjustments().has(1)).toBeFalse();
+    });
+
+    it('should keep the entry for a star whose only tweak is its effect', () => {
+      service.adjustStar(1, { style: 'glow' });
+      expect(service.starAdjustments().has(1)).toBeTrue();
+    });
+  });
+
   describe('moveStar', () => {
     beforeEach(() => {
       service.imageMeta.set({ fileName: 'm82.png', width: 500, height: 300 });

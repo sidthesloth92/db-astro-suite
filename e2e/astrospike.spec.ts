@@ -87,6 +87,25 @@ test.describe("AstroSpike", () => {
     await expect(astroSpike.getSelectedArmTab()).toHaveText("4 spikes");
   });
 
+  test("should bloom the stars with no arms when the Diffusion preset is selected", async ({
+    page,
+  }) => {
+    const astroSpike = new AstroSpikePage(page);
+    await astroSpike.navigate();
+    await astroSpike.loadImage(STARFIELD_FIXTURE);
+    await astroSpike.waitForDetectedStars();
+
+    // Every other preset draws arms, so the toggle starts live.
+    await expect(astroSpike.getArmsTab()).toBeEnabled();
+
+    await astroSpike.selectPreset("Diffusion");
+
+    await expect(astroSpike.getSelectedPreset()).toContainText("Diffusion");
+    await expect(astroSpike.getSelectedPreset()).toContainText("no arms");
+    // Nothing on the canvas has arms any more, so the arm count is inert.
+    await expect(astroSpike.getArmsTab()).toBeDisabled();
+  });
+
   test("should show a before and after comparison divider once an image is loaded", async ({
     page,
   }) => {

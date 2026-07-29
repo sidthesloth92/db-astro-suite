@@ -152,6 +152,28 @@ export class SpikeEditorService implements OnDestroy {
   /** The active spike preset object. */
   public readonly preset = computed(() => SPIKE_PRESETS[this.presetId()]);
 
+  /**
+   * Effect the current preset draws by default. Stars can override it one by
+   * one, so this is the starting point rather than the whole story.
+   */
+  public readonly presetStyle = computed(() => this.preset().style);
+
+  /**
+   * True while the arm controls act on nothing: the preset blooms its stars
+   * and no single star has been switched back to spikes.
+   */
+  public readonly isArmControlInert = computed(() => {
+    if (this.presetStyle() === 'spikes') {
+      return false;
+    }
+    for (const adjustment of this.starAdjustments().values()) {
+      if (adjustment.style === 'spikes') {
+        return false;
+      }
+    }
+    return true;
+  });
+
   /** How many of the brightest stars the stars-cut slider keeps visible. */
   public readonly visibleStarCount = computed(() =>
     sliceCountForValue(this.controls.stars(), this.allStars().length),
@@ -417,7 +439,8 @@ export class SpikeEditorService implements OnDestroy {
       const isDefault =
         merged.lengthFactor === DEFAULT_STAR_ADJUSTMENT.lengthFactor &&
         merged.intensityFactor === DEFAULT_STAR_ADJUSTMENT.intensityFactor &&
-        merged.rotationDeg === DEFAULT_STAR_ADJUSTMENT.rotationDeg;
+        merged.rotationDeg === DEFAULT_STAR_ADJUSTMENT.rotationDeg &&
+        merged.style === DEFAULT_STAR_ADJUSTMENT.style;
       if (isDefault) {
         next.delete(id);
       } else {

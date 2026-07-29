@@ -9,8 +9,18 @@
 
   <p class="star-controls__hint">
     This star is ringed on the canvas. These settings stack on top of the
-    global spike controls.
+    global controls.
   </p>
+
+  <div class="style-row">
+    <label class="row-label">Effect</label>
+    <dba-ui-segmented-tabs
+      size="sm"
+      [options]="styleTabs"
+      [value]="styleTabId()"
+      (valueChange)="onStyleChange($event)"
+    ></dba-ui-segmented-tabs>
+  </div>
 
   <div class="slider-row">
     <div class="slider-label-row">
@@ -42,20 +52,23 @@
     ></dba-ui-micro-slider>
   </div>
 
-  <div class="slider-row">
-    <div class="slider-label-row">
-      <label class="row-label">Rotation</label>
-      <span class="row-value">{{ adjustment().rotationDeg }}°</span>
+  <!-- A bloom is circular, so there is nothing for rotation to turn. -->
+  @if (!isGlowing()) {
+    <div class="slider-row">
+      <div class="slider-label-row">
+        <label class="row-label">Rotation</label>
+        <span class="row-value">{{ adjustment().rotationDeg }}°</span>
+      </div>
+      <dba-ui-micro-slider
+        [value]="adjustment().rotationDeg"
+        [min]="rotationMin"
+        [max]="rotationMax"
+        [step]="rotationStep"
+        [showReadout]="false"
+        (valueChange)="onRotationChange($event)"
+      ></dba-ui-micro-slider>
     </div>
-    <dba-ui-micro-slider
-      [value]="adjustment().rotationDeg"
-      [min]="rotationMin"
-      [max]="rotationMax"
-      [step]="rotationStep"
-      [showReadout]="false"
-      (valueChange)="onRotationChange($event)"
-    ></dba-ui-micro-slider>
-  </div>
+  }
 
   <div class="star-controls__actions">
     <button type="button" class="star-action" [disabled]="!isAdjusted()" (click)="onReset()">

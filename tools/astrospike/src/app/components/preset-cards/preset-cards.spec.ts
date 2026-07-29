@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { SPIKE_PRESETS } from '../../constants/spike-presets.constants';
+import { SPIKE_PRESETS, SPIKE_PRESET_ORDER } from '../../constants/spike-presets.constants';
 import { SpikePresetId } from '../../models/spike-preset.model';
 import { PresetCards } from './preset-cards';
 
@@ -30,12 +30,12 @@ describe('PresetCards', () => {
   it('should render one card per preset inside a labelled radio group', () => {
     const group: HTMLElement | null = fixture.nativeElement.querySelector('[role="radiogroup"]');
     expect(group?.getAttribute('aria-label')).toBe('Spike preset');
-    expect(cards().length).toBe(3);
+    expect(cards().length).toBe(SPIKE_PRESET_ORDER.length);
   });
 
   it('should show each preset name and description', () => {
     const text: string = fixture.nativeElement.textContent;
-    for (const id of ['subtle', 'classic', 'jwst'] as const) {
+    for (const id of SPIKE_PRESET_ORDER) {
       expect(text).toContain(SPIKE_PRESETS[id].label);
       expect(text).toContain(SPIKE_PRESETS[id].description);
     }
@@ -44,6 +44,8 @@ describe('PresetCards', () => {
   it('should hint the arm count of each preset', () => {
     expect(cardFor('classic').textContent).toContain('4 arms');
     expect(cardFor('jwst').textContent).toContain('6 arms');
+    // The bloom preset has none, and says so rather than claiming a count.
+    expect(cardFor('diffusion').textContent).toContain('no arms');
   });
 
   it('should mark only the active preset as checked', () => {

@@ -2,7 +2,7 @@ import { FORCED_FLUX_FLOOR_RATIO } from '../constants/spike-geometry.constants';
 import { DEFAULT_STAR_ADJUSTMENT } from '../constants/star-adjustment.constants';
 import { StarColor } from '../models/detected-star.model';
 import { SpikeRenderParams, SpriteCache } from '../models/spike-render-params.model';
-import { computeSpikeGeometry } from './spike-brightness.util';
+import { computeGlowGeometry, computeSpikeGeometry } from './spike-brightness.util';
 import {
   armMaskCacheKey,
   armSpriteCacheKey,
@@ -59,12 +59,17 @@ function getArmSprite(
 }
 
 /**
- * Draws diffraction spikes for every star in `params` onto the given canvas
- * context using additive ('lighter') compositing. Each star gets a central
- * glow centered at (x * scale, y * scale) plus `spikeCount` arms rotated by
- * the preset offset, the user rotation, and the arm index. Sprites are pulled
- * from (or added to) `spriteCache`. The context's alpha, composite operation,
- * and transform are fully restored before returning.
+ * Draws the embellishment for every star in `params` onto the given canvas
+ * context using additive ('lighter') compositing.
+ *
+ * A `spikes` star gets a central glow at (x * scale, y * scale) plus
+ * `spikeCount` arms rotated by the preset offset, the user rotation, and the
+ * arm index. A `glow` star gets a single brightness-sized bloom and no arms.
+ * The style comes from the preset unless that star's adjustment overrides it,
+ * so one frame can bloom its field and spike a chosen few.
+ *
+ * Sprites are pulled from (or added to) `spriteCache`. The context's alpha,
+ * composite operation, and transform are fully restored before returning.
  */
 export function renderSpikes(
   ctx: CanvasRenderingContext2D,
@@ -79,13 +84,38 @@ export function renderSpikes(
     ctx.globalCompositeOperation = 'lighter';
     for (const star of params.stars) {
       const glowSprite = getGlowSprite(spriteCache, star.color);
-      const armSprite = getArmSprite(spriteCache, star.color, params.preset.falloffGamma);
       const effectiveFlux = params.forcedStarIds.has(star.id)
         ? Math.max(star.flux, params.fluxRef * FORCED_FLUX_FLOOR_RATIO)
         : star.flux;
       // Per-star tweaks multiply the global controls, so an untouched star is
       // identical to one carrying no adjustment at all.
       const adjustment = params.adjustments.get(star.id) ?? DEFAULT_STAR_ADJUSTMENT;
+      const cx = star.x * params.scale + params.offsetX;
+      const cy = star.y * params.scale + params.offsetY;
+
+      if ((adjustment.style ?? params.preset.style) === 'glow') {
+        const bloom = computeGlowGeometry(
+          effectiveFlux,
+          params.fluxRef,
+          params.preset,
+          params.lengthFactor * adjustment.lengthFactor,
+          params.intensityFactor * adjustment.intensityFactor,
+          params.imageMaxDimension,
+          params.scale,
+        );
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.globalAlpha = bloom.alpha;
+        ctx.drawImage(
+          glowSprite,
+          cx - bloom.radiusPx,
+          cy - bloom.radiusPx,
+          bloom.radiusPx * 2,
+          bloom.radiusPx * 2,
+        );
+        continue;
+      }
+
+      const armSprite = getArmSprite(spriteCache, star.color, params.preset.falloffGamma);
       const geometry = computeSpikeGeometry(
         effectiveFlux,
         params.fluxRef,
@@ -95,8 +125,6 @@ export function renderSpikes(
         params.imageMaxDimension,
         params.scale,
       );
-      const cx = star.x * params.scale + params.offsetX;
-      const cy = star.y * params.scale + params.offsetY;
 
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.globalAlpha = geometry.glowAlpha;
