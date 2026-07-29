@@ -138,7 +138,7 @@ export const STARWIZZ_DETAIL: ToolDetailConfig = {
   outputTitle: 'OUTPUT',
   outputMeta: 'END PRODUCT',
   outputCaption:
-    'A perfectly looped 4K starfield — drop it behind a title, reel, or presentation.',
+    'A 9:16 flythrough of the Horsehead Nebula with natural star colors and diffraction spikes — drop it behind a title, reel, or presentation.',
 
   ctaTitle: {
     before: 'Create stunning starfield videos for free in ',
