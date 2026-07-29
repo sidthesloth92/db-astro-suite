@@ -6,6 +6,7 @@ import {
   computed,
   effect,
   inject,
+  signal,
   viewChild,
 } from '@angular/core';
 import {
@@ -35,15 +36,18 @@ import { StarControls } from '../star-controls/star-controls';
 /**
  * Right-hand controls pane. Groups the whole editor control set into two
  * inspector sections — Preset (selectable cards) and Spikes (the four
- * adjustment sliders plus the 4/6 arm toggle) — above the loaded image's
- * metadata, with export pinned to the foot of the pane.
+ * adjustment sliders plus the 4/6 arm toggle) — with a collapsible how-to at
+ * the top and export pinned to the foot of the pane.
  *
- * Double-clicking a star on the canvas docks that star's own controls at the
- * top of the pane. They live here rather than in a popover over the canvas so
- * they can never cover the spikes the user is tuning.
+ * Double-clicking a star on the canvas swaps those sections for that star's
+ * own controls. They live here rather than in a popover over the canvas so
+ * they can never cover the spikes being tuned, and they REPLACE the global
+ * controls rather than stacking above them so nothing else on the pane shifts
+ * position when a star is opened or closed.
  *
  * Orchestration only: every control delegates straight to
- * {@link SpikeEditorService}, and the pane holds no state of its own.
+ * {@link SpikeEditorService}; the only state the pane owns is whether its own
+ * how-to is expanded.
  */
 @Component({
   selector: 'dba-as-control-panel',
@@ -79,21 +83,18 @@ export class ControlPanel {
   /** Scrollable body of the pane — scrolled to the top when a star opens. */
   private readonly panelScrollRef = viewChild<ElementRef<HTMLElement>>('panelScroll');
 
+  /**
+   * Whether the how-to list is expanded. It starts open so a first-time user
+   * reads how the canvas works without hunting for it, and collapses for good
+   * (this session) the moment they say they have read it.
+   */
+  protected readonly isHelpOpen = signal(true);
+
   /** Editor slider keys, in display order. */
   protected readonly controlKeys = EDITOR_CONTROL_KEYS;
 
   /** Segmented-tab options for the spike arm count. */
   protected readonly spikeCountTabs = SPIKE_COUNT_TABS;
-
-  /**
-   * Star-count line. Reports progress while detection is in flight so the
-   * panel never claims "0 stars detected" before the run has finished.
-   */
-  protected readonly starSummary = computed(() =>
-    this.editor.isDetecting()
-      ? 'Detecting stars…'
-      : `${this.editor.allStars().length} stars detected`,
-  );
 
   /** Segmented-tab id matching the editor's current spike arm count. */
   protected readonly spikeCountTabId = computed(
@@ -178,8 +179,13 @@ export class ControlPanel {
     this.editor.setSpikeCount(SPIKE_COUNT_BY_TAB_ID[tabId]);
   }
 
-  /** Dismisses the docked per-star controls. */
+  /** Dismisses the per-star controls, restoring the global ones. */
   protected onCloseStarControls(): void {
     this.editor.closeStarControls();
+  }
+
+  /** Expands or collapses the how-to list under the pane header. */
+  protected onToggleHelp(): void {
+    this.isHelpOpen.update((open) => !open);
   }
 }

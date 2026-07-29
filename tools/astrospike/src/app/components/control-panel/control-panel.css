@@ -13,8 +13,19 @@
   background: transparent;
 }
 
+/* The sheet titles itself, but the how-to toggle still has to be reachable
+   down here, so only the redundant title is dropped. */
 :host(.in-sheet) .panel-header {
+  padding: 0 0 8px;
+  border-bottom: none;
+}
+
+:host(.in-sheet) .panel-title {
   display: none;
+}
+
+:host(.in-sheet) .how-to {
+  padding-inline: 0 16px;
 }
 
 :host(.in-sheet) .panel-scroll {
@@ -35,8 +46,68 @@
 
 .panel-header {
   flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 12px 14px 10px;
   border-bottom: 1px solid var(--db-color-border);
+}
+
+/* Toggles the how-to list. Mirrors the starwizz pane's "How to use" affordance
+   so the two studios teach themselves the same way. */
+.how-to-button {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border: 1px solid color-mix(in srgb, var(--db-color-cyan) 35%, transparent);
+  border-radius: 6px;
+  background: none;
+  color: var(--db-color-cyan);
+  font-family: var(--db-font-ui);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background 180ms ease,
+    border-color 180ms ease;
+}
+
+.how-to-button:hover,
+.how-to-button.is-open {
+  background: color-mix(in srgb, var(--db-color-cyan) 12%, transparent);
+  border-color: color-mix(in srgb, var(--db-color-cyan) 60%, transparent);
+}
+
+.how-to-button:focus-visible {
+  outline: 2px solid var(--db-color-cyan);
+  outline-offset: 2px;
+}
+
+/* Block layout, not flex: flex items lose their list marker, and the step
+   numbers are what make this read as a sequence to follow. The list style is
+   restated because the Tailwind preflight strips it from every list. */
+.how-to {
+  margin: 0;
+  list-style: decimal outside;
+  padding: 10px 14px 12px 32px;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--db-color-text-dim);
+}
+
+.how-to li + li {
+  margin-top: 6px;
+}
+
+.how-to li::marker {
+  color: var(--db-color-cyan);
+  font-family: var(--db-font-mono-code);
+  font-size: 11px;
 }
 
 .panel-title {
@@ -58,52 +129,6 @@
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-gutter: stable;
-}
-
-.panel-summary {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 10px 14px;
-}
-
-.panel-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-}
-
-.panel-file {
-  font-family: var(--db-font-mono-code);
-  font-size: 12px;
-  letter-spacing: 0.03em;
-  color: var(--db-color-text-primary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.panel-dims {
-  font-family: var(--db-font-mono-code);
-  font-size: 11px;
-  font-variant-numeric: tabular-nums;
-  color: var(--db-color-text-dim);
-}
-
-.panel-stars {
-  margin: 0;
-  font-family: var(--db-font-mono-code);
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--db-color-cyan);
-}
-
-.panel-empty {
-  margin: 0;
-  font-size: 12.5px;
-  color: var(--db-color-text-dim);
 }
 
 .divider {
@@ -184,12 +209,4 @@
   padding: 10px 14px;
   border-top: 1px solid var(--db-color-border);
   background: var(--db-color-surface);
-}
-
-/* Interaction cheat-sheet under the spike controls. */
-.canvas-hint {
-  margin: 8px 0 0;
-  font-size: 11px;
-  line-height: 1.5;
-  color: var(--db-color-text-faint);
 }

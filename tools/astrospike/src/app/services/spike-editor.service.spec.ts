@@ -205,6 +205,25 @@ describe('SpikeEditorService', () => {
       expect(service.starControlsId()).toBe(2);
     });
 
+    it('should spike a star that had none when its controls are opened', () => {
+      // Star 3 sits below the default brightness cut, so it starts bare and
+      // its sliders would otherwise have nothing to act on.
+      expect(service.renderedStars().map((star) => star.id)).not.toContain(3);
+
+      service.openStarControls(3);
+
+      expect(service.renderedStars().map((star) => star.id)).toContain(3);
+    });
+
+    it('should leave an already spiked star exactly as it was', () => {
+      const before = service.renderedStars().map((star) => star.id);
+      expect(before).toContain(0);
+
+      service.openStarControls(0);
+
+      expect(service.renderedStars().map((star) => star.id)).toEqual(before);
+    });
+
     it('should move the open controls to the most recently edited star', () => {
       service.openStarControls(1);
       service.openStarControls(3);

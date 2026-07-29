@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
-import { IconButtonComponent, IconComponent, MicroSliderComponent, closeIcon } from '@db-astro-suite/ui';
+import { IconComponent, MicroSliderComponent, chevronLeftIcon } from '@db-astro-suite/ui';
 import {
   STAR_FACTOR_STEP,
   STAR_INTENSITY_MAX,
@@ -24,7 +24,7 @@ import { SpikeEditorService } from '../../services/spike-editor.service';
 @Component({
   selector: 'dba-as-star-controls',
   standalone: true,
-  imports: [IconButtonComponent, IconComponent, MicroSliderComponent],
+  imports: [IconComponent, MicroSliderComponent],
   templateUrl: './star-controls.html',
   styleUrl: './star-controls.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -39,8 +39,8 @@ export class StarControls {
   /** Shared editor state — the per-star adjustment map lives here. */
   protected readonly editor = inject(SpikeEditorService);
 
-  /** Dismiss glyph. */
-  protected readonly closeIcon = closeIcon;
+  /** Glyph on the action that returns to the global controls. */
+  protected readonly chevronLeftIcon = chevronLeftIcon;
 
   /** Lower bound of the per-star length multiplier. */
   protected readonly lengthMin = STAR_LENGTH_MIN;

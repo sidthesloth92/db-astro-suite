@@ -164,13 +164,14 @@ describe('StarControls', () => {
     expect(closed).toBe(0);
   });
 
-  it('should emit closed from the dismiss button', () => {
+  it('should emit closed from the action that returns to the global controls', () => {
     let closed = 0;
     fixture.componentInstance.closed.subscribe(() => closed++);
 
-    const dismiss: HTMLButtonElement | null =
-      fixture.nativeElement.querySelector('button[title="Close star controls"]');
-    dismiss?.click();
+    const back: HTMLButtonElement | null =
+      fixture.nativeElement.querySelector('button.star-back');
+    expect(back?.textContent?.trim()).toBe('All controls');
+    back?.click();
 
     expect(closed).toBe(1);
   });

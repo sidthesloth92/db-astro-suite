@@ -105,35 +105,89 @@ describe('ControlPanel', () => {
     return match;
   }
 
-  it('should render the controls landmark with the empty hint when no image is loaded', () => {
+  /** The how-to toggle in the pane header. */
+  function howToButton(): HTMLButtonElement {
+    const button: HTMLButtonElement | null =
+      fixture.nativeElement.querySelector('button.how-to-button');
+    if (button === null) {
+      throw new Error('how-to toggle not rendered');
+    }
+    return button;
+  }
+
+  /** The per-star controls, when they have taken over the pane. */
+  function starPanel(): HTMLElement | null {
+    return fixture.nativeElement.querySelector('section.star-controls');
+  }
+
+  it('should render the controls landmark', () => {
     const section: HTMLElement | null = fixture.nativeElement.querySelector(
       'section[aria-label="AstroSpike controls"]',
     );
     expect(section).toBeTruthy();
-    expect(section?.textContent).toContain('Load an image to begin.');
   });
 
-  it('should show the image meta and star count once an image is loaded', async () => {
+  it('should open with the how-to so a first-time user can read how it works', () => {
+    expect(fixture.nativeElement.querySelector('.how-to')).toBeTruthy();
+    expect(howToButton().getAttribute('aria-expanded')).toBe('true');
+    expect(fixture.nativeElement.textContent).toContain('never leaves your browser');
+  });
+
+  it('should collapse and restore the how-to from its header toggle', () => {
+    howToButton().click();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.how-to')).toBeNull();
+    expect(howToButton().getAttribute('aria-expanded')).toBe('false');
+
+    howToButton().click();
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('.how-to')).toBeTruthy();
+  });
+
+  it('should not repeat the image name, size, or star count already shown elsewhere', async () => {
     editor.sourceImage.set(await buildBitmap(6, 4));
     editor.imageMeta.set({ fileName: 'm42.png', width: 6, height: 4 });
     editor.allStars.set(buildStars(3));
     fixture.detectChanges();
 
+    // The stage pill carries the star count and the export row the dimensions.
     const text: string = fixture.nativeElement.textContent;
-    expect(text).toContain('m42.png');
-    expect(text).toContain('6×4 px');
-    expect(text).toContain('3 stars detected');
+    expect(text).not.toContain('m42.png');
+    expect(text).not.toContain('3 stars detected');
   });
 
-  it('should report detection progress instead of a zero star count while detecting', async () => {
-    editor.sourceImage.set(await buildBitmap(6, 4));
-    editor.imageMeta.set({ fileName: 'm42.png', width: 6, height: 4 });
-    editor.isDetecting.set(true);
+  it('should replace the global controls with a star\'s own when one is opened', () => {
+    editor.allStars.set(buildStars(4));
+    fixture.detectChanges();
+    expect(sliderLabels()).toEqual(['Stars', 'Length', 'Brightness', 'Rotation']);
+
+    editor.openStarControls(2);
     fixture.detectChanges();
 
-    const text: string = fixture.nativeElement.textContent;
-    expect(text).toContain('Detecting stars…');
-    expect(text).not.toContain('0 stars detected');
+    expect(starPanel()).toBeTruthy();
+    // The preset cards and global sliders are gone rather than pushed down.
+    expect(fixture.nativeElement.querySelector('button[role="radio"]')).toBeNull();
+    expect(sliderLabels()).toEqual(['Length', 'Brightness', 'Rotation']);
+  });
+
+  it('should restore the global controls when the star controls are closed', () => {
+    editor.allStars.set(buildStars(4));
+    editor.openStarControls(2);
+    fixture.detectChanges();
+
+    editor.closeStarControls();
+    fixture.detectChanges();
+
+    expect(starPanel()).toBeNull();
+    expect(sliderLabels()).toEqual(['Stars', 'Length', 'Brightness', 'Rotation']);
+  });
+
+  it('should keep the export action in reach while a star is being tuned', () => {
+    editor.allStars.set(buildStars(4));
+    editor.openStarControls(2);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.panel-footer dba-as-export-controls')).toBeTruthy();
   });
 
   it('should render the four editor sliders in order', () => {

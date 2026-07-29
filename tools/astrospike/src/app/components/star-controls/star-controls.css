@@ -2,19 +2,16 @@
   display: block;
 }
 
-/* Docked at the top of the controls pane, indented and accented on the left so
-   it reads as a temporary panel about one star rather than another permanent
-   section. The accent matches the ring the stage draws on that star. */
+/* Takes over the body of the controls pane while a star is being tuned, using
+   the same gutter as the sections it replaces so nothing shifts sideways
+   either. The pink accent matches the ring the stage draws on that star. */
 .star-controls {
   display: flex;
   flex-direction: column;
   gap: 9px;
-  margin: 10px 14px;
-  padding: 10px 12px 11px;
-  border: 1px solid var(--db-color-border);
+  padding: 12px 14px 14px;
   border-left: 2px solid var(--db-color-neon-pink);
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--db-color-neon-pink) 6%, transparent);
+  background: color-mix(in srgb, var(--db-color-neon-pink) 5%, transparent);
   color: var(--db-color-text-primary);
   font-family: var(--db-font-ui);
 }
@@ -29,23 +26,56 @@
   flex: 1;
   min-width: 0;
   font-family: var(--db-font-mono-code);
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--db-color-neon-pink);
 }
 
-.star-controls__hint {
-  margin: -2px 0 0;
+/* Returns the pane to the global controls. */
+.star-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px 4px 5px;
+  border: 1px solid var(--db-color-border);
+  border-radius: 6px;
+  background: none;
+  color: var(--db-color-text-dim);
+  font-family: var(--db-font-ui);
   font-size: 10.5px;
-  line-height: 1.45;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    color 150ms ease,
+    border-color 150ms ease;
+}
+
+.star-back:hover {
+  color: var(--db-color-text-primary);
+  border-color: var(--db-color-border-active);
+}
+
+.star-back:focus-visible {
+  outline: 2px solid var(--db-color-cyan);
+  outline-offset: 2px;
+}
+
+.star-controls__hint {
+  margin: -2px 0 2px;
+  font-size: 11px;
+  line-height: 1.5;
   color: var(--db-color-text-faint);
 }
 
+/* Matches the global slider rows exactly, so swapping between them reads as
+   the same pane rather than a different screen. */
 .slider-row {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
 }
 
 .slider-label-row {
@@ -55,7 +85,7 @@
 }
 
 .row-label {
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -64,7 +94,7 @@
 
 .row-value {
   margin-left: auto;
-  font: 500 10.5px/1 var(--db-font-mono-code);
+  font: 500 11px/1 var(--db-font-mono-code);
   font-variant-numeric: tabular-nums;
   color: var(--db-color-text-primary);
 }

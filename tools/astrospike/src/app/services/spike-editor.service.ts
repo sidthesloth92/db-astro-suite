@@ -372,10 +372,19 @@ export class SpikeEditorService implements OnDestroy {
 
   /**
    * Opens one star's per-star controls in the pane, replacing whichever star
-   * was open before.
+   * was open before, and gives that star spikes if it has none.
+   *
+   * Whether a star arrives spiked depends on where it falls against the
+   * brightness cut. Without the toggle, opening a star from inside the cut
+   * would give you working sliders while opening a fainter one would give you
+   * three sliders that visibly do nothing — the same gesture behaving two
+   * different ways. The panel's own button reverses it in one click.
    * @param id Id of the star to edit.
    */
   openStarControls(id: number): void {
+    if (!this.renderedStars().some((star) => star.id === id)) {
+      this.toggleStar(id);
+    }
     this.starControlsId.set(id);
   }
 

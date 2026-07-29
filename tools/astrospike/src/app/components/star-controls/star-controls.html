@@ -1,12 +1,16 @@
 <section class="star-controls" [attr.aria-label]="starLabel() + ' spike controls'">
   <header class="star-controls__head">
     <span class="star-controls__title">{{ starLabel() }}</span>
-    <dba-ui-icon-button title="Close star controls" [size]="24" (clicked)="onClose()">
-      <dba-ui-icon [def]="closeIcon" [size]="12" />
-    </dba-ui-icon-button>
+    <button type="button" class="star-back" (click)="onClose()">
+      <dba-ui-icon [def]="chevronLeftIcon" [size]="13" />
+      <span>All controls</span>
+    </button>
   </header>
 
-  <p class="star-controls__hint">Ringed on the canvas. These stack on the sliders below.</p>
+  <p class="star-controls__hint">
+    This star is ringed on the canvas. These settings stack on top of the
+    global spike controls.
+  </p>
 
   <div class="slider-row">
     <div class="slider-label-row">
