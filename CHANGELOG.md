@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.33.1](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.33.0...db-astro-suite-v1.33.1) (2026-07-29)
+
+
+### Bug Fixes
+
+* **hub:** move the starwizz spikes clip from the hero demo to the output slot ([#113](https://github.com/sidthesloth92/db-astro-suite/issues/113)) ([b56ef7e](https://github.com/sidthesloth92/db-astro-suite/commit/b56ef7e482f49ce8f79f2bae10f9bdc9bda4345f))
+
 ## [1.33.0](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.32.0...db-astro-suite-v1.33.0) (2026-07-26)
 
 
