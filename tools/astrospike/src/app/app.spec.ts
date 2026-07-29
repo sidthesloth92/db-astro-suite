@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AnalyticsService, BreakpointService } from '@db-astro-suite/ui';
 import { App } from './app';
+import { SpikeEditorService } from './services/spike-editor.service';
 
 describe('App', () => {
   let breakpoints: BreakpointService;
@@ -70,5 +71,27 @@ describe('App', () => {
 
     // The sheet's own close control takes over once it is expanded.
     expect(openButton()).toBeNull();
+  });
+
+  it('should open the mobile sheet when a star is opened for tuning', () => {
+    const fixture = renderAt(true);
+    const editor = TestBed.inject(SpikeEditorService);
+    expect(fixture.nativeElement.querySelector('button[aria-label="Open controls"]')).toBeTruthy();
+
+    editor.openStarControls(3);
+    fixture.detectChanges();
+
+    // The sheet is where the pane — and so the star's controls — lives here.
+    expect(fixture.nativeElement.querySelector('button[aria-label="Open controls"]')).toBeNull();
+  });
+
+  it('should leave the desktop shell alone when a star is opened for tuning', () => {
+    const fixture = renderAt(false);
+    const editor = TestBed.inject(SpikeEditorService);
+
+    editor.openStarControls(3);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('dba-ui-floating-sheet')).toBeNull();
   });
 });

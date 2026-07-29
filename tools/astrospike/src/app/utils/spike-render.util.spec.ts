@@ -192,15 +192,41 @@ describe('renderSpikes', () => {
     });
 
     renderSpikes(ctx, params, cache);
-    // Two same-colored stars share one glow and one arm sprite.
-    expect(cache.size).toBe(2);
+    // Two same-colored stars share one glow and one arm sprite, each tinted
+    // from the alpha mask that is cached beside it.
+    expect(cache.size).toBe(4);
     const cachedSprites = Array.from(cache.values());
 
     renderSpikes(ctx, params, cache);
-    expect(cache.size).toBe(2);
+    expect(cache.size).toBe(4);
     const spritesAfterRerender = Array.from(cache.values());
-    expect(spritesAfterRerender[0]).toBe(cachedSprites[0]);
-    expect(spritesAfterRerender[1]).toBe(cachedSprites[1]);
+    for (let i = 0; i < cachedSprites.length; i++) {
+      expect(spritesAfterRerender[i]).toBe(cachedSprites[i]);
+    }
+  });
+
+  it('should reuse the alpha masks when a new star color appears', () => {
+    // This is what keeps the Stars slider smooth: raising the cut admits stars
+    // whose colors have never been seen, and each must cost a mask tint rather
+    // than a fresh pixel-by-pixel sprite.
+    const ctx = makeBlackContext();
+    const cache: SpriteCache = new Map();
+
+    renderSpikes(ctx, makeParams(), cache);
+    const masks = Array.from(cache.entries()).filter(([key]) => key.includes('mask'));
+    expect(masks.length).toBe(2);
+
+    renderSpikes(
+      ctx,
+      makeParams({ stars: [makeStar({ id: 1, color: { r: 255, g: 128, b: 64 } })] }),
+      cache,
+    );
+
+    // Two more tinted sprites, but the two masks are the same objects.
+    expect(cache.size).toBe(6);
+    for (const [key, mask] of masks) {
+      expect(cache.get(key)).toBe(mask);
+    }
   });
 
   it('should render a manually forced faint star with clearly visible spikes', () => {

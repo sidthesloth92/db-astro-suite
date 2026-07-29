@@ -2,13 +2,12 @@ import { StarMarkerParams } from '../models/star-marker-params.model';
 
 /**
  * Draws the interaction markers for one overlay frame: a ring around the star
- * under the pointer, and a persistent ring around the star the user last
- * clicked.
+ * under the pointer, and a persistent ring around the selected star.
  *
- * Only those two stars are ever marked. Ringing every detected star would bury
- * the image in noise, while the selection ring is what keeps the subject of a
- * click obvious after the pointer has moved on — it is the anchor any future
- * per-star options would hang off.
+ * Only those two stars are ever marked, and the caller decides what selection
+ * means — the stage passes the star whose controls are open in the pane, since
+ * that ring is the only thing tying a docked panel to a point on the image.
+ * Ringing more than that would bury the image the user is judging in noise.
  *
  * The context is left untouched otherwise: the caller owns clearing the
  * overlay, and the stroke style, line width, and transform are all restored

@@ -46,10 +46,10 @@ import {
   viewportOrigin,
   zoomViewportAt,
 } from '../../utils/stage-viewport.util';
+import { releaseSpriteCache } from '../../utils/spike-sprite.util';
 import { drawStarMarkers } from '../../utils/star-markers.util';
 import { CompareHandle } from '../compare-handle/compare-handle';
 import { ImageDropzone } from '../image-dropzone/image-dropzone';
-import { StarControls } from '../star-controls/star-controls';
 
 /**
  * Preview stage — owns the render pipeline from the loaded source image to the
@@ -60,8 +60,8 @@ import { StarControls } from '../star-controls/star-controls';
  *   exactly once per load and blitted at the start of every render frame;
  * - the "after" canvas is that blit plus the spikes from `renderSpikes`,
  *   revealed by a clip-path wipe driven by the compare divider;
- * - a transparent marker canvas on top carries the hover and disabled-star
- *   rings and receives all stage pointer events.
+ * - a transparent marker canvas on top carries the hover ring and the ring
+ *   around the star being edited, and receives all stage pointer events.
  *
  * The three concerns are deliberately kept on separate effects: dragging the
  * compare divider only re-evaluates a clip-path binding, and hovering a star
@@ -82,7 +82,6 @@ import { StarControls } from '../star-controls/star-controls';
     IconComponent,
     ImageDropzone,
     PillBadgeComponent,
-    StarControls,
     TextButtonComponent,
   ],
   templateUrl: './spike-stage.html',
@@ -201,33 +200,6 @@ export class SpikeStage {
   /** True while the pointer sits on a star — drives the pointer cursor. */
   protected readonly isOverStar = computed(() => this.editor.hoveredStarId() !== null);
 
-  /**
-   * Id of the star whose controls popover is open, or null. Double-clicking a
-   * star opens it; anything that changes the selection closes it.
-   */
-  protected readonly starControlsId = signal<number | null>(null);
-
-  /**
-   * Anchor for the open star-controls popover, as percentages of the stage
-   * frame, so it tracks the star through zoom and pan.
-   */
-  protected readonly starControlsAnchor = computed(() => {
-    const id = this.starControlsId();
-    const bitmap = this.editor.sourceImage();
-    if (id === null || bitmap === null) {
-      return null;
-    }
-    const star = this.editor.allStars().find((s) => s.id === id);
-    if (star === undefined) {
-      return null;
-    }
-    const view = this.viewport();
-    const origin = viewportOrigin(view, bitmap.width, bitmap.height);
-    const leftPct = ((star.x - origin.x) / (bitmap.width / view.zoom)) * 100;
-    const topPct = ((star.y - origin.y) / (bitmap.height / view.zoom)) * 100;
-    return { leftPct, topPct };
-  });
-
   /** Zoom-in glyph for the canvas tool rail. */
   protected readonly plusIcon = plusIcon;
 
@@ -280,14 +252,13 @@ export class SpikeStage {
     const bitmap = this.editor.sourceImage();
     if (bitmap === null) {
       this.previewScale.set(1);
-      this.starControlsId.set(null);
       this.resizeCanvases(0, 0);
       return;
     }
     // Sprites are keyed by star colour, so a new image's palette would
     // otherwise accumulate on top of the previous one's for the life of the
     // component (each arm sprite is 512x64 RGBA).
-    this.spriteCache.clear();
+    releaseSpriteCache(this.spriteCache);
     const scale = Math.min(1, PREVIEW_MAX_DIMENSION / Math.max(bitmap.width, bitmap.height));
     const width = Math.max(1, Math.round(bitmap.width * scale));
     const height = Math.max(1, Math.round(bitmap.height * scale));
@@ -320,13 +291,13 @@ export class SpikeStage {
   });
 
   /**
-   * Effect: repaint the marker overlay whenever the hovered or selected star
-   * changes. It touches only the overlay canvas, so hovering and selecting
-   * never cost a spike re-render.
+   * Effect: repaint the marker overlay whenever the hovered or edited star
+   * changes. It touches only the overlay canvas, so hovering and opening a
+   * star's controls never cost a spike re-render.
    */
   private readonly _markerEffect = effect(() => {
     const hoveredId = this.editor.hoveredStarId();
-    const selectedId = this.editor.selectedStarId();
+    const editedId = this.editor.starControlsId();
     const stars = this.editor.allStars();
     // Read so the overlay is repainted after a resize cleared its backing
     // store, and after every zoom/pan step so the rings track their stars.
@@ -334,7 +305,7 @@ export class SpikeStage {
     this.viewport();
     const byId = (id: number | null) =>
       id === null ? null : (stars.find((s) => s.id === id) ?? null);
-    this.drawMarkers(byId(hoveredId), byId(selectedId), scale);
+    this.drawMarkers(byId(hoveredId), byId(editedId), scale);
   });
 
   constructor() {
@@ -343,6 +314,7 @@ export class SpikeStage {
         cancelAnimationFrame(this.frameId);
         this.frameId = null;
       }
+      releaseSpriteCache(this.spriteCache);
     });
   }
 
@@ -459,17 +431,17 @@ export class SpikeStage {
     }
     const star = this.starAt(event.clientX, event.clientY);
     if (star !== null) {
-      // Toggling also selects, so the ring stays on the clicked star. Moving
-      // to a different star takes its controls with it.
-      if (this.starControlsId() !== null && this.starControlsId() !== star.id) {
-        this.starControlsId.set(null);
+      // A plain click only toggles the spikes and leaves no marker. Landing on
+      // a different star than the one being edited retires those controls,
+      // since their ring no longer has anything to do with the pointer.
+      if (this.editor.starControlsId() !== star.id) {
+        this.editor.closeStarControls();
       }
       this.editor.toggleStar(star.id);
       return;
     }
-    // Clicking empty sky is how the user dismisses selection and controls.
-    this.starControlsId.set(null);
-    this.editor.clearStarSelection();
+    // Clicking empty sky is how the user dismisses the per-star controls.
+    this.editor.closeStarControls();
   }
 
   /** Pointer left the preview — nothing is hovered any more. */
@@ -565,23 +537,20 @@ export class SpikeStage {
   }
 
   /**
-   * Double click — on a star it opens that star's controls; on empty sky it
-   * resets the view to the whole image.
+   * Double click — on a star it opens that star's controls in the side pane;
+   * on empty sky it resets the view to the whole image.
+   *
+   * The two clicks that precede it have already toggled the star's spikes
+   * twice, so opening the controls leaves the spikes exactly as they were.
    */
   protected onStageDoubleClick(event: MouseEvent): void {
     const star = this.starAt(event.clientX, event.clientY);
     if (star !== null) {
-      this.editor.selectedStarId.set(star.id);
-      this.starControlsId.set(star.id);
+      this.editor.openStarControls(star.id);
       return;
     }
-    this.starControlsId.set(null);
+    this.editor.closeStarControls();
     this.resetViewport();
-  }
-
-  /** The star-controls popover asked to close. */
-  protected onStarControlsClosed(): void {
-    this.starControlsId.set(null);
   }
 
   /** Pans the viewport by a CSS-pixel delta, converted into image space. */
@@ -744,7 +713,7 @@ export class SpikeStage {
    */
   private drawMarkers(
     hoveredStar: DetectedStar | null,
-    selectedStar: DetectedStar | null,
+    editedStar: DetectedStar | null,
     scale: number,
   ): void {
     const canvas = this.markerCanvasRef().nativeElement;
@@ -766,7 +735,7 @@ export class SpikeStage {
       bitmap === null ? { x: 0, y: 0 } : viewportOrigin(view, bitmap.width, bitmap.height);
     drawStarMarkers(ctx, {
       hoveredStar,
-      selectedStar,
+      selectedStar: editedStar,
       scale: effectiveScale,
       offsetX: -origin.x * effectiveScale,
       offsetY: -origin.y * effectiveScale,

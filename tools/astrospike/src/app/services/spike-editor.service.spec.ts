@@ -190,41 +190,37 @@ describe('SpikeEditorService', () => {
     });
   });
 
-  describe('star selection', () => {
+  describe('per-star controls', () => {
     beforeEach(() => {
       service.allStars.set(STARS);
     });
 
-    it('should select the star a toggle acts on so its ring persists', () => {
+    it('should mark no star when spikes are merely toggled', () => {
       service.toggleStar(2);
-      expect(service.selectedStarId()).toBe(2);
-
-      // Toggling it back off keeps it selected — the click subject is unchanged.
-      service.toggleStar(2);
-      expect(service.selectedStarId()).toBe(2);
+      expect(service.starControlsId()).toBeNull();
     });
 
-    it('should move the selection to the most recently clicked star', () => {
-      service.toggleStar(1);
-      service.toggleStar(3);
-      expect(service.selectedStarId()).toBe(3);
+    it('should open the controls for the star the user asked to edit', () => {
+      service.openStarControls(2);
+      expect(service.starControlsId()).toBe(2);
     });
 
-    it('should not select an unknown star id', () => {
-      service.toggleStar(99);
-      expect(service.selectedStarId()).toBeNull();
+    it('should move the open controls to the most recently edited star', () => {
+      service.openStarControls(1);
+      service.openStarControls(3);
+      expect(service.starControlsId()).toBe(3);
     });
 
-    it('should clear the selection on demand', () => {
-      service.toggleStar(0);
-      service.clearStarSelection();
-      expect(service.selectedStarId()).toBeNull();
+    it('should close the controls on demand', () => {
+      service.openStarControls(0);
+      service.closeStarControls();
+      expect(service.starControlsId()).toBeNull();
     });
 
-    it('should drop the selection when the image is cleared', () => {
-      service.toggleStar(0);
+    it('should close the controls when the image is cleared', () => {
+      service.openStarControls(0);
       service.clearImage();
-      expect(service.selectedStarId()).toBeNull();
+      expect(service.starControlsId()).toBeNull();
     });
   });
 

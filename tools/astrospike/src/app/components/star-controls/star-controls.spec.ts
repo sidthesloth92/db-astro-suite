@@ -80,8 +80,8 @@ describe('StarControls', () => {
   }
 
   it('should name the star it is adjusting', () => {
-    const dialog: HTMLElement | null = fixture.nativeElement.querySelector('[role="dialog"]');
-    expect(dialog?.getAttribute('aria-label')).toBe('Star #2 spike controls');
+    const panel: HTMLElement | null = fixture.nativeElement.querySelector('section.star-controls');
+    expect(panel?.getAttribute('aria-label')).toBe('Star #2 spike controls');
     expect(fixture.nativeElement.textContent).toContain('Star #2');
   });
 
@@ -134,15 +134,34 @@ describe('StarControls', () => {
     expect(action('Reset').disabled).toBeTrue();
   });
 
-  it('should remove the star spikes and close from the danger action', () => {
-    const toggleSpy = spyOn(editor, 'toggleStar');
+  it('should offer to remove the spikes of a star that has them', () => {
+    // Two of the three stars are inside the default cut, so star #2 is spiked.
+    expect(editor.renderedStars().map((star) => star.id)).toContain(1);
+
+    action('Remove spikes').click();
+    fixture.detectChanges();
+
+    expect(editor.renderedStars().map((star) => star.id)).not.toContain(1);
+  });
+
+  it('should offer to add the spikes back once the star has none', () => {
+    action('Remove spikes').click();
+    fixture.detectChanges();
+
+    action('Add spikes').click();
+    fixture.detectChanges();
+
+    expect(editor.renderedStars().map((star) => star.id)).toContain(1);
+    expect(action('Remove spikes')).toBeTruthy();
+  });
+
+  it('should stay open after toggling the spikes so tuning can continue', () => {
     let closed = 0;
     fixture.componentInstance.closed.subscribe(() => closed++);
 
     action('Remove spikes').click();
 
-    expect(toggleSpy).toHaveBeenCalledOnceWith(1);
-    expect(closed).toBe(1);
+    expect(closed).toBe(0);
   });
 
   it('should emit closed from the dismiss button', () => {

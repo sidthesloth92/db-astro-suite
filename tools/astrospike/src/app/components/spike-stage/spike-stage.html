@@ -63,15 +63,6 @@
       </div>
     }
 
-    @if (starControlsAnchor(); as anchor) {
-      <dba-as-star-controls
-        [starId]="starControlsId() ?? 0"
-        [style.--as-star-left]="anchor.leftPct"
-        [style.--as-star-top]="anchor.topPct"
-        (closed)="onStarControlsClosed()"
-      />
-    }
-
     @if (showCompareHandle()) {
       <dba-as-compare-handle
         [position]="editor.comparePosition()"

@@ -425,29 +425,46 @@ describe('SpikeStage', () => {
       return painted;
     }
 
-    it('should keep a ring on the clicked star after the pointer moves away', () => {
+    it('should leave no ring behind on a star that was only clicked', () => {
       const { clientX, clientY } = clientPointFor(300, 150);
       pressAndRelease(clientX, clientY);
-      // Move the pointer off every star so only the selection can be drawn.
+      // Move the pointer off every star, so any remaining ink is a marker the
+      // click left behind rather than the hover ring.
       markerCanvas().dispatchEvent(
         new PointerEvent('pointermove', { bubbles: true, pointerId: 1, clientX: 1, clientY: 1 }),
       );
       fixture.detectChanges();
 
-      expect(editor.selectedStarId()).toBe(1);
+      expect(editor.starControlsId()).toBeNull();
+      expect(markerInk()).toBe(0);
+    });
+
+    it('should ring the star whose controls a double-click opened', () => {
+      const { clientX, clientY } = clientPointFor(300, 150);
+      markerCanvas().dispatchEvent(
+        new MouseEvent('dblclick', { bubbles: true, clientX, clientY }),
+      );
+      markerCanvas().dispatchEvent(
+        new PointerEvent('pointermove', { bubbles: true, pointerId: 1, clientX: 1, clientY: 1 }),
+      );
+      fixture.detectChanges();
+
+      expect(editor.starControlsId()).toBe(1);
       expect(markerInk()).toBeGreaterThan(0);
     });
 
-    it('should drop the selection when the user clicks empty sky', () => {
+    it('should drop the ring when the user clicks empty sky', () => {
       const star = clientPointFor(300, 150);
-      pressAndRelease(star.clientX, star.clientY);
-      expect(editor.selectedStarId()).toBe(1);
+      markerCanvas().dispatchEvent(
+        new MouseEvent('dblclick', { bubbles: true, clientX: star.clientX, clientY: star.clientY }),
+      );
+      expect(editor.starControlsId()).toBe(1);
 
       const sky = clientPointFor(200, 20);
       pressAndRelease(sky.clientX, sky.clientY);
       fixture.detectChanges();
 
-      expect(editor.selectedStarId()).toBeNull();
+      expect(editor.starControlsId()).toBeNull();
       expect(markerInk()).toBe(0);
     });
 

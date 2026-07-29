@@ -4,8 +4,9 @@
 export const HOVER_MARKER_RADIUS_CSS_PX = 13;
 
 /**
- * Radius in CSS pixels of the persistent ring around the selected star. It
- * sits inside the hover ring so both read clearly on the same star.
+ * Radius in CSS pixels of the persistent ring around the star whose controls
+ * are open in the pane. It sits inside the hover ring so both read clearly on
+ * the same star.
  */
 export const SELECTED_MARKER_RADIUS_CSS_PX = 9;
 

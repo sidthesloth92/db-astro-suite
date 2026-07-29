@@ -111,11 +111,15 @@ export class SpikeEditorService implements OnDestroy {
   public readonly hoveredStarId = signal<number | null>(null);
 
   /**
-   * Id of the star the user last clicked, or null. Selection persists after
-   * the click — the ring stays put until the user selects another star or
-   * clicks empty sky — so per-star options can hang off it later.
+   * Id of the star whose per-star controls are open in the pane, or null.
+   *
+   * Opening is a deliberate act (a double-click on the star) — a plain click
+   * only toggles that star's spikes and marks nothing, so the canvas stays
+   * clean while the user works through a field star by star. While a star IS
+   * open, the stage rings it: with its controls docked in the side pane, that
+   * ring is the only thing tying the two together.
    */
-  public readonly selectedStarId = signal<number | null>(null);
+  public readonly starControlsId = signal<number | null>(null);
 
   /**
    * Per-star spike tweaks keyed by star id. Only stars the user actually
@@ -339,8 +343,11 @@ export class SpikeEditorService implements OnDestroy {
    * Toggles whether a star receives spikes. The override map is replaced
    * immutably; when the toggled state equals the star's default visibility
    * (inside the brightness cut) the entry is deleted instead of stored, so
-   * the map only ever holds true deviations from the cut. The star also
-   * becomes the selected one, so its ring stays visible after the click.
+   * the map only ever holds true deviations from the cut.
+   *
+   * Toggling deliberately leaves no marker behind: the appearing or vanishing
+   * spikes are the feedback, and a ring on every clicked star would litter the
+   * image the user is trying to judge.
    * @param id Id of the star to toggle.
    */
   toggleStar(id: number): void {
@@ -349,7 +356,6 @@ export class SpikeEditorService implements OnDestroy {
     if (index === -1) {
       return;
     }
-    this.selectedStarId.set(id);
     const isRendered = this.renderedStars().some((star) => star.id === id);
     const target = !isRendered;
     const defaultVisible = index < this.visibleStarCount();
@@ -364,9 +370,18 @@ export class SpikeEditorService implements OnDestroy {
     });
   }
 
-  /** Drops the current star selection, hiding its persistent ring. */
-  clearStarSelection(): void {
-    this.selectedStarId.set(null);
+  /**
+   * Opens one star's per-star controls in the pane, replacing whichever star
+   * was open before.
+   * @param id Id of the star to edit.
+   */
+  openStarControls(id: number): void {
+    this.starControlsId.set(id);
+  }
+
+  /** Closes the per-star controls and drops the stage's editing ring. */
+  closeStarControls(): void {
+    this.starControlsId.set(null);
   }
 
   /**
@@ -495,7 +510,7 @@ export class SpikeEditorService implements OnDestroy {
     this.overrides.set(new Map());
     this.starAdjustments.set(new Map());
     this.hoveredStarId.set(null);
-    this.selectedStarId.set(null);
+    this.starControlsId.set(null);
     this.comparePosition.set(0);
   }
 

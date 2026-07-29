@@ -1,38 +1,20 @@
 :host {
-  position: absolute;
-  z-index: 30;
   display: block;
-  width: var(--as-star-panel-w);
-
-  /* Anchored beside the star, then clamped so the panel always stays fully
-     inside the frame however near an edge the star sits. The declared size
-     below must stay in step with the panel's real box. */
-  --as-star-panel-w: 232px;
-  --as-star-panel-h: 216px;
-  --as-star-gap: 16px;
-
-  left: clamp(
-    0px,
-    calc(var(--as-star-left, 0) * 1% + var(--as-star-gap)),
-    max(0px, calc(100% - var(--as-star-panel-w)))
-  );
-  top: clamp(
-    0px,
-    calc(var(--as-star-top, 0) * 1% - var(--as-star-panel-h) / 2),
-    max(0px, calc(100% - var(--as-star-panel-h)))
-  );
 }
 
+/* Docked at the top of the controls pane, indented and accented on the left so
+   it reads as a temporary panel about one star rather than another permanent
+   section. The accent matches the ring the stage draws on that star. */
 .star-controls {
   display: flex;
   flex-direction: column;
   gap: 9px;
+  margin: 10px 14px;
   padding: 10px 12px 11px;
-  border: 1px solid var(--db-color-border-strong);
-  border-radius: 10px;
-  background: var(--db-color-sheet-bg);
-  backdrop-filter: blur(10px);
-  box-shadow: var(--db-shadow-sheet);
+  border: 1px solid var(--db-color-border);
+  border-left: 2px solid var(--db-color-neon-pink);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--db-color-neon-pink) 6%, transparent);
   color: var(--db-color-text-primary);
   font-family: var(--db-font-ui);
 }
@@ -51,6 +33,13 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--db-color-neon-pink);
+}
+
+.star-controls__hint {
+  margin: -2px 0 0;
+  font-size: 10.5px;
+  line-height: 1.45;
+  color: var(--db-color-text-faint);
 }
 
 .slider-row {

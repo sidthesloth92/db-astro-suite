@@ -187,8 +187,8 @@ export class AstroSpikePage {
     await this.page.mouse.dblclick(clientX, clientY);
   }
 
-  /** Locator for the per-star controls popover. */
-  getStarControls() {
-    return this.page.getByRole("dialog", { name: /spike controls/i });
+  /** Locator for the per-star controls docked at the top of the pane. */
+  getStarControls(): Locator {
+    return this.controlPanel.getByRole("region", { name: /spike controls/i });
   }
 }

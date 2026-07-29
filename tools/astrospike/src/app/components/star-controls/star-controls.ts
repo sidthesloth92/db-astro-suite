@@ -13,12 +13,13 @@ import {
 import { SpikeEditorService } from '../../services/spike-editor.service';
 
 /**
- * Floating controls for a single star, opened by double-clicking it on the
- * canvas.
+ * Controls for a single star, opened by double-clicking it on the canvas and
+ * docked at the top of the controls pane.
  *
  * Every slider is a tweak layered on top of the global spike controls, so a
- * star that has never been touched here still follows them exactly. The panel
- * is anchored to the star's on-screen position by the stage.
+ * star that has never been touched here still follows them exactly. The stage
+ * rings the star this panel belongs to — the panel deliberately does not float
+ * over the canvas, where it would cover the spikes being tuned.
  */
 @Component({
   selector: 'dba-as-star-controls',
@@ -71,6 +72,11 @@ export class StarControls {
   /** True once the star carries any tweak — enables the reset action. */
   protected readonly isAdjusted = computed(() => this.editor.starAdjustments().has(this.starId()));
 
+  /** True while this star is currently drawn with spikes. */
+  protected readonly isSpiked = computed(() =>
+    this.editor.renderedStars().some((star) => star.id === this.starId()),
+  );
+
   /** Human-readable rank of the star within the flux-sorted list. */
   protected readonly starLabel = computed(() => `Star #${this.starId() + 1}`);
 
@@ -94,10 +100,12 @@ export class StarControls {
     this.editor.resetStarAdjustment(this.starId());
   }
 
-  /** Removes this star's spikes entirely and dismisses the panel. */
-  protected onRemoveSpikes(): void {
+  /**
+   * Adds or removes this star's spikes — the same toggle a click on the
+   * canvas performs. The panel stays open so the user can keep tuning.
+   */
+  protected onToggleSpikes(): void {
     this.editor.toggleStar(this.starId());
-    this.closed.emit();
   }
 
   /** Dismisses the panel. */

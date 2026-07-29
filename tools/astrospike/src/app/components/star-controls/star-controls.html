@@ -1,18 +1,12 @@
-<div
-  class="star-controls"
-  role="dialog"
-  [attr.aria-label]="starLabel() + ' spike controls'"
-  (pointerdown)="$event.stopPropagation()"
-  (click)="$event.stopPropagation()"
-  (dblclick)="$event.stopPropagation()"
-  (wheel)="$event.stopPropagation()"
->
+<section class="star-controls" [attr.aria-label]="starLabel() + ' spike controls'">
   <header class="star-controls__head">
     <span class="star-controls__title">{{ starLabel() }}</span>
     <dba-ui-icon-button title="Close star controls" [size]="24" (clicked)="onClose()">
       <dba-ui-icon [def]="closeIcon" [size]="12" />
     </dba-ui-icon-button>
   </header>
+
+  <p class="star-controls__hint">Ringed on the canvas. These stack on the sliders below.</p>
 
   <div class="slider-row">
     <div class="slider-label-row">
@@ -63,8 +57,13 @@
     <button type="button" class="star-action" [disabled]="!isAdjusted()" (click)="onReset()">
       Reset
     </button>
-    <button type="button" class="star-action star-action--danger" (click)="onRemoveSpikes()">
-      Remove spikes
+    <button
+      type="button"
+      class="star-action"
+      [class.star-action--danger]="isSpiked()"
+      (click)="onToggleSpikes()"
+    >
+      {{ isSpiked() ? 'Remove spikes' : 'Add spikes' }}
     </button>
   </div>
-</div>
+</section>

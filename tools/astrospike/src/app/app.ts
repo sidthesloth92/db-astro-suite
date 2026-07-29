@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
 import {
   BreakpointService,
   FloatingSheetComponent,
@@ -11,6 +11,7 @@ import packageJson from '../../../../package.json';
 import { SLIDER_TARGET_SELECTOR } from './constants/mobile-shell.constants';
 import { ControlPanel } from './components/control-panel/control-panel';
 import { SpikeStage } from './components/spike-stage/spike-stage';
+import { SpikeEditorService } from './services/spike-editor.service';
 
 /**
  * AstroSpike root shell.
@@ -42,8 +43,22 @@ export class App {
   /** Viewport breakpoint signal — drives the desktop vs. mobile shell. */
   protected readonly breakpoints = inject(BreakpointService);
 
+  /** Shared editor state — watched so a star's controls can reach the user. */
+  private readonly editor = inject(SpikeEditorService);
+
   /** Whether the mobile controls sheet is open. */
   protected readonly sheetExpanded = signal(false);
+
+  /**
+   * Effect: opening a star's controls opens the sheet on mobile. The controls
+   * are docked in the pane, and the pane lives inside the sheet down here, so
+   * without this a double-tap on a star would look like it did nothing.
+   */
+  private readonly _revealSheetForStar = effect(() => {
+    if (this.editor.starControlsId() !== null && this.breakpoints.isMobile()) {
+      this.sheetExpanded.set(true);
+    }
+  });
 
   /**
    * True while a slider inside the sheet is being dragged, which fades the

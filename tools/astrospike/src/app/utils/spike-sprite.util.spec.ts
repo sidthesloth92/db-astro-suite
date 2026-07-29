@@ -4,11 +4,18 @@ import {
   GLOW_SPRITE_SIZE,
 } from '../constants/render.constants';
 import { StarColor } from '../models/detected-star.model';
+import { SpriteCache } from '../models/spike-render-params.model';
 import {
+  armMaskCacheKey,
   armSpriteCacheKey,
+  buildArmMask,
   buildArmSprite,
+  buildGlowMask,
   buildGlowSprite,
+  glowMaskCacheKey,
   glowSpriteCacheKey,
+  releaseSpriteCache,
+  tintSprite,
 } from './spike-sprite.util';
 
 const WHITE: StarColor = { r: 255, g: 255, b: 255 };
@@ -121,6 +128,84 @@ describe('buildGlowSprite', () => {
     expect(Math.abs(r - ORANGE.r)).toBeLessThanOrEqual(2);
     expect(Math.abs(g - ORANGE.g)).toBeLessThanOrEqual(2);
     expect(Math.abs(b - ORANGE.b)).toBeLessThanOrEqual(2);
+  });
+});
+
+describe('alpha masks', () => {
+  it('should carry the arm falloff as alpha over white', () => {
+    const data = spriteData(buildArmMask(2.2));
+    const [r, g, b] = rgbAt(data, ARM_SPRITE_WIDTH, 0, 31);
+    expect([r, g, b]).toEqual([255, 255, 255]);
+    expect(alphaAt(data, ARM_SPRITE_WIDTH, 0, 31)).toBeGreaterThanOrEqual(250);
+    expect(alphaAt(data, ARM_SPRITE_WIDTH, ARM_SPRITE_WIDTH - 1, 31)).toBe(0);
+  });
+
+  it('should carry the glow falloff as alpha over white', () => {
+    const data = spriteData(buildGlowMask());
+    const [r, g, b] = rgbAt(data, GLOW_SPRITE_SIZE, 31, 31);
+    expect([r, g, b]).toEqual([255, 255, 255]);
+    expect(alphaAt(data, GLOW_SPRITE_SIZE, 31, 31)).toBeGreaterThan(240);
+    expect(alphaAt(data, GLOW_SPRITE_SIZE, 0, 0)).toBeLessThanOrEqual(1);
+  });
+
+  it('should reproduce a directly built sprite when tinted', () => {
+    // The render path tints a cached mask instead of painting each colour's
+    // sprite pixel by pixel; the two must be interchangeable.
+    const direct = spriteData(buildArmSprite(ORANGE, 2.2));
+    const tinted = spriteData(tintSprite(buildArmMask(2.2), ORANGE));
+    let maxDelta = 0;
+    for (let i = 0; i < direct.length; i++) {
+      maxDelta = Math.max(maxDelta, Math.abs(direct[i] - tinted[i]));
+    }
+    expect(maxDelta).toBeLessThanOrEqual(2);
+  });
+
+  it('should keep the mask alpha profile through the tint', () => {
+    const mask = spriteData(buildArmMask(2.2));
+    const tinted = spriteData(tintSprite(buildArmMask(2.2), ORANGE));
+    const midX = Math.floor(ARM_SPRITE_WIDTH / 2);
+    expect(
+      Math.abs(
+        alphaAt(tinted, ARM_SPRITE_WIDTH, midX, 31) - alphaAt(mask, ARM_SPRITE_WIDTH, midX, 31),
+      ),
+    ).toBeLessThanOrEqual(1);
+  });
+});
+
+describe('releaseSpriteCache', () => {
+  it('should empty the cache and give up every pixel buffer', () => {
+    const cache: SpriteCache = new Map([
+      [armSpriteCacheKey(WHITE, 2.2), buildArmSprite(WHITE, 2.2)],
+      [glowSpriteCacheKey(ORANGE), buildGlowSprite(ORANGE)],
+    ]);
+    const sprites = Array.from(cache.values());
+
+    releaseSpriteCache(cache);
+
+    expect(cache.size).toBe(0);
+    for (const sprite of sprites) {
+      expect(sprite.width).toBe(0);
+      expect(sprite.height).toBe(0);
+    }
+  });
+
+  it('should tolerate an already empty cache', () => {
+    const cache: SpriteCache = new Map();
+    expect(() => releaseSpriteCache(cache)).not.toThrow();
+    expect(cache.size).toBe(0);
+  });
+});
+
+describe('mask cache keys', () => {
+  it('should key an arm mask on the falloff gamma alone', () => {
+    expect(armMaskCacheKey(2.2)).toBe(armMaskCacheKey(2.2));
+    expect(armMaskCacheKey(2.2)).not.toBe(armMaskCacheKey(2.6));
+  });
+
+  it('should never collide a mask key with a tinted sprite key', () => {
+    const color: StarColor = { r: 255, g: 128, b: 10 };
+    expect(armMaskCacheKey(2.2)).not.toBe(armSpriteCacheKey(color, 2.2));
+    expect(glowMaskCacheKey()).not.toBe(glowSpriteCacheKey(color));
   });
 });
 

@@ -4,44 +4,58 @@ import { StarColor } from '../models/detected-star.model';
 import { SpikeRenderParams, SpriteCache } from '../models/spike-render-params.model';
 import { computeSpikeGeometry } from './spike-brightness.util';
 import {
+  armMaskCacheKey,
   armSpriteCacheKey,
-  buildArmSprite,
-  buildGlowSprite,
+  buildArmMask,
+  buildGlowMask,
+  glowMaskCacheKey,
   glowSpriteCacheKey,
+  tintSprite,
 } from './spike-sprite.util';
 
 /**
- * Returns the cached glow sprite for a star color, building and caching it on
- * first use.
+ * Returns the canvas cached under `key`, building and caching it on first use.
+ * Masks and tinted sprites share the cache; their key prefixes keep them apart.
  */
-function getGlowSprite(cache: SpriteCache, color: StarColor): HTMLCanvasElement {
-  const key = glowSpriteCacheKey(color);
+function cachedCanvas(
+  cache: SpriteCache,
+  key: string,
+  build: () => HTMLCanvasElement,
+): HTMLCanvasElement {
   const cached = cache.get(key);
   if (cached !== undefined) {
     return cached;
   }
-  const sprite = buildGlowSprite(color);
-  cache.set(key, sprite);
-  return sprite;
+  const canvas = build();
+  cache.set(key, canvas);
+  return canvas;
 }
 
 /**
- * Returns the cached arm sprite for a star color and falloff gamma, building
- * and caching it on first use.
+ * Returns the cached glow sprite for a star color, tinting the shared glow
+ * mask on first use.
+ */
+function getGlowSprite(cache: SpriteCache, color: StarColor): HTMLCanvasElement {
+  return cachedCanvas(cache, glowSpriteCacheKey(color), () =>
+    tintSprite(cachedCanvas(cache, glowMaskCacheKey(), buildGlowMask), color),
+  );
+}
+
+/**
+ * Returns the cached arm sprite for a star color and falloff gamma, tinting
+ * the gamma's shared arm mask on first use.
  */
 function getArmSprite(
   cache: SpriteCache,
   color: StarColor,
   falloffGamma: number,
 ): HTMLCanvasElement {
-  const key = armSpriteCacheKey(color, falloffGamma);
-  const cached = cache.get(key);
-  if (cached !== undefined) {
-    return cached;
-  }
-  const sprite = buildArmSprite(color, falloffGamma);
-  cache.set(key, sprite);
-  return sprite;
+  return cachedCanvas(cache, armSpriteCacheKey(color, falloffGamma), () =>
+    tintSprite(
+      cachedCanvas(cache, armMaskCacheKey(falloffGamma), () => buildArmMask(falloffGamma)),
+      color,
+    ),
+  );
 }
 
 /**

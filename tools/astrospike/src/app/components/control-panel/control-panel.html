@@ -3,7 +3,14 @@
     <h2 class="panel-title">Controls</h2>
   </header>
 
-  <div class="panel-scroll">
+  <div #panelScroll class="panel-scroll">
+    @if (editedStar(); as star) {
+      <!-- Docked here rather than floating over the canvas: a popover pinned
+           to the star inevitably covers the very spikes being tuned. -->
+      <dba-as-star-controls [starId]="star.id" (closed)="onCloseStarControls()" />
+      <hr class="divider" aria-hidden="true" />
+    }
+
     <div class="panel-summary">
       @if (editor.imageMeta(); as meta) {
         <div class="panel-meta">
@@ -79,9 +86,9 @@
 
         @if (editor.hasImage()) {
           <p class="canvas-hint">
-            Click a star to add or remove its spikes; double-click it for that
-            star's own controls. Drag a star to re-centre its detection, scroll
-            to zoom, drag empty sky to pan.
+            Click a star to add or remove its spikes; double-click it to tune
+            that star on its own, up at the top of this pane. Drag a star to
+            re-centre its detection, scroll to zoom, drag empty sky to pan.
           </p>
         }
       </div>
