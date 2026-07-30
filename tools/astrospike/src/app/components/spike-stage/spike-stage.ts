@@ -48,7 +48,7 @@ import {
   viewportOrigin,
   zoomViewportAt,
 } from '../../utils/stage-viewport.util';
-import { releaseSpriteCache } from '../../utils/spike-sprite.util';
+import { releaseArmSprites, releaseSpriteCache } from '../../utils/spike-sprite.util';
 import { drawStarMarkers } from '../../utils/star-markers.util';
 import { CompareHandle } from '../compare-handle/compare-handle';
 import { ImageDropzone } from '../image-dropzone/image-dropzone';
@@ -304,6 +304,21 @@ export class SpikeStage {
     this.editor.renderParams();
     this.previewScale();
     this.viewport();
+    this.scheduleRender();
+  });
+
+  /**
+   * Effect: drop the tinted arm sprites when the chroma amount changes.
+   *
+   * Arm sprites are keyed by chroma, so without this a slider drag would leave
+   * a full set behind at every value it passed through — hundreds of colours
+   * times twenty stops, which runs to gigabytes. Chroma is global, so the moment
+   * it changes every existing arm sprite is dead. The masks and glow sprites do
+   * not depend on it and are deliberately kept.
+   */
+  private readonly _chromaEffect = effect(() => {
+    this.editor.controls.chroma();
+    releaseArmSprites(this.spriteCache);
     this.scheduleRender();
   });
 

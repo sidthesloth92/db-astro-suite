@@ -24,6 +24,18 @@ export const CONTROLS: Record<EditorControlKey, ControlMetadata> = {
     step: 0.05,
     initial: 1,
   },
+  chroma: {
+    label: 'Chroma',
+    description:
+      'Separates the colour along each arm, cool at the root and red at the tip, the way diffraction spreads light by wavelength. At 0 each arm is one flat colour.',
+    min: 0,
+    max: 1,
+    step: 0.05,
+    // A restrained default: the separation is what makes a spike look like
+    // light rather than a drawn line, and it is the first thing anyone notices
+    // in a side-by-side, so it earns its place on by default.
+    initial: 0.35,
+  },
   diffusion: {
     label: 'Diffusion',
     description:
@@ -60,6 +72,7 @@ export const CONTROLS: Record<EditorControlKey, ControlMetadata> = {
 export const EDITOR_CONTROL_KEYS: readonly EditorControlKey[] = [
   'stars',
   'length',
+  'chroma',
   'diffusion',
   'brightness',
   'rotation',

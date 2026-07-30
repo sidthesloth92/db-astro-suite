@@ -9,8 +9,8 @@ import { sliceCountForValue } from './stars-cut.util';
  * - `stars` — the resolved star count against the detection total
  *   (`"24 of 68"`), because the raw 0–1 value is meaningless to the user.
  * - `rotation` — whole degrees (`"15°"`).
- * - `diffusion` — a plain 0–1 amount (`"0"`, `"0.45"`), since it is a blend
- *   between two looks rather than a multiple of anything.
+ * - `chroma` / `diffusion` — a plain 0–1 amount (`"0"`, `"0.45"`), since each
+ *   is a blend rather than a multiple of anything.
  * - `length` / `brightness` — a multiplier rounded to two decimals with
  *   trailing zeros dropped (`"1.4×"`, `"1.05×"`, `"1×"`).
  *
@@ -29,6 +29,7 @@ export function formatControlValue(
       return `${sliceCountForValue(value, totalStars)} of ${totalStars}`;
     case 'rotation':
       return `${Math.round(value)}°`;
+    case 'chroma':
     case 'diffusion':
       return `${Math.round(value * 100) / 100}`;
     case 'length':

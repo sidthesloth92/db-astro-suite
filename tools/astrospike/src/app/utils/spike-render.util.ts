@@ -10,6 +10,7 @@ import {
   buildGlowMask,
   glowMaskCacheKey,
   glowSpriteCacheKey,
+  tintArmSprite,
   tintSprite,
 } from './spike-sprite.util';
 
@@ -42,18 +43,20 @@ function getGlowSprite(cache: SpriteCache, color: StarColor): HTMLCanvasElement 
 }
 
 /**
- * Returns the cached arm sprite for a star color and falloff gamma, tinting
- * the gamma's shared arm mask on first use.
+ * Returns the cached arm sprite for a star color, falloff gamma, and chroma
+ * amount, tinting the gamma's shared arm mask on first use.
  */
 function getArmSprite(
   cache: SpriteCache,
   color: StarColor,
   falloffGamma: number,
+  chroma: number,
 ): HTMLCanvasElement {
-  return cachedCanvas(cache, armSpriteCacheKey(color, falloffGamma), () =>
-    tintSprite(
+  return cachedCanvas(cache, armSpriteCacheKey(color, falloffGamma, chroma), () =>
+    tintArmSprite(
       cachedCanvas(cache, armMaskCacheKey(falloffGamma), () => buildArmMask(falloffGamma)),
       color,
+      chroma,
     ),
   );
 }
@@ -65,6 +68,9 @@ function getArmSprite(
  * Each star gets a central glow at (x * scale, y * scale), `spikeCount` arms
  * rotated by the preset offset, the user rotation, and the arm index, and a
  * diffusion bloom.
+ *
+ * Each arm is tinted along its length by `chromaFactor`, running from a cool
+ * root to a red tip — diffraction separating light by wavelength.
  *
  * The spikes and the bloom are independent: nothing about the arms depends on
  * the diffusion amount, and nothing about the bloom depends on the length or
@@ -146,7 +152,12 @@ export function renderSpikes(
       }
       // Resolved only now, so a fully diffused field never tints arm sprites
       // it will not use.
-      const armSprite = getArmSprite(spriteCache, star.color, params.preset.falloffGamma);
+      const armSprite = getArmSprite(
+        spriteCache,
+        star.color,
+        params.preset.falloffGamma,
+        params.chromaFactor,
+      );
       const baseAngle =
         ((params.rotationDeg + adjustment.rotationDeg + params.preset.rotationOffsetDeg) *
           Math.PI) /

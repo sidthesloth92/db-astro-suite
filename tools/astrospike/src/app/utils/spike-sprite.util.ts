@@ -3,6 +3,12 @@ import {
   ARM_SPRITE_WIDTH,
   GLOW_SPRITE_SIZE,
 } from '../constants/render.constants';
+import {
+  CHROMA_GRADIENT_SPAN,
+  CHROMA_ROOT_STRENGTH,
+  CHROMA_ROOT_TINT,
+  CHROMA_TIP_TINT,
+} from '../constants/spike-geometry.constants';
 import { StarColor } from '../models/detected-star.model';
 import { SpriteCache } from '../models/spike-render-params.model';
 
@@ -95,6 +101,63 @@ export function buildGlowMask(): HTMLCanvasElement {
 }
 
 /**
+ * Blends two colour channels by `t`, rounded to a byte.
+ */
+function mixChannel(from: number, to: number, t: number): number {
+  return Math.round(from + (to - from) * t);
+}
+
+/**
+ * Blends a star colour toward a tint by `amount`.
+ */
+function towards(color: StarColor, tint: { r: number; g: number; b: number }, amount: number): StarColor {
+  return {
+    r: mixChannel(color.r, tint.r, amount),
+    g: mixChannel(color.g, tint.g, amount),
+    b: mixChannel(color.b, tint.b, amount),
+  };
+}
+
+/**
+ * Formats a star colour as a CSS rgb() string.
+ */
+function cssColor(color: StarColor): string {
+  return `rgb(${color.r}, ${color.g}, ${color.b})`;
+}
+
+/**
+ * Colours an arm mask along its length instead of flat, so the arm runs from a
+ * cool root to a red tip — light coming apart by wavelength, which is what a
+ * diffraction spike physically is.
+ *
+ * `chroma` is the amount of separation in [0, 1]; at 0 this is
+ * {@link tintSprite} and the arm is a single colour. The mask must be oriented
+ * with the arm pointing +x, as {@link buildArmMask} produces.
+ */
+export function tintArmSprite(
+  mask: HTMLCanvasElement,
+  color: StarColor,
+  chroma: number,
+): HTMLCanvasElement {
+  if (chroma <= 0) {
+    return tintSprite(mask, color);
+  }
+  const ctx = createSpriteContext(mask.width, mask.height);
+  const gradient = ctx.createLinearGradient(0, 0, mask.width, 0);
+  const root = cssColor(towards(color, CHROMA_ROOT_TINT, chroma * CHROMA_ROOT_STRENGTH));
+  const tip = cssColor(towards(color, CHROMA_TIP_TINT, chroma));
+  gradient.addColorStop(0, root);
+  // Reaches the tip colour within the visible part of the arm, then holds.
+  gradient.addColorStop(CHROMA_GRADIENT_SPAN, tip);
+  gradient.addColorStop(1, tip);
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, mask.width, mask.height);
+  ctx.globalCompositeOperation = 'destination-in';
+  ctx.drawImage(mask, 0, 0);
+  return ctx.canvas;
+}
+
+/**
  * Colours an alpha mask, returning a new sprite the size of the mask: the
  * star's RGB everywhere, the mask's alpha as the shape.
  *
@@ -130,14 +193,27 @@ export function buildGlowSprite(color: StarColor): HTMLCanvasElement {
 }
 
 /**
- * Empties a sprite cache, giving up each canvas's pixel buffer as it goes.
+ * Drops just the tinted arm sprites, keeping the alpha masks and glow sprites.
  *
- * Clearing the map alone leaves the buffers alive until the collector gets to
- * them, and a star-rich frame's worth of sprites is tens of megabytes of
- * mostly off-heap pixels — enough that the collection lands as a visible stall
- * partway through the user's next drag. Resizing each canvas to zero releases
- * that memory at the moment the image is replaced, where a pause costs
- * nothing.
+ * Arm sprites are the only entries that depend on the chroma amount, so they
+ * are the only ones a chroma change invalidates. The masks carry the entire
+ * per-pixel cost of the sprite system and are keyed by falloff gamma alone —
+ * rebuilding them on a colour change would be ~100x the work for no reason.
+ */
+export function releaseArmSprites(cache: SpriteCache): void {
+  for (const [key, canvas] of cache) {
+    if (!key.startsWith('arm:')) {
+      continue;
+    }
+    canvas.width = 0;
+    canvas.height = 0;
+    cache.delete(key);
+  }
+}
+
+/**
+ * Empties a sprite cache, giving up each canvas's pixel buffer as it goes.
+ * See {@link releaseArmSprites} for the narrower, per-chroma-change variant.
  */
 export function releaseSpriteCache(cache: SpriteCache): void {
   for (const canvas of cache.values()) {
@@ -162,10 +238,16 @@ export function glowMaskCacheKey(): string {
 
 /**
  * Cache key for an arm sprite: color channels quantized to 16 levels plus the
- * falloff gamma, so colors differing only in their low 4 bits share a sprite.
+ * falloff gamma and the chroma amount, so colors differing only in their low 4
+ * bits share a sprite. The chroma amount is global, and the stage empties the
+ * cache when it changes rather than letting a sprite set accumulate per value.
  */
-export function armSpriteCacheKey(color: StarColor, falloffGamma: number): string {
-  return `arm:${quantizeChannel(color.r)}:${quantizeChannel(color.g)}:${quantizeChannel(color.b)}:${falloffGamma}`;
+export function armSpriteCacheKey(
+  color: StarColor,
+  falloffGamma: number,
+  chroma: number,
+): string {
+  return `arm:${quantizeChannel(color.r)}:${quantizeChannel(color.g)}:${quantizeChannel(color.b)}:${falloffGamma}:${chroma}`;
 }
 
 /**

@@ -51,6 +51,11 @@ export interface SpikeRenderParams {
    * naming its own amount in its adjustment overrides this one.
    */
   diffusionFactor: number;
+  /**
+   * How far apart the arm's colours are pulled along its length, in [0, 1].
+   * Zero draws each arm in one flat colour.
+   */
+  chromaFactor: number;
   /** Larger dimension of the full-resolution image in pixels. */
   imageMaxDimension: number;
   /** Scale from full-resolution image pixels to target canvas pixels. */

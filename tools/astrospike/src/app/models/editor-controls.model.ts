@@ -1,7 +1,13 @@
 /**
  * Identifier of one of the editor's adjustment sliders.
  */
-export type EditorControlKey = 'stars' | 'length' | 'diffusion' | 'brightness' | 'rotation';
+export type EditorControlKey =
+  | 'stars'
+  | 'length'
+  | 'chroma'
+  | 'diffusion'
+  | 'brightness'
+  | 'rotation';
 
 /**
  * Static metadata describing a single editor slider: its label, range,

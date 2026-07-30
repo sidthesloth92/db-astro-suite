@@ -73,3 +73,40 @@ export const DIFFUSION_BLOOM_INTENSITY = 0.85;
  * arrives at a legible size as soon as it arrives at all.
  */
 export const DIFFUSION_RADIUS_EXPONENT = 0.5;
+
+/**
+ * Colour the far end of an arm is pushed toward at full chroma.
+ *
+ * Diffraction bends longer wavelengths further, so each colour forms its own
+ * spike of its own length and the red one reaches furthest. The outer arm is
+ * therefore the reddest part of a real spike.
+ */
+export const CHROMA_TIP_TINT = { r: 255, g: 96, b: 40 } as const;
+
+/**
+ * Colour the root of an arm is pushed toward at full chroma — the other end of
+ * the same physics, where the shorter wavelengths pile up.
+ */
+export const CHROMA_ROOT_TINT = { r: 120, g: 170, b: 255 } as const;
+
+/**
+ * How much of the chroma amount reaches the root, relative to the tip.
+ *
+ * Kept well below 1 because near the star every wavelength still overlaps, so
+ * the core of a real spike stays close to the star's own colour while the tail
+ * separates. Tinting both ends equally reads as a gradient someone applied
+ * rather than light coming apart.
+ */
+export const CHROMA_ROOT_STRENGTH = 0.45;
+
+/**
+ * Fraction of the arm sprite's length over which the colour reaches the tip
+ * tint, after which it holds.
+ *
+ * The sprite's alpha falls as (1 - x)^gamma, so the outer third of it is far
+ * too faint to see: a gradient spread across the whole sprite puts its red end
+ * in the invisible tail and the visible arm never leaves its root colour.
+ * Compressing the ramp into the part that actually shows is what makes the
+ * separation visible at all.
+ */
+export const CHROMA_GRADIENT_SPAN = 0.45;

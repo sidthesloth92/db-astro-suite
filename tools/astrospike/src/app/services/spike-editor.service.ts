@@ -94,11 +94,12 @@ export class SpikeEditorService implements OnDestroy {
 
   /**
    * Config-driven editor slider signals, initialized from CONTROLS metadata:
-   * stars (cut), length, diffusion, brightness, rotation.
+   * stars (cut), length, chroma, diffusion, brightness, rotation.
    */
   public readonly controls: Record<EditorControlKey, WritableSignal<number>> = {
     stars: signal(CONTROLS['stars'].initial),
     length: signal(CONTROLS['length'].initial),
+    chroma: signal(CONTROLS['chroma'].initial),
     diffusion: signal(CONTROLS['diffusion'].initial),
     brightness: signal(CONTROLS['brightness'].initial),
     rotation: signal(CONTROLS['rotation'].initial),
@@ -216,6 +217,7 @@ export class SpikeEditorService implements OnDestroy {
       intensityFactor: this.controls.brightness(),
       rotationDeg: this.controls.rotation(),
       diffusionFactor: this.controls.diffusion(),
+      chromaFactor: this.controls.chroma(),
       imageMaxDimension: Math.max(meta.width, meta.height),
       scale: 1,
     };
