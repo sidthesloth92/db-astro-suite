@@ -47,14 +47,21 @@ export function starSpikeScale(flux: number, fluxRef: number): number {
 /**
  * Computes the per-star spike geometry (arm length/thickness/alpha and glow
  * radius/alpha) from the star's relative brightness, the active preset, user
- * length/intensity factors, the diffusion amount, the image's larger dimension,
- * and the image-to-canvas scale. Arm thickness is clamped to a renderable pixel
- * range; alphas are clamped to [0, 1].
+ * length/intensity factors, the image's larger dimension, and the
+ * image-to-canvas scale. Arm thickness is clamped to a renderable pixel range;
+ * alphas are clamped to [0, 1].
+ *
+ * Deliberately knows nothing about diffusion. The spikes and the bloom are two
+ * independent axes: Length and Brightness shape the spikes, Diffusion shapes
+ * the bloom, and neither reaches into the other. Diffusion used to fade the
+ * arms as it rose, which was the only route to a pure bloom back when these
+ * factors bottomed out at 0.2 — now that they reach 0 the user says when the
+ * spikes go, and a slider that quietly dimmed them was just surprising.
  *
  * A zero length or intensity factor yields nothing at all — no arms and no core
  * glow. The thickness floor that keeps thin arms renderable would otherwise
  * leave a glow dot behind on a star the user had explicitly zeroed, and zeroing
- * these two is how a star is left showing only its diffusion bloom.
+ * these two is how a star is left showing only its bloom.
  */
 export function computeSpikeGeometry(
   flux: number,
@@ -62,7 +69,6 @@ export function computeSpikeGeometry(
   preset: SpikePreset,
   lengthFactor: number,
   intensityFactor: number,
-  diffusion: number,
   imageMaxDimension: number,
   scale: number,
 ): SpikeGeometry {
@@ -83,11 +89,7 @@ export function computeSpikeGeometry(
     SPIKE_THICKNESS_MAX_PX,
   );
   const lengthPx = imageLengthPx * scale;
-  // Diffusion crossfades: the arms give way as the bloom comes up, reaching
-  // nothing at all at full diffusion. Their LENGTH is untouched — a diffusion
-  // filter swamps a spike in spread light, it does not shorten it.
-  const armFade = clamp(1 - diffusion, 0, 1);
-  const alphaPeak = clamp(preset.intensityScale * intensityFactor * ramp * armFade, 0, 1);
+  const alphaPeak = clamp(preset.intensityScale * intensityFactor * ramp, 0, 1);
   const thicknessPx = imageThicknessPx * scale;
   const glowRadiusPx = thicknessPx * preset.glowRadiusRatio;
   const glowAlpha = clamp(preset.glowIntensity * intensityFactor * ramp, 0, 1);

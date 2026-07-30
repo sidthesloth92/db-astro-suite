@@ -27,7 +27,7 @@ export const CONTROLS: Record<EditorControlKey, ControlMetadata> = {
   diffusion: {
     label: 'Diffusion',
     description:
-      'Blooms each star, the look of a diffusion filter on the lens, and fades the spikes as it rises. Independent of Length and Brightness, so a star can show a bloom with no spike at all.',
+      'Blooms each star, the look of a diffusion filter on the lens. Independent of the spikes: it adds the bloom and leaves the arms alone, so set Length to 0 for a bloom on its own.',
     min: 0,
     max: 1,
     step: 0.05,
@@ -38,7 +38,7 @@ export const CONTROLS: Record<EditorControlKey, ControlMetadata> = {
   brightness: {
     label: 'Brightness',
     description:
-      'Scales the intensity of the spikes and their glow. At 0 the spikes disappear; the diffusion bloom is independent and stays.',
+      'Scales the intensity of the spikes and their core glow. At 0 the spikes disappear; the diffusion bloom is independent and stays.',
     min: 0,
     max: 2,
     step: 0.05,

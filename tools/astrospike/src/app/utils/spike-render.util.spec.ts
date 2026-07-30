@@ -295,23 +295,6 @@ describe('renderSpikes', () => {
     expect(at(30, 30)).toBe(0);
   });
 
-  it('should draw a bloom and no arms at full diffusion', () => {
-    const glowCtx = makeBlackContext();
-    renderSpikes(
-      glowCtx,
-      makeParams({ diffusionFactor: 1, preset: makePreset({ glowRadiusScale: 0.15 }) }),
-      new Map(),
-    );
-    const spikeCtx = makeBlackContext();
-    renderSpikes(spikeCtx, makeParams(), new Map());
-
-    // Lit at the core, so the bloom is drawn at all.
-    expect(brightnessAtAngle(glowCtx, 45, 4)).toBeGreaterThan(0);
-    // Dark out where the spike preset's 40px arms clearly reach, which is the
-    // whole claim: the same star under glow grows no arms.
-    expect(brightnessAtAngle(spikeCtx, 45, 30)).toBeGreaterThan(0);
-    expect(brightnessAtAngle(glowCtx, 45, 30)).toBe(0);
-  });
 
   it('should size a bloom by the star brightness rather than the arm thickness', () => {
     const bloomRadius = (flux: number): number => {
@@ -339,36 +322,8 @@ describe('renderSpikes', () => {
     expect(bloomRadius(100)).toBeGreaterThan(bloomRadius(3) + 2);
   });
 
-  it('should let one star bloom while the rest of the field keeps its spikes', () => {
-    const ctx = makeBlackContext();
-    renderSpikes(
-      ctx,
-      makeParams({
-        stars: [makeStar({ id: 0, x: 25, y: 50 }), makeStar({ id: 1, x: 75, y: 50 })],
-        lengthFactor: 0.3,
-        // Global diffusion is 0, so only the star naming its own amount blooms.
-        adjustments: new Map([
-          [1, { lengthFactor: 1, intensityFactor: 1, rotationDeg: 0, diffusion: 1 }],
-        ]),
-      }),
-      new Map(),
-    );
 
-    const armOf = (cx: number): number => {
-      const d = ctx.getImageData(Math.round(cx + 6), Math.round(50 + 6), 1, 1).data;
-      return d[0] + d[1] + d[2];
-    };
-    const offAxisOf = (cx: number): number => {
-      const d = ctx.getImageData(Math.round(cx + 8), 50, 1, 1).data;
-      return d[0] + d[1] + d[2];
-    };
-
-    // Star 0 keeps its diagonal arms; star 1 is round.
-    expect(armOf(25)).toBeGreaterThan(offAxisOf(25) + 30);
-    expect(Math.abs(armOf(75) - offAxisOf(75))).toBeLessThan(30);
-  });
-
-  it('should render a preset untouched at zero diffusion', () => {
+  it('should render a preset the same whatever diffusion says', () => {
     const zero = makeBlackContext();
     renderSpikes(zero, makeParams({ diffusionFactor: 0 }), new Map());
     const armAt = (ctx: CanvasRenderingContext2D) => brightnessAtAngle(ctx, 45, SAMPLE_RADIUS);
@@ -378,22 +333,6 @@ describe('renderSpikes', () => {
     expect(brightnessAtAngle(zero, 0, 8)).toBe(brightnessAtAngle(zero, 90, 8));
   });
 
-  it('should fade the arms as diffusion rises', () => {
-    const armStrength = (diffusionFactor: number): number => {
-      const ctx = makeBlackContext();
-      renderSpikes(ctx, makeParams({ diffusionFactor }), new Map());
-      // Far enough out that only an arm can reach, never the bloom.
-      return brightnessAtAngle(ctx, 45, 30);
-    };
-
-    const sharp = armStrength(0);
-    const half = armStrength(0.5);
-    const full = armStrength(1);
-
-    expect(sharp).toBeGreaterThan(half);
-    expect(half).toBeGreaterThan(0);
-    expect(full).toBe(0);
-  });
 
   it('should grow the bloom as diffusion rises', () => {
     const bloomReach = (diffusionFactor: number): number => {
@@ -415,29 +354,4 @@ describe('renderSpikes', () => {
     expect(bloomReach(1)).toBeGreaterThan(bloomReach(0.25));
   });
 
-  it('should let one star stay sharp while the field is fully diffused', () => {
-    const ctx = makeBlackContext();
-    renderSpikes(
-      ctx,
-      makeParams({
-        stars: [makeStar({ id: 0, x: 25, y: 50 }), makeStar({ id: 1, x: 75, y: 50 })],
-        lengthFactor: 0.4,
-        diffusionFactor: 1,
-        adjustments: new Map([
-          [1, { lengthFactor: 1, intensityFactor: 1, rotationDeg: 0, diffusion: 0 }],
-        ]),
-      }),
-      new Map(),
-    );
-
-    const armOf = (cx: number): number => {
-      const d = ctx.getImageData(Math.round(cx + 9), Math.round(50 + 9), 1, 1).data;
-      return d[0] + d[1] + d[2];
-    };
-
-    // Star 0 follows the global amount and has no arms; star 1 pinned itself to
-    // zero and keeps them.
-    expect(armOf(25)).toBe(0);
-    expect(armOf(75)).toBeGreaterThan(0);
-  });
 });

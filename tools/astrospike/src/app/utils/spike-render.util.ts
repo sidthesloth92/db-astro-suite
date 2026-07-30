@@ -64,14 +64,14 @@ function getArmSprite(
  *
  * Each star gets a central glow at (x * scale, y * scale), `spikeCount` arms
  * rotated by the preset offset, the user rotation, and the arm index, and a
- * diffusion bloom. Diffusion crossfades between the last two: at zero the arms
- * are at full strength and there is no bloom, at one the bloom is full and the
- * arms have faded to nothing. It comes from the global control unless that star
- * names its own amount, so one frame can bloom its field and spike a chosen
- * few — or land anywhere in between on either.
+ * diffusion bloom.
  *
- * The bloom is independent of the length and brightness factors, so zeroing
- * either leaves a star with its bloom and no spike.
+ * The spikes and the bloom are independent: nothing about the arms depends on
+ * the diffusion amount, and nothing about the bloom depends on the length or
+ * brightness factors. Zeroing length or brightness leaves a star with only its
+ * bloom; raising diffusion adds a bloom without touching the spikes. Diffusion
+ * comes from the global control unless that star names its own amount, so one
+ * frame can bloom a chosen few stars and leave the rest sharp.
  *
  * Sprites are pulled from (or added to) `spriteCache`. The context's alpha,
  * composite operation, and transform are fully restored before returning.
@@ -125,7 +125,6 @@ export function renderSpikes(
         params.preset,
         params.lengthFactor * adjustment.lengthFactor,
         params.intensityFactor * adjustment.intensityFactor,
-        diffusion,
         params.imageMaxDimension,
         params.scale,
       );
