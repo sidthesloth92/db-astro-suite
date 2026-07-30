@@ -77,6 +77,12 @@
 }
 
 /* While panning a zoomed view or dragging a star, the stage is a grab surface. */
+/* Placing a star is aiming, so the pointer becomes a crosshair and outranks
+   the hover cursor. */
+.marker-canvas.is-adding-star {
+  cursor: crosshair;
+}
+
 .marker-canvas.is-panning,
 .marker-canvas.is-moving-star {
   cursor: grabbing;
@@ -169,6 +175,13 @@
   --db-icon-button-border-color: var(--db-color-border);
   --db-icon-button-color: var(--db-color-text-primary);
   backdrop-filter: blur(6px);
+}
+
+/* The place-a-star tool is a mode, not an action, so it stays lit while armed. */
+.stage-tools .tool-add-star.is-active {
+  --db-icon-button-background: color-mix(in srgb, var(--db-color-cyan) 22%, var(--db-color-sheet-bg));
+  --db-icon-button-border-color: var(--db-color-cyan);
+  --db-icon-button-color: var(--db-color-cyan);
 }
 
 .stage-tools .tool-remove {

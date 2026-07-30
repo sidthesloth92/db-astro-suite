@@ -100,8 +100,14 @@ export class StarControls {
   /** True once this star's diffusion is pinned rather than following the global. */
   protected readonly hasOwnDiffusion = computed(() => this.adjustment().diffusion !== null);
 
-  /** Human-readable rank of the star within the flux-sorted list. */
-  protected readonly starLabel = computed(() => `Star #${this.starId() + 1}`);
+  /**
+   * Name shown at the top of the panel. A detected star is identified by its
+   * rank in the flux-sorted list; a hand-placed one has no such rank, so
+   * claiming one would be a lie.
+   */
+  protected readonly starLabel = computed(() =>
+    this.editor.isManualStar(this.starId()) ? 'Added star' : `Star #${this.starId() + 1}`,
+  );
 
   /** Applies a new per-star length multiplier. */
   protected onLengthChange(value: number): void {

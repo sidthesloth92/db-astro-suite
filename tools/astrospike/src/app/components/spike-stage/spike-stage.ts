@@ -18,6 +18,7 @@ import {
   minusIcon,
   plusIcon,
   rotateCcwIcon,
+  targetIcon,
   trashIcon,
 } from '@db-astro-suite/ui';
 import {
@@ -223,6 +224,9 @@ export class SpikeStage {
   /** Remove-image glyph for the canvas tool rail. */
   protected readonly trashIcon = trashIcon;
 
+  /** Place-a-star glyph for the canvas tool rail. */
+  protected readonly targetIcon = targetIcon;
+
   /** True once the view is fully zoomed in — disables the zoom-in button. */
   protected readonly isMaxZoom = computed(() => this.viewport().zoom >= STAGE_MAX_ZOOM);
 
@@ -369,7 +373,11 @@ export class SpikeStage {
       return;
     }
     this.dragPointerId = event.pointerId;
-    this.dragStarId = this.starAt(event.clientX, event.clientY)?.id ?? null;
+    // In place-a-star mode a press grabs nothing: dragging pans, releasing
+    // places. Picking up a star here would fight the tool.
+    this.dragStarId = this.editor.isAddingStar()
+      ? null
+      : (this.starAt(event.clientX, event.clientY)?.id ?? null);
     this.dragStartX = event.clientX;
     this.dragStartY = event.clientY;
     this.dragLastX = event.clientX;
@@ -411,6 +419,10 @@ export class SpikeStage {
         return;
       }
     }
+    if (this.editor.isAddingStar()) {
+      this.editor.hoveredStarId.set(null);
+      return;
+    }
     const star = this.starAt(event.clientX, event.clientY);
     this.editor.hoveredStarId.set(star?.id ?? null);
   }
@@ -441,6 +453,13 @@ export class SpikeStage {
     // empty-sky drag that happens to end over a star must not toggle it.
     const travel = Math.hypot(event.clientX - this.dragStartX, event.clientY - this.dragStartY);
     if (travel > STAGE_DRAG_THRESHOLD_CSS_PX) {
+      return;
+    }
+    if (this.editor.isAddingStar()) {
+      const point = this.imagePointAt(event.clientX, event.clientY);
+      if (point !== null) {
+        this.editor.addStarAt(point.x, point.y);
+      }
       return;
     }
     const star = this.starAt(event.clientX, event.clientY);
@@ -559,6 +578,14 @@ export class SpikeStage {
     this.editor.clearImage();
   }
 
+  /**
+   * Tool rail: enter or leave place-a-star mode. It stays on until switched
+   * off, so a field with several missed stars takes one click each.
+   */
+  protected onToggleAddStar(): void {
+    this.editor.toggleAddStarMode();
+  }
+
   /** Applies a zoom step anchored on the current view centre. */
   private zoomAboutCentre(factor: number): void {
     const bitmap = this.editor.sourceImage();
@@ -607,6 +634,9 @@ export class SpikeStage {
    */
   protected onStageDoubleClick(event: MouseEvent): void {
     this.cancelPendingToggle();
+    if (this.editor.isAddingStar()) {
+      return;
+    }
     const star = this.starAt(event.clientX, event.clientY);
     if (star !== null) {
       this.editor.openStarControls(star.id);

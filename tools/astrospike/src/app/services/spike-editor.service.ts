@@ -9,6 +9,11 @@ import {
 } from '../constants/editor-messages.constants';
 import { DEFAULT_JPEG_QUALITY } from '../constants/export.constants';
 import { DEFAULT_PRESET_ID, SPIKE_PRESETS } from '../constants/spike-presets.constants';
+import {
+  MANUAL_STAR_AREA,
+  MANUAL_STAR_SNAP_RADIUS_PX,
+  MANUAL_STAR_WINDOW_RADIUS_PX,
+} from '../constants/manual-star.constants';
 import { DEFAULT_STAR_ADJUSTMENT } from '../constants/star-adjustment.constants';
 import { DetectedStar } from '../models/detected-star.model';
 import { StarDetectionError, SupersededError } from '../models/detection.error';
@@ -20,6 +25,8 @@ import { SpikePresetId } from '../models/spike-preset.model';
 import { SpikeRenderParams } from '../models/spike-render-params.model';
 import { StarAdjustment } from '../models/star-adjustment.model';
 import { fluxReferenceFor } from '../utils/flux-reference.util';
+import { fluxForManualPeak, fluxSortedInsertIndex } from '../utils/manual-star.util';
+import { refineStar } from '../utils/star-refine.util';
 import { applyOverrides } from '../utils/star-overrides.util';
 import { sliceCountForValue } from '../utils/stars-cut.util';
 import { ImageLoadService } from './image-load.service';
@@ -128,6 +135,19 @@ export class SpikeEditorService implements OnDestroy {
    */
   public readonly starAdjustments = signal<ReadonlyMap<number, StarAdjustment>>(new Map());
 
+  /**
+   * True while the canvas is in place-a-star mode, where a click marks a star
+   * detection missed instead of toggling the spikes of one it found.
+   */
+  public readonly isAddingStar = signal<boolean>(false);
+
+  /**
+   * Ids of stars the user placed by hand. They behave exactly like detected
+   * stars once placed — draggable, tunable, toggleable — so this set exists
+   * only to keep the reported detection count and their labels honest.
+   */
+  public readonly manualStarIds = signal<ReadonlySet<number>>(new Set());
+
   /** Before/after compare divider position in [0, 1]. */
   public readonly comparePosition = signal<number>(0);
 
@@ -200,6 +220,11 @@ export class SpikeEditorService implements OnDestroy {
       scale: 1,
     };
   });
+
+  /** How many stars detection found, excluding any the user placed by hand. */
+  public readonly detectedStarCount = computed(
+    () => this.allStars().length - this.manualStarIds().size,
+  );
 
   /** True once a source image is loaded. */
   public readonly hasImage = computed(() => this.sourceImage() !== null);
@@ -445,6 +470,76 @@ export class SpikeEditorService implements OnDestroy {
     });
   }
 
+  /** Enters or leaves place-a-star mode. */
+  toggleAddStarMode(): void {
+    this.isAddingStar.update((adding) => !adding);
+  }
+
+  /** True when a star was placed by hand rather than found by detection. */
+  isManualStar(id: number): boolean {
+    return this.manualStarIds().has(id);
+  }
+
+  /**
+   * Places a star at a point detection missed, and gives it spikes.
+   *
+   * The point is measured on the full-resolution image exactly as detection
+   * measures the stars it finds — same window, same local background, same
+   * peak and colour — so a placed star is indistinguishable from a detected one
+   * downstream. Its flux is borrowed from the detected star of nearest peak
+   * brightness, which is what makes its spike match the field rather than
+   * arriving at some arbitrary size.
+   *
+   * It is force-included regardless of where the brightness cut sits, since
+   * placing a star is a request to see a spike there.
+   *
+   * @param x Target x in full-resolution image pixels.
+   * @param y Target y in full-resolution image pixels.
+   */
+  addStarAt(x: number, y: number): void {
+    const bitmap = this.sourceImage();
+    if (bitmap === null) {
+      return;
+    }
+    const window = this.readWindowAround(bitmap, x, y);
+    if (window === null) {
+      return;
+    }
+    const refined = refineStar(
+      window.data,
+      window.width,
+      window.height,
+      x - window.originX,
+      y - window.originY,
+      MANUAL_STAR_WINDOW_RADIUS_PX,
+    );
+    // Snap to the measured core only when it is genuinely close; otherwise the
+    // click wins. See MANUAL_STAR_SNAP_RADIUS_PX.
+    const measuredX = window.originX + refined.x;
+    const measuredY = window.originY + refined.y;
+    const snapped = Math.hypot(measuredX - x, measuredY - y) <= MANUAL_STAR_SNAP_RADIUS_PX;
+    const stars = this.allStars();
+    const id = stars.reduce((highest, star) => Math.max(highest, star.id), -1) + 1;
+    const placed: DetectedStar = {
+      id,
+      x: snapped ? measuredX : x,
+      y: snapped ? measuredY : y,
+      flux: fluxForManualPeak(stars, refined.peak),
+      peak: refined.peak,
+      area: MANUAL_STAR_AREA,
+      elongation: 1,
+      color: refined.color,
+    };
+    this.allStars.update((current) => {
+      const next = current.slice();
+      next.splice(fluxSortedInsertIndex(current, placed.flux), 0, placed);
+      return next;
+    });
+    this.manualStarIds.update((current) => new Set(current).add(id));
+    this.overrides.update((current) => new Map(current).set(id, true));
+    this.analyticsService.trackEvent('astrospike_star_added', { starCount: stars.length + 1 });
+  }
+
   /**
    * Moves a detected star to a new position, clamped to the image bounds. This
    * is the manual escape hatch for imperfect detection: the user drags the
@@ -523,6 +618,8 @@ export class SpikeEditorService implements OnDestroy {
     this.starAdjustments.set(new Map());
     this.hoveredStarId.set(null);
     this.starControlsId.set(null);
+    this.manualStarIds.set(new Set());
+    this.isAddingStar.set(false);
     this.comparePosition.set(0);
   }
 
@@ -537,6 +634,45 @@ export class SpikeEditorService implements OnDestroy {
     }
     this.isImageLoading.set(false);
     this.isDetecting.set(false);
+  }
+
+  /**
+   * Reads a small square of full-resolution pixels around an image point.
+   *
+   * Deliberately a window rather than the whole frame: the full read that
+   * detection performs costs 4 bytes a pixel, which is a third of a gigabyte on
+   * a 60-megapixel image, and placing one star needs a few thousand pixels.
+   *
+   * @param bitmap The decoded source image.
+   * @param x Centre x in full-resolution pixels.
+   * @param y Centre y in full-resolution pixels.
+   * @returns The window's pixels and its origin, or null without a context.
+   */
+  private readWindowAround(
+    bitmap: ImageBitmap,
+    x: number,
+    y: number,
+  ): { data: Uint8ClampedArray; width: number; height: number; originX: number; originY: number } | null {
+    const radius = MANUAL_STAR_WINDOW_RADIUS_PX;
+    const centerX = Math.min(bitmap.width - 1, Math.max(0, Math.round(x)));
+    const centerY = Math.min(bitmap.height - 1, Math.max(0, Math.round(y)));
+    const originX = Math.max(0, centerX - radius);
+    const originY = Math.max(0, centerY - radius);
+    const width = Math.min(bitmap.width - originX, radius * 2 + 1);
+    const height = Math.min(bitmap.height - originY, radius * 2 + 1);
+    if (width <= 0 || height <= 0) {
+      return null;
+    }
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    if (ctx === null) {
+      return null;
+    }
+    ctx.drawImage(bitmap, originX, originY, width, height, 0, 0, width, height);
+    const imageData = ctx.getImageData(0, 0, width, height);
+    return { data: imageData.data, width, height, originX, originY };
   }
 
   /**

@@ -16,6 +16,7 @@
       [class.is-over-star]="isOverStar()"
       [class.is-panning]="isPanning()"
       [class.is-moving-star]="isMovingStar()"
+      [class.is-adding-star]="editor.isAddingStar()"
       (pointerdown)="onStagePointerDown($event)"
       (pointermove)="onStagePointerMove($event)"
       (pointerup)="onStagePointerUp($event)"
@@ -28,10 +29,19 @@
 
     @if (showStarPill()) {
       <dba-ui-pill-badge class="star-pill" tone="cyan">
-        {{ editor.allStars().length }} stars detected
+        {{ editor.detectedStarCount() }} stars detected
       </dba-ui-pill-badge>
 
       <div class="stage-tools">
+        <dba-ui-icon-button
+          class="tool-add-star"
+          [class.is-active]="editor.isAddingStar()"
+          title="Add a star detection missed"
+          [size]="32"
+          (clicked)="onToggleAddStar()"
+        >
+          <dba-ui-icon [def]="targetIcon" [size]="15" />
+        </dba-ui-icon-button>
         <dba-ui-icon-button
           title="Zoom in"
           [size]="32"
