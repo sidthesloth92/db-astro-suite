@@ -1,14 +1,22 @@
-import { formatControlValue } from './control-format.util';
+import { formatControlSuffix, formatControlValue } from './control-format.util';
 
 describe('control-format.util', () => {
   describe('formatControlValue', () => {
-    it('should report the stars control as a resolved count against the detection total', () => {
-      expect(formatControlValue('stars', 1, 68)).toBe('68 of 68');
-      expect(formatControlValue('stars', 0, 68)).toBe('1 of 68');
+    it('should report the stars control as a resolved count', () => {
+      // The "of N" total is a separate, dimmer part of the readout.
+      expect(formatControlValue('stars', 1, 68)).toBe('68');
+      expect(formatControlSuffix('stars', 68)).toBe('of 68');
     });
 
-    it('should report the stars control as zero of zero before any stars are detected', () => {
-      expect(formatControlValue('stars', 0.75, 0)).toBe('0 of 0');
+    it('should report no stars before any are detected', () => {
+      expect(formatControlValue('stars', 0.5, 0)).toBe('0');
+      expect(formatControlSuffix('stars', 0)).toBe('of 0');
+    });
+
+    it('should give the other controls no trailing total', () => {
+      for (const key of ['length', 'chroma', 'diffusion', 'brightness', 'rotation'] as const) {
+        expect(formatControlSuffix(key, 68)).toBe('');
+      }
     });
 
     it('should report rotation in whole degrees', () => {

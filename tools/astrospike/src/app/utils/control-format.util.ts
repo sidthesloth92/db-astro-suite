@@ -6,8 +6,9 @@ import { sliceCountForValue } from './stars-cut.util';
  * label.
  *
  * Each control speaks its own unit:
- * - `stars` — the resolved star count against the detection total
- *   (`"24 of 68"`), because the raw 0–1 value is meaningless to the user.
+ * - `stars` — the resolved star count, because the raw 0–1 value is
+ *   meaningless to the user. The "of N" total is a separate, dimmer part; see
+ *   {@link formatControlSuffix}.
  * - `rotation` — whole degrees (`"15°"`).
  * - `chroma` / `diffusion` — a plain 0–1 amount (`"0"`, `"0.45"`), since each
  *   is a blend rather than a multiple of anything.
@@ -26,7 +27,7 @@ export function formatControlValue(
 ): string {
   switch (key) {
     case 'stars':
-      return `${sliceCountForValue(value, totalStars)} of ${totalStars}`;
+      return `${sliceCountForValue(value, totalStars)}`;
     case 'rotation':
       return `${Math.round(value)}°`;
     case 'chroma':
@@ -36,4 +37,18 @@ export function formatControlValue(
     case 'brightness':
       return `${Math.round(value * 100) / 100}×`;
   }
+}
+
+/**
+ * The dimmer trailing part of a control's readout, or an empty string when it
+ * has none.
+ *
+ * Only the star cut has one: it reads as a count against a total, and rendering
+ * the total in the same weight as the count makes the pair hard to scan.
+ *
+ * @param key The control being formatted.
+ * @param totalStars Number of detected stars.
+ */
+export function formatControlSuffix(key: EditorControlKey, totalStars: number): string {
+  return key === 'stars' ? `of ${totalStars}` : '';
 }

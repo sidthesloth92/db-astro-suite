@@ -10,6 +10,11 @@ import {
   viewChild,
 } from '@angular/core';
 import {
+  IconComponent,
+  chevronLeftIcon,
+  chevronRightIcon,
+} from '@db-astro-suite/ui';
+import {
   COMPARE_ARIA_LABEL,
   COMPARE_ARIA_MAX,
   COMPARE_ARIA_MIN,
@@ -33,11 +38,18 @@ import {
 @Component({
   selector: 'dba-as-compare-handle',
   standalone: true,
+  imports: [IconComponent],
   templateUrl: './compare-handle.html',
   styleUrl: './compare-handle.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CompareHandle {
+  /** Left chevron inside the grip. */
+  protected readonly chevronLeftIcon = chevronLeftIcon;
+
+  /** Right chevron inside the grip. */
+  protected readonly chevronRightIcon = chevronRightIcon;
+
   /** Divider position along the stage as a fraction in [0, 1]. */
   readonly position = input.required<number>();
 

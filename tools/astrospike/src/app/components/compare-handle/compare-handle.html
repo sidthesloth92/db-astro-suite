@@ -17,9 +17,17 @@
   (pointercancel)="onPointerUp($event)"
   (keydown)="onKeyDown($event)"
 >
-  <span class="compare-divider__line" aria-hidden="true"></span>
+  <!-- Layered rather than a single line: a shadow so the spiked half reads as
+       sitting above the original, a bloom that falls off from the grip instead
+       of lighting a uniform column, a tapered core, and a specular sheen. -->
+  <span class="compare-divider__seam" aria-hidden="true"></span>
+  <span class="compare-divider__bloom" aria-hidden="true"></span>
+  <span class="compare-divider__core" aria-hidden="true"></span>
+  <span class="compare-divider__sheen" aria-hidden="true"></span>
+  <span class="compare-divider__grab" aria-hidden="true"></span>
   <span class="compare-divider__grip" aria-hidden="true">
-    <span class="compare-divider__arrow compare-divider__arrow--left"></span>
-    <span class="compare-divider__arrow compare-divider__arrow--right"></span>
+    <span class="compare-divider__ring"></span>
+    <dba-ui-icon [def]="chevronLeftIcon" [size]="11" />
+    <dba-ui-icon [def]="chevronRightIcon" [size]="11" />
   </span>
 </div>

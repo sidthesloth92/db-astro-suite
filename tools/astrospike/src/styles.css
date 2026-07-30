@@ -23,3 +23,28 @@
 }
 
 /* App-specific styles go below - base styles are now in @db-astro-suite/theme */
+
+/* The detection badge's live dot. App-local, so it lives here rather than in
+   the shared theme. */
+@keyframes as-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* The indeterminate detection bar sweeps rather than filling, because the
+   worker reports completion and not progress. */
+@keyframes as-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(300%);
+  }
+}

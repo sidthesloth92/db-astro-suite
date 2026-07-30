@@ -10,10 +10,8 @@ import {
   viewChild,
 } from '@angular/core';
 import {
-  ConstellationLoaderComponent,
   IconButtonComponent,
   IconComponent,
-  PillBadgeComponent,
   TextButtonComponent,
   minusIcon,
   plusIcon,
@@ -30,6 +28,7 @@ import {
   STAGE_MIN_ZOOM,
   STAGE_WHEEL_ZOOM_FACTOR,
 } from '../../constants/render.constants';
+import { DETECTION_BADGE_LINGER_MS } from '../../constants/detection-badge.constants';
 import {
   HOVER_MARKER_RADIUS_CSS_PX,
   MARKER_LINE_WIDTH_CSS_PX,
@@ -52,6 +51,7 @@ import { releaseArmSprites, releaseSpriteCache } from '../../utils/spike-sprite.
 import { drawStarMarkers } from '../../utils/star-markers.util';
 import { CompareHandle } from '../compare-handle/compare-handle';
 import { ImageDropzone } from '../image-dropzone/image-dropzone';
+import { StarControls } from '../star-controls/star-controls';
 
 /**
  * Preview stage — owns the render pipeline from the loaded source image to the
@@ -69,22 +69,21 @@ import { ImageDropzone } from '../image-dropzone/image-dropzone';
  * compare divider only re-evaluates a clip-path binding, and hovering a star
  * only repaints the marker overlay — neither re-renders the spikes.
  *
- * Also hosts the stage overlays: the image dropzone when empty, the
- * constellation loader while loading/detecting, the error banner, and the
- * "N stars detected" pill. Dropping a file anywhere on the stage (even with
- * an image already loaded) loads it as the new source image.
+ * Also hosts the stage overlays: the image dropzone when empty, the detection
+ * progress badge, the error banner, and the before/after tags. Dropping a file
+ * anywhere on the stage (even with an image already loaded) loads it as the new
+ * source image.
  */
 @Component({
   selector: 'dba-as-spike-stage',
   standalone: true,
   imports: [
     CompareHandle,
-    ConstellationLoaderComponent,
     IconButtonComponent,
     IconComponent,
     ImageDropzone,
-    PillBadgeComponent,
-    TextButtonComponent,
+    StarControls,
+      TextButtonComponent,
   ],
   templateUrl: './spike-stage.html',
   styleUrl: './spike-stage.css',
@@ -183,10 +182,42 @@ export class SpikeStage {
     () => this.editor.isImageLoading() || this.editor.isDetecting(),
   );
 
-  /** Status line shown under the loader while processing. */
+  /** Status line shown in the badge while processing. */
   protected readonly statusLine = computed(() =>
     this.editor.isDetecting() ? 'Detecting stars…' : 'Loading image…',
   );
+
+  /**
+   * True for a few seconds after detection finishes, while the badge states the
+   * count it found.
+   *
+   * The count is stated once and then cleared: the standing figure is the star
+   * magnitude readout's total, and a permanent badge would be a second, quieter
+   * copy of it sitting on the photo forever.
+   */
+  protected readonly justDetected = signal(false);
+
+  /** Timer clearing {@link justDetected}, or null when idle. */
+  private detectedTimer: ReturnType<typeof setTimeout> | null = null;
+
+  /**
+   * Effect: state the detected count when a detection run completes.
+   */
+  private readonly _detectedEffect = effect(() => {
+    const detecting = this.editor.isDetecting();
+    const found = this.editor.detectedStarCount();
+    if (detecting || found <= 0) {
+      return;
+    }
+    this.justDetected.set(true);
+    if (this.detectedTimer !== null) {
+      clearTimeout(this.detectedTimer);
+    }
+    this.detectedTimer = setTimeout(() => {
+      this.detectedTimer = null;
+      this.justDetected.set(false);
+    }, DETECTION_BADGE_LINGER_MS);
+  });
 
   /** First load/detection error to surface, or null when healthy. */
   protected readonly stageError = computed(
@@ -199,15 +230,25 @@ export class SpikeStage {
   );
 
   /** True once an image is loaded, settled, and healthy — the editable state. */
-  private readonly isStageReady = computed(
+  protected readonly isStageReady = computed(
     () => this.editor.hasImage() && !this.isProcessing() && this.stageError() === null,
   );
 
-  /** True once an image is ready and healthy — shows the star-count pill. */
-  protected readonly showStarPill = computed(() => this.isStageReady());
-
   /** True when the before/after compare divider should render. */
   protected readonly showCompareHandle = computed(() => this.isStageReady());
+
+  /**
+   * The star whose tuning bar is showing, or null. Resolved to the star rather
+   * than passed as a bare id so the `@if` stays honest: star id 0 is the
+   * brightest star, and a truthiness check on the id would hide its bar.
+   */
+  protected readonly editedStar = computed(() => {
+    const id = this.editor.starControlsId();
+    if (id === null) {
+      return null;
+    }
+    return this.editor.allStars().find((star) => star.id === id) ?? null;
+  });
 
   /** True while the pointer sits on a star — drives the pointer cursor. */
   protected readonly isOverStar = computed(() => this.editor.hoveredStarId() !== null);
@@ -347,6 +388,10 @@ export class SpikeStage {
         this.frameId = null;
       }
       this.clearPendingToggleTimer();
+      if (this.detectedTimer !== null) {
+        clearTimeout(this.detectedTimer);
+        this.detectedTimer = null;
+      }
       releaseSpriteCache(this.spriteCache);
     });
   }
@@ -684,6 +729,11 @@ export class SpikeStage {
         STAGE_MAX_ZOOM,
       ),
     );
+  }
+
+  /** The star bar asked to be dismissed. */
+  protected onStarBarClosed(): void {
+    this.editor.closeStarControls();
   }
 
   /** Divider moved — store the new compare position for the clip-path wipe. */

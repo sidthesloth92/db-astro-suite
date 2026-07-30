@@ -1,47 +1,10 @@
 <section class="control-panel" aria-label="AstroSpike controls">
   <header class="panel-header">
     <h2 class="panel-title">Controls</h2>
-    <button
-      type="button"
-      class="reset-button"
-      title="Return every control and per-star edit to its default"
-      [disabled]="!editor.isDirty()"
-      (click)="onReset()"
-    >
-      <dba-ui-icon [def]="rotateCcwIcon" [size]="13" />
-      <span>Reset</span>
-    </button>
-    <button
-      type="button"
-      class="how-to-button"
-      [class.is-open]="isHelpOpen()"
-      [attr.aria-expanded]="isHelpOpen()"
-      aria-controls="astrospike-how-to"
-      (click)="onToggleHelp()"
-    >
-      <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
-      <span>How to use</span>
-    </button>
   </header>
 
   <div #panelScroll class="panel-scroll">
-    @if (isHelpOpen()) {
-      <ol id="astrospike-how-to" class="how-to">
-        <li>Drop or pick a JPEG or PNG. It never leaves your browser.</li>
-        <li>Stars are found for you straight away. Choose a preset, then shape them with the sliders — Length and Brightness drive the spikes, Diffusion adds a bloom.</li>
-        <li>Click a star to add or remove its spikes. Double-click one to tune it on its own. Missed a star? Use the crosshair tool on the canvas to place one anywhere.</li>
-        <li>Drag a star to re-centre its detection. Scroll to zoom, drag empty sky to pan.</li>
-        <li>Drag the divider to compare before and after, then export at the original resolution.</li>
-      </ol>
-      <hr class="divider" aria-hidden="true" />
-    }
-
-    <!-- A star's own controls take the place of the global ones rather than
-         pushing them down the pane, so opening one moves nothing else. -->
-    @if (editedStar(); as star) {
-      <dba-as-star-controls [starId]="star.id" (closed)="onCloseStarControls()" />
-    } @else {
-      <dba-ui-inspector-section title="Preset" sub="How each star is drawn" [compact]="true">
+      <dba-ui-inspector-section title="Preset" sub="Diffraction spike style" [compact]="true">
         <dba-ui-icon slot="icon" [def]="sparklesIcon" [size]="14" />
         <div class="section-body">
           <dba-as-preset-cards
@@ -53,7 +16,7 @@
 
       <hr class="divider" aria-hidden="true" />
 
-      <dba-ui-inspector-section title="Effect" sub="Shape what the stars draw" [compact]="true">
+      <dba-ui-inspector-section title="Spikes" sub="Shape the spike pattern" [compact]="true">
         <dba-ui-icon slot="icon" [def]="starsIcon" [size]="14" />
 
         <!-- Reusable slider-row markup, instantiated once per editor control. -->
@@ -69,7 +32,12 @@
               >
                 <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
               </span>
-              <span class="row-value">{{ controlReadout(control) }}</span>
+              <span class="row-value">
+                {{ controlReadout(control) }}
+                @if (controlSuffix(control); as suffix) {
+                  <span class="row-total">{{ suffix }}</span>
+                }
+              </span>
             </div>
             <dba-ui-micro-slider
               [value]="controlValue(control)"
@@ -101,7 +69,6 @@
           </div>
         </div>
       </dba-ui-inspector-section>
-    }
   </div>
 
   <!-- Pinned to the bottom of the pane so the download action never scrolls

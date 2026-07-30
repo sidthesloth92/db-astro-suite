@@ -2,12 +2,8 @@ import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  ElementRef,
   computed,
-  effect,
   inject,
-  signal,
-  viewChild,
 } from '@angular/core';
 import {
   circleHelpIcon,
@@ -15,7 +11,6 @@ import {
   InspectorSectionComponent,
   MicroSliderComponent,
   SegmentedTabsComponent,
-  rotateCcwIcon,
   sparklesIcon,
   starsIcon,
   TooltipDirective,
@@ -29,22 +24,22 @@ import {
 import { ControlMetadata, EditorControlKey } from '../../models/editor-controls.model';
 import { SpikePresetId } from '../../models/spike-preset.model';
 import { SpikeEditorService } from '../../services/spike-editor.service';
-import { formatControlValue } from '../../utils/control-format.util';
+import { formatControlSuffix, formatControlValue } from '../../utils/control-format.util';
 import { ExportControls } from '../export-controls/export-controls';
 import { PresetCards } from '../preset-cards/preset-cards';
-import { StarControls } from '../star-controls/star-controls';
 
 /**
  * Right-hand controls pane. Groups the whole editor control set into two
- * inspector sections — Preset (selectable cards) and Spikes (the four
- * adjustment sliders plus the 4/6 arm toggle) — with a collapsible how-to at
- * the top and export pinned to the foot of the pane.
+ * inspector sections — Preset (a dropdown) and Spikes (the adjustment sliders
+ * plus the 4/6 arm toggle) — with export pinned to the foot of the pane.
  *
- * Double-clicking a star on the canvas swaps those sections for that star's
- * own controls. They live here rather than in a popover over the canvas so
- * they can never cover the spikes being tuned, and they REPLACE the global
- * controls rather than stacking above them so nothing else on the pane shifts
- * position when a star is opened or closed.
+ * The how-to and the global Reset live in the studio title bar, not here: they
+ * act on the whole studio, and this pane is not rendered at all before an image
+ * is loaded.
+ *
+ * Per-star controls are NOT here: they sit in a bar under the stage, so the
+ * globals stay visible while one star is being tuned and this pane never opens
+ * a void as a star is selected and deselected.
  *
  * Orchestration only: every control delegates straight to
  * {@link SpikeEditorService}; the only state the pane owns is whether its own
@@ -61,7 +56,6 @@ import { StarControls } from '../star-controls/star-controls';
     MicroSliderComponent,
     PresetCards,
     SegmentedTabsComponent,
-    StarControls,
     TooltipDirective,
   ],
   templateUrl: './control-panel.html',
@@ -81,19 +75,6 @@ export class ControlPanel {
   /** Chip glyph for the Spikes section. */
   protected readonly starsIcon = starsIcon;
 
-  /** Glyph on the reset action. */
-  protected readonly rotateCcwIcon = rotateCcwIcon;
-
-  /** Scrollable body of the pane — scrolled to the top when a star opens. */
-  private readonly panelScrollRef = viewChild<ElementRef<HTMLElement>>('panelScroll');
-
-  /**
-   * Whether the how-to list is expanded. It starts open so a first-time user
-   * reads how the canvas works without hunting for it, and collapses for good
-   * (this session) the moment they say they have read it.
-   */
-  protected readonly isHelpOpen = signal(true);
-
   /** Editor slider keys, in display order. */
   protected readonly controlKeys = EDITOR_CONTROL_KEYS;
 
@@ -104,32 +85,6 @@ export class ControlPanel {
   protected readonly spikeCountTabId = computed(
     () => TAB_ID_BY_SPIKE_COUNT[this.editor.spikeCount()],
   );
-
-  /**
-   * The star whose controls are docked in the pane, or null when none is open.
-   * Resolving the star (rather than passing the bare id around) also keeps the
-   * `@if` honest: star id 0 is the brightest star, and a truthiness check on
-   * the id alone would hide its controls.
-   */
-  protected readonly editedStar = computed(() => {
-    const id = this.editor.starControlsId();
-    if (id === null) {
-      return null;
-    }
-    return this.editor.allStars().find((star) => star.id === id) ?? null;
-  });
-
-  /**
-   * Effect: bring the docked star controls into view. They render at the top
-   * of the pane, which the user may have scrolled away from before
-   * double-clicking a star.
-   */
-  private readonly _revealStarControls = effect(() => {
-    if (this.editedStar() === null) {
-      return;
-    }
-    this.panelScrollRef()?.nativeElement.scrollTo({ top: 0, behavior: 'smooth' });
-  });
 
   /**
    * Slider metadata (label, description, min/max/step) for a control key.
@@ -153,6 +108,15 @@ export class ControlPanel {
    */
   protected controlReadout(key: EditorControlKey): string {
     return formatControlValue(key, this.editor.controls[key](), this.editor.allStars().length);
+  }
+
+  /**
+   * The dimmer trailing part of a readout — the star cut's "of N" total — or an
+   * empty string for controls that have none.
+   * @param key The control to format.
+   */
+  protected controlSuffix(key: EditorControlKey): string {
+    return formatControlSuffix(key, this.editor.allStars().length);
   }
 
   /**
@@ -183,18 +147,4 @@ export class ControlPanel {
     this.editor.setSpikeCount(SPIKE_COUNT_BY_TAB_ID[tabId]);
   }
 
-  /** Dismisses the per-star controls, restoring the global ones. */
-  protected onCloseStarControls(): void {
-    this.editor.closeStarControls();
-  }
-
-  /** Expands or collapses the how-to list under the pane header. */
-  protected onToggleHelp(): void {
-    this.isHelpOpen.update((open) => !open);
-  }
-
-  /** Returns every control and per-star edit to its default. */
-  protected onReset(): void {
-    this.editor.resetAll();
-  }
 }

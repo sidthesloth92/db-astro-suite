@@ -1,39 +1,19 @@
-<section class="star-controls" [attr.aria-label]="starLabel() + ' spike controls'">
-  <header class="star-controls__head">
-    <span class="star-controls__title">{{ starLabel() }}</span>
-    <button type="button" class="star-back" (click)="onClose()">
-      <dba-ui-icon [def]="chevronLeftIcon" [size]="13" />
-      <span>All controls</span>
-    </button>
-  </header>
-
-  <p class="star-controls__hint">
-    This star is ringed on the canvas. Length, brightness and rotation stack on
-    the global controls — zero either of the first two to drop its spike and
-    leave only the bloom. Diffusion is this star's own amount.
-  </p>
-
-  <div class="slider-row">
-    <div class="slider-label-row">
-      <label class="row-label">Diffusion</label>
-      <span class="row-value">
-        {{ diffusion() }}{{ hasOwnDiffusion() ? '' : ' (global)' }}
-      </span>
+<section class="star-bar" [attr.aria-label]="starLabel() + ' spike controls'">
+  <div class="star-bar__id">
+    <div class="star-bar__name">
+      <span class="star-bar__dot" aria-hidden="true"></span>
+      <span class="star-bar__label">{{ starLabel() }}</span>
     </div>
-    <dba-ui-micro-slider
-      [value]="diffusion()"
-      [min]="diffusionMin"
-      [max]="diffusionMax"
-      [step]="diffusionStep"
-      [showReadout]="false"
-      (valueChange)="onDiffusionChange($event)"
-    ></dba-ui-micro-slider>
+    <span class="star-bar__coords">{{ coordsLabel() }}</span>
+    <span class="star-bar__note">Stacks on global</span>
   </div>
 
-  <div class="slider-row">
-    <div class="slider-label-row">
-      <label class="row-label">Length</label>
-      <span class="row-value">{{ adjustment().lengthFactor }}×</span>
+  <span class="star-bar__rule" aria-hidden="true"></span>
+
+  <div class="star-bar__field">
+    <div class="star-bar__row">
+      <span class="star-bar__key">Length</span>
+      <span class="star-bar__delta">{{ lengthDelta() }}</span>
     </div>
     <dba-ui-micro-slider
       [value]="adjustment().lengthFactor"
@@ -43,12 +23,13 @@
       [showReadout]="false"
       (valueChange)="onLengthChange($event)"
     ></dba-ui-micro-slider>
+    <span class="star-bar__total">{{ lengthTotal() }}</span>
   </div>
 
-  <div class="slider-row">
-    <div class="slider-label-row">
-      <label class="row-label">Brightness</label>
-      <span class="row-value">{{ adjustment().intensityFactor }}×</span>
+  <div class="star-bar__field">
+    <div class="star-bar__row">
+      <span class="star-bar__key">Brightness</span>
+      <span class="star-bar__delta">{{ intensityDelta() }}</span>
     </div>
     <dba-ui-micro-slider
       [value]="adjustment().intensityFactor"
@@ -58,12 +39,13 @@
       [showReadout]="false"
       (valueChange)="onIntensityChange($event)"
     ></dba-ui-micro-slider>
+    <span class="star-bar__total">{{ intensityTotal() }}</span>
   </div>
 
-  <div class="slider-row">
-    <div class="slider-label-row">
-      <label class="row-label">Rotation</label>
-      <span class="row-value">{{ adjustment().rotationDeg }}°</span>
+  <div class="star-bar__field">
+    <div class="star-bar__row">
+      <span class="star-bar__key">Rotation</span>
+      <span class="star-bar__delta">{{ rotationDelta() }}</span>
     </div>
     <dba-ui-micro-slider
       [value]="adjustment().rotationDeg"
@@ -73,19 +55,47 @@
       [showReadout]="false"
       (valueChange)="onRotationChange($event)"
     ></dba-ui-micro-slider>
+    <span class="star-bar__total">{{ rotationTotal() }}</span>
   </div>
 
-  <div class="star-controls__actions">
-    <button type="button" class="star-action" [disabled]="!isAdjusted()" (click)="onReset()">
-      Reset
-    </button>
-    <button
-      type="button"
-      class="star-action"
-      [class.star-action--danger]="isSpiked()"
-      (click)="onToggleSpikes()"
-    >
-      {{ isSpiked() ? 'Remove spikes' : 'Add spikes' }}
-    </button>
+  <div class="star-bar__field">
+    <div class="star-bar__row">
+      <span class="star-bar__key">Diffusion</span>
+      <span class="star-bar__delta" [class.is-inherited]="!hasOwnDiffusion()">{{ diffusionLabel() }}</span>
+    </div>
+    <dba-ui-micro-slider
+      [value]="diffusion()"
+      [min]="diffusionMin"
+      [max]="diffusionMax"
+      [step]="diffusionStep"
+      [showReadout]="false"
+      (valueChange)="onDiffusionChange($event)"
+    ></dba-ui-micro-slider>
+    <span class="star-bar__total">{{ hasOwnDiffusion() ? 'this star only' : 'following global' }}</span>
+  </div>
+
+  <div class="star-bar__spacer"></div>
+
+  <div class="star-bar__actions">
+    <dba-ui-text-button
+      label="Reset star"
+      variant="secondary"
+      accent="cyan"
+      size="sm"
+      [disabled]="!isAdjusted()"
+      (clicked)="onReset()"
+    />
+    <span class="star-bar__danger">
+      <dba-ui-text-button
+        [label]="isSpiked() ? 'Remove spikes' : 'Add spikes'"
+        variant="secondary"
+        accent="cyan"
+        size="sm"
+        (clicked)="onToggleSpikes()"
+      />
+    </span>
+    <dba-ui-icon-button title="Deselect star" [size]="28" accent="cyan" (clicked)="onClose()">
+      <dba-ui-icon [def]="closeIcon" [size]="13" />
+    </dba-ui-icon-button>
   </div>
 </section>

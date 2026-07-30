@@ -85,12 +85,17 @@ describe('ControlPanel', () => {
     return Array.from(rows).map((row) => row.textContent?.trim() ?? '');
   }
 
+  /** Expands the preset dropdown and returns the option with this label. */
   function presetCard(label: string): HTMLButtonElement {
-    const cards: NodeListOf<HTMLButtonElement> =
-      fixture.nativeElement.querySelectorAll('button[role="radio"]');
-    const match = Array.from(cards).find((card) => card.textContent?.includes(label));
+    if (fixture.nativeElement.querySelector('.preset-menu') === null) {
+      (fixture.nativeElement.querySelector('button.preset-trigger') as HTMLButtonElement).click();
+      fixture.detectChanges();
+    }
+    const options: NodeListOf<HTMLButtonElement> =
+      fixture.nativeElement.querySelectorAll('button[role="option"]');
+    const match = Array.from(options).find((option) => option.textContent?.includes(label));
     if (match === undefined) {
-      throw new Error(`preset card "${label}" not rendered`);
+      throw new Error(`preset option "${label}" not rendered`);
     }
     return match;
   }
@@ -105,43 +110,11 @@ describe('ControlPanel', () => {
     return match;
   }
 
-  /** The how-to toggle in the pane header. */
-  function howToButton(): HTMLButtonElement {
-    const button: HTMLButtonElement | null =
-      fixture.nativeElement.querySelector('button.how-to-button');
-    if (button === null) {
-      throw new Error('how-to toggle not rendered');
-    }
-    return button;
-  }
-
-  /** The per-star controls, when they have taken over the pane. */
-  function starPanel(): HTMLElement | null {
-    return fixture.nativeElement.querySelector('section.star-controls');
-  }
-
   it('should render the controls landmark', () => {
     const section: HTMLElement | null = fixture.nativeElement.querySelector(
       'section[aria-label="AstroSpike controls"]',
     );
     expect(section).toBeTruthy();
-  });
-
-  it('should open with the how-to so a first-time user can read how it works', () => {
-    expect(fixture.nativeElement.querySelector('.how-to')).toBeTruthy();
-    expect(howToButton().getAttribute('aria-expanded')).toBe('true');
-    expect(fixture.nativeElement.textContent).toContain('never leaves your browser');
-  });
-
-  it('should collapse and restore the how-to from its header toggle', () => {
-    howToButton().click();
-    fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('.how-to')).toBeNull();
-    expect(howToButton().getAttribute('aria-expanded')).toBe('false');
-
-    howToButton().click();
-    fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('.how-to')).toBeTruthy();
   });
 
   it('should not repeat the image name, size, or star count already shown elsewhere', async () => {
@@ -156,75 +129,22 @@ describe('ControlPanel', () => {
     expect(text).not.toContain('3 stars detected');
   });
 
-  it('should replace the global controls with a star\'s own when one is opened', () => {
+  it('should keep the global controls visible while a star is being tuned', () => {
+    // The per-star bar lives under the stage now, so opening a star must leave
+    // this pane exactly as it was rather than swapping its contents out.
     editor.allStars.set(buildStars(4));
     fixture.detectChanges();
-    expect(sliderLabels()).toEqual(['Stars', 'Length', 'Chroma', 'Diffusion', 'Brightness', 'Rotation']);
+    const before = sliderLabels();
 
     editor.openStarControls(2);
     fixture.detectChanges();
 
-    expect(starPanel()).toBeTruthy();
-    // The preset cards and global sliders are gone rather than pushed down.
-    expect(fixture.nativeElement.querySelector('button[role="radio"]')).toBeNull();
-    expect(sliderLabels()).toEqual(['Diffusion', 'Length', 'Brightness', 'Rotation']);
-  });
-
-  it('should restore the global controls when the star controls are closed', () => {
-    editor.allStars.set(buildStars(4));
-    editor.openStarControls(2);
-    fixture.detectChanges();
-
-    editor.closeStarControls();
-    fixture.detectChanges();
-
-    expect(starPanel()).toBeNull();
-    expect(sliderLabels()).toEqual(['Stars', 'Length', 'Chroma', 'Diffusion', 'Brightness', 'Rotation']);
-  });
-
-  it('should keep the export action in reach while a star is being tuned', () => {
-    editor.allStars.set(buildStars(4));
-    editor.openStarControls(2);
-    fixture.detectChanges();
-
-    expect(fixture.nativeElement.querySelector('.panel-footer dba-as-export-controls')).toBeTruthy();
-  });
-
-  /** The reset action in the pane header. */
-  function resetButton(): HTMLButtonElement {
-    const button: HTMLButtonElement | null =
-      fixture.nativeElement.querySelector('button.reset-button');
-    if (button === null) {
-      throw new Error('reset action not rendered');
-    }
-    return button;
-  }
-
-  it('should offer a reset that stays quiet until something has changed', () => {
-    expect(resetButton().disabled).toBeTrue();
-
-    dragSlider(1, '2');
-
-    expect(resetButton().disabled).toBeFalse();
-  });
-
-  it('should return the controls to their defaults when reset is clicked', () => {
-    dragSlider(1, '2');
-    dragSlider(2, '0.9');
-    presetCard('JWST').click();
-    fixture.detectChanges();
-
-    resetButton().click();
-    fixture.detectChanges();
-
-    expect(editor.controls.length()).toBe(1);
-    expect(editor.controls.chroma()).toBe(0.35);
-    expect(editor.presetId()).toBe('classic');
-    expect(resetButton().disabled).toBeTrue();
+    expect(sliderLabels()).toEqual(before);
+    expect(fixture.nativeElement.querySelector('section.star-bar')).toBeNull();
   });
 
   it('should render the six editor sliders in order', () => {
-    expect(sliderLabels()).toEqual(['Stars', 'Length', 'Chroma', 'Diffusion', 'Brightness', 'Rotation']);
+    expect(sliderLabels()).toEqual(['Star magnitude', 'Length', 'Chroma', 'Diffusion', 'Brightness', 'Rotation']);
     expect(sliders().length).toBe(6);
   });
 
@@ -276,7 +196,7 @@ describe('ControlPanel', () => {
 
     expect(editor.presetId()).toBe('jwst');
     expect(editor.spikeCount()).toBe(6);
-    expect(presetCard('JWST').getAttribute('aria-checked')).toBe('true');
+    expect(presetCard('JWST').getAttribute('aria-selected')).toBe('true');
   });
 
   it('should set the arm count from the segmented toggle', () => {

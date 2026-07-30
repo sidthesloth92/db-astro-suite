@@ -8,26 +8,39 @@
   --as-marker-hover-color: var(--db-color-cyan);
   --as-marker-selected-color: var(--db-color-neon-pink);
   /* Half the compare grip plus a little breathing room. */
-  --as-stage-inset: 18px;
+  --as-stage-inset: 26px;
 }
 
+/* A column: the canvas area takes what is left, the per-star bar sits under it.
+   Square corners, matching the design's own "square panels and stages" rule. */
 .stage {
   position: relative;
   flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--db-color-space-black);
+  border: 1px solid var(--db-color-border);
+  box-shadow: var(--db-shadow-stage);
+}
+
+/* The canvas area — not the stage — is the container-query box, so the frame
+   fits the space actually left over once the per-star bar has taken its own.
+   Sizing the frame against the whole stage instead collapses the layout the
+   moment the bar appears. */
+.stage-canvas-area {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   /* Horizontal room for the compare grip to sit centred on the divider line
-     even at the extremes, without the stage's clip cutting it in half. */
+     even at the extremes, without the clip cutting it in half. */
   padding-inline: var(--as-stage-inset);
-  /* Size container so the frame below can fit itself to the stage box with
-     100cqw / 100cqh instead of percentage sizing. */
   container-type: size;
-  background: var(--db-color-space-black);
-  border: 1px solid var(--db-color-border);
-  border-radius: 12px;
-  box-shadow: var(--db-shadow-stage);
 }
 
 /* One box shared by the before, after, and marker canvases plus the compare
@@ -151,19 +164,13 @@
   color: var(--db-color-text-error);
 }
 
-.star-pill {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  z-index: 25;
-}
 
 /* Canvas tool rail: zoom in / out / reset plus remove, stacked on the right
    below the star count — the same shape astrogram uses on its stellar map. */
 .stage-tools {
   position: absolute;
   right: 12px;
-  top: 44px;
+  top: 12px;
   z-index: 26;
   display: flex;
   flex-direction: column;
@@ -188,4 +195,87 @@
   margin-top: 6px;
   --db-icon-button-color: var(--db-color-red);
   --db-icon-button-border-color: color-mix(in srgb, var(--db-color-red) 45%, transparent);
+}
+
+/* Names each half of the wipe, so the comparison needs no explanation. */
+.stage-tag {
+  position: absolute;
+  bottom: 12px;
+  z-index: 2;
+  padding: 4px 9px;
+  border-radius: 4px;
+  background: var(--db-color-sheet-bg);
+  font-family: var(--db-font-mono-code);
+  font-weight: 500;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.stage-tag--before {
+  left: 12px;
+  color: var(--db-color-text-dim);
+}
+
+.stage-tag--after {
+  right: 12px;
+  color: var(--db-color-cyan);
+}
+
+/* Top-centre of the canvas area, over the photo: detection is about the frame,
+   so its report belongs on the frame. */
+.stage-badge {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 28;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.stage-badge__pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 11px;
+  border-radius: 4px;
+  border: 1px solid var(--db-color-cyan);
+  background: var(--db-color-sheet-bg);
+  font-family: var(--db-font-mono-code);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--db-color-cyan);
+}
+
+.stage-badge__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--db-color-cyan);
+  box-shadow: 0 0 8px var(--db-color-cyan);
+  animation: as-pulse 1.8s ease-in-out infinite;
+}
+
+/* Indeterminate on purpose: the detection worker reports completion, not
+   progress, so a filling bar would be inventing a number. */
+.stage-badge__track {
+  width: 220px;
+  height: 2px;
+  overflow: hidden;
+  background: var(--db-color-border-strong);
+}
+
+.stage-badge__sweep {
+  display: block;
+  width: 33%;
+  height: 100%;
+  background: var(--db-color-cyan);
+  box-shadow: 0 0 8px var(--db-color-cyan);
+  animation: as-sweep 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }

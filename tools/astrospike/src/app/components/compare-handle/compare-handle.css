@@ -6,8 +6,7 @@
   inset: 0;
   z-index: 15;
   pointer-events: none;
-  --compare-grip-size: 28px;
-  --compare-grip-half: 14px;
+  --compare-grip-size: 44px;
 }
 
 .compare-divider {
@@ -18,59 +17,128 @@
   touch-action: none;
 }
 
-/* The line sits exactly on the wipe seam and can reach both true edges, so
-   the divider always agrees with what the user sees. */
-.compare-divider__line {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: calc(var(--compare-pos, 0) * 100%);
-  width: 2px;
-  transform: translateX(-50%);
-  background: var(--db-color-cyan);
-  box-shadow: 0 0 12px -2px var(--db-color-cyan);
-  pointer-events: none;
-}
-
-/* The grip is centred on the line at every position — the stage insets the
-   frame by more than half a grip, so it has room to sit on the true edges
-   without being clipped. */
+/* Every layer is positioned from the same seam so they can never disagree. */
+.compare-divider__seam,
+.compare-divider__bloom,
+.compare-divider__core,
+.compare-divider__sheen,
+.compare-divider__grab,
 .compare-divider__grip {
   position: absolute;
-  top: 50%;
   left: calc(var(--compare-pos, 0) * 100%);
-  transform: translate(-50%, -50%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  width: var(--compare-grip-size);
-  height: var(--compare-grip-size);
-  border-radius: 50%;
-  background: var(--db-color-surface-raised);
-  border: 1px solid var(--db-color-cyan);
-  box-shadow: 0 0 14px -4px var(--db-color-cyan);
-  transition: background var(--db-transition-fast);
+}
+
+/* A shadow falling to the right of the cut, so the spiked half reads as a
+   sheet lying over the original rather than a swap. */
+.compare-divider__seam {
+  top: 0;
+  bottom: 0;
+  width: 16px;
+  margin-left: -16px;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgb(0 0 0 / 42%));
+}
+
+/* Light that falls off from the grip rather than a uniform lit column. */
+.compare-divider__bloom {
+  top: 50%;
+  width: 200px;
+  height: 340px;
+  margin-left: -100px;
+  margin-top: -170px;
+  z-index: 2;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    color-mix(in srgb, var(--db-color-cyan) 14%, transparent),
+    transparent 68%
+  );
+}
+
+/* The cut itself, tapered so it fades out at the frame's top and bottom. */
+.compare-divider__core {
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--db-color-cyan) 30%, transparent) 9%,
+    color-mix(in srgb, var(--db-color-cyan) 92%, transparent) 45%,
+    color-mix(in srgb, var(--db-color-cyan) 92%, transparent) 55%,
+    color-mix(in srgb, var(--db-color-cyan) 30%, transparent) 91%,
+    transparent 100%
+  );
+}
+
+/* A highlight just off the cut, which is what makes it read as an edge with
+   thickness rather than a drawn line. */
+.compare-divider__sheen {
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  margin-left: 1px;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    transparent 12%,
+    rgb(255 255 255 / 20%) 45%,
+    rgb(255 255 255 / 20%) 55%,
+    transparent 88%
+  );
+}
+
+/* A wider invisible target than the 1px cut, so the seam is grabbable
+   anywhere along its height and not just on the grip. */
+.compare-divider__grab {
+  top: 0;
+  bottom: 0;
+  width: 22px;
+  margin-left: -11px;
+  z-index: 3;
   pointer-events: auto;
   cursor: ew-resize;
 }
 
-.compare-divider__arrow {
-  width: 0;
-  height: 0;
-  border-top: 4px solid transparent;
-  border-bottom: 4px solid transparent;
+/* Machined glass: blurred backdrop, cyan rim, inner highlight. */
+.compare-divider__grip {
+  top: 50%;
+  width: var(--compare-grip-size);
+  height: var(--compare-grip-size);
+  margin-left: calc(var(--compare-grip-size) / -2);
+  margin-top: calc(var(--compare-grip-size) / -2);
+  z-index: 4;
+  display: grid;
+  grid-auto-flow: column;
+  gap: 3px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--db-color-sheet-bg);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid color-mix(in srgb, var(--db-color-cyan) 55%, transparent);
+  box-shadow:
+    0 0 26px var(--db-color-cyan-soft),
+    0 8px 32px rgb(0 0 0 / 80%),
+    inset 0 1px 0 rgb(255 255 255 / 18%),
+    inset 0 0 16px var(--db-color-cyan-soft);
+  color: var(--db-color-cyan);
+  pointer-events: auto;
+  cursor: ew-resize;
 }
 
-.compare-divider__arrow--left {
-  border-right: 5px solid var(--db-color-cyan);
+.compare-divider__ring {
+  position: absolute;
+  inset: 5px;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--db-color-cyan) 14%, transparent);
+  pointer-events: none;
 }
 
-.compare-divider__arrow--right {
-  border-left: 5px solid var(--db-color-cyan);
-}
-
-.compare-divider__grip:hover,
 .compare-divider.is-dragging .compare-divider__grip {
   background: var(--db-color-cyan-soft);
 }

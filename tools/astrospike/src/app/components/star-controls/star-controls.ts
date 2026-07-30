@@ -1,5 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
-import { IconComponent, MicroSliderComponent, chevronLeftIcon } from '@db-astro-suite/ui';
+import {
+  IconButtonComponent,
+  IconComponent,
+  MicroSliderComponent,
+  TextButtonComponent,
+  closeIcon,
+} from '@db-astro-suite/ui';
 import {
   STAR_FACTOR_STEP,
   STAR_INTENSITY_MAX,
@@ -12,21 +18,26 @@ import {
 } from '../../constants/star-adjustment.constants';
 import { CONTROLS } from '../../constants/controls.constants';
 import { SpikeEditorService } from '../../services/spike-editor.service';
+import { round2, signedDegrees, signedFactor } from '../../utils/star-delta.util';
 
 /**
  * Controls for a single star, opened by double-clicking it on the canvas and
- * docked at the top of the controls pane.
+ * laid out as a bar beneath the stage.
  *
- * Length, Brightness, and Rotation are tweaks layered on top of the global
- * controls; Diffusion is this star's own absolute amount. Either way a star
- * that has never been touched here follows the global controls exactly. The stage
- * rings the star this panel belongs to — the panel deliberately does not float
- * over the canvas, where it would cover the spikes being tuned.
+ * A bar rather than a pane section, because per-star work is done while looking
+ * at the star: under the stage it keeps the global sliders visible beside it and
+ * opens no void in the inspector when it appears and disappears. It also cannot
+ * cover the spikes being tuned, which a popover pinned to the star always did.
+ *
+ * Length, Brightness, and Rotation are tweaks layered on the global controls and
+ * read as a signed delta with the resulting total spelled out; Diffusion is this
+ * star's own absolute amount. Either way an untouched star follows the globals
+ * exactly. The stage rings whichever star this bar belongs to.
  */
 @Component({
   selector: 'dba-as-star-controls',
   standalone: true,
-  imports: [IconComponent, MicroSliderComponent],
+  imports: [IconButtonComponent, IconComponent, MicroSliderComponent, TextButtonComponent],
   templateUrl: './star-controls.html',
   styleUrl: './star-controls.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -41,8 +52,8 @@ export class StarControls {
   /** Shared editor state — the per-star adjustment map lives here. */
   protected readonly editor = inject(SpikeEditorService);
 
-  /** Glyph on the action that returns to the global controls. */
-  protected readonly chevronLeftIcon = chevronLeftIcon;
+  /** Glyph on the deselect action. */
+  protected readonly closeIcon = closeIcon;
 
   /** Lower bound of the per-star length multiplier. */
   protected readonly lengthMin = STAR_LENGTH_MIN;
@@ -99,6 +110,42 @@ export class StarControls {
 
   /** True once this star's diffusion is pinned rather than following the global. */
   protected readonly hasOwnDiffusion = computed(() => this.adjustment().diffusion !== null);
+
+  /** Where the star sits on the full-resolution image. */
+  protected readonly coordsLabel = computed(() => {
+    const star = this.editor.allStars().find((candidate) => candidate.id === this.starId());
+    return star === undefined ? '' : `x ${Math.round(star.x)} · y ${Math.round(star.y)}`;
+  });
+
+  /** Signed length tweak, as the delta a user thinks in. */
+  protected readonly lengthDelta = computed(() => signedFactor(this.adjustment().lengthFactor));
+
+  /** Resulting length once the global control is applied. */
+  protected readonly lengthTotal = computed(
+    () => `→ ${round2(this.editor.controls.length() * this.adjustment().lengthFactor)}× total`,
+  );
+
+  /** Signed brightness tweak. */
+  protected readonly intensityDelta = computed(() =>
+    signedFactor(this.adjustment().intensityFactor),
+  );
+
+  /** Resulting brightness once the global control is applied. */
+  protected readonly intensityTotal = computed(
+    () =>
+      `→ ${round2(this.editor.controls.brightness() * this.adjustment().intensityFactor)}× total`,
+  );
+
+  /** Signed rotation offset in degrees. */
+  protected readonly rotationDelta = computed(() => signedDegrees(this.adjustment().rotationDeg));
+
+  /** Resulting rotation once the global control is applied. */
+  protected readonly rotationTotal = computed(
+    () => `→ ${Math.round(this.editor.controls.rotation() + this.adjustment().rotationDeg)}° total`,
+  );
+
+  /** This star's diffusion amount, or the inherited global one, rounded. */
+  protected readonly diffusionLabel = computed(() => `${round2(this.diffusion())}`);
 
   /**
    * Name shown at the top of the panel. A detected star is identified by its

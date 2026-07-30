@@ -60,12 +60,14 @@ describe('StarControls', () => {
     return Array.from(fixture.nativeElement.querySelectorAll('input[type="range"]'));
   }
 
-  /** Finds an action button by its visible label. */
+  /** Finds an action in the bar by its visible label. */
   function action(label: string): HTMLButtonElement {
     const buttons: HTMLButtonElement[] = Array.from(
-      fixture.nativeElement.querySelectorAll('button.star-action'),
+      fixture.nativeElement.querySelectorAll('.star-bar__actions button'),
     );
-    const match = buttons.find((button) => button.textContent?.trim() === label);
+    const match = buttons.find(
+      (button) => button.textContent?.trim().toLowerCase() === label.toLowerCase(),
+    );
     if (match === undefined) {
       throw new Error(`${label} action not rendered`);
     }
@@ -80,7 +82,7 @@ describe('StarControls', () => {
   }
 
   it('should name the star it is adjusting', () => {
-    const panel: HTMLElement | null = fixture.nativeElement.querySelector('section.star-controls');
+    const panel: HTMLElement | null = fixture.nativeElement.querySelector('section.star-bar');
     expect(panel?.getAttribute('aria-label')).toBe('Star #2 spike controls');
     expect(fixture.nativeElement.textContent).toContain('Star #2');
   });
@@ -96,7 +98,7 @@ describe('StarControls', () => {
   });
 
   it('should apply length, brightness, and rotation to that star only', () => {
-    const [, length, brightness, rotation] = sliders();
+    const [length, brightness, rotation] = sliders();
     setSlider(length, 2);
     setSlider(brightness, 1.5);
     setSlider(rotation, 30);
@@ -113,7 +115,7 @@ describe('StarControls', () => {
   });
 
   it('should drop the entry when the sliders return to neutral', () => {
-    const [, length] = sliders();
+    const [length] = sliders();
     setSlider(length, 2);
     expect(editor.starAdjustments().has(1)).toBeTrue();
 
@@ -123,17 +125,17 @@ describe('StarControls', () => {
   });
 
   it('should enable reset only once the star carries a tweak', () => {
-    expect(action('Reset').disabled).toBeTrue();
+    expect(action('Reset star').disabled).toBeTrue();
 
-    setSlider(sliders()[1], 2);
+    setSlider(sliders()[0], 2);
     fixture.detectChanges();
-    expect(action('Reset').disabled).toBeFalse();
+    expect(action('Reset star').disabled).toBeFalse();
 
-    action('Reset').click();
+    action('Reset star').click();
     fixture.detectChanges();
 
     expect(editor.starAdjustments().has(1)).toBeFalse();
-    expect(action('Reset').disabled).toBeTrue();
+    expect(action('Reset star').disabled).toBeTrue();
   });
 
   it('should offer to remove the spikes of a star that has them', () => {
@@ -170,11 +172,11 @@ describe('StarControls', () => {
     editor.updateControl('diffusion', 0.4);
     fixture.detectChanges();
 
-    const row: HTMLElement = fixture.nativeElement.querySelectorAll('.slider-row')[0];
+    const row: HTMLElement = fixture.nativeElement.querySelectorAll('.star-bar__field')[3];
     expect(row.textContent).toContain('Diffusion');
     expect(row.textContent).toContain('0.4');
     // Marked as inherited, so it is clear the star is not pinned yet.
-    expect(row.textContent).toContain('global');
+    expect(row.textContent).toContain('following global');
     expect(editor.starAdjustments().has(1)).toBeFalse();
   });
 
@@ -183,38 +185,55 @@ describe('StarControls', () => {
     // star can bloom on its own.
     expect(editor.controls.diffusion()).toBe(0);
 
-    setSlider(sliders()[0], 0.75);
+    setSlider(sliders()[3], 0.75);
     fixture.detectChanges();
 
     expect(editor.adjustmentFor(1).diffusion).toBe(0.75);
     expect(editor.starAdjustments().has(0)).toBeFalse();
     expect(editor.starAdjustments().has(2)).toBeFalse();
-    const row: HTMLElement = fixture.nativeElement.querySelectorAll('.slider-row')[0];
-    expect(row.textContent).not.toContain('global');
+    const row: HTMLElement = fixture.nativeElement.querySelectorAll('.star-bar__field')[3];
+    expect(row.textContent).toContain('this star only');
   });
 
   it('should keep a pinned zero while the global amount is high', () => {
     editor.updateControl('diffusion', 1);
     fixture.detectChanges();
 
-    setSlider(sliders()[0], 0);
+    setSlider(sliders()[3], 0);
 
     expect(editor.adjustmentFor(1).diffusion).toBe(0);
     expect(editor.starAdjustments().has(1)).toBeTrue();
   });
 
-  it('should offer four per-star sliders', () => {
+  it('should offer four per-star fields in the bar', () => {
     expect(sliders().length).toBe(4);
+    const keys: string[] = Array.from(
+      fixture.nativeElement.querySelectorAll('.star-bar__key'),
+    ).map((el) => (el as HTMLElement).textContent?.trim() ?? '');
+    expect(keys).toEqual(['Length', 'Brightness', 'Rotation', 'Diffusion']);
   });
 
-  it('should emit closed from the action that returns to the global controls', () => {
+  it('should name the star and where it sits', () => {
+    expect(fixture.nativeElement.querySelector('.star-bar__coords').textContent).toContain('x 10');
+  });
+
+  it('should read a tweak as a signed delta with the resulting total', () => {
+    setSlider(sliders()[0], 1.4);
+    fixture.detectChanges();
+
+    const field: HTMLElement = fixture.nativeElement.querySelectorAll('.star-bar__field')[0];
+    expect(field.querySelector('.star-bar__delta')?.textContent?.trim()).toBe('+0.4×');
+    expect(field.querySelector('.star-bar__total')?.textContent).toContain('1.4× total');
+  });
+
+  it('should emit closed from the deselect action', () => {
     let closed = 0;
     fixture.componentInstance.closed.subscribe(() => closed++);
 
-    const back: HTMLButtonElement | null =
-      fixture.nativeElement.querySelector('button.star-back');
-    expect(back?.textContent?.trim()).toBe('All controls');
-    back?.click();
+    const deselect: HTMLButtonElement | null = fixture.nativeElement.querySelector(
+      'button[title="Deselect star"]',
+    );
+    deselect?.click();
 
     expect(closed).toBe(1);
   });

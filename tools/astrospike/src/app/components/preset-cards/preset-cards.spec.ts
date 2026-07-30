@@ -14,26 +14,60 @@ describe('PresetCards', () => {
     fixture.detectChanges();
   });
 
-  function cards(): HTMLButtonElement[] {
-    return Array.from(fixture.nativeElement.querySelectorAll('button[role="radio"]'));
+  /** The trigger row naming the active preset. */
+  function trigger(): HTMLButtonElement {
+    const button: HTMLButtonElement | null =
+      fixture.nativeElement.querySelector('button.preset-trigger');
+    if (button === null) {
+      throw new Error('preset trigger not rendered');
+    }
+    return button;
+  }
+
+  /** Opens the menu and returns its options. */
+  function options(): HTMLButtonElement[] {
+    if (fixture.nativeElement.querySelector('.preset-menu') === null) {
+      trigger().click();
+      fixture.detectChanges();
+    }
+    return Array.from(fixture.nativeElement.querySelectorAll('button[role="option"]'));
   }
 
   function cardFor(id: SpikePresetId): HTMLButtonElement {
     const label = SPIKE_PRESETS[id].label;
-    const match = cards().find((card) => card.textContent?.includes(label));
+    const match = options().find((option) => option.textContent?.includes(label));
     if (match === undefined) {
-      throw new Error(`card for preset "${id}" not rendered`);
+      throw new Error(`option for preset "${id}" not rendered`);
     }
     return match;
   }
 
-  it('should render one card per preset inside a labelled radio group', () => {
-    const group: HTMLElement | null = fixture.nativeElement.querySelector('[role="radiogroup"]');
-    expect(group?.getAttribute('aria-label')).toBe('Spike preset');
-    expect(cards().length).toBe(SPIKE_PRESET_ORDER.length);
+  it('should name the active preset on a collapsed trigger', () => {
+    // Closed by default: the choice is made once, while the sliders below it are
+    // worked constantly, so it does not get to own the space permanently.
+    expect(fixture.nativeElement.querySelector('.preset-menu')).toBeNull();
+    expect(trigger().textContent).toContain('Classic');
+    expect(trigger().getAttribute('aria-expanded')).toBe('false');
   });
 
-  it('should show each preset name and description', () => {
+  it('should offer one option per preset once expanded', () => {
+    const list: HTMLElement | null = fixture.nativeElement.querySelector('[role="listbox"]');
+    expect(options().length).toBe(SPIKE_PRESET_ORDER.length);
+    expect(list ?? fixture.nativeElement.querySelector('[role="listbox"]')).toBeTruthy();
+    expect(trigger().getAttribute('aria-expanded')).toBe('true');
+  });
+
+  it('should collapse the menu again after a pick', () => {
+    cardFor('jwst').click();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.preset-menu')).toBeNull();
+  });
+
+  it('should show each preset name and description once expanded', () => {
+    // Collapsed, only the active preset is described — that is the point of the
+    // dropdown — so the menu has to be opened before naming them all.
+    options();
     const text: string = fixture.nativeElement.textContent;
     for (const id of SPIKE_PRESET_ORDER) {
       expect(text).toContain(SPIKE_PRESETS[id].label);
@@ -41,23 +75,27 @@ describe('PresetCards', () => {
     }
   });
 
-  it('should hint the arm count of each preset', () => {
-    expect(cardFor('classic').textContent).toContain('4 arms');
-    expect(cardFor('jwst').textContent).toContain('6 arms');
+  it('should hint the arm count through the glyph', () => {
+    // The glyph has as many points as the preset has arms, so it states the
+    // preset rather than decorating it.
+    const paths = (id: SpikePresetId): string =>
+      cardFor(id).querySelector('path')?.getAttribute('d') ?? '';
+    expect(paths('classic')).not.toBe(paths('jwst'));
+    expect(paths('classic')).toBe(paths('subtle'));
   });
 
   it('should mark only the active preset as checked', () => {
-    expect(cardFor('classic').getAttribute('aria-checked')).toBe('true');
-    expect(cardFor('subtle').getAttribute('aria-checked')).toBe('false');
-    expect(cardFor('jwst').getAttribute('aria-checked')).toBe('false');
+    expect(cardFor('classic').getAttribute('aria-selected')).toBe('true');
+    expect(cardFor('subtle').getAttribute('aria-selected')).toBe('false');
+    expect(cardFor('jwst').getAttribute('aria-selected')).toBe('false');
   });
 
   it('should move the checked state when the active preset changes', () => {
     fixture.componentRef.setInput('activeId', 'jwst');
     fixture.detectChanges();
 
-    expect(cardFor('jwst').getAttribute('aria-checked')).toBe('true');
-    expect(cardFor('classic').getAttribute('aria-checked')).toBe('false');
+    expect(cardFor('jwst').getAttribute('aria-selected')).toBe('true');
+    expect(cardFor('classic').getAttribute('aria-selected')).toBe('false');
   });
 
   it('should emit the preset id when a card is clicked', () => {

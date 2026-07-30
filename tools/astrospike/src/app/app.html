@@ -5,9 +5,43 @@
   tagline="Diffraction spike studio"
 ></dba-ui-header>
 
+<!-- Title-bar actions. They sit over the header rather than inside the pane
+     because they act on the whole studio, and because the pane is gone
+     entirely before an image is loaded. -->
+@if (!breakpoints.isMobile()) {
+  <div class="as-titlebar-actions">
+    @if (editor.isDirty()) {
+      <dba-ui-text-button
+        label="Reset"
+        variant="secondary"
+        accent="cyan"
+        size="sm"
+        (clicked)="onReset()"
+      />
+    }
+    <dba-ui-text-button
+      label="How to use"
+      variant="secondary"
+      accent="cyan"
+      size="sm"
+      (clicked)="onOpenHowTo()"
+    />
+  </div>
+}
+
 @if (breakpoints.isMobile()) {
   <main class="as-container as-container--mobile">
     <dba-as-spike-stage></dba-as-spike-stage>
+
+    <dba-ui-icon-button
+      class="as-mobile-howto"
+      accent="cyan"
+      [size]="44"
+      title="How to use"
+      (clicked)="onOpenHowTo()"
+    >
+      <dba-ui-icon [def]="circleHelpIcon" [size]="18" />
+    </dba-ui-icon-button>
 
     @if (!sheetExpanded()) {
       <dba-ui-icon-button
@@ -37,6 +71,14 @@
 } @else {
   <main class="as-container">
     <dba-as-spike-stage></dba-as-spike-stage>
-    <dba-as-control-panel></dba-as-control-panel>
+    <!-- No image, no inspector: the stage takes the whole width rather than
+         sitting beside a pane whose every control would act on nothing. -->
+    @if (hasInspector()) {
+      <dba-as-control-panel></dba-as-control-panel>
+    }
   </main>
+}
+
+@if (isHowToOpen()) {
+  <dba-as-how-to-overlay (closed)="onCloseHowTo()" />
 }

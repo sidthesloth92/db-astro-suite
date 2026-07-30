@@ -1,5 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { AnalyticsService, BreakpointService } from '@db-astro-suite/ui';
+import {
+  AnalyticsService,
+  BreakpointService,
+  LocalStorageService,
+  STORAGE_SERVICE_TOKEN,
+} from '@db-astro-suite/ui';
 import { App } from './app';
 import { SpikeEditorService } from './services/spike-editor.service';
 
@@ -7,6 +12,9 @@ describe('App', () => {
   let breakpoints: BreakpointService;
 
   beforeEach(async () => {
+    // The how-to opens unprompted for a first-time visitor; these specs are
+    // about the shell behind it.
+    localStorage.setItem('astrospike.howTo.dismissed', '1');
     await TestBed.configureTestingModule({
       imports: [App],
       providers: [
@@ -14,6 +22,7 @@ describe('App', () => {
           provide: AnalyticsService,
           useValue: jasmine.createSpyObj<AnalyticsService>('AnalyticsService', ['trackEvent']),
         },
+        { provide: STORAGE_SERVICE_TOKEN, useClass: LocalStorageService },
       ],
     }).compileComponents();
     breakpoints = TestBed.inject(BreakpointService);
@@ -29,6 +38,9 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     breakpoints.isMobile.set(isMobile);
+    // The controls pane is not rendered before an image exists, so anything
+    // asserting on it needs the editor to look loaded.
+    TestBed.inject(SpikeEditorService).isDetecting.set(true);
     fixture.detectChanges();
     return fixture;
   }

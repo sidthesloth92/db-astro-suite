@@ -5,7 +5,7 @@ import { ControlMetadata, EditorControlKey } from '../models/editor-controls.mod
  */
 export const CONTROLS: Record<EditorControlKey, ControlMetadata> = {
   stars: {
-    label: 'Stars',
+    label: 'Star magnitude',
     description: 'How many detected stars receive spikes, brightest first.',
     min: 0,
     max: 1,
@@ -60,7 +60,7 @@ export const CONTROLS: Record<EditorControlKey, ControlMetadata> = {
     label: 'Rotation',
     description: 'Rotates the whole spike pattern, in degrees.',
     min: 0,
-    max: 90,
+    max: 180,
     step: 1,
     initial: 0,
   },

@@ -6,7 +6,7 @@ import { Locator, Page, expect } from "@playwright/test";
  * decoupled from the underlying control key strings.
  */
 export type AstroSpikeControlLabel =
-  | "Stars"
+  | "Star magnitude"
   | "Length"
   | "Chroma"
   | "Diffusion"
@@ -33,8 +33,8 @@ export class AstroSpikePage {
   private readonly dropzoneHeading: Locator;
   /** Privacy reassurance line inside the dropzone. */
   private readonly privacyNote: Locator;
-  /** Preset card group. */
-  private readonly presetGroup: Locator;
+  /** Preset dropdown trigger, naming the active preset. */
+  private readonly presetTrigger: Locator;
   /** Spike-arm count toggle (4 / 6). */
   private readonly armsTabs: Locator;
 
@@ -47,16 +47,18 @@ export class AstroSpikePage {
     this.privacyNote = this.page.getByText(
       "your image never leaves your browser",
     );
-    this.presetGroup = this.page.getByRole("radiogroup", {
-      name: "Spike preset",
-    });
+    this.presetTrigger = this.page.locator("button.preset-trigger");
     this.armsTabs = this.page.getByRole("tablist");
   }
 
-  /** Navigates to AstroSpike and waits for the controls pane to render. */
+  /**
+   * Navigates to AstroSpike and waits for the empty studio to render. It waits
+   * on the dropzone rather than the controls pane: with no image there is no
+   * pane, by design.
+   */
   async navigate(): Promise<void> {
     await this.page.goto("http://localhost:4202/astrospike/");
-    await expect(this.controlPanel).toBeVisible();
+    await expect(this.dropzoneHeading).toBeVisible();
   }
 
   /** Locator for the dropzone headline — visible only before an image loads. */
@@ -81,23 +83,28 @@ export class AstroSpikePage {
    * shows a non-zero count rather than trusting the first render.
    */
   async waitForDetectedStars(timeout = 60_000): Promise<number> {
-    // The pill is a presentational badge with no ARIA role of its own; the
-    // `star-pill` class is the stable handle the component author provides.
-    const pill = this.page.locator("dba-ui-pill-badge.star-pill");
-    await expect(pill).toContainText(/[1-9]\d*\s+stars detected/i, { timeout });
-    const text = (await pill.innerText()).trim();
+    // The transient detection badge reports progress and then clears; the
+    // standing figure is the Star magnitude readout's total, so that is what a
+    // test should wait on.
+    const total = this.getControlRow("Star magnitude").locator(".row-total");
+    await expect(total).toContainText(/of [1-9]\d*/, { timeout });
+    const text = (await total.innerText()).trim();
     const match = text.match(/(\d+)/);
     return match ? Number.parseInt(match[1], 10) : 0;
   }
 
-  /** Selects a spike preset by its visible card name. */
+  /**
+   * Selects a spike preset. The picker is a dropdown, so this expands it first;
+   * the trigger names the active preset once it collapses again.
+   */
   async selectPreset(name: AstroSpikePresetName): Promise<void> {
-    await this.presetGroup.getByRole("radio", { name: new RegExp(name) }).click();
+    await this.presetTrigger.click();
+    await this.page.getByRole("option", { name: new RegExp(name) }).click();
   }
 
-  /** Returns the currently selected preset card. */
+  /** The trigger row, which names whichever preset is active. */
   getSelectedPreset(): Locator {
-    return this.presetGroup.getByRole("radio", { checked: true });
+    return this.presetTrigger;
   }
 
   /**
@@ -199,9 +206,33 @@ export class AstroSpikePage {
     return this.page.getByRole("button", { name });
   }
 
-  /** Locator for the pane-header action that returns the look to its defaults. */
+  /**
+   * The studio-level reset. It lives in the title bar rather than the pane, and
+   * is only rendered once something differs from the defaults.
+   */
   getResetButton(): Locator {
-    return this.controlPanel.getByRole("button", { name: /^Reset$/ });
+    return this.page.locator(".as-titlebar-actions").getByRole("button", { name: /^Reset$/ });
+  }
+
+  /** Opens the how-to overlay from the title bar. */
+  async openHowTo(): Promise<void> {
+    await this.page
+      .locator(".as-titlebar-actions")
+      .getByRole("button", { name: /How to use/i })
+      .click();
+  }
+
+  /** The how-to overlay dialog. */
+  getHowTo(): Locator {
+    return this.page.getByRole("dialog", { name: /How to use/i });
+  }
+
+  /** Dismisses the how-to overlay if it is showing. */
+  async dismissHowTo(): Promise<void> {
+    const gotIt = this.page.getByRole("button", { name: /^Got it$/ });
+    if (await gotIt.count()) {
+      await gotIt.click();
+    }
   }
 
   /**

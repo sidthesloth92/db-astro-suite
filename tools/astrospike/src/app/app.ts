@@ -1,14 +1,26 @@
-import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import {
   BreakpointService,
   FloatingSheetComponent,
   HeaderComponent,
   IconButtonComponent,
   IconComponent,
+  STORAGE_SERVICE_TOKEN,
+  TextButtonComponent,
+  circleHelpIcon,
   slidersIcon,
 } from '@db-astro-suite/ui';
 import packageJson from '../../../../package.json';
+import { HOW_TO_DISMISSED_KEY } from './constants/how-to.constants';
 import { SLIDER_TARGET_SELECTOR } from './constants/mobile-shell.constants';
+import { HowToOverlay } from './components/how-to-overlay/how-to-overlay';
 import { ControlPanel } from './components/control-panel/control-panel';
 import { SpikeStage } from './components/spike-stage/spike-stage';
 import { SpikeEditorService } from './services/spike-editor.service';
@@ -28,9 +40,11 @@ import { SpikeEditorService } from './services/spike-editor.service';
     ControlPanel,
     FloatingSheetComponent,
     HeaderComponent,
+    HowToOverlay,
     IconButtonComponent,
     IconComponent,
     SpikeStage,
+    TextButtonComponent,
   ],
   templateUrl: './app.html',
   styleUrl: './app.css',
@@ -43,8 +57,8 @@ export class App {
   /** Viewport breakpoint signal — drives the desktop vs. mobile shell. */
   protected readonly breakpoints = inject(BreakpointService);
 
-  /** Shared editor state — watched so a star's controls can reach the user. */
-  private readonly editor = inject(SpikeEditorService);
+  /** Shared editor state — drives the title-bar actions and pane visibility. */
+  protected readonly editor = inject(SpikeEditorService);
 
   /** Whether the mobile controls sheet is open. */
   protected readonly sheetExpanded = signal(false);
@@ -69,6 +83,28 @@ export class App {
   /** Glyph for the button that opens the mobile controls sheet. */
   protected readonly slidersIcon = slidersIcon;
 
+  /** Glyph on the mobile how-to button. */
+  protected readonly circleHelpIcon = circleHelpIcon;
+
+  /** Browser storage, read once to decide whether to greet a new visitor. */
+  private readonly storage = inject(STORAGE_SERVICE_TOKEN);
+
+  /**
+   * Whether the how-to overlay is showing. It opens unprompted on a first
+   * visit — the canvas interactions are not guessable — and is reachable from
+   * the title bar forever after.
+   */
+  protected readonly isHowToOpen = signal(this.storage.getItem(HOW_TO_DISMISSED_KEY) === null);
+
+  /**
+   * True while the inspector has anything to inspect. With no image every
+   * control would act on nothing, so the stage takes the whole width instead of
+   * sitting beside a pane of dead sliders.
+   */
+  protected readonly hasInspector = computed(
+    () => this.editor.hasImage() || this.editor.isImageLoading() || this.editor.isDetecting(),
+  );
+
   /** Opens or closes the mobile controls sheet. */
   protected toggleSheet(): void {
     this.sheetExpanded.update((expanded) => !expanded);
@@ -85,5 +121,20 @@ export class App {
   /** Restores the sheet once the slider drag ends. */
   protected onAdjustEnd(): void {
     this.isAdjusting.set(false);
+  }
+
+  /** Opens the how-to overlay from the title bar. */
+  protected onOpenHowTo(): void {
+    this.isHowToOpen.set(true);
+  }
+
+  /** Dismisses the how-to overlay. */
+  protected onCloseHowTo(): void {
+    this.isHowToOpen.set(false);
+  }
+
+  /** Returns every control and per-star edit to its default. */
+  protected onReset(): void {
+    this.editor.resetAll();
   }
 }

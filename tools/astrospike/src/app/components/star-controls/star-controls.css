@@ -1,90 +1,89 @@
 :host {
   display: block;
+  flex: 0 0 auto;
 }
 
-/* Takes over the body of the controls pane while a star is being tuned, using
-   the same gutter as the sections it replaces so nothing shifts sideways
-   either. The pink accent matches the ring the stage draws on that star. */
-.star-controls {
+/* A bar under the stage rather than a pane section: per-star work is done while
+   watching the star, so the controls sit next to it and the global sliders stay
+   visible to the right. */
+.star-bar {
   display: flex;
-  flex-direction: column;
-  gap: 9px;
-  padding: 12px 14px 14px;
-  border-left: 2px solid var(--db-color-neon-pink);
-  background: color-mix(in srgb, var(--db-color-neon-pink) 5%, transparent);
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border-top: 1px solid var(--db-color-border-active);
+  background: var(--db-color-surface);
   color: var(--db-color-text-primary);
   font-family: var(--db-font-ui);
 }
 
-.star-controls__head {
+.star-bar__id {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 3px;
+  width: 104px;
 }
 
-.star-controls__title {
-  flex: 1;
-  min-width: 0;
+.star-bar__name {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+/* Echoes the ring the stage draws on this star, so the bar and the canvas are
+   visibly about the same thing. */
+.star-bar__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--db-color-neon-pink);
+  box-shadow: 0 0 8px var(--db-color-neon-pink);
+}
+
+.star-bar__label {
   font-family: var(--db-font-mono-code);
   font-size: 12px;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--db-color-neon-pink);
-}
-
-/* Returns the pane to the global controls. */
-.star-back {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 8px 4px 5px;
-  border: 1px solid var(--db-color-border);
-  border-radius: 6px;
-  background: none;
-  color: var(--db-color-text-dim);
-  font-family: var(--db-font-ui);
-  font-size: 10.5px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  cursor: pointer;
-  transition:
-    color 150ms ease,
-    border-color 150ms ease;
-}
-
-.star-back:hover {
   color: var(--db-color-text-primary);
-  border-color: var(--db-color-border-active);
 }
 
-.star-back:focus-visible {
-  outline: 2px solid var(--db-color-cyan);
-  outline-offset: 2px;
-}
-
-.star-controls__hint {
-  margin: -2px 0 2px;
-  font-size: 11px;
-  line-height: 1.5;
+.star-bar__coords {
+  font-family: var(--db-font-mono-code);
+  font-size: 10px;
   color: var(--db-color-text-faint);
 }
 
-/* Matches the global slider rows exactly, so swapping between them reads as
-   the same pane rather than a different screen. */
-.slider-row {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+.star-bar__note {
+  font-size: 10.5px;
+  color: var(--db-color-text-faint);
 }
 
-.slider-label-row {
+.star-bar__rule {
+  flex: 0 0 auto;
+  width: 1px;
+  height: 52px;
+  background: var(--db-color-border);
+}
+
+/* The design carries three fields; this app has four, so they share the space
+   and shrink together rather than pushing the actions off the bar. */
+.star-bar__field {
+  display: flex;
+  flex: 1 1 148px;
+  min-width: 112px;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.star-bar__row {
   display: flex;
   align-items: center;
-  gap: 6px;
 }
 
-.row-label {
+.star-bar__key {
+  flex: 1;
   font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.12em;
@@ -92,52 +91,43 @@
   color: var(--db-color-text-dim);
 }
 
-.row-value {
-  margin-left: auto;
-  font: 500 11px/1 var(--db-font-mono-code);
-  font-variant-numeric: tabular-nums;
-  color: var(--db-color-text-primary);
+/* The tweak itself takes the accent; the resulting total below it stays quiet,
+   so the eye lands on what this star is doing differently. */
+.star-bar__delta {
+  font-family: var(--db-font-mono-code);
+  font-size: 11px;
+  color: var(--db-color-neon-pink);
 }
 
-.star-controls__actions {
-  display: flex;
-  gap: 6px;
-  padding-top: 2px;
-}
-
-.star-action {
-  flex: 1;
-  padding: 5px 8px;
-  border: 1px solid var(--db-color-border);
-  border-radius: 6px;
-  background: transparent;
+.star-bar__delta.is-inherited {
   color: var(--db-color-text-dim);
-  font-family: var(--db-font-ui);
-  font-size: 10.5px;
-  letter-spacing: 0.06em;
+}
+
+.star-bar__total {
+  font-family: var(--db-font-mono-code);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  cursor: pointer;
-  transition:
-    color 150ms ease,
-    border-color 150ms ease;
+  color: var(--db-color-text-faint);
 }
 
-.star-action:hover:not(:disabled) {
-  color: var(--db-color-text-primary);
-  border-color: var(--db-color-border-active);
+.star-bar__spacer {
+  flex: 0 0 4px;
 }
 
-.star-action:focus-visible {
-  outline: 2px solid var(--db-color-cyan);
-  outline-offset: 2px;
+.star-bar__actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
 }
 
-.star-action:disabled {
-  opacity: 0.45;
-  cursor: default;
-}
-
-.star-action--danger:hover {
-  color: var(--db-color-red);
-  border-color: color-mix(in srgb, var(--db-color-red) 45%, transparent);
+/* Removing a star's spikes is the one destructive action here, so it borrows
+   the red accent through the secondary button's own custom properties. */
+.star-bar__danger {
+  --db-color-text-dim: var(--db-color-red);
+  --db-color-border: var(--db-color-red-soft);
+  --db-color-cyan: var(--db-color-red);
+  --db-color-cyan-soft: var(--db-color-red-soft);
+  display: flex;
 }
