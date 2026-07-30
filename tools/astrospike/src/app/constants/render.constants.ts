@@ -46,3 +46,19 @@ export const STAGE_WHEEL_ZOOM_FACTOR = 1.2;
  * that toggles a star; beyond it, the gesture pans the zoomed view.
  */
 export const STAGE_DRAG_THRESHOLD_CSS_PX = 5;
+
+/**
+ * How long a click on a star waits before toggling its spikes, in ms.
+ *
+ * A double-click is two clicks, so acting on the first one immediately made
+ * opening a star's controls flash its spikes off and back on. Holding the
+ * toggle for this long lets a second click cancel it, at the cost of that much
+ * latency on every single click — which is why the window is kept as short as
+ * a double-click plausibly is rather than as long as the platform allows (the
+ * macOS interval is a user setting and reaches a full second).
+ *
+ * A double-click slower than this still leaks one toggle, and that case heals
+ * itself: opening a star's controls guarantees the star is spiked, so the end
+ * state is the same either way.
+ */
+export const STAGE_CLICK_HOLD_MS = 250;

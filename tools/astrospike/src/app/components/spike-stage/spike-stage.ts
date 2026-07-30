@@ -23,6 +23,7 @@ import {
 import {
   HIT_TEST_RADIUS_CSS_PX,
   PREVIEW_MAX_DIMENSION,
+  STAGE_CLICK_HOLD_MS,
   STAGE_DRAG_THRESHOLD_CSS_PX,
   STAGE_MAX_ZOOM,
   STAGE_MIN_ZOOM,
@@ -157,6 +158,16 @@ export class SpikeStage {
   /** Pending requestAnimationFrame id, or null when no frame is scheduled. */
   private frameId: number | null = null;
 
+  /**
+   * Star whose toggle is waiting out the double-click window, or null. It
+   * doubles as the memory of the last click: a second click on the same star
+   * within the window is the second half of a double-click.
+   */
+  private pendingToggleStarId: number | null = null;
+
+  /** Timer that applies {@link pendingToggleStarId}, or null when idle. */
+  private pendingToggleTimer: ReturnType<typeof setTimeout> | null = null;
+
   /** Resolved CSS color of the hover ring, or '' before it is read. */
   private hoverMarkerColor = '';
 
@@ -252,6 +263,8 @@ export class SpikeStage {
     const bitmap = this.editor.sourceImage();
     if (bitmap === null) {
       this.previewScale.set(1);
+      // A toggle waiting on a star that no longer exists must not fire.
+      this.clearPendingToggleTimer();
       this.resizeCanvases(0, 0);
       return;
     }
@@ -314,6 +327,7 @@ export class SpikeStage {
         cancelAnimationFrame(this.frameId);
         this.frameId = null;
       }
+      this.clearPendingToggleTimer();
       releaseSpriteCache(this.spriteCache);
     });
   }
@@ -431,17 +445,64 @@ export class SpikeStage {
     }
     const star = this.starAt(event.clientX, event.clientY);
     if (star !== null) {
+      // Second click on the star already waiting: this is a double-click, so
+      // drop the toggle entirely and let `dblclick` open the controls.
+      if (this.pendingToggleStarId === star.id) {
+        this.cancelPendingToggle();
+        return;
+      }
       // A plain click only toggles the spikes and leaves no marker. Landing on
       // a different star than the one being edited retires those controls,
       // since their ring no longer has anything to do with the pointer.
       if (this.editor.starControlsId() !== star.id) {
         this.editor.closeStarControls();
       }
-      this.editor.toggleStar(star.id);
+      // Another star was waiting: it was a single click after all, so let it
+      // land now rather than losing it.
+      this.flushPendingToggle();
+      this.schedulePendingToggle(star.id);
       return;
     }
     // Clicking empty sky is how the user dismisses the per-star controls.
+    this.flushPendingToggle();
     this.editor.closeStarControls();
+  }
+
+  /**
+   * Holds a star's toggle for {@link STAGE_CLICK_HOLD_MS} so a second click can
+   * cancel it. Acting immediately is what made a double-click flash the star's
+   * spikes off and back on before its controls appeared.
+   */
+  private schedulePendingToggle(id: number): void {
+    this.pendingToggleStarId = id;
+    this.pendingToggleTimer = setTimeout(() => {
+      this.pendingToggleTimer = null;
+      this.pendingToggleStarId = null;
+      this.editor.toggleStar(id);
+    }, STAGE_CLICK_HOLD_MS);
+  }
+
+  /** Applies a waiting toggle immediately, if there is one. */
+  private flushPendingToggle(): void {
+    const id = this.pendingToggleStarId;
+    this.clearPendingToggleTimer();
+    if (id !== null) {
+      this.editor.toggleStar(id);
+    }
+  }
+
+  /** Drops a waiting toggle without applying it. */
+  private cancelPendingToggle(): void {
+    this.clearPendingToggleTimer();
+  }
+
+  /** Clears the hold timer and the star it was holding. */
+  private clearPendingToggleTimer(): void {
+    if (this.pendingToggleTimer !== null) {
+      clearTimeout(this.pendingToggleTimer);
+      this.pendingToggleTimer = null;
+    }
+    this.pendingToggleStarId = null;
   }
 
   /** Pointer left the preview — nothing is hovered any more. */
@@ -540,10 +601,12 @@ export class SpikeStage {
    * Double click — on a star it opens that star's controls in the side pane;
    * on empty sky it resets the view to the whole image.
    *
-   * The two clicks that precede it have already toggled the star's spikes
-   * twice, so opening the controls leaves the spikes exactly as they were.
+   * Neither click that precedes it toggles anything: the first is held for the
+   * double-click window and the second cancels it. So opening a star's
+   * controls leaves its spikes alone instead of flashing them off and on.
    */
   protected onStageDoubleClick(event: MouseEvent): void {
+    this.cancelPendingToggle();
     const star = this.starAt(event.clientX, event.clientY);
     if (star !== null) {
       this.editor.openStarControls(star.id);

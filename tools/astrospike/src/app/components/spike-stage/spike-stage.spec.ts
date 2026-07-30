@@ -1,10 +1,11 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { AnalyticsService } from '@db-astro-suite/ui';
 import { DetectedStar } from '../../models/detected-star.model';
 import { ImageLoadService } from '../../services/image-load.service';
 import { SpikeEditorService } from '../../services/spike-editor.service';
 import { SpikeExportService } from '../../services/spike-export.service';
 import { StarDetectionService } from '../../services/star-detection.service';
+import { STAGE_CLICK_HOLD_MS } from '../../constants/render.constants';
 import { SpikeStage } from './spike-stage';
 
 const IMAGE_WIDTH = 400;
@@ -469,25 +470,95 @@ describe('SpikeStage', () => {
     });
 
 
-    it('should toggle the star under the pointer when the preview is clicked', () => {
+    it('should toggle the star under the pointer when the preview is clicked', fakeAsync(() => {
       const toggleSpy = spyOn(editor, 'toggleStar');
       const { clientX, clientY } = clientPointFor(300, 150);
 
       pressAndRelease(clientX, clientY);
+      // The toggle waits out the double-click window before it lands.
+      expect(toggleSpy).not.toHaveBeenCalled();
+      tick(STAGE_CLICK_HOLD_MS);
 
       expect(toggleSpy).toHaveBeenCalledOnceWith(1);
-    });
+    }));
 
-    it('should toggle nothing when the click lands on empty sky', () => {
+    it('should not touch the spikes of a spiked star that is double-clicked', fakeAsync(() => {
+      // Star 0 is inside the brightness cut, so it already has spikes and
+      // opening its controls has no reason to add any.
+      expect(editor.renderedStars().map((star) => star.id)).toContain(0);
+      const toggleSpy = spyOn(editor, 'toggleStar');
+      const { clientX, clientY } = clientPointFor(100, 50);
+      const canvas = markerCanvas();
+
+      // Both halves of the gesture, then the dblclick the browser follows with.
+      pressAndRelease(clientX, clientY);
+      pressAndRelease(clientX, clientY);
+      canvas.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, clientX, clientY }));
+      tick(STAGE_CLICK_HOLD_MS);
+
+      // Opening the controls must not flash its spikes off and back on.
+      expect(toggleSpy).not.toHaveBeenCalled();
+      expect(editor.starControlsId()).toBe(0);
+    }));
+
+    it('should spike an unspiked star exactly once when it is double-clicked', fakeAsync(() => {
+      // Star 1 falls outside the cut, so opening its controls spikes it — once,
+      // from the open itself, and not once per click of the gesture.
+      expect(editor.renderedStars().map((star) => star.id)).not.toContain(1);
+      const toggleSpy = spyOn(editor, 'toggleStar').and.callThrough();
+      const { clientX, clientY } = clientPointFor(300, 150);
+      const canvas = markerCanvas();
+
+      pressAndRelease(clientX, clientY);
+      pressAndRelease(clientX, clientY);
+      canvas.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, clientX, clientY }));
+      tick(STAGE_CLICK_HOLD_MS);
+
+      expect(toggleSpy).toHaveBeenCalledOnceWith(1);
+      expect(editor.renderedStars().map((star) => star.id)).toContain(1);
+      expect(editor.starControlsId()).toBe(1);
+    }));
+
+    it('should land a held toggle when the next click goes to another star', fakeAsync(() => {
+      const toggleSpy = spyOn(editor, 'toggleStar');
+      const first = clientPointFor(300, 150);
+      const second = clientPointFor(100, 50);
+
+      pressAndRelease(first.clientX, first.clientY);
+      // Inside the hold window, so the first toggle is still waiting.
+      pressAndRelease(second.clientX, second.clientY);
+
+      // A click on a different star is not a double-click: the first must land.
+      expect(toggleSpy).toHaveBeenCalledOnceWith(1);
+      tick(STAGE_CLICK_HOLD_MS);
+      expect(toggleSpy).toHaveBeenCalledTimes(2);
+      expect(toggleSpy.calls.mostRecent().args).toEqual([0]);
+    }));
+
+    it('should land a held toggle when the next click goes to empty sky', fakeAsync(() => {
+      const toggleSpy = spyOn(editor, 'toggleStar');
+      const star = clientPointFor(300, 150);
+      const sky = clientPointFor(200, 20);
+
+      pressAndRelease(star.clientX, star.clientY);
+      pressAndRelease(sky.clientX, sky.clientY);
+
+      expect(toggleSpy).toHaveBeenCalledOnceWith(1);
+      tick(STAGE_CLICK_HOLD_MS);
+      expect(toggleSpy).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should toggle nothing when the click lands on empty sky', fakeAsync(() => {
       const toggleSpy = spyOn(editor, 'toggleStar');
       const { clientX, clientY } = clientPointFor(200, 20);
 
       pressAndRelease(clientX, clientY);
+      tick(STAGE_CLICK_HOLD_MS);
 
       expect(toggleSpy).not.toHaveBeenCalled();
-    });
+    }));
 
-    it('should reposition a star when the press on it travels beyond the threshold', () => {
+    it('should reposition a star when the press on it travels beyond the threshold', fakeAsync(() => {
       const toggleSpy = spyOn(editor, 'toggleStar');
       const moveSpy = spyOn(editor, 'moveStar');
       const from = clientPointFor(300, 150);
@@ -511,31 +582,34 @@ describe('SpikeStage', () => {
       expect(movedId).toBe(1);
       expect(movedX).toBeCloseTo(320, -1);
       expect(movedY).toBeCloseTo(160, -1);
-      // A drag never doubles as a toggle.
+      // A drag never doubles as a toggle, held or otherwise.
+      tick(STAGE_CLICK_HOLD_MS);
       expect(toggleSpy).not.toHaveBeenCalled();
-    });
+    }));
 
-    it('should not pan or move anything when dragging empty sky at zoom 1', () => {
+    it('should not pan or move anything when dragging empty sky at zoom 1', fakeAsync(() => {
       const toggleSpy = spyOn(editor, 'toggleStar');
       const moveSpy = spyOn(editor, 'moveStar');
       const from = clientPointFor(200, 20);
       const to = clientPointFor(260, 60);
 
       pressAndRelease(from.clientX, from.clientY, to.clientX, to.clientY);
+      tick(STAGE_CLICK_HOLD_MS);
 
       expect(moveSpy).not.toHaveBeenCalled();
       expect(toggleSpy).not.toHaveBeenCalled();
-    });
+    }));
 
-    it('should still toggle after sub-threshold pointer jitter', () => {
+    it('should still toggle after sub-threshold pointer jitter', fakeAsync(() => {
       const toggleSpy = spyOn(editor, 'toggleStar');
       const { clientX, clientY } = clientPointFor(300, 150);
 
       // 2px of travel is finger shake, not a drag.
       pressAndRelease(clientX, clientY, clientX + 2, clientY + 1);
+      tick(STAGE_CLICK_HOLD_MS);
 
       expect(toggleSpy).toHaveBeenCalledOnceWith(1);
-    });
+    }));
 
     it('should find a faint star below the brightness cut so it can be enabled', () => {
       editor.updateControl('stars', 0);
