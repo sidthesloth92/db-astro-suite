@@ -11,14 +11,20 @@ export const DEFAULT_STAR_ADJUSTMENT: StarAdjustment = {
   diffusion: null,
 };
 
-/** Lower bound of a single star's extra length multiplier. */
-export const STAR_LENGTH_MIN = 0.2;
+/**
+ * Lower bound of a single star's extra length multiplier. Zero is reachable on
+ * purpose: it is how one star loses its spike while keeping its bloom.
+ */
+export const STAR_LENGTH_MIN = 0;
 
 /** Upper bound of a single star's extra length multiplier. */
 export const STAR_LENGTH_MAX = 3;
 
-/** Lower bound of a single star's extra brightness multiplier. */
-export const STAR_INTENSITY_MIN = 0.2;
+/**
+ * Lower bound of a single star's extra brightness multiplier. Zero is
+ * reachable on purpose, and silences that star's spike entirely.
+ */
+export const STAR_INTENSITY_MIN = 0;
 
 /** Upper bound of a single star's extra brightness multiplier. */
 export const STAR_INTENSITY_MAX = 2;

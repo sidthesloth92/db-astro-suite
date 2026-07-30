@@ -70,6 +70,9 @@ function getArmSprite(
  * names its own amount, so one frame can bloom its field and spike a chosen
  * few — or land anywhere in between on either.
  *
+ * The bloom is independent of the length and brightness factors, so zeroing
+ * either leaves a star with its bloom and no spike.
+ *
  * Sprites are pulled from (or added to) `spriteCache`. The context's alpha,
  * composite operation, and transform are fully restored before returning.
  */
@@ -100,8 +103,6 @@ export function renderSpikes(
         effectiveFlux,
         params.fluxRef,
         params.preset,
-        params.lengthFactor * adjustment.lengthFactor,
-        params.intensityFactor * adjustment.intensityFactor,
         diffusion,
         params.imageMaxDimension,
         params.scale,
@@ -129,15 +130,17 @@ export function renderSpikes(
         params.scale,
       );
 
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.globalAlpha = geometry.glowAlpha;
-      ctx.drawImage(
-        glowSprite,
-        cx - geometry.glowRadiusPx,
-        cy - geometry.glowRadiusPx,
-        geometry.glowRadiusPx * 2,
-        geometry.glowRadiusPx * 2,
-      );
+      if (geometry.glowAlpha > 0 && geometry.glowRadiusPx > 0) {
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.globalAlpha = geometry.glowAlpha;
+        ctx.drawImage(
+          glowSprite,
+          cx - geometry.glowRadiusPx,
+          cy - geometry.glowRadiusPx,
+          geometry.glowRadiusPx * 2,
+          geometry.glowRadiusPx * 2,
+        );
+      }
 
       if (geometry.alphaPeak <= 0) {
         continue; // Fully diffused: nothing left of the arms to draw.

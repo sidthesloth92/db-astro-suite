@@ -194,14 +194,14 @@ describe('diffusion crossfade', () => {
   });
 
   it('should draw no bloom at all at zero diffusion', () => {
-    const bloom = computeBloomGeometry(100, 100, makePreset(), 1, 1, 0, 2000, 1);
+    const bloom = computeBloomGeometry(100, 100, makePreset(), 0, 2000, 1);
     expect(bloom.radiusPx).toBe(0);
     expect(bloom.alpha).toBe(0);
   });
 
   it('should raise the bloom alpha linearly and its radius faster', () => {
     const bloom = (diffusion: number) =>
-      computeBloomGeometry(100, 100, makePreset(), 1, 1, diffusion, 2000, 1);
+      computeBloomGeometry(100, 100, makePreset(), diffusion, 2000, 1);
     const full = bloom(1);
 
     expect(bloom(0.5).alpha).toBeCloseTo(full.alpha * 0.5, 6);
@@ -212,8 +212,8 @@ describe('diffusion crossfade', () => {
   });
 
   it('should keep the bloom ordered by star brightness', () => {
-    const bright = computeBloomGeometry(100, 100, makePreset(), 1, 1, 1, 2000, 1);
-    const faint = computeBloomGeometry(5, 100, makePreset(), 1, 1, 1, 2000, 1);
+    const bright = computeBloomGeometry(100, 100, makePreset(), 1, 2000, 1);
+    const faint = computeBloomGeometry(5, 100, makePreset(), 1, 2000, 1);
 
     expect(bright.radiusPx).toBeGreaterThan(faint.radiusPx);
     expect(bright.alpha).toBeGreaterThan(faint.alpha);

@@ -17,8 +17,9 @@ export const CONTROLS: Record<EditorControlKey, ControlMetadata> = {
   },
   length: {
     label: 'Length',
-    description: 'Scales the length of every spike arm.',
-    min: 0.2,
+    description:
+      'Scales the length of every spike arm. At 0 there is no spike at all, which leaves a star showing only its diffusion bloom.',
+    min: 0,
     max: 3,
     step: 0.05,
     initial: 1,
@@ -26,7 +27,7 @@ export const CONTROLS: Record<EditorControlKey, ControlMetadata> = {
   diffusion: {
     label: 'Diffusion',
     description:
-      'Softens the spikes into a bloom, the look of a diffusion filter on the lens. At 0 the spikes are sharp; at 1 they are gone and only the bloom is left.',
+      'Blooms each star, the look of a diffusion filter on the lens, and fades the spikes as it rises. Independent of Length and Brightness, so a star can show a bloom with no spike at all.',
     min: 0,
     max: 1,
     step: 0.05,
@@ -36,8 +37,9 @@ export const CONTROLS: Record<EditorControlKey, ControlMetadata> = {
   },
   brightness: {
     label: 'Brightness',
-    description: 'Scales the intensity of the spikes and their glow.',
-    min: 0.2,
+    description:
+      'Scales the intensity of the spikes and their glow. At 0 the spikes disappear; the diffusion bloom is independent and stays.',
+    min: 0,
     max: 2,
     step: 0.05,
     initial: 1,

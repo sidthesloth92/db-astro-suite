@@ -47,9 +47,14 @@ export function starSpikeScale(flux: number, fluxRef: number): number {
 /**
  * Computes the per-star spike geometry (arm length/thickness/alpha and glow
  * radius/alpha) from the star's relative brightness, the active preset, user
- * length/intensity factors, the image's larger dimension, and the
- * image-to-canvas scale. Arm thickness is clamped to a renderable pixel range;
- * alphas are clamped to [0, 1].
+ * length/intensity factors, the diffusion amount, the image's larger dimension,
+ * and the image-to-canvas scale. Arm thickness is clamped to a renderable pixel
+ * range; alphas are clamped to [0, 1].
+ *
+ * A zero length or intensity factor yields nothing at all — no arms and no core
+ * glow. The thickness floor that keeps thin arms renderable would otherwise
+ * leave a glow dot behind on a star the user had explicitly zeroed, and zeroing
+ * these two is how a star is left showing only its diffusion bloom.
  */
 export function computeSpikeGeometry(
   flux: number,
@@ -61,6 +66,9 @@ export function computeSpikeGeometry(
   imageMaxDimension: number,
   scale: number,
 ): SpikeGeometry {
+  if (lengthFactor <= 0 || intensityFactor <= 0) {
+    return { lengthPx: 0, alphaPeak: 0, thicknessPx: 0, glowRadiusPx: 0, glowAlpha: 0 };
+  }
   const s = starSpikeScale(flux, fluxRef);
   const ramp = alphaRamp(s);
   // Geometry is resolved in full-resolution image space and only then scaled to
@@ -88,10 +96,16 @@ export function computeSpikeGeometry(
 
 /**
  * Computes the diffusion bloom for a star: a radius sized from the image's
- * larger dimension, the preset's bloom scale, the user length factor, the
- * star's relative brightness, and the diffusion amount, plus its alpha. Both
- * fall to zero at zero diffusion, which is what leaves a preset rendering
- * exactly as it did before diffusion existed.
+ * larger dimension, the preset's bloom scale, the star's relative brightness,
+ * and the diffusion amount, plus its alpha. Both fall to zero at zero
+ * diffusion, which is what leaves a preset rendering exactly as it did before
+ * diffusion existed.
+ *
+ * Deliberately independent of the Length and Brightness controls, which shape
+ * the spikes alone. Sizing the bloom through them made it impossible to zero a
+ * star's spike and keep its bloom — the one arrangement the two controls exist
+ * side by side to allow. Star brightness still orders the blooms, so a bright
+ * star blooms wider than a faint one.
  *
  * The radius is deliberately NOT the `glowRadiusPx` of
  * {@link computeSpikeGeometry}. That one hangs off arm thickness, which hangs
@@ -104,8 +118,6 @@ export function computeBloomGeometry(
   flux: number,
   fluxRef: number,
   preset: SpikePreset,
-  lengthFactor: number,
-  intensityFactor: number,
   diffusion: number,
   imageMaxDimension: number,
   scale: number,
@@ -119,10 +131,9 @@ export function computeBloomGeometry(
   const radiusPx =
     imageMaxDimension *
     preset.glowRadiusScale *
-    lengthFactor *
     s *
     Math.pow(amount, DIFFUSION_RADIUS_EXPONENT) *
     scale;
-  const alpha = clamp(DIFFUSION_BLOOM_INTENSITY * intensityFactor * ramp * amount, 0, 1);
+  const alpha = clamp(DIFFUSION_BLOOM_INTENSITY * ramp * amount, 0, 1);
   return { radiusPx, alpha };
 }
