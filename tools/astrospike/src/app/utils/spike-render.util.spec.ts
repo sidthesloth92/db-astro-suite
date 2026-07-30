@@ -11,7 +11,6 @@ const SAMPLE_RADIUS = 15;
 function makePreset(overrides: Partial<SpikePreset> = {}): SpikePreset {
   return {
     id: 'classic',
-    style: 'spikes',
     label: 'Test',
     description: 'Test preset',
     spikeCount: 4,
@@ -57,6 +56,7 @@ function makeParams(overrides: Partial<SpikeRenderParams> = {}): SpikeRenderPara
     lengthFactor: 1,
     intensityFactor: 1,
     rotationDeg: 0,
+    diffusionFactor: 0,
     imageMaxDimension: CANVAS_SIZE,
     scale: 1,
     ...overrides,
@@ -295,11 +295,11 @@ describe('renderSpikes', () => {
     expect(at(30, 30)).toBe(0);
   });
 
-  it('should draw a bloom and no arms for a glow preset', () => {
+  it('should draw a bloom and no arms at full diffusion', () => {
     const glowCtx = makeBlackContext();
     renderSpikes(
       glowCtx,
-      makeParams({ preset: makePreset({ style: 'glow', glowRadiusScale: 0.15, glowIntensity: 0.9 }) }),
+      makeParams({ diffusionFactor: 1, preset: makePreset({ glowRadiusScale: 0.15 }) }),
       new Map(),
     );
     const spikeCtx = makeBlackContext();
@@ -320,7 +320,8 @@ describe('renderSpikes', () => {
         ctx,
         makeParams({
           stars: [makeStar({ flux })],
-          preset: makePreset({ style: 'glow', glowRadiusScale: 0.3, glowIntensity: 1 }),
+          diffusionFactor: 1,
+          preset: makePreset({ glowRadiusScale: 0.3 }),
         }),
         new Map(),
       );
@@ -345,8 +346,9 @@ describe('renderSpikes', () => {
       makeParams({
         stars: [makeStar({ id: 0, x: 25, y: 50 }), makeStar({ id: 1, x: 75, y: 50 })],
         lengthFactor: 0.3,
+        // Global diffusion is 0, so only the star naming its own amount blooms.
         adjustments: new Map([
-          [1, { lengthFactor: 1, intensityFactor: 1, rotationDeg: 0, style: 'glow' as const }],
+          [1, { lengthFactor: 1, intensityFactor: 1, rotationDeg: 0, diffusion: 1 }],
         ]),
       }),
       new Map(),
@@ -364,5 +366,78 @@ describe('renderSpikes', () => {
     // Star 0 keeps its diagonal arms; star 1 is round.
     expect(armOf(25)).toBeGreaterThan(offAxisOf(25) + 30);
     expect(Math.abs(armOf(75) - offAxisOf(75))).toBeLessThan(30);
+  });
+
+  it('should render a preset untouched at zero diffusion', () => {
+    const zero = makeBlackContext();
+    renderSpikes(zero, makeParams({ diffusionFactor: 0 }), new Map());
+    const armAt = (ctx: CanvasRenderingContext2D) => brightnessAtAngle(ctx, 45, SAMPLE_RADIUS);
+
+    // The arms are at full strength and no bloom competes with them.
+    expect(armAt(zero)).toBeGreaterThan(0);
+    expect(brightnessAtAngle(zero, 0, 8)).toBe(brightnessAtAngle(zero, 90, 8));
+  });
+
+  it('should fade the arms as diffusion rises', () => {
+    const armStrength = (diffusionFactor: number): number => {
+      const ctx = makeBlackContext();
+      renderSpikes(ctx, makeParams({ diffusionFactor }), new Map());
+      // Far enough out that only an arm can reach, never the bloom.
+      return brightnessAtAngle(ctx, 45, 30);
+    };
+
+    const sharp = armStrength(0);
+    const half = armStrength(0.5);
+    const full = armStrength(1);
+
+    expect(sharp).toBeGreaterThan(half);
+    expect(half).toBeGreaterThan(0);
+    expect(full).toBe(0);
+  });
+
+  it('should grow the bloom as diffusion rises', () => {
+    const bloomReach = (diffusionFactor: number): number => {
+      const ctx = makeBlackContext();
+      renderSpikes(
+        ctx,
+        makeParams({ diffusionFactor, preset: makePreset({ glowRadiusScale: 0.25 }) }),
+        new Map(),
+      );
+      // Along an axis, where the 45-degree arms never reach.
+      let reach = 0;
+      for (let r = 1; r < CENTER; r++) {
+        if (brightnessAtAngle(ctx, 0, r) > 0) reach = r;
+      }
+      return reach;
+    };
+
+    expect(bloomReach(0.25)).toBeGreaterThan(0);
+    expect(bloomReach(1)).toBeGreaterThan(bloomReach(0.25));
+  });
+
+  it('should let one star stay sharp while the field is fully diffused', () => {
+    const ctx = makeBlackContext();
+    renderSpikes(
+      ctx,
+      makeParams({
+        stars: [makeStar({ id: 0, x: 25, y: 50 }), makeStar({ id: 1, x: 75, y: 50 })],
+        lengthFactor: 0.4,
+        diffusionFactor: 1,
+        adjustments: new Map([
+          [1, { lengthFactor: 1, intensityFactor: 1, rotationDeg: 0, diffusion: 0 }],
+        ]),
+      }),
+      new Map(),
+    );
+
+    const armOf = (cx: number): number => {
+      const d = ctx.getImageData(Math.round(cx + 9), Math.round(50 + 9), 1, 1).data;
+      return d[0] + d[1] + d[2];
+    };
+
+    // Star 0 follows the global amount and has no arms; star 1 pinned itself to
+    // zero and keeps them.
+    expect(armOf(25)).toBe(0);
+    expect(armOf(75)).toBeGreaterThan(0);
   });
 });

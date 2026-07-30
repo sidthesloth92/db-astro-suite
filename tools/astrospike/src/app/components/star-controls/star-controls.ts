@@ -1,10 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
-import {
-  IconComponent,
-  MicroSliderComponent,
-  SegmentedTabsComponent,
-  chevronLeftIcon,
-} from '@db-astro-suite/ui';
+import { IconComponent, MicroSliderComponent, chevronLeftIcon } from '@db-astro-suite/ui';
 import {
   STAR_FACTOR_STEP,
   STAR_INTENSITY_MAX,
@@ -15,22 +10,23 @@ import {
   STAR_ROTATION_MIN,
   STAR_ROTATION_STEP,
 } from '../../constants/star-adjustment.constants';
-import { SPIKE_STYLE_BY_TAB_ID, SPIKE_STYLE_TABS } from '../../constants/spike-style.constants';
+import { CONTROLS } from '../../constants/controls.constants';
 import { SpikeEditorService } from '../../services/spike-editor.service';
 
 /**
  * Controls for a single star, opened by double-clicking it on the canvas and
  * docked at the top of the controls pane.
  *
- * Every slider is a tweak layered on top of the global spike controls, so a
- * star that has never been touched here still follows them exactly. The stage
+ * Length, Brightness, and Rotation are tweaks layered on top of the global
+ * controls; Diffusion is this star's own absolute amount. Either way a star
+ * that has never been touched here follows the global controls exactly. The stage
  * rings the star this panel belongs to — the panel deliberately does not float
  * over the canvas, where it would cover the spikes being tuned.
  */
 @Component({
   selector: 'dba-as-star-controls',
   standalone: true,
-  imports: [IconComponent, MicroSliderComponent, SegmentedTabsComponent],
+  imports: [IconComponent, MicroSliderComponent],
   templateUrl: './star-controls.html',
   styleUrl: './star-controls.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -83,19 +79,26 @@ export class StarControls {
     this.editor.renderedStars().some((star) => star.id === this.starId()),
   );
 
-  /** Segmented-tab options for what this star draws. */
-  protected readonly styleTabs = SPIKE_STYLE_TABS;
+  /** Lower bound of the per-star diffusion amount. */
+  protected readonly diffusionMin = CONTROLS['diffusion'].min;
+
+  /** Upper bound of the per-star diffusion amount. */
+  protected readonly diffusionMax = CONTROLS['diffusion'].max;
+
+  /** Step of the per-star diffusion slider. */
+  protected readonly diffusionStep = CONTROLS['diffusion'].step;
 
   /**
-   * Effect this star draws: its own choice when it has made one, otherwise
-   * whatever the active preset draws.
+   * Diffusion for this star: its own amount once it has one, otherwise the
+   * global control's, so the slider opens showing what the star is actually
+   * doing and moving it pins that star's own value.
    */
-  protected readonly styleTabId = computed(
-    () => this.adjustment().style ?? this.editor.presetStyle(),
+  protected readonly diffusion = computed(
+    () => this.adjustment().diffusion ?? this.editor.controls.diffusion(),
   );
 
-  /** True while this star draws a bloom, which has no arms to rotate. */
-  protected readonly isGlowing = computed(() => this.styleTabId() === 'glow');
+  /** True once this star's diffusion is pinned rather than following the global. */
+  protected readonly hasOwnDiffusion = computed(() => this.adjustment().diffusion !== null);
 
   /** Human-readable rank of the star within the flux-sorted list. */
   protected readonly starLabel = computed(() => `Star #${this.starId() + 1}`);
@@ -116,11 +119,14 @@ export class StarControls {
   }
 
   /**
-   * Switches this star between arms and a bloom, independently of the preset.
-   * @param tabId The chosen segmented-tab id.
+   * Pins this star's own diffusion, independently of the global control. It is
+   * an absolute amount, not a multiplier: with the global control at zero a
+   * multiplier could never bloom one star, which is the point of setting it
+   * here.
+   * @param value The new diffusion amount.
    */
-  protected onStyleChange(tabId: string): void {
-    this.editor.adjustStar(this.starId(), { style: SPIKE_STYLE_BY_TAB_ID[tabId] });
+  protected onDiffusionChange(value: number): void {
+    this.editor.adjustStar(this.starId(), { diffusion: value });
   }
 
   /** Returns this star to the global controls. */

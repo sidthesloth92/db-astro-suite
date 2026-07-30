@@ -8,11 +8,12 @@ import { Locator, Page, expect } from "@playwright/test";
 export type AstroSpikeControlLabel =
   | "Stars"
   | "Length"
+  | "Diffusion"
   | "Brightness"
   | "Rotation";
 
 /** Spike preset card names, matching `spike-presets.constants.ts`. */
-export type AstroSpikePresetName = "Subtle" | "Classic" | "JWST" | "Diffusion";
+export type AstroSpikePresetName = "Subtle" | "Classic" | "JWST";
 
 /**
  * Page Object for AstroSpike — the client-side diffraction-spike studio
@@ -132,11 +133,6 @@ export class AstroSpikePage {
       .locator(".slider-row")
       .filter({ hasText: label });
     return (await row.locator(".row-value").innerText()).trim();
-  }
-
-  /** Locator for the arm-count toggle's first tab, disabled when nothing has arms. */
-  getArmsTab(): Locator {
-    return this.controlPanel.locator(".arms-row").getByRole("tab").first();
   }
 
   /** Switches between 4- and 6-arm spikes. */

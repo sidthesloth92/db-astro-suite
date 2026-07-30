@@ -8,18 +8,25 @@
   </header>
 
   <p class="star-controls__hint">
-    This star is ringed on the canvas. These settings stack on top of the
-    global controls.
+    This star is ringed on the canvas. Length, brightness and rotation stack
+    on the global controls; diffusion replaces it for this star alone.
   </p>
 
-  <div class="style-row">
-    <label class="row-label">Effect</label>
-    <dba-ui-segmented-tabs
-      size="sm"
-      [options]="styleTabs"
-      [value]="styleTabId()"
-      (valueChange)="onStyleChange($event)"
-    ></dba-ui-segmented-tabs>
+  <div class="slider-row">
+    <div class="slider-label-row">
+      <label class="row-label">Diffusion</label>
+      <span class="row-value">
+        {{ diffusion() }}{{ hasOwnDiffusion() ? '' : ' (global)' }}
+      </span>
+    </div>
+    <dba-ui-micro-slider
+      [value]="diffusion()"
+      [min]="diffusionMin"
+      [max]="diffusionMax"
+      [step]="diffusionStep"
+      [showReadout]="false"
+      (valueChange)="onDiffusionChange($event)"
+    ></dba-ui-micro-slider>
   </div>
 
   <div class="slider-row">
@@ -52,23 +59,20 @@
     ></dba-ui-micro-slider>
   </div>
 
-  <!-- A bloom is circular, so there is nothing for rotation to turn. -->
-  @if (!isGlowing()) {
-    <div class="slider-row">
-      <div class="slider-label-row">
-        <label class="row-label">Rotation</label>
-        <span class="row-value">{{ adjustment().rotationDeg }}°</span>
-      </div>
-      <dba-ui-micro-slider
-        [value]="adjustment().rotationDeg"
-        [min]="rotationMin"
-        [max]="rotationMax"
-        [step]="rotationStep"
-        [showReadout]="false"
-        (valueChange)="onRotationChange($event)"
-      ></dba-ui-micro-slider>
+  <div class="slider-row">
+    <div class="slider-label-row">
+      <label class="row-label">Rotation</label>
+      <span class="row-value">{{ adjustment().rotationDeg }}°</span>
     </div>
-  }
+    <dba-ui-micro-slider
+      [value]="adjustment().rotationDeg"
+      [min]="rotationMin"
+      [max]="rotationMax"
+      [step]="rotationStep"
+      [showReadout]="false"
+      (valueChange)="onRotationChange($event)"
+    ></dba-ui-micro-slider>
+  </div>
 
   <div class="star-controls__actions">
     <button type="button" class="star-action" [disabled]="!isAdjusted()" (click)="onReset()">

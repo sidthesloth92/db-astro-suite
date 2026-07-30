@@ -18,8 +18,8 @@
     @if (isHelpOpen()) {
       <ol id="astrospike-how-to" class="how-to">
         <li>Drop or pick a JPEG or PNG. It never leaves your browser.</li>
-        <li>Stars are found for you straight away. Choose a preset — Diffusion blooms them instead of spiking them — then shape them with the sliders.</li>
-        <li>Click a star to add or remove its effect. Double-click one to tune it on its own, or give that single star the other effect.</li>
+        <li>Stars are found for you straight away. Choose a preset, then shape them with the sliders — Diffusion softens the spikes into a bloom.</li>
+        <li>Click a star to add or remove its spikes. Double-click one to tune it on its own, including its own diffusion.</li>
         <li>Drag a star to re-centre its detection. Scroll to zoom, drag empty sky to pan.</li>
         <li>Drag the divider to compare before and after, then export at the original resolution.</li>
       </ol>
@@ -80,15 +80,12 @@
             ></ng-container>
           }
 
-          <!-- Greyed out while nothing on the canvas has arms: the preset
-               blooms its stars and no single star was switched back. -->
-          <div class="arms-row" [class.is-inert]="editor.isArmControlInert()">
+          <div class="arms-row">
             <label class="row-label">Arms</label>
             <dba-ui-segmented-tabs
               size="sm"
               [options]="spikeCountTabs"
               [value]="spikeCountTabId()"
-              [disabled]="editor.isArmControlInert()"
               (valueChange)="onSpikeCountChange($event)"
             ></dba-ui-segmented-tabs>
           </div>

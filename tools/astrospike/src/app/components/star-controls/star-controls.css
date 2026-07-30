@@ -70,19 +70,6 @@
   color: var(--db-color-text-faint);
 }
 
-.style-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-  padding-bottom: 2px;
-}
-
-.style-row dba-ui-segmented-tabs {
-  margin-left: auto;
-  min-width: 0;
-}
-
 /* Matches the global slider rows exactly, so swapping between them reads as
    the same pane rather than a different screen. */
 .slider-row {

@@ -159,7 +159,7 @@ describe('ControlPanel', () => {
   it('should replace the global controls with a star\'s own when one is opened', () => {
     editor.allStars.set(buildStars(4));
     fixture.detectChanges();
-    expect(sliderLabels()).toEqual(['Stars', 'Length', 'Brightness', 'Rotation']);
+    expect(sliderLabels()).toEqual(['Stars', 'Length', 'Diffusion', 'Brightness', 'Rotation']);
 
     editor.openStarControls(2);
     fixture.detectChanges();
@@ -167,7 +167,7 @@ describe('ControlPanel', () => {
     expect(starPanel()).toBeTruthy();
     // The preset cards and global sliders are gone rather than pushed down.
     expect(fixture.nativeElement.querySelector('button[role="radio"]')).toBeNull();
-    expect(sliderLabels()).toEqual(['Length', 'Brightness', 'Rotation']);
+    expect(sliderLabels()).toEqual(['Diffusion', 'Length', 'Brightness', 'Rotation']);
   });
 
   it('should restore the global controls when the star controls are closed', () => {
@@ -179,7 +179,7 @@ describe('ControlPanel', () => {
     fixture.detectChanges();
 
     expect(starPanel()).toBeNull();
-    expect(sliderLabels()).toEqual(['Stars', 'Length', 'Brightness', 'Rotation']);
+    expect(sliderLabels()).toEqual(['Stars', 'Length', 'Diffusion', 'Brightness', 'Rotation']);
   });
 
   it('should keep the export action in reach while a star is being tuned', () => {
@@ -190,9 +190,16 @@ describe('ControlPanel', () => {
     expect(fixture.nativeElement.querySelector('.panel-footer dba-as-export-controls')).toBeTruthy();
   });
 
-  it('should render the four editor sliders in order', () => {
-    expect(sliderLabels()).toEqual(['Stars', 'Length', 'Brightness', 'Rotation']);
-    expect(sliders().length).toBe(4);
+  it('should render the five editor sliders in order', () => {
+    expect(sliderLabels()).toEqual(['Stars', 'Length', 'Diffusion', 'Brightness', 'Rotation']);
+    expect(sliders().length).toBe(5);
+  });
+
+  it('should soften the spikes when the diffusion slider is dragged', () => {
+    dragSlider(2, '0.6');
+
+    expect(editor.controls.diffusion()).toBe(0.6);
+    expect(fixture.nativeElement.textContent).toContain('0.6');
   });
 
   it('should show the resolved star count as the stars readout', () => {
@@ -210,14 +217,14 @@ describe('ControlPanel', () => {
   });
 
   it('should update the brightness control when its slider is dragged', () => {
-    dragSlider(2, '1.5');
+    dragSlider(3, '1.5');
 
     expect(editor.controls.brightness()).toBe(1.5);
     expect(fixture.nativeElement.textContent).toContain('1.5×');
   });
 
   it('should update the rotation control in degrees when its slider is dragged', () => {
-    dragSlider(3, '15');
+    dragSlider(4, '15');
 
     expect(editor.controls.rotation()).toBe(15);
     expect(fixture.nativeElement.textContent).toContain('15°');
@@ -250,7 +257,7 @@ describe('ControlPanel', () => {
     fixture.detectChanges();
 
     dragSlider(1, '2');
-    dragSlider(3, '30');
+    dragSlider(4, '30');
 
     expect(editor.spikeCount()).toBe(4);
     expect(editor.presetId()).toBe('jwst');

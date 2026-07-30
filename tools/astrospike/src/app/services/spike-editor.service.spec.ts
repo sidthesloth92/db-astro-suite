@@ -243,51 +243,57 @@ describe('SpikeEditorService', () => {
     });
   });
 
-  describe('effect style', () => {
+  describe('diffusion', () => {
     beforeEach(() => {
       service.allStars.set(STARS);
     });
 
-    it('should report the effect the active preset draws', () => {
-      expect(service.presetStyle()).toBe('spikes');
-      service.applyPreset('diffusion');
-      expect(service.presetStyle()).toBe('glow');
+    it('should start at zero so a preset renders exactly as it always did', () => {
+      expect(service.controls.diffusion()).toBe(0);
+      expect(service.renderParams()).toBeNull(); // no image yet
     });
 
-    it('should keep the arm controls live while the preset draws arms', () => {
-      expect(service.isArmControlInert()).toBeFalse();
+    it('should carry the global amount into the render params', async () => {
+      const bitmap = await buildBitmap(8, 8);
+      imageLoadSpy.loadImageFile.and.resolveTo({
+        bitmap,
+        meta: { fileName: 'm31.png', width: 8, height: 8 },
+      });
+      detectionSpy.detect.and.resolveTo([...STARS]);
+      await service.loadImage(new File([''], 'm31.png', { type: 'image/png' }));
+
+      service.updateControl('diffusion', 0.6);
+
+      expect(service.renderParams()?.diffusionFactor).toBe(0.6);
     });
 
-    it('should retire the arm controls when nothing on the canvas has arms', () => {
-      service.applyPreset('diffusion');
-      expect(service.isArmControlInert()).toBeTrue();
+    it('should pin one star to its own amount, absolute rather than relative', () => {
+      // The global control stays at zero, which a multiplier could never
+      // escape — the whole reason the per-star value is absolute.
+      expect(service.controls.diffusion()).toBe(0);
+
+      service.adjustStar(1, { diffusion: 0.8 });
+
+      expect(service.adjustmentFor(1).diffusion).toBe(0.8);
+      expect(service.adjustmentFor(0).diffusion).toBeNull();
     });
 
-    it('should revive the arm controls when a single star is switched to spikes', () => {
-      service.applyPreset('diffusion');
-      service.adjustStar(1, { style: 'spikes' });
-      expect(service.isArmControlInert()).toBeFalse();
+    it('should let a star pin zero while the global amount is high', () => {
+      service.updateControl('diffusion', 1);
+      service.adjustStar(1, { diffusion: 0 });
+
+      expect(service.adjustmentFor(1).diffusion).toBe(0);
+      // A pinned zero is a real deviation, so the entry must be kept.
+      expect(service.starAdjustments().has(1)).toBeTrue();
     });
 
-    it('should not revive them for a star merely switched to a bloom', () => {
-      service.applyPreset('diffusion');
-      service.adjustStar(1, { style: 'glow' });
-      expect(service.isArmControlInert()).toBeTrue();
-    });
-
-    it('should store a per-star effect and drop it again on reset', () => {
-      service.adjustStar(1, { style: 'glow' });
-      expect(service.adjustmentFor(1).style).toBe('glow');
+    it('should return a pinned star to the global amount on reset', () => {
+      service.adjustStar(1, { diffusion: 0.5 });
 
       service.resetStarAdjustment(1);
 
-      expect(service.adjustmentFor(1).style).toBeNull();
+      expect(service.adjustmentFor(1).diffusion).toBeNull();
       expect(service.starAdjustments().has(1)).toBeFalse();
-    });
-
-    it('should keep the entry for a star whose only tweak is its effect', () => {
-      service.adjustStar(1, { style: 'glow' });
-      expect(service.starAdjustments().has(1)).toBeTrue();
     });
   });
 

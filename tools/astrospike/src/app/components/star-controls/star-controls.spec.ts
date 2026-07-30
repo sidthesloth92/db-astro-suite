@@ -91,12 +91,12 @@ describe('StarControls', () => {
       lengthFactor: 1,
       intensityFactor: 1,
       rotationDeg: 0,
-      style: null,
+      diffusion: null,
     });
   });
 
   it('should apply length, brightness, and rotation to that star only', () => {
-    const [length, brightness, rotation] = sliders();
+    const [, length, brightness, rotation] = sliders();
     setSlider(length, 2);
     setSlider(brightness, 1.5);
     setSlider(rotation, 30);
@@ -105,7 +105,7 @@ describe('StarControls', () => {
       lengthFactor: 2,
       intensityFactor: 1.5,
       rotationDeg: 30,
-      style: null,
+      diffusion: null,
     });
     // Neighbours are untouched.
     expect(editor.starAdjustments().has(0)).toBeFalse();
@@ -113,7 +113,7 @@ describe('StarControls', () => {
   });
 
   it('should drop the entry when the sliders return to neutral', () => {
-    const [length] = sliders();
+    const [, length] = sliders();
     setSlider(length, 2);
     expect(editor.starAdjustments().has(1)).toBeTrue();
 
@@ -125,7 +125,7 @@ describe('StarControls', () => {
   it('should enable reset only once the star carries a tweak', () => {
     expect(action('Reset').disabled).toBeTrue();
 
-    setSlider(sliders()[0], 2);
+    setSlider(sliders()[1], 2);
     fixture.detectChanges();
     expect(action('Reset').disabled).toBeFalse();
 
@@ -166,43 +166,45 @@ describe('StarControls', () => {
     expect(closed).toBe(0);
   });
 
-  /** The Spikes/Glow tabs inside the star panel. */
-  function styleTab(label: string): HTMLButtonElement {
-    const tabs: HTMLButtonElement[] = Array.from(
-      fixture.nativeElement.querySelectorAll('button[role="tab"]'),
-    );
-    const match = tabs.find((tab) => tab.textContent?.trim() === label);
-    if (match === undefined) {
-      throw new Error(`${label} tab not rendered`);
-    }
-    return match;
-  }
-
-  it('should start on whatever effect the active preset draws', () => {
-    expect(styleTab('Spikes').getAttribute('aria-selected')).toBe('true');
-
-    editor.applyPreset('diffusion');
+  it('should show the global diffusion until this star pins its own', () => {
+    editor.updateControl('diffusion', 0.4);
     fixture.detectChanges();
 
-    expect(styleTab('Glow').getAttribute('aria-selected')).toBe('true');
+    const row: HTMLElement = fixture.nativeElement.querySelectorAll('.slider-row')[0];
+    expect(row.textContent).toContain('Diffusion');
+    expect(row.textContent).toContain('0.4');
+    // Marked as inherited, so it is clear the star is not pinned yet.
+    expect(row.textContent).toContain('global');
+    expect(editor.starAdjustments().has(1)).toBeFalse();
   });
 
-  it('should switch this star to a bloom without touching its neighbours', () => {
-    styleTab('Glow').click();
+  it('should pin this star diffusion without touching its neighbours', () => {
+    // The global control stays at zero: an absolute value is the only way one
+    // star can bloom on its own.
+    expect(editor.controls.diffusion()).toBe(0);
+
+    setSlider(sliders()[0], 0.75);
     fixture.detectChanges();
 
-    expect(editor.adjustmentFor(1).style).toBe('glow');
+    expect(editor.adjustmentFor(1).diffusion).toBe(0.75);
     expect(editor.starAdjustments().has(0)).toBeFalse();
     expect(editor.starAdjustments().has(2)).toBeFalse();
+    const row: HTMLElement = fixture.nativeElement.querySelectorAll('.slider-row')[0];
+    expect(row.textContent).not.toContain('global');
   });
 
-  it('should drop the rotation slider for a bloom, which has nothing to turn', () => {
-    expect(sliders().length).toBe(3);
-
-    styleTab('Glow').click();
+  it('should keep a pinned zero while the global amount is high', () => {
+    editor.updateControl('diffusion', 1);
     fixture.detectChanges();
 
-    expect(sliders().length).toBe(2);
+    setSlider(sliders()[0], 0);
+
+    expect(editor.adjustmentFor(1).diffusion).toBe(0);
+    expect(editor.starAdjustments().has(1)).toBeTrue();
+  });
+
+  it('should offer four per-star sliders', () => {
+    expect(sliders().length).toBe(4);
   });
 
   it('should emit closed from the action that returns to the global controls', () => {

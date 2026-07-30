@@ -44,8 +44,6 @@ describe('PresetCards', () => {
   it('should hint the arm count of each preset', () => {
     expect(cardFor('classic').textContent).toContain('4 arms');
     expect(cardFor('jwst').textContent).toContain('6 arms');
-    // The bloom preset has none, and says so rather than claiming a count.
-    expect(cardFor('diffusion').textContent).toContain('no arms');
   });
 
   it('should mark only the active preset as checked', () => {

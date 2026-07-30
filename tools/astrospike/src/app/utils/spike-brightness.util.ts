@@ -1,4 +1,6 @@
 import {
+  DIFFUSION_BLOOM_INTENSITY,
+  DIFFUSION_RADIUS_EXPONENT,
   SPIKE_ALPHA_FLOOR,
   SPIKE_MAGNITUDE_SLOPE,
   SPIKE_SCALE_FLOOR,
@@ -55,6 +57,7 @@ export function computeSpikeGeometry(
   preset: SpikePreset,
   lengthFactor: number,
   intensityFactor: number,
+  diffusion: number,
   imageMaxDimension: number,
   scale: number,
 ): SpikeGeometry {
@@ -72,7 +75,11 @@ export function computeSpikeGeometry(
     SPIKE_THICKNESS_MAX_PX,
   );
   const lengthPx = imageLengthPx * scale;
-  const alphaPeak = clamp(preset.intensityScale * intensityFactor * ramp, 0, 1);
+  // Diffusion crossfades: the arms give way as the bloom comes up, reaching
+  // nothing at all at full diffusion. Their LENGTH is untouched — a diffusion
+  // filter swamps a spike in spread light, it does not shorten it.
+  const armFade = clamp(1 - diffusion, 0, 1);
+  const alphaPeak = clamp(preset.intensityScale * intensityFactor * ramp * armFade, 0, 1);
   const thicknessPx = imageThicknessPx * scale;
   const glowRadiusPx = thicknessPx * preset.glowRadiusRatio;
   const glowAlpha = clamp(preset.glowIntensity * intensityFactor * ramp, 0, 1);
@@ -80,29 +87,42 @@ export function computeSpikeGeometry(
 }
 
 /**
- * Computes the bloom geometry for a star drawn in the `glow` style: a radius
- * sized from the image's larger dimension, the preset's `lengthScale`, the
- * user length factor, and the star's relative brightness, plus the glow alpha.
+ * Computes the diffusion bloom for a star: a radius sized from the image's
+ * larger dimension, the preset's bloom scale, the user length factor, the
+ * star's relative brightness, and the diffusion amount, plus its alpha. Both
+ * fall to zero at zero diffusion, which is what leaves a preset rendering
+ * exactly as it did before diffusion existed.
  *
  * The radius is deliberately NOT the `glowRadiusPx` of
  * {@link computeSpikeGeometry}. That one hangs off arm thickness, which hangs
- * off arm length, so a star with no arms would bloom at the clamped minimum
+ * off arm length, so a fully diffused star would bloom at the clamped minimum
  * thickness — the same few pixels for the brightest star in the frame as for
  * the faintest, and the brightness ordering that makes a diffusion filter
  * readable would be gone.
  */
-export function computeGlowGeometry(
+export function computeBloomGeometry(
   flux: number,
   fluxRef: number,
   preset: SpikePreset,
   lengthFactor: number,
   intensityFactor: number,
+  diffusion: number,
   imageMaxDimension: number,
   scale: number,
 ): GlowGeometry {
+  const amount = clamp(diffusion, 0, 1);
+  if (amount === 0) {
+    return { radiusPx: 0, alpha: 0 };
+  }
   const s = starSpikeScale(flux, fluxRef);
   const ramp = alphaRamp(s);
-  const radiusPx = imageMaxDimension * preset.glowRadiusScale * lengthFactor * s * scale;
-  const alpha = clamp(preset.glowIntensity * intensityFactor * ramp, 0, 1);
+  const radiusPx =
+    imageMaxDimension *
+    preset.glowRadiusScale *
+    lengthFactor *
+    s *
+    Math.pow(amount, DIFFUSION_RADIUS_EXPONENT) *
+    scale;
+  const alpha = clamp(DIFFUSION_BLOOM_INTENSITY * intensityFactor * ramp * amount, 0, 1);
   return { radiusPx, alpha };
 }

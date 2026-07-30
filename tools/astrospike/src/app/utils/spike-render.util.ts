@@ -2,7 +2,7 @@ import { FORCED_FLUX_FLOOR_RATIO } from '../constants/spike-geometry.constants';
 import { DEFAULT_STAR_ADJUSTMENT } from '../constants/star-adjustment.constants';
 import { StarColor } from '../models/detected-star.model';
 import { SpikeRenderParams, SpriteCache } from '../models/spike-render-params.model';
-import { computeGlowGeometry, computeSpikeGeometry } from './spike-brightness.util';
+import { computeBloomGeometry, computeSpikeGeometry } from './spike-brightness.util';
 import {
   armMaskCacheKey,
   armSpriteCacheKey,
@@ -62,11 +62,13 @@ function getArmSprite(
  * Draws the embellishment for every star in `params` onto the given canvas
  * context using additive ('lighter') compositing.
  *
- * A `spikes` star gets a central glow at (x * scale, y * scale) plus
- * `spikeCount` arms rotated by the preset offset, the user rotation, and the
- * arm index. A `glow` star gets a single brightness-sized bloom and no arms.
- * The style comes from the preset unless that star's adjustment overrides it,
- * so one frame can bloom its field and spike a chosen few.
+ * Each star gets a central glow at (x * scale, y * scale), `spikeCount` arms
+ * rotated by the preset offset, the user rotation, and the arm index, and a
+ * diffusion bloom. Diffusion crossfades between the last two: at zero the arms
+ * are at full strength and there is no bloom, at one the bloom is full and the
+ * arms have faded to nothing. It comes from the global control unless that star
+ * names its own amount, so one frame can bloom its field and spike a chosen
+ * few — or land anywhere in between on either.
  *
  * Sprites are pulled from (or added to) `spriteCache`. The context's alpha,
  * composite operation, and transform are fully restored before returning.
@@ -92,17 +94,19 @@ export function renderSpikes(
       const adjustment = params.adjustments.get(star.id) ?? DEFAULT_STAR_ADJUSTMENT;
       const cx = star.x * params.scale + params.offsetX;
       const cy = star.y * params.scale + params.offsetY;
+      const diffusion = adjustment.diffusion ?? params.diffusionFactor;
 
-      if ((adjustment.style ?? params.preset.style) === 'glow') {
-        const bloom = computeGlowGeometry(
-          effectiveFlux,
-          params.fluxRef,
-          params.preset,
-          params.lengthFactor * adjustment.lengthFactor,
-          params.intensityFactor * adjustment.intensityFactor,
-          params.imageMaxDimension,
-          params.scale,
-        );
+      const bloom = computeBloomGeometry(
+        effectiveFlux,
+        params.fluxRef,
+        params.preset,
+        params.lengthFactor * adjustment.lengthFactor,
+        params.intensityFactor * adjustment.intensityFactor,
+        diffusion,
+        params.imageMaxDimension,
+        params.scale,
+      );
+      if (bloom.alpha > 0 && bloom.radiusPx > 0) {
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.globalAlpha = bloom.alpha;
         ctx.drawImage(
@@ -112,16 +116,15 @@ export function renderSpikes(
           bloom.radiusPx * 2,
           bloom.radiusPx * 2,
         );
-        continue;
       }
 
-      const armSprite = getArmSprite(spriteCache, star.color, params.preset.falloffGamma);
       const geometry = computeSpikeGeometry(
         effectiveFlux,
         params.fluxRef,
         params.preset,
         params.lengthFactor * adjustment.lengthFactor,
         params.intensityFactor * adjustment.intensityFactor,
+        diffusion,
         params.imageMaxDimension,
         params.scale,
       );
@@ -136,6 +139,12 @@ export function renderSpikes(
         geometry.glowRadiusPx * 2,
       );
 
+      if (geometry.alphaPeak <= 0) {
+        continue; // Fully diffused: nothing left of the arms to draw.
+      }
+      // Resolved only now, so a fully diffused field never tints arm sprites
+      // it will not use.
+      const armSprite = getArmSprite(spriteCache, star.color, params.preset.falloffGamma);
       const baseAngle =
         ((params.rotationDeg + adjustment.rotationDeg + params.preset.rotationOffsetDeg) *
           Math.PI) /

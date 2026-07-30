@@ -29,6 +29,7 @@ const PARAMS: SpikeRenderParams = {
   lengthFactor: 1,
   intensityFactor: 1,
   rotationDeg: 0,
+  diffusionFactor: 0,
   imageMaxDimension: 8,
   scale: 1,
 };

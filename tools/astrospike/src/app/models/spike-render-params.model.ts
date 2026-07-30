@@ -46,6 +46,11 @@ export interface SpikeRenderParams {
   intensityFactor: number;
   /** User rotation of the spike pattern in degrees. */
   rotationDeg: number;
+  /**
+   * Global diffusion amount in [0, 1] crossfading arms into a bloom. A star
+   * naming its own amount in its adjustment overrides this one.
+   */
+  diffusionFactor: number;
   /** Larger dimension of the full-resolution image in pixels. */
   imageMaxDimension: number;
   /** Scale from full-resolution image pixels to target canvas pixels. */
@@ -59,10 +64,10 @@ export interface SpikeRenderParams {
 export type SpriteCache = Map<string, HTMLCanvasElement>;
 
 /**
- * Per-star bloom geometry for a `glow` star, in target canvas pixels and
- * 0–1 alpha. Its radius is sized from the image and the star's brightness
- * rather than from arm thickness, which is what lets a bloom stay
- * brightness-ordered on a star that has no arms at all.
+ * Per-star diffusion bloom, in target canvas pixels and 0–1 alpha. Its radius
+ * is sized from the image and the star's brightness rather than from arm
+ * thickness, which is what keeps a bloom brightness-ordered once diffusion has
+ * faded the arms away entirely.
  */
 export interface GlowGeometry {
   /** Radius of the bloom in canvas pixels. */

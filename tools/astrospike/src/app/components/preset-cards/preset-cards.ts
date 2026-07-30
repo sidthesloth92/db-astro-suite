@@ -3,10 +3,9 @@ import { SPIKE_PRESETS, SPIKE_PRESET_ORDER } from '../../constants/spike-presets
 import { SpikePreset, SpikePresetId } from '../../models/spike-preset.model';
 
 /**
- * Preset picker for the star embellishment style. Renders one selectable card
- * per built-in preset (Subtle, Classic, JWST, Diffusion) with a glyph hinting
- * the effect — arm count for the spike presets, concentric rings for the
- * bloom — plus the preset name and its description.
+ * Preset picker for the diffraction spike style. Renders one selectable card
+ * per built-in preset (Subtle, Classic, JWST) with a glyph hinting the arm
+ * count, the preset name, and its description.
  *
  * Dumb component: the active preset is supplied by the parent and every click
  * is emitted back out — it holds no state and injects no services.

@@ -56,3 +56,20 @@ export const SPIKE_THICKNESS_MAX_PX = 16;
  * can read as the click doing nothing.
  */
 export const FORCED_FLUX_FLOOR_RATIO = 0.1;
+
+/**
+ * Alpha of a fully diffused star's bloom before user brightness scaling.
+ * Carried over from the tuned bloom that shipped as its own preset, so full
+ * diffusion still reproduces the diffusion-filter look it was chosen for.
+ */
+export const DIFFUSION_BLOOM_INTENSITY = 0.85;
+
+/**
+ * Exponent applied to the diffusion amount when sizing the bloom.
+ *
+ * Alpha scales linearly with the slider, which is what reads as "how much".
+ * Radius scaling linearly too would make low settings a faint pinprick nobody
+ * would notice, so radius rises faster than the setting does and the bloom
+ * arrives at a legible size as soon as it arrives at all.
+ */
+export const DIFFUSION_RADIUS_EXPONENT = 0.5;

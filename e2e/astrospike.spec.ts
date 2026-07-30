@@ -87,7 +87,7 @@ test.describe("AstroSpike", () => {
     await expect(astroSpike.getSelectedArmTab()).toHaveText("4 spikes");
   });
 
-  test("should bloom the stars with no arms when the Diffusion preset is selected", async ({
+  test("should offer a diffusion slider that softens the spikes into a bloom", async ({
     page,
   }) => {
     const astroSpike = new AstroSpikePage(page);
@@ -95,15 +95,15 @@ test.describe("AstroSpike", () => {
     await astroSpike.loadImage(STARFIELD_FIXTURE);
     await astroSpike.waitForDetectedStars();
 
-    // Every other preset draws arms, so the toggle starts live.
-    await expect(astroSpike.getArmsTab()).toBeEnabled();
+    // Sharp spikes by default, so an image opens as its preset intends.
+    expect(await astroSpike.getControlReadout("Diffusion")).toBe("0");
 
-    await astroSpike.selectPreset("Diffusion");
+    await astroSpike.setControlValue("Diffusion", 1);
 
-    await expect(astroSpike.getSelectedPreset()).toContainText("Diffusion");
-    await expect(astroSpike.getSelectedPreset()).toContainText("no arms");
-    // Nothing on the canvas has arms any more, so the arm count is inert.
-    await expect(astroSpike.getArmsTab()).toBeDisabled();
+    expect(await astroSpike.getControlReadout("Diffusion")).toBe("1");
+    // Diffusion is orthogonal to the preset, which is left as it was.
+    await expect(astroSpike.getSelectedPreset()).toContainText("Classic");
+    await expect(astroSpike.getSelectedArmTab()).toHaveText("4 spikes");
   });
 
   test("should show a before and after comparison divider once an image is loaded", async ({

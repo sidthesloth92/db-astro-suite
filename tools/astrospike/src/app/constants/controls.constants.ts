@@ -23,6 +23,17 @@ export const CONTROLS: Record<EditorControlKey, ControlMetadata> = {
     step: 0.05,
     initial: 1,
   },
+  diffusion: {
+    label: 'Diffusion',
+    description:
+      'Softens the spikes into a bloom, the look of a diffusion filter on the lens. At 0 the spikes are sharp; at 1 they are gone and only the bloom is left.',
+    min: 0,
+    max: 1,
+    step: 0.05,
+    // Zero, so an image opens rendered exactly as the preset intends and
+    // diffusion is something the user reaches for rather than undoes.
+    initial: 0,
+  },
   brightness: {
     label: 'Brightness',
     description: 'Scales the intensity of the spikes and their glow.',
@@ -47,6 +58,7 @@ export const CONTROLS: Record<EditorControlKey, ControlMetadata> = {
 export const EDITOR_CONTROL_KEYS: readonly EditorControlKey[] = [
   'stars',
   'length',
+  'diffusion',
   'brightness',
   'rotation',
 ];

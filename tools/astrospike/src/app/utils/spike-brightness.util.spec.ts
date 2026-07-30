@@ -1,12 +1,15 @@
 import { SPIKE_ALPHA_FLOOR } from '../constants/spike-geometry.constants';
 import { SpikePreset } from '../models/spike-preset.model';
-import { computeSpikeGeometry, starSpikeScale } from './spike-brightness.util';
+import {
+  computeBloomGeometry,
+  computeSpikeGeometry,
+  starSpikeScale,
+} from './spike-brightness.util';
 
 /** Builds a fully populated test preset with selective overrides. */
 function makePreset(overrides: Partial<SpikePreset> = {}): SpikePreset {
   return {
     id: 'classic',
-    style: 'spikes',
     label: 'Test',
     description: 'Test preset',
     spikeCount: 4,
@@ -81,7 +84,7 @@ describe('starSpikeScale', () => {
 
 describe('computeSpikeGeometry', () => {
   it('should compute the documented formulas for the brightest star', () => {
-    const geometry = computeSpikeGeometry(100, 100, makePreset(), 1, 1, 2000, 1);
+    const geometry = computeSpikeGeometry(100, 100, makePreset(), 1, 1, 0, 2000, 1);
     // lengthPx = 2000 * 0.12 * 1 * 1 * 1 = 240.
     expect(geometry.lengthPx).toBeCloseTo(240, 6);
     // s = 1, so the alpha ramp reaches its full value: 0.8 * 1 = 0.8.
@@ -102,7 +105,7 @@ describe('computeSpikeGeometry', () => {
       glowRadiusRatio: 2.5,
       glowIntensity: 0.22,
     });
-    const geometry = computeSpikeGeometry(1, 100, preset, 1, 1, 1000, 0.5);
+    const geometry = computeSpikeGeometry(1, 100, preset, 1, 1, 0, 1000, 0.5);
     // 100x below the reference bottoms out at the scale floor: s = 0.15.
     // lengthPx = 1000 * 0.06 * 1 * 0.15 * 0.5 = 4.5.
     expect(geometry.lengthPx).toBeCloseTo(4.5, 6);
@@ -124,7 +127,7 @@ describe('computeSpikeGeometry', () => {
       thicknessRatio: 0.035,
       glowIntensity: 0.4,
     });
-    const geometry = computeSpikeGeometry(100, 100, preset, 2, 2, 16000, 1);
+    const geometry = computeSpikeGeometry(100, 100, preset, 2, 2, 0, 16000, 1);
     // lengthPx = 16000 * 0.16 * 2 = 5120; raw thickness 179.2 clamps to 16.
     expect(geometry.lengthPx).toBeCloseTo(5120, 6);
     expect(geometry.thicknessPx).toBe(16);
@@ -144,16 +147,9 @@ describe('computeSpikeGeometry', () => {
     const imageMaxDimension = 6000;
     const previewScale = 2048 / imageMaxDimension;
 
-    const exported = computeSpikeGeometry(100, 100, preset, 1, 1, imageMaxDimension, 1);
-    const preview = computeSpikeGeometry(
-      100,
-      100,
-      preset,
-      1,
-      1,
-      imageMaxDimension,
-      previewScale,
-    );
+    const exported = computeSpikeGeometry(100, 100, preset, 1, 1, 0, imageMaxDimension, 1);
+    const preview = computeSpikeGeometry(100,
+      100, preset, 1, 1, 0, imageMaxDimension, previewScale);
 
     expect(exported.thicknessPx).toBe(16); // ceiling reached at full resolution
     expect(preview.lengthPx).toBeCloseTo(exported.lengthPx * previewScale, 6);
@@ -165,11 +161,61 @@ describe('computeSpikeGeometry', () => {
   });
 
   it('should keep the floor alpha for a zero-flux star while its length collapses', () => {
-    const geometry = computeSpikeGeometry(0, 100, makePreset(), 1, 1, 2000, 1);
+    const geometry = computeSpikeGeometry(0, 100, makePreset(), 1, 1, 0, 2000, 1);
     // s = 0: no arm length, but alpha keeps the configured floor term.
     expect(geometry.lengthPx).toBe(0);
     expect(geometry.thicknessPx).toBe(1.5);
     expect(geometry.alphaPeak).toBeCloseTo(0.8 * SPIKE_ALPHA_FLOOR, 6);
     expect(geometry.glowAlpha).toBeCloseTo(0.35 * SPIKE_ALPHA_FLOOR, 6);
+  });
+});
+
+describe('diffusion crossfade', () => {
+  it('should fade the arm alpha linearly with the diffusion amount', () => {
+    const armAlpha = (diffusion: number): number =>
+      computeSpikeGeometry(100, 100, makePreset(), 1, 1, diffusion, 2000, 1).alphaPeak;
+    const sharp = armAlpha(0);
+
+    // Linear in the setting, which is what makes the slider predictable: half
+    // way along is half the arm strength, not a cliff at either end.
+    expect(armAlpha(0.25)).toBeCloseTo(sharp * 0.75, 6);
+    expect(armAlpha(0.5)).toBeCloseTo(sharp * 0.5, 6);
+    expect(armAlpha(0.75)).toBeCloseTo(sharp * 0.25, 6);
+    expect(armAlpha(1)).toBe(0);
+  });
+
+  it('should leave arm length and thickness alone as diffusion rises', () => {
+    // A diffusion filter swamps a spike in spread light; it does not retract it.
+    const sharp = computeSpikeGeometry(100, 100, makePreset(), 1, 1, 0, 2000, 1);
+    const diffused = computeSpikeGeometry(100, 100, makePreset(), 1, 1, 0.7, 2000, 1);
+
+    expect(diffused.lengthPx).toBeCloseTo(sharp.lengthPx, 6);
+    expect(diffused.thicknessPx).toBeCloseTo(sharp.thicknessPx, 6);
+  });
+
+  it('should draw no bloom at all at zero diffusion', () => {
+    const bloom = computeBloomGeometry(100, 100, makePreset(), 1, 1, 0, 2000, 1);
+    expect(bloom.radiusPx).toBe(0);
+    expect(bloom.alpha).toBe(0);
+  });
+
+  it('should raise the bloom alpha linearly and its radius faster', () => {
+    const bloom = (diffusion: number) =>
+      computeBloomGeometry(100, 100, makePreset(), 1, 1, diffusion, 2000, 1);
+    const full = bloom(1);
+
+    expect(bloom(0.5).alpha).toBeCloseTo(full.alpha * 0.5, 6);
+    // Radius rises on a square root, so a low setting still bloom wide enough
+    // to notice instead of reading as a pinprick.
+    expect(bloom(0.25).radiusPx).toBeCloseTo(full.radiusPx * 0.5, 6);
+    expect(bloom(0.25).radiusPx).toBeGreaterThan(full.radiusPx * 0.25);
+  });
+
+  it('should keep the bloom ordered by star brightness', () => {
+    const bright = computeBloomGeometry(100, 100, makePreset(), 1, 1, 1, 2000, 1);
+    const faint = computeBloomGeometry(5, 100, makePreset(), 1, 1, 1, 2000, 1);
+
+    expect(bright.radiusPx).toBeGreaterThan(faint.radiusPx);
+    expect(bright.alpha).toBeGreaterThan(faint.alpha);
   });
 });
