@@ -52,13 +52,13 @@ export class AstroSpikePage {
   }
 
   /**
-   * Navigates to AstroSpike and waits for the empty studio to render. It waits
-   * on the dropzone rather than the controls pane: with no image there is no
-   * pane, by design.
+   * Navigates to AstroSpike and waits for the studio to render. The app loads
+   * the bundled Pleiades sample on startup, so "ready" is the controls pane
+   * appearing — the dropzone only exists after the loaded image is removed.
    */
   async navigate(): Promise<void> {
     await this.page.goto("http://localhost:4202/astrospike/");
-    await expect(this.dropzoneHeading).toBeVisible();
+    await expect(this.controlPanel).toBeVisible({ timeout: 60_000 });
   }
 
   /** Locator for the dropzone headline — visible only before an image loads. */
@@ -71,8 +71,15 @@ export class AstroSpikePage {
     return this.privacyNote;
   }
 
-  /** Loads an image through the dropzone's file input. */
+  /**
+   * Loads an image through the dropzone's file input. The studio opens with
+   * the bundled sample already in place, so whatever is loaded is removed
+   * first to bring the dropzone (and its input) back.
+   */
   async loadImage(absolutePath: string): Promise<void> {
+    if ((await this.fileInput.count()) === 0) {
+      await this.clearImage();
+    }
     await this.fileInput.waitFor({ state: "attached" });
     await this.fileInput.setInputFiles(absolutePath);
   }

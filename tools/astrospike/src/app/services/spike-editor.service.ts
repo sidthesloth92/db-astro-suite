@@ -18,6 +18,7 @@ import {
   MANUAL_STAR_SNAP_RADIUS_PX,
   MANUAL_STAR_WINDOW_RADIUS_PX,
 } from '../constants/manual-star.constants';
+import { SAMPLE_IMAGE_FILE_NAME, SAMPLE_IMAGE_URL } from '../constants/sample-image.constants';
 import { DEFAULT_STAR_ADJUSTMENT } from '../constants/star-adjustment.constants';
 import { DetectedStar } from '../models/detected-star.model';
 import { StarDetectionError, SupersededError } from '../models/detection.error';
@@ -287,6 +288,33 @@ export class SpikeEditorService implements OnDestroy {
   // ==================== Image Lifecycle ====================
 
   /**
+   * Fetches the bundled sample astrophoto and loads it exactly as a dropped
+   * file, so a first-time visitor sees spikes on real stars immediately.
+   *
+   * A nicety, not a requirement: if the user beats the fetch with their own
+   * image the sample steps aside, and if the fetch fails the studio simply
+   * opens on the dropzone — the failure is logged, never shown.
+   */
+  async loadSampleImage(): Promise<void> {
+    try {
+      const response = await fetch(SAMPLE_IMAGE_URL);
+      if (!response.ok) {
+        throw new Error(`Sample image responded ${response.status}`);
+      }
+      const blob = await response.blob();
+      if (this.hasImage() || this.isImageLoading()) {
+        return; // The user already loaded their own image; theirs wins.
+      }
+      await this.loadImage(
+        new File([blob], SAMPLE_IMAGE_FILE_NAME, { type: blob.type || 'image/jpeg' }),
+        'sample',
+      );
+    } catch (error) {
+      console.error('Failed to load the sample image:', error);
+    }
+  }
+
+  /**
    * Loads a new image and runs star detection on it exactly once.
    *
    * Resets overrides, hover, compare, and errors up front. Every terminal
@@ -295,8 +323,10 @@ export class SpikeEditorService implements OnDestroy {
    * run never disturbs a newer one).
    *
    * @param file The user-selected image file.
+   * @param source Where the image came from — the bundled sample or the user.
+   *   Carried into analytics so sample pageviews never read as user uploads.
    */
-  async loadImage(file: File): Promise<void> {
+  async loadImage(file: File, source: 'user' | 'sample' = 'user'): Promise<void> {
     const generation = ++this.loadGeneration;
     this.resetInteractionState();
     this.imageError.set(null);
@@ -336,6 +366,7 @@ export class SpikeEditorService implements OnDestroy {
           width: loaded.meta.width,
           height: loaded.meta.height,
           starCount: stars.length,
+          source,
         });
       }
     } catch (error) {

@@ -94,6 +94,7 @@ describe('SpikeEditorService', () => {
         width: 8,
         height: 8,
         starCount: STARS.length,
+        source: 'user',
       });
       expect(service.renderParams()).not.toBeNull();
     });

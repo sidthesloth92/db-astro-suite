@@ -13,11 +13,15 @@ const STARFIELD_FIXTURE = path.resolve(
 );
 
 test.describe("AstroSpike", () => {
-  test("should offer a dropzone and promise that the image stays local", async ({
+  test("should offer a dropzone that promises the image stays local once the sample is removed", async ({
     page,
   }) => {
     const astroSpike = new AstroSpikePage(page);
     await astroSpike.navigate();
+
+    // The studio opens on the bundled Pleiades sample; removing it is the way
+    // to the dropzone.
+    await astroSpike.clearImage();
 
     await expect(astroSpike.getDropzoneHeading()).toBeVisible();
     await expect(astroSpike.getPrivacyNote()).toBeVisible();
