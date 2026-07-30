@@ -228,6 +228,33 @@ export class SpikeEditorService implements OnDestroy {
     () => this.allStars().length - this.manualStarIds().size,
   );
 
+  /**
+   * True once anything about the look departs from a freshly loaded image:
+   * a preset, a slider, a toggled or tuned star, a placed star, or the compare
+   * divider. Export format and JPEG quality are deliberately excluded — they
+   * describe the output, not the look, and resetting the look should not throw
+   * away the user's choice of file type.
+   */
+  public readonly isDirty = computed(() => {
+    if (this.presetId() !== DEFAULT_PRESET_ID) {
+      return true;
+    }
+    if (this.spikeCount() !== SPIKE_PRESETS[DEFAULT_PRESET_ID].spikeCount) {
+      return true;
+    }
+    for (const key of Object.keys(this.controls) as EditorControlKey[]) {
+      if (this.controls[key]() !== CONTROLS[key].initial) {
+        return true;
+      }
+    }
+    return (
+      this.overrides().size > 0 ||
+      this.starAdjustments().size > 0 ||
+      this.manualStarIds().size > 0 ||
+      this.comparePosition() !== 0
+    );
+  });
+
   /** True once a source image is loaded. */
   public readonly hasImage = computed(() => this.sourceImage() !== null);
 
@@ -470,6 +497,30 @@ export class SpikeEditorService implements OnDestroy {
       next.delete(id);
       return next;
     });
+  }
+
+  /**
+   * Returns the whole look to how a freshly loaded image arrives: default
+   * preset and arm count, every slider back to its initial value, every
+   * per-star toggle and tweak dropped, every hand-placed star removed, and the
+   * compare divider closed.
+   *
+   * The image itself and its detected stars survive — detection is expensive
+   * and its result has not changed. Export format and quality survive too, for
+   * the reason given on {@link isDirty}.
+   */
+  resetAll(): void {
+    const placed = this.manualStarIds();
+    if (placed.size > 0) {
+      this.allStars.update((stars) => stars.filter((star) => !placed.has(star.id)));
+    }
+    this.presetId.set(DEFAULT_PRESET_ID);
+    this.spikeCount.set(SPIKE_PRESETS[DEFAULT_PRESET_ID].spikeCount);
+    for (const key of Object.keys(this.controls) as EditorControlKey[]) {
+      this.controls[key].set(CONTROLS[key].initial);
+    }
+    this.resetInteractionState();
+    this.analyticsService.trackEvent('astrospike_reset', {});
   }
 
   /** Enters or leaves place-a-star mode. */

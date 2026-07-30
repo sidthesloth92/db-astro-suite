@@ -3,6 +3,16 @@
     <h2 class="panel-title">Controls</h2>
     <button
       type="button"
+      class="reset-button"
+      title="Return every control and per-star edit to its default"
+      [disabled]="!editor.isDirty()"
+      (click)="onReset()"
+    >
+      <dba-ui-icon [def]="rotateCcwIcon" [size]="13" />
+      <span>Reset</span>
+    </button>
+    <button
+      type="button"
       class="how-to-button"
       [class.is-open]="isHelpOpen()"
       [attr.aria-expanded]="isHelpOpen()"

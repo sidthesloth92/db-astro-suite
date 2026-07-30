@@ -53,10 +53,48 @@
   border-bottom: 1px solid var(--db-color-border);
 }
 
+/* Returns the look to its defaults. Sits left of the how-to toggle and stays
+   quiet — it is a way out, not somewhere to go. */
+.reset-button {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 9px;
+  border: 1px solid var(--db-color-border);
+  border-radius: 6px;
+  background: none;
+  color: var(--db-color-text-dim);
+  font-family: var(--db-font-ui);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    color 180ms ease,
+    border-color 180ms ease;
+}
+
+.reset-button:hover:not(:disabled) {
+  color: var(--db-color-text-primary);
+  border-color: var(--db-color-border-active);
+}
+
+.reset-button:focus-visible {
+  outline: 2px solid var(--db-color-cyan);
+  outline-offset: 2px;
+}
+
+.reset-button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
 /* Toggles the how-to list. Mirrors the starwizz pane's "How to use" affordance
    so the two studios teach themselves the same way. */
 .how-to-button {
-  margin-left: auto;
   display: inline-flex;
   align-items: center;
   gap: 6px;

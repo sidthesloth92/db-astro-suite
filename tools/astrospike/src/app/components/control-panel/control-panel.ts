@@ -15,6 +15,7 @@ import {
   InspectorSectionComponent,
   MicroSliderComponent,
   SegmentedTabsComponent,
+  rotateCcwIcon,
   sparklesIcon,
   starsIcon,
   TooltipDirective,
@@ -79,6 +80,9 @@ export class ControlPanel {
 
   /** Chip glyph for the Spikes section. */
   protected readonly starsIcon = starsIcon;
+
+  /** Glyph on the reset action. */
+  protected readonly rotateCcwIcon = rotateCcwIcon;
 
   /** Scrollable body of the pane — scrolled to the top when a star opens. */
   private readonly panelScrollRef = viewChild<ElementRef<HTMLElement>>('panelScroll');
@@ -187,5 +191,10 @@ export class ControlPanel {
   /** Expands or collapses the how-to list under the pane header. */
   protected onToggleHelp(): void {
     this.isHelpOpen.update((open) => !open);
+  }
+
+  /** Returns every control and per-star edit to its default. */
+  protected onReset(): void {
+    this.editor.resetAll();
   }
 }
