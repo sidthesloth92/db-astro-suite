@@ -4,7 +4,7 @@
   </header>
 
   <div #panelScroll class="panel-scroll">
-      <dba-ui-inspector-section title="Preset" sub="Diffraction spike style" [compact]="true">
+      <dba-ui-inspector-section title="Preset" sub="Spike or bloom style" [compact]="true">
         <dba-ui-icon slot="icon" [def]="sparklesIcon" [size]="14" />
         <div class="section-body">
           <dba-as-preset-cards
@@ -16,7 +16,7 @@
 
       <hr class="divider" aria-hidden="true" />
 
-      <dba-ui-inspector-section title="Spikes" sub="Shape the spike pattern" [compact]="true">
+      <dba-ui-inspector-section [title]="adjustmentsTitle()" [sub]="adjustmentsSub()" [compact]="true">
         <dba-ui-icon slot="icon" [def]="starsIcon" [size]="14" />
 
         <!-- Reusable slider-row markup, instantiated once per editor control. -->
@@ -51,22 +51,24 @@
         </ng-template>
 
         <div class="section-body">
-          @for (control of controlKeys; track control) {
+          @for (control of controlKeys(); track control) {
             <ng-container
               [ngTemplateOutlet]="sliderRow"
               [ngTemplateOutletContext]="{ $implicit: control }"
             ></ng-container>
           }
 
-          <div class="arms-row">
-            <label class="row-label">Arms</label>
-            <dba-ui-segmented-tabs
-              size="sm"
-              [options]="spikeCountTabs"
-              [value]="spikeCountTabId()"
-              (valueChange)="onSpikeCountChange($event)"
-            ></dba-ui-segmented-tabs>
-          </div>
+          @if (!isDiffusionMode()) {
+            <div class="arms-row">
+              <label class="row-label">Arms</label>
+              <dba-ui-segmented-tabs
+                size="sm"
+                [options]="spikeCountTabs"
+                [value]="spikeCountTabId()"
+                (valueChange)="onSpikeCountChange($event)"
+              ></dba-ui-segmented-tabs>
+            </div>
+          }
         </div>
       </dba-ui-inspector-section>
   </div>

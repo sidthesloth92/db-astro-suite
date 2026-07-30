@@ -8,7 +8,11 @@ import {
   IMAGE_LOAD_FAILED,
 } from '../constants/editor-messages.constants';
 import { DEFAULT_JPEG_QUALITY } from '../constants/export.constants';
-import { DEFAULT_PRESET_ID, SPIKE_PRESETS } from '../constants/spike-presets.constants';
+import {
+  DEFAULT_PRESET_ID,
+  DIFFUSION_PRESET_SEED_AMOUNT,
+  SPIKE_PRESETS,
+} from '../constants/spike-presets.constants';
 import {
   MANUAL_STAR_AREA,
   MANUAL_STAR_SNAP_RADIUS_PX,
@@ -272,6 +276,14 @@ export class SpikeEditorService implements OnDestroy {
    */
   private loadGeneration = 0;
 
+  /**
+   * The Length and Diffusion values as they were the moment the Diffusion
+   * preset was entered, or null outside the mode. Entering the mode seeds
+   * those two controls, so leaving it restores them — switching back to a
+   * spike preset must look the way that preset looked before the detour.
+   */
+  private diffusionModeSnapshot: { length: number; diffusion: number } | null = null;
+
   // ==================== Image Lifecycle ====================
 
   /**
@@ -358,6 +370,7 @@ export class SpikeEditorService implements OnDestroy {
     this.isExporting.set(false);
     this.presetId.set(DEFAULT_PRESET_ID);
     this.spikeCount.set(SPIKE_PRESETS[DEFAULT_PRESET_ID].spikeCount);
+    this.diffusionModeSnapshot = null;
     for (const key of Object.keys(this.controls) as EditorControlKey[]) {
       this.controls[key].set(CONTROLS[key].initial);
     }
@@ -368,11 +381,34 @@ export class SpikeEditorService implements OnDestroy {
   // ==================== Control Methods ====================
 
   /**
-   * Activates a spike preset: sets the preset id AND its default spike count.
-   * The user's slider values are deliberately left unchanged.
+   * Activates a preset: sets the preset id AND its default spike count. For
+   * the spike presets the user's slider values are deliberately left
+   * unchanged.
+   *
+   * The Diffusion preset is a mode, so it does touch the sliders: entering it
+   * remembers Length and Diffusion, zeroes Length (which removes the arms and
+   * their core glow, leaving pure bloom), and seeds Diffusion if it was zero
+   * so the mode visibly does something the moment it is picked. Leaving it
+   * restores what was remembered, so the spike preset returned to looks
+   * exactly as it did before the detour.
    * @param id The preset to activate.
    */
   applyPreset(id: SpikePresetId): void {
+    const previous = this.presetId();
+    if (id === 'diffusion' && previous !== 'diffusion') {
+      this.diffusionModeSnapshot = {
+        length: this.controls.length(),
+        diffusion: this.controls.diffusion(),
+      };
+      this.controls.length.set(0);
+      if (this.controls.diffusion() === 0) {
+        this.controls.diffusion.set(DIFFUSION_PRESET_SEED_AMOUNT);
+      }
+    } else if (id !== 'diffusion' && previous === 'diffusion' && this.diffusionModeSnapshot !== null) {
+      this.controls.length.set(this.diffusionModeSnapshot.length);
+      this.controls.diffusion.set(this.diffusionModeSnapshot.diffusion);
+      this.diffusionModeSnapshot = null;
+    }
     this.presetId.set(id);
     this.spikeCount.set(SPIKE_PRESETS[id].spikeCount);
     this.analyticsService.trackEvent('astrospike_preset_applied', { preset: id });
@@ -516,6 +552,7 @@ export class SpikeEditorService implements OnDestroy {
     }
     this.presetId.set(DEFAULT_PRESET_ID);
     this.spikeCount.set(SPIKE_PRESETS[DEFAULT_PRESET_ID].spikeCount);
+    this.diffusionModeSnapshot = null;
     for (const key of Object.keys(this.controls) as EditorControlKey[]) {
       this.controls[key].set(CONTROLS[key].initial);
     }

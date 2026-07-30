@@ -41,7 +41,7 @@ export const ASTROSPIKE_DETAIL: ToolDetailConfig = {
 
   stats: [
     { value: '0', label: 'Uploads ever' },
-    { value: '3', label: 'Spike presets' },
+    { value: '4', label: 'Style presets' },
     { value: 'Full', label: 'Export resolution' },
     { value: 'Free', label: 'Forever' },
   ],
@@ -53,7 +53,7 @@ export const ASTROSPIKE_DETAIL: ToolDetailConfig = {
     'Diffraction spikes are what make a star look like a star. Refractor owners never get them, and adding them by hand in a photo editor means masking every star individually — hours of work that rarely survives a second look at full zoom.',
     'AstroSpike does the tedious part for you. It converts your image to luminance, models the background so nebulosity and gradients do not fool it, and finds the genuine point sources — rejecting hot pixels, satellite trails, and galaxy cores along the way. The star list is measured once and cached, so every slider you touch re-renders instantly.',
     'Spikes are composited additively over your original pixels, the way real diffraction behaves. Length and intensity follow each star’s measured brightness, and the colour is sampled from the star’s own core, so a warm orange giant gets warm spikes and a hot blue star gets cool ones. Each arm is graded along its length too — cool at the root, red at the tip — because diffraction spreads light by wavelength.',
-    'Wide fields want the opposite treatment, so Diffusion blooms the stars the way a soft filter on the lens does, independently of the spikes. Pick a preset, work the sliders, click any star to include or exclude it, double-click one to tune it alone, and place a star yourself if detection missed one. Export the finished frame, or the spikes on their own as a transparent layer to composite over your 16-bit master.',
+    'Wide fields want the opposite treatment, so Diffusion blooms the stars the way a soft filter on the lens does, independently of the spikes — there is a whole Diffusion preset for that look on its own. Pick a preset, work the sliders, click any star to include or exclude it, double-click one to tune it alone, and place a star yourself if detection missed one. Export the finished frame, or the spikes on their own as a transparent layer to composite over your 16-bit master.',
   ],
   aboutPull: '“Your image never leaves your browser.”',
 
@@ -70,8 +70,8 @@ export const ASTROSPIKE_DETAIL: ToolDetailConfig = {
     },
     {
       icon: sparklesIcon,
-      name: 'Three spike presets',
-      body: 'Subtle for a light touch, Classic for the four-armed Newtonian look, JWST for the six-armed signature.',
+      name: 'Four style presets',
+      body: 'Subtle for a light touch, Classic for the four-armed Newtonian look, JWST for the six-armed signature, Diffusion for pure bloom.',
     },
     {
       icon: starsIcon,
@@ -131,7 +131,7 @@ export const ASTROSPIKE_DETAIL: ToolDetailConfig = {
     },
     {
       title: 'Choose a look',
-      body: 'Subtle, Classic, or JWST — then switch between four and six spikes if you like.',
+      body: 'Subtle, Classic, JWST, or a spike-free Diffusion bloom — then switch between four and six spikes if you like.',
     },
     {
       title: 'Fine-tune',

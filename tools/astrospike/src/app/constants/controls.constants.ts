@@ -39,7 +39,7 @@ export const CONTROLS: Record<EditorControlKey, ControlMetadata> = {
   diffusion: {
     label: 'Diffusion',
     description:
-      'Blooms each star, the look of a diffusion filter on the lens. Independent of the spikes: it adds the bloom and leaves the arms alone, so set Length to 0 for a bloom on its own.',
+      'Blooms each star, the look of a diffusion filter on the lens. Independent of the spikes: it adds the bloom and leaves the arms alone — the Diffusion preset gives you the bloom on its own.',
     min: 0,
     max: 1,
     step: 0.05,
@@ -77,3 +77,10 @@ export const EDITOR_CONTROL_KEYS: readonly EditorControlKey[] = [
   'brightness',
   'rotation',
 ];
+
+/**
+ * The sliders shown while the Diffusion preset is active. The bloom is driven
+ * only by which stars are in the cut and the diffusion amount — every other
+ * control shapes the arms, which the mode has zeroed away.
+ */
+export const DIFFUSION_CONTROL_KEYS: readonly EditorControlKey[] = ['stars', 'diffusion'];

@@ -1,15 +1,17 @@
 /**
  * Identifier of a built-in star embellishment preset.
  */
-export type SpikePresetId = 'subtle' | 'classic' | 'jwst';
+export type SpikePresetId = 'subtle' | 'classic' | 'jwst' | 'diffusion';
 
 /**
  * A named diffraction-spike style: arm count plus the geometry and intensity
  * ratios the renderer scales by image size and user controls.
  *
  * How spiked or how bloomed a star looks is NOT part of the preset — that is
- * the Diffusion control, which crossfades between the two on any preset and
- * can be set per star.
+ * the independent Diffusion control, adjustable on any preset and per star.
+ * The `diffusion` preset is a mode more than a style: applying it seeds the
+ * controls for a bloom-only look (Length to zero, Diffusion up) and the pane
+ * trims itself to the controls that still do anything.
  */
 export interface SpikePreset {
   /** Stable preset identifier. */

@@ -46,6 +46,23 @@ export const SPIKE_PRESETS: Record<SpikePresetId, SpikePreset> = {
     glowIntensity: 0.4,
     rotationOffsetDeg: 90,
   },
+  // The arm ratios are Classic's: they only matter if the user re-raises
+  // Length from a spike preset later, and matching Classic makes that
+  // transition unsurprising. The mode itself comes from the seeded controls.
+  diffusion: {
+    id: 'diffusion',
+    label: 'Diffusion',
+    description: 'Soft-filter bloom on its own — no spikes, just glowing stars.',
+    spikeCount: 4,
+    lengthScale: 0.12,
+    glowRadiusScale: 0.013,
+    intensityScale: 0.8,
+    thicknessRatio: 0.035,
+    falloffGamma: 2.2,
+    glowRadiusRatio: 3.0,
+    glowIntensity: 0.35,
+    rotationOffsetDeg: 45,
+  },
 };
 
 /**
@@ -56,4 +73,16 @@ export const DEFAULT_PRESET_ID: SpikePresetId = 'classic';
 /**
  * Display order of the presets in the preset picker.
  */
-export const SPIKE_PRESET_ORDER: readonly SpikePresetId[] = ['subtle', 'classic', 'jwst'];
+export const SPIKE_PRESET_ORDER: readonly SpikePresetId[] = [
+  'subtle',
+  'classic',
+  'jwst',
+  'diffusion',
+];
+
+/**
+ * Diffusion amount seeded when the Diffusion preset is applied while the
+ * control still sits at zero — the mode must visibly do something the moment
+ * it is picked. A control the user already raised is left alone.
+ */
+export const DIFFUSION_PRESET_SEED_AMOUNT = 0.6;

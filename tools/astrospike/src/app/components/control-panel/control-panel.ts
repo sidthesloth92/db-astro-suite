@@ -15,7 +15,11 @@ import {
   starsIcon,
   TooltipDirective,
 } from '@db-astro-suite/ui';
-import { CONTROLS, EDITOR_CONTROL_KEYS } from '../../constants/controls.constants';
+import {
+  CONTROLS,
+  DIFFUSION_CONTROL_KEYS,
+  EDITOR_CONTROL_KEYS,
+} from '../../constants/controls.constants';
 import {
   SPIKE_COUNT_BY_TAB_ID,
   SPIKE_COUNT_TABS,
@@ -75,8 +79,27 @@ export class ControlPanel {
   /** Chip glyph for the Spikes section. */
   protected readonly starsIcon = starsIcon;
 
-  /** Editor slider keys, in display order. */
-  protected readonly controlKeys = EDITOR_CONTROL_KEYS;
+  /** True while the Diffusion preset — the bloom-only mode — is active. */
+  protected readonly isDiffusionMode = computed(() => this.editor.presetId() === 'diffusion');
+
+  /**
+   * Slider keys shown in the adjustment section, in display order. The
+   * Diffusion preset trims the set to the controls that still do anything:
+   * everything else shapes arms the mode has zeroed away.
+   */
+  protected readonly controlKeys = computed(() =>
+    this.isDiffusionMode() ? DIFFUSION_CONTROL_KEYS : EDITOR_CONTROL_KEYS,
+  );
+
+  /** Title of the adjustment section, following the active mode. */
+  protected readonly adjustmentsTitle = computed(() =>
+    this.isDiffusionMode() ? 'Diffusion' : 'Spikes',
+  );
+
+  /** Subtitle of the adjustment section, following the active mode. */
+  protected readonly adjustmentsSub = computed(() =>
+    this.isDiffusionMode() ? 'Shape the bloom' : 'Shape the spike pattern',
+  );
 
   /** Segmented-tab options for the spike arm count. */
   protected readonly spikeCountTabs = SPIKE_COUNT_TABS;

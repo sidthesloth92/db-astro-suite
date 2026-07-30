@@ -90,6 +90,21 @@ export class StarControls {
     this.editor.renderedStars().some((star) => star.id === this.starId()),
   );
 
+  /** True while the Diffusion preset — the bloom-only mode — is active. */
+  protected readonly isDiffusionMode = computed(() => this.editor.presetId() === 'diffusion');
+
+  /**
+   * Label on the include/exclude toggle. The same action gates whatever the
+   * mode draws, so it names spikes on the spike presets and the bloom in
+   * diffusion mode.
+   */
+  protected readonly toggleLabel = computed(() => {
+    if (this.isDiffusionMode()) {
+      return this.isSpiked() ? 'Remove bloom' : 'Add bloom';
+    }
+    return this.isSpiked() ? 'Remove spikes' : 'Add spikes';
+  });
+
   /** Lower bound of the per-star diffusion amount. */
   protected readonly diffusionMin = CONTROLS['diffusion'].min;
 
