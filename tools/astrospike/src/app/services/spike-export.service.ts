@@ -9,10 +9,12 @@ import { renderSpikes } from '../utils/spike-render.util';
  * @class SpikeExportService
  * @description
  * Composites the full-resolution source image with the rendered diffraction
- * spikes, encodes it (PNG or JPEG), and triggers a browser download.
+ * spikes, encodes it (PNG or JPEG), and triggers a browser download. The
+ * `layer` output skips the source image entirely and encodes the spikes alone
+ * on transparency.
  *
  * @responsibilities
- * - Render source bitmap + spikes at full resolution (scale 1)
+ * - Render source bitmap + spikes at full resolution (scale 1), or spikes alone
  * - Encode via `canvas.toBlob` and build the download file name
  * - Manage the download object URL lifecycle: the URL is deliberately NOT
  *   revoked at download time — Chrome on Android resolves blob downloads
@@ -35,7 +37,7 @@ export class SpikeExportService implements OnDestroy {
    * @param bitmap Full-resolution source image.
    * @param params Spike render parameters; rendered at scale 1 regardless of
    *   the preview scale carried in `params`.
-   * @param format Output encoding.
+   * @param format Output encoding, or `layer` for spikes alone on transparency.
    * @param quality JPEG encoder quality in (0, 1]; ignored for PNG.
    * @param sourceFileName Original file name used to build the download name.
    * @returns The encoded blob, file name, and size.
@@ -56,7 +58,12 @@ export class SpikeExportService implements OnDestroy {
       throw new ExportError('Could not create a drawing context for export.');
     }
 
-    ctx.drawImage(bitmap, 0, 0);
+    // A layer leaves the canvas transparent and lets the additive spike pass
+    // build up both colour and alpha, so the file carries the light to add and
+    // the coverage to add it through. Anything else starts from the photo.
+    if (format !== 'layer') {
+      ctx.drawImage(bitmap, 0, 0);
+    }
     const spriteCache: SpriteCache = new Map();
     renderSpikes(ctx, { ...params, scale: 1 }, spriteCache);
 

@@ -29,6 +29,11 @@ export const EXPORT_MENU_ITEMS: readonly SplitButtonMenuItem[] = [
     label: 'Export JPEG',
     description: 'Smaller file, adjustable quality',
   },
+  {
+    value: 'layer',
+    label: 'Export layer',
+    description: 'Spikes only, transparent — composite over your own master',
+  },
 ];
 
 /**
@@ -37,4 +42,5 @@ export const EXPORT_MENU_ITEMS: readonly SplitButtonMenuItem[] = [
 export const EXPORT_FORMAT_BY_MENU_VALUE: Record<string, ExportFormat> = {
   png: 'png',
   jpeg: 'jpeg',
+  layer: 'layer',
 };
