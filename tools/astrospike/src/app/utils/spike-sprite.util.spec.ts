@@ -14,7 +14,9 @@ import {
   buildGlowSprite,
   glowMaskCacheKey,
   glowSpriteCacheKey,
+  releaseArmSprites,
   releaseSpriteCache,
+  tintArmSprite,
   tintSprite,
 } from './spike-sprite.util';
 
@@ -175,7 +177,7 @@ describe('alpha masks', () => {
 describe('releaseSpriteCache', () => {
   it('should empty the cache and give up every pixel buffer', () => {
     const cache: SpriteCache = new Map([
-      [armSpriteCacheKey(WHITE, 2.2), buildArmSprite(WHITE, 2.2)],
+      [armSpriteCacheKey(WHITE, 2.2, 0), buildArmSprite(WHITE, 2.2)],
       [glowSpriteCacheKey(ORANGE), buildGlowSprite(ORANGE)],
     ]);
     const sprites = Array.from(cache.values());
@@ -204,7 +206,7 @@ describe('mask cache keys', () => {
 
   it('should never collide a mask key with a tinted sprite key', () => {
     const color: StarColor = { r: 255, g: 128, b: 10 };
-    expect(armMaskCacheKey(2.2)).not.toBe(armSpriteCacheKey(color, 2.2));
+    expect(armMaskCacheKey(2.2)).not.toBe(armSpriteCacheKey(color, 2.2, 0));
     expect(glowMaskCacheKey()).not.toBe(glowSpriteCacheKey(color));
   });
 });
@@ -217,7 +219,7 @@ describe('sprite cache keys', () => {
   const highBitsChanged: StarColor = { r: 255, g: 64, b: 10 };
 
   it('should share an arm key for colors differing only in the low 4 bits', () => {
-    expect(armSpriteCacheKey(base, 2.2)).toBe(armSpriteCacheKey(lowBitsChanged, 2.2));
+    expect(armSpriteCacheKey(base, 2.2, 0)).toBe(armSpriteCacheKey(lowBitsChanged, 2.2, 0));
   });
 
   it('should share a glow key for colors differing only in the low 4 bits', () => {
@@ -225,15 +227,95 @@ describe('sprite cache keys', () => {
   });
 
   it('should produce different keys for colors differing in the high bits', () => {
-    expect(armSpriteCacheKey(base, 2.2)).not.toBe(armSpriteCacheKey(highBitsChanged, 2.2));
+    expect(armSpriteCacheKey(base, 2.2, 0)).not.toBe(armSpriteCacheKey(highBitsChanged, 2.2, 0));
     expect(glowSpriteCacheKey(base)).not.toBe(glowSpriteCacheKey(highBitsChanged));
   });
 
   it('should include the falloff gamma in the arm key', () => {
-    expect(armSpriteCacheKey(base, 2.2)).not.toBe(armSpriteCacheKey(base, 2.6));
+    expect(armSpriteCacheKey(base, 2.2, 0)).not.toBe(armSpriteCacheKey(base, 2.6, 0));
   });
 
   it('should never collide arm and glow keys for the same color', () => {
-    expect(armSpriteCacheKey(base, 2.2)).not.toBe(glowSpriteCacheKey(base));
+    expect(armSpriteCacheKey(base, 2.2, 0)).not.toBe(glowSpriteCacheKey(base));
+  });
+});
+
+describe('tintArmSprite', () => {
+  const WARM: StarColor = { r: 255, g: 240, b: 220 };
+
+  /** Red-minus-blue balance of the midline pixel at sprite column `x`. */
+  function balanceAt(data: Uint8ClampedArray, x: number): number {
+    const [r, g, b] = rgbAt(data, ARM_SPRITE_WIDTH, x, 31);
+    const sum = r + g + b;
+    return sum === 0 ? 0 : (r - b) / sum;
+  }
+
+  it('should fall back to a flat tint at zero chroma', () => {
+    const flat = spriteData(tintSprite(buildArmMask(2.2), WARM));
+    const chromatic = spriteData(tintArmSprite(buildArmMask(2.2), WARM, 0));
+    expect(balanceAt(chromatic, 0)).toBeCloseTo(balanceAt(flat, 0), 2);
+    expect(balanceAt(chromatic, 200)).toBeCloseTo(balanceAt(flat, 200), 2);
+  });
+
+  it('should run redder toward the tip than at the root', () => {
+    const data = spriteData(tintArmSprite(buildArmMask(2.2), WARM, 1));
+    expect(balanceAt(data, 200)).toBeGreaterThan(balanceAt(data, 0) + 0.1);
+  });
+
+  it('should reach the tip colour inside the part of the arm that is visible', () => {
+    // The alpha falls as (1 - x)^gamma, so a ramp spread over the whole sprite
+    // puts its red end in a tail nobody can see. Two thirds along must already
+    // be at full tip colour.
+    const data = spriteData(tintArmSprite(buildArmMask(2.2), WARM, 1));
+    const atSpan = balanceAt(data, Math.round(ARM_SPRITE_WIDTH * 0.45));
+    const nearEnd = balanceAt(data, Math.round(ARM_SPRITE_WIDTH * 0.66));
+    expect(Math.abs(nearEnd - atSpan)).toBeLessThan(0.05);
+  });
+
+  it('should separate further at higher chroma', () => {
+    const gentle = spriteData(tintArmSprite(buildArmMask(2.2), WARM, 0.3));
+    const strong = spriteData(tintArmSprite(buildArmMask(2.2), WARM, 1));
+    const spread = (d: Uint8ClampedArray) => balanceAt(d, 200) - balanceAt(d, 0);
+    expect(spread(strong)).toBeGreaterThan(spread(gentle));
+  });
+
+  it('should leave the alpha profile alone — only the colour is graded', () => {
+    const mask = spriteData(buildArmMask(2.2));
+    const tinted = spriteData(tintArmSprite(buildArmMask(2.2), WARM, 1));
+    for (const x of [0, 100, 250, 400]) {
+      expect(
+        Math.abs(alphaAt(tinted, ARM_SPRITE_WIDTH, x, 31) - alphaAt(mask, ARM_SPRITE_WIDTH, x, 31)),
+      ).toBeLessThanOrEqual(1);
+    }
+  });
+
+  it('should key sprites separately per chroma amount', () => {
+    expect(armSpriteCacheKey(WARM, 2.2, 0)).not.toBe(armSpriteCacheKey(WARM, 2.2, 0.5));
+  });
+});
+
+describe('releaseArmSprites', () => {
+  it('should drop the tinted arms and keep the masks and glows', () => {
+    const armMask = buildArmMask(2.2);
+    const glowMask = buildGlowMask();
+    const arm = buildArmSprite(WHITE, 2.2);
+    const glow = buildGlowSprite(WHITE);
+    const cache: SpriteCache = new Map([
+      [armMaskCacheKey(2.2), armMask],
+      [glowMaskCacheKey(), glowMask],
+      [armSpriteCacheKey(WHITE, 2.2, 0.5), arm],
+      [glowSpriteCacheKey(WHITE), glow],
+    ]);
+
+    releaseArmSprites(cache);
+
+    // The masks carry the whole per-pixel cost, so they must survive a colour
+    // change; only the tinted arms depend on chroma.
+    expect(cache.has(armMaskCacheKey(2.2))).toBeTrue();
+    expect(cache.has(glowMaskCacheKey())).toBeTrue();
+    expect(cache.has(glowSpriteCacheKey(WHITE))).toBeTrue();
+    expect(cache.has(armSpriteCacheKey(WHITE, 2.2, 0.5))).toBeFalse();
+    expect(armMask.width).toBe(ARM_SPRITE_WIDTH);
+    expect(arm.width).toBe(0);
   });
 });

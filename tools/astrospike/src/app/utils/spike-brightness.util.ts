@@ -8,7 +8,7 @@ import {
   SPIKE_THICKNESS_MIN_PX,
 } from '../constants/spike-geometry.constants';
 import { SpikePreset } from '../models/spike-preset.model';
-import { GlowGeometry, SpikeGeometry } from '../models/spike-render-params.model';
+import { BloomGeometry, SpikeGeometry } from '../models/spike-render-params.model';
 
 /**
  * Clamps a value into the inclusive [min, max] range.
@@ -123,7 +123,7 @@ export function computeBloomGeometry(
   diffusion: number,
   imageMaxDimension: number,
   scale: number,
-): GlowGeometry {
+): BloomGeometry {
   const amount = clamp(diffusion, 0, 1);
   if (amount === 0) {
     return { radiusPx: 0, alpha: 0 };

@@ -40,6 +40,15 @@ describe('export-filename.util', () => {
       expect(buildExportFilename('m42.png', 640, 480, 'jpeg')).toBe('m42_astrospike_640_480.jpg');
     });
 
+
+    it('should mark a layer export in the name and keep the png extension', () => {
+      // A spikes-only file sitting beside a finished one must be tellable apart
+      // at a glance in a download folder.
+      expect(buildExportFilename('m42.png', 900, 600, 'layer')).toBe(
+        'm42_astrospike_layer_900_600.png',
+      );
+    });
+
     it('should embed the export dimensions in the file name', () => {
       const name = buildExportFilename('pleiades.png', 5472, 3648, 'jpeg');
       expect(name).toContain('_5472_3648');

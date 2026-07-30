@@ -267,6 +267,20 @@ describe('SpikeEditorService', () => {
       expect(service.renderParams()?.diffusionFactor).toBe(0.6);
     });
 
+    it('should carry the chroma amount into the render params', async () => {
+      const bitmap = await buildBitmap(8, 8);
+      imageLoadSpy.loadImageFile.and.resolveTo({
+        bitmap,
+        meta: { fileName: 'm31.png', width: 8, height: 8 },
+      });
+      detectionSpy.detect.and.resolveTo([...STARS]);
+      await service.loadImage(new File([''], 'm31.png', { type: 'image/png' }));
+
+      service.updateControl('chroma', 0.75);
+
+      expect(service.renderParams()?.chromaFactor).toBe(0.75);
+    });
+
     it('should pin one star to its own amount, absolute rather than relative', () => {
       // The global control stays at zero, which a multiplier could never
       // escape — the whole reason the per-star value is absolute.
@@ -294,6 +308,193 @@ describe('SpikeEditorService', () => {
 
       expect(service.adjustmentFor(1).diffusion).toBeNull();
       expect(service.starAdjustments().has(1)).toBeFalse();
+    });
+  });
+
+  describe('addStarAt', () => {
+    beforeEach(async () => {
+      const bitmap = await buildBitmap(64, 64);
+      imageLoadSpy.loadImageFile.and.resolveTo({
+        bitmap,
+        meta: { fileName: 'm31.png', width: 64, height: 64 },
+      });
+      detectionSpy.detect.and.resolveTo([...STARS]);
+      await service.loadImage(new File([''], 'm31.png', { type: 'image/png' }));
+    });
+
+    it('should add a star to the list and spike it', () => {
+      service.addStarAt(30, 30);
+
+      expect(service.allStars().length).toBe(STARS.length + 1);
+      const placed = service.allStars().find((star) => !STARS.some((s) => s.id === star.id));
+      expect(placed).toBeDefined();
+      // Force-included, because placing a star is a request to see a spike.
+      expect(service.renderedStars().map((star) => star.id)).toContain(placed!.id);
+    });
+
+    it('should keep the list sorted by flux after the insert', () => {
+      service.addStarAt(20, 20);
+
+      const fluxes = service.allStars().map((star) => star.flux);
+      expect(fluxes).toEqual([...fluxes].sort((a, b) => b - a));
+    });
+
+    it('should give the placed star an id no detected star already holds', () => {
+      service.addStarAt(20, 20);
+      service.addStarAt(40, 40);
+
+      const ids = service.allStars().map((star) => star.id);
+      expect(new Set(ids).size).toBe(ids.length);
+    });
+
+    it('should record it as placed rather than detected', () => {
+      service.addStarAt(30, 30);
+      const placed = service.allStars().find((star) => service.isManualStar(star.id));
+
+      expect(placed).toBeDefined();
+      // The pill must keep reporting what detection actually found.
+      expect(service.detectedStarCount()).toBe(STARS.length);
+      expect(service.manualStarIds().size).toBe(1);
+    });
+
+    it('should honour the click position on a featureless patch', () => {
+      // The stub image is flat, so measurement has no real core to find and
+      // must not drag the star away from where the user put it.
+      service.addStarAt(30, 40);
+      const placed = service.allStars().find((star) => service.isManualStar(star.id));
+
+      expect(placed!.x).toBeCloseTo(30, 0);
+      expect(placed!.y).toBeCloseTo(40, 0);
+    });
+
+    it('should do nothing when no image is loaded', () => {
+      service.clearImage();
+      service.addStarAt(10, 10);
+
+      expect(service.allStars()).toEqual([]);
+      expect(service.manualStarIds().size).toBe(0);
+    });
+
+    it('should toggle a placed star like any other', () => {
+      service.addStarAt(30, 30);
+      const id = Array.from(service.manualStarIds())[0];
+
+      service.toggleStar(id);
+
+      expect(service.renderedStars().map((star) => star.id)).not.toContain(id);
+    });
+  });
+
+  describe('place-a-star mode', () => {
+    it('should start disarmed and toggle', () => {
+      expect(service.isAddingStar()).toBeFalse();
+      service.toggleAddStarMode();
+      expect(service.isAddingStar()).toBeTrue();
+      service.toggleAddStarMode();
+      expect(service.isAddingStar()).toBeFalse();
+    });
+
+    it('should disarm when the image is cleared', () => {
+      service.toggleAddStarMode();
+      service.clearImage();
+      expect(service.isAddingStar()).toBeFalse();
+    });
+  });
+
+  describe('resetAll', () => {
+    beforeEach(async () => {
+      const bitmap = await buildBitmap(64, 64);
+      imageLoadSpy.loadImageFile.and.resolveTo({
+        bitmap,
+        meta: { fileName: 'm31.png', width: 64, height: 64 },
+      });
+      detectionSpy.detect.and.resolveTo([...STARS]);
+      await service.loadImage(new File([''], 'm31.png', { type: 'image/png' }));
+    });
+
+    it('should report a freshly loaded image as clean', () => {
+      expect(service.isDirty()).toBeFalse();
+    });
+
+    const dirtiers: ReadonlyArray<{ name: string; act: () => void }> = [
+      { name: 'a preset change', act: () => service.applyPreset('jwst') },
+      { name: 'a slider move', act: () => service.updateControl('length', 2) },
+      { name: 'an arm count override', act: () => service.setSpikeCount(6) },
+      { name: 'a toggled star', act: () => service.toggleStar(0) },
+      { name: 'a tuned star', act: () => service.adjustStar(1, { lengthFactor: 2 }) },
+      { name: 'a placed star', act: () => service.addStarAt(20, 20) },
+      { name: 'a moved divider', act: () => service.comparePosition.set(0.4) },
+    ];
+
+    for (const { name, act } of dirtiers) {
+      it(`should become dirty after ${name}`, () => {
+        act();
+        expect(service.isDirty()).toBeTrue();
+      });
+    }
+
+    it('should stay clean when only the export format changes', () => {
+      // Output preference is not part of the look, so Reset has no business
+      // discarding it and must not light up for it either.
+      service.exportFormat.set('layer');
+      service.jpegQuality.set(0.6);
+
+      expect(service.isDirty()).toBeFalse();
+    });
+
+    it('should return every control, toggle and tweak to its default', () => {
+      service.applyPreset('jwst');
+      service.setSpikeCount(4);
+      service.updateControl('length', 2.4);
+      service.updateControl('chroma', 1);
+      service.updateControl('diffusion', 0.8);
+      service.toggleStar(0);
+      service.adjustStar(2, { diffusion: 0.5 });
+      service.comparePosition.set(0.6);
+
+      service.resetAll();
+
+      expect(service.presetId()).toBe('classic');
+      expect(service.spikeCount()).toBe(4);
+      expect(service.controls.length()).toBe(1);
+      expect(service.controls.chroma()).toBe(0.35);
+      expect(service.controls.diffusion()).toBe(0);
+      expect(service.overrides().size).toBe(0);
+      expect(service.starAdjustments().size).toBe(0);
+      expect(service.comparePosition()).toBe(0);
+      expect(service.isDirty()).toBeFalse();
+    });
+
+    it('should remove placed stars from the list, not merely unspike them', () => {
+      service.addStarAt(20, 20);
+      expect(service.allStars().length).toBe(STARS.length + 1);
+
+      service.resetAll();
+
+      expect(service.allStars().length).toBe(STARS.length);
+      expect(service.manualStarIds().size).toBe(0);
+    });
+
+    it('should keep the image and its detections — detection is not re-run', () => {
+      service.applyPreset('jwst');
+      detectionSpy.detect.calls.reset();
+
+      service.resetAll();
+
+      expect(service.sourceImage()).not.toBeNull();
+      expect(service.allStars().length).toBe(STARS.length);
+      expect(detectionSpy.detect).not.toHaveBeenCalled();
+    });
+
+    it('should keep the export format and quality', () => {
+      service.exportFormat.set('layer');
+      service.jpegQuality.set(0.6);
+      service.applyPreset('jwst');
+
+      service.resetAll();
+
+      expect(service.exportFormat()).toBe('layer');
+      expect(service.jpegQuality()).toBe(0.6);
     });
   });
 

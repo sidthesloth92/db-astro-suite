@@ -67,7 +67,7 @@ describe('ControlPanel', () => {
     fixture.detectChanges();
   });
 
-  /** The four editor sliders, in rendered order (PNG hides the quality slider). */
+  /** The editor sliders, in rendered order (PNG hides the quality slider). */
   function sliders(): HTMLInputElement[] {
     return Array.from(fixture.nativeElement.querySelectorAll('input[type="range"]'));
   }
@@ -159,7 +159,7 @@ describe('ControlPanel', () => {
   it('should replace the global controls with a star\'s own when one is opened', () => {
     editor.allStars.set(buildStars(4));
     fixture.detectChanges();
-    expect(sliderLabels()).toEqual(['Stars', 'Length', 'Diffusion', 'Brightness', 'Rotation']);
+    expect(sliderLabels()).toEqual(['Stars', 'Length', 'Chroma', 'Diffusion', 'Brightness', 'Rotation']);
 
     editor.openStarControls(2);
     fixture.detectChanges();
@@ -179,7 +179,7 @@ describe('ControlPanel', () => {
     fixture.detectChanges();
 
     expect(starPanel()).toBeNull();
-    expect(sliderLabels()).toEqual(['Stars', 'Length', 'Diffusion', 'Brightness', 'Rotation']);
+    expect(sliderLabels()).toEqual(['Stars', 'Length', 'Chroma', 'Diffusion', 'Brightness', 'Rotation']);
   });
 
   it('should keep the export action in reach while a star is being tuned', () => {
@@ -190,13 +190,53 @@ describe('ControlPanel', () => {
     expect(fixture.nativeElement.querySelector('.panel-footer dba-as-export-controls')).toBeTruthy();
   });
 
-  it('should render the five editor sliders in order', () => {
-    expect(sliderLabels()).toEqual(['Stars', 'Length', 'Diffusion', 'Brightness', 'Rotation']);
-    expect(sliders().length).toBe(5);
+  /** The reset action in the pane header. */
+  function resetButton(): HTMLButtonElement {
+    const button: HTMLButtonElement | null =
+      fixture.nativeElement.querySelector('button.reset-button');
+    if (button === null) {
+      throw new Error('reset action not rendered');
+    }
+    return button;
+  }
+
+  it('should offer a reset that stays quiet until something has changed', () => {
+    expect(resetButton().disabled).toBeTrue();
+
+    dragSlider(1, '2');
+
+    expect(resetButton().disabled).toBeFalse();
   });
 
-  it('should soften the spikes when the diffusion slider is dragged', () => {
-    dragSlider(2, '0.6');
+  it('should return the controls to their defaults when reset is clicked', () => {
+    dragSlider(1, '2');
+    dragSlider(2, '0.9');
+    presetCard('JWST').click();
+    fixture.detectChanges();
+
+    resetButton().click();
+    fixture.detectChanges();
+
+    expect(editor.controls.length()).toBe(1);
+    expect(editor.controls.chroma()).toBe(0.35);
+    expect(editor.presetId()).toBe('classic');
+    expect(resetButton().disabled).toBeTrue();
+  });
+
+  it('should render the six editor sliders in order', () => {
+    expect(sliderLabels()).toEqual(['Stars', 'Length', 'Chroma', 'Diffusion', 'Brightness', 'Rotation']);
+    expect(sliders().length).toBe(6);
+  });
+
+  it('should separate the arm colour when the chroma slider is dragged', () => {
+    dragSlider(2, '0.8');
+
+    expect(editor.controls.chroma()).toBe(0.8);
+    expect(fixture.nativeElement.textContent).toContain('0.8');
+  });
+
+  it('should bloom the stars when the diffusion slider is dragged', () => {
+    dragSlider(3, '0.6');
 
     expect(editor.controls.diffusion()).toBe(0.6);
     expect(fixture.nativeElement.textContent).toContain('0.6');
@@ -217,14 +257,14 @@ describe('ControlPanel', () => {
   });
 
   it('should update the brightness control when its slider is dragged', () => {
-    dragSlider(3, '1.5');
+    dragSlider(4, '1.5');
 
     expect(editor.controls.brightness()).toBe(1.5);
     expect(fixture.nativeElement.textContent).toContain('1.5×');
   });
 
   it('should update the rotation control in degrees when its slider is dragged', () => {
-    dragSlider(4, '15');
+    dragSlider(5, '15');
 
     expect(editor.controls.rotation()).toBe(15);
     expect(fixture.nativeElement.textContent).toContain('15°');
@@ -257,7 +297,7 @@ describe('ControlPanel', () => {
     fixture.detectChanges();
 
     dragSlider(1, '2');
-    dragSlider(4, '30');
+    dragSlider(5, '30');
 
     expect(editor.spikeCount()).toBe(4);
     expect(editor.presetId()).toBe('jwst');

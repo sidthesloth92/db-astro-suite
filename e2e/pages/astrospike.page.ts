@@ -8,6 +8,7 @@ import { Locator, Page, expect } from "@playwright/test";
 export type AstroSpikeControlLabel =
   | "Stars"
   | "Length"
+  | "Chroma"
   | "Diffusion"
   | "Brightness"
   | "Rotation";
@@ -125,6 +126,14 @@ export class AstroSpikePage {
     }, value);
   }
 
+  /**
+   * Locator for a whole slider row, for assertions that need to retry while
+   * Angular catches up with a signal that has already changed.
+   */
+  getControlRow(label: AstroSpikeControlLabel): Locator {
+    return this.controlPanel.locator(".slider-row").filter({ hasText: label });
+  }
+
   /** Reads the readout text rendered beside a slider's label. */
   async getControlReadout(label: AstroSpikeControlLabel): Promise<string> {
     // `.slider-row` groups a label with its readout and slider; there is no
@@ -179,8 +188,31 @@ export class AstroSpikePage {
   }
 
   /** Locator for one of the canvas tool-rail buttons, by its accessible name. */
-  getCanvasTool(name: "Zoom in" | "Zoom out" | "Reset view" | "Remove image") {
+  getCanvasTool(
+    name:
+      | "Zoom in"
+      | "Zoom out"
+      | "Reset view"
+      | "Remove image"
+      | "Add a star detection missed",
+  ): Locator {
     return this.page.getByRole("button", { name });
+  }
+
+  /** Locator for the pane-header action that returns the look to its defaults. */
+  getResetButton(): Locator {
+    return this.controlPanel.getByRole("button", { name: /^Reset$/ });
+  }
+
+  /**
+   * Chooses an export output from the split-button dropdown. The menu items are
+   * identified by their descriptions, which is what the user actually reads.
+   */
+  async selectExportOutput(
+    description: RegExp,
+  ): Promise<void> {
+    await this.page.locator("dba-ui-split-button button").last().click();
+    await this.page.getByText(description).click();
   }
 
   /** Opens a star's own controls by double-clicking it on the canvas. */

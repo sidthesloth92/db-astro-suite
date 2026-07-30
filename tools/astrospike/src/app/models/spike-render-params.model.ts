@@ -74,7 +74,7 @@ export type SpriteCache = Map<string, HTMLCanvasElement>;
  * thickness, which is what keeps a bloom brightness-ordered once diffusion has
  * faded the arms away entirely.
  */
-export interface GlowGeometry {
+export interface BloomGeometry {
   /** Radius of the bloom in canvas pixels. */
   radiusPx: number;
   /** Alpha (0–1) applied when drawing the glow sprite. */

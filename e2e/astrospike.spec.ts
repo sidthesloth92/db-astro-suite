@@ -154,6 +154,97 @@ test.describe("AstroSpike", () => {
     await expect(astroSpike.getCanvasTool("Zoom out")).toBeDisabled();
   });
 
+  test("should offer a chroma control that separates the arm colour", async ({
+    page,
+  }) => {
+    const astroSpike = new AstroSpikePage(page);
+    await astroSpike.navigate();
+    await astroSpike.loadImage(STARFIELD_FIXTURE);
+    await astroSpike.waitForDetectedStars();
+
+    // On by default, restrained: it is what makes an arm read as light rather
+    // than a drawn line.
+    expect(await astroSpike.getControlReadout("Chroma")).toBe("0.35");
+
+    await astroSpike.setControlValue("Chroma", 0);
+
+    expect(await astroSpike.getControlReadout("Chroma")).toBe("0");
+  });
+
+  test("should export the spikes alone as a transparent layer", async ({
+    page,
+  }) => {
+    const astroSpike = new AstroSpikePage(page);
+    await astroSpike.navigate();
+    await astroSpike.loadImage(STARFIELD_FIXTURE);
+    await astroSpike.waitForDetectedStars();
+
+    await astroSpike.selectExportOutput(/Spikes only, transparent/i);
+
+    const downloadPromise = page.waitForEvent("download", { timeout: 60_000 });
+    await page.getByRole("button", { name: /^Export layer$/ }).click();
+    const download = await downloadPromise;
+
+    // Named apart from a finished export, and still at the source resolution.
+    expect(download.suggestedFilename()).toMatch(
+      /_astrospike_layer_900_600\.png$/,
+    );
+  });
+
+  test("should let the user place a star that detection missed", async ({
+    page,
+  }) => {
+    const astroSpike = new AstroSpikePage(page);
+    await astroSpike.navigate();
+    await astroSpike.loadImage(STARFIELD_FIXTURE);
+    const detected = await astroSpike.waitForDetectedStars();
+
+    const tool = astroSpike.getCanvasTool("Add a star detection missed");
+    await tool.click();
+    // Arming the tool turns the pointer into a crosshair over the canvas.
+    await expect(astroSpike.getResultCanvas()).toBeVisible();
+
+    const canvas = page.locator("canvas.marker-canvas");
+    const box = await canvas.boundingBox();
+    if (box === null) {
+      throw new Error("marker canvas has no layout");
+    }
+    await page.mouse.click(box.x + box.width * 0.5, box.y + box.height * 0.85);
+
+    // The star list grows by one while the reported detection count does not:
+    // a placed star is not a detected one. Retrying, because the signal updates
+    // synchronously but the DOM catches up on the next change detection.
+    await expect(astroSpike.getControlRow("Stars")).toContainText(
+      `of ${detected + 1}`,
+    );
+    expect(await astroSpike.waitForDetectedStars()).toBe(detected);
+  });
+
+  test("should reset the look to its defaults without re-running detection", async ({
+    page,
+  }) => {
+    const astroSpike = new AstroSpikePage(page);
+    await astroSpike.navigate();
+    await astroSpike.loadImage(STARFIELD_FIXTURE);
+    const detected = await astroSpike.waitForDetectedStars();
+
+    await expect(astroSpike.getResetButton()).toBeDisabled();
+
+    await astroSpike.selectPreset("JWST");
+    await astroSpike.setControlValue("Length", 2.4);
+    await astroSpike.setControlValue("Diffusion", 0.7);
+    await expect(astroSpike.getResetButton()).toBeEnabled();
+
+    await astroSpike.getResetButton().click();
+
+    await expect(astroSpike.getSelectedPreset()).toContainText("Classic");
+    expect(await astroSpike.getControlReadout("Length")).toBe("1×");
+    expect(await astroSpike.getControlReadout("Diffusion")).toBe("0");
+    // Detection is the expensive part and its result has not changed.
+    expect(await astroSpike.waitForDetectedStars()).toBe(detected);
+    await expect(astroSpike.getResetButton()).toBeDisabled();
+  });
+
   test("should return to the dropzone when the image is cleared", async ({
     page,
   }) => {
