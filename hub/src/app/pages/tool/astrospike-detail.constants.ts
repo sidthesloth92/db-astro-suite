@@ -1,10 +1,12 @@
 import {
   apertureIcon,
   cpuIcon,
-  downloadIcon,
   eyeIcon,
+  filterIcon,
   globeGridIcon,
+  layersIcon,
   photoIcon,
+  rainbowIcon,
   slidersIcon,
   sparklesIcon,
   starsIcon,
@@ -27,7 +29,7 @@ export const ASTROSPIKE_DETAIL: ToolDetailConfig = {
   status: 'ready',
   statusLabel: 'Ready',
   description:
-    'Give your astrophotos the diffraction spikes of a Newtonian or the six-armed signature of JWST — without a mask, a filter, or a photo editor. Drop in an image and AstroSpike finds the stars for you, then draws spikes that scale with each star’s real brightness and take their colour from the star itself. Everything runs inside your browser: your image is never uploaded anywhere.',
+    'Give your astrophotos the diffraction spikes of a Newtonian, the six-armed signature of JWST, or the soft bloom of a diffusion filter — without a mask, a filter, or a photo editor. Drop in an image and AstroSpike finds the stars for you, then draws spikes that scale with each star’s real brightness and take their colour from the star itself. Tune the whole field at once, or any single star on its own. Everything runs inside your browser: your image is never uploaded anywhere.',
 
   primaryLabel: 'Launch AstroSpike',
   primaryUrl: ASTROSPIKE_LAUNCH_URL,
@@ -50,7 +52,8 @@ export const ASTROSPIKE_DETAIL: ToolDetailConfig = {
   about: [
     'Diffraction spikes are what make a star look like a star. Refractor owners never get them, and adding them by hand in a photo editor means masking every star individually — hours of work that rarely survives a second look at full zoom.',
     'AstroSpike does the tedious part for you. It converts your image to luminance, models the background so nebulosity and gradients do not fool it, and finds the genuine point sources — rejecting hot pixels, satellite trails, and galaxy cores along the way. The star list is measured once and cached, so every slider you touch re-renders instantly.',
-    'Spikes are composited additively over your original pixels, the way real diffraction behaves. Length and intensity follow each star’s measured brightness, and the colour is sampled from the star’s own core, so a warm orange giant gets warm spikes and a hot blue star gets cool ones. Pick Subtle, Classic, or JWST, nudge four sliders, click any star to include or exclude it, then export at your image’s native resolution.',
+    'Spikes are composited additively over your original pixels, the way real diffraction behaves. Length and intensity follow each star’s measured brightness, and the colour is sampled from the star’s own core, so a warm orange giant gets warm spikes and a hot blue star gets cool ones. Each arm is graded along its length too — cool at the root, red at the tip — because diffraction spreads light by wavelength.',
+    'Wide fields want the opposite treatment, so Diffusion blooms the stars the way a soft filter on the lens does, independently of the spikes. Pick a preset, work the sliders, click any star to include or exclude it, double-click one to tune it alone, and place a star yourself if detection missed one. Export the finished frame, or the spikes on their own as a transparent layer to composite over your 16-bit master.',
   ],
   aboutPull: '“Your image never leaves your browser.”',
 
@@ -81,14 +84,24 @@ export const ASTROSPIKE_DETAIL: ToolDetailConfig = {
       body: 'Each spike is tinted with the colour sampled from that star’s core — warm stars glow warm.',
     },
     {
+      icon: rainbowIcon,
+      name: 'Chromatic spikes',
+      body: 'Each arm is graded from a cool root to a red tip, the way real diffraction separates light by wavelength.',
+    },
+    {
+      icon: filterIcon,
+      name: 'Diffusion bloom',
+      body: 'Bloom the stars like a soft filter on the lens — for wide fields where spikes would look wrong.',
+    },
+    {
       icon: slidersIcon,
-      name: 'Four controls, nothing more',
-      body: 'How many stars, how long, how bright, and at what angle. Every other parameter is handled for you.',
+      name: 'Tune one star alone',
+      body: 'Double-click any star for its own length, brightness, rotation, and diffusion, layered on the globals.',
     },
     {
       icon: targetIcon,
-      name: 'Click any star',
-      body: 'Toggle spikes on or off for individual stars. Your choices stick while you keep adjusting the sliders.',
+      name: 'Click any star, or place one',
+      body: 'Toggle spikes per star, drag a detection onto a core, and mark stars the detector missed entirely.',
     },
     {
       icon: eyeIcon,
@@ -101,9 +114,9 @@ export const ASTROSPIKE_DETAIL: ToolDetailConfig = {
       body: 'Works on 60-megapixel frames: the preview is downscaled for speed while the export stays native.',
     },
     {
-      icon: downloadIcon,
-      name: 'PNG or JPEG export',
-      body: 'Save lossless PNG, or JPEG with an adjustable quality — always at your image’s original resolution.',
+      icon: layersIcon,
+      name: 'PNG, JPEG, or a layer',
+      body: 'Save a finished frame, or the spikes alone on transparency to composite over your own master.',
     },
   ],
 
@@ -122,11 +135,15 @@ export const ASTROSPIKE_DETAIL: ToolDetailConfig = {
     },
     {
       title: 'Fine-tune',
-      body: 'Adjust how many stars get spikes, their length, brightness, and rotation.',
+      body: 'Set how many stars get spikes, then their length, colour spread, bloom, brightness, and angle.',
+    },
+    {
+      title: 'Work star by star',
+      body: 'Double-click a star to tune it alone, or place one the detector missed.',
     },
     {
       title: 'Export',
-      body: 'Download a PNG or JPEG at the full resolution of the image you started with.',
+      body: 'Download a PNG or JPEG at your original resolution, or the spikes alone as a transparent layer.',
     },
   ],
 

@@ -215,10 +215,10 @@ test.describe("AstroSpike Tool Page", () => {
   });
 
   test("lists every capability and step from the page config", async () => {
-    // 10 capability tiles plus the two "Before"/"After" output titles, which
-    // share the same heading level.
+    // One heading per capability tile. The "Before"/"After" output titles share
+    // the heading level but sit outside the tiles, so they are not counted.
     await expect(hubTool.getFeatureHeadings()).toHaveCount(12);
-    await expect(hubTool.getStepHeadings()).toHaveCount(5);
+    await expect(hubTool.getStepHeadings()).toHaveCount(6);
   });
 
   test("exposes the launch CTA and the before/after stills", async ({
