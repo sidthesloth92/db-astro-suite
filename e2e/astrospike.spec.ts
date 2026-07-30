@@ -165,7 +165,7 @@ test.describe("AstroSpike", () => {
     await astroSpike.getCanvasTool("Zoom in").click();
     await expect(astroSpike.getCanvasTool("Zoom out")).toBeEnabled();
 
-    await astroSpike.getCanvasTool("Reset view").click();
+    await astroSpike.getCanvasTool("Fit to view").click();
     await expect(astroSpike.getCanvasTool("Zoom out")).toBeDisabled();
   });
 

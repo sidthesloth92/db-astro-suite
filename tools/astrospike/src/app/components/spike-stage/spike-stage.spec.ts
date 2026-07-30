@@ -288,10 +288,10 @@ describe('SpikeStage', () => {
       return button;
     }
 
-    it('should offer zoom, reset, and remove tools on the canvas', () => {
+    it('should offer zoom, fit, and remove tools on the canvas', () => {
       expect(tool('Zoom in')).toBeTruthy();
       expect(tool('Zoom out')).toBeTruthy();
-      expect(tool('Reset view')).toBeTruthy();
+      expect(tool('Fit to view')).toBeTruthy();
       expect(tool('Remove image')).toBeTruthy();
     });
 
@@ -304,13 +304,13 @@ describe('SpikeStage', () => {
       expect(tool('Zoom out').disabled).toBeFalse();
     });
 
-    it('should return to the fitted view when reset is used', () => {
+    it('should return to the fitted view when fit is used', () => {
       tool('Zoom in').click();
       tool('Zoom in').click();
       fixture.detectChanges();
       expect(tool('Zoom out').disabled).toBeFalse();
 
-      tool('Reset view').click();
+      tool('Fit to view').click();
       fixture.detectChanges();
 
       expect(tool('Zoom out').disabled).toBeTrue();

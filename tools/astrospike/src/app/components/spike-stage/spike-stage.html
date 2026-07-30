@@ -56,7 +56,7 @@
         >
           <dba-ui-icon [def]="minusIcon" [size]="16" />
         </dba-ui-icon-button>
-        <dba-ui-icon-button title="Reset view" [size]="36" (clicked)="onResetView()">
+        <dba-ui-icon-button title="Fit to view" [size]="36" (clicked)="onResetView()">
           <dba-ui-icon [def]="rotateCcwIcon" [size]="16" />
         </dba-ui-icon-button>
         <dba-ui-icon-button
@@ -72,8 +72,12 @@
     }
 
     @if (isStageReady()) {
-      <span class="stage-tag stage-tag--before">Original</span>
-      <span class="stage-tag stage-tag--after">Spiked</span>
+      <span class="stage-tag stage-tag--before" [class.is-hidden]="editedStar() !== null">
+        Original
+      </span>
+      <span class="stage-tag stage-tag--after" [class.is-hidden]="editedStar() !== null">
+        Spiked
+      </span>
     }
 
     @if (showCompareHandle()) {

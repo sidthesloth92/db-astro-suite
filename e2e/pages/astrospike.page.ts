@@ -199,7 +199,7 @@ export class AstroSpikePage {
     name:
       | "Zoom in"
       | "Zoom out"
-      | "Reset view"
+      | "Fit to view"
       | "Remove image"
       | "Add a star detection missed",
   ): Locator {

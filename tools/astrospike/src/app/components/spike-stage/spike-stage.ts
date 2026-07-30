@@ -624,7 +624,13 @@ export class SpikeStage {
     this.zoomAboutCentre(1 / STAGE_WHEEL_ZOOM_FACTOR);
   }
 
-  /** Tool rail: restore the fitted, whole-image view. */
+  /**
+   * Tool rail: restore the fitted, whole-image view.
+   *
+   * Called "Fit to view" rather than "Reset view" so it cannot be mistaken for
+   * the studio-wide Reset in the title bar — one restores zoom and pan, the
+   * other throws away every edit, and two buttons named Reset is a trap.
+   */
   protected onResetView(): void {
     this.resetViewport();
   }
