@@ -523,9 +523,20 @@ export class SpikeEditorService implements OnDestroy {
     this.analyticsService.trackEvent('astrospike_reset', {});
   }
 
-  /** Enters or leaves place-a-star mode. */
+  /**
+   * Enters or leaves place-a-star mode.
+   *
+   * Leaving also drops the selection. Placing a star selects it so it can be
+   * tuned straight away, so by the time the user switches the tool off there is
+   * a bar open for whichever star they placed last — and they have finished
+   * with it, or they would not be leaving.
+   */
   toggleAddStarMode(): void {
-    this.isAddingStar.update((adding) => !adding);
+    const adding = !this.isAddingStar();
+    this.isAddingStar.set(adding);
+    if (!adding) {
+      this.closeStarControls();
+    }
   }
 
   /** True when a star was placed by hand rather than found by detection. */
@@ -548,15 +559,16 @@ export class SpikeEditorService implements OnDestroy {
    *
    * @param x Target x in full-resolution image pixels.
    * @param y Target y in full-resolution image pixels.
+   * @returns Id of the placed star, or null when nothing could be placed.
    */
-  addStarAt(x: number, y: number): void {
+  addStarAt(x: number, y: number): number | null {
     const bitmap = this.sourceImage();
     if (bitmap === null) {
-      return;
+      return null;
     }
     const window = this.readWindowAround(bitmap, x, y);
     if (window === null) {
-      return;
+      return null;
     }
     const refined = refineStar(
       window.data,
@@ -591,6 +603,7 @@ export class SpikeEditorService implements OnDestroy {
     this.manualStarIds.update((current) => new Set(current).add(id));
     this.overrides.update((current) => new Map(current).set(id, true));
     this.analyticsService.trackEvent('astrospike_star_added', { starCount: stars.length + 1 });
+    return id;
   }
 
   /**

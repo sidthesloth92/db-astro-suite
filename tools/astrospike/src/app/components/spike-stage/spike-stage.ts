@@ -479,10 +479,9 @@ export class SpikeStage {
         return;
       }
     }
-    if (this.editor.isAddingStar()) {
-      this.editor.hoveredStarId.set(null);
-      return;
-    }
+    // Hover stays live while placing: a click on an existing star selects it
+    // rather than stacking a duplicate, so the user has to be able to see that
+    // the pointer is over one before committing.
     const star = this.starAt(event.clientX, event.clientY);
     this.editor.hoveredStarId.set(star?.id ?? null);
   }
@@ -516,10 +515,7 @@ export class SpikeStage {
       return;
     }
     if (this.editor.isAddingStar()) {
-      const point = this.imagePointAt(event.clientX, event.clientY);
-      if (point !== null) {
-        this.editor.addStarAt(point.x, point.y);
-      }
+      this.placeStarAt(event);
       return;
     }
     const star = this.starAt(event.clientX, event.clientY);
@@ -729,6 +725,37 @@ export class SpikeStage {
         STAGE_MAX_ZOOM,
       ),
     );
+  }
+
+  /**
+   * Places a star under the pointer and selects it, so its bar opens ready to
+   * tune. The mode stays armed, so the next click places and selects the next
+   * one.
+   *
+   * A click that lands on a star that already exists selects that star rather
+   * than placing a duplicate on top of it. Placement snaps to a nearby core, so
+   * without this a click on a detected star would produce two stars sharing one
+   * position and drawing their spikes twice over.
+   *
+   * That check is also what makes a double-click safe: the second click lands on
+   * the star the first one just placed, so it selects it instead of stacking a
+   * twin. Nothing needs to count clicks — which is just as well, since
+   * `pointerup` carries a `detail` of 0 in Chrome and cannot report one.
+   */
+  private placeStarAt(event: PointerEvent): void {
+    const existing = this.starAt(event.clientX, event.clientY);
+    if (existing !== null) {
+      this.editor.openStarControls(existing.id);
+      return;
+    }
+    const point = this.imagePointAt(event.clientX, event.clientY);
+    if (point === null) {
+      return;
+    }
+    const placed = this.editor.addStarAt(point.x, point.y);
+    if (placed !== null) {
+      this.editor.openStarControls(placed);
+    }
   }
 
   /** The star bar asked to be dismissed. */

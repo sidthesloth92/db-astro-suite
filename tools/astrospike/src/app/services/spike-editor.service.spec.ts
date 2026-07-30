@@ -385,6 +385,52 @@ describe('SpikeEditorService', () => {
     });
   });
 
+  describe('placing and selecting', () => {
+    beforeEach(async () => {
+      const bitmap = await buildBitmap(64, 64);
+      imageLoadSpy.loadImageFile.and.resolveTo({
+        bitmap,
+        meta: { fileName: 'm31.png', width: 64, height: 64 },
+      });
+      detectionSpy.detect.and.resolveTo([...STARS]);
+      await service.loadImage(new File([''], 'm31.png', { type: 'image/png' }));
+    });
+
+    it('should report the id it placed so the caller can select it', () => {
+      const id = service.addStarAt(30, 30);
+
+      expect(id).not.toBeNull();
+      expect(service.isManualStar(id!)).toBeTrue();
+    });
+
+    it('should return null when there is no image to place onto', () => {
+      service.clearImage();
+      expect(service.addStarAt(10, 10)).toBeNull();
+    });
+
+    it('should drop the selection when the mode is switched off', () => {
+      service.toggleAddStarMode();
+      const id = service.addStarAt(30, 30);
+      service.openStarControls(id!);
+      expect(service.starControlsId()).toBe(id);
+
+      service.toggleAddStarMode();
+
+      expect(service.isAddingStar()).toBeFalse();
+      expect(service.starControlsId()).toBeNull();
+      // The stars themselves survive; only the selection is cleared.
+      expect(service.manualStarIds().size).toBe(1);
+    });
+
+    it('should leave the selection alone when the mode is switched on', () => {
+      service.openStarControls(1);
+
+      service.toggleAddStarMode();
+
+      expect(service.starControlsId()).toBe(1);
+    });
+  });
+
   describe('place-a-star mode', () => {
     it('should start disarmed and toggle', () => {
       expect(service.isAddingStar()).toBeFalse();
