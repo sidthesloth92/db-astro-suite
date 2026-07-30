@@ -25,12 +25,6 @@
     </ol>
 
     <footer class="how-to-foot">
-      <dba-ui-switch
-        ariaLabel="Don't show this again"
-        [checked]="isSuppressed()"
-        (checkedChange)="onSuppressChange($event)"
-      ></dba-ui-switch>
-      <span class="how-to-suppress">Don't show this again</span>
       <dba-ui-text-button label="Got it" size="md" (clicked)="onClose()" />
     </footer>
   </section>

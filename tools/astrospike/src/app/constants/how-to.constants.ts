@@ -12,8 +12,3 @@ export const HOW_TO_STEPS: readonly string[] = [
   'Drag the divider to compare before and after, then export at the original resolution.',
 ];
 
-/**
- * Storage key holding the user's "don't show this again" choice. Only ever set
- * to `'1'`; absent means the overlay still greets a first-time visitor.
- */
-export const HOW_TO_DISMISSED_KEY = 'astrospike.howTo.dismissed';

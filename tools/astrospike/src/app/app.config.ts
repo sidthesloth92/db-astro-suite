@@ -7,8 +7,6 @@ import { provideRouter } from '@angular/router';
 import {
   AnalyticsService,
   GoogleAnalyticsService,
-  LocalStorageService,
-  STORAGE_SERVICE_TOKEN,
   provideRouteAnalytics,
 } from '@db-astro-suite/ui';
 import { routes } from './app.routes';
@@ -20,8 +18,6 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     { provide: AnalyticsService, useClass: GoogleAnalyticsService },
-    // Remembers the "don't show this again" choice on the how-to overlay.
-    { provide: STORAGE_SERVICE_TOKEN, useClass: LocalStorageService },
     provideRouteAnalytics(),
   ],
 };

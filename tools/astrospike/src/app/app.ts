@@ -12,13 +12,11 @@ import {
   HeaderComponent,
   IconButtonComponent,
   IconComponent,
-  STORAGE_SERVICE_TOKEN,
   TextButtonComponent,
   circleHelpIcon,
   slidersIcon,
 } from '@db-astro-suite/ui';
 import packageJson from '../../../../package.json';
-import { HOW_TO_DISMISSED_KEY } from './constants/how-to.constants';
 import { SLIDER_TARGET_SELECTOR } from './constants/mobile-shell.constants';
 import { HowToOverlay } from './components/how-to-overlay/how-to-overlay';
 import { ControlPanel } from './components/control-panel/control-panel';
@@ -86,15 +84,12 @@ export class App {
   /** Glyph on the mobile how-to button. */
   protected readonly circleHelpIcon = circleHelpIcon;
 
-  /** Browser storage, read once to decide whether to greet a new visitor. */
-  private readonly storage = inject(STORAGE_SERVICE_TOKEN);
-
   /**
-   * Whether the how-to overlay is showing. It opens unprompted on a first
-   * visit — the canvas interactions are not guessable — and is reachable from
-   * the title bar forever after.
+   * Whether the how-to overlay is showing. It never opens on its own — landing
+   * in a modal is a worse first impression than a studio you can poke at — so
+   * it is shown only when the title-bar action asks for it.
    */
-  protected readonly isHowToOpen = signal(this.storage.getItem(HOW_TO_DISMISSED_KEY) === null);
+  protected readonly isHowToOpen = signal(false);
 
   /**
    * True while the inspector has anything to inspect. With no image every

@@ -1,10 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import {
-  AnalyticsService,
-  BreakpointService,
-  LocalStorageService,
-  STORAGE_SERVICE_TOKEN,
-} from '@db-astro-suite/ui';
+import { AnalyticsService, BreakpointService } from '@db-astro-suite/ui';
 import { App } from './app';
 import { SpikeEditorService } from './services/spike-editor.service';
 
@@ -12,9 +7,6 @@ describe('App', () => {
   let breakpoints: BreakpointService;
 
   beforeEach(async () => {
-    // The how-to opens unprompted for a first-time visitor; these specs are
-    // about the shell behind it.
-    localStorage.setItem('astrospike.howTo.dismissed', '1');
     await TestBed.configureTestingModule({
       imports: [App],
       providers: [
@@ -22,7 +14,6 @@ describe('App', () => {
           provide: AnalyticsService,
           useValue: jasmine.createSpyObj<AnalyticsService>('AnalyticsService', ['trackEvent']),
         },
-        { provide: STORAGE_SERVICE_TOKEN, useClass: LocalStorageService },
       ],
     }).compileComponents();
     breakpoints = TestBed.inject(BreakpointService);
@@ -105,5 +96,47 @@ describe('App', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('dba-ui-floating-sheet')).toBeNull();
+  });
+
+  describe('how to use', () => {
+    /** The overlay dialog, when it is showing. */
+    function overlay(): HTMLElement | null {
+      return fixture.nativeElement.querySelector('[role="dialog"]');
+    }
+
+    let fixture: ComponentFixture<App>;
+
+    beforeEach(() => {
+      fixture = renderAt(false);
+    });
+
+    it('should not open on arrival', () => {
+      // Landing in a modal is a worse first impression than a studio you can
+      // poke at, so it waits to be asked for.
+      expect(overlay()).toBeNull();
+    });
+
+    it('should open from the title-bar action and close again', () => {
+      const open = (): HTMLButtonElement | null =>
+        fixture.nativeElement.querySelector('.as-titlebar-actions button');
+      open()?.click();
+      fixture.detectChanges();
+      expect(overlay()).toBeTruthy();
+
+      const gotIt: HTMLButtonElement[] = Array.from(
+        fixture.nativeElement.querySelectorAll('[role="dialog"] button'),
+      );
+      gotIt[gotIt.length - 1].click();
+      fixture.detectChanges();
+
+      expect(overlay()).toBeNull();
+    });
+
+    it('should offer no suppression switch, having nothing to suppress', () => {
+      (fixture.nativeElement.querySelector('.as-titlebar-actions button') as HTMLButtonElement).click();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('dba-ui-switch')).toBeNull();
+    });
   });
 });

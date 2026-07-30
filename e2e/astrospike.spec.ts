@@ -18,10 +18,24 @@ test.describe("AstroSpike", () => {
   }) => {
     const astroSpike = new AstroSpikePage(page);
     await astroSpike.navigate();
-    await astroSpike.dismissHowTo();
 
     await expect(astroSpike.getDropzoneHeading()).toBeVisible();
     await expect(astroSpike.getPrivacyNote()).toBeVisible();
+    // Nothing is in the way of it: the how-to waits to be asked for.
+    await expect(astroSpike.getHowTo()).toHaveCount(0);
+  });
+
+  test("should open the how-to only when the title bar asks for it", async ({
+    page,
+  }) => {
+    const astroSpike = new AstroSpikePage(page);
+    await astroSpike.navigate();
+
+    await expect(astroSpike.getHowTo()).toHaveCount(0);
+    await astroSpike.openHowTo();
+
+    await expect(astroSpike.getHowTo()).toBeVisible();
+    await expect(astroSpike.getHowTo()).toContainText("never leaves your browser");
   });
 
   test("should detect stars and render spikes as soon as an image is loaded", async ({
@@ -29,7 +43,6 @@ test.describe("AstroSpike", () => {
   }) => {
     const astroSpike = new AstroSpikePage(page);
     await astroSpike.navigate();
-    await astroSpike.dismissHowTo();
     await astroSpike.loadImage(STARFIELD_FIXTURE);
 
     const starCount = await astroSpike.waitForDetectedStars();
@@ -45,7 +58,6 @@ test.describe("AstroSpike", () => {
   }) => {
     const astroSpike = new AstroSpikePage(page);
     await astroSpike.navigate();
-    await astroSpike.dismissHowTo();
     await astroSpike.loadImage(STARFIELD_FIXTURE);
     await astroSpike.waitForDetectedStars();
 
@@ -64,7 +76,6 @@ test.describe("AstroSpike", () => {
   }) => {
     const astroSpike = new AstroSpikePage(page);
     await astroSpike.navigate();
-    await astroSpike.dismissHowTo();
     await astroSpike.loadImage(STARFIELD_FIXTURE);
     await astroSpike.waitForDetectedStars();
 
@@ -79,7 +90,6 @@ test.describe("AstroSpike", () => {
   }) => {
     const astroSpike = new AstroSpikePage(page);
     await astroSpike.navigate();
-    await astroSpike.dismissHowTo();
     await astroSpike.loadImage(STARFIELD_FIXTURE);
     await astroSpike.waitForDetectedStars();
 
@@ -97,7 +107,6 @@ test.describe("AstroSpike", () => {
   }) => {
     const astroSpike = new AstroSpikePage(page);
     await astroSpike.navigate();
-    await astroSpike.dismissHowTo();
     await astroSpike.loadImage(STARFIELD_FIXTURE);
     await astroSpike.waitForDetectedStars();
 
@@ -117,7 +126,6 @@ test.describe("AstroSpike", () => {
   }) => {
     const astroSpike = new AstroSpikePage(page);
     await astroSpike.navigate();
-    await astroSpike.dismissHowTo();
     await astroSpike.loadImage(STARFIELD_FIXTURE);
     await astroSpike.waitForDetectedStars();
 
@@ -135,7 +143,6 @@ test.describe("AstroSpike", () => {
   }) => {
     const astroSpike = new AstroSpikePage(page);
     await astroSpike.navigate();
-    await astroSpike.dismissHowTo();
     await astroSpike.loadImage(STARFIELD_FIXTURE);
     await astroSpike.waitForDetectedStars();
 
@@ -150,7 +157,6 @@ test.describe("AstroSpike", () => {
   test("should offer zoom and remove tools on the canvas", async ({ page }) => {
     const astroSpike = new AstroSpikePage(page);
     await astroSpike.navigate();
-    await astroSpike.dismissHowTo();
     await astroSpike.loadImage(STARFIELD_FIXTURE);
     await astroSpike.waitForDetectedStars();
 
@@ -168,7 +174,6 @@ test.describe("AstroSpike", () => {
   }) => {
     const astroSpike = new AstroSpikePage(page);
     await astroSpike.navigate();
-    await astroSpike.dismissHowTo();
     await astroSpike.loadImage(STARFIELD_FIXTURE);
     await astroSpike.waitForDetectedStars();
 
@@ -186,7 +191,6 @@ test.describe("AstroSpike", () => {
   }) => {
     const astroSpike = new AstroSpikePage(page);
     await astroSpike.navigate();
-    await astroSpike.dismissHowTo();
     await astroSpike.loadImage(STARFIELD_FIXTURE);
     await astroSpike.waitForDetectedStars();
 
@@ -207,7 +211,6 @@ test.describe("AstroSpike", () => {
   }) => {
     const astroSpike = new AstroSpikePage(page);
     await astroSpike.navigate();
-    await astroSpike.dismissHowTo();
     await astroSpike.loadImage(STARFIELD_FIXTURE);
     const detected = await astroSpike.waitForDetectedStars();
 
@@ -239,7 +242,6 @@ test.describe("AstroSpike", () => {
   }) => {
     const astroSpike = new AstroSpikePage(page);
     await astroSpike.navigate();
-    await astroSpike.dismissHowTo();
     await astroSpike.loadImage(STARFIELD_FIXTURE);
     const detected = await astroSpike.waitForDetectedStars();
 
@@ -265,7 +267,6 @@ test.describe("AstroSpike", () => {
   }) => {
     const astroSpike = new AstroSpikePage(page);
     await astroSpike.navigate();
-    await astroSpike.dismissHowTo();
     await astroSpike.loadImage(STARFIELD_FIXTURE);
     await astroSpike.waitForDetectedStars();
 

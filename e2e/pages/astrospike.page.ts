@@ -227,13 +227,6 @@ export class AstroSpikePage {
     return this.page.getByRole("dialog", { name: /How to use/i });
   }
 
-  /** Dismisses the how-to overlay if it is showing. */
-  async dismissHowTo(): Promise<void> {
-    const gotIt = this.page.getByRole("button", { name: /^Got it$/ });
-    if (await gotIt.count()) {
-      await gotIt.click();
-    }
-  }
 
   /**
    * Chooses an export output from the split-button dropdown. The menu items are
