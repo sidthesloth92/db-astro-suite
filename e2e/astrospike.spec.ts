@@ -29,7 +29,7 @@ test.describe("AstroSpike", () => {
     await expect(astroSpike.getHowTo()).toHaveCount(0);
   });
 
-  test("should open the how-to only when the title bar asks for it", async ({
+  test("should open the how-to only when the pane header asks for it", async ({
     page,
   }) => {
     const astroSpike = new AstroSpikePage(page);

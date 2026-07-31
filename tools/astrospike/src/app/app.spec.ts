@@ -116,9 +116,9 @@ describe('App', () => {
       expect(overlay()).toBeNull();
     });
 
-    it('should open from the title-bar action and close again', () => {
+    it('should open from the pane-header action and close again', () => {
       const open = (): HTMLButtonElement | null =>
-        fixture.nativeElement.querySelector('.as-titlebar-actions button');
+        fixture.nativeElement.querySelector('.panel-header button');
       open()?.click();
       fixture.detectChanges();
       expect(overlay()).toBeTruthy();
@@ -133,7 +133,7 @@ describe('App', () => {
     });
 
     it('should offer no suppression switch, having nothing to suppress', () => {
-      (fixture.nativeElement.querySelector('.as-titlebar-actions button') as HTMLButtonElement).click();
+      (fixture.nativeElement.querySelector('.panel-header button') as HTMLButtonElement).click();
       fixture.detectChanges();
 
       expect(fixture.nativeElement.querySelector('dba-ui-switch')).toBeNull();

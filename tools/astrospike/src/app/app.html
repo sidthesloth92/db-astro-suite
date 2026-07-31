@@ -8,22 +8,6 @@
   githubLink="https://github.com/sidthesloth92/db-astro-suite"
 ></dba-ui-header>
 
-<!-- Title-bar action. It sits over the header rather than inside the pane
-     because it concerns the whole studio, and because the pane is gone
-     entirely before an image is loaded. Reset is NOT here: it lives on the
-     canvas tool rail, where the work being thrown away is. -->
-@if (!breakpoints.isMobile()) {
-  <div class="as-titlebar-actions">
-    <dba-ui-text-button
-      label="How to use"
-      variant="secondary"
-      accent="cyan"
-      size="sm"
-      (clicked)="onOpenHowTo()"
-    />
-  </div>
-}
-
 @if (breakpoints.isMobile()) {
   <main class="as-container as-container--mobile">
     <dba-as-spike-stage></dba-as-spike-stage>
@@ -60,7 +44,10 @@
       (pointerup)="onAdjustEnd()"
       (pointercancel)="onAdjustEnd()"
     >
-      <dba-as-control-panel class="in-sheet"></dba-as-control-panel>
+      <dba-as-control-panel
+        class="in-sheet"
+        (howToRequested)="onOpenHowTo()"
+      ></dba-as-control-panel>
     </dba-ui-floating-sheet>
   </main>
 } @else {
@@ -69,7 +56,7 @@
     <!-- No image, no inspector: the stage takes the whole width rather than
          sitting beside a pane whose every control would act on nothing. -->
     @if (hasInspector()) {
-      <dba-as-control-panel></dba-as-control-panel>
+      <dba-as-control-panel (howToRequested)="onOpenHowTo()"></dba-as-control-panel>
     }
   </main>
 }

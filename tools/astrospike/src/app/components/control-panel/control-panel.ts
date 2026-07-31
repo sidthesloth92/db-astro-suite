@@ -4,6 +4,7 @@ import {
   Component,
   computed,
   inject,
+  output,
 } from '@angular/core';
 import {
   circleHelpIcon,
@@ -13,6 +14,7 @@ import {
   SegmentedTabsComponent,
   sparklesIcon,
   starsIcon,
+  TextButtonComponent,
   TooltipDirective,
 } from '@db-astro-suite/ui';
 import {
@@ -60,6 +62,7 @@ import { PresetCards } from '../preset-cards/preset-cards';
     MicroSliderComponent,
     PresetCards,
     SegmentedTabsComponent,
+    TextButtonComponent,
     TooltipDirective,
   ],
   templateUrl: './control-panel.html',
@@ -67,6 +70,9 @@ import { PresetCards } from '../preset-cards/preset-cards';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ControlPanel {
+  /** Emitted when the header's How-to action is pressed. */
+  readonly howToRequested = output<void>();
+
   /** Shared editor state — image meta, stars, controls, and export state. */
   protected readonly editor = inject(SpikeEditorService);
 
@@ -168,6 +174,11 @@ export class ControlPanel {
    */
   protected onSpikeCountChange(tabId: string): void {
     this.editor.setSpikeCount(SPIKE_COUNT_BY_TAB_ID[tabId]);
+  }
+
+  /** Relays the header's How-to press to whoever owns the overlay. */
+  protected onHowTo(): void {
+    this.howToRequested.emit();
   }
 
 }

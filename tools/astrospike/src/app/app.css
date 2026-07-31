@@ -23,19 +23,6 @@
   overflow: hidden;
 }
 
-/* Actions that belong to the studio rather than the inspector, laid over the
-   header's right edge. */
-.as-titlebar-actions {
-  position: absolute;
-  top: 15px;
-  /* Clear of the header's own GitHub link, which keeps the far corner. */
-  right: 68px;
-  z-index: 30;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
 /* Mobile: the stage goes full-bleed and the controls live in a sheet stacked
    above it, so the preview is never pushed off screen. */
 .as-container--mobile {

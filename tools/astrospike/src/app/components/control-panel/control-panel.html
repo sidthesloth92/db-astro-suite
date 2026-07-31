@@ -1,6 +1,15 @@
 <section class="control-panel" aria-label="AstroSpike controls">
   <header class="panel-header">
     <h2 class="panel-title">Controls</h2>
+    <!-- Hidden with the header inside the mobile sheet, where the floating
+         help button covers the same need. -->
+    <dba-ui-text-button
+      label="How to use"
+      variant="secondary"
+      accent="cyan"
+      size="sm"
+      (clicked)="onHowTo()"
+    />
   </header>
 
   <div #panelScroll class="panel-scroll">

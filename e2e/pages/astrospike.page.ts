@@ -222,10 +222,9 @@ export class AstroSpikePage {
     return this.getCanvasTool("Reset");
   }
 
-  /** Opens the how-to overlay from the title bar. */
+  /** Opens the how-to overlay from the controls pane header. */
   async openHowTo(): Promise<void> {
-    await this.page
-      .locator(".as-titlebar-actions")
+    await this.controlPanel
       .getByRole("button", { name: /How to use/i })
       .click();
   }

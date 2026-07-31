@@ -12,7 +12,6 @@ import {
   HeaderComponent,
   IconButtonComponent,
   IconComponent,
-  TextButtonComponent,
   circleHelpIcon,
   slidersIcon,
 } from '@db-astro-suite/ui';
@@ -42,7 +41,6 @@ import { SpikeEditorService } from './services/spike-editor.service';
     IconButtonComponent,
     IconComponent,
     SpikeStage,
-    TextButtonComponent,
   ],
   templateUrl: './app.html',
   styleUrl: './app.css',
