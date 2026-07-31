@@ -3,22 +3,16 @@
   titleAccent="SPIKE"
   [version]="version"
   tagline="Diffraction spike studio"
+  logoSrc="assets/img/astrospike-mark.svg"
+  logoLink="/tool/astrospike"
 ></dba-ui-header>
 
-<!-- Title-bar actions. They sit over the header rather than inside the pane
-     because they act on the whole studio, and because the pane is gone
-     entirely before an image is loaded. -->
+<!-- Title-bar action. It sits over the header rather than inside the pane
+     because it concerns the whole studio, and because the pane is gone
+     entirely before an image is loaded. Reset is NOT here: it lives on the
+     canvas tool rail, where the work being thrown away is. -->
 @if (!breakpoints.isMobile()) {
   <div class="as-titlebar-actions">
-    @if (editor.isDirty()) {
-      <dba-ui-text-button
-        label="Reset"
-        variant="secondary"
-        accent="cyan"
-        size="sm"
-        (clicked)="onReset()"
-      />
-    }
     <dba-ui-text-button
       label="How to use"
       variant="secondary"

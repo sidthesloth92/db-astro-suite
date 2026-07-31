@@ -288,10 +288,10 @@ describe('SpikeStage', () => {
       return button;
     }
 
-    it('should offer zoom, fit, and remove tools on the canvas', () => {
+    it('should offer zoom, reset, and remove tools on the canvas', () => {
       expect(tool('Zoom in')).toBeTruthy();
       expect(tool('Zoom out')).toBeTruthy();
-      expect(tool('Fit to view')).toBeTruthy();
+      expect(tool('Reset')).toBeTruthy();
       expect(tool('Remove image')).toBeTruthy();
     });
 
@@ -304,16 +304,32 @@ describe('SpikeStage', () => {
       expect(tool('Zoom out').disabled).toBeFalse();
     });
 
-    it('should return to the fitted view when fit is used', () => {
+    it('should return to the fitted view when reset is used', () => {
+      // Nothing to reset on a fresh image, and the button says so.
+      expect(tool('Reset').disabled).toBeTrue();
+
       tool('Zoom in').click();
       tool('Zoom in').click();
       fixture.detectChanges();
       expect(tool('Zoom out').disabled).toBeFalse();
+      expect(tool('Reset').disabled).toBeFalse();
 
-      tool('Fit to view').click();
+      tool('Reset').click();
       fixture.detectChanges();
 
       expect(tool('Zoom out').disabled).toBeTrue();
+      expect(tool('Reset').disabled).toBeTrue();
+    });
+
+    it('should throw away the whole look from the reset tool', () => {
+      const resetSpy = spyOn(editor, 'resetAll').and.callThrough();
+      editor.updateControl('length', 2);
+      fixture.detectChanges();
+      expect(tool('Reset').disabled).toBeFalse();
+
+      tool('Reset').click();
+
+      expect(resetSpy).toHaveBeenCalledTimes(1);
     });
 
     it('should clear the image from the remove tool', () => {

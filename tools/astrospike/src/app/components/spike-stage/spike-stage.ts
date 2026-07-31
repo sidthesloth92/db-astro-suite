@@ -274,6 +274,13 @@ export class SpikeStage {
   /** True while the whole image is in view — disables the zoom-out button. */
   protected readonly isMinZoom = computed(() => this.viewport().zoom <= STAGE_MIN_ZOOM);
 
+  /**
+   * True while the Reset tool has anything to undo: an edited look, or a view
+   * that is zoomed away from the whole-image fit. Disabled otherwise, so the
+   * button itself communicates "nothing to reset".
+   */
+  protected readonly canReset = computed(() => this.editor.isDirty() || !this.isMinZoom());
+
   /** Aspect ratio (width / height) the preview frame is laid out at. */
   protected readonly frameAspect = computed(() => {
     const bitmap = this.editor.sourceImage();
@@ -625,13 +632,14 @@ export class SpikeStage {
   }
 
   /**
-   * Tool rail: restore the fitted, whole-image view.
-   *
-   * Called "Fit to view" rather than "Reset view" so it cannot be mistaken for
-   * the studio-wide Reset in the title bar — one restores zoom and pan, the
-   * other throws away every edit, and two buttons named Reset is a trap.
+   * Tool rail: the studio Reset. Returns every control and per-star edit to
+   * how a freshly loaded image arrives AND restores the fitted, whole-image
+   * view — one button, everything back, which is what the ↺ glyph promises.
+   * It lives here on the rail, next to the work it throws away, rather than
+   * in the title bar where it went unnoticed.
    */
-  protected onResetView(): void {
+  protected onReset(): void {
+    this.editor.resetAll();
     this.resetViewport();
   }
 

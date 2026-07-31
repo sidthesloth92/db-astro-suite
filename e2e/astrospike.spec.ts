@@ -169,7 +169,7 @@ test.describe("AstroSpike", () => {
     await astroSpike.getCanvasTool("Zoom in").click();
     await expect(astroSpike.getCanvasTool("Zoom out")).toBeEnabled();
 
-    await astroSpike.getCanvasTool("Fit to view").click();
+    await astroSpike.getCanvasTool("Reset").click();
     await expect(astroSpike.getCanvasTool("Zoom out")).toBeDisabled();
   });
 
@@ -249,12 +249,13 @@ test.describe("AstroSpike", () => {
     await astroSpike.loadImage(STARFIELD_FIXTURE);
     const detected = await astroSpike.waitForDetectedStars();
 
-    await expect(astroSpike.getResetButton()).toHaveCount(0);
+    // Nothing to reset on a fresh image, and the rail button says so.
+    await expect(astroSpike.getResetButton()).toBeDisabled();
 
     await astroSpike.selectPreset("JWST");
     await astroSpike.setControlValue("Length", 2.4);
     await astroSpike.setControlValue("Diffusion", 0.7);
-    await expect(astroSpike.getResetButton()).toBeVisible();
+    await expect(astroSpike.getResetButton()).toBeEnabled();
 
     await astroSpike.getResetButton().click();
 
@@ -263,7 +264,7 @@ test.describe("AstroSpike", () => {
     expect(await astroSpike.getControlReadout("Diffusion")).toBe("0");
     // Detection is the expensive part and its result has not changed.
     expect(await astroSpike.waitForDetectedStars()).toBe(detected);
-    await expect(astroSpike.getResetButton()).toHaveCount(0);
+    await expect(astroSpike.getResetButton()).toBeDisabled();
   });
 
   test("should return to the dropzone when the image is cleared", async ({

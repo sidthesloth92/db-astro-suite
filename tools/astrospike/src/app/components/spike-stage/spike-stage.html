@@ -56,7 +56,12 @@
         >
           <dba-ui-icon [def]="minusIcon" [size]="16" />
         </dba-ui-icon-button>
-        <dba-ui-icon-button title="Fit to view" [size]="36" (clicked)="onResetView()">
+        <dba-ui-icon-button
+          title="Reset"
+          [size]="36"
+          [disabled]="!canReset()"
+          (clicked)="onReset()"
+        >
           <dba-ui-icon [def]="rotateCcwIcon" [size]="16" />
         </dba-ui-icon-button>
         <dba-ui-icon-button

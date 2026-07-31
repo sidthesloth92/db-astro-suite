@@ -206,7 +206,7 @@ export class AstroSpikePage {
     name:
       | "Zoom in"
       | "Zoom out"
-      | "Fit to view"
+      | "Reset"
       | "Remove image"
       | "Add a star detection missed",
   ): Locator {
@@ -214,11 +214,12 @@ export class AstroSpikePage {
   }
 
   /**
-   * The studio-level reset. It lives in the title bar rather than the pane, and
-   * is only rendered once something differs from the defaults.
+   * The studio-level reset — the rail's ↺ button. It throws away every edit
+   * AND restores the fitted view, and is disabled while there is nothing to
+   * reset.
    */
   getResetButton(): Locator {
-    return this.page.locator(".as-titlebar-actions").getByRole("button", { name: /^Reset$/ });
+    return this.getCanvasTool("Reset");
   }
 
   /** Opens the how-to overlay from the title bar. */

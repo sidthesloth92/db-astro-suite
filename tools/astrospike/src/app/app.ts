@@ -127,9 +127,4 @@ export class App {
   protected onCloseHowTo(): void {
     this.isHowToOpen.set(false);
   }
-
-  /** Returns every control and per-star edit to its default. */
-  protected onReset(): void {
-    this.editor.resetAll();
-  }
 }
