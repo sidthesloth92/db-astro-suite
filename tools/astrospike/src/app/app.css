@@ -28,7 +28,8 @@
 .as-titlebar-actions {
   position: absolute;
   top: 15px;
-  right: 24px;
+  /* Clear of the header's own GitHub link, which keeps the far corner. */
+  right: 68px;
   z-index: 30;
   display: flex;
   align-items: center;
