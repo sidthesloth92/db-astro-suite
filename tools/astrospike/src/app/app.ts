@@ -2,7 +2,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  effect,
   inject,
   signal,
 } from '@angular/core';
@@ -58,17 +57,6 @@ export class App {
 
   /** Whether the mobile controls sheet is open. */
   protected readonly sheetExpanded = signal(false);
-
-  /**
-   * Effect: opening a star's controls opens the sheet on mobile. The controls
-   * are docked in the pane, and the pane lives inside the sheet down here, so
-   * without this a double-tap on a star would look like it did nothing.
-   */
-  private readonly _revealSheetForStar = effect(() => {
-    if (this.editor.starControlsId() !== null && this.breakpoints.isMobile()) {
-      this.sheetExpanded.set(true);
-    }
-  });
 
   /**
    * True while a slider inside the sheet is being dragged, which fades the

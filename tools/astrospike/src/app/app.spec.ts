@@ -76,7 +76,7 @@ describe('App', () => {
     expect(openButton()).toBeNull();
   });
 
-  it('should open the mobile sheet when a star is opened for tuning', () => {
+  it('should keep the mobile sheet closed when a star is opened for tuning', () => {
     const fixture = renderAt(true);
     const editor = TestBed.inject(SpikeEditorService);
     expect(fixture.nativeElement.querySelector('button[aria-label="Open controls"]')).toBeTruthy();
@@ -84,8 +84,9 @@ describe('App', () => {
     editor.openStarControls(3);
     fixture.detectChanges();
 
-    // The sheet is where the pane — and so the star's controls — lives here.
-    expect(fixture.nativeElement.querySelector('button[aria-label="Open controls"]')).toBeNull();
+    // The star's own bar floats over the stage; opening the sheet of GLOBAL
+    // controls on top of it would bury the thing the user just asked for.
+    expect(fixture.nativeElement.querySelector('button[aria-label="Open controls"]')).toBeTruthy();
   });
 
   it('should leave the desktop shell alone when a star is opened for tuning', () => {

@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import {
   IconButtonComponent,
   IconComponent,
@@ -17,6 +25,7 @@ import {
   STAR_ROTATION_STEP,
 } from '../../constants/star-adjustment.constants';
 import { CONTROLS } from '../../constants/controls.constants';
+import { SLIDER_TARGET_SELECTOR } from '../../constants/mobile-shell.constants';
 import { SpikeEditorService } from '../../services/spike-editor.service';
 import { round2, signedDegrees, signedFactor } from '../../utils/star-delta.util';
 
@@ -41,8 +50,34 @@ import { round2, signedDegrees, signedFactor } from '../../utils/star-delta.util
   templateUrl: './star-controls.html',
   styleUrl: './star-controls.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '[class.is-adjusting]': 'isAdjusting()',
+    '(pointerdown)': 'onAdjustStart($event)',
+    '(pointerup)': 'onAdjustEnd()',
+    '(pointercancel)': 'onAdjustEnd()',
+  },
 })
 export class StarControls {
+  /**
+   * True while one of the bar's sliders is being dragged. The bar fades so
+   * the star being tuned stays visible under it — the same treatment the
+   * mobile controls sheet gives its own sliders.
+   */
+  protected readonly isAdjusting = signal(false);
+
+  /** Fades the bar when a drag starts on one of its sliders. */
+  protected onAdjustStart(event: PointerEvent): void {
+    const target = event.target;
+    if (target instanceof Element && target.closest(SLIDER_TARGET_SELECTOR) !== null) {
+      this.isAdjusting.set(true);
+    }
+  }
+
+  /** Restores the bar once the slider drag ends. */
+  protected onAdjustEnd(): void {
+    this.isAdjusting.set(false);
+  }
+
   /** Id of the star being adjusted. */
   readonly starId = input.required<number>();
 
