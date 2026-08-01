@@ -12,37 +12,64 @@
 }
 
 /* While one of the bar's sliders is being dragged the bar fades, so the star
-   being tuned stays visible under it. */
-:host(.is-adjusting) {
+   being tuned stays visible under it. Inside the sheet the sheet's own
+   ghosting does this job. */
+:host(:not(.in-sheet).is-adjusting) {
   opacity: 0.15;
 }
 
-/* Mobile: the sheet and its button own the bottom edge, so the bar moves to
-   the top of the stage and wraps its fields into rows. */
+/* Mobile: the floating bar has no horizontal room, so per-star controls live
+   in the controls sheet instead (the `.in-sheet` presentation below). */
 @media (max-width: 1079px) {
-  :host {
-    top: 12px;
-    bottom: auto;
-  }
-
-  .star-bar {
-    flex-wrap: wrap;
-    gap: 10px 14px;
-  }
-
-  .star-bar__field {
-    flex: 1 1 40%;
-    min-width: 140px;
-  }
-
-  .star-bar__spacer {
+  :host(:not(.in-sheet)) {
     display: none;
   }
+}
 
-  .star-bar__actions {
-    flex: 1 1 100%;
-    justify-content: flex-end;
-  }
+/* Inside the mobile sheet the sheet chrome frames everything, so the bar
+   drops its own shell and stacks its fields full-width. */
+:host(.in-sheet) {
+  position: static;
+  left: auto;
+  right: auto;
+  bottom: auto;
+}
+
+:host(.in-sheet) .star-bar {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 14px;
+  padding: 4px 2px 10px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+}
+
+:host(.in-sheet) .star-bar__id {
+  width: auto;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 10px;
+}
+
+/* In a column the fields must not grow, or the sheet's spare height opens
+   gulfs between the sliders. */
+:host(.in-sheet) .star-bar__field {
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+:host(.in-sheet) .star-bar__rule,
+:host(.in-sheet) .star-bar__spacer {
+  display: none;
+}
+
+:host(.in-sheet) .star-bar__actions {
+  justify-content: space-between;
 }
 
 /* A bar under the stage rather than a pane section: per-star work is done while

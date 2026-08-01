@@ -38,16 +38,27 @@
       class="as-mobile-sheet"
       [class.as-mobile-sheet--ghosted]="isAdjusting()"
       [(expanded)]="sheetExpanded"
-      title="Controls"
+      [title]="sheetStar() !== null ? 'Star' : 'Controls'"
       [maxHeightPercent]="62"
       (pointerdown)="onAdjustStart($event)"
       (pointerup)="onAdjustEnd()"
       (pointercancel)="onAdjustEnd()"
     >
-      <dba-as-control-panel
-        class="in-sheet"
-        (howToRequested)="onOpenHowTo()"
-      ></dba-as-control-panel>
+      <!-- The sheet hosts whichever controls the user is working with: one
+           star's own, or the globals. The star panel names its star at the
+           top, and its deselect hands the sheet back to the globals. -->
+      @if (sheetStar(); as star) {
+        <dba-as-star-controls
+          class="in-sheet"
+          [starId]="star.id"
+          (closed)="onSheetStarClosed()"
+        ></dba-as-star-controls>
+      } @else {
+        <dba-as-control-panel
+          class="in-sheet"
+          (howToRequested)="onOpenHowTo()"
+        ></dba-as-control-panel>
+      }
     </dba-ui-floating-sheet>
   </main>
 } @else {

@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   inject,
   signal,
 } from '@angular/core';
@@ -19,6 +20,7 @@ import { SLIDER_TARGET_SELECTOR } from './constants/mobile-shell.constants';
 import { HowToOverlay } from './components/how-to-overlay/how-to-overlay';
 import { ControlPanel } from './components/control-panel/control-panel';
 import { SpikeStage } from './components/spike-stage/spike-stage';
+import { StarControls } from './components/star-controls/star-controls';
 import { SpikeEditorService } from './services/spike-editor.service';
 
 /**
@@ -40,6 +42,7 @@ import { SpikeEditorService } from './services/spike-editor.service';
     IconButtonComponent,
     IconComponent,
     SpikeStage,
+    StarControls,
   ],
   templateUrl: './app.html',
   styleUrl: './app.css',
@@ -86,6 +89,26 @@ export class App {
     () => this.editor.hasImage() || this.editor.isImageLoading() || this.editor.isDetecting(),
   );
 
+  /**
+   * The star whose controls the mobile sheet should host, wrapped in an object
+   * so the template's `@if (...; as star)` works for star id 0 as well.
+   */
+  protected readonly sheetStar = computed(() => {
+    const id = this.editor.starControlsId();
+    return id === null ? null : { id };
+  });
+
+  /**
+   * Effect: opening a star's controls on mobile opens the sheet, because that
+   * is where they are hosted down here — a double-tap on a star would
+   * otherwise look like it did nothing.
+   */
+  private readonly _revealSheetForStar = effect(() => {
+    if (this.editor.starControlsId() !== null && this.breakpoints.isMobile()) {
+      this.sheetExpanded.set(true);
+    }
+  });
+
   /** Opens or closes the mobile controls sheet. */
   protected toggleSheet(): void {
     this.sheetExpanded.update((expanded) => !expanded);
@@ -112,5 +135,13 @@ export class App {
   /** Dismisses the how-to overlay. */
   protected onCloseHowTo(): void {
     this.isHowToOpen.set(false);
+  }
+
+  /**
+   * Deselects the sheet's star. The sheet stays open and swaps back to the
+   * global controls, so leaving one star flows straight into field-wide work.
+   */
+  protected onSheetStarClosed(): void {
+    this.editor.closeStarControls();
   }
 }

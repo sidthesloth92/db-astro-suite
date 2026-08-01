@@ -76,7 +76,7 @@ describe('App', () => {
     expect(openButton()).toBeNull();
   });
 
-  it('should keep the mobile sheet closed when a star is opened for tuning', () => {
+  it("should open the mobile sheet hosting that star's own controls when a star is opened", () => {
     const fixture = renderAt(true);
     const editor = TestBed.inject(SpikeEditorService);
     expect(fixture.nativeElement.querySelector('button[aria-label="Open controls"]')).toBeTruthy();
@@ -84,9 +84,12 @@ describe('App', () => {
     editor.openStarControls(3);
     fixture.detectChanges();
 
-    // The star's own bar floats over the stage; opening the sheet of GLOBAL
-    // controls on top of it would bury the thing the user just asked for.
-    expect(fixture.nativeElement.querySelector('button[aria-label="Open controls"]')).toBeTruthy();
+    // The sheet opens, and what it hosts is the star's controls — showing the
+    // globals here would read as per-star sliders that change every star.
+    expect(fixture.nativeElement.querySelector('button[aria-label="Open controls"]')).toBeNull();
+    const sheet = fixture.nativeElement.querySelector('dba-ui-floating-sheet');
+    expect(sheet?.querySelector('dba-as-star-controls')).toBeTruthy();
+    expect(sheet?.querySelector('dba-as-control-panel')).toBeNull();
   });
 
   it('should leave the desktop shell alone when a star is opened for tuning', () => {
