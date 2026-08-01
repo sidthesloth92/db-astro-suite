@@ -96,7 +96,7 @@ export const routeMeta: RouteMeta = {
     {
       name: 'description',
       content:
-        'A professional collection of social-media focused astrophotography tools. Transform captures into cinematic starfield animations or professional Instagram exposure cards.',
+        'A professional collection of social-media focused astrophotography tools. Transform captures into cinematic starfield animations, professional Instagram exposure cards, or images with real diffraction spikes.',
     },
     {
       property: 'og:title',

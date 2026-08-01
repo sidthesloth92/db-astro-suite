@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>AstroSpike — Add Diffraction Spikes to Astrophotography Online</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="Dinesh Balaji Venkataraj" />
+    <meta
+      name="description"
+      content="AstroSpike is a free browser-based tool that adds realistic diffraction spikes to your astrophotography images. Automatic star detection, adjustable spike presets, and JPEG/PNG export — all processed 100% client-side, so your image never leaves your browser."
+    />
+    <meta
+      name="keywords"
+      content="astrophotography, diffraction spikes, star spikes, refractor spikes, newtonian spikes, star detection, astro image editing, astrospike, dinesh balaji venkataraj, client-side image processing"
+    />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="DB Astro Suite" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content="https://dbastrosuite.com/astrospike/" />
+    <meta
+      property="og:title"
+      content="AstroSpike — Add Diffraction Spikes to Astrophotography Online"
+    />
+    <meta
+      property="og:description"
+      content="Add realistic diffraction spikes to your astrophotography images right in the browser. Automatic star detection, spike presets, and JPEG/PNG export — 100% client-side."
+    />
+    <meta
+      property="og:image"
+      content="https://dbastrosuite.com/astrospike/assets/img/astrospike-og.jpg"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="AstroSpike — Diffraction Spikes for Astrophotography Images"
+    />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://dbastrosuite.com/astrospike/" />
+    <meta
+      property="twitter:title"
+      content="AstroSpike — Add Diffraction Spikes to Astrophotography Online"
+    />
+    <meta
+      property="twitter:description"
+      content="Add realistic diffraction spikes to your astrophotography images right in the browser. 100% client-side — your image never leaves your browser."
+    />
+    <meta
+      property="twitter:image"
+      content="https://dbastrosuite.com/astrospike/assets/img/astrospike-og.jpg"
+    />
+    <meta
+      property="twitter:image:alt"
+      content="AstroSpike — Diffraction Spikes for Astrophotography Images"
+    />
+    <meta name="twitter:creator" content="@sidthesloth92" />
+    <meta name="twitter:site" content="@sidthesloth92" />
+
+    <link rel="canonical" href="https://dbastrosuite.com/astrospike/" />
+    <link rel="sitemap" type="application/xml" href="sitemap.xml" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Structured Data: WebApplication -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "AstroSpike",
+        "url": "https://dbastrosuite.com/astrospike/",
+        "description": "AstroSpike is a free, browser-based tool that adds realistic diffraction spikes to astrophotography images. It detects stars automatically, applies configurable diffraction spike presets, and exports the result as JPEG or PNG — with all processing done client-side, so your image never leaves your browser.",
+        "applicationCategory": "PhotographyApplication",
+        "operatingSystem": "Any",
+        "browserRequirements": "Requires a modern web browser with JavaScript enabled",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "author": {
+          "@type": "Person",
+          "name": "Dinesh Balaji Venkataraj",
+          "sameAs": ["https://twitter.com/sidthesloth92", "https://www.instagram.com/astrowithdb"]
+        },
+        "keywords": "astrophotography, diffraction spikes, star spikes, star detection, astro image editing, client-side image processing",
+        "featureList": [
+          "Automatic star detection with hot-pixel and satellite-trail rejection",
+          "Subtle, Classic (4-spike) and JWST (6-spike) presets",
+          "Spike length and colour driven by each star's measured brightness",
+          "Click individual stars to add or remove their spikes",
+          "Before/after comparison",
+          "PNG and JPEG export at the original resolution",
+          "100% client-side processing — your image never leaves your browser"
+        ],
+        "screenshot": "https://dbastrosuite.com/astrospike/assets/img/astrospike-og.jpg"
+      }
+    </script>
+
+    <!-- Google tag (gtag.js) — skipped on localhost so dev traffic never reaches the prod GA4 property.
+         Re-enable locally with ?analytics=on (one session) or localStorage 'ga-debug'='on' (persistent). -->
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      (function () {
+        var host = location.hostname;
+        var isLocal =
+          host === 'localhost' || host === '127.0.0.1' || host.endsWith('.local');
+
+        // Local opt-in override: ?analytics=on forces it on for this load and
+        // remembers the choice; ?analytics=off clears it. A persisted 'ga-debug'
+        // flag keeps GA on across reloads until explicitly turned off.
+        var override = null;
+        try {
+          var qp = new URLSearchParams(location.search).get('analytics');
+          if (qp === 'on') {
+            localStorage.setItem('ga-debug', 'on');
+            override = true;
+          } else if (qp === 'off') {
+            localStorage.removeItem('ga-debug');
+            override = false;
+          } else if (localStorage.getItem('ga-debug') === 'on') {
+            override = true;
+          }
+        } catch (e) {
+          /* storage unavailable (private mode) — fall back to host check */
+        }
+
+        var enabled = override === null ? !isLocal : override;
+        if (!enabled) {
+          return; // analytics disabled
+        }
+
+        var s = document.createElement('script');
+        s.async = true;
+        s.src = 'https://www.googletagmanager.com/gtag/js?id=G-SBXMGWP56E';
+        document.head.appendChild(s);
+        gtag('js', new Date());
+        // page_view is fired manually by RouteAnalyticsTracker on every router NavigationEnd
+        gtag('config', 'G-SBXMGWP56E', { send_page_view: false });
+      })();
+    </script>
+  </head>
+  <body>
+    <dba-as-root></dba-as-root>
+    <!-- noscript: rich content for search crawlers that don't execute JavaScript -->
+    <noscript>
+      <main style="font-family: sans-serif; max-width: 800px; margin: 2rem auto; padding: 1rem">
+        <h1>AstroSpike — Add Diffraction Spikes to Astrophotography Images</h1>
+        <p>
+          AstroSpike is a free web tool for astrophotographers. Upload an astrophoto and
+          AstroSpike detects the stars automatically, then renders realistic diffraction
+          spikes on them — the classic four-point Newtonian look, refractor-style crosses,
+          and other presets — before exporting the finished image as JPEG or PNG.
+        </p>
+        <h2>Features</h2>
+        <ul>
+          <li>Automatic star detection</li>
+          <li>Diffraction spike presets with adjustable length, angle, and intensity</li>
+          <li>High-quality JPEG and PNG export</li>
+          <li>100% client-side processing — your image never leaves your browser</li>
+        </ul>
+        <h2>Who is it for?</h2>
+        <p>
+          Astrophotographers who shot with a refractor or other spike-free optics and want
+          to add the classic diffraction-spike aesthetic to their bright stars — without
+          installing software or uploading their image to a server.
+        </p>
+        <p>
+          <a href="https://dbastrosuite.com/">DB Astro Suite</a>
+          &nbsp;|&nbsp;
+          <a href="https://github.com/sidthesloth92/db-astro-suite">GitHub Repository</a>
+        </p>
+      </main>
+    </noscript>
+  </body>
+</html>

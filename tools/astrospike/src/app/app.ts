@@ -1,0 +1,147 @@
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
+import {
+  BreakpointService,
+  FloatingSheetComponent,
+  HeaderComponent,
+  IconButtonComponent,
+  IconComponent,
+  circleHelpIcon,
+  slidersIcon,
+} from '@db-astro-suite/ui';
+import packageJson from '../../../../package.json';
+import { SLIDER_TARGET_SELECTOR } from './constants/mobile-shell.constants';
+import { HowToOverlay } from './components/how-to-overlay/how-to-overlay';
+import { ControlPanel } from './components/control-panel/control-panel';
+import { SpikeStage } from './components/spike-stage/spike-stage';
+import { StarControls } from './components/star-controls/star-controls';
+import { SpikeEditorService } from './services/spike-editor.service';
+
+/**
+ * AstroSpike root shell.
+ *
+ * On desktop it renders a two-pane studio: the preview stage on the left and
+ * the controls pane on the right, mirroring the starwizz layout. Below the
+ * mobile breakpoint the stage goes full-bleed and the same controls move into
+ * a floating sheet opened from a button, so the canvas is never buried.
+ */
+@Component({
+  selector: 'dba-as-root',
+  standalone: true,
+  imports: [
+    ControlPanel,
+    FloatingSheetComponent,
+    HeaderComponent,
+    HowToOverlay,
+    IconButtonComponent,
+    IconComponent,
+    SpikeStage,
+    StarControls,
+  ],
+  templateUrl: './app.html',
+  styleUrl: './app.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class App {
+  /** Application version pulled from the workspace `package.json`. */
+  readonly version = packageJson.version || '1.0.0';
+
+  /** Viewport breakpoint signal — drives the desktop vs. mobile shell. */
+  protected readonly breakpoints = inject(BreakpointService);
+
+  /** Shared editor state — drives the title-bar actions and pane visibility. */
+  protected readonly editor = inject(SpikeEditorService);
+
+  /** Whether the mobile controls sheet is open. */
+  protected readonly sheetExpanded = signal(false);
+
+  /**
+   * True while a slider inside the sheet is being dragged, which fades the
+   * sheet so the user can watch the canvas update underneath it.
+   */
+  protected readonly isAdjusting = signal(false);
+
+  /** Glyph for the button that opens the mobile controls sheet. */
+  protected readonly slidersIcon = slidersIcon;
+
+  /** Glyph on the mobile how-to button. */
+  protected readonly circleHelpIcon = circleHelpIcon;
+
+  /**
+   * Whether the how-to overlay is showing. It never opens on its own — landing
+   * in a modal is a worse first impression than a studio you can poke at — so
+   * it is shown only when the title-bar action asks for it.
+   */
+  protected readonly isHowToOpen = signal(false);
+
+  /**
+   * True while the inspector has anything to inspect. With no image every
+   * control would act on nothing, so the stage takes the whole width instead of
+   * sitting beside a pane of dead sliders.
+   */
+  protected readonly hasInspector = computed(
+    () => this.editor.hasImage() || this.editor.isImageLoading() || this.editor.isDetecting(),
+  );
+
+  /**
+   * The star whose controls the mobile sheet should host, wrapped in an object
+   * so the template's `@if (...; as star)` works for star id 0 as well.
+   */
+  protected readonly sheetStar = computed(() => {
+    const id = this.editor.starControlsId();
+    return id === null ? null : { id };
+  });
+
+  /**
+   * Effect: opening a star's controls on mobile opens the sheet, because that
+   * is where they are hosted down here — a double-tap on a star would
+   * otherwise look like it did nothing.
+   */
+  private readonly _revealSheetForStar = effect(() => {
+    if (this.editor.starControlsId() !== null && this.breakpoints.isMobile()) {
+      this.sheetExpanded.set(true);
+    }
+  });
+
+  /** Opens or closes the mobile controls sheet. */
+  protected toggleSheet(): void {
+    this.sheetExpanded.update((expanded) => !expanded);
+  }
+
+  /** Fades the sheet when a drag starts on one of its sliders. */
+  protected onAdjustStart(event: PointerEvent): void {
+    const target = event.target;
+    if (target instanceof Element && target.closest(SLIDER_TARGET_SELECTOR) !== null) {
+      this.isAdjusting.set(true);
+    }
+  }
+
+  /** Restores the sheet once the slider drag ends. */
+  protected onAdjustEnd(): void {
+    this.isAdjusting.set(false);
+  }
+
+  /** Opens the how-to overlay from the title bar. */
+  protected onOpenHowTo(): void {
+    this.isHowToOpen.set(true);
+  }
+
+  /** Dismisses the how-to overlay. */
+  protected onCloseHowTo(): void {
+    this.isHowToOpen.set(false);
+  }
+
+  /**
+   * Deselects the sheet's star. The sheet stays open and swaps back to the
+   * global controls, so leaving one star flows straight into field-wide work.
+   */
+  protected onSheetStarClosed(): void {
+    this.editor.closeStarControls();
+  }
+}

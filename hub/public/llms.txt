@@ -26,6 +26,17 @@ A free astrophotography exposure card generator for Instagram and social media.
   progress ring visualization, plate solving with WCS annotation overlay (Messier, NGC, IC,
   Tycho-2 catalogs), Bortle scale selector, high-quality JPEG export
 
+### AstroSpike
+A free browser-based diffraction-spike studio for astrophotography images.
+- Live: https://dbastrosuite.com/astrospike/
+- LLMs: https://dbastrosuite.com/astrospike/llms.txt
+- Features: automatic client-side star detection (background modelling, noise thresholding,
+  connected-component measurement, hot-pixel and satellite-trail rejection), additive spike
+  rendering with length and intensity scaled by measured star brightness, per-star colour
+  sampling, Subtle/Classic/JWST presets, 4- or 6-spike toggle, per-star click toggling,
+  before/after comparison, and PNG/JPEG export at the source image's native resolution
+- Privacy: fully client-side — images are never uploaded to any server
+
 ### Sortronomy (CLI)
 A single-binary Go wizard for automated astrophotography dataset organisation.
 - Live: https://dbastrosuite.com/tool/sortronomy
@@ -49,6 +60,7 @@ Dinesh Balaji Venkataraj
 - About: https://dbastrosuite.com/about
 - Starwizz Tool: https://dbastrosuite.com/tool/starwizz
 - Astrogram Tool: https://dbastrosuite.com/tool/astrogram
+- AstroSpike Tool: https://dbastrosuite.com/tool/astrospike
 - Sortronomy Tool: https://dbastrosuite.com/tool/sortronomy
 - Repo: https://github.com/sidthesloth92/db-astro-suite
 - Full LLMs context: https://dbastrosuite.com/llms-full.txt

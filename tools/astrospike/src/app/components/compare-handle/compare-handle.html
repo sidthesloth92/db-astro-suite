@@ -1,0 +1,33 @@
+<!-- No native element models a two-way split divider, so this is the ARIA
+     slider pattern: a focusable element with an explicit role and value. -->
+<div
+  #divider
+  class="compare-divider"
+  [class.is-dragging]="isDragging()"
+  [style.--compare-pos]="positionFraction()"
+  role="slider"
+  tabindex="0"
+  [attr.aria-label]="ariaLabel"
+  [attr.aria-valuemin]="ariaMin"
+  [attr.aria-valuemax]="ariaMax"
+  [attr.aria-valuenow]="ariaValueNow()"
+  (pointerdown)="onPointerDown($event)"
+  (pointermove)="onPointerMove($event)"
+  (pointerup)="onPointerUp($event)"
+  (pointercancel)="onPointerUp($event)"
+  (keydown)="onKeyDown($event)"
+>
+  <!-- Layered rather than a single line: a shadow so the spiked half reads as
+       sitting above the original, a bloom that falls off from the grip instead
+       of lighting a uniform column, a tapered core, and a specular sheen. -->
+  <span class="compare-divider__seam" aria-hidden="true"></span>
+  <span class="compare-divider__bloom" aria-hidden="true"></span>
+  <span class="compare-divider__core" aria-hidden="true"></span>
+  <span class="compare-divider__sheen" aria-hidden="true"></span>
+  <span class="compare-divider__grab" aria-hidden="true"></span>
+  <span class="compare-divider__grip" aria-hidden="true">
+    <span class="compare-divider__ring"></span>
+    <dba-ui-icon [def]="chevronLeftIcon" [size]="11" />
+    <dba-ui-icon [def]="chevronRightIcon" [size]="11" />
+  </span>
+</div>

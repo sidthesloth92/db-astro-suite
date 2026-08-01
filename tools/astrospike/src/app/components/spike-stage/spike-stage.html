@@ -1,0 +1,134 @@
+<div class="stage" (dragover)="onStageDragOver($event)" (drop)="onStageDrop($event)">
+  <div class="stage-canvas-area">
+  <div
+    class="stage-frame"
+    [class.is-hidden]="!editor.hasImage()"
+    [style.--as-frame-aspect]="frameAspect()"
+  >
+    <canvas #beforeCanvas class="stage-canvas before-canvas"></canvas>
+    <canvas
+      #afterCanvas
+      class="stage-canvas after-canvas"
+      [style.clip-path]="afterClipPath()"
+    ></canvas>
+    <canvas
+      #markerCanvas
+      class="stage-canvas marker-canvas"
+      [style.clip-path]="afterClipPath()"
+      [class.is-over-star]="isOverStar()"
+      [class.is-panning]="isPanning()"
+      [class.is-moving-star]="isMovingStar()"
+      [class.is-adding-star]="editor.isAddingStar()"
+      (pointerdown)="onStagePointerDown($event)"
+      (pointermove)="onStagePointerMove($event)"
+      (pointerup)="onStagePointerUp($event)"
+      (pointercancel)="onStagePointerUp($event)"
+      (pointerleave)="onStagePointerLeave()"
+      (wheel)="onStageWheel($event)"
+      (dblclick)="onStageDoubleClick($event)"
+    ></canvas>
+
+
+    @if (isStageReady()) {
+      <div class="stage-tools">
+        <dba-ui-icon-button
+          class="tool-add-star"
+          [class.is-active]="editor.isAddingStar()"
+          title="Add a star detection missed"
+          [size]="36"
+          (clicked)="onToggleAddStar()"
+        >
+          <dba-ui-icon [def]="targetIcon" [size]="16" />
+        </dba-ui-icon-button>
+        <dba-ui-icon-button
+          title="Zoom in"
+          [size]="36"
+          [disabled]="isMaxZoom()"
+          (clicked)="onZoomIn()"
+        >
+          <dba-ui-icon [def]="plusIcon" [size]="16" />
+        </dba-ui-icon-button>
+        <dba-ui-icon-button
+          title="Zoom out"
+          [size]="36"
+          [disabled]="isMinZoom()"
+          (clicked)="onZoomOut()"
+        >
+          <dba-ui-icon [def]="minusIcon" [size]="16" />
+        </dba-ui-icon-button>
+        <dba-ui-icon-button
+          title="Reset"
+          [size]="36"
+          [disabled]="!canReset()"
+          (clicked)="onReset()"
+        >
+          <dba-ui-icon [def]="rotateCcwIcon" [size]="16" />
+        </dba-ui-icon-button>
+        <dba-ui-icon-button
+          class="tool-remove"
+          accent="red"
+          title="Remove image"
+          [size]="36"
+          (clicked)="onRemoveImage()"
+        >
+          <dba-ui-icon [def]="trashIcon" [size]="16" />
+        </dba-ui-icon-button>
+      </div>
+    }
+
+    @if (isStageReady()) {
+      <span class="stage-tag stage-tag--before" [class.is-hidden]="editedStar() !== null">
+        Original
+      </span>
+      <span class="stage-tag stage-tag--after" [class.is-hidden]="editedStar() !== null">
+        Spiked
+      </span>
+    }
+
+    @if (showCompareHandle()) {
+      <dba-as-compare-handle
+        [position]="editor.comparePosition()"
+        (positionChange)="onComparePositionChange($event)"
+      />
+    }
+  </div>
+
+  </div>
+
+  @if (editedStar(); as star) {
+    <dba-as-star-controls [starId]="star.id" (closed)="onStarBarClosed()" />
+  }
+
+  @if (showDropzone()) {
+    <dba-as-image-dropzone (imageSelected)="onFileSelected($event)" />
+  }
+
+  @if (isProcessing() || justDetected()) {
+    <!-- Transient: it reports the run and then clears, leaving the standing
+         figure to the star magnitude readout. -->
+    <div class="stage-badge" role="status" aria-live="polite">
+      <div class="stage-badge__pill">
+        <span class="stage-badge__dot" aria-hidden="true"></span>
+        <span>{{ isProcessing() ? statusLine() : editor.detectedStarCount() + ' stars detected' }}</span>
+      </div>
+      @if (isProcessing()) {
+        <div class="stage-badge__track" aria-hidden="true">
+          <span class="stage-badge__sweep"></span>
+        </div>
+      }
+    </div>
+  }
+
+  @if (stageError(); as error) {
+    <div class="stage-error" role="alert">
+      <p class="stage-error__message">{{ error }}</p>
+      <dba-ui-text-button
+        label="Try another image"
+        variant="secondary"
+        size="sm"
+        (clicked)="onTryAnother()"
+      />
+    </div>
+  }
+
+</div>

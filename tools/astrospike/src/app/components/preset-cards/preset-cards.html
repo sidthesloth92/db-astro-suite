@@ -1,0 +1,68 @@
+<div class="preset-picker">
+  <button
+    type="button"
+    class="preset-trigger"
+    [class.is-open]="isOpen()"
+    aria-haspopup="listbox"
+    [attr.aria-expanded]="isOpen()"
+    [title]="activePreset().description"
+    (click)="onToggle()"
+  >
+    <span class="preset-glyph" aria-hidden="true">
+      <ng-container [ngTemplateOutlet]="starGlyph" [ngTemplateOutletContext]="{ $implicit: activePreset(), size: 20 }" />
+    </span>
+    <span class="preset-meta">
+      <span class="preset-label">{{ activePreset().label }}</span>
+      <span class="preset-description">{{ activePreset().description }}</span>
+    </span>
+    <span class="preset-chevron" aria-hidden="true">
+      <dba-ui-icon [def]="chevronIcon" [size]="14" />
+    </span>
+  </button>
+
+  @if (isOpen()) {
+    <div class="preset-menu" role="listbox" aria-label="Spike preset">
+      @for (preset of presets; track preset.id) {
+        <button
+          type="button"
+          role="option"
+          class="preset-option"
+          [class.is-selected]="preset.id === activeId()"
+          [attr.aria-selected]="preset.id === activeId()"
+          (click)="onPick(preset.id)"
+        >
+          <span class="preset-glyph" aria-hidden="true">
+            <ng-container [ngTemplateOutlet]="starGlyph" [ngTemplateOutletContext]="{ $implicit: preset, size: 18 }" />
+          </span>
+          <span class="preset-meta">
+            <span class="preset-label">{{ preset.label }}</span>
+            <span class="preset-description">{{ preset.description }}</span>
+          </span>
+          @if (preset.id === activeId()) {
+            <span class="preset-check" aria-hidden="true">
+              <dba-ui-icon [def]="checkIcon" [size]="15" />
+            </span>
+          }
+        </button>
+      }
+    </div>
+  }
+</div>
+
+<!-- A four- or six-pointed star drawn from quadratic cusps, matching the arm
+     count so the glyph states the preset rather than decorating it. The
+     Diffusion preset has no arms to state, so its glyph is a soft bloom:
+     a core disc inside a fainter halo. -->
+<ng-template #starGlyph let-preset let-size="size">
+  <svg [attr.viewBox]="'0 0 24 24'" [attr.width]="size" [attr.height]="size" fill="currentColor" aria-hidden="true">
+    @if (preset.id === 'diffusion') {
+      <circle cx="12" cy="12" r="9" opacity="0.3" />
+      <circle cx="12" cy="12" r="5.5" opacity="0.55" />
+      <circle cx="12" cy="12" r="2.8" />
+    } @else if (preset.spikeCount === 6) {
+      <path d="M12 1.6 Q12 12 21 6.8 Q12 12 21 17.2 Q12 12 12 22.4 Q12 12 3 17.2 Q12 12 3 6.8 Q12 12 12 1.6 Z" />
+    } @else {
+      <path d="M12 1.6 Q12 12 22.4 12 Q12 12 12 22.4 Q12 12 1.6 12 Q12 12 12 1.6 Z" />
+    }
+  </svg>
+</ng-template>

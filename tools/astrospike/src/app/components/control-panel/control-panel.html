@@ -1,0 +1,90 @@
+<section class="control-panel" aria-label="AstroSpike controls">
+  <header class="panel-header">
+    <h2 class="panel-title">Controls</h2>
+    <!-- Hidden with the header inside the mobile sheet, where the floating
+         help button covers the same need. -->
+    <dba-ui-text-button
+      label="How to use"
+      variant="secondary"
+      accent="cyan"
+      size="sm"
+      (clicked)="onHowTo()"
+    />
+  </header>
+
+  <div #panelScroll class="panel-scroll">
+      <dba-ui-inspector-section title="Preset" sub="Spike or bloom style" [compact]="true">
+        <dba-ui-icon slot="icon" [def]="sparklesIcon" [size]="14" />
+        <div class="section-body">
+          <dba-as-preset-cards
+            [activeId]="editor.presetId()"
+            (presetSelected)="onPresetSelected($event)"
+          />
+        </div>
+      </dba-ui-inspector-section>
+
+      <hr class="divider" aria-hidden="true" />
+
+      <dba-ui-inspector-section [title]="adjustmentsTitle()" [sub]="adjustmentsSub()" [compact]="true">
+        <dba-ui-icon slot="icon" [def]="starsIcon" [size]="14" />
+
+        <!-- Reusable slider-row markup, instantiated once per editor control. -->
+        <ng-template #sliderRow let-control>
+          <div class="slider-row">
+            <div class="slider-label-row">
+              <label class="row-label">{{ controlMeta(control).label }}</label>
+              <span
+                class="help-icon"
+                tabindex="0"
+                [dbaTooltip]="controlMeta(control).description"
+                [attr.aria-label]="controlMeta(control).description"
+              >
+                <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
+              </span>
+              <span class="row-value">
+                {{ controlReadout(control) }}
+                @if (controlSuffix(control); as suffix) {
+                  <span class="row-total">{{ suffix }}</span>
+                }
+              </span>
+            </div>
+            <dba-ui-micro-slider
+              [value]="controlValue(control)"
+              [min]="controlMeta(control).min"
+              [max]="controlMeta(control).max"
+              [step]="controlMeta(control).step"
+              [showReadout]="false"
+              (valueChange)="onControlChange(control, $event)"
+            ></dba-ui-micro-slider>
+          </div>
+        </ng-template>
+
+        <div class="section-body">
+          @for (control of controlKeys(); track control) {
+            <ng-container
+              [ngTemplateOutlet]="sliderRow"
+              [ngTemplateOutletContext]="{ $implicit: control }"
+            ></ng-container>
+          }
+
+          @if (!isDiffusionMode()) {
+            <div class="arms-row">
+              <label class="row-label">Arms</label>
+              <dba-ui-segmented-tabs
+                size="sm"
+                [options]="spikeCountTabs"
+                [value]="spikeCountTabId()"
+                (valueChange)="onSpikeCountChange($event)"
+              ></dba-ui-segmented-tabs>
+            </div>
+          }
+        </div>
+      </dba-ui-inspector-section>
+  </div>
+
+  <!-- Pinned to the bottom of the pane so the download action never scrolls
+       out of reach; it stays disabled until an image is loaded. -->
+  <div class="panel-footer">
+    <dba-as-export-controls />
+  </div>
+</section>
