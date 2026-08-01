@@ -42,12 +42,13 @@
   container-type: size;
 }
 
-/* Mobile: the stage bleeds to the screen edges — no frame border, no grip
-   inset. The compare grip clips at the far extremes of its travel there,
-   which is worth the ~20% of a phone's width the insets were costing. */
+/* Mobile: the stage bleeds to the screen edges — no frame border, and the
+   grip inset shrinks to a sliver. Not zero: with the frame flush against the
+   glass the compare grip is nearly impossible to grab at the extremes of its
+   travel, so a few pixels stay as a finger-hold. */
 @media (max-width: 1079px) {
   :host {
-    --as-stage-inset: 0px;
+    --as-stage-inset: 8px;
   }
 
   .stage {
