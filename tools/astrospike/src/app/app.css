@@ -29,7 +29,8 @@
   position: relative;
   flex-direction: column;
   gap: 0;
-  padding: 12px;
+  /* Full bleed: on a phone every horizontal pixel belongs to the image. */
+  padding: 0;
 }
 
 /* On a phone the title bar has no room for text buttons, so the how-to becomes

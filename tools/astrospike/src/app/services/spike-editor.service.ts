@@ -1,5 +1,6 @@
+import { DOCUMENT } from '@angular/common';
 import { computed, inject, Injectable, OnDestroy, signal, WritableSignal } from '@angular/core';
-import { AnalyticsService } from '@db-astro-suite/ui';
+import { AnalyticsService, MOBILE_BREAKPOINT_PX } from '@db-astro-suite/ui';
 import { CONTROLS } from '../constants/controls.constants';
 import {
   DETECTION_FAILED,
@@ -18,7 +19,12 @@ import {
   MANUAL_STAR_SNAP_RADIUS_PX,
   MANUAL_STAR_WINDOW_RADIUS_PX,
 } from '../constants/manual-star.constants';
-import { SAMPLE_IMAGE_FILE_NAME, SAMPLE_IMAGE_URL } from '../constants/sample-image.constants';
+import {
+  SAMPLE_IMAGE_FILE_NAME,
+  SAMPLE_IMAGE_MOBILE_FILE_NAME,
+  SAMPLE_IMAGE_MOBILE_URL,
+  SAMPLE_IMAGE_URL,
+} from '../constants/sample-image.constants';
 import { DEFAULT_STAR_ADJUSTMENT } from '../constants/star-adjustment.constants';
 import { DetectedStar } from '../models/detected-star.model';
 import { StarDetectionError, SupersededError } from '../models/detection.error';
@@ -63,6 +69,7 @@ export class SpikeEditorService implements OnDestroy {
   private readonly starDetectionService = inject(StarDetectionService);
   private readonly spikeExportService = inject(SpikeExportService);
   private readonly analyticsService = inject(AnalyticsService);
+  private readonly document = inject(DOCUMENT);
 
   // ==================== Image State ====================
 
@@ -289,15 +296,24 @@ export class SpikeEditorService implements OnDestroy {
 
   /**
    * Fetches the bundled sample astrophoto and loads it exactly as a dropped
-   * file, so a first-time visitor sees spikes on real stars immediately.
+   * file, so a first-time visitor sees spikes on real stars immediately. The
+   * sample matches the screen: portrait Cygnus below the mobile breakpoint
+   * (a landscape frame leaves most of a phone empty), landscape Pleiades
+   * above it.
    *
    * A nicety, not a requirement: if the user beats the fetch with their own
    * image the sample steps aside, and if the fetch fails the studio simply
    * opens on the dropzone — the failure is logged, never shown.
    */
   async loadSampleImage(): Promise<void> {
+    // Read the viewport directly: this runs from the app initializer, before
+    // BreakpointService has had its first afterNextRender measurement.
+    const width = this.document.defaultView?.innerWidth ?? Number.POSITIVE_INFINITY;
+    const isMobile = width < MOBILE_BREAKPOINT_PX;
+    const url = isMobile ? SAMPLE_IMAGE_MOBILE_URL : SAMPLE_IMAGE_URL;
+    const fileName = isMobile ? SAMPLE_IMAGE_MOBILE_FILE_NAME : SAMPLE_IMAGE_FILE_NAME;
     try {
-      const response = await fetch(SAMPLE_IMAGE_URL);
+      const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`Sample image responded ${response.status}`);
       }
@@ -306,7 +322,7 @@ export class SpikeEditorService implements OnDestroy {
         return; // The user already loaded their own image; theirs wins.
       }
       await this.loadImage(
-        new File([blob], SAMPLE_IMAGE_FILE_NAME, { type: blob.type || 'image/jpeg' }),
+        new File([blob], fileName, { type: blob.type || 'image/jpeg' }),
         'sample',
       );
     } catch (error) {

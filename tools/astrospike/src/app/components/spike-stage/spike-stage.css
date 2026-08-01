@@ -42,6 +42,19 @@
   container-type: size;
 }
 
+/* Mobile: the stage bleeds to the screen edges — no frame border, no grip
+   inset. The compare grip clips at the far extremes of its travel there,
+   which is worth the ~20% of a phone's width the insets were costing. */
+@media (max-width: 1079px) {
+  :host {
+    --as-stage-inset: 0px;
+  }
+
+  .stage {
+    border: 0;
+  }
+}
+
 /* One box shared by the before, after, and marker canvases plus the compare
    divider, so all four are pixel-aligned and a `left: X%` on the divider lines
    up exactly with an `inset(0 0 0 X%)` clip on the after canvas.
