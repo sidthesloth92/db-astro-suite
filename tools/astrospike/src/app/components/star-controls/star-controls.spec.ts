@@ -237,4 +237,27 @@ describe('StarControls', () => {
 
     expect(closed).toBe(1);
   });
+
+  describe('diffusion mode', () => {
+    it('should trim the bar to the diffusion field, the arm tweaks being dead at zero length', () => {
+      editor.applyPreset('diffusion');
+      fixture.detectChanges();
+
+      const keys = Array.from(
+        fixture.nativeElement.querySelectorAll('.star-bar__key') as NodeListOf<HTMLElement>,
+      ).map((el) => el.textContent?.trim());
+      expect(keys).toEqual(['Diffusion']);
+    });
+
+    it('should name the include toggle after the bloom instead of the spikes', () => {
+      editor.applyPreset('diffusion');
+      fixture.detectChanges();
+
+      const labels = Array.from(
+        fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>,
+      ).map((button) => button.textContent?.trim());
+      expect(labels).toContain('Remove bloom');
+      expect(labels).not.toContain('Remove spikes');
+    });
+  });
 });

@@ -1,10 +1,16 @@
 import { TestBed } from '@angular/core/testing';
 import { AnalyticsService } from '@db-astro-suite/ui';
+import { CONTROLS } from '../constants/controls.constants';
 import {
   DETECTION_FAILED,
   EXPORT_FAILED,
   EXPORT_NOT_READY,
 } from '../constants/editor-messages.constants';
+import {
+  SAMPLE_IMAGE_FILE_NAME,
+  SAMPLE_IMAGE_MOBILE_FILE_NAME,
+} from '../constants/sample-image.constants';
+import { DIFFUSION_PRESET_SEED_AMOUNT } from '../constants/spike-presets.constants';
 import { DetectedStar } from '../models/detected-star.model';
 import { SupersededError } from '../models/detection.error';
 import { ExportResult } from '../models/export-result.model';
@@ -634,6 +640,122 @@ describe('SpikeEditorService', () => {
       expect(service.exportError()).toBe(EXPORT_FAILED);
       expect(service.lastExport()).toBeNull();
       expect(service.isExporting()).toBeFalse();
+    });
+  });
+
+  describe('the Diffusion preset', () => {
+    it('should zero Length and seed Diffusion when entered with Diffusion untouched', () => {
+      service.applyPreset('diffusion');
+
+      expect(service.presetId()).toBe('diffusion');
+      expect(service.controls.length()).toBe(0);
+      expect(service.controls.diffusion()).toBe(DIFFUSION_PRESET_SEED_AMOUNT);
+    });
+
+    it('should leave a Diffusion amount the user already raised alone', () => {
+      service.updateControl('diffusion', 0.3);
+
+      service.applyPreset('diffusion');
+
+      expect(service.controls.diffusion()).toBe(0.3);
+    });
+
+    it('should restore Length and Diffusion when leaving for a spike preset', () => {
+      service.updateControl('length', 1.8);
+      service.updateControl('diffusion', 0.25);
+
+      service.applyPreset('diffusion');
+      service.applyPreset('jwst');
+
+      expect(service.presetId()).toBe('jwst');
+      expect(service.controls.length()).toBe(1.8);
+      expect(service.controls.diffusion()).toBe(0.25);
+    });
+
+    it('should not re-snapshot the zeroed controls when re-applied while active', () => {
+      service.updateControl('length', 2);
+
+      service.applyPreset('diffusion');
+      service.applyPreset('diffusion');
+      service.applyPreset('classic');
+
+      expect(service.controls.length()).toBe(2);
+    });
+
+    it('should reset to the defaults and drop the snapshot when Reset runs inside the mode', () => {
+      service.updateControl('length', 2.2);
+      service.applyPreset('diffusion');
+
+      service.resetAll();
+
+      expect(service.presetId()).toBe('classic');
+      expect(service.controls.length()).toBe(CONTROLS['length'].initial);
+      expect(service.controls.diffusion()).toBe(CONTROLS['diffusion'].initial);
+      // A stale snapshot must not resurrect the pre-mode values later.
+      service.applyPreset('jwst');
+      expect(service.controls.length()).toBe(CONTROLS['length'].initial);
+    });
+  });
+
+  describe('loadSampleImage', () => {
+    it('should fetch the bundled sample and load it under the sample analytics source', async () => {
+      const bitmap = await buildBitmap(8, 8);
+      imageLoadSpy.loadImageFile.and.resolveTo({
+        bitmap,
+        meta: { fileName: 'sample.jpg', width: 8, height: 8 },
+      });
+      detectionSpy.detect.and.resolveTo([...STARS]);
+      spyOn(window, 'fetch').and.resolveTo(
+        new Response(new Blob(['x'], { type: 'image/jpeg' }), { status: 200 }),
+      );
+
+      await service.loadSampleImage();
+
+      expect(imageLoadSpy.loadImageFile).toHaveBeenCalledTimes(1);
+      const file = imageLoadSpy.loadImageFile.calls.mostRecent().args[0];
+      // Which of the two samples arrives depends on the Karma window's width;
+      // both are legitimate, the point is that a bundled sample was chosen.
+      expect([SAMPLE_IMAGE_FILE_NAME, SAMPLE_IMAGE_MOBILE_FILE_NAME]).toContain(file.name);
+      expect(analyticsSpy.trackEvent).toHaveBeenCalledWith(
+        'astrospike_image_loaded',
+        jasmine.objectContaining({ source: 'sample' }),
+      );
+    });
+
+    it("should stand aside when the user's own image wins the race", async () => {
+      const bitmap = await buildBitmap(8, 8);
+      imageLoadSpy.loadImageFile.and.resolveTo({
+        bitmap,
+        meta: { fileName: 'mine.png', width: 8, height: 8 },
+      });
+      detectionSpy.detect.and.resolveTo([...STARS]);
+      let releaseFetch: (response: Response) => void = () => undefined;
+      spyOn(window, 'fetch').and.returnValue(
+        new Promise<Response>((resolve) => {
+          releaseFetch = resolve;
+        }),
+      );
+
+      const samplePromise = service.loadSampleImage();
+      await service.loadImage(new File([''], 'mine.png', { type: 'image/png' }));
+      releaseFetch(new Response(new Blob(['x'], { type: 'image/jpeg' }), { status: 200 }));
+      await samplePromise;
+
+      // Only the user's load reached the loader; the sample stepped aside.
+      expect(imageLoadSpy.loadImageFile).toHaveBeenCalledTimes(1);
+      expect(imageLoadSpy.loadImageFile.calls.mostRecent().args[0].name).toBe('mine.png');
+    });
+
+    it('should log a failed fetch and leave the editor clean for the dropzone', async () => {
+      spyOn(window, 'fetch').and.resolveTo(new Response(null, { status: 404 }));
+      const consoleSpy = spyOn(console, 'error');
+
+      await service.loadSampleImage();
+
+      expect(consoleSpy).toHaveBeenCalled();
+      expect(service.hasImage()).toBeFalse();
+      // The sample is a nicety; its failure must never read as a user error.
+      expect(service.imageError()).toBeNull();
     });
   });
 });

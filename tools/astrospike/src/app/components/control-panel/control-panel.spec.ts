@@ -232,4 +232,32 @@ describe('ControlPanel', () => {
     expect(error?.textContent).toContain('The export failed. Please try again.');
   });
 
+  describe('diffusion mode', () => {
+    it('should trim the pane to the bloom controls while the Diffusion preset is active', () => {
+      editor.applyPreset('diffusion');
+      fixture.detectChanges();
+
+      expect(sliderLabels()).toEqual(['Star magnitude', 'Diffusion']);
+      expect(fixture.nativeElement.querySelector('.arms-row')).toBeNull();
+      expect(fixture.nativeElement.textContent).toContain('Shape the bloom');
+    });
+
+    it('should bring the full spike controls back when a spike preset returns', () => {
+      editor.applyPreset('diffusion');
+      fixture.detectChanges();
+      editor.applyPreset('classic');
+      fixture.detectChanges();
+
+      expect(sliderLabels()).toEqual([
+        'Star magnitude',
+        'Length',
+        'Chroma',
+        'Diffusion',
+        'Brightness',
+        'Rotation',
+      ]);
+      expect(fixture.nativeElement.querySelector('.arms-row')).toBeTruthy();
+      expect(fixture.nativeElement.textContent).toContain('Shape the spike pattern');
+    });
+  });
 });
