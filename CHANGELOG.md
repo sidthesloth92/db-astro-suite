@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.34.0](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.33.1...db-astro-suite-v1.34.0) (2026-08-01)
+
+
+### Features
+
+* **astrospike:** add AstroSpike, a client-side diffraction spike studio ([#112](https://github.com/sidthesloth92/db-astro-suite/issues/112)) ([c51f946](https://github.com/sidthesloth92/db-astro-suite/commit/c51f946a50741f8cfa49fa3517b4b87a5c0d5264))
+
 ## [1.33.1](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.33.0...db-astro-suite-v1.33.1) (2026-07-29)
 
 
