@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.34.1](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.34.0...db-astro-suite-v1.34.1) (2026-08-09)
+
+
+### Bug Fixes
+
+* **astrospike:** stop bright neighbours inflating faint seed stars on low-res frames ([#117](https://github.com/sidthesloth92/db-astro-suite/issues/117)) ([f084216](https://github.com/sidthesloth92/db-astro-suite/commit/f0842163a693f0186bb724d5e120b7b4e13eceab))
+
 ## [1.34.0](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.33.1...db-astro-suite-v1.34.0) (2026-08-01)
 
 
