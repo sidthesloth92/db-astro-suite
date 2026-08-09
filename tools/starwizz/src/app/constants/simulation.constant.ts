@@ -1,10 +1,25 @@
-import { SelectItem } from '@db-astro-suite/ui';
+import { BottomNavItem, SegmentedTabOption, SelectItem } from '@db-astro-suite/ui';
 import {
   ControlKey,
   ControlMetadata,
   StarMotionDefaults,
   TravelDirection,
 } from '../models/simulation.model';
+
+/**
+ * Control-panel tab definitions, in render order: Scene (format, camera,
+ * path and recording options) and Stars (every star-appearance control).
+ */
+export const PANEL_SECTION_TABS: readonly SegmentedTabOption[] = [
+  { id: 'scene', label: 'Scene' },
+  { id: 'stars', label: 'Stars' },
+];
+
+/** The same panel sections as bottom-navigation items for the mobile sheet. */
+export const PANEL_SECTION_NAV_ITEMS: readonly BottomNavItem[] = [
+  { id: 'scene', label: 'Scene', iconName: 'scene' },
+  { id: 'stars', label: 'Stars', iconName: 'stars' },
+];
 
 export const CANVAS_DIMENSIONS = {
   width: 1080,

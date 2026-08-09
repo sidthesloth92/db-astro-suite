@@ -22,7 +22,7 @@
           (click)="closeQualityPicker()"
         ></button>
         <div class="sw-quality-menu" role="menu" aria-label="Choose recording quality">
-          <span class="sw-quality-menu__title">Record quality · {{ maxRecordingSeconds }}s</span>
+          <span class="sw-quality-menu__title">Record quality · {{ clipSeconds() }}s</span>
           @for (item of qualityPickerItems(); track item.preset) {
             <button
               type="button"
@@ -111,6 +111,23 @@
         (pointerup)="onAdjustEnd()"
         (pointercancel)="onAdjustEnd()"
       >
+        <dba-ui-bottom-nav
+          slot="nav"
+          [items]="panelNavItems"
+          [activeId]="simService.activePanelSection()"
+          [iconTemplate]="panelNavIcon"
+          (activate)="onPanelNavActivate($event)"
+        ></dba-ui-bottom-nav>
+        <ng-template #panelNavIcon let-item>
+          @switch (item.id) {
+            @case ('stars') {
+              <dba-ui-icon [def]="sparklesIcon" [size]="18" />
+            }
+            @default {
+              <dba-ui-icon [def]="cogIcon" [size]="18" />
+            }
+          }
+        </ng-template>
         <dba-sw-control-panel
           class="in-sheet"
           (demoRequested)="isDemoOpen.set(true)"
