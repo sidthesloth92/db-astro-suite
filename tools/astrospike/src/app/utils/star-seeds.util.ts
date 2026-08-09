@@ -1,5 +1,6 @@
 import {
   SEED_DOMINANCE_RADIUS_PX,
+  SEED_FLUX_ANNULUS_PX,
   SEED_FLUX_RADIUS_PX,
   SEED_GROW_FRACTION,
   SEED_REGION_MAX_AREA_PX,
@@ -39,7 +40,9 @@ import {
  * The returned flux is the background-subtracted flux in a fixed
  * `SEED_FLUX_RADIUS_PX` disc rather than the region sum: a saturated star's
  * half-weight region can be tiny at detection scale, and ranking spikes by
- * that would starve the visually biggest stars.
+ * that would starve the visually biggest stars. Disc pixels are clamped at
+ * the seed's own peak and reduced by the median weight of the ring outside
+ * the disc, so a bright neighbour's light never inflates a faint seed's rank.
  *
  * @param component Oversized component (area > `opts.maxArea`).
  * @param lum Detection-resolution luminance plane the component was found in.
@@ -201,24 +204,100 @@ export function extractSeedStars(
     }
 
     // Fixed-disc flux for spike ranking, over the whole plane: the star's
-    // light does not stop at the component boundary.
-    let discFlux = 0;
+    // light does not stop at the component boundary. Two guards keep a
+    // NEIGHBOUR'S light out of the ranking — without them a faint star beside
+    // a bright one inherits the neighbour's halo through the disc and earns a
+    // huge spike floating next to the wrong star (glaring on low-resolution
+    // frames, where such companions survive downsampling as seeds):
+    // - a pixel brighter than the seed's own peak cannot be the seed's light,
+    //   so its contribution is clamped at that peak;
+    // - the median weight of the ring just outside the disc is subtracted as
+    //   a pedestal, cancelling a smooth halo or the nebula floor. A saturated
+    //   star on dark sky loses almost nothing to either guard.
     const fluxRadius = SEED_FLUX_RADIUS_PX;
+    const ringRadius = fluxRadius + SEED_FLUX_ANNULUS_PX;
+    // Everything is measured about the region CENTROID, not the seed pixel:
+    // on a saturated star the seed is merely the first plateau pixel in scan
+    // order, and a disc anchored there can hang off the plateau's edge —
+    // manufacturing exactly the ring asymmetry the pedestal exists to detect.
+    const centreX = Math.round(cx);
+    const centreY = Math.round(cy);
+    // Ring weights bucketed by quadrant: the pedestal is the spread between
+    // the brightest and darkest quadrant medians — the ASYMMETRIC part of the
+    // ring. An isolated star's own skirt fills the ring evenly, so its
+    // quadrants agree and the pedestal stays near zero (its flux is what it
+    // always was); a bright neighbour's halo fills one side only, and that
+    // one-sided excess is exactly the foreign light to subtract.
+    const quadrantWeights: number[][] = [[], [], [], []];
+    for (let dy = -ringRadius; dy <= ringRadius; dy++) {
+      const ny = centreY + dy;
+      if (ny < 0 || ny >= height) {
+        continue;
+      }
+      for (let dx = -ringRadius; dx <= ringRadius; dx++) {
+        const d2 = dx * dx + dy * dy;
+        if (d2 <= fluxRadius * fluxRadius || d2 > ringRadius * ringRadius) {
+          continue;
+        }
+        const nx = centreX + dx;
+        if (nx < 0 || nx >= width) {
+          continue;
+        }
+        const quadrant = (dx >= 0 ? 1 : 0) + (dy >= 0 ? 2 : 0);
+        quadrantWeights[quadrant].push(weightAt(ny * width + nx));
+      }
+    }
+    let brightestQuadrant = 0;
+    let darkestQuadrant = Number.POSITIVE_INFINITY;
+    for (const weights of quadrantWeights) {
+      if (weights.length === 0) {
+        continue;
+      }
+      weights.sort((a, b) => a - b);
+      const median = weights[Math.floor(weights.length / 2)];
+      brightestQuadrant = Math.max(brightestQuadrant, median);
+      darkestQuadrant = Math.min(darkestQuadrant, median);
+    }
+    const pedestal =
+      darkestQuadrant === Number.POSITIVE_INFINITY
+        ? 0
+        : Math.max(0, brightestQuadrant - darkestQuadrant);
+
+    // Accumulate the disc as integer annuli around the seed. A star's own
+    // azimuthally-averaged profile can only fall with radius, so each
+    // annulus's mean is capped at the smallest mean seen so far: an isolated
+    // star passes through unchanged, while annuli that RISE toward a bright
+    // neighbour are trimmed to what the seed's own profile could contain.
+    const annulusSum = new Float64Array(fluxRadius + 1);
+    const annulusCount = new Int32Array(fluxRadius + 1);
     for (let dy = -fluxRadius; dy <= fluxRadius; dy++) {
-      const ny = seed.y + dy;
+      const ny = centreY + dy;
       if (ny < 0 || ny >= height) {
         continue;
       }
       for (let dx = -fluxRadius; dx <= fluxRadius; dx++) {
-        if (dx * dx + dy * dy > fluxRadius * fluxRadius) {
+        const d2 = dx * dx + dy * dy;
+        if (d2 > fluxRadius * fluxRadius) {
           continue;
         }
-        const nx = seed.x + dx;
+        const nx = centreX + dx;
         if (nx < 0 || nx >= width) {
           continue;
         }
-        discFlux += weightAt(ny * width + nx);
+        const ring = Math.round(Math.sqrt(d2));
+        annulusSum[ring] += Math.max(0, Math.min(weightAt(ny * width + nx), seed.w) - pedestal);
+        annulusCount[ring] += 1;
       }
+    }
+    let discFlux = 0;
+    let profileCap = Number.POSITIVE_INFINITY;
+    for (let ring = 0; ring <= fluxRadius; ring++) {
+      if (annulusCount[ring] === 0) {
+        continue;
+      }
+      const mean = Math.min(annulusSum[ring] / annulusCount[ring], profileCap);
+      profileCap = mean;
+      discFlux += mean * annulusCount[ring];
     }
 
     for (const idx of regionPixels) {

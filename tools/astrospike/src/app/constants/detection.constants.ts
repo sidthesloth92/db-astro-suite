@@ -68,6 +68,14 @@ export const SEED_REGION_MAX_AREA_PX = 2000;
 export const SEED_FLUX_RADIUS_PX = 12;
 
 /**
+ * Width (detection px) of the ring just outside the flux disc whose median
+ * weight is subtracted as a pedestal from every disc pixel. This is what
+ * stops a faint star beside a bright one from inheriting the neighbour's
+ * halo through the disc and earning a huge spike next to the wrong star.
+ */
+export const SEED_FLUX_ANNULUS_PX = 3;
+
+/**
  * Weight fraction of the peak that counts as the near-peak core when sizing
  * the adaptive concentration disc.
  */
@@ -124,3 +132,16 @@ export const REFINE_ANCHOR_MIN_PEAK_FRACTION = 0.15;
 
 /** Smallest refinement core radius, so tiny stars still gather enough pixels. */
 export const REFINE_CORE_RADIUS_MIN_PX = 4;
+
+/**
+ * Centroid weights below this many local noise sigmas are dropped. Rectified
+ * noise (max(0, luma - background)) averages ~0.4 sigma per background pixel,
+ * and the core disc holds far more background pixels than star pixels for a
+ * faint star — without the floor that pedestal drags the centroid toward the
+ * disc's integer anchor, visibly de-centring faint spikes on low-resolution
+ * frames. Star cores sit many sigmas up and are untouched.
+ */
+export const REFINE_WEIGHT_MIN_SIGMAS = 1;
+
+/** Converts a median absolute deviation into a Gaussian-equivalent sigma. */
+export const REFINE_MAD_SIGMA_SCALE = 1.4826;

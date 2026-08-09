@@ -4,7 +4,9 @@ import {
   REFINE_CORE_PADDING_PX,
   REFINE_CORE_RADIUS_MIN_PX,
   REFINE_CORE_RADIUS_SCALE,
+  REFINE_MAD_SIGMA_SCALE,
   REFINE_PLATEAU_FRACTION,
+  REFINE_WEIGHT_MIN_SIGMAS,
 } from '../constants/detection.constants';
 import { REC709_B, REC709_G, REC709_R } from '../constants/luminance.constants';
 import { StarColor } from '../models/detected-star.model';
@@ -99,6 +101,11 @@ export function refineStar(
     }
   }
   const localBackground = medianOf(borderLumas);
+  // Robust local noise from the same border ring, for the centroid's weight
+  // floor below.
+  const borderDeviations = borderLumas.map((value) => Math.abs(value - localBackground));
+  const noiseFloor =
+    REFINE_WEIGHT_MIN_SIGMAS * REFINE_MAD_SIGMA_SCALE * medianOf(borderDeviations);
 
   // Pass 1: locate the anchor peak. The search prefers the neighbourhood of
   // the approximate position — detection's centroid is at worst a few pixels
@@ -164,6 +171,11 @@ export function refineStar(
   const coreRadiusSq = coreRadius * coreRadius;
 
   // Pass 3: weighted centroid over the core region around the peak only.
+  // Weights below the local noise floor are dropped entirely: rectified noise
+  // contributes ~0.4 sigma per background pixel, and for a faint star the
+  // disc holds far more background than star — that pedestal's centroid IS
+  // the disc's integer anchor, so leaving it in re-quantizes the sub-pixel
+  // position detection already had.
   let weightSum = 0;
   let weightedX = 0;
   let weightedY = 0;
@@ -179,7 +191,10 @@ export function refineStar(
       if (dx * dx + dy * dy > coreRadiusSq) {
         continue;
       }
-      const w = Math.max(0, lumaAt(rgba, row + x) - localBackground);
+      const w = lumaAt(rgba, row + x) - localBackground;
+      if (w <= noiseFloor) {
+        continue;
+      }
       weightSum += w;
       weightedX += w * x;
       weightedY += w * y;
