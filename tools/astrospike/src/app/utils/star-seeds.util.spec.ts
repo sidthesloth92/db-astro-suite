@@ -174,6 +174,40 @@ describe('star-seeds.util', () => {
       expect(seeds.length).toBe(1);
     });
 
+    it("should not let a bright neighbour's halo inflate a faint companion's flux", () => {
+      // The same faint star twice: isolated, and sitting on a giant's halo.
+      // Its ranking flux must come from its own light in both cases — before
+      // the flux guards, the companion inherited the giant's halo through the
+      // disc and out-ranked genuinely bright stars, wearing a huge spike that
+      // floated next to the wrong star on low-resolution frames.
+      const { lum, bg, component } = scene((set) => {
+        star(set, 150, 100, 250, 5);
+        star(set, 164, 100, 120, 1.5); // companion on the giant's halo
+        star(set, 40, 40, 120, 1.5); // identical star, isolated
+        for (let x = 40; x <= 164; x++) {
+          set(x, 70, 30); // bridge so all three share one component
+        }
+        for (let y = 40; y <= 100; y++) {
+          set(40, y, 30);
+          set(164, y, 30);
+        }
+      });
+
+      const seeds = extractSeedStars(component, lum, bg, OPTS);
+
+      const giant = seedNear(seeds, 150, 100);
+      const companion = seedNear(seeds, 164, 100);
+      const isolated = seedNear(seeds, 40, 40);
+      expect(giant).not.toBeNull();
+      expect(companion).not.toBeNull();
+      expect(isolated).not.toBeNull();
+      if (giant !== null && companion !== null && isolated !== null) {
+        // The companion ranks like its isolated twin, never like the giant.
+        expect(companion.flux).toBeLessThan(giant.flux / 3);
+        expect(companion.flux).toBeLessThan(isolated.flux * 3);
+      }
+    });
+
     it('should rank a brighter star above a fainter one through disc flux', () => {
       const { lum, bg, component } = scene((set) => {
         star(set, 50, 60, 250, 4);
