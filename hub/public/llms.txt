@@ -31,11 +31,17 @@ A free browser-based diffraction-spike studio for astrophotography images.
 - Live: https://dbastrosuite.com/astrospike/
 - LLMs: https://dbastrosuite.com/astrospike/llms.txt
 - Features: automatic client-side star detection (background modelling, noise thresholding,
-  connected-component measurement, hot-pixel and satellite-trail rejection), additive spike
-  rendering with length and intensity scaled by measured star brightness, per-star colour
-  sampling, Subtle/Classic/JWST presets, 4- or 6-spike toggle, per-star click toggling,
-  before/after comparison, and PNG/JPEG export at the source image's native resolution
+  seed extraction inside merged star/nebula regions, hot-pixel, satellite-trail, and
+  galaxy-core rejection), additive spike rendering with length and intensity scaled by
+  measured star brightness, per-star colour sampling, chromatic arm gradients, four style
+  presets (Subtle, Classic, JWST, and a spike-free Diffusion bloom mode), 4- or 6-spike
+  toggle, per-star tuning (length, brightness, rotation, diffusion), click toggling plus
+  manual star placement and drag-to-move, before/after comparison, PNG/JPEG export at the
+  source image's native resolution, and a spikes-only transparent PNG layer export for
+  compositing over 16-bit masters
 - Privacy: fully client-side — images are never uploaded to any server
+- Opens on a bundled Pleiades (desktop) or Cygnus Wall (mobile) sample so it can be tried
+  without an image at hand
 
 ### Sortronomy (CLI)
 A single-binary Go wizard for automated astrophotography dataset organisation.

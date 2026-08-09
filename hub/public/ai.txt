@@ -5,7 +5,7 @@ User-agent: *
 
 # Project Overview
 Project-Name: DB Astro Suite
-Description: A professional collection of social-media focused astrophotography tools. Seamlessly transform captures into cinematic starfield animations with Starwizz or professional Instagram exposure cards with Astrogram.
+Description: A free, professional collection of astrophotography tools: Starwizz (4K cinematic starfield animations), Astrogram (Instagram exposure cards with plate solving), AstroSpike (browser-based diffraction spikes with automatic star detection), and Sortronomy (offline FITS-organizing CLI).
 Author: Dinesh Balaji Venkataraj
 Base-URL: https://dbastrosuite.com/
 Primary-Stack: Angular, AnalogJS, Tailwind CSS, Go (CLI)
