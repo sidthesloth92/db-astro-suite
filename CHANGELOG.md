@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.34.2](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.34.1...db-astro-suite-v1.34.2) (2026-08-16)
+
+
+### Bug Fixes
+
+* **seo:** refresh AstroSpike metadata, structured data, and LLM context files ([#119](https://github.com/sidthesloth92/db-astro-suite/issues/119)) ([0e0b6ae](https://github.com/sidthesloth92/db-astro-suite/commit/0e0b6aeab6ba544443e4ac767bb8815e7c0c2128))
+
 ## [1.34.1](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.34.0...db-astro-suite-v1.34.1) (2026-08-09)
 
 
