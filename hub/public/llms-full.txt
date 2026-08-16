@@ -157,10 +157,20 @@ hot pixels, satellite trails, and galaxy cores. Spikes are then composited
 additively over the original pixels: length and intensity scale with each
 star's measured flux, and the colour is sampled from that star's own core.
 
-**Controls**: Preset (Subtle / Classic / JWST), how many of the brightest stars
-get spikes, spike length, brightness, rotation, and a 4- or 6-spike toggle.
-Individual stars can be clicked on the canvas to include or exclude them, and a
-comparison divider wipes between the original and the result.
+**Controls**: Preset (Subtle / Classic / JWST / Diffusion — the last is a
+spike-free soft-filter bloom mode), how many of the brightest stars get spikes,
+spike length, chroma (a cool-root-to-red-tip gradient along each arm, the way
+diffraction spreads light by wavelength), diffusion bloom, brightness, rotation,
+and a 4- or 6-spike toggle. Individual stars can be clicked to include or
+exclude them, double-clicked to tune alone (length, brightness, rotation, and
+an absolute per-star diffusion), placed by hand where detection missed one, or
+dragged onto the true core. A comparison divider wipes between the original and
+the result.
+
+**Export**: PNG or JPEG at the source resolution, or the spikes alone as a
+transparent PNG layer for compositing over a 16-bit master in another editor.
+The studio opens on a bundled Pleiades (desktop) or Cygnus Wall (mobile) sample
+image so it can be tried without an astrophoto at hand.
 
 **Privacy**: Nothing is uploaded. Decoding, detection (in a Web Worker),
 rendering, and export all happen locally in the browser.

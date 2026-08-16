@@ -1,5 +1,9 @@
 # AstroSpike
 
+> Free, fully client-side diffraction-spike studio for astrophotography: automatic star
+> detection, four spike/bloom presets, per-star tuning, and full-resolution export —
+> nothing is ever uploaded.
+
 AstroSpike is a client-side diffraction-spike studio for astrophotographers, built with
 Angular. Drop in an astrophoto, let it detect the stars, and it renders diffraction spikes
 scaled to each star's real brightness — then export the result at full resolution. Nothing
@@ -10,16 +14,23 @@ is uploaded anywhere: every pixel is processed in your browser.
   so nebulosity and gradients do not trigger false detections, thresholds above the noise,
   and measures each connected source. Hot pixels, satellite trails, and large diffuse blobs
   are rejected so only genuine point sources are spiked. Detection runs in a Web Worker.
-- **Diffraction Spike Presets**: Subtle, Classic (the four-armed Newtonian look), and JWST
-  (six-armed). Each preset bundles the falloff curve, glow radius, and thickness.
+- **Four Style Presets**: Subtle, Classic (the four-armed Newtonian look), JWST (six-armed),
+  and Diffusion — a spike-free mode that blooms the stars like a soft filter on the lens.
+  Each preset bundles the falloff curve, glow radius, and thickness.
 - **Brightness-Aware Rendering**: Spike length and intensity scale with each star's measured
-  flux, and the spike colour is sampled from the star's own core. Spikes composite additively
-  over the original pixels.
-- **Minimal Controls**: How many of the brightest stars get spikes, spike length, brightness,
-  rotation, and a 4- or 6-spike toggle. Individual stars can be clicked to include or exclude
-  them, and a comparison divider wipes between the original and the result.
-- **Export**: PNG (lossless) or JPEG (adjustable quality), always at the source image's
-  original resolution.
+  flux, and the spike colour is sampled from the star's own core. Each arm carries a
+  chromatic gradient — cool at the root, red at the tip, the way diffraction spreads light
+  by wavelength. Spikes composite additively over the original pixels.
+- **Global and Per-Star Controls**: How many of the brightest stars get spikes, spike
+  length, chroma, diffusion, brightness, rotation, and a 4- or 6-spike toggle. Click any
+  star to include or exclude it, double-click to tune it alone (length, brightness,
+  rotation, and its own diffusion), place a star detection missed, or drag a detection onto
+  the star's true core. A comparison divider wipes between the original and the result.
+- **Export**: PNG (lossless) or JPEG (adjustable quality) at the source image's original
+  resolution, or the spikes alone as a transparent PNG layer for compositing over a 16-bit
+  master in another editor.
+- **Sample Images**: Opens on a bundled Pleiades (desktop) or Cygnus Wall (mobile) frame so
+  the studio can be tried without an astrophoto at hand.
 - **100% Client-Side**: No backend, no account, no uploads. Works offline once loaded.
 
 ## Supported Input
@@ -36,5 +47,6 @@ responsiveness while the export renders at native resolution.
 ## URL
 - Repo: https://github.com/sidthesloth92/db-astro-suite
 - Live: https://dbastrosuite.com/astrospike/
+- About page: https://dbastrosuite.com/tool/astrospike
 - Suite: https://dbastrosuite.com/
 - Suite LLMs context: https://dbastrosuite.com/llms.txt

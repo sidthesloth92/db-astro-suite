@@ -8,20 +8,26 @@ spikes to astrophotography images — entirely in the browser.
 
 ## What it does
 You drop in an astrophoto and AstroSpike detects the stars automatically, then renders
-diffraction spikes on them: the four-armed Newtonian look, a subtler variant, or the
-six-armed JWST signature. Spike length and intensity follow each star's measured
+diffraction spikes on them: the four-armed Newtonian look, a subtler variant, the
+six-armed JWST signature, or a spike-free Diffusion bloom. Spike length and intensity follow each star's measured
 brightness, and each spike takes its colour from the star it belongs to. The finished
 image exports as PNG or JPEG at its original resolution. All processing is 100%
 client-side: your image never leaves your browser and is never uploaded to a server.
 
 ## Core Features
 - Automatic star detection with hot-pixel, satellite-trail, and diffuse-blob rejection
-- Three presets: Subtle, Classic (4-spike Newtonian), JWST (6-spike)
-- Spike length and intensity scaled by measured star brightness; colour sampled per star
-- Four controls only: star count, length, brightness, rotation — plus a 4/6 spike toggle
-- Click individual stars on the canvas to include or exclude them
+- Four style presets: Subtle, Classic (4-spike Newtonian), JWST (6-spike), and Diffusion
+  (a spike-free soft-filter bloom mode)
+- Spike length and intensity scaled by measured star brightness; colour sampled per star,
+  with a chromatic gradient along each arm (cool root, red tip)
+- Global controls: star count, length, chroma, diffusion, brightness, rotation, 4/6 toggle
+- Per-star controls: click to include or exclude, double-click to tune one star alone
+  (length, brightness, rotation, its own diffusion), place stars detection missed, drag a
+  detection onto the star's true core
 - Before/after comparison divider
-- PNG and JPEG export at the source image's original resolution
+- PNG and JPEG export at the source image's original resolution, plus a spikes-only
+  transparent PNG layer for compositing over 16-bit masters
+- Opens on a bundled Pleiades (desktop) or Cygnus Wall (mobile) sample image
 - Handles 60+ megapixel frames: downscaled preview, native-resolution export
 - 100% client-side processing — no uploads, no server, no account, works offline
 
