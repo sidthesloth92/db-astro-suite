@@ -3,7 +3,7 @@
 <div class="orr-root">
   <dba-ag-theme-starfield [density]="130" [opacity]="0.5" [seed]="9" />
 
-  <svg class="orr-chart" viewBox="0 0 540 720" preserveAspectRatio="none" aria-hidden="true">
+  <svg class="orr-chart" viewBox="0 0 540 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <g [attr.transform]="'translate(0 ' + orbitTop + ')'">
       <!-- orbit ellipses -->
       @for (orbit of orbits(); track orbit.band.id) {

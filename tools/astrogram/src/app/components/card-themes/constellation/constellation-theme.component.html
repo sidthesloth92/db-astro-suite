@@ -3,7 +3,7 @@
 <div class="con-root">
   <dba-ag-theme-starfield [density]="150" [opacity]="0.55" [color]="'#F2F7FF'" [seed]="9" />
 
-  <svg class="con-chart" viewBox="0 0 540 720" preserveAspectRatio="none" aria-hidden="true">
+  <svg class="con-chart" viewBox="0 0 540 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <g [attr.transform]="'translate(0 ' + chartTop + ')'">
       <!-- RA/Dec faint graticule -->
       @for (x of graticuleX; track $index) {
