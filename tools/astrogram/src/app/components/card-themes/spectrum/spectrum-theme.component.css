@@ -217,9 +217,7 @@
   font: 500 11.5px/1.2 var(--spc-sans);
   color: var(--spc-txt);
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: break-word;
 }
 
 .spc-sw-row {

@@ -171,9 +171,8 @@
   font: 400 10px/1.4 'Space Grotesk', 'Outfit', sans-serif;
   color: #efeafb;
   text-align: right;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  min-width: 0;
+  overflow-wrap: break-word;
   max-width: 140px;
 }
 

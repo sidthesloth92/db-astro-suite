@@ -10,6 +10,8 @@
   [secondaryAccentColor]="cardData().secondaryAccentColor || '#00E5FF'"
   [cardOpacity]="cardData().cardOpacity"
   [bleedContent]="true"
+  [themeBasisWidth]="activeThemeBasis().width"
+  [themeBasisHeight]="activeThemeBasis().height"
 >
   <ng-container *ngComponentOutlet="activeThemeComponent()" />
 </dba-ag-base-card-preview>

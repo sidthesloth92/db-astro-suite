@@ -1,283 +1,206 @@
-/* Pink Nebula card theme — faithful port of the design source ThemePinkNebula.
-   Per-theme palette/typography is the theme's identity, so colours are literal. */
+/* Pink Nebula — Astrogram's original card design, restored as a theme.
+   Paints no background of its own so the user's uploaded image shows
+   through; the inner panels are translucent, driven by `--card-opacity`. */
 
 :host {
-  --pnt-pink: #d63384;
-  --pnt-pink-2: #f94585;
-  --pnt-gold: #e8c788;
-  --pnt-sans: 'Outfit', -apple-system, system-ui, sans-serif;
-  --pnt-mono: 'JetBrains Mono', ui-monospace, monospace;
-  /* The design source sets the title/labels via an invalid bare `font: <family>`
-     shorthand, so they actually render in the app body font (Outfit), lowercased —
-     not Major Mono Display. Match the rendered design. */
-  --pnt-display: 'Outfit', -apple-system, system-ui, sans-serif;
-
   display: block;
   width: 100%;
   height: 100%;
 }
 
-.pnt-root {
-  position: relative;
-  width: 100%;
+/* Owns the column layout the base card's `.card-content` used to provide
+   before themes rendered full-bleed. `space-between` keeps the inter-section
+   space flexible: it expands when content is sparse and collapses toward the
+   floor gap as rows are added, so extra equipment reclaims slack before
+   anything is pushed out of the card. */
+.pn-root {
+  box-sizing: border-box;
   height: 100%;
-  overflow: hidden;
-  font-family: var(--pnt-sans);
-  background:
-    radial-gradient(ellipse 60% 45% at 50% 60%, rgba(170, 40, 110, 0.42), transparent 65%),
-    radial-gradient(ellipse 40% 30% at 25% 32%, rgba(110, 30, 80, 0.38), transparent 65%),
-    radial-gradient(ellipse 30% 25% at 80% 85%, rgba(80, 20, 90, 0.3), transparent 70%),
-    #08060e;
-}
-
-.pnt-golddust {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.pnt-inner {
-  position: relative;
-  z-index: 1;
-  height: 100%;
-  padding: 18px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  box-sizing: border-box;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
 }
 
-.pnt-card {
-  border: 1px solid rgba(214, 51, 132, 0.32);
+.pn-hero {
+  margin: 12px 6px 0;
+  padding: 16px 8px 14px;
   border-radius: 10px;
-  background: linear-gradient(180deg, rgba(20, 10, 28, 0.65), rgba(8, 5, 16, 0.55));
-  padding: 14px;
-  box-shadow:
-    inset 0 0 22px rgba(214, 51, 132, 0.04),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(2px);
-}
-
-/* ── Header ── */
-.pnt-eyebrow {
-  font: 500 9px/1 var(--pnt-mono);
-  letter-spacing: 0.3em;
-  color: var(--pnt-gold);
+  border: 1px solid var(--db-color-border-strong);
+  /* Decorative pink/purple radials layered on top of a `--card-opacity`-
+     driven solid so the Layout panel's opacity slider controls how
+     transparent the inner section feels against the bg image. */
+  background:
+    radial-gradient(ellipse 80% 60% at 30% 50%, rgba(255, 80, 130, 0.18), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(120, 40, 180, 0.2), transparent 70%),
+    rgba(8, 10, 16, var(--card-opacity, 0.7));
   text-align: center;
-  text-transform: uppercase;
-  margin-bottom: 6px;
 }
 
-.pnt-title {
-  font-family: var(--pnt-display);
-  font-size: 26px;
-  line-height: 1.05;
-  color: var(--pnt-pink-2);
-  text-align: center;
-  letter-spacing: 0.04em;
-  text-transform: lowercase;
+.pn-title {
+  margin: 0;
+  font-family: var(--db-font-ui);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  color: var(--accent-color, var(--db-color-neon-pink));
 }
 
-.pnt-meta {
+.pn-meta {
   display: flex;
   justify-content: center;
+  /* Keep the date + location on one line. Without this the row reflows in
+     the modern-screenshot export (text is re-measured at capture scale),
+     wrapping the location chip onto a second line even though it fits. */
   flex-wrap: nowrap;
   gap: 14px;
   margin-top: 10px;
+  font-family: var(--db-font-mono-code);
+  font-weight: 400;
+  font-size: 9px;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.7);
 }
 
-.pnt-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font: 500 9.5px/1 var(--pnt-mono);
-  color: rgba(255, 255, 255, 0.78);
-  letter-spacing: 0.04em;
+.pn-meta span {
+  /* Each chip (📅 date, 📍 location) stays intact instead of breaking mid-value. */
   white-space: nowrap;
 }
 
-.pnt-caption {
-  margin-top: 10px;
-  text-align: center;
-  font: 400 12px/1.5 var(--pnt-sans);
-  color: rgba(255, 255, 255, 0.82);
-  font-style: italic;
+.pn-description {
+  margin: 10px 0 0;
+  font-family: var(--db-font-ui);
+  font-weight: 400;
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.78);
+  /* Deliberately unclamped: the original design truncated this to 4 lines,
+     which silently dropped the user's own words from the card. The theme
+     canvas now guarantees the full design height at every aspect, so the
+     blurb is shown in full. */
+  overflow-wrap: break-word;
 }
 
-/* ── Integration ── */
-.pnt-int-head {
+.pn-integration {
+  margin: 10px 6px;
+  padding: 12px 8px;
+  /* Decorative purple radial layered on top of a `--card-opacity`-
+     driven solid (matches the other inner sections). */
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(80, 30, 80, 0.4), transparent 70%),
+    rgba(8, 10, 16, var(--card-opacity, 0.7));
+  border-radius: 10px;
+  border: 1px solid var(--db-color-border-strong);
+}
+
+.pn-integration-head {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
-.pnt-int-label {
-  font-family: var(--pnt-display);
-  font-size: 13px;
-  color: var(--pnt-pink);
-  letter-spacing: 0.1em;
-}
-
-.pnt-int-total {
-  font: 400 10px/1 var(--pnt-mono);
-  color: rgba(255, 255, 255, 0.55);
-  letter-spacing: 0.1em;
-}
-
-.pnt-int-total span {
-  color: var(--pnt-gold);
-  font-size: 16px;
+.pn-integration-kicker {
+  font-family: var(--db-font-ui);
   font-weight: 700;
-  letter-spacing: 0.02em;
-}
-
-.pnt-rings {
-  display: flex;
-  justify-content: space-around;
-}
-
-.pnt-ring-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-
-.pnt-ring {
-  position: relative;
-  width: 68px;
-  height: 68px;
-  filter: drop-shadow(0 0 6px var(--ring-glow, transparent));
-}
-
-.pnt-ring svg {
-  display: block;
-}
-
-.pnt-ring-time {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  font: 600 11px/1 var(--pnt-sans);
-  color: #fff;
-}
-
-.pnt-ring-id {
-  font: 600 10px/1 var(--pnt-mono);
+  font-size: 12px;
   letter-spacing: 0.12em;
-}
-
-.pnt-ring-frames {
-  font: 400 8.5px/1 var(--pnt-mono);
-  color: rgba(255, 255, 255, 0.45);
-}
-
-/* ── Two-column grid ── */
-.pnt-twocol {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  flex: 1;
-  min-height: 0;
-}
-
-.pnt-equipment,
-.pnt-software {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-}
-
-.pnt-software {
-  flex: 1;
-}
-
-.pnt-col-title {
-  font-family: var(--pnt-display);
-  font-size: 11px;
-  color: var(--pnt-pink);
-  letter-spacing: 0.12em;
-  margin-bottom: 2px;
-}
-
-.pnt-gear-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 9px;
-}
-
-.pnt-gear-icon {
-  color: var(--pnt-pink);
-  margin-top: 1px;
-  flex-shrink: 0;
-}
-
-.pnt-gear-text {
-  min-width: 0;
-  flex: 1;
-}
-
-.pnt-gear-label {
-  font: 600 8px/1 var(--pnt-mono);
-  color: var(--pnt-gold);
-  letter-spacing: 0.14em;
   text-transform: uppercase;
+  color: var(--accent-color, var(--db-color-neon-pink));
 }
 
-.pnt-gear-value {
-  font: 400 10.5px/1.2 var(--pnt-sans);
-  color: #fff;
-  margin-top: 2px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.pn-integration-total {
+  font-family: var(--db-font-mono-code);
+  font-weight: 400;
+  font-size: 11px;
+  color: var(--db-color-text-dim);
+  /* Keep "TOTAL 5h 14m" on one line — the export otherwise wraps the value. */
   white-space: nowrap;
 }
 
-.pnt-stack {
+.pn-integration-total strong {
+  color: var(--db-color-text-primary);
+  font-size: 13px;
+  font-weight: 600;
+  margin-left: 4px;
+}
+
+.pn-ring-row {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.pn-two-col {
+  margin: 0 6px 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.pn-col {
+  min-width: 0;
+}
+
+.pn-equipment,
+.pn-software,
+.pn-bortle {
+  padding: 10px 8px;
+  background: rgba(8, 10, 16, var(--card-opacity, 0.7));
+  border: 1px solid var(--db-color-border-strong);
+  border-radius: 10px;
+}
+
+.pn-col-kicker {
+  margin-bottom: 8px;
+  font-family: var(--db-font-ui);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-color, var(--db-color-neon-pink));
+}
+
+.pn-stack {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.pnt-bortle {
-  padding: 10px 12px;
+.pn-bortle {
+  padding: 8px;
 }
 
-.pnt-bortle-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
+.pn-icon {
+  font-size: 14px;
+  font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji',
+    sans-serif;
 }
 
-.pnt-bortle-val {
-  font: 700 14px/1 var(--pnt-sans);
-  color: var(--pnt-gold);
+/* ── Tall-format expansion (9:16) ─────────────────────────────────────
+   The theme canvas hands 9:16 the design width with far more height, so
+   the title breathes and the gear lists go full width instead of leaving
+   the bottom of the card empty. The original's 1:1 and 1.91:1 tiers are
+   gone: they only existed to survive a card box shorter than the design,
+   and they worked by hiding the description and the whole gear grid. */
+:host-context(.card.aspect-9-16) .pn-title {
+  font-size: 24px;
+  line-height: 1.15;
 }
 
-.pnt-bortle-val span {
-  color: rgba(255, 255, 255, 0.4);
-  font-size: 10px;
-  font-weight: 400;
+:host-context(.card.aspect-9-16) .pn-hero {
+  padding-top: 24px;
+  padding-bottom: 22px;
 }
 
-.pnt-bortle-bar {
-  display: flex;
-  gap: 2px;
+:host-context(.card.aspect-9-16) .pn-two-col {
+  grid-template-columns: 1fr;
 }
 
-.pnt-bortle-seg {
-  flex: 1;
-  height: 5px;
-  border-radius: 1px;
-  background: rgba(255, 255, 255, 0.06);
-}
-
-.pnt-bortle-seg.is-lit {
-  background: linear-gradient(90deg, #5ae08a, #ffd23d, var(--pnt-pink));
+:host-context(.card.aspect-9-16) .pn-stack {
+  gap: 16px;
 }

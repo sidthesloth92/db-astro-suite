@@ -21,6 +21,13 @@ export abstract class CardThemeBaseDirective {
   /** Read-only view-model driving every binding in the theme template. */
   readonly vm = computed<ThemeViewData>(() => buildThemeViewData(this.dataService.cardData()));
 
+  /**
+   * Live card document. Themes render `vm()`; this is for the rare theme
+   * whose design needs a raw field the view-model deliberately reshapes
+   * (e.g. the unsplit title, or per-filter emoji icons). Treat as read-only.
+   */
+  protected readonly cardData = this.dataService.cardData;
+
   /** Resolves the equipment line icon for a row index. */
   equipmentIcon(index: number): ThemeIconName {
     return equipmentIcon(index);

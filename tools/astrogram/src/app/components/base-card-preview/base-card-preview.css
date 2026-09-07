@@ -301,6 +301,25 @@
   justify-content: flex-start;
 }
 
+/* Theme canvas. Transparent to layout by default so the legacy / stellar
+   consumers keep projecting their sections straight into `.card-content`'s
+   flex column. */
+.theme-canvas {
+  display: contents;
+}
+
+/* Bleed (themed) mode: the canvas becomes a real box sized to the theme's
+   design artboard, grown to the card's aspect, then uniformly scaled to
+   cover the card. Absolutely positioned so its own size can never feed back
+   into the card's aspect-derived box. */
+.theme-canvas.is-fitted {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: top left;
+}
+
 .card-overlay {
   position: absolute;
   inset: 0;

@@ -283,9 +283,8 @@
   color: var(--md-txt);
   text-align: right;
   max-width: 130px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 
 .md-gear-site {

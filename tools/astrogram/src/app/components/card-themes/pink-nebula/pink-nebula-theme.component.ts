@@ -1,44 +1,81 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
+import { DataRowComponent, ProgressRingComponent } from '@db-astro-suite/ui';
+import {
+  FilterExposure,
+  calculateTotalIntegration,
+  calculateTotalSeconds,
+  formatDuration,
+} from '../../../models/card-data.model';
+import { BortleScaleComponent } from '../../bortle-scale/bortle-scale';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
-import { ThemeIconComponent } from '../shared/theme-icon/theme-icon.component';
-import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfield.component';
-import type { ThemeIntegrationBand } from '../../../models/card-theme.model';
-
-/** Ring geometry constants (px) matching the design source's RingProgress. */
-const RING_SIZE = 68;
-const RING_STROKE = 3.5;
 
 /**
- * Pink Nebula theme — the default card. Deep magenta on a nebula radial
- * background with gold dust, a catalogue-plate header, glowing integration
- * rings, and a two-column equipment / software / Bortle grid.
+ * Pink Nebula theme — Astrogram's original card design, restored.
+ *
+ * Unlike the ported design-source themes it paints no background of its
+ * own: the translucent hero / integration / gear panels sit directly over
+ * the user's uploaded image, with their opacity driven by the Layout
+ * panel's card-opacity slider. Authored on the original 480 × 640 card,
+ * which the theme registry declares as this theme's design basis.
  */
 @Component({
   selector: 'dba-ag-pink-nebula-theme',
   standalone: true,
-  imports: [ThemeIconComponent, ThemeStarfieldComponent],
+  imports: [ProgressRingComponent, DataRowComponent, BortleScaleComponent],
   templateUrl: './pink-nebula-theme.component.html',
   styleUrl: './pink-nebula-theme.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PinkNebulaThemeComponent extends CardThemeBaseDirective {
-  /** Ring diameter in px. */
-  protected readonly ringSize = RING_SIZE;
-  /** Ring radius in px. */
-  protected readonly ringRadius = (RING_SIZE - RING_STROKE) / 2;
-  /** Ring stroke width in px. */
-  protected readonly ringStroke = RING_STROKE;
-  /** Ring circumference in px. */
-  protected readonly ringCircumference = 2 * Math.PI * ((RING_SIZE - RING_STROKE) / 2);
+  /** Active filters that contribute to the integration rings. */
+  readonly enabledFilters = computed(() =>
+    this.cardData().filters.filter((f) => f.enabled && f.frames > 0),
+  );
 
-  /** Decorative gold-dust specks (matches the design source's 12-speck field). */
-  protected readonly goldDust = Array.from({ length: 12 }, (_unused, i) => ({
-    cx: (i * 263) % 540,
-    cy: (i * 167) % 720,
-  }));
+  /** Total integration in seconds across active filters. */
+  readonly totalIntegrationSeconds = computed(() =>
+    calculateTotalIntegration(this.cardData().filters),
+  );
 
-  /** Stroke dash offset that fills the ring to a band's percentage. */
-  ringOffset(band: ThemeIntegrationBand): number {
-    return this.ringCircumference * (1 - band.pct);
+  /** Total integration formatted as "Hh Mm". */
+  readonly totalIntegration = computed(() => formatDuration(this.totalIntegrationSeconds()));
+
+  /** Total integration in hours for the ring `total` input. */
+  readonly totalIntegrationHours = computed(() => this.totalIntegrationSeconds() / 3600);
+
+  /** Date formatted as a long human-readable string. */
+  readonly formattedDate = computed(() => {
+    const dateStr = this.cardData().date;
+    if (!dateStr) {
+      return '';
+    }
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  });
+
+  /** Filter integration in hours for the ring `value` input. */
+  filterHours(filter: FilterExposure): number {
+    return calculateTotalSeconds(filter) / 3600;
+  }
+
+  /**
+   * Resolves the ring colour: OIII pulls from the secondary accent so the
+   * design's cyan treatment flows through the Layout panel. Other filters
+   * keep their own per-filter colour.
+   */
+  ringColor(filter: FilterExposure): string {
+    if (filter.name.toUpperCase().includes('OIII')) {
+      return this.cardData().secondaryAccentColor || filter.color;
+    }
+    return filter.color;
+  }
+
+  /** Filter integration formatted as a readable string for the ring centre. */
+  filterCenterText(filter: FilterExposure): string {
+    return formatDuration(calculateTotalSeconds(filter));
   }
 }

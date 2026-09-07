@@ -76,7 +76,19 @@
         </div>
 
         <div class="card-content">
-          <ng-content></ng-content>
+          <!-- Theme canvas: in bleed mode the projected theme lays out on its
+               own design artboard (grown to the card's aspect) and is scaled
+               to fill the card, so no aspect starves the layout. Outside
+               bleed mode this is `display: contents` and changes nothing. -->
+          <div
+            class="theme-canvas"
+            [class.is-fitted]="bleedContent()"
+            [style.width.px]="bleedContent() ? themeCanvas().width : null"
+            [style.height.px]="bleedContent() ? themeCanvas().height : null"
+            [style.transform]="themeCanvasTransform()"
+          >
+            <ng-content></ng-content>
+          </div>
         </div>
       </div>
     </div>

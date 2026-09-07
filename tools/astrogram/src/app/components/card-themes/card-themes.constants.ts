@@ -45,13 +45,16 @@ export const DEFAULT_CARD_THEME_ID: CardThemeId = 'pink-nebula';
 export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
   'pink-nebula': {
     label: 'Pink Nebula',
-    subtitle: 'Default · deep magenta on nebula',
+    subtitle: 'Default · the original Astrogram card',
     component: PinkNebulaThemeComponent,
     accents: {
-      accentColor: '#D63384',
-      accentColorRgb: '214, 51, 132',
-      secondaryAccentColor: '#5DD8FF',
+      accentColor: '#ff2d95',
+      accentColorRgb: '255, 45, 149',
+      secondaryAccentColor: '#00E5FF',
     },
+    // The original card was authored on the 480 px preview, not the 540 px
+    // design-source artboard the ported themes share.
+    basis: { width: 480, height: 640 },
   },
   obsidian: {
     label: 'Obsidian Glass',

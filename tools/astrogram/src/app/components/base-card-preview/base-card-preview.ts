@@ -18,10 +18,12 @@ import {
   ViewChild,
 } from '@angular/core';
 import { EXPORT_DIMENSIONS_BY_RATIO } from '../../constants/preview-sizes.constants';
+import { THEME_DESIGN_HEIGHT, THEME_DESIGN_WIDTH } from '../../constants/theme-canvas.constants';
 import type { AspectRatio } from '../../models/card-data.model';
 import { CardDataService } from '../../services/card-data.service';
 import { PreviewLayoutService } from '../../services/preview-layout.service';
 import { resizeDataUrlToExactDimensions } from '../../utils/resize-data-url.util';
+import { computeThemeCanvas } from '../../utils/theme-canvas.util';
 
 /** File extension + MIME info per exportable format. */
 const EXPORT_FORMAT_MAP = {
@@ -95,6 +97,13 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
    * layouts keep the default padded flex column.
    */
   bleedContent = input<boolean>(false);
+  /**
+   * Width of the design artboard the projected theme was authored against.
+   * Only meaningful in `bleedContent` mode — see `computeThemeCanvas`.
+   */
+  themeBasisWidth = input<number>(THEME_DESIGN_WIDTH);
+  /** Height of the design artboard the projected theme was authored against. */
+  themeBasisHeight = input<number>(THEME_DESIGN_HEIGHT);
 
   @HostBinding('style.--scale-factor') get scale() {
     return this.scaleFactor();
@@ -176,6 +185,45 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
   naturalHeightPx = signal(680);
   naturalImageWidth = signal(0);
   naturalImageHeight = signal(0);
+
+  /** Card's measured layout width (pre-transform), published by `calculateScale`. */
+  private readonly cardLayoutWidth = signal(0);
+
+  /**
+   * Card's exact width / height ratio. Taken from the preset's canonical
+   * export dimensions rather than a rounded DOM measurement so the theme
+   * canvas is deterministic; `auto` falls back to the source image.
+   */
+  private readonly cardAspectValue = computed(() => {
+    const ratio = this.aspectRatio();
+    if (ratio === 'auto') {
+      const width = this.naturalImageWidth();
+      const height = this.naturalImageHeight();
+      return width > 0 && height > 0
+        ? width / height
+        : this.themeBasisWidth() / this.themeBasisHeight();
+    }
+    const dimensions = EXPORT_DIMENSIONS_BY_RATIO[ratio];
+    return dimensions.width / dimensions.height;
+  });
+
+  /**
+   * Layout canvas the projected theme renders into, plus the uniform scale
+   * that maps it onto the card. Guarantees the theme always gets at least
+   * its authored artboard room on both axes, so short aspects (1:1) no
+   * longer clip the tail of the content.
+   */
+  readonly themeCanvas = computed(() =>
+    computeThemeCanvas(this.cardLayoutWidth(), this.cardAspectValue(), {
+      width: this.themeBasisWidth(),
+      height: this.themeBasisHeight(),
+    }),
+  );
+
+  /** `transform` applied to the theme canvas, or `null` outside bleed mode. */
+  readonly themeCanvasTransform = computed(() =>
+    this.bleedContent() ? `scale(${this.themeCanvas().scale})` : null,
+  );
   private resizeObserver: ResizeObserver | null = null;
   private injector = inject(Injector);
 
@@ -241,6 +289,10 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
     // Get the wrapper width (available space for the simulation panel)
     const wrapperRect = wrapperElement.getBoundingClientRect();
     if (wrapperRect.width === 0) return;
+
+    // Publish the card's own layout width (unaffected by the post-container's
+    // scale transform) so the theme canvas can size itself against it.
+    this.cardLayoutWidth.set(cardElement.offsetWidth);
 
     // Measure the full post-container (header + card) at its natural (pre-transform) size.
     // In auto mode, use the known image natural dimensions for accurate scaling.
