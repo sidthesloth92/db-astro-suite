@@ -226,9 +226,14 @@
 }
 
 .ave-foot-label {
-  font: 300 9px/1 var(--ave-serif);
+  font: 300 9px/1.35 var(--ave-serif);
   color: var(--ave-faint);
-  min-width: 50px;
+  /* Fixed column: `min-width` alone let a long label ("Guide Scope and
+     Camera") grow past 50px and push that one row's value out of the shared
+     value column, squeezing it to a four-line stack. */
+  flex: 0 0 50px;
+  width: 50px;
+  overflow-wrap: break-word;
   text-transform: lowercase;
 }
 

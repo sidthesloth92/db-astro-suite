@@ -53,7 +53,10 @@
 
 .day-spike {
   position: absolute;
-  left: 40px;
+  /* Anchored into the right-hand padding gutter, which `.day-inner` keeps
+     empty at every aspect. A fixed `left` put it on top of the filter
+     legend, drawing a cross through the "Ha" label. */
+  right: 8px;
   top: 520px;
   width: 20px;
   height: 20px;

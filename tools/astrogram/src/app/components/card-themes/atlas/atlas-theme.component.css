@@ -198,7 +198,10 @@
 
 .atl-ledger-time {
   font: 600 13.5px/1 var(--atl-serif);
-  width: 52px;
+  /* Durations are short derived values, so keep them on one line; `width`
+     capped the cell at 52px and wrapped "2h 40m" onto a second line. */
+  min-width: 52px;
+  white-space: nowrap;
   text-align: right;
 }
 
