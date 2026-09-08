@@ -70,6 +70,7 @@ export function detectStars(
       area: measurement.area,
       elongation: measurement.elongation,
       color: refined.color,
+      haloColor: refined.haloColor,
     });
   };
 

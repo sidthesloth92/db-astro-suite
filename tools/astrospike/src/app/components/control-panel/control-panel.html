@@ -13,7 +13,7 @@
   </header>
 
   <div #panelScroll class="panel-scroll">
-      <dba-ui-inspector-section title="Preset" sub="Spike or bloom style" [compact]="true">
+      <dba-ui-inspector-section title="Preset" sub="Spike or glow style" [compact]="true">
         <dba-ui-icon slot="icon" [def]="sparklesIcon" [size]="14" />
         <div class="section-body">
           <dba-as-preset-cards
@@ -67,7 +67,7 @@
             ></ng-container>
           }
 
-          @if (!isDiffusionMode()) {
+          @if (!isGlowMode()) {
             <div class="arms-row">
               <label class="row-label">Arms</label>
               <dba-ui-segmented-tabs

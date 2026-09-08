@@ -42,13 +42,13 @@ export interface SpikeRenderParams {
   spikeCount: 4 | 6;
   /** User length multiplier applied on top of the preset's length scale. */
   lengthFactor: number;
-  /** User brightness multiplier applied to arm and glow alpha. */
+  /** User brightness multiplier applied to arm, core-glow, and halo alpha. */
   intensityFactor: number;
   /** User rotation of the spike pattern in degrees. */
   rotationDeg: number;
   /**
-   * Global diffusion amount in [0, 1] crossfading arms into a bloom. A star
-   * naming its own amount in its adjustment overrides this one.
+   * Global Glow amount in [0, 1] sizing each star's halo; a star naming its
+   * own amount in its adjustment overrides it.
    */
   diffusionFactor: number;
   /**
@@ -63,22 +63,29 @@ export interface SpikeRenderParams {
 }
 
 /**
- * Cache of pre-rendered arm/glow sprites keyed by quantized color (and
- * falloff gamma for arms). Shared across render calls to avoid rebuilds.
+ * Cache of pre-rendered arm/glow/halo sprites and their alpha masks, keyed by
+ * quantized color plus shape (falloff gamma for arms, Moffat beta for halos).
+ * Shared across render calls to avoid rebuilds.
  */
 export type SpriteCache = Map<string, HTMLCanvasElement>;
 
 /**
- * Per-star diffusion bloom, in target canvas pixels and 0–1 alpha. Its radius
- * is sized from the image and the star's brightness rather than from arm
- * thickness, which is what keeps a bloom brightness-ordered once diffusion has
- * faded the arms away entirely.
+ * Per-star two-scale halo drawn under every preset, in target canvas pixels
+ * and 0–1 alpha. Its radius is sized from the image and the star's brightness
+ * rather than from arm thickness, which keeps halos brightness-ordered once
+ * the arms are zeroed away. All-zero when the star falls below the halo
+ * visibility cutoff, which is what keeps a dense field's faint stars as
+ * pinpoints instead of fog.
  */
-export interface BloomGeometry {
-  /** Radius of the bloom in canvas pixels. */
-  radiusPx: number;
-  /** Alpha (0–1) applied when drawing the glow sprite. */
-  alpha: number;
+export interface HaloGeometry {
+  /** Radius of the halo skirt in canvas pixels. */
+  haloRadiusPx: number;
+  /** Alpha (0–1) applied when drawing the halo sprite. */
+  haloAlpha: number;
+  /** Radius of the hot core in canvas pixels. */
+  coreRadiusPx: number;
+  /** Alpha (0–1) applied when drawing the whitened core sprite. */
+  coreAlpha: number;
 }
 
 /**

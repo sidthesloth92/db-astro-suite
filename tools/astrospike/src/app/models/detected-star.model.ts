@@ -33,4 +33,11 @@ export interface DetectedStar {
   elongation: number;
   /** Mean RGB color of the star core, brightest channel normalized to 255. */
   color: StarColor;
+  /**
+   * Colour of the star's skirt — the unclipped light just outside the blown
+   * core — sky-subtracted, saturation-boosted, brightest channel normalized
+   * to 255. Tints the Glow halo, where the star's own hue must survive even
+   * when its core reads white.
+   */
+  haloColor: StarColor;
 }

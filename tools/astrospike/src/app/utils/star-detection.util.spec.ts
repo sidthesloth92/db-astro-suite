@@ -213,6 +213,30 @@ describe('detectStars (engine integration)', () => {
     }
   });
 
+  it('should tint each tinted star halo by the same dominant channel as its tint', () => {
+    const red = nearestDetection(result, 405.1, 90.4);
+    const blue = nearestDetection(result, 700.8, 280.2);
+    const orange = nearestDetection(result, 470.6, 570.2);
+    expect(red).not.toBeNull();
+    expect(blue).not.toBeNull();
+    expect(orange).not.toBeNull();
+    if (red !== null) {
+      expect(red.haloColor.r).toBe(255);
+      expect(red.haloColor.g).toBeLessThan(255);
+      expect(red.haloColor.b).toBeLessThan(255);
+    }
+    if (blue !== null) {
+      expect(blue.haloColor.b).toBe(255);
+      expect(blue.haloColor.r).toBeLessThan(255);
+      expect(blue.haloColor.g).toBeLessThan(255);
+    }
+    if (orange !== null) {
+      expect(orange.haloColor.r).toBe(255);
+      expect(orange.haloColor.g).toBeLessThan(255);
+      expect(orange.haloColor.b).toBeLessThan(orange.haloColor.g);
+    }
+  });
+
   it('should respect the maxStars cap and keep the brightest stars', () => {
     const capped = detectStars(rgba, WIDTH, HEIGHT, { ...OPTS, maxStars: 5 });
     expect(capped.length).toBe(5);

@@ -60,7 +60,11 @@ export class SpikeExportService implements OnDestroy {
 
     // A layer leaves the canvas transparent and lets the additive spike pass
     // build up both colour and alpha, so the file carries the light to add and
-    // the coverage to add it through. Anything else starts from the photo.
+    // the coverage to add it through. The glow skirt is screen-blended in the
+    // app; over a transparent backdrop that reduces to source-over, so the
+    // layer carries the skirt at its own alpha and reads correctly under a
+    // Screen or Add blend in the user's editor. Anything else starts from the
+    // photo.
     if (format !== 'layer') {
       ctx.drawImage(bitmap, 0, 0);
     }

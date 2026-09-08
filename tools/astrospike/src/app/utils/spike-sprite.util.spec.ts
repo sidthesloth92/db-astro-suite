@@ -2,7 +2,9 @@ import {
   ARM_SPRITE_HEIGHT,
   ARM_SPRITE_WIDTH,
   GLOW_SPRITE_SIZE,
+  HALO_SPRITE_SIZE,
 } from '../constants/render.constants';
+import { HALO_MOFFAT_CORE_FRACTION } from '../constants/spike-geometry.constants';
 import { StarColor } from '../models/detected-star.model';
 import { SpriteCache } from '../models/spike-render-params.model';
 import {
@@ -12,12 +14,16 @@ import {
   buildArmSprite,
   buildGlowMask,
   buildGlowSprite,
+  buildHaloMask,
   glowMaskCacheKey,
   glowSpriteCacheKey,
+  haloMaskCacheKey,
+  haloSpriteCacheKey,
   releaseArmSprites,
   releaseSpriteCache,
   tintArmSprite,
   tintSprite,
+  whitenColor,
 } from './spike-sprite.util';
 
 const WHITE: StarColor = { r: 255, g: 255, b: 255 };
@@ -317,5 +323,126 @@ describe('releaseArmSprites', () => {
     expect(cache.has(armSpriteCacheKey(WHITE, 2.2, 0.5))).toBeFalse();
     expect(armMask.width).toBe(ARM_SPRITE_WIDTH);
     expect(arm.width).toBe(0);
+  });
+
+  it('should keep halo entries — they do not depend on chroma', () => {
+    const haloMask = buildHaloMask(1.5);
+    const halo = tintSprite(buildHaloMask(1.5), ORANGE);
+    const cache: SpriteCache = new Map([
+      [haloMaskCacheKey(1.5), haloMask],
+      [haloSpriteCacheKey(ORANGE, 1.5), halo],
+      [armSpriteCacheKey(WHITE, 2.2, 0.5), buildArmSprite(WHITE, 2.2)],
+    ]);
+
+    releaseArmSprites(cache);
+
+    expect(cache.has(haloMaskCacheKey(1.5))).toBeTrue();
+    expect(cache.has(haloSpriteCacheKey(ORANGE, 1.5))).toBeTrue();
+    expect(cache.has(armSpriteCacheKey(WHITE, 2.2, 0.5))).toBeFalse();
+    expect(haloMask.width).toBe(HALO_SPRITE_SIZE);
+  });
+});
+
+describe('buildHaloMask', () => {
+  const mid = Math.floor((HALO_SPRITE_SIZE - 1) / 2);
+
+  it('should carry the halo falloff as alpha over white at the sprite size', () => {
+    const sprite = buildHaloMask(1.5);
+    expect(sprite.width).toBe(HALO_SPRITE_SIZE);
+    expect(sprite.height).toBe(HALO_SPRITE_SIZE);
+    const data = spriteData(sprite);
+    const [r, g, b] = rgbAt(data, HALO_SPRITE_SIZE, mid, mid);
+    expect([r, g, b]).toEqual([255, 255, 255]);
+    expect(alphaAt(data, HALO_SPRITE_SIZE, mid, mid)).toBeGreaterThanOrEqual(250);
+  });
+
+  it('should fall off monotonically from the center to the edge', () => {
+    const data = spriteData(buildHaloMask(1.5));
+    let previous = alphaAt(data, HALO_SPRITE_SIZE, mid, mid);
+    for (let x = mid + 1; x < HALO_SPRITE_SIZE; x++) {
+      const current = alphaAt(data, HALO_SPRITE_SIZE, x, mid);
+      expect(current).toBeLessThanOrEqual(previous);
+      previous = current;
+    }
+  });
+
+  it('should pair a compact core with a tail that outlives a Gaussian of the same core', () => {
+    // The look this mask exists for: near-full alpha only in a tight core,
+    // already dim at half the radius, yet still faintly alive near the rim.
+    // Both thresholds follow the tuned core fraction rather than a magic
+    // number, so retuning the core moves the expectation with it.
+    const beta = 1.5;
+    const core = HALO_MOFFAT_CORE_FRACTION;
+    const moffat = (u: number) => Math.pow(1 + Math.pow(u / core, 2), -beta);
+    const data = spriteData(buildHaloMask(beta));
+    const at = (u: number) =>
+      alphaAt(data, HALO_SPRITE_SIZE, mid + Math.round((HALO_SPRITE_SIZE / 2) * u), mid);
+
+    // Half-radius is on the documented profile and well under a tenth of
+    // full alpha: dim, but not gone.
+    const halfRadius = Math.round(moffat(0.5) * 255);
+    expect(halfRadius).toBeLessThanOrEqual(25);
+    expect(Math.abs(at(0.5) - halfRadius)).toBeLessThanOrEqual(1);
+
+    // A Gaussian with the same core width (sigma = core) is flat zero by 0.8R
+    // — exp(-(0.8 / 0.2)^2) ~ 1e-7 — while the Moffat tail is still alive.
+    const gaussianAtRim = Math.round(Math.exp(-Math.pow(0.8 / core, 2)) * 255);
+    expect(gaussianAtRim).toBe(0);
+    expect(at(0.8)).toBeGreaterThanOrEqual(1);
+    // The far corner is off the halo entirely.
+    expect(alphaAt(data, HALO_SPRITE_SIZE, 0, 0)).toBeLessThanOrEqual(1);
+  });
+
+  it('should dim the tail faster for a higher beta', () => {
+    const gentle = spriteData(buildHaloMask(1.5));
+    const steep = spriteData(buildHaloMask(3));
+    const x = mid + Math.round(HALO_SPRITE_SIZE * 0.25);
+    expect(alphaAt(steep, HALO_SPRITE_SIZE, x, mid)).toBeLessThan(
+      alphaAt(gentle, HALO_SPRITE_SIZE, x, mid),
+    );
+  });
+});
+
+describe('whitenColor', () => {
+  it('should leave the colour untouched at zero amount', () => {
+    expect(whitenColor(ORANGE, 0)).toEqual(ORANGE);
+  });
+
+  it('should reach pure white at full amount', () => {
+    expect(whitenColor(ORANGE, 1)).toEqual({ r: 255, g: 255, b: 255 });
+  });
+
+  it('should blend each channel toward white in between', () => {
+    const half = whitenColor(ORANGE, 0.5);
+    expect(half.r).toBe(255);
+    expect(half.g).toBe(192);
+    expect(half.b).toBe(160);
+  });
+});
+
+describe('halo cache keys', () => {
+  const base: StarColor = { r: 255, g: 128, b: 10 };
+  const lowBitsChanged: StarColor = { r: 240, g: 143, b: 15 };
+  const highBitsChanged: StarColor = { r: 255, g: 64, b: 10 };
+
+  it('should key a halo mask on the beta alone', () => {
+    expect(haloMaskCacheKey(1.5)).toBe(haloMaskCacheKey(1.5));
+    expect(haloMaskCacheKey(1.5)).not.toBe(haloMaskCacheKey(3));
+  });
+
+  it('should share a halo sprite key for colors differing only in the low 4 bits', () => {
+    expect(haloSpriteCacheKey(base, 1.5)).toBe(haloSpriteCacheKey(lowBitsChanged, 1.5));
+    expect(haloSpriteCacheKey(base, 1.5)).not.toBe(haloSpriteCacheKey(highBitsChanged, 1.5));
+  });
+
+  it('should include the beta in the halo sprite key', () => {
+    expect(haloSpriteCacheKey(base, 1.5)).not.toBe(haloSpriteCacheKey(base, 3));
+  });
+
+  it('should never collide halo keys with glow, arm, or mask keys', () => {
+    expect(haloSpriteCacheKey(base, 1.5)).not.toBe(glowSpriteCacheKey(base));
+    expect(haloSpriteCacheKey(base, 1.5)).not.toBe(armSpriteCacheKey(base, 1.5, 0));
+    expect(haloMaskCacheKey(1.5)).not.toBe(haloSpriteCacheKey(base, 1.5));
+    expect(haloMaskCacheKey(1.5)).not.toBe(glowMaskCacheKey());
   });
 });

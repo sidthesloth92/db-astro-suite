@@ -9,20 +9,20 @@ spikes to astrophotography images — entirely in the browser.
 ## What it does
 You drop in an astrophoto and AstroSpike detects the stars automatically, then renders
 diffraction spikes on them: the four-armed Newtonian look, a subtler variant, the
-six-armed JWST signature, or a spike-free Diffusion bloom. Spike length and intensity follow each star's measured
+six-armed JWST signature, or spike-free Glow halos. Spike length and intensity follow each star's measured
 brightness, and each spike takes its colour from the star it belongs to. The finished
 image exports as PNG or JPEG at its original resolution. All processing is 100%
 client-side: your image never leaves your browser and is never uploaded to a server.
 
 ## Core Features
 - Automatic star detection with hot-pixel, satellite-trail, and diffuse-blob rejection
-- Four style presets: Subtle, Classic (4-spike Newtonian), JWST (6-spike), and Diffusion
-  (a spike-free soft-filter bloom mode)
+- Four style presets: Subtle, Classic (4-spike Newtonian), JWST (6-spike), and Glow
+  (a spike-free mode that halos the brightest stars in their own colour, mist-filter style)
 - Spike length and intensity scaled by measured star brightness; colour sampled per star,
   with a chromatic gradient along each arm (cool root, red tip)
-- Global controls: star count, length, chroma, diffusion, brightness, rotation, 4/6 toggle
+- Global controls: star count, length, chroma, glow, brightness, rotation, 4/6 toggle
 - Per-star controls: click to include or exclude, double-click to tune one star alone
-  (length, brightness, rotation, its own diffusion), place stars detection missed, drag a
+  (length, brightness, rotation, its own glow), place stars detection missed, drag a
   detection onto the star's true core
 - Before/after comparison divider
 - PNG and JPEG export at the source image's original resolution, plus a spikes-only

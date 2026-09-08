@@ -1,14 +1,14 @@
 import {
-  DIFFUSION_BLOOM_INTENSITY,
-  DIFFUSION_RADIUS_EXPONENT,
+  HALO_MIN_VISIBLE_ALPHA,
+  HALO_RADIUS_AMOUNT_EXPONENT,
   SPIKE_ALPHA_FLOOR,
   SPIKE_MAGNITUDE_SLOPE,
   SPIKE_SCALE_FLOOR,
   SPIKE_THICKNESS_MAX_PX,
   SPIKE_THICKNESS_MIN_PX,
 } from '../constants/spike-geometry.constants';
-import { SpikePreset } from '../models/spike-preset.model';
-import { BloomGeometry, SpikeGeometry } from '../models/spike-render-params.model';
+import { HaloProfile, SpikePreset } from '../models/spike-preset.model';
+import { HaloGeometry, SpikeGeometry } from '../models/spike-render-params.model';
 
 /**
  * Clamps a value into the inclusive [min, max] range.
@@ -51,17 +51,17 @@ export function starSpikeScale(flux: number, fluxRef: number): number {
  * image-to-canvas scale. Arm thickness is clamped to a renderable pixel range;
  * alphas are clamped to [0, 1].
  *
- * Deliberately knows nothing about diffusion. The spikes and the bloom are two
- * independent axes: Length and Brightness shape the spikes, Diffusion shapes
- * the bloom, and neither reaches into the other. Diffusion used to fade the
- * arms as it rose, which was the only route to a pure bloom back when these
+ * Deliberately knows nothing about the Glow amount. The spikes and the halo
+ * are two independent axes: Length and Brightness shape the spikes, Glow
+ * sizes the halo, and neither reaches into the other. Glow used to fade the
+ * arms as it rose, which was the only route to a pure halo back when these
  * factors bottomed out at 0.2 — now that they reach 0 the user says when the
  * spikes go, and a slider that quietly dimmed them was just surprising.
  *
  * A zero length or intensity factor yields nothing at all — no arms and no core
  * glow. The thickness floor that keeps thin arms renderable would otherwise
  * leave a glow dot behind on a star the user had explicitly zeroed, and zeroing
- * these two is how a star is left showing only its bloom.
+ * these two is how a star is left showing only its halo.
  */
 export function computeSpikeGeometry(
   flux: number,
@@ -97,45 +97,77 @@ export function computeSpikeGeometry(
 }
 
 /**
- * Computes the diffusion bloom for a star: a radius sized from the image's
- * larger dimension, the preset's bloom scale, the star's relative brightness,
- * and the diffusion amount, plus its alpha. Both fall to zero at zero
- * diffusion, which is what leaves a preset rendering exactly as it did before
- * diffusion existed.
+ * Relative halo scale (0-1) of a star: a floorless power law on relative
+ * flux, `(flux / fluxRef) ^ fluxGamma`, clamped to 1 at and above the
+ * reference. Guards non-positive flux or reference by returning 0.
  *
- * Deliberately independent of the Length and Brightness controls, which shape
- * the spikes alone. Sizing the bloom through them made it impossible to zero a
- * star's spike and keep its bloom — the one arrangement the two controls exist
- * side by side to allow. Star brightness still orders the blooms, so a bright
- * star blooms wider than a faint one.
- *
- * The radius is deliberately NOT the `glowRadiusPx` of
- * {@link computeSpikeGeometry}. That one hangs off arm thickness, which hangs
- * off arm length, so a fully diffused star would bloom at the clamped minimum
- * thickness — the same few pixels for the brightest star in the frame as for
- * the faintest, and the brightness ordering that makes a diffusion filter
- * readable would be gone.
+ * Deliberately NOT {@link starSpikeScale}: its scale floor and gentle
+ * magnitude slope exist so every *spiked* star stays visibly spiked, but
+ * applied to halos on a Milky Way frame they hand every one of thousands of
+ * faint stars a similar bloom and the field fogs over. A halo is selective by
+ * design — the power law sinks faint stars toward zero so only the brightest
+ * handful bloom, which is the whole mist-filter look.
  */
-export function computeBloomGeometry(
+export function starHaloScale(flux: number, fluxRef: number, fluxGamma: number): number {
+  if (fluxRef <= 0 || flux <= 0) {
+    return 0;
+  }
+  if (flux >= fluxRef) {
+    return 1;
+  }
+  return Math.pow(flux / fluxRef, fluxGamma);
+}
+
+/**
+ * Computes the two-scale halo every preset draws on a star: the wide skirt's
+ * radius and alpha plus the hot core's, all from relative flux, the profile's
+ * ratios, the amount and intensity controls, and the image's larger
+ * dimension. Radii resolve in image space and scale to the canvas, matching
+ * {@link computeSpikeGeometry}'s convention, so preview and export stay
+ * proportional; alphas are scale-independent.
+ *
+ * The two controls split cleanly. `amount` is the Glow control — or the
+ * star's own pinned amount when it names one — and it alone sizes the radius,
+ * on {@link HALO_RADIUS_AMOUNT_EXPONENT}, while also scaling the alphas so the
+ * halo fades in rather than popping. `intensity` is the global Brightness
+ * control and scales only the alphas: turning it up burns the halo brighter
+ * without growing it. Only the global value belongs here — the per-star
+ * brightness multiplier stays an arm-only concept, since the per-star Glow
+ * amount already brightens one star's halo on its own.
+ *
+ * A skirt alpha below {@link HALO_MIN_VISIBLE_ALPHA} zeroes the whole
+ * geometry: below that the halo reads as haze, and thousands of hazes summed
+ * across a dense field are exactly the fog this profile exists to avoid. The
+ * spikes' {@link alphaRamp} floor is skipped for the same reason. Lowering
+ * the intensity therefore also thins out how many stars glow at all, which
+ * is what dimming a mist filter physically does.
+ */
+export function computeHaloGeometry(
   flux: number,
   fluxRef: number,
-  preset: SpikePreset,
-  diffusion: number,
+  profile: HaloProfile,
+  amount: number,
+  intensity: number,
   imageMaxDimension: number,
   scale: number,
-): BloomGeometry {
-  const amount = clamp(diffusion, 0, 1);
-  if (amount === 0) {
-    return { radiusPx: 0, alpha: 0 };
+): HaloGeometry {
+  const clamped = clamp(amount, 0, 1);
+  const burn = Math.max(0, intensity);
+  if (clamped === 0 || burn === 0) {
+    return { haloRadiusPx: 0, haloAlpha: 0, coreRadiusPx: 0, coreAlpha: 0 };
   }
-  const s = starSpikeScale(flux, fluxRef);
-  const ramp = alphaRamp(s);
-  const radiusPx =
+  const h = starHaloScale(flux, fluxRef, profile.fluxGamma);
+  const haloAlpha = clamp(profile.haloIntensity * h * clamped * burn, 0, 1);
+  if (haloAlpha < HALO_MIN_VISIBLE_ALPHA) {
+    return { haloRadiusPx: 0, haloAlpha: 0, coreRadiusPx: 0, coreAlpha: 0 };
+  }
+  const haloRadiusPx =
     imageMaxDimension *
-    preset.glowRadiusScale *
-    s *
-    Math.pow(amount, DIFFUSION_RADIUS_EXPONENT) *
+    profile.haloRadiusScale *
+    h *
+    Math.pow(clamped, HALO_RADIUS_AMOUNT_EXPONENT) *
     scale;
-  const alpha = clamp(DIFFUSION_BLOOM_INTENSITY * ramp * amount, 0, 1);
-  return { radiusPx, alpha };
+  const coreRadiusPx = haloRadiusPx * profile.coreRadiusRatio;
+  const coreAlpha = clamp(profile.coreIntensity * h * clamped * burn, 0, 1);
+  return { haloRadiusPx, haloAlpha, coreRadiusPx, coreAlpha };
 }

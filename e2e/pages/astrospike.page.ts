@@ -9,12 +9,12 @@ export type AstroSpikeControlLabel =
   | "Star magnitude"
   | "Length"
   | "Chroma"
-  | "Diffusion"
+  | "Glow"
   | "Brightness"
   | "Rotation";
 
-/** Spike preset card names, matching `spike-presets.constants.ts`. */
-export type AstroSpikePresetName = "Subtle" | "Classic" | "JWST";
+/** Preset card names, matching `spike-presets.constants.ts`. */
+export type AstroSpikePresetName = "Subtle" | "Classic" | "JWST" | "Glow";
 
 /**
  * Page Object for AstroSpike — the client-side diffraction-spike studio
@@ -146,6 +146,21 @@ export class AstroSpikePage {
    */
   getControlRow(label: AstroSpikeControlLabel): Locator {
     return this.controlPanel.locator(".slider-row").filter({ hasText: label });
+  }
+
+  /**
+   * The visible labels of every slider row in the controls pane, in display
+   * order — the Glow preset trims this list to the controls that still do
+   * anything.
+   */
+  async getControlLabels(): Promise<string[]> {
+    // The rows are anchored by `.slider-row` for the reason given on
+    // `getControlSlider`: the slider inside carries no accessible name, so the
+    // label text is the only handle a user (or a test) has on a row.
+    const labels = await this.controlPanel
+      .locator(".slider-row .row-label")
+      .allInnerTexts();
+    return labels.map((label) => label.trim());
   }
 
   /** Reads the readout text rendered beside a slider's label. */

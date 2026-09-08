@@ -13,12 +13,12 @@ export interface StarAdjustment {
   /** Extra rotation for this star's arms, in degrees. */
   rotationDeg: number;
   /**
-   * This star's own diffusion amount in [0, 1], or null to follow the global
-   * Diffusion control.
+   * This star's own glow amount in [0, 1], or null to follow the global Glow
+   * control. Keyed `diffusion` to match the control key it overrides.
    *
    * Absolute rather than a multiplier, unlike the factors above, and
    * deliberately so: with the global control at zero a multiplier could never
-   * bloom a single star, which is the whole point of setting it per star.
+   * halo a single star, which is the whole point of setting it per star.
    */
   diffusion: number | null;
 }

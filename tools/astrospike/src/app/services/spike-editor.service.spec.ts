@@ -10,7 +10,7 @@ import {
   SAMPLE_IMAGE_FILE_NAME,
   SAMPLE_IMAGE_MOBILE_FILE_NAME,
 } from '../constants/sample-image.constants';
-import { DIFFUSION_PRESET_SEED_AMOUNT } from '../constants/spike-presets.constants';
+import { GLOW_PRESET_SEED_AMOUNT } from '../constants/spike-presets.constants';
 import { DetectedStar } from '../models/detected-star.model';
 import { SupersededError } from '../models/detection.error';
 import { ExportResult } from '../models/export-result.model';
@@ -31,6 +31,7 @@ function makeStar(id: number, flux: number): DetectedStar {
     area: 4,
     elongation: 1.1,
     color: { r: 255, g: 250, b: 240 },
+    haloColor: { r: 255, g: 250, b: 240 },
   };
 }
 
@@ -643,40 +644,43 @@ describe('SpikeEditorService', () => {
     });
   });
 
-  describe('the Diffusion preset', () => {
-    it('should zero Length and seed Diffusion when entered with Diffusion untouched', () => {
-      service.applyPreset('diffusion');
+  describe('the Glow preset', () => {
+    it('should zero Length and seed the Glow amount when entered with Glow untouched', () => {
+      service.applyPreset('glow');
 
-      expect(service.presetId()).toBe('diffusion');
+      expect(service.presetId()).toBe('glow');
       expect(service.controls.length()).toBe(0);
-      expect(service.controls.diffusion()).toBe(DIFFUSION_PRESET_SEED_AMOUNT);
+      expect(service.controls.diffusion()).toBe(GLOW_PRESET_SEED_AMOUNT);
     });
 
-    it('should leave a Diffusion amount the user already raised alone', () => {
+    it('should leave a Glow amount the user already raised alone', () => {
       service.updateControl('diffusion', 0.3);
 
-      service.applyPreset('diffusion');
+      service.applyPreset('glow');
 
       expect(service.controls.diffusion()).toBe(0.3);
     });
 
-    it('should restore Length and Diffusion when leaving for a spike preset', () => {
+    it('should restore Length, Glow and Brightness when leaving for a spike preset', () => {
       service.updateControl('length', 1.8);
       service.updateControl('diffusion', 0.25);
+      service.updateControl('brightness', 1.4);
 
-      service.applyPreset('diffusion');
+      service.applyPreset('glow');
+      service.updateControl('brightness', 0.6);
       service.applyPreset('jwst');
 
       expect(service.presetId()).toBe('jwst');
       expect(service.controls.length()).toBe(1.8);
       expect(service.controls.diffusion()).toBe(0.25);
+      expect(service.controls.brightness()).toBe(1.4);
     });
 
     it('should not re-snapshot the zeroed controls when re-applied while active', () => {
       service.updateControl('length', 2);
 
-      service.applyPreset('diffusion');
-      service.applyPreset('diffusion');
+      service.applyPreset('glow');
+      service.applyPreset('glow');
       service.applyPreset('classic');
 
       expect(service.controls.length()).toBe(2);
@@ -684,7 +688,7 @@ describe('SpikeEditorService', () => {
 
     it('should reset to the defaults and drop the snapshot when Reset runs inside the mode', () => {
       service.updateControl('length', 2.2);
-      service.applyPreset('diffusion');
+      service.applyPreset('glow');
 
       service.resetAll();
 

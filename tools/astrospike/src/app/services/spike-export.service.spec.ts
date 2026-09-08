@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { SPIKE_PRESETS } from '../constants/spike-presets.constants';
+import { DEFAULT_HALO_PROFILE, SPIKE_PRESETS } from '../constants/spike-presets.constants';
 import { DetectedStar } from '../models/detected-star.model';
 import { SpikeRenderParams } from '../models/spike-render-params.model';
 import { SpikeExportService } from './spike-export.service';
@@ -14,6 +14,7 @@ const STAR: DetectedStar = {
   area: 5,
   elongation: 1,
   color: { r: 255, g: 240, b: 220 },
+  haloColor: { r: 255, g: 240, b: 220 },
 };
 
 /** Render params for an 8x8 source image at full resolution. */
@@ -131,6 +132,50 @@ describe('SpikeExportService', () => {
       }
     }
     expect(transparent).toBeGreaterThan(0);
+  });
+
+  it('should carry the glow halo into both a normal export and a layer export', async () => {
+    // A centred star with the halo opened up to a 15 px radius on a 64 px
+    // canvas; 4 px out the Moffat skirt is still bright. The normal export
+    // must screen it over the photo, and the layer must carry it at its own
+    // alpha in the star's halo colour.
+    const bitmap = await buildBitmap(64, 64);
+    const star: DetectedStar = { ...STAR, x: 32, y: 32 };
+    const params: SpikeRenderParams = {
+      ...PARAMS,
+      stars: [star],
+      preset: {
+        ...SPIKE_PRESETS['classic'],
+        haloProfile: { ...DEFAULT_HALO_PROFILE, haloRadiusScale: 0.3 },
+      },
+      lengthFactor: 0,
+      diffusionFactor: 0.6,
+      imageMaxDimension: 64,
+    };
+    const pixelAt = async (blob: Blob): Promise<Uint8ClampedArray> => {
+      const decoded = await createImageBitmap(blob);
+      const canvas = document.createElement('canvas');
+      canvas.width = decoded.width;
+      canvas.height = decoded.height;
+      const ctx = canvas.getContext('2d');
+      if (ctx === null) {
+        throw new Error('2D context unavailable in test');
+      }
+      ctx.drawImage(decoded, 0, 0);
+      return ctx.getImageData(36, 32, 1, 1).data;
+    };
+
+    const photo = await pixelAt((await service.exportImage(bitmap, params, 'png', 0.92, 'a.png')).blob);
+    // The fill is #101828 (16, 24, 40); the skirt lifts every channel and,
+    // being red-led, lifts red more than blue.
+    expect(photo[0]).toBeGreaterThan(0x10 + 10);
+    expect(photo[0] - 0x10).toBeGreaterThan(photo[2] - 0x28);
+
+    const layer = await pixelAt((await service.exportImage(bitmap, params, 'layer', 0.92, 'a.png')).blob);
+    expect(layer[3]).toBeGreaterThan(0);
+    expect(layer[0]).toBeGreaterThanOrEqual(layer[1]);
+    expect(layer[1]).toBeGreaterThanOrEqual(layer[2]);
+    bitmap.close();
   });
 
   it('should bake the source image into a normal export', async () => {

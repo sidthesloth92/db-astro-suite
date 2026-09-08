@@ -39,7 +39,7 @@ import { round2, signedDegrees, signedFactor } from '../../utils/star-delta.util
  * cover the spikes being tuned, which a popover pinned to the star always did.
  *
  * Length, Brightness, and Rotation are tweaks layered on the global controls and
- * read as a signed delta with the resulting total spelled out; Diffusion is this
+ * read as a signed delta with the resulting total spelled out; Glow is this
  * star's own absolute amount. Either way an untouched star follows the globals
  * exactly. The stage rings whichever star this bar belongs to.
  */
@@ -125,40 +125,40 @@ export class StarControls {
     this.editor.renderedStars().some((star) => star.id === this.starId()),
   );
 
-  /** True while the Diffusion preset — the bloom-only mode — is active. */
-  protected readonly isDiffusionMode = computed(() => this.editor.presetId() === 'diffusion');
+  /** True while the Glow preset — the halo-only mode — is active. */
+  protected readonly isGlowMode = computed(() => this.editor.presetId() === 'glow');
 
   /**
    * Label on the include/exclude toggle. The same action gates whatever the
-   * mode draws, so it names spikes on the spike presets and the bloom in
-   * diffusion mode.
+   * mode draws, so it names spikes on the spike presets and the glow in glow
+   * mode.
    */
   protected readonly toggleLabel = computed(() => {
-    if (this.isDiffusionMode()) {
-      return this.isSpiked() ? 'Remove bloom' : 'Add bloom';
+    if (this.isGlowMode()) {
+      return this.isSpiked() ? 'Remove glow' : 'Add glow';
     }
     return this.isSpiked() ? 'Remove spikes' : 'Add spikes';
   });
 
-  /** Lower bound of the per-star diffusion amount. */
+  /** Lower bound of the per-star glow amount. */
   protected readonly diffusionMin = CONTROLS['diffusion'].min;
 
-  /** Upper bound of the per-star diffusion amount. */
+  /** Upper bound of the per-star glow amount. */
   protected readonly diffusionMax = CONTROLS['diffusion'].max;
 
-  /** Step of the per-star diffusion slider. */
+  /** Step of the per-star glow slider. */
   protected readonly diffusionStep = CONTROLS['diffusion'].step;
 
   /**
-   * Diffusion for this star: its own amount once it has one, otherwise the
-   * global control's, so the slider opens showing what the star is actually
-   * doing and moving it pins that star's own value.
+   * Glow amount for this star: its own once it has one, otherwise the global
+   * control's, so the slider opens showing what the star is actually doing
+   * and moving it pins that star's own value.
    */
   protected readonly diffusion = computed(
     () => this.adjustment().diffusion ?? this.editor.controls.diffusion(),
   );
 
-  /** True once this star's diffusion is pinned rather than following the global. */
+  /** True once this star's glow is pinned rather than following the global. */
   protected readonly hasOwnDiffusion = computed(() => this.adjustment().diffusion !== null);
 
   /** Where the star sits on the full-resolution image. */
@@ -194,7 +194,7 @@ export class StarControls {
     () => `→ ${Math.round(this.editor.controls.rotation() + this.adjustment().rotationDeg)}° total`,
   );
 
-  /** This star's diffusion amount, or the inherited global one, rounded. */
+  /** This star's glow amount, or the inherited global one, rounded. */
   protected readonly diffusionLabel = computed(() => `${round2(this.diffusion())}`);
 
   /**
@@ -222,11 +222,11 @@ export class StarControls {
   }
 
   /**
-   * Pins this star's own diffusion, independently of the global control. It is
-   * an absolute amount, not a multiplier: with the global control at zero a
-   * multiplier could never bloom one star, which is the point of setting it
+   * Pins this star's own glow, independently of the global control. It is an
+   * absolute amount, not a multiplier: with the global control at zero a
+   * multiplier could never halo one star, which is the point of setting it
    * here.
-   * @param value The new diffusion amount.
+   * @param value The new glow amount.
    */
   protected onDiffusionChange(value: number): void {
     this.editor.adjustStar(this.starId(), { diffusion: value });

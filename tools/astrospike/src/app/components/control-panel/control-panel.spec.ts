@@ -32,6 +32,7 @@ function buildStars(count: number): readonly DetectedStar[] {
     area: 4,
     elongation: 1,
     color: { r: 255, g: 255, b: 255 },
+    haloColor: { r: 255, g: 255, b: 255 },
   }));
 }
 
@@ -83,6 +84,15 @@ describe('ControlPanel', () => {
     const rows: NodeListOf<HTMLElement> =
       fixture.nativeElement.querySelectorAll('.slider-row .row-label');
     return Array.from(rows).map((row) => row.textContent?.trim() ?? '');
+  }
+
+  /** Drags the slider that sits under the given visible label. */
+  function dragSliderLabelled(label: string, value: string): void {
+    const index = sliderLabels().indexOf(label);
+    if (index === -1) {
+      throw new Error(`slider "${label}" not rendered`);
+    }
+    dragSlider(index, value);
   }
 
   /** Expands the preset dropdown and returns the option with this label. */
@@ -144,7 +154,14 @@ describe('ControlPanel', () => {
   });
 
   it('should render the six editor sliders in order', () => {
-    expect(sliderLabels()).toEqual(['Star magnitude', 'Length', 'Chroma', 'Diffusion', 'Brightness', 'Rotation']);
+    expect(sliderLabels()).toEqual([
+      'Star magnitude',
+      'Length',
+      'Chroma',
+      'Glow',
+      'Brightness',
+      'Rotation',
+    ]);
     expect(sliders().length).toBe(6);
   });
 
@@ -155,8 +172,8 @@ describe('ControlPanel', () => {
     expect(fixture.nativeElement.textContent).toContain('0.8');
   });
 
-  it('should bloom the stars when the diffusion slider is dragged', () => {
-    dragSlider(3, '0.6');
+  it('should halo the stars when the Glow slider is dragged', () => {
+    dragSliderLabelled('Glow', '0.6');
 
     expect(editor.controls.diffusion()).toBe(0.6);
     expect(fixture.nativeElement.textContent).toContain('0.6');
@@ -232,18 +249,18 @@ describe('ControlPanel', () => {
     expect(error?.textContent).toContain('The export failed. Please try again.');
   });
 
-  describe('diffusion mode', () => {
-    it('should trim the pane to the bloom controls while the Diffusion preset is active', () => {
-      editor.applyPreset('diffusion');
+  describe('glow mode', () => {
+    it('should trim the pane to the halo controls while the Glow preset is active', () => {
+      editor.applyPreset('glow');
       fixture.detectChanges();
 
-      expect(sliderLabels()).toEqual(['Star magnitude', 'Diffusion']);
+      expect(sliderLabels()).toEqual(['Star magnitude', 'Glow', 'Brightness']);
       expect(fixture.nativeElement.querySelector('.arms-row')).toBeNull();
-      expect(fixture.nativeElement.textContent).toContain('Shape the bloom');
+      expect(fixture.nativeElement.textContent).toContain('Shape the halos');
     });
 
-    it('should bring the full spike controls back when a spike preset returns', () => {
-      editor.applyPreset('diffusion');
+    it('should bring the spike controls and the Arms row back when a spike preset returns', () => {
+      editor.applyPreset('glow');
       fixture.detectChanges();
       editor.applyPreset('classic');
       fixture.detectChanges();
@@ -252,7 +269,7 @@ describe('ControlPanel', () => {
         'Star magnitude',
         'Length',
         'Chroma',
-        'Diffusion',
+        'Glow',
         'Brightness',
         'Rotation',
       ]);
