@@ -20,7 +20,8 @@ client-side: your image never leaves your browser and is never uploaded to a ser
   (a spike-free mode that halos the brightest stars in their own colour, mist-filter style)
 - Spike length and intensity scaled by measured star brightness; colour sampled per star,
   with a chromatic gradient along each arm (cool root, red tip)
-- Global controls: star count, length, chroma, glow, brightness, rotation, 4/6 toggle
+- Global controls: star count, length, chroma, glow, mist (a soft haze spread from the
+  frame's brightest regions), brightness, rotation, 4/6 toggle
 - Per-star controls: click to include or exclude, double-click to tune one star alone
   (length, brightness, rotation, its own glow), place stars detection missed, drag a
   detection onto the star's true core

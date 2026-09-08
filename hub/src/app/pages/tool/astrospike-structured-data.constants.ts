@@ -21,6 +21,7 @@ export const ASTROSPIKE_STRUCTURED_DATA = {
       featureList: [
         'Automatic star detection with hot-pixel, satellite-trail, and galaxy rejection',
         'Subtle, Classic (4-spike), JWST (6-spike), and Glow (spike-free coloured halos) presets',
+        'Glow halos and a Mist haze — the mist-filter look of Milky Way widefields',
         'Spike length and colour driven by each star’s measured brightness',
         'Chromatic arm gradients and per-star tuning',
         'Manual star placement and drag-to-move for missed detections',

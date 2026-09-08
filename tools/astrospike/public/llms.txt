@@ -23,10 +23,11 @@ is uploaded anywhere: every pixel is processed in your browser.
   chromatic gradient — cool at the root, red at the tip, the way diffraction spreads light
   by wavelength. Spikes composite additively over the original pixels.
 - **Global and Per-Star Controls**: How many of the brightest stars get spikes, spike
-  length, chroma, glow, brightness, rotation, and a 4- or 6-spike toggle. Click any
-  star to include or exclude it, double-click to tune it alone (length, brightness,
-  rotation, and its own glow), place a star detection missed, or drag a detection onto
-  the star's true core. A comparison divider wipes between the original and the result.
+  length, chroma, glow, mist (a soft haze spread from the frame's brightest regions),
+  brightness, rotation, and a 4- or 6-spike toggle. Click any star to include or exclude
+  it, double-click to tune it alone (length, brightness, rotation, and its own glow),
+  place a star detection missed, or drag a detection onto the star's true core. A
+  comparison divider wipes between the original and the result.
 - **Export**: PNG (lossless) or JPEG (adjustable quality) at the source image's original
   resolution, or the spikes alone as a transparent PNG layer for compositing over a 16-bit
   master in another editor.

@@ -91,7 +91,7 @@ export const ASTROSPIKE_DETAIL: ToolDetailConfig = {
     {
       icon: filterIcon,
       name: 'Glow halos',
-      body: 'Bloom the brightest stars into wide, coloured halos, the mist-filter look for Milky Way widefields, with spikes or on their own.',
+      body: 'Bloom the brightest stars into wide, coloured halos, and spread a soft Mist haze from the brightest sky — the mist-filter look for Milky Way widefields, with spikes or on their own.',
     },
     {
       icon: slidersIcon,

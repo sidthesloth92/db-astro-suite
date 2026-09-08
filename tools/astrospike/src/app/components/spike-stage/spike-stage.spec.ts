@@ -5,7 +5,7 @@ import { ImageLoadService } from '../../services/image-load.service';
 import { SpikeEditorService } from '../../services/spike-editor.service';
 import { SpikeExportService } from '../../services/spike-export.service';
 import { StarDetectionService } from '../../services/star-detection.service';
-import { STAGE_CLICK_HOLD_MS } from '../../constants/render.constants';
+import { STAGE_CLICK_HOLD_MS, STAGE_WHEEL_ZOOM_FACTOR } from '../../constants/render.constants';
 import { SpikeStage } from './spike-stage';
 
 const IMAGE_WIDTH = 400;
@@ -51,11 +51,21 @@ describe('SpikeStage', () => {
     };
   }
 
-  /** Puts a decoded stub image into the editor, as a successful load would. */
-  async function loadStubImage(): Promise<void> {
+  /**
+   * Puts a decoded stub image into the editor, as a successful load would.
+   * `paint` draws the stub's content; without it the image stays blank.
+   */
+  async function loadStubImage(paint?: (ctx: CanvasRenderingContext2D) => void): Promise<void> {
     const source = document.createElement('canvas');
     source.width = IMAGE_WIDTH;
     source.height = IMAGE_HEIGHT;
+    if (paint !== undefined) {
+      const ctx = source.getContext('2d');
+      if (ctx === null) {
+        throw new Error('spec canvas has no 2d context');
+      }
+      paint(ctx);
+    }
     const bitmap = await createImageBitmap(source);
     editor.imageMeta.set({ fileName: 'm31.png', width: IMAGE_WIDTH, height: IMAGE_HEIGHT });
     editor.sourceImage.set(bitmap);
@@ -268,6 +278,176 @@ describe('SpikeStage', () => {
       expect(afterElement.style.clipPath).toContain('60%');
       // ...without repainting a single pixel of the spiked canvas.
       expect(drawSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('mist', () => {
+    /** Sky fill of the misted stub, as [r, g, b, a] — dark, well under the mist threshold. */
+    const SKY = [0x10, 0x18, 0x28, 255];
+
+    /**
+     * The stub's one bright region: a white block centred in the frame, so a
+     * pixel and its horizontal mirror always receive the same mist.
+     */
+    const BLOCK = { x: 180, y: 80, width: 40, height: 40 };
+
+    /** A sky pixel 6 px past the block's right edge, inside the mist's reach. */
+    const BESIDE = { x: BLOCK.x + BLOCK.width + 6, y: 100 };
+
+    /** A sky pixel far beyond the reach of the widest mist scale. */
+    const FAR = { x: 10, y: 10 };
+
+    let pending: FrameRequestCallback[];
+
+    beforeEach(async () => {
+      // The empty stage already has a real frame in flight from the outer
+      // setup, and the stage coalesces frames — let it land first, so every
+      // frame from here on is one this suite schedules and flushes itself.
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+      pending = [];
+      spyOn(window, 'requestAnimationFrame').and.callFake((callback: FrameRequestCallback) => {
+        pending.push(callback);
+        return pending.length;
+      });
+    });
+
+    /** Runs every render frame the stage has scheduled. */
+    function flush(): void {
+      for (const callback of pending.splice(0)) {
+        callback(0);
+      }
+    }
+
+    /** Loads the dark stub with its bright block and renders the first frame. */
+    async function loadMistedImage(): Promise<void> {
+      await loadStubImage((ctx) => {
+        ctx.fillStyle = `rgb(${SKY[0]}, ${SKY[1]}, ${SKY[2]})`;
+        ctx.fillRect(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(BLOCK.x, BLOCK.y, BLOCK.width, BLOCK.height);
+      });
+      flush();
+    }
+
+    /** Sets the Mist amount and renders the frame that schedules. */
+    function renderWithMist(amount: number): void {
+      editor.updateControl('mist', amount);
+      fixture.detectChanges();
+      flush();
+    }
+
+    /** The 2D context of the stage canvas matching `selector`. */
+    function contextOf(selector: string): CanvasRenderingContext2D {
+      const canvas: HTMLCanvasElement | null = fixture.nativeElement.querySelector(selector);
+      const ctx = canvas?.getContext('2d') ?? null;
+      if (ctx === null) {
+        throw new Error(`${selector} has no 2d context`);
+      }
+      return ctx;
+    }
+
+    /** One pixel of a stage canvas as [r, g, b, a]. */
+    function pixelOf(selector: string, point: { x: number; y: number }): number[] {
+      return Array.from(contextOf(selector).getImageData(point.x, point.y, 1, 1).data);
+    }
+
+    /** Red channel of one pixel of a stage canvas. */
+    function redOf(selector: string, point: { x: number; y: number }): number {
+      return pixelOf(selector, point)[0];
+    }
+
+    it('should leave the after canvas identical to the base blit when Mist is zero', async () => {
+      await loadMistedImage();
+
+      renderWithMist(0);
+
+      // The photo landed on both canvases, so the comparison below is between
+      // two painted frames rather than two blank ones.
+      expect(pixelOf('canvas.before-canvas', BESIDE)).toEqual(SKY);
+      expect(pixelOf('canvas.after-canvas', BESIDE)).toEqual(SKY);
+      const before = contextOf('canvas.before-canvas').getImageData(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT).data;
+      const after = contextOf('canvas.after-canvas').getImageData(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT).data;
+      let differing = 0;
+      for (let i = 0; i < before.length; i++) {
+        if (before[i] !== after[i]) {
+          differing++;
+        }
+      }
+      expect(differing).toBe(0);
+    });
+
+    it('should lift the sky beside a bright region and leave distant sky untouched when Mist is raised', async () => {
+      await loadMistedImage();
+
+      renderWithMist(0.8);
+
+      // The haze reaches out of the block into the sky beside it...
+      expect(pixelOf('canvas.before-canvas', BESIDE)).toEqual(SKY);
+      expect(redOf('canvas.after-canvas', BESIDE)).toBeGreaterThan(SKY[0]);
+      // ...and stops well short of the far sky, which stays byte-for-byte the photo.
+      expect(pixelOf('canvas.after-canvas', FAR)).toEqual(SKY);
+      expect(pixelOf('canvas.before-canvas', FAR)).toEqual(SKY);
+    });
+
+    it('should draw the mist under the arms so a spike gains the same lift as the sky beside it', async () => {
+      await loadMistedImage();
+      editor.allStars.set([makeStar(0, 240, 100)]);
+      // The Classic preset's arms sit at 45°; another 45° turns them
+      // horizontal, so the left arm runs along the block's centre row.
+      editor.updateControl('rotation', 45);
+      // 8 px along the arm, and that pixel's mirror across the block: bare sky
+      // under exactly the same mist.
+      const ARM = { x: 232, y: 100 };
+      const SKY_MIRROR = { x: IMAGE_WIDTH - 1 - ARM.x, y: 100 };
+
+      renderWithMist(0);
+      const armPlain = redOf('canvas.after-canvas', ARM);
+      const skyPlain = redOf('canvas.after-canvas', SKY_MIRROR);
+      expect(armPlain).toBeGreaterThan(skyPlain);
+      expect(skyPlain).toBe(SKY[0]);
+
+      renderWithMist(0.8);
+      const armMisted = redOf('canvas.after-canvas', ARM);
+      const skyMisted = redOf('canvas.after-canvas', SKY_MIRROR);
+
+      expect(skyMisted).toBeGreaterThan(skyPlain);
+      expect(armMisted).toBeGreaterThanOrEqual(armPlain);
+      expect(armMisted).toBeLessThan(255);
+      // Screened under the additive arm, the haze lifts the arm pixel by as
+      // much as it lifts the sky; screened over the arm it would lift it less.
+      expect(armMisted - armPlain).toBeGreaterThanOrEqual(skyMisted - skyPlain - 2);
+    });
+
+    it('should keep the mist on the same sky as the photo when the view is zoomed', async () => {
+      await loadMistedImage();
+      renderWithMist(0.8);
+      const liftFitted = redOf('canvas.after-canvas', BESIDE) - redOf('canvas.before-canvas', BESIDE);
+      expect(liftFitted).toBeGreaterThan(0);
+
+      const zoomIn: HTMLButtonElement | null = fixture.nativeElement.querySelector(
+        '.stage-tools button[title="Zoom in"]',
+      );
+      if (zoomIn === null) {
+        throw new Error('Zoom in button not rendered');
+      }
+      const steps = 4;
+      for (let i = 0; i < steps; i++) {
+        zoomIn.click();
+      }
+      fixture.detectChanges();
+      flush();
+
+      // The view zooms about the image centre, so BESIDE lands here on the
+      // zoomed canvas; the haze there must match what the fitted view showed
+      // at that very sky pixel.
+      const zoom = Math.pow(STAGE_WHEEL_ZOOM_FACTOR, steps);
+      const zoomed = {
+        x: Math.round((BESIDE.x - (IMAGE_WIDTH / 2 - IMAGE_WIDTH / (2 * zoom))) * zoom),
+        y: Math.round((BESIDE.y - (IMAGE_HEIGHT / 2 - IMAGE_HEIGHT / (2 * zoom))) * zoom),
+      };
+      expect(pixelOf('canvas.before-canvas', zoomed)).toEqual(SKY);
+      const liftZoomed = redOf('canvas.after-canvas', zoomed) - redOf('canvas.before-canvas', zoomed);
+      expect(Math.abs(liftZoomed - liftFitted)).toBeLessThanOrEqual(6);
     });
   });
 

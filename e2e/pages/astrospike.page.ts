@@ -10,6 +10,7 @@ export type AstroSpikeControlLabel =
   | "Length"
   | "Chroma"
   | "Glow"
+  | "Mist"
   | "Brightness"
   | "Rotation";
 

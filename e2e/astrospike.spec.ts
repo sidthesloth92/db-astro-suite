@@ -125,7 +125,21 @@ test.describe("AstroSpike", () => {
     await expect(astroSpike.getSelectedArmTab()).toHaveText("4 spikes");
   });
 
-  test("should trim the sliders to star magnitude, glow and brightness when the Glow preset is selected", async ({
+  test("should offer a mist slider that starts at zero", async ({ page }) => {
+    const astroSpike = new AstroSpikePage(page);
+    await astroSpike.navigate();
+    await astroSpike.loadImage(STARFIELD_FIXTURE);
+    await astroSpike.waitForDetectedStars();
+
+    // No haze by default, so an image opens as its preset intends.
+    expect(await astroSpike.getControlReadout("Mist")).toBe("0");
+
+    await astroSpike.setControlValue("Mist", 0.5);
+
+    expect(await astroSpike.getControlReadout("Mist")).toBe("0.5");
+  });
+
+  test("should trim the sliders to star magnitude, glow, mist and brightness when the Glow preset is selected", async ({
     page,
   }) => {
     const astroSpike = new AstroSpikePage(page);
@@ -140,7 +154,7 @@ test.describe("AstroSpike", () => {
     // only the controls that still do anything remain.
     await expect
       .poll(() => astroSpike.getControlLabels())
-      .toEqual(["Star magnitude", "Glow", "Brightness"]);
+      .toEqual(["Star magnitude", "Glow", "Mist", "Brightness"]);
     // The mode seeds a visible halo the moment it is picked.
     expect(await astroSpike.getControlReadout("Glow")).not.toBe("0");
   });

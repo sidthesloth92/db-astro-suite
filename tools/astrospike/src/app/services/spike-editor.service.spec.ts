@@ -319,6 +319,26 @@ describe('SpikeEditorService', () => {
     });
   });
 
+  describe('mist', () => {
+    it('should start at zero so a preset renders exactly as it always did', () => {
+      expect(service.controls.mist()).toBe(0);
+    });
+
+    it('should carry the mist amount into the render params', async () => {
+      const bitmap = await buildBitmap(8, 8);
+      imageLoadSpy.loadImageFile.and.resolveTo({
+        bitmap,
+        meta: { fileName: 'm31.png', width: 8, height: 8 },
+      });
+      detectionSpy.detect.and.resolveTo([...STARS]);
+      await service.loadImage(new File([''], 'm31.png', { type: 'image/png' }));
+
+      service.updateControl('mist', 0.5);
+
+      expect(service.renderParams()?.mistFactor).toBe(0.5);
+    });
+  });
+
   describe('addStarAt', () => {
     beforeEach(async () => {
       const bitmap = await buildBitmap(64, 64);
@@ -473,6 +493,7 @@ describe('SpikeEditorService', () => {
     const dirtiers: ReadonlyArray<{ name: string; act: () => void }> = [
       { name: 'a preset change', act: () => service.applyPreset('jwst') },
       { name: 'a slider move', act: () => service.updateControl('length', 2) },
+      { name: 'a raised Mist', act: () => service.updateControl('mist', 0.5) },
       { name: 'an arm count override', act: () => service.setSpikeCount(6) },
       { name: 'a toggled star', act: () => service.toggleStar(0) },
       { name: 'a tuned star', act: () => service.adjustStar(1, { lengthFactor: 2 }) },
@@ -502,6 +523,7 @@ describe('SpikeEditorService', () => {
       service.updateControl('length', 2.4);
       service.updateControl('chroma', 1);
       service.updateControl('diffusion', 0.8);
+      service.updateControl('mist', 0.7);
       service.toggleStar(0);
       service.adjustStar(2, { diffusion: 0.5 });
       service.comparePosition.set(0.6);
@@ -513,6 +535,7 @@ describe('SpikeEditorService', () => {
       expect(service.controls.length()).toBe(1);
       expect(service.controls.chroma()).toBe(0.35);
       expect(service.controls.diffusion()).toBe(0);
+      expect(service.controls.mist()).toBe(0);
       expect(service.overrides().size).toBe(0);
       expect(service.starAdjustments().size).toBe(0);
       expect(service.comparePosition()).toBe(0);
@@ -684,6 +707,26 @@ describe('SpikeEditorService', () => {
       service.applyPreset('classic');
 
       expect(service.controls.length()).toBe(2);
+    });
+
+    it('should leave Mist at zero when entered, since only the halos are seeded', () => {
+      service.applyPreset('glow');
+
+      expect(service.controls.mist()).toBe(0);
+    });
+
+    it('should keep a Mist amount set inside the mode when leaving for a spike preset', () => {
+      // Mist is not part of the mode's snapshot: it is a pass over the photo
+      // itself rather than a halo control, so the amount stays wherever the
+      // user last put it instead of springing back on the way out.
+      service.updateControl('mist', 0.4);
+      service.applyPreset('glow');
+      expect(service.controls.mist()).toBe(0.4);
+
+      service.updateControl('mist', 0.8);
+      service.applyPreset('jwst');
+
+      expect(service.controls.mist()).toBe(0.8);
     });
 
     it('should reset to the defaults and drop the snapshot when Reset runs inside the mode', () => {

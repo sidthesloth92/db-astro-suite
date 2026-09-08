@@ -69,6 +69,7 @@ function makeParams(overrides: Partial<SpikeRenderParams> = {}): SpikeRenderPara
     intensityFactor: 1,
     rotationDeg: 0,
     diffusionFactor: 0,
+    mistFactor: 0,
     chromaFactor: 0,
     imageMaxDimension: CANVAS_SIZE,
     scale: 1,

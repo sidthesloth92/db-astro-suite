@@ -1,20 +1,24 @@
 import { Injectable, OnDestroy } from '@angular/core';
+import { DEFAULT_MIST_PROFILE } from '../constants/mist.constants';
 import { ExportFormat, ExportResult } from '../models/export-result.model';
 import { ExportError } from '../models/export.error';
 import { SpikeRenderParams, SpriteCache } from '../models/spike-render-params.model';
 import { buildExportFilename } from '../utils/export-filename.util';
+import { buildMistLayer, drawMistLayer } from '../utils/mist-layer.util';
 import { renderSpikes } from '../utils/spike-render.util';
 
 /**
  * @class SpikeExportService
  * @description
- * Composites the full-resolution source image with the rendered diffraction
- * spikes, encodes it (PNG or JPEG), and triggers a browser download. The
- * `layer` output skips the source image entirely and encodes the spikes alone
- * on transparency.
+ * Composites the full-resolution source image with its mist (when the Mist
+ * amount is raised) and the rendered diffraction spikes, encodes it (PNG or
+ * JPEG), and triggers a browser download. The `layer` output skips the source
+ * image entirely and encodes the mist and spikes alone on transparency.
  *
  * @responsibilities
- * - Render source bitmap + spikes at full resolution (scale 1), or spikes alone
+ * - Render source bitmap + mist + spikes at full resolution (scale 1), or
+ *   mist + spikes alone; the mist is screened over the whole image before the
+ *   spikes so the halos and arms sit on top of the haze, as on the stage
  * - Encode via `canvas.toBlob` and build the download file name
  * - Manage the download object URL lifecycle: the URL is deliberately NOT
  *   revoked at download time — Chrome on Android resolves blob downloads
@@ -60,13 +64,30 @@ export class SpikeExportService implements OnDestroy {
 
     // A layer leaves the canvas transparent and lets the additive spike pass
     // build up both colour and alpha, so the file carries the light to add and
-    // the coverage to add it through. The glow skirt is screen-blended in the
-    // app; over a transparent backdrop that reduces to source-over, so the
-    // layer carries the skirt at its own alpha and reads correctly under a
-    // Screen or Add blend in the user's editor. Anything else starts from the
-    // photo.
+    // the coverage to add it through. The glow skirt and the mist are
+    // screen-blended in the app; over a transparent backdrop that reduces to
+    // source-over, so the layer carries them at their own alpha and reads
+    // correctly under a Screen or Add blend in the user's editor. Anything
+    // else starts from the photo.
     if (format !== 'layer') {
       ctx.drawImage(bitmap, 0, 0);
+    }
+    // The mist comes from the photo's own highlights and goes under the
+    // spikes, exactly as the stage draws it: the whole image at scale 1.
+    if (params.mistFactor > 0) {
+      const mist = buildMistLayer(bitmap, bitmap.width, bitmap.height, DEFAULT_MIST_PROFILE);
+      drawMistLayer(ctx, mist, params.mistFactor, {
+        sourceX: 0,
+        sourceY: 0,
+        sourceWidth: bitmap.width,
+        sourceHeight: bitmap.height,
+        imageWidth: bitmap.width,
+        imageHeight: bitmap.height,
+        targetWidth: canvas.width,
+        targetHeight: canvas.height,
+      });
+      mist.width = 0;
+      mist.height = 0;
     }
     const spriteCache: SpriteCache = new Map();
     renderSpikes(ctx, { ...params, scale: 1 }, spriteCache);

@@ -31,13 +31,21 @@ const PARAMS: SpikeRenderParams = {
   intensityFactor: 1,
   rotationDeg: 0,
   diffusionFactor: 0,
+  mistFactor: 0,
   chromaFactor: 0,
   imageMaxDimension: 8,
   scale: 1,
 };
 
-/** Builds a small real ImageBitmap from a filled canvas. */
-async function buildBitmap(width: number, height: number): Promise<ImageBitmap> {
+/**
+ * Builds a small real ImageBitmap from a filled canvas. `paint` draws on top
+ * of the fill before the bitmap is taken.
+ */
+async function buildBitmap(
+  width: number,
+  height: number,
+  paint?: (ctx: CanvasRenderingContext2D) => void,
+): Promise<ImageBitmap> {
   const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
@@ -47,7 +55,24 @@ async function buildBitmap(width: number, height: number): Promise<ImageBitmap> 
   }
   ctx.fillStyle = '#101828';
   ctx.fillRect(0, 0, width, height);
+  if (paint !== undefined) {
+    paint(ctx);
+  }
   return createImageBitmap(canvas);
+}
+
+/** Decodes an exported blob and returns one of its pixels as [r, g, b, a]. */
+async function decodedPixelAt(blob: Blob, x: number, y: number): Promise<number[]> {
+  const decoded = await createImageBitmap(blob);
+  const canvas = document.createElement('canvas');
+  canvas.width = decoded.width;
+  canvas.height = decoded.height;
+  const ctx = canvas.getContext('2d');
+  if (ctx === null) {
+    throw new Error('2D context unavailable in test');
+  }
+  ctx.drawImage(decoded, 0, 0);
+  return Array.from(ctx.getImageData(x, y, 1, 1).data);
 }
 
 describe('SpikeExportService', () => {
@@ -175,6 +200,42 @@ describe('SpikeExportService', () => {
     expect(layer[3]).toBeGreaterThan(0);
     expect(layer[0]).toBeGreaterThanOrEqual(layer[1]);
     expect(layer[1]).toBeGreaterThanOrEqual(layer[2]);
+    bitmap.close();
+  });
+
+  it('should mist the sky beside a bright region in a normal export and carry it in a layer', async () => {
+    // A 64 px frame with one 12 px white block and a star well away from it.
+    // 6 px past the block's edge the haze is still there; the far corner is
+    // beyond the widest mist scale and must stay the photo, byte for byte.
+    const block = { x: 8, y: 8, size: 12 };
+    const beside = { x: block.x + block.size + 6, y: block.y + block.size / 2 };
+    const corner = { x: 63, y: 63 };
+    const bitmap = await buildBitmap(64, 64, (ctx) => {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(block.x, block.y, block.size, block.size);
+    });
+    const params: SpikeRenderParams = {
+      ...PARAMS,
+      stars: [{ ...STAR, x: 48, y: 48 }],
+      mistFactor: 0.8,
+      imageMaxDimension: 64,
+    };
+
+    const photo = (await service.exportImage(bitmap, params, 'png', 0.92, 'mw.png')).blob;
+    const photoBeside = await decodedPixelAt(photo, beside.x, beside.y);
+    const photoCorner = await decodedPixelAt(photo, corner.x, corner.y);
+    // The fill is #101828 (16, 24, 40); the mist lifts every channel beside
+    // the block and none in the corner.
+    expect(photoBeside[0]).toBeGreaterThan(0x10);
+    expect(photoBeside[1]).toBeGreaterThan(0x18);
+    expect(photoBeside[2]).toBeGreaterThan(0x28);
+    expect(photoBeside[3]).toBe(255);
+    expect(photoCorner).toEqual([0x10, 0x18, 0x28, 255]);
+
+    const layer = (await service.exportImage(bitmap, params, 'layer', 0.92, 'mw.png')).blob;
+    const layerBeside = await decodedPixelAt(layer, beside.x, beside.y);
+    expect(layerBeside[3]).toBeGreaterThan(0);
+    expect(layerBeside[0]).toBeGreaterThan(0);
     bitmap.close();
   });
 

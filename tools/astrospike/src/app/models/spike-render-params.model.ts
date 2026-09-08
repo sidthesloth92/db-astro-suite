@@ -52,6 +52,14 @@ export interface SpikeRenderParams {
    */
   diffusionFactor: number;
   /**
+   * Global Mist amount in [0, 1]: how strongly the image's own highlights
+   * are spread into a haze. Not drawn by {@link renderSpikes} — the mist is
+   * a pass over the photo itself, drawn by the stage and the export before
+   * the spikes — but carried here so every consumer of a frame's settings
+   * reads one object.
+   */
+  mistFactor: number;
+  /**
    * How far apart the arm's colours are pulled along its length, in [0, 1].
    * Zero draws each arm in one flat colour.
    */

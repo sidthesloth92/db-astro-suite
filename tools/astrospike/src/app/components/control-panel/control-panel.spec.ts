@@ -153,16 +153,17 @@ describe('ControlPanel', () => {
     expect(fixture.nativeElement.querySelector('section.star-bar')).toBeNull();
   });
 
-  it('should render the six editor sliders in order', () => {
+  it('should render the seven editor sliders in order', () => {
     expect(sliderLabels()).toEqual([
       'Star magnitude',
       'Length',
       'Chroma',
       'Glow',
+      'Mist',
       'Brightness',
       'Rotation',
     ]);
-    expect(sliders().length).toBe(6);
+    expect(sliders().length).toBe(7);
   });
 
   it('should separate the arm colour when the chroma slider is dragged', () => {
@@ -177,6 +178,13 @@ describe('ControlPanel', () => {
 
     expect(editor.controls.diffusion()).toBe(0.6);
     expect(fixture.nativeElement.textContent).toContain('0.6');
+  });
+
+  it('should mist the frame when the Mist slider is dragged', () => {
+    dragSliderLabelled('Mist', '0.45');
+
+    expect(editor.controls.mist()).toBe(0.45);
+    expect(fixture.nativeElement.textContent).toContain('0.45');
   });
 
   it('should show the resolved star count as the stars readout', () => {
@@ -194,14 +202,14 @@ describe('ControlPanel', () => {
   });
 
   it('should update the brightness control when its slider is dragged', () => {
-    dragSlider(4, '1.5');
+    dragSliderLabelled('Brightness', '1.5');
 
     expect(editor.controls.brightness()).toBe(1.5);
     expect(fixture.nativeElement.textContent).toContain('1.5×');
   });
 
   it('should update the rotation control in degrees when its slider is dragged', () => {
-    dragSlider(5, '15');
+    dragSliderLabelled('Rotation', '15');
 
     expect(editor.controls.rotation()).toBe(15);
     expect(fixture.nativeElement.textContent).toContain('15°');
@@ -233,8 +241,8 @@ describe('ControlPanel', () => {
     spikeCountTab('4 spikes').click();
     fixture.detectChanges();
 
-    dragSlider(1, '2');
-    dragSlider(5, '30');
+    dragSliderLabelled('Length', '2');
+    dragSliderLabelled('Rotation', '30');
 
     expect(editor.spikeCount()).toBe(4);
     expect(editor.presetId()).toBe('jwst');
@@ -250,11 +258,11 @@ describe('ControlPanel', () => {
   });
 
   describe('glow mode', () => {
-    it('should trim the pane to the halo controls while the Glow preset is active', () => {
+    it('should trim the pane to the halo and mist controls while the Glow preset is active', () => {
       editor.applyPreset('glow');
       fixture.detectChanges();
 
-      expect(sliderLabels()).toEqual(['Star magnitude', 'Glow', 'Brightness']);
+      expect(sliderLabels()).toEqual(['Star magnitude', 'Glow', 'Mist', 'Brightness']);
       expect(fixture.nativeElement.querySelector('.arms-row')).toBeNull();
       expect(fixture.nativeElement.textContent).toContain('Shape the halos');
     });
@@ -270,6 +278,7 @@ describe('ControlPanel', () => {
         'Length',
         'Chroma',
         'Glow',
+        'Mist',
         'Brightness',
         'Rotation',
       ]);

@@ -50,6 +50,16 @@ export const CONTROLS: Record<EditorControlKey, ControlMetadata> = {
     // glow is something the user reaches for rather than undoes.
     initial: 0,
   },
+  mist: {
+    label: 'Mist',
+    description:
+      'Spreads the light of the brightest regions into a soft haze, so the Milky Way core and nebulae glow the way they do through a mist filter. Dark sky stays dark.',
+    min: 0,
+    max: 1,
+    step: 0.05,
+    // Zero for the same reason as Glow: an image opens as its preset intends.
+    initial: 0,
+  },
   brightness: {
     label: 'Brightness',
     description:
@@ -77,17 +87,19 @@ export const EDITOR_CONTROL_KEYS: readonly EditorControlKey[] = [
   'length',
   'chroma',
   'diffusion',
+  'mist',
   'brightness',
   'rotation',
 ];
 
 /**
  * The sliders shown while the Glow preset is active: which stars are in the
- * cut, how far they glow, and how hard the halos burn. Every other control
- * shapes the arms, which the mode has zeroed away.
+ * cut, how far they glow, how much the frame mists, and how hard the halos
+ * burn. Every other control shapes the arms, which the mode has zeroed away.
  */
 export const GLOW_MODE_CONTROL_KEYS: readonly EditorControlKey[] = [
   'stars',
   'diffusion',
+  'mist',
   'brightness',
 ];

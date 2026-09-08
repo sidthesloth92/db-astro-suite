@@ -162,7 +162,8 @@ mist-filter mode that halos the brightest stars in their own colour), how many
 of the brightest stars get spikes or glow, spike length, chroma (a
 cool-root-to-red-tip gradient along each arm, the way diffraction spreads light
 by wavelength), glow (wide, soft, coloured halos on the brightest stars),
-brightness, rotation, and a 4- or 6-spike toggle. Individual stars can be
+mist (a soft haze spread from the frame's brightest regions), brightness,
+rotation, and a 4- or 6-spike toggle. Individual stars can be
 clicked to include or exclude them, double-clicked to tune alone (length,
 brightness, rotation, and an absolute per-star glow), placed by hand where
 detection missed one, or
