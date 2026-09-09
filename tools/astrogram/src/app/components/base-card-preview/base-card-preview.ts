@@ -304,7 +304,13 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
       naturalHeight = this.naturalImageHeight(); // Header is outside the scale container, not included
     } else {
       naturalHeight = this.postContainerRef?.nativeElement.offsetHeight ?? 680;
-      naturalWidth = cardElement.offsetWidth;
+      // Measure the box the transform actually scales — the post-container's
+      // border-box — not the card inside it. The card is 2px narrower (the
+      // container's 1px side borders), so dividing by it made `scaleFactor`
+      // 540/538 too large: the scaled container came out ~1.8px wider than
+      // the wrapper while `.post-header` was clamped to it by `max-width`,
+      // leaving the card visibly overhanging the header on both edges.
+      naturalWidth = this.postContainerRef?.nativeElement.offsetWidth ?? cardElement.offsetWidth;
     }
     this.naturalHeightPx.set(naturalHeight);
 
