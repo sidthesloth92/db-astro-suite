@@ -49,7 +49,7 @@ export class CardDataService {
     cardOpacity: 0.6,
     backgroundImage: 'assets/img/rosette.jpg',
     aspectRatio: '3:4',
-    cardTheme: 'pink-nebula',
+    cardTheme: 'original',
     hashtags: '#space #astrophotography',
     annotations: [],
   });

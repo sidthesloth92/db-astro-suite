@@ -1,7 +1,7 @@
 import type { SelectItem } from '@db-astro-suite/ui';
 import type { CardThemeId } from '../../models/card-theme.model';
 import type { CardThemeDefinition } from './card-theme-definition.model';
-import { PinkNebulaThemeComponent } from './pink-nebula/pink-nebula-theme.component';
+import { OriginalThemeComponent } from './original/original-theme.component';
 import { ObsidianThemeComponent } from './obsidian/obsidian-theme.component';
 import { ObservatoryThemeComponent } from './observatory/observatory-theme.component';
 import { AuroraEditorialThemeComponent } from './aurora-editorial/aurora-editorial-theme.component';
@@ -33,7 +33,7 @@ import { FilmEdgeThemeComponent } from './film-edge/film-edge-theme.component';
 import { EmissionThemeComponent } from './emission/emission-theme.component';
 
 /** Fallback theme id used whenever a requested id has no registry entry. */
-export const DEFAULT_CARD_THEME_ID: CardThemeId = 'pink-nebula';
+export const DEFAULT_CARD_THEME_ID: CardThemeId = 'original';
 
 /**
  * Registry of every selectable card theme, keyed by `CardThemeId`. Adding a
@@ -43,10 +43,10 @@ export const DEFAULT_CARD_THEME_ID: CardThemeId = 'pink-nebula';
  * `card-themes.constants.spec.ts` asserts every `CardThemeId` is present.
  */
 export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
-  'pink-nebula': {
-    label: 'Pink Nebula',
-    subtitle: 'Default · the original Astrogram card',
-    component: PinkNebulaThemeComponent,
+  original: {
+    label: 'Original',
+    subtitle: 'Default · the classic card over your own image',
+    component: OriginalThemeComponent,
     accents: {
       accentColor: '#ff2d95',
       accentColorRgb: '255, 45, 149',
@@ -359,10 +359,74 @@ export function isCardThemeId(value: unknown): value is CardThemeId {
   return typeof value === 'string' && Object.prototype.hasOwnProperty.call(CARD_THEMES, value);
 }
 
-/** Builds the `SelectItem[]` list for the Layout panel's theme picker. */
+/**
+ * Picker render order — each entry becomes an `<optgroup>` header wrapping its
+ * nested themes. This, not `CARD_THEMES`' key order, is what the Layout panel
+ * shows; a theme missing from here would not appear in the picker at all, which
+ * `card-themes.constants.spec.ts` guards against.
+ */
+export const CARD_THEME_GROUPS: readonly { label: string; ids: readonly CardThemeId[] }[] = [
+  {
+    label: 'Social-first',
+    ids: [
+      'headline',
+      'emission',
+      'split-stats',
+      'star-card',
+      'credits',
+      'film-edge',
+      'atlas',
+      'credits-ivory',
+      'daylight',
+    ],
+  },
+  {
+    label: 'Celestial',
+    ids: [
+      'system-line',
+      'star-trails',
+      'moon-phases',
+      'eclipse',
+      'telrad',
+      'event-horizon',
+      'radiant',
+    ],
+  },
+  {
+    label: 'Infographics',
+    ids: [
+      'original',
+      'obsidian',
+      'observatory',
+      'aurora-editorial',
+      'spectrum',
+      'halo',
+      'blueprint',
+      'mission-data',
+      'duotone-poster',
+      'flight-log',
+      'constellation',
+      'orrery',
+      'comet',
+      'ringed-planet',
+    ],
+  },
+];
+
+/**
+ * Builds the grouped `SelectItem[]` list for the Layout panel's theme picker.
+ * Labels are read back out of `CARD_THEMES`, so renaming a theme in the
+ * registry can never leave a stale label behind in the picker.
+ */
 export function buildCardThemeSelectItems(): readonly SelectItem[] {
-  return Object.entries(CARD_THEMES).map(([value, def]) => ({
-    value,
-    label: def.label,
+  return CARD_THEME_GROUPS.map((group) => ({
+    label: group.label,
+    // `flatMap` over a lookup rather than `filter` + `!`: the registry is
+    // typed `Partial`, and this keeps the undefined case handled in the type
+    // system instead of asserted away.
+    options: group.ids.flatMap((id) => {
+      const definition = CARD_THEMES[id];
+      return definition ? [{ value: id, label: definition.label }] : [];
+    }),
   }));
 }

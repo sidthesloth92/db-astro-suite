@@ -10,7 +10,7 @@ import { BortleScaleComponent } from '../../bortle-scale/bortle-scale';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
 
 /**
- * Pink Nebula theme — Astrogram's original card design, restored.
+ * Original theme — Astrogram's founding card design.
  *
  * Unlike the ported design-source themes it paints no background of its
  * own: the translucent hero / integration / gear panels sit directly over
@@ -19,14 +19,14 @@ import { CardThemeBaseDirective } from '../card-theme-base.directive';
  * which the theme registry declares as this theme's design basis.
  */
 @Component({
-  selector: 'dba-ag-pink-nebula-theme',
+  selector: 'dba-ag-original-theme',
   standalone: true,
   imports: [ProgressRingComponent, DataRowComponent, BortleScaleComponent],
-  templateUrl: './pink-nebula-theme.component.html',
-  styleUrl: './pink-nebula-theme.component.css',
+  templateUrl: './original-theme.component.html',
+  styleUrl: './original-theme.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PinkNebulaThemeComponent extends CardThemeBaseDirective {
+export class OriginalThemeComponent extends CardThemeBaseDirective {
   /** Active filters that contribute to the integration rings. */
   readonly enabledFilters = computed(() =>
     this.cardData().filters.filter((f) => f.enabled && f.frames > 0),

@@ -8,40 +8,37 @@
  */
 
 /**
- * Identifier of a selectable card theme. Extend the union (and the
- * `CARD_THEMES` registry) when a new theme ships — nothing else needs to
- * change.
+ * Identifier of a selectable card theme. When a new theme ships, extend
+ * this union, the `CARD_THEMES` registry, and the `CARD_THEME_GROUPS`
+ * grouping that orders the picker — nothing else needs to change.
  */
 export type CardThemeId =
-  // Base set
-  | 'pink-nebula'
+  // Infographics — the classic card designs, led by the original card
+  | 'original'
   | 'obsidian'
   | 'observatory'
   | 'aurora-editorial'
   | 'spectrum'
   | 'halo'
-  // Extra set
   | 'blueprint'
   | 'mission-data'
   | 'duotone-poster'
   | 'flight-log'
-  // Astro set
   | 'constellation'
   | 'orrery'
   | 'comet'
   | 'ringed-planet'
-  // Social set
+  // Social-first — share-card designs (the last three are light-on-paper)
   | 'headline'
   | 'star-card'
   | 'credits'
   | 'split-stats'
   | 'film-edge'
   | 'emission'
-  // Light set
   | 'atlas'
   | 'credits-ivory'
   | 'daylight'
-  // Celestial set
+  // Celestial — the data drawn as an astronomical phenomenon
   | 'system-line'
   | 'star-trails'
   | 'moon-phases'

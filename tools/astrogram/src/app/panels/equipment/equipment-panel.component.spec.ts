@@ -26,7 +26,7 @@ const seed = (): CardData => ({
   cardOpacity: 0.6,
   backgroundImage: null,
   aspectRatio: '3:4',
-  cardTheme: 'pink-nebula',
+  cardTheme: 'original',
 });
 
 function makeAnalyticsStub(): Record<string, jasmine.Spy> {

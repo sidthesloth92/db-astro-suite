@@ -146,8 +146,8 @@ describe('CardDataService', () => {
   });
 
   describe('cardTheme', () => {
-    it("defaults to 'pink-nebula'", () => {
-      expect(service.cardData().cardTheme).toBe('pink-nebula');
+    it("defaults to 'original'", () => {
+      expect(service.cardData().cardTheme).toBe('original');
     });
 
     it('setCardTheme sets the id and applies the theme accents', () => {
