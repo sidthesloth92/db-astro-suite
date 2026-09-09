@@ -11,7 +11,7 @@ import {
 import { DEFAULT_JPEG_QUALITY } from '../constants/export.constants';
 import {
   DEFAULT_PRESET_ID,
-  GLOW_PRESET_SEED_AMOUNT,
+  DIFFUSION_PRESET_SEED_AMOUNT,
   SPIKE_PRESETS,
 } from '../constants/spike-presets.constants';
 import {
@@ -30,7 +30,7 @@ import { DetectedStar } from '../models/detected-star.model';
 import { StarDetectionError, SupersededError } from '../models/detection.error';
 import { EditorControlKey } from '../models/editor-controls.model';
 import { ExportFormat, ExportResult } from '../models/export-result.model';
-import { GlowModeSnapshot } from '../models/glow-mode-snapshot.model';
+import { DiffusionModeSnapshot } from '../models/diffusion-mode-snapshot.model';
 import { ImageLoadError } from '../models/image-load.error';
 import { LoadedImage, LoadedImageResult } from '../models/loaded-image.model';
 import { SpikePresetId } from '../models/spike-preset.model';
@@ -107,13 +107,13 @@ export class SpikeEditorService implements OnDestroy {
 
   /**
    * Config-driven editor slider signals, initialized from CONTROLS metadata:
-   * stars (cut), length, chroma, diffusion, mist, brightness, rotation.
+   * stars (cut), length, chroma, glow, mist, brightness, rotation.
    */
   public readonly controls: Record<EditorControlKey, WritableSignal<number>> = {
     stars: signal(CONTROLS['stars'].initial),
     length: signal(CONTROLS['length'].initial),
     chroma: signal(CONTROLS['chroma'].initial),
-    diffusion: signal(CONTROLS['diffusion'].initial),
+    glow: signal(CONTROLS['glow'].initial),
     mist: signal(CONTROLS['mist'].initial),
     brightness: signal(CONTROLS['brightness'].initial),
     rotation: signal(CONTROLS['rotation'].initial),
@@ -230,8 +230,12 @@ export class SpikeEditorService implements OnDestroy {
       lengthFactor: this.controls.length(),
       intensityFactor: this.controls.brightness(),
       rotationDeg: this.controls.rotation(),
-      diffusionFactor: this.controls.diffusion(),
-      mistFactor: this.controls.mist(),
+      glowFactor: this.controls.glow(),
+      // Mist is the Diffusion mode's own pass. Its amount is remembered
+      // across a trip out of the mode, so gating the value here — not just
+      // hiding the slider — is what stops a remembered haze from lingering
+      // on a spike preset with no control to turn it off.
+      mistFactor: this.presetId() === 'diffusion' ? this.controls.mist() : 0,
       chromaFactor: this.controls.chroma(),
       imageMaxDimension: Math.max(meta.width, meta.height),
       scale: 1,
@@ -293,7 +297,7 @@ export class SpikeEditorService implements OnDestroy {
    * those controls, so leaving it restores them — switching back to a spike
    * preset must look the way that preset looked before the detour.
    */
-  private glowModeSnapshot: GlowModeSnapshot | null = null;
+  private diffusionModeSnapshot: DiffusionModeSnapshot | null = null;
 
   // ==================== Image Lifecycle ====================
 
@@ -420,7 +424,7 @@ export class SpikeEditorService implements OnDestroy {
     this.isExporting.set(false);
     this.presetId.set(DEFAULT_PRESET_ID);
     this.spikeCount.set(SPIKE_PRESETS[DEFAULT_PRESET_ID].spikeCount);
-    this.glowModeSnapshot = null;
+    this.diffusionModeSnapshot = null;
     for (const key of Object.keys(this.controls) as EditorControlKey[]) {
       this.controls[key].set(CONTROLS[key].initial);
     }
@@ -435,33 +439,33 @@ export class SpikeEditorService implements OnDestroy {
    * the spike presets the user's slider values are deliberately left
    * unchanged.
    *
-   * The Glow preset is a mode, so it does touch the sliders: entering it from
+   * The Diffusion preset is a mode, so it does touch the sliders: entering it from
    * a spike preset remembers Length, Glow, and Brightness, zeroes Length
    * (which removes the arms and their core glow, leaving the halos on their
    * own), and seeds Glow if it was zero so the mode visibly does something
    * the moment it is picked — an amount the user already raised is left
    * alone. Leaving for a spike preset restores what was remembered, so the
    * preset returned to looks exactly as it did before the detour. Re-applying
-   * Glow while it is active changes nothing.
+   * Diffusion while it is active changes nothing.
    * @param id The preset to activate.
    */
   applyPreset(id: SpikePresetId): void {
     const previous = this.presetId();
-    if (id === 'glow' && previous !== 'glow') {
-      this.glowModeSnapshot = {
+    if (id === 'diffusion' && previous !== 'diffusion') {
+      this.diffusionModeSnapshot = {
         length: this.controls.length(),
-        diffusion: this.controls.diffusion(),
+        glow: this.controls.glow(),
         brightness: this.controls.brightness(),
       };
       this.controls.length.set(0);
-      if (this.controls.diffusion() === 0) {
-        this.controls.diffusion.set(GLOW_PRESET_SEED_AMOUNT);
+      if (this.controls.glow() === 0) {
+        this.controls.glow.set(DIFFUSION_PRESET_SEED_AMOUNT);
       }
-    } else if (id !== 'glow' && previous === 'glow' && this.glowModeSnapshot !== null) {
-      this.controls.length.set(this.glowModeSnapshot.length);
-      this.controls.diffusion.set(this.glowModeSnapshot.diffusion);
-      this.controls.brightness.set(this.glowModeSnapshot.brightness);
-      this.glowModeSnapshot = null;
+    } else if (id !== 'diffusion' && previous === 'diffusion' && this.diffusionModeSnapshot !== null) {
+      this.controls.length.set(this.diffusionModeSnapshot.length);
+      this.controls.glow.set(this.diffusionModeSnapshot.glow);
+      this.controls.brightness.set(this.diffusionModeSnapshot.brightness);
+      this.diffusionModeSnapshot = null;
     }
     this.presetId.set(id);
     this.spikeCount.set(SPIKE_PRESETS[id].spikeCount);
@@ -564,7 +568,7 @@ export class SpikeEditorService implements OnDestroy {
         merged.lengthFactor === DEFAULT_STAR_ADJUSTMENT.lengthFactor &&
         merged.intensityFactor === DEFAULT_STAR_ADJUSTMENT.intensityFactor &&
         merged.rotationDeg === DEFAULT_STAR_ADJUSTMENT.rotationDeg &&
-        merged.diffusion === DEFAULT_STAR_ADJUSTMENT.diffusion;
+        merged.glow === DEFAULT_STAR_ADJUSTMENT.glow;
       if (isDefault) {
         next.delete(id);
       } else {
@@ -606,7 +610,7 @@ export class SpikeEditorService implements OnDestroy {
     }
     this.presetId.set(DEFAULT_PRESET_ID);
     this.spikeCount.set(SPIKE_PRESETS[DEFAULT_PRESET_ID].spikeCount);
-    this.glowModeSnapshot = null;
+    this.diffusionModeSnapshot = null;
     for (const key of Object.keys(this.controls) as EditorControlKey[]) {
       this.controls[key].set(CONTROLS[key].initial);
     }

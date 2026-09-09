@@ -53,7 +53,7 @@ export const ASTROSPIKE_DETAIL: ToolDetailConfig = {
     'Diffraction spikes are what make a star look like a star. Refractor owners never get them, and adding them by hand in a photo editor means masking every star individually — hours of work that rarely survives a second look at full zoom.',
     'AstroSpike does the tedious part for you. It converts your image to luminance, models the background so nebulosity and gradients do not fool it, and finds the genuine point sources — rejecting hot pixels, satellite trails, and galaxy cores along the way. The star list is measured once and cached, so every slider you touch re-renders instantly.',
     'Spikes are composited additively over your original pixels, the way real diffraction behaves. Length and intensity follow each star’s measured brightness, and the colour is sampled from the star’s own core, so a warm orange giant gets warm spikes and a hot blue star gets cool ones. Each arm is graded along its length too — cool at the root, red at the tip — because diffraction spreads light by wavelength.',
-    'Wide fields want the opposite treatment, so Glow blooms the brightest stars into wide, coloured halos the way a mist filter on the lens does, independently of the spikes — there is a whole Glow preset for that look on its own. Pick a preset, work the sliders, click any star to include or exclude it, double-click one to tune it alone, and place a star yourself if detection missed one. Export the finished frame, or the spikes on their own as a transparent layer to composite over your 16-bit master.',
+    'Wide fields want the opposite treatment, so the Diffusion preset’s Glow blooms the brightest stars into wide, coloured halos the way a mist filter on the lens does, independently of the spikes — there is a whole Glow preset for that look on its own. Pick a preset, work the sliders, click any star to include or exclude it, double-click one to tune it alone, and place a star yourself if detection missed one. Export the finished frame, or the spikes on their own as a transparent layer to composite over your 16-bit master.',
   ],
   aboutPull: '“Your image never leaves your browser.”',
 
@@ -71,7 +71,7 @@ export const ASTROSPIKE_DETAIL: ToolDetailConfig = {
     {
       icon: sparklesIcon,
       name: 'Four style presets',
-      body: 'Subtle for a light touch, Classic for the four-armed Newtonian look, JWST for the six-armed signature, Glow for halos on their own.',
+      body: 'Subtle for a light touch, Classic for the four-armed Newtonian look, JWST for the six-armed signature, Diffusion for halos and haze on their own.',
     },
     {
       icon: starsIcon,
@@ -90,7 +90,7 @@ export const ASTROSPIKE_DETAIL: ToolDetailConfig = {
     },
     {
       icon: filterIcon,
-      name: 'Glow halos',
+      name: 'Diffusion halos',
       body: 'Bloom the brightest stars into wide, coloured halos, and spread a soft Mist haze from the brightest sky — the mist-filter look for Milky Way widefields, with spikes or on their own.',
     },
     {
@@ -131,7 +131,7 @@ export const ASTROSPIKE_DETAIL: ToolDetailConfig = {
     },
     {
       title: 'Choose a look',
-      body: 'Subtle, Classic, JWST, or spike-free Glow halos — then switch between four and six spikes if you like.',
+      body: 'Subtle, Classic, JWST, or the spike-free Diffusion mode — then switch between four and six spikes if you like.',
     },
     {
       title: 'Fine-tune',

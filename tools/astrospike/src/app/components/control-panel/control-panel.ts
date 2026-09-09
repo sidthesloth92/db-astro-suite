@@ -20,7 +20,7 @@ import {
 import {
   CONTROLS,
   EDITOR_CONTROL_KEYS,
-  GLOW_MODE_CONTROL_KEYS,
+  DIFFUSION_MODE_CONTROL_KEYS,
 } from '../../constants/controls.constants';
 import {
   SPIKE_COUNT_BY_TAB_ID,
@@ -85,8 +85,8 @@ export class ControlPanel {
   /** Chip glyph for the Spikes section. */
   protected readonly starsIcon = starsIcon;
 
-  /** True while the Glow preset — the halo-only mode — is active. */
-  protected readonly isGlowMode = computed(() => this.editor.presetId() === 'glow');
+  /** True while the Diffusion preset — the halo-only mode — is active. */
+  protected readonly isDiffusionMode = computed(() => this.editor.presetId() === 'diffusion');
 
   /**
    * Slider keys shown in the adjustment section, in display order. The Glow
@@ -94,15 +94,15 @@ export class ControlPanel {
    * else shapes arms the mode has zeroed away.
    */
   protected readonly controlKeys = computed(() =>
-    this.isGlowMode() ? GLOW_MODE_CONTROL_KEYS : EDITOR_CONTROL_KEYS,
+    this.isDiffusionMode() ? DIFFUSION_MODE_CONTROL_KEYS : EDITOR_CONTROL_KEYS,
   );
 
   /** Title of the adjustment section, following the active mode. */
-  protected readonly adjustmentsTitle = computed(() => (this.isGlowMode() ? 'Glow' : 'Spikes'));
+  protected readonly adjustmentsTitle = computed(() => (this.isDiffusionMode() ? 'Diffusion' : 'Spikes'));
 
   /** Subtitle of the adjustment section, following the active mode. */
   protected readonly adjustmentsSub = computed(() =>
-    this.isGlowMode() ? 'Shape the halos' : 'Shape the spike pattern',
+    this.isDiffusionMode() ? 'Shape the halos and haze' : 'Shape the spike pattern',
   );
 
   /** Segmented-tab options for the spike arm count. */

@@ -76,10 +76,11 @@ export const SPIKE_PRESETS: Record<SpikePresetId, SpikePreset> = {
   // The arm ratios are Classic's: they only matter if the user re-raises
   // Length from a spike preset later, and matching Classic makes that
   // transition unsurprising. The mode itself comes from the seeded controls.
-  glow: {
-    id: 'glow',
-    label: 'Glow',
-    description: 'Bright stars bloom into soft, coloured halos — the mist-filter Milky Way look.',
+  diffusion: {
+    id: 'diffusion',
+    label: 'Diffusion',
+    description:
+      'The diffusion-filter look without the filter — add a glow to your stars and a Mist haze to your sky.',
     spikeCount: 4,
     lengthScale: 0.12,
     intensityScale: 0.8,
@@ -100,11 +101,11 @@ export const DEFAULT_PRESET_ID: SpikePresetId = 'classic';
 /**
  * Display order of the presets in the preset picker.
  */
-export const SPIKE_PRESET_ORDER: readonly SpikePresetId[] = ['subtle', 'classic', 'jwst', 'glow'];
+export const SPIKE_PRESET_ORDER: readonly SpikePresetId[] = ['subtle', 'classic', 'jwst', 'diffusion'];
 
 /**
- * Glow amount seeded when the Glow preset is applied while the control still
- * sits at zero — the mode must visibly do something the moment it is picked.
- * A control the user already raised is left alone.
+ * Glow amount seeded when the Diffusion preset is applied while the control
+ * still sits at zero — the mode must visibly do something the moment it is
+ * picked. A control the user already raised is left alone.
  */
-export const GLOW_PRESET_SEED_AMOUNT = 0.6;
+export const DIFFUSION_PRESET_SEED_AMOUNT = 0.6;

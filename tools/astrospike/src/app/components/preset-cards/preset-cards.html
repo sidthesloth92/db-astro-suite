@@ -50,12 +50,12 @@
 </div>
 
 <!-- A four- or six-pointed star drawn from quadratic cusps, matching the arm
-     count so the glyph states the preset rather than decorating it. The Glow
-     preset has no arms to state, so its glyph is halo-dominant — a hot
-     pinpoint inside a wide faint skirt, the selective halo it draws. -->
+     count so the glyph states the preset rather than decorating it. The
+     Diffusion preset has no arms to state, so its glyph is halo-dominant — a
+     hot pinpoint inside a wide faint skirt, the selective halo it draws. -->
 <ng-template #starGlyph let-preset let-size="size">
   <svg [attr.viewBox]="'0 0 24 24'" [attr.width]="size" [attr.height]="size" fill="currentColor" aria-hidden="true">
-    @if (preset.id === 'glow') {
+    @if (preset.id === 'diffusion') {
       <circle cx="12" cy="12" r="10" opacity="0.15" />
       <circle cx="12" cy="12" r="6" opacity="0.35" />
       <circle cx="12" cy="12" r="2.2" />

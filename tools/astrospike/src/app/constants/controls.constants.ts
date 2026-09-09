@@ -36,13 +36,12 @@ export const CONTROLS: Record<EditorControlKey, ControlMetadata> = {
     // in a side-by-side, so it earns its place on by default.
     initial: 0.35,
   },
-  // The key stays `diffusion` (it names the shared amount in the control
   // record, the per-star adjustment, and the formatter); only the words changed
   // when the bloom became the mist-filter halo.
-  diffusion: {
+  glow: {
     label: 'Glow',
     description:
-      'Blooms the brightest stars into wide, soft halos in their own colour — the look of a mist filter on the lens. Faint stars stay pinpoints. Independent of the spikes: the Glow preset gives you the halos on their own.',
+      'Blooms the brightest stars into wide, soft halos in their own colour — the look of a mist filter on the lens. Faint stars stay pinpoints. Independent of the spikes: the Diffusion preset gives you the halos on their own.',
     min: 0,
     max: 1,
     step: 0.05,
@@ -53,7 +52,7 @@ export const CONTROLS: Record<EditorControlKey, ControlMetadata> = {
   mist: {
     label: 'Mist',
     description:
-      'Spreads the light of the brightest regions into a soft haze, so the Milky Way core and nebulae glow the way they do through a mist filter. Dark sky stays dark.',
+      'Spreads the light of the frame\'s brightest regions into a soft haze, so the Milky Way core and nebulae glow the way they do through a mist filter. Dark sky stays dark. Part of the Diffusion mode, which is the only place it applies.',
     min: 0,
     max: 1,
     step: 0.05,
@@ -86,20 +85,20 @@ export const EDITOR_CONTROL_KEYS: readonly EditorControlKey[] = [
   'stars',
   'length',
   'chroma',
-  'diffusion',
-  'mist',
+  'glow',
   'brightness',
   'rotation',
 ];
 
 /**
- * The sliders shown while the Glow preset is active: which stars are in the
- * cut, how far they glow, how much the frame mists, and how hard the halos
- * burn. Every other control shapes the arms, which the mode has zeroed away.
+ * The sliders shown while the Diffusion preset is active: which stars are in
+ * the cut, how far they glow, how much the frame mists, and how hard the
+ * halos burn. Every other control shapes the arms, which the mode has zeroed
+ * away — and Mist belongs to this mode alone, so it appears nowhere else.
  */
-export const GLOW_MODE_CONTROL_KEYS: readonly EditorControlKey[] = [
+export const DIFFUSION_MODE_CONTROL_KEYS: readonly EditorControlKey[] = [
   'stars',
-  'diffusion',
+  'glow',
   'mist',
   'brightness',
 ];

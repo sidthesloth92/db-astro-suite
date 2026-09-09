@@ -8,7 +8,7 @@ export const DEFAULT_STAR_ADJUSTMENT: StarAdjustment = {
   lengthFactor: 1,
   intensityFactor: 1,
   rotationDeg: 0,
-  diffusion: null,
+  glow: null,
 };
 
 /**

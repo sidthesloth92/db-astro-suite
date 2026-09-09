@@ -125,21 +125,7 @@ test.describe("AstroSpike", () => {
     await expect(astroSpike.getSelectedArmTab()).toHaveText("4 spikes");
   });
 
-  test("should offer a mist slider that starts at zero", async ({ page }) => {
-    const astroSpike = new AstroSpikePage(page);
-    await astroSpike.navigate();
-    await astroSpike.loadImage(STARFIELD_FIXTURE);
-    await astroSpike.waitForDetectedStars();
-
-    // No haze by default, so an image opens as its preset intends.
-    expect(await astroSpike.getControlReadout("Mist")).toBe("0");
-
-    await astroSpike.setControlValue("Mist", 0.5);
-
-    expect(await astroSpike.getControlReadout("Mist")).toBe("0.5");
-  });
-
-  test("should trim the sliders to star magnitude, glow, mist and brightness when the Glow preset is selected", async ({
+  test("should offer a mist slider inside the Diffusion mode that starts at zero", async ({
     page,
   }) => {
     const astroSpike = new AstroSpikePage(page);
@@ -147,9 +133,30 @@ test.describe("AstroSpike", () => {
     await astroSpike.loadImage(STARFIELD_FIXTURE);
     await astroSpike.waitForDetectedStars();
 
-    await astroSpike.selectPreset("Glow");
+    // The haze is the Diffusion mode's own pass, so it lives nowhere else.
+    expect(await astroSpike.getControlLabels()).not.toContain("Mist");
 
-    await expect(astroSpike.getSelectedPreset()).toContainText("Glow");
+    await astroSpike.selectPreset("Diffusion");
+
+    // No haze by default, so the mode opens exactly as its preset intends.
+    expect(await astroSpike.getControlReadout("Mist")).toBe("0");
+
+    await astroSpike.setControlValue("Mist", 0.5);
+
+    expect(await astroSpike.getControlReadout("Mist")).toBe("0.5");
+  });
+
+  test("should trim the sliders to star magnitude, glow, mist and brightness when the Diffusion preset is selected", async ({
+    page,
+  }) => {
+    const astroSpike = new AstroSpikePage(page);
+    await astroSpike.navigate();
+    await astroSpike.loadImage(STARFIELD_FIXTURE);
+    await astroSpike.waitForDetectedStars();
+
+    await astroSpike.selectPreset("Diffusion");
+
+    await expect(astroSpike.getSelectedPreset()).toContainText("Diffusion");
     // Length, Chroma, and Rotation shape arms the mode has zeroed away, so
     // only the controls that still do anything remain.
     await expect

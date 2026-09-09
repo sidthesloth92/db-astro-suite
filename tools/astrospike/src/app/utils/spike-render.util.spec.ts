@@ -68,7 +68,7 @@ function makeParams(overrides: Partial<SpikeRenderParams> = {}): SpikeRenderPara
     lengthFactor: 1,
     intensityFactor: 1,
     rotationDeg: 0,
-    diffusionFactor: 0,
+    glowFactor: 0,
     mistFactor: 0,
     chromaFactor: 0,
     imageMaxDimension: CANVAS_SIZE,
@@ -216,7 +216,7 @@ describe('renderSpikes', () => {
 
     // A raised amount drives both the screen and the lighter paths, so the
     // restore is exercised after the operation has been switched twice.
-    renderSpikes(ctx, makeParams({ diffusionFactor: 1 }), new Map());
+    renderSpikes(ctx, makeParams({ glowFactor: 1 }), new Map());
 
     expect(ctx.globalAlpha).toBeCloseTo(0.42, 5);
     expect(ctx.globalCompositeOperation).toBe('multiply');
@@ -352,11 +352,11 @@ describe('renderSpikes', () => {
     const full = computeHaloGeometry(100, 100, profile, 1, 1, CANVAS_SIZE, 1);
     const onArmOutsideHalo = Math.ceil(full.haloRadiusPx * Math.SQRT2) + 2;
     expect(onArmOutsideHalo).toBeLessThan(36); // still on the 40 px arm
-    const armAt = (diffusionFactor: number): number => {
+    const armAt = (glowFactor: number): number => {
       const ctx = makeBlackContext();
       renderSpikes(
         ctx,
-        makeParams({ diffusionFactor, preset: makePreset({ haloProfile: profile }) }),
+        makeParams({ glowFactor, preset: makePreset({ haloProfile: profile }) }),
         new Map(),
       );
       return brightnessAtAngle(ctx, 45, onArmOutsideHalo);
@@ -372,7 +372,7 @@ describe('renderSpikes', () => {
     function makeHaloParams(overrides: Partial<SpikeRenderParams> = {}): SpikeRenderParams {
       return makeParams({
         preset: makePreset({ haloProfile: WIDE_HALO_PROFILE }),
-        diffusionFactor: 0.6,
+        glowFactor: 0.6,
         lengthFactor: 0,
         ...overrides,
       });
@@ -400,11 +400,11 @@ describe('renderSpikes', () => {
       // Mid-halo: past the hot core, on the skirt's tail, off the 45-degree arms.
       const midHalo = Math.round(full.haloRadiusPx * 0.3);
       expect(midHalo).toBeGreaterThan(full.coreRadiusPx);
-      const skirtAt = (diffusionFactor: number): number => {
+      const skirtAt = (glowFactor: number): number => {
         const ctx = makeBlackContext();
         renderSpikes(
           ctx,
-          makeParams({ preset: classic, diffusionFactor, imageMaxDimension }),
+          makeParams({ preset: classic, glowFactor, imageMaxDimension }),
           new Map(),
         );
         return brightnessAtAngle(ctx, 0, midHalo);
@@ -429,7 +429,7 @@ describe('renderSpikes', () => {
       const halo = computeHaloGeometry(100, 100, WIDE_HALO_PROFILE, 1, 1, CANVAS_SIZE, 1);
       renderSpikes(
         ctx,
-        makeHaloParams({ stars: [whiteCoreBlueSkirt], diffusionFactor: 1 }),
+        makeHaloParams({ stars: [whiteCoreBlueSkirt], glowFactor: 1 }),
         new Map(),
       );
 
@@ -446,7 +446,7 @@ describe('renderSpikes', () => {
         color: { r: 255, g: 0, b: 0 },
         haloColor: { r: 255, g: 0, b: 0 },
       });
-      renderSpikes(ctx, makeHaloParams({ stars: [red], diffusionFactor: 1 }), new Map());
+      renderSpikes(ctx, makeHaloParams({ stars: [red], glowFactor: 1 }), new Map());
 
       const center = channelsAt(ctx, CENTER, CENTER);
       // The whitened core lights the green/blue channels of a pure-red star...
@@ -471,7 +471,7 @@ describe('renderSpikes', () => {
       };
       const params = makeHaloParams({
         preset: makePreset({ haloProfile: profile }),
-        diffusionFactor: 1,
+        glowFactor: 1,
       });
       const halo = computeHaloGeometry(100, 100, profile, 1, 1, CANVAS_SIZE, 1);
       const onBlack = makeBlackContext();
@@ -550,8 +550,8 @@ describe('renderSpikes', () => {
       renderSpikes(
         ctx,
         makeHaloParams({
-          diffusionFactor: 0,
-          adjustments: new Map([[0, { ...DEFAULT_STAR_ADJUSTMENT, diffusion: 1 }]]),
+          glowFactor: 0,
+          adjustments: new Map([[0, { ...DEFAULT_STAR_ADJUSTMENT, glow: 1 }]]),
         }),
         new Map(),
       );
@@ -571,7 +571,7 @@ describe('renderSpikes', () => {
         pinned,
         makeHaloParams({
           stars: [makeStar({ flux: 0.05 })],
-          adjustments: new Map([[0, { ...DEFAULT_STAR_ADJUSTMENT, diffusion: 1 }]]),
+          adjustments: new Map([[0, { ...DEFAULT_STAR_ADJUSTMENT, glow: 1 }]]),
         }),
         new Map(),
       );

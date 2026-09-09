@@ -329,8 +329,17 @@ describe('SpikeStage', () => {
       flush();
     }
 
-    /** Sets the Mist amount and renders the frame that schedules. */
+    /**
+     * Sets the Mist amount and renders the frame that schedules. Mist is the
+     * Diffusion mode's own pass, so the mode is entered first — and the two
+     * controls entering it moves are put straight back, so these cases still
+     * measure the haze against bare arms: Length returns from the zero the
+     * mode sets, and Glow returns to zero from the amount the mode seeds.
+     */
     function renderWithMist(amount: number): void {
+      editor.applyPreset('diffusion');
+      editor.updateControl('length', 1);
+      editor.updateControl('glow', 0);
       editor.updateControl('mist', amount);
       fixture.detectChanges();
       flush();

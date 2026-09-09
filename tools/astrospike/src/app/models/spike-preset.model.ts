@@ -1,7 +1,7 @@
 /**
  * Identifier of a built-in star embellishment preset.
  */
-export type SpikePresetId = 'subtle' | 'classic' | 'jwst' | 'glow';
+export type SpikePresetId = 'subtle' | 'classic' | 'jwst' | 'diffusion';
 
 /**
  * Shape of the two-scale halo the Glow control draws on a star: a wide

@@ -153,17 +153,20 @@ describe('ControlPanel', () => {
     expect(fixture.nativeElement.querySelector('section.star-bar')).toBeNull();
   });
 
-  it('should render the seven editor sliders in order', () => {
+  it('should render the six editor sliders in order', () => {
     expect(sliderLabels()).toEqual([
       'Star magnitude',
       'Length',
       'Chroma',
       'Glow',
-      'Mist',
       'Brightness',
       'Rotation',
     ]);
-    expect(sliders().length).toBe(7);
+    expect(sliders().length).toBe(6);
+  });
+
+  it('should keep Mist out of the pane on a spike preset, since it is the Diffusion mode\'s own pass', () => {
+    expect(sliderLabels()).not.toContain('Mist');
   });
 
   it('should separate the arm colour when the chroma slider is dragged', () => {
@@ -176,11 +179,14 @@ describe('ControlPanel', () => {
   it('should halo the stars when the Glow slider is dragged', () => {
     dragSliderLabelled('Glow', '0.6');
 
-    expect(editor.controls.diffusion()).toBe(0.6);
+    expect(editor.controls.glow()).toBe(0.6);
     expect(fixture.nativeElement.textContent).toContain('0.6');
   });
 
-  it('should mist the frame when the Mist slider is dragged', () => {
+  it('should mist the frame when the Mist slider is dragged in Diffusion mode', () => {
+    editor.applyPreset('diffusion');
+    fixture.detectChanges();
+
     dragSliderLabelled('Mist', '0.45');
 
     expect(editor.controls.mist()).toBe(0.45);
@@ -257,18 +263,18 @@ describe('ControlPanel', () => {
     expect(error?.textContent).toContain('The export failed. Please try again.');
   });
 
-  describe('glow mode', () => {
-    it('should trim the pane to the halo and mist controls while the Glow preset is active', () => {
-      editor.applyPreset('glow');
+  describe('diffusion mode', () => {
+    it('should trim the pane to the halo and mist controls while the Diffusion preset is active', () => {
+      editor.applyPreset('diffusion');
       fixture.detectChanges();
 
       expect(sliderLabels()).toEqual(['Star magnitude', 'Glow', 'Mist', 'Brightness']);
       expect(fixture.nativeElement.querySelector('.arms-row')).toBeNull();
-      expect(fixture.nativeElement.textContent).toContain('Shape the halos');
+      expect(fixture.nativeElement.textContent).toContain('Shape the halos and haze');
     });
 
     it('should bring the spike controls and the Arms row back when a spike preset returns', () => {
-      editor.applyPreset('glow');
+      editor.applyPreset('diffusion');
       fixture.detectChanges();
       editor.applyPreset('classic');
       fixture.detectChanges();
@@ -278,7 +284,6 @@ describe('ControlPanel', () => {
         'Length',
         'Chroma',
         'Glow',
-        'Mist',
         'Brightness',
         'Rotation',
       ]);

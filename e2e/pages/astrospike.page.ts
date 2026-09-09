@@ -15,7 +15,7 @@ export type AstroSpikeControlLabel =
   | "Rotation";
 
 /** Preset card names, matching `spike-presets.constants.ts`. */
-export type AstroSpikePresetName = "Subtle" | "Classic" | "JWST" | "Glow";
+export type AstroSpikePresetName = "Subtle" | "Classic" | "JWST" | "Diffusion";
 
 /**
  * Page Object for AstroSpike — the client-side diffraction-spike studio
@@ -151,7 +151,7 @@ export class AstroSpikePage {
 
   /**
    * The visible labels of every slider row in the controls pane, in display
-   * order — the Glow preset trims this list to the controls that still do
+   * order — the Diffusion preset trims this list to the controls that still do
    * anything.
    */
   async getControlLabels(): Promise<string[]> {

@@ -125,8 +125,8 @@ export class StarControls {
     this.editor.renderedStars().some((star) => star.id === this.starId()),
   );
 
-  /** True while the Glow preset — the halo-only mode — is active. */
-  protected readonly isGlowMode = computed(() => this.editor.presetId() === 'glow');
+  /** True while the Diffusion preset — the halo-only mode — is active. */
+  protected readonly isDiffusionMode = computed(() => this.editor.presetId() === 'diffusion');
 
   /**
    * Label on the include/exclude toggle. The same action gates whatever the
@@ -134,32 +134,32 @@ export class StarControls {
    * mode.
    */
   protected readonly toggleLabel = computed(() => {
-    if (this.isGlowMode()) {
+    if (this.isDiffusionMode()) {
       return this.isSpiked() ? 'Remove glow' : 'Add glow';
     }
     return this.isSpiked() ? 'Remove spikes' : 'Add spikes';
   });
 
   /** Lower bound of the per-star glow amount. */
-  protected readonly diffusionMin = CONTROLS['diffusion'].min;
+  protected readonly glowMin = CONTROLS['glow'].min;
 
   /** Upper bound of the per-star glow amount. */
-  protected readonly diffusionMax = CONTROLS['diffusion'].max;
+  protected readonly glowMax = CONTROLS['glow'].max;
 
   /** Step of the per-star glow slider. */
-  protected readonly diffusionStep = CONTROLS['diffusion'].step;
+  protected readonly glowStep = CONTROLS['glow'].step;
 
   /**
    * Glow amount for this star: its own once it has one, otherwise the global
    * control's, so the slider opens showing what the star is actually doing
    * and moving it pins that star's own value.
    */
-  protected readonly diffusion = computed(
-    () => this.adjustment().diffusion ?? this.editor.controls.diffusion(),
+  protected readonly glow = computed(
+    () => this.adjustment().glow ?? this.editor.controls.glow(),
   );
 
   /** True once this star's glow is pinned rather than following the global. */
-  protected readonly hasOwnDiffusion = computed(() => this.adjustment().diffusion !== null);
+  protected readonly hasOwnGlow = computed(() => this.adjustment().glow !== null);
 
   /** Where the star sits on the full-resolution image. */
   protected readonly coordsLabel = computed(() => {
@@ -195,7 +195,7 @@ export class StarControls {
   );
 
   /** This star's glow amount, or the inherited global one, rounded. */
-  protected readonly diffusionLabel = computed(() => `${round2(this.diffusion())}`);
+  protected readonly glowLabel = computed(() => `${round2(this.glow())}`);
 
   /**
    * Name shown at the top of the panel. A detected star is identified by its
@@ -228,8 +228,8 @@ export class StarControls {
    * here.
    * @param value The new glow amount.
    */
-  protected onDiffusionChange(value: number): void {
-    this.editor.adjustStar(this.starId(), { diffusion: value });
+  protected onGlowChange(value: number): void {
+    this.editor.adjustStar(this.starId(), { glow: value });
   }
 
   /** Returns this star to the global controls. */

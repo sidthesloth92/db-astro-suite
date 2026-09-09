@@ -157,12 +157,13 @@ hot pixels, satellite trails, and galaxy cores. Spikes are then composited
 additively over the original pixels: length and intensity scale with each
 star's measured flux, and the colour is sampled from that star's own core.
 
-**Controls**: Preset (Subtle / Classic / JWST / Glow — the last is a spike-free
+**Controls**: Preset (Subtle / Classic / JWST / Diffusion — the last is a spike-free
 mist-filter mode that halos the brightest stars in their own colour), how many
 of the brightest stars get spikes or glow, spike length, chroma (a
 cool-root-to-red-tip gradient along each arm, the way diffraction spreads light
 by wavelength), glow (wide, soft, coloured halos on the brightest stars),
-mist (a soft haze spread from the frame's brightest regions), brightness,
+mist (a soft haze spread from the frame's brightest regions, in Diffusion mode
+only), brightness,
 rotation, and a 4- or 6-spike toggle. Individual stars can be
 clicked to include or exclude them, double-clicked to tune alone (length,
 brightness, rotation, and an absolute per-star glow), placed by hand where

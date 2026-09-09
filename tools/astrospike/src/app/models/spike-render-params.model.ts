@@ -50,7 +50,7 @@ export interface SpikeRenderParams {
    * Global Glow amount in [0, 1] sizing each star's halo; a star naming its
    * own amount in its adjustment overrides it.
    */
-  diffusionFactor: number;
+  glowFactor: number;
   /**
    * Global Mist amount in [0, 1]: how strongly the image's own highlights
    * are spread into a haze. Not drawn by {@link renderSpikes} — the mist is

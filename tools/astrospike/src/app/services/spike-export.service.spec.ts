@@ -30,7 +30,7 @@ const PARAMS: SpikeRenderParams = {
   lengthFactor: 1,
   intensityFactor: 1,
   rotationDeg: 0,
-  diffusionFactor: 0,
+  glowFactor: 0,
   mistFactor: 0,
   chromaFactor: 0,
   imageMaxDimension: 8,
@@ -174,7 +174,7 @@ describe('SpikeExportService', () => {
         haloProfile: { ...DEFAULT_HALO_PROFILE, haloRadiusScale: 0.3 },
       },
       lengthFactor: 0,
-      diffusionFactor: 0.6,
+      glowFactor: 0.6,
       imageMaxDimension: 64,
     };
     const pixelAt = async (blob: Blob): Promise<Uint8ClampedArray> => {

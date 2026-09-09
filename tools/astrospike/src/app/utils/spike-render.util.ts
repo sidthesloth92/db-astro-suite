@@ -129,7 +129,7 @@ export function renderSpikes(
       const adjustment = params.adjustments.get(star.id) ?? DEFAULT_STAR_ADJUSTMENT;
       const cx = star.x * params.scale + params.offsetX;
       const cy = star.y * params.scale + params.offsetY;
-      const amount = adjustment.diffusion ?? params.diffusionFactor;
+      const amount = adjustment.glow ?? params.glowFactor;
       const haloProfile = params.preset.haloProfile;
       // A star the user pinned an amount on must visibly answer, however
       // faint it is: pinning is the halo's equivalent of forcing a star on,
@@ -137,7 +137,7 @@ export function renderSpikes(
       // forced, and without this a pinned glow on a faint one would sit
       // under the visibility cutoff and read as the slider doing nothing.
       const haloFlux =
-        adjustment.diffusion === null
+        adjustment.glow === null
           ? effectiveFlux
           : Math.max(effectiveFlux, params.fluxRef * FORCED_FLUX_FLOOR_RATIO);
 

@@ -10,10 +10,10 @@
 
   <span class="star-bar__rule" aria-hidden="true"></span>
 
-  <!-- The three arm tweaks multiply the globals, and the Glow preset has
+  <!-- The three arm tweaks multiply the globals, and the Diffusion preset has
        zeroed the arms away — a multiplier on zero is a dead slider, so the bar
        trims itself to the one control that still does anything. -->
-  @if (!isGlowMode()) {
+  @if (!isDiffusionMode()) {
     <div class="star-bar__field">
       <div class="star-bar__row">
         <span class="star-bar__key">Length</span>
@@ -66,17 +66,17 @@
   <div class="star-bar__field">
     <div class="star-bar__row">
       <span class="star-bar__key">Glow</span>
-      <span class="star-bar__delta" [class.is-inherited]="!hasOwnDiffusion()">{{ diffusionLabel() }}</span>
+      <span class="star-bar__delta" [class.is-inherited]="!hasOwnGlow()">{{ glowLabel() }}</span>
     </div>
     <dba-ui-micro-slider
-      [value]="diffusion()"
-      [min]="diffusionMin"
-      [max]="diffusionMax"
-      [step]="diffusionStep"
+      [value]="glow()"
+      [min]="glowMin"
+      [max]="glowMax"
+      [step]="glowStep"
       [showReadout]="false"
-      (valueChange)="onDiffusionChange($event)"
+      (valueChange)="onGlowChange($event)"
     ></dba-ui-micro-slider>
-    <span class="star-bar__total">{{ hasOwnDiffusion() ? 'this star only' : 'following global' }}</span>
+    <span class="star-bar__total">{{ hasOwnGlow() ? 'this star only' : 'following global' }}</span>
   </div>
 
   <div class="star-bar__spacer"></div>

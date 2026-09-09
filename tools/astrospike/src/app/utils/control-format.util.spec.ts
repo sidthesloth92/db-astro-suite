@@ -17,7 +17,7 @@ describe('control-format.util', () => {
       for (const key of [
         'length',
         'chroma',
-        'diffusion',
+        'glow',
         'mist',
         'brightness',
         'rotation',
@@ -34,7 +34,7 @@ describe('control-format.util', () => {
 
     it('should report chroma, glow and mist as a plain amount', () => {
       expect(formatControlValue('chroma', 0.35, 68)).toBe('0.35');
-      expect(formatControlValue('diffusion', 0.6, 68)).toBe('0.6');
+      expect(formatControlValue('glow', 0.6, 68)).toBe('0.6');
       expect(formatControlValue('mist', 0, 68)).toBe('0');
       expect(formatControlValue('mist', 0.45, 68)).toBe('0.45');
     });

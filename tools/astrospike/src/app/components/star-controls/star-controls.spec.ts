@@ -94,7 +94,7 @@ describe('StarControls', () => {
       lengthFactor: 1,
       intensityFactor: 1,
       rotationDeg: 0,
-      diffusion: null,
+      glow: null,
     });
   });
 
@@ -108,7 +108,7 @@ describe('StarControls', () => {
       lengthFactor: 2,
       intensityFactor: 1.5,
       rotationDeg: 30,
-      diffusion: null,
+      glow: null,
     });
     // Neighbours are untouched.
     expect(editor.starAdjustments().has(0)).toBeFalse();
@@ -170,7 +170,7 @@ describe('StarControls', () => {
   });
 
   it('should show the global glow until this star pins its own', () => {
-    editor.updateControl('diffusion', 0.4);
+    editor.updateControl('glow', 0.4);
     fixture.detectChanges();
 
     const row: HTMLElement = fixture.nativeElement.querySelectorAll('.star-bar__field')[3];
@@ -184,12 +184,12 @@ describe('StarControls', () => {
   it('should pin this star glow without touching its neighbours', () => {
     // The global control stays at zero: an absolute value is the only way one
     // star can bloom on its own.
-    expect(editor.controls.diffusion()).toBe(0);
+    expect(editor.controls.glow()).toBe(0);
 
     setSlider(sliders()[3], 0.75);
     fixture.detectChanges();
 
-    expect(editor.adjustmentFor(1).diffusion).toBe(0.75);
+    expect(editor.adjustmentFor(1).glow).toBe(0.75);
     expect(editor.starAdjustments().has(0)).toBeFalse();
     expect(editor.starAdjustments().has(2)).toBeFalse();
     const row: HTMLElement = fixture.nativeElement.querySelectorAll('.star-bar__field')[3];
@@ -197,12 +197,12 @@ describe('StarControls', () => {
   });
 
   it('should keep a pinned zero while the global amount is high', () => {
-    editor.updateControl('diffusion', 1);
+    editor.updateControl('glow', 1);
     fixture.detectChanges();
 
     setSlider(sliders()[3], 0);
 
-    expect(editor.adjustmentFor(1).diffusion).toBe(0);
+    expect(editor.adjustmentFor(1).glow).toBe(0);
     expect(editor.starAdjustments().has(1)).toBeTrue();
   });
 
@@ -239,9 +239,9 @@ describe('StarControls', () => {
     expect(closed).toBe(1);
   });
 
-  describe('glow mode', () => {
+  describe('diffusion mode', () => {
     it('should trim the bar to one Glow field, the arm tweaks being dead at zero length', () => {
-      editor.applyPreset('glow');
+      editor.applyPreset('diffusion');
       fixture.detectChanges();
 
       const keys = Array.from(
@@ -252,7 +252,7 @@ describe('StarControls', () => {
     });
 
     it('should name the include toggle after the glow instead of the spikes', () => {
-      editor.applyPreset('glow');
+      editor.applyPreset('diffusion');
       fixture.detectChanges();
 
       const labels = Array.from(
@@ -263,7 +263,7 @@ describe('StarControls', () => {
     });
 
     it('should bring the arm tweaks back beside Glow when a spike preset returns', () => {
-      editor.applyPreset('glow');
+      editor.applyPreset('diffusion');
       fixture.detectChanges();
       editor.applyPreset('classic');
       fixture.detectChanges();
