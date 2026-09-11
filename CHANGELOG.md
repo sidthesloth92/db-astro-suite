@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.35.0](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.34.2...db-astro-suite-v1.35.0) (2026-09-11)
+
+
+### Features
+
+* **astrospike:** mist-filter Glow halos and a Mist haze in a renamed Diffusion mode ([#121](https://github.com/sidthesloth92/db-astro-suite/issues/121)) ([f9ff271](https://github.com/sidthesloth92/db-astro-suite/commit/f9ff271d4ce9f09496075eda2139f8b1ff8addd4))
+
 ## [1.34.2](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.34.1...db-astro-suite-v1.34.2) (2026-08-16)
 
 
