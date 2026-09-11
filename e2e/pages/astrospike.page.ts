@@ -158,9 +158,15 @@ export class AstroSpikePage {
     // The rows are anchored by `.slider-row` for the reason given on
     // `getControlSlider`: the slider inside carries no accessible name, so the
     // label text is the only handle a user (or a test) has on a row.
+    //
+    // Text content, not inner text: the pane renders labels through
+    // `text-transform: uppercase`, so inner text would return "GLOW" and every
+    // comparison against a control name would have to shout back. Worse, an
+    // absence check ("Mist is not in this list") would pass on the casing
+    // alone and never test anything.
     const labels = await this.controlPanel
       .locator(".slider-row .row-label")
-      .allInnerTexts();
+      .allTextContents();
     return labels.map((label) => label.trim());
   }
 
