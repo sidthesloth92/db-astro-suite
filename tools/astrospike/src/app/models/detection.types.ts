@@ -82,6 +82,12 @@ export interface RefinedStar {
   peak: number;
   /** Luma-weighted mean RGB of unsaturated core pixels, normalized to 255. */
   color: StarColor;
+  /**
+   * Sky-subtracted, saturation-boosted colour of the unclipped skirt annulus
+   * outside the core, normalized to 255; falls back to the saturation-boosted
+   * core colour when the skirt yields no usable pixels.
+   */
+  haloColor: StarColor;
 }
 
 /**

@@ -8,12 +8,12 @@ export const DEFAULT_STAR_ADJUSTMENT: StarAdjustment = {
   lengthFactor: 1,
   intensityFactor: 1,
   rotationDeg: 0,
-  diffusion: null,
+  glow: null,
 };
 
 /**
  * Lower bound of a single star's extra length multiplier. Zero is reachable on
- * purpose: it is how one star loses its spike while keeping its bloom.
+ * purpose: it is how one star loses its spike while keeping its glow halo.
  */
 export const STAR_LENGTH_MIN = 0;
 

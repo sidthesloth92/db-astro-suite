@@ -5,7 +5,8 @@ export type EditorControlKey =
   | 'stars'
   | 'length'
   | 'chroma'
-  | 'diffusion'
+  | 'glow'
+  | 'mist'
   | 'brightness'
   | 'rotation';
 

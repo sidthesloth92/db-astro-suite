@@ -20,7 +20,8 @@ export const ASTROSPIKE_STRUCTURED_DATA = {
       offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
       featureList: [
         'Automatic star detection with hot-pixel, satellite-trail, and galaxy rejection',
-        'Subtle, Classic (4-spike), JWST (6-spike), and Diffusion (spike-free bloom) presets',
+        'Subtle, Classic (4-spike), JWST (6-spike), and Diffusion (spike-free halos and haze) presets',
+        'Glow halos and a Mist haze in Diffusion mode — the mist-filter look of Milky Way widefields',
         'Spike length and colour driven by each star’s measured brightness',
         'Chromatic arm gradients and per-star tuning',
         'Manual star placement and drag-to-move for missed detections',

@@ -17,6 +17,7 @@ function makeStar(id: number, x: number, y: number): DetectedStar {
     area: 5,
     elongation: 1,
     color: { r: 255, g: 255, b: 255 },
+    haloColor: { r: 255, g: 255, b: 255 },
   };
 }
 

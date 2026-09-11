@@ -29,17 +29,20 @@ import {
   STAGE_WHEEL_ZOOM_FACTOR,
 } from '../../constants/render.constants';
 import { DETECTION_BADGE_LINGER_MS } from '../../constants/detection-badge.constants';
+import { DEFAULT_MIST_PROFILE } from '../../constants/mist.constants';
 import {
   HOVER_MARKER_RADIUS_CSS_PX,
   MARKER_LINE_WIDTH_CSS_PX,
   SELECTED_MARKER_RADIUS_CSS_PX,
 } from '../../constants/star-marker.constants';
 import { DetectedStar } from '../../models/detected-star.model';
+import { MistDrawRegion } from '../../models/mist-profile.model';
 import { SpriteCache } from '../../models/spike-render-params.model';
 import { StageViewport } from '../../models/stage-viewport.model';
 import { SpikeEditorService } from '../../services/spike-editor.service';
 import { pointerToImagePoint } from '../../utils/canvas-coords.util';
 import { findNearestStar } from '../../utils/hit-test.util';
+import { buildMistLayer, drawMistLayer, mistLayerCacheKey } from '../../utils/mist-layer.util';
 import { renderSpikes } from '../../utils/spike-render.util';
 import {
   clampViewport,
@@ -60,10 +63,19 @@ import { StarControls } from '../star-controls/star-controls';
  *
  * - the "before" canvas holds the source image scaled to preview size, drawn
  *   exactly once per load and blitted at the start of every render frame;
- * - the "after" canvas is that blit plus the spikes from `renderSpikes`,
- *   revealed by a clip-path wipe driven by the compare divider;
+ * - the "after" canvas is that blit, then — when the Mist control is raised —
+ *   the image's own mist layer screened over the visible region, then the
+ *   spikes from `renderSpikes` on top, revealed by a clip-path wipe driven by
+ *   the compare divider;
  * - a transparent marker canvas on top carries the hover ring and the ring
  *   around the star being edited, and receives all stage pointer events.
+ *
+ * The mist layer (the photo's highlights lifted, spread, and re-saturated by
+ * `buildMistLayer`) is built lazily on the first frame that needs it, from the
+ * full-resolution bitmap so a zoomed frame samples the same haze as the fitted
+ * view, and cached until the image or the mist profile changes. It lands under
+ * the halos and arms, and is mapped through the viewport exactly like the base
+ * blit so it tracks zoom and pan with the photo.
  *
  * The three concerns are deliberately kept on separate effects: dragging the
  * compare divider only re-evaluates a clip-path binding, and hovering a star
@@ -130,6 +142,19 @@ export class SpikeStage {
    * un-zoomed frames, so the full bitmap is only resampled when zoomed.
    */
   private basePreviewCanvas: HTMLCanvasElement | null = null;
+
+  /**
+   * Offscreen cache of the image's mist layer, or null until a frame with a
+   * non-zero Mist amount first asks for it. Built from the full-resolution
+   * bitmap and dropped with the base preview when the image changes; the
+   * profile it was built with is remembered in {@link mistLayerKey} so a
+   * profile change (a tuning harness mutates the profile at runtime) rebuilds
+   * it on the next frame.
+   */
+  private mistLayer: HTMLCanvasElement | null = null;
+
+  /** Cache key of the profile {@link mistLayer} was built with, or '' when none. */
+  private mistLayerKey = '';
 
   /** Pointer id of the press being tracked for the click-vs-drag decision. */
   private dragPointerId: number | null = null;
@@ -317,6 +342,7 @@ export class SpikeStage {
       this.previewScale.set(1);
       // A toggle waiting on a star that no longer exists must not fire.
       this.clearPendingToggleTimer();
+      this.releaseMistLayer();
       this.resizeCanvases(0, 0);
       return;
     }
@@ -324,6 +350,9 @@ export class SpikeStage {
     // otherwise accumulate on top of the previous one's for the life of the
     // component (each arm sprite is 512x64 RGBA).
     releaseSpriteCache(this.spriteCache);
+    // The mist is the previous image's highlights: it is rebuilt from the new
+    // bitmap on the first frame that needs it.
+    this.releaseMistLayer();
     const scale = Math.min(1, PREVIEW_MAX_DIMENSION / Math.max(bitmap.width, bitmap.height));
     const width = Math.max(1, Math.round(bitmap.width * scale));
     const height = Math.max(1, Math.round(bitmap.height * scale));
@@ -400,6 +429,7 @@ export class SpikeStage {
         this.detectedTimer = null;
       }
       releaseSpriteCache(this.spriteCache);
+      this.releaseMistLayer();
     });
   }
 
@@ -852,9 +882,11 @@ export class SpikeStage {
 
   /**
    * Draws one preview frame: blit the base preview from the before canvas,
-   * then render the spikes with the render params rescaled from
-   * full-resolution image space to preview space (star coordinates are
-   * full-res, so `scale` maps them).
+   * screen the mist over it when the Mist amount is raised, then render the
+   * spikes with the render params rescaled from full-resolution image space
+   * to preview space (star coordinates are full-res, so `scale` maps them).
+   * The mist goes first so the halos and arms sit on top of the haze rather
+   * than under it.
    */
   private renderFrame(): void {
     const before = this.beforeCanvasRef().nativeElement;
@@ -890,6 +922,14 @@ export class SpikeStage {
     ctx.drawImage(before, 0, 0);
     const params = this.editor.renderParams();
     if (params !== null) {
+      if (params.mistFactor > 0) {
+        drawMistLayer(
+          ctx,
+          this.mistLayerFor(bitmap),
+          params.mistFactor,
+          this.visibleMistRegion(bitmap, view, ctx.canvas),
+        );
+      }
       const scale = this.effectiveScale();
       const origin = viewportOrigin(view, bitmap.width, bitmap.height);
       renderSpikes(
@@ -903,6 +943,57 @@ export class SpikeStage {
         this.spriteCache,
       );
     }
+  }
+
+  /**
+   * Returns the cached mist layer for the bitmap, building it on first use
+   * and rebuilding it when the profile has changed since. The layer is
+   * deterministic in the image and the profile, so nothing else invalidates
+   * it; the Mist amount is applied at draw time.
+   */
+  private mistLayerFor(bitmap: ImageBitmap): HTMLCanvasElement {
+    const key = mistLayerCacheKey(DEFAULT_MIST_PROFILE);
+    if (this.mistLayer !== null && this.mistLayerKey === key) {
+      return this.mistLayer;
+    }
+    this.releaseMistLayer();
+    const layer = buildMistLayer(bitmap, bitmap.width, bitmap.height, DEFAULT_MIST_PROFILE);
+    this.mistLayer = layer;
+    this.mistLayerKey = key;
+    return layer;
+  }
+
+  /**
+   * The image region the mist is drawn for and the canvas rectangle it fills —
+   * the same region the base blit shows, so the haze tracks zoom and pan like
+   * the photo: the whole image at zoom 1, otherwise the viewport's window.
+   */
+  private visibleMistRegion(
+    bitmap: ImageBitmap,
+    view: StageViewport,
+    target: HTMLCanvasElement,
+  ): MistDrawRegion {
+    const origin = view.zoom === 1 ? { x: 0, y: 0 } : viewportOrigin(view, bitmap.width, bitmap.height);
+    return {
+      sourceX: origin.x,
+      sourceY: origin.y,
+      sourceWidth: bitmap.width / view.zoom,
+      sourceHeight: bitmap.height / view.zoom,
+      imageWidth: bitmap.width,
+      imageHeight: bitmap.height,
+      targetWidth: target.width,
+      targetHeight: target.height,
+    };
+  }
+
+  /** Gives up the mist layer's pixel buffer, so the next frame rebuilds it. */
+  private releaseMistLayer(): void {
+    if (this.mistLayer !== null) {
+      this.mistLayer.width = 0;
+      this.mistLayer.height = 0;
+      this.mistLayer = null;
+    }
+    this.mistLayerKey = '';
   }
 
   /**

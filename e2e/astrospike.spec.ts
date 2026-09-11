@@ -106,7 +106,7 @@ test.describe("AstroSpike", () => {
     await expect(astroSpike.getSelectedArmTab()).toHaveText("4 spikes");
   });
 
-  test("should offer a diffusion slider that softens the spikes into a bloom", async ({
+  test("should offer a glow slider that halos the stars under the spikes", async ({
     page,
   }) => {
     const astroSpike = new AstroSpikePage(page);
@@ -114,15 +114,56 @@ test.describe("AstroSpike", () => {
     await astroSpike.loadImage(STARFIELD_FIXTURE);
     await astroSpike.waitForDetectedStars();
 
-    // Sharp spikes by default, so an image opens as its preset intends.
-    expect(await astroSpike.getControlReadout("Diffusion")).toBe("0");
+    // No halos by default, so an image opens as its preset intends.
+    expect(await astroSpike.getControlReadout("Glow")).toBe("0");
 
-    await astroSpike.setControlValue("Diffusion", 1);
+    await astroSpike.setControlValue("Glow", 1);
 
-    expect(await astroSpike.getControlReadout("Diffusion")).toBe("1");
-    // Diffusion is orthogonal to the preset, which is left as it was.
+    expect(await astroSpike.getControlReadout("Glow")).toBe("1");
+    // Glow is orthogonal to the preset, which is left as it was.
     await expect(astroSpike.getSelectedPreset()).toContainText("Classic");
     await expect(astroSpike.getSelectedArmTab()).toHaveText("4 spikes");
+  });
+
+  test("should offer a mist slider inside the Diffusion mode that starts at zero", async ({
+    page,
+  }) => {
+    const astroSpike = new AstroSpikePage(page);
+    await astroSpike.navigate();
+    await astroSpike.loadImage(STARFIELD_FIXTURE);
+    await astroSpike.waitForDetectedStars();
+
+    // The haze is the Diffusion mode's own pass, so it lives nowhere else.
+    expect(await astroSpike.getControlLabels()).not.toContain("Mist");
+
+    await astroSpike.selectPreset("Diffusion");
+
+    // No haze by default, so the mode opens exactly as its preset intends.
+    expect(await astroSpike.getControlReadout("Mist")).toBe("0");
+
+    await astroSpike.setControlValue("Mist", 0.5);
+
+    expect(await astroSpike.getControlReadout("Mist")).toBe("0.5");
+  });
+
+  test("should trim the sliders to star magnitude, glow, mist and brightness when the Diffusion preset is selected", async ({
+    page,
+  }) => {
+    const astroSpike = new AstroSpikePage(page);
+    await astroSpike.navigate();
+    await astroSpike.loadImage(STARFIELD_FIXTURE);
+    await astroSpike.waitForDetectedStars();
+
+    await astroSpike.selectPreset("Diffusion");
+
+    await expect(astroSpike.getSelectedPreset()).toContainText("Diffusion");
+    // Length, Chroma, and Rotation shape arms the mode has zeroed away, so
+    // only the controls that still do anything remain.
+    await expect
+      .poll(() => astroSpike.getControlLabels())
+      .toEqual(["Star magnitude", "Glow", "Mist", "Brightness"]);
+    // The mode seeds a visible halo the moment it is picked.
+    expect(await astroSpike.getControlReadout("Glow")).not.toBe("0");
   });
 
   test("should show a before and after comparison divider once an image is loaded", async ({
@@ -254,14 +295,14 @@ test.describe("AstroSpike", () => {
 
     await astroSpike.selectPreset("JWST");
     await astroSpike.setControlValue("Length", 2.4);
-    await astroSpike.setControlValue("Diffusion", 0.7);
+    await astroSpike.setControlValue("Glow", 0.7);
     await expect(astroSpike.getResetButton()).toBeEnabled();
 
     await astroSpike.getResetButton().click();
 
     await expect(astroSpike.getSelectedPreset()).toContainText("Classic");
     expect(await astroSpike.getControlReadout("Length")).toBe("1×");
-    expect(await astroSpike.getControlReadout("Diffusion")).toBe("0");
+    expect(await astroSpike.getControlReadout("Glow")).toBe("0");
     // Detection is the expensive part and its result has not changed.
     expect(await astroSpike.waitForDetectedStars()).toBe(detected);
     await expect(astroSpike.getResetButton()).toBeDisabled();

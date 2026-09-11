@@ -65,18 +65,18 @@
 
   <div class="star-bar__field">
     <div class="star-bar__row">
-      <span class="star-bar__key">Diffusion</span>
-      <span class="star-bar__delta" [class.is-inherited]="!hasOwnDiffusion()">{{ diffusionLabel() }}</span>
+      <span class="star-bar__key">Glow</span>
+      <span class="star-bar__delta" [class.is-inherited]="!hasOwnGlow()">{{ glowLabel() }}</span>
     </div>
     <dba-ui-micro-slider
-      [value]="diffusion()"
-      [min]="diffusionMin"
-      [max]="diffusionMax"
-      [step]="diffusionStep"
+      [value]="glow()"
+      [min]="glowMin"
+      [max]="glowMax"
+      [step]="glowStep"
       [showReadout]="false"
-      (valueChange)="onDiffusionChange($event)"
+      (valueChange)="onGlowChange($event)"
     ></dba-ui-micro-slider>
-    <span class="star-bar__total">{{ hasOwnDiffusion() ? 'this star only' : 'following global' }}</span>
+    <span class="star-bar__total">{{ hasOwnGlow() ? 'this star only' : 'following global' }}</span>
   </div>
 
   <div class="star-bar__spacer"></div>

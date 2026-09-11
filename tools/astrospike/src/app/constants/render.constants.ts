@@ -31,6 +31,13 @@ export const ARM_SPRITE_HEIGHT = 64;
  */
 export const GLOW_SPRITE_SIZE = 64;
 
+/**
+ * Width and height in pixels of the square pre-rendered halo sprite. Much
+ * larger than {@link GLOW_SPRITE_SIZE} because a halo's Moffat tail spans
+ * hundreds of export pixels — upscaling a 64px mask that far would band.
+ */
+export const HALO_SPRITE_SIZE = 256;
+
 /** Lowest stage zoom — the whole image fitted to the frame. */
 export const STAGE_MIN_ZOOM = 1;
 

@@ -2,12 +2,14 @@ import {
   ARM_SPRITE_HEIGHT,
   ARM_SPRITE_WIDTH,
   GLOW_SPRITE_SIZE,
+  HALO_SPRITE_SIZE,
 } from '../constants/render.constants';
 import {
   CHROMA_GRADIENT_SPAN,
   CHROMA_ROOT_STRENGTH,
   CHROMA_ROOT_TINT,
   CHROMA_TIP_TINT,
+  HALO_MOFFAT_CORE_FRACTION,
 } from '../constants/spike-geometry.constants';
 import { StarColor } from '../models/detected-star.model';
 import { SpriteCache } from '../models/spike-render-params.model';
@@ -101,6 +103,42 @@ export function buildGlowMask(): HTMLCanvasElement {
 }
 
 /**
+ * Builds the white alpha mask of a halo: `HALO_SPRITE_SIZE` square with a
+ * radial Moffat falloff alpha(u) = pow(1 + pow(u / core, 2), -beta), where u
+ * is the radius normalized to the sprite's half-size and `core` is
+ * {@link HALO_MOFFAT_CORE_FRACTION}.
+ *
+ * A Moffat profile is what a diffusion filter actually scatters: near-full
+ * alpha inside the core, then a long shallow tail that is still faintly alive
+ * at the sprite's edge — where {@link buildGlowMask}'s Gaussian has been at
+ * zero since ~85% radius. The tail is the difference between a halo and a
+ * puff. Colour-independent, so one mask per beta serves every star — see
+ * {@link tintSprite}.
+ */
+export function buildHaloMask(beta: number): HTMLCanvasElement {
+  const ctx = createSpriteContext(HALO_SPRITE_SIZE, HALO_SPRITE_SIZE);
+  const image = ctx.createImageData(HALO_SPRITE_SIZE, HALO_SPRITE_SIZE);
+  const data = image.data;
+  const center = (HALO_SPRITE_SIZE - 1) / 2;
+  const halfSize = HALO_SPRITE_SIZE / 2;
+  for (let y = 0; y < HALO_SPRITE_SIZE; y++) {
+    for (let x = 0; x < HALO_SPRITE_SIZE; x++) {
+      const dx = x - center;
+      const dy = y - center;
+      const u = Math.sqrt(dx * dx + dy * dy) / halfSize;
+      const scaled = u / HALO_MOFFAT_CORE_FRACTION;
+      const i = (y * HALO_SPRITE_SIZE + x) * 4;
+      data[i] = 255;
+      data[i + 1] = 255;
+      data[i + 2] = 255;
+      data[i + 3] = Math.round(Math.pow(1 + scaled * scaled, -beta) * 255);
+    }
+  }
+  ctx.putImageData(image, 0, 0);
+  return ctx.canvas;
+}
+
+/**
  * Blends two colour channels by `t`, rounded to a byte.
  */
 function mixChannel(from: number, to: number, t: number): number {
@@ -123,6 +161,16 @@ function towards(color: StarColor, tint: { r: number; g: number; b: number }, am
  */
 function cssColor(color: StarColor): string {
   return `rgb(${color.r}, ${color.g}, ${color.b})`;
+}
+
+/**
+ * Blends a star colour toward white by `amount` in [0, 1]. Used to tint a
+ * halo's hot core: a bright star's centre saturates toward white while the
+ * halo skirt keeps the star's own colour, which is what makes a blue star
+ * read as white-hot with a blue fringe.
+ */
+export function whitenColor(color: StarColor, amount: number): StarColor {
+  return towards(color, { r: 255, g: 255, b: 255 }, amount);
 }
 
 /**
@@ -256,4 +304,23 @@ export function armSpriteCacheKey(
  */
 export function glowSpriteCacheKey(color: StarColor): string {
   return `glow:${quantizeChannel(color.r)}:${quantizeChannel(color.g)}:${quantizeChannel(color.b)}`;
+}
+
+/**
+ * Cache key for a halo alpha mask: the Moffat beta alone, since the mask is
+ * colour-independent.
+ */
+export function haloMaskCacheKey(beta: number): string {
+  return `halo-mask:${beta}`;
+}
+
+/**
+ * Cache key for a halo sprite: color channels quantized to 16 levels plus the
+ * Moffat beta, mirroring the arm sprite's colour-plus-shape keying. The
+ * prefix keeps halo sprites clear of the `glow:`/`arm:` keyspaces, so
+ * {@link releaseArmSprites} ignores them and {@link releaseSpriteCache}
+ * reclaims them with no special handling.
+ */
+export function haloSpriteCacheKey(color: StarColor, beta: number): string {
+  return `halo:${quantizeChannel(color.r)}:${quantizeChannel(color.g)}:${quantizeChannel(color.b)}:${beta}`;
 }

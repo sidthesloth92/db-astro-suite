@@ -34,8 +34,9 @@ A free browser-based diffraction-spike studio for astrophotography images.
   seed extraction inside merged star/nebula regions, hot-pixel, satellite-trail, and
   galaxy-core rejection), additive spike rendering with length and intensity scaled by
   measured star brightness, per-star colour sampling, chromatic arm gradients, four style
-  presets (Subtle, Classic, JWST, and a spike-free Diffusion bloom mode), 4- or 6-spike
-  toggle, per-star tuning (length, brightness, rotation, diffusion), click toggling plus
+  presets (Subtle, Classic, JWST, and a spike-free Diffusion mode that halos the brightest
+  stars in their own colour and hazes the frame's brightest regions), 4- or 6-spike toggle, per-star tuning (length, brightness, rotation, glow),
+  click toggling plus
   manual star placement and drag-to-move, before/after comparison, PNG/JPEG export at the
   source image's native resolution, and a spikes-only transparent PNG layer export for
   compositing over 16-bit masters

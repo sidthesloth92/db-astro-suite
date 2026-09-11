@@ -14,7 +14,14 @@ describe('control-format.util', () => {
     });
 
     it('should give the other controls no trailing total', () => {
-      for (const key of ['length', 'chroma', 'diffusion', 'brightness', 'rotation'] as const) {
+      for (const key of [
+        'length',
+        'chroma',
+        'glow',
+        'mist',
+        'brightness',
+        'rotation',
+      ] as const) {
         expect(formatControlSuffix(key, 68)).toBe('');
       }
     });
@@ -23,6 +30,13 @@ describe('control-format.util', () => {
       expect(formatControlValue('rotation', 0, 68)).toBe('0°');
       expect(formatControlValue('rotation', 15, 68)).toBe('15°');
       expect(formatControlValue('rotation', 44.6, 68)).toBe('45°');
+    });
+
+    it('should report chroma, glow and mist as a plain amount', () => {
+      expect(formatControlValue('chroma', 0.35, 68)).toBe('0.35');
+      expect(formatControlValue('glow', 0.6, 68)).toBe('0.6');
+      expect(formatControlValue('mist', 0, 68)).toBe('0');
+      expect(formatControlValue('mist', 0.45, 68)).toBe('0.45');
     });
 
     it('should report length and brightness as a multiplier', () => {

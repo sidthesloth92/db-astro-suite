@@ -58,21 +58,33 @@ export const SPIKE_THICKNESS_MAX_PX = 16;
 export const FORCED_FLUX_FLOOR_RATIO = 0.1;
 
 /**
- * Alpha of a fully diffused star's bloom before user brightness scaling.
- * Carried over from the tuned bloom that shipped as its own preset, so full
- * diffusion still reproduces the diffusion-filter look it was chosen for.
- */
-export const DIFFUSION_BLOOM_INTENSITY = 0.85;
-
-/**
- * Exponent applied to the diffusion amount when sizing the bloom.
+ * Exponent applied to the Glow amount when sizing the halo.
  *
  * Alpha scales linearly with the slider, which is what reads as "how much".
  * Radius scaling linearly too would make low settings a faint pinprick nobody
- * would notice, so radius rises faster than the setting does and the bloom
+ * would notice, so radius rises faster than the setting does and the halo
  * arrives at a legible size as soon as it arrives at all.
  */
-export const DIFFUSION_RADIUS_EXPONENT = 0.5;
+export const HALO_RADIUS_AMOUNT_EXPONENT = 0.5;
+
+/**
+ * Halo alpha below which a star draws no halo at all.
+ *
+ * This cutoff is the halo profile's anti-fog guarantee: a floorless power law
+ * already shrinks faint stars' halos, but on a Milky Way frame thousands of
+ * barely-visible blooms still sum into haze. Below this alpha the halo would
+ * not read as a halo anyway, so the star stays a pinpoint and costs nothing
+ * to draw.
+ */
+export const HALO_MIN_VISIBLE_ALPHA = 0.04;
+
+/**
+ * Core width of the halo mask's Moffat profile, as a fraction of the sprite
+ * radius. The profile is (1 + (r/core)^2)^-beta: alpha holds near 1 inside
+ * this fraction, then falls on the long tail that distinguishes a mist-filter
+ * halo from a Gaussian puff.
+ */
+export const HALO_MOFFAT_CORE_FRACTION = 0.2;
 
 /**
  * Colour the far end of an arm is pushed toward at full chroma.

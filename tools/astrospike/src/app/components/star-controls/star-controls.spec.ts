@@ -18,6 +18,7 @@ function makeStar(id: number): DetectedStar {
     area: 6,
     elongation: 1,
     color: { r: 255, g: 255, b: 255 },
+    haloColor: { r: 255, g: 255, b: 255 },
   };
 }
 
@@ -93,7 +94,7 @@ describe('StarControls', () => {
       lengthFactor: 1,
       intensityFactor: 1,
       rotationDeg: 0,
-      diffusion: null,
+      glow: null,
     });
   });
 
@@ -107,7 +108,7 @@ describe('StarControls', () => {
       lengthFactor: 2,
       intensityFactor: 1.5,
       rotationDeg: 30,
-      diffusion: null,
+      glow: null,
     });
     // Neighbours are untouched.
     expect(editor.starAdjustments().has(0)).toBeFalse();
@@ -168,27 +169,27 @@ describe('StarControls', () => {
     expect(closed).toBe(0);
   });
 
-  it('should show the global diffusion until this star pins its own', () => {
-    editor.updateControl('diffusion', 0.4);
+  it('should show the global glow until this star pins its own', () => {
+    editor.updateControl('glow', 0.4);
     fixture.detectChanges();
 
     const row: HTMLElement = fixture.nativeElement.querySelectorAll('.star-bar__field')[3];
-    expect(row.textContent).toContain('Diffusion');
+    expect(row.textContent).toContain('Glow');
     expect(row.textContent).toContain('0.4');
     // Marked as inherited, so it is clear the star is not pinned yet.
     expect(row.textContent).toContain('following global');
     expect(editor.starAdjustments().has(1)).toBeFalse();
   });
 
-  it('should pin this star diffusion without touching its neighbours', () => {
+  it('should pin this star glow without touching its neighbours', () => {
     // The global control stays at zero: an absolute value is the only way one
     // star can bloom on its own.
-    expect(editor.controls.diffusion()).toBe(0);
+    expect(editor.controls.glow()).toBe(0);
 
     setSlider(sliders()[3], 0.75);
     fixture.detectChanges();
 
-    expect(editor.adjustmentFor(1).diffusion).toBe(0.75);
+    expect(editor.adjustmentFor(1).glow).toBe(0.75);
     expect(editor.starAdjustments().has(0)).toBeFalse();
     expect(editor.starAdjustments().has(2)).toBeFalse();
     const row: HTMLElement = fixture.nativeElement.querySelectorAll('.star-bar__field')[3];
@@ -196,21 +197,21 @@ describe('StarControls', () => {
   });
 
   it('should keep a pinned zero while the global amount is high', () => {
-    editor.updateControl('diffusion', 1);
+    editor.updateControl('glow', 1);
     fixture.detectChanges();
 
     setSlider(sliders()[3], 0);
 
-    expect(editor.adjustmentFor(1).diffusion).toBe(0);
+    expect(editor.adjustmentFor(1).glow).toBe(0);
     expect(editor.starAdjustments().has(1)).toBeTrue();
   });
 
-  it('should offer four per-star fields in the bar', () => {
+  it('should offer the three arm tweaks and a Glow field on a spike preset', () => {
     expect(sliders().length).toBe(4);
     const keys: string[] = Array.from(
       fixture.nativeElement.querySelectorAll('.star-bar__key'),
     ).map((el) => (el as HTMLElement).textContent?.trim() ?? '');
-    expect(keys).toEqual(['Length', 'Brightness', 'Rotation', 'Diffusion']);
+    expect(keys).toEqual(['Length', 'Brightness', 'Rotation', 'Glow']);
   });
 
   it('should name the star and where it sits', () => {
@@ -239,25 +240,38 @@ describe('StarControls', () => {
   });
 
   describe('diffusion mode', () => {
-    it('should trim the bar to the diffusion field, the arm tweaks being dead at zero length', () => {
+    it('should trim the bar to one Glow field, the arm tweaks being dead at zero length', () => {
       editor.applyPreset('diffusion');
       fixture.detectChanges();
 
       const keys = Array.from(
         fixture.nativeElement.querySelectorAll('.star-bar__key') as NodeListOf<HTMLElement>,
       ).map((el) => el.textContent?.trim());
-      expect(keys).toEqual(['Diffusion']);
+      expect(keys).toEqual(['Glow']);
+      expect(sliders().length).toBe(1);
     });
 
-    it('should name the include toggle after the bloom instead of the spikes', () => {
+    it('should name the include toggle after the glow instead of the spikes', () => {
       editor.applyPreset('diffusion');
       fixture.detectChanges();
 
       const labels = Array.from(
         fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>,
       ).map((button) => button.textContent?.trim());
-      expect(labels).toContain('Remove bloom');
+      expect(labels).toContain('Remove glow');
       expect(labels).not.toContain('Remove spikes');
+    });
+
+    it('should bring the arm tweaks back beside Glow when a spike preset returns', () => {
+      editor.applyPreset('diffusion');
+      fixture.detectChanges();
+      editor.applyPreset('classic');
+      fixture.detectChanges();
+
+      const keys = Array.from(
+        fixture.nativeElement.querySelectorAll('.star-bar__key') as NodeListOf<HTMLElement>,
+      ).map((el) => el.textContent?.trim());
+      expect(keys).toEqual(['Length', 'Brightness', 'Rotation', 'Glow']);
     });
   });
 });

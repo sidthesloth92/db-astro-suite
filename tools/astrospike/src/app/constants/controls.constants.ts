@@ -6,7 +6,7 @@ import { ControlMetadata, EditorControlKey } from '../models/editor-controls.mod
 export const CONTROLS: Record<EditorControlKey, ControlMetadata> = {
   stars: {
     label: 'Star magnitude',
-    description: 'How many detected stars receive spikes, brightest first.',
+    description: 'How many detected stars get spikes or glow, brightest first.',
     min: 0,
     max: 1,
     step: 0.01,
@@ -18,7 +18,7 @@ export const CONTROLS: Record<EditorControlKey, ControlMetadata> = {
   length: {
     label: 'Length',
     description:
-      'Scales the length of every spike arm. At 0 there is no spike at all, which leaves a star showing only its diffusion bloom.',
+      'Scales the length of every spike arm. At 0 there is no spike at all, which leaves a star showing only its glow halo.',
     min: 0,
     max: 3,
     step: 0.05,
@@ -36,21 +36,33 @@ export const CONTROLS: Record<EditorControlKey, ControlMetadata> = {
     // in a side-by-side, so it earns its place on by default.
     initial: 0.35,
   },
-  diffusion: {
-    label: 'Diffusion',
+  // record, the per-star adjustment, and the formatter); only the words changed
+  // when the bloom became the mist-filter halo.
+  glow: {
+    label: 'Glow',
     description:
-      'Blooms each star, the look of a diffusion filter on the lens. Independent of the spikes: it adds the bloom and leaves the arms alone — the Diffusion preset gives you the bloom on its own.',
+      'Blooms the brightest stars into wide, soft halos in their own colour — the look of a mist filter on the lens. Faint stars stay pinpoints. Independent of the spikes: the Diffusion preset gives you the halos on their own.',
     min: 0,
     max: 1,
     step: 0.05,
     // Zero, so an image opens rendered exactly as the preset intends and
-    // diffusion is something the user reaches for rather than undoes.
+    // glow is something the user reaches for rather than undoes.
+    initial: 0,
+  },
+  mist: {
+    label: 'Mist',
+    description:
+      'Spreads the light of the frame\'s brightest regions into a soft haze, so the Milky Way core and nebulae glow the way they do through a mist filter. Dark sky stays dark. Part of the Diffusion mode, which is the only place it applies.',
+    min: 0,
+    max: 1,
+    step: 0.05,
+    // Zero for the same reason as Glow: an image opens as its preset intends.
     initial: 0,
   },
   brightness: {
     label: 'Brightness',
     description:
-      'Scales the intensity of the spikes and their core glow. At 0 the spikes disappear; the diffusion bloom is independent and stays.',
+      'Scales the intensity of the spikes, their core glow, and the glow halos. At 0 nothing is drawn.',
     min: 0,
     max: 2,
     step: 0.05,
@@ -73,14 +85,20 @@ export const EDITOR_CONTROL_KEYS: readonly EditorControlKey[] = [
   'stars',
   'length',
   'chroma',
-  'diffusion',
+  'glow',
   'brightness',
   'rotation',
 ];
 
 /**
- * The sliders shown while the Diffusion preset is active. The bloom is driven
- * only by which stars are in the cut and the diffusion amount — every other
- * control shapes the arms, which the mode has zeroed away.
+ * The sliders shown while the Diffusion preset is active: which stars are in
+ * the cut, how far they glow, how much the frame mists, and how hard the
+ * halos burn. Every other control shapes the arms, which the mode has zeroed
+ * away — and Mist belongs to this mode alone, so it appears nowhere else.
  */
-export const DIFFUSION_CONTROL_KEYS: readonly EditorControlKey[] = ['stars', 'diffusion'];
+export const DIFFUSION_MODE_CONTROL_KEYS: readonly EditorControlKey[] = [
+  'stars',
+  'glow',
+  'mist',
+  'brightness',
+];

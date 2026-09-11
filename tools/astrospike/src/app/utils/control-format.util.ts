@@ -10,8 +10,8 @@ import { sliceCountForValue } from './stars-cut.util';
  *   meaningless to the user. The "of N" total is a separate, dimmer part; see
  *   {@link formatControlSuffix}.
  * - `rotation` — whole degrees (`"15°"`).
- * - `chroma` / `diffusion` — a plain 0–1 amount (`"0"`, `"0.45"`), since each
- *   is a blend rather than a multiple of anything.
+ * - `chroma` / `glow` / `mist` — a plain 0–1 amount (`"0"`, `"0.45"`),
+ *   since each is a blend rather than a multiple of anything.
  * - `length` / `brightness` — a multiplier rounded to two decimals with
  *   trailing zeros dropped (`"1.4×"`, `"1.05×"`, `"1×"`).
  *
@@ -31,7 +31,8 @@ export function formatControlValue(
     case 'rotation':
       return `${Math.round(value)}°`;
     case 'chroma':
-    case 'diffusion':
+    case 'glow':
+    case 'mist':
       return `${Math.round(value * 100) / 100}`;
     case 'length':
     case 'brightness':

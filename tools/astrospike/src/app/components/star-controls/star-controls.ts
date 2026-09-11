@@ -39,7 +39,7 @@ import { round2, signedDegrees, signedFactor } from '../../utils/star-delta.util
  * cover the spikes being tuned, which a popover pinned to the star always did.
  *
  * Length, Brightness, and Rotation are tweaks layered on the global controls and
- * read as a signed delta with the resulting total spelled out; Diffusion is this
+ * read as a signed delta with the resulting total spelled out; Glow is this
  * star's own absolute amount. Either way an untouched star follows the globals
  * exactly. The stage rings whichever star this bar belongs to.
  */
@@ -125,41 +125,41 @@ export class StarControls {
     this.editor.renderedStars().some((star) => star.id === this.starId()),
   );
 
-  /** True while the Diffusion preset — the bloom-only mode — is active. */
+  /** True while the Diffusion preset — the halo-only mode — is active. */
   protected readonly isDiffusionMode = computed(() => this.editor.presetId() === 'diffusion');
 
   /**
    * Label on the include/exclude toggle. The same action gates whatever the
-   * mode draws, so it names spikes on the spike presets and the bloom in
-   * diffusion mode.
+   * mode draws, so it names spikes on the spike presets and the glow in glow
+   * mode.
    */
   protected readonly toggleLabel = computed(() => {
     if (this.isDiffusionMode()) {
-      return this.isSpiked() ? 'Remove bloom' : 'Add bloom';
+      return this.isSpiked() ? 'Remove glow' : 'Add glow';
     }
     return this.isSpiked() ? 'Remove spikes' : 'Add spikes';
   });
 
-  /** Lower bound of the per-star diffusion amount. */
-  protected readonly diffusionMin = CONTROLS['diffusion'].min;
+  /** Lower bound of the per-star glow amount. */
+  protected readonly glowMin = CONTROLS['glow'].min;
 
-  /** Upper bound of the per-star diffusion amount. */
-  protected readonly diffusionMax = CONTROLS['diffusion'].max;
+  /** Upper bound of the per-star glow amount. */
+  protected readonly glowMax = CONTROLS['glow'].max;
 
-  /** Step of the per-star diffusion slider. */
-  protected readonly diffusionStep = CONTROLS['diffusion'].step;
+  /** Step of the per-star glow slider. */
+  protected readonly glowStep = CONTROLS['glow'].step;
 
   /**
-   * Diffusion for this star: its own amount once it has one, otherwise the
-   * global control's, so the slider opens showing what the star is actually
-   * doing and moving it pins that star's own value.
+   * Glow amount for this star: its own once it has one, otherwise the global
+   * control's, so the slider opens showing what the star is actually doing
+   * and moving it pins that star's own value.
    */
-  protected readonly diffusion = computed(
-    () => this.adjustment().diffusion ?? this.editor.controls.diffusion(),
+  protected readonly glow = computed(
+    () => this.adjustment().glow ?? this.editor.controls.glow(),
   );
 
-  /** True once this star's diffusion is pinned rather than following the global. */
-  protected readonly hasOwnDiffusion = computed(() => this.adjustment().diffusion !== null);
+  /** True once this star's glow is pinned rather than following the global. */
+  protected readonly hasOwnGlow = computed(() => this.adjustment().glow !== null);
 
   /** Where the star sits on the full-resolution image. */
   protected readonly coordsLabel = computed(() => {
@@ -194,8 +194,8 @@ export class StarControls {
     () => `→ ${Math.round(this.editor.controls.rotation() + this.adjustment().rotationDeg)}° total`,
   );
 
-  /** This star's diffusion amount, or the inherited global one, rounded. */
-  protected readonly diffusionLabel = computed(() => `${round2(this.diffusion())}`);
+  /** This star's glow amount, or the inherited global one, rounded. */
+  protected readonly glowLabel = computed(() => `${round2(this.glow())}`);
 
   /**
    * Name shown at the top of the panel. A detected star is identified by its
@@ -222,14 +222,14 @@ export class StarControls {
   }
 
   /**
-   * Pins this star's own diffusion, independently of the global control. It is
-   * an absolute amount, not a multiplier: with the global control at zero a
-   * multiplier could never bloom one star, which is the point of setting it
+   * Pins this star's own glow, independently of the global control. It is an
+   * absolute amount, not a multiplier: with the global control at zero a
+   * multiplier could never halo one star, which is the point of setting it
    * here.
-   * @param value The new diffusion amount.
+   * @param value The new glow amount.
    */
-  protected onDiffusionChange(value: number): void {
-    this.editor.adjustStar(this.starId(), { diffusion: value });
+  protected onGlowChange(value: number): void {
+    this.editor.adjustStar(this.starId(), { glow: value });
   }
 
   /** Returns this star to the global controls. */

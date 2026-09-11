@@ -9,12 +9,13 @@ export type AstroSpikeControlLabel =
   | "Star magnitude"
   | "Length"
   | "Chroma"
-  | "Diffusion"
+  | "Glow"
+  | "Mist"
   | "Brightness"
   | "Rotation";
 
-/** Spike preset card names, matching `spike-presets.constants.ts`. */
-export type AstroSpikePresetName = "Subtle" | "Classic" | "JWST";
+/** Preset card names, matching `spike-presets.constants.ts`. */
+export type AstroSpikePresetName = "Subtle" | "Classic" | "JWST" | "Diffusion";
 
 /**
  * Page Object for AstroSpike — the client-side diffraction-spike studio
@@ -146,6 +147,27 @@ export class AstroSpikePage {
    */
   getControlRow(label: AstroSpikeControlLabel): Locator {
     return this.controlPanel.locator(".slider-row").filter({ hasText: label });
+  }
+
+  /**
+   * The visible labels of every slider row in the controls pane, in display
+   * order — the Diffusion preset trims this list to the controls that still do
+   * anything.
+   */
+  async getControlLabels(): Promise<string[]> {
+    // The rows are anchored by `.slider-row` for the reason given on
+    // `getControlSlider`: the slider inside carries no accessible name, so the
+    // label text is the only handle a user (or a test) has on a row.
+    //
+    // Text content, not inner text: the pane renders labels through
+    // `text-transform: uppercase`, so inner text would return "GLOW" and every
+    // comparison against a control name would have to shout back. Worse, an
+    // absence check ("Mist is not in this list") would pass on the casing
+    // alone and never test anything.
+    const labels = await this.controlPanel
+      .locator(".slider-row .row-label")
+      .allTextContents();
+    return labels.map((label) => label.trim());
   }
 
   /** Reads the readout text rendered beside a slider's label. */

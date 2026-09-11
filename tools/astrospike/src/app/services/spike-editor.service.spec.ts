@@ -31,6 +31,7 @@ function makeStar(id: number, flux: number): DetectedStar {
     area: 4,
     elongation: 1.1,
     color: { r: 255, g: 250, b: 240 },
+    haloColor: { r: 255, g: 250, b: 240 },
   };
 }
 
@@ -250,13 +251,13 @@ describe('SpikeEditorService', () => {
     });
   });
 
-  describe('diffusion', () => {
+  describe('glow', () => {
     beforeEach(() => {
       service.allStars.set(STARS);
     });
 
     it('should start at zero so a preset renders exactly as it always did', () => {
-      expect(service.controls.diffusion()).toBe(0);
+      expect(service.controls.glow()).toBe(0);
       expect(service.renderParams()).toBeNull(); // no image yet
     });
 
@@ -269,9 +270,9 @@ describe('SpikeEditorService', () => {
       detectionSpy.detect.and.resolveTo([...STARS]);
       await service.loadImage(new File([''], 'm31.png', { type: 'image/png' }));
 
-      service.updateControl('diffusion', 0.6);
+      service.updateControl('glow', 0.6);
 
-      expect(service.renderParams()?.diffusionFactor).toBe(0.6);
+      expect(service.renderParams()?.glowFactor).toBe(0.6);
     });
 
     it('should carry the chroma amount into the render params', async () => {
@@ -291,31 +292,80 @@ describe('SpikeEditorService', () => {
     it('should pin one star to its own amount, absolute rather than relative', () => {
       // The global control stays at zero, which a multiplier could never
       // escape — the whole reason the per-star value is absolute.
-      expect(service.controls.diffusion()).toBe(0);
+      expect(service.controls.glow()).toBe(0);
 
-      service.adjustStar(1, { diffusion: 0.8 });
+      service.adjustStar(1, { glow: 0.8 });
 
-      expect(service.adjustmentFor(1).diffusion).toBe(0.8);
-      expect(service.adjustmentFor(0).diffusion).toBeNull();
+      expect(service.adjustmentFor(1).glow).toBe(0.8);
+      expect(service.adjustmentFor(0).glow).toBeNull();
     });
 
     it('should let a star pin zero while the global amount is high', () => {
-      service.updateControl('diffusion', 1);
-      service.adjustStar(1, { diffusion: 0 });
+      service.updateControl('glow', 1);
+      service.adjustStar(1, { glow: 0 });
 
-      expect(service.adjustmentFor(1).diffusion).toBe(0);
+      expect(service.adjustmentFor(1).glow).toBe(0);
       // A pinned zero is a real deviation, so the entry must be kept.
       expect(service.starAdjustments().has(1)).toBeTrue();
     });
 
     it('should return a pinned star to the global amount on reset', () => {
-      service.adjustStar(1, { diffusion: 0.5 });
+      service.adjustStar(1, { glow: 0.5 });
 
       service.resetStarAdjustment(1);
 
-      expect(service.adjustmentFor(1).diffusion).toBeNull();
+      expect(service.adjustmentFor(1).glow).toBeNull();
       expect(service.starAdjustments().has(1)).toBeFalse();
     });
+  });
+
+  describe('mist', () => {
+    it('should start at zero so a preset renders exactly as it always did', () => {
+      expect(service.controls.mist()).toBe(0);
+    });
+
+    it('should carry the mist amount into the render params in Diffusion mode', async () => {
+      await loadMistableImage();
+      service.applyPreset('diffusion');
+
+      service.updateControl('mist', 0.5);
+
+      expect(service.renderParams()?.mistFactor).toBe(0.5);
+    });
+
+    it('should haze nothing on a spike preset, however much mist was left behind', async () => {
+      await loadMistableImage();
+      service.applyPreset('diffusion');
+      service.updateControl('mist', 0.8);
+
+      service.applyPreset('classic');
+
+      // The amount is remembered for the next visit, but it draws nothing.
+      expect(service.controls.mist()).toBe(0.8);
+      expect(service.renderParams()?.mistFactor).toBe(0);
+    });
+
+    it('should bring a remembered mist back when the mode returns', async () => {
+      await loadMistableImage();
+      service.applyPreset('diffusion');
+      service.updateControl('mist', 0.8);
+      service.applyPreset('classic');
+
+      service.applyPreset('diffusion');
+
+      expect(service.renderParams()?.mistFactor).toBe(0.8);
+    });
+
+    /** Loads a small image so `renderParams` resolves. */
+    async function loadMistableImage(): Promise<void> {
+      const bitmap = await buildBitmap(8, 8);
+      imageLoadSpy.loadImageFile.and.resolveTo({
+        bitmap,
+        meta: { fileName: 'm31.png', width: 8, height: 8 },
+      });
+      detectionSpy.detect.and.resolveTo([...STARS]);
+      await service.loadImage(new File([''], 'm31.png', { type: 'image/png' }));
+    }
   });
 
   describe('addStarAt', () => {
@@ -472,6 +522,7 @@ describe('SpikeEditorService', () => {
     const dirtiers: ReadonlyArray<{ name: string; act: () => void }> = [
       { name: 'a preset change', act: () => service.applyPreset('jwst') },
       { name: 'a slider move', act: () => service.updateControl('length', 2) },
+      { name: 'a raised Mist', act: () => service.updateControl('mist', 0.5) },
       { name: 'an arm count override', act: () => service.setSpikeCount(6) },
       { name: 'a toggled star', act: () => service.toggleStar(0) },
       { name: 'a tuned star', act: () => service.adjustStar(1, { lengthFactor: 2 }) },
@@ -500,9 +551,10 @@ describe('SpikeEditorService', () => {
       service.setSpikeCount(4);
       service.updateControl('length', 2.4);
       service.updateControl('chroma', 1);
-      service.updateControl('diffusion', 0.8);
+      service.updateControl('glow', 0.8);
+      service.updateControl('mist', 0.7);
       service.toggleStar(0);
-      service.adjustStar(2, { diffusion: 0.5 });
+      service.adjustStar(2, { glow: 0.5 });
       service.comparePosition.set(0.6);
 
       service.resetAll();
@@ -511,7 +563,8 @@ describe('SpikeEditorService', () => {
       expect(service.spikeCount()).toBe(4);
       expect(service.controls.length()).toBe(1);
       expect(service.controls.chroma()).toBe(0.35);
-      expect(service.controls.diffusion()).toBe(0);
+      expect(service.controls.glow()).toBe(0);
+      expect(service.controls.mist()).toBe(0);
       expect(service.overrides().size).toBe(0);
       expect(service.starAdjustments().size).toBe(0);
       expect(service.comparePosition()).toBe(0);
@@ -644,32 +697,35 @@ describe('SpikeEditorService', () => {
   });
 
   describe('the Diffusion preset', () => {
-    it('should zero Length and seed Diffusion when entered with Diffusion untouched', () => {
+    it('should zero Length and seed the Glow amount when entered with Glow untouched', () => {
       service.applyPreset('diffusion');
 
       expect(service.presetId()).toBe('diffusion');
       expect(service.controls.length()).toBe(0);
-      expect(service.controls.diffusion()).toBe(DIFFUSION_PRESET_SEED_AMOUNT);
+      expect(service.controls.glow()).toBe(DIFFUSION_PRESET_SEED_AMOUNT);
     });
 
-    it('should leave a Diffusion amount the user already raised alone', () => {
-      service.updateControl('diffusion', 0.3);
+    it('should leave a Glow amount the user already raised alone', () => {
+      service.updateControl('glow', 0.3);
 
       service.applyPreset('diffusion');
 
-      expect(service.controls.diffusion()).toBe(0.3);
+      expect(service.controls.glow()).toBe(0.3);
     });
 
-    it('should restore Length and Diffusion when leaving for a spike preset', () => {
+    it('should restore Length, Glow and Brightness when leaving for a spike preset', () => {
       service.updateControl('length', 1.8);
-      service.updateControl('diffusion', 0.25);
+      service.updateControl('glow', 0.25);
+      service.updateControl('brightness', 1.4);
 
       service.applyPreset('diffusion');
+      service.updateControl('brightness', 0.6);
       service.applyPreset('jwst');
 
       expect(service.presetId()).toBe('jwst');
       expect(service.controls.length()).toBe(1.8);
-      expect(service.controls.diffusion()).toBe(0.25);
+      expect(service.controls.glow()).toBe(0.25);
+      expect(service.controls.brightness()).toBe(1.4);
     });
 
     it('should not re-snapshot the zeroed controls when re-applied while active', () => {
@@ -682,6 +738,26 @@ describe('SpikeEditorService', () => {
       expect(service.controls.length()).toBe(2);
     });
 
+    it('should leave Mist at zero when entered, since only the halos are seeded', () => {
+      service.applyPreset('diffusion');
+
+      expect(service.controls.mist()).toBe(0);
+    });
+
+    it('should keep a Mist amount set inside the mode when leaving for a spike preset', () => {
+      // Mist is not part of the mode's snapshot: it is a pass over the photo
+      // itself rather than a halo control, so the amount stays wherever the
+      // user last put it instead of springing back on the way out.
+      service.updateControl('mist', 0.4);
+      service.applyPreset('diffusion');
+      expect(service.controls.mist()).toBe(0.4);
+
+      service.updateControl('mist', 0.8);
+      service.applyPreset('jwst');
+
+      expect(service.controls.mist()).toBe(0.8);
+    });
+
     it('should reset to the defaults and drop the snapshot when Reset runs inside the mode', () => {
       service.updateControl('length', 2.2);
       service.applyPreset('diffusion');
@@ -690,7 +766,7 @@ describe('SpikeEditorService', () => {
 
       expect(service.presetId()).toBe('classic');
       expect(service.controls.length()).toBe(CONTROLS['length'].initial);
-      expect(service.controls.diffusion()).toBe(CONTROLS['diffusion'].initial);
+      expect(service.controls.glow()).toBe(CONTROLS['glow'].initial);
       // A stale snapshot must not resurrect the pre-mode values later.
       service.applyPreset('jwst');
       expect(service.controls.length()).toBe(CONTROLS['length'].initial);
