@@ -27,8 +27,20 @@
   font-family: var(--sps-body);
   display: flex;
   flex-direction: column;
-  background:
-    radial-gradient(ellipse 70% 40% at 85% 0%, rgba(255, 45, 149, 0.1), transparent 60%), #07080d;
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.sps-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 70% 40% at 85% 0%, rgba(255, 45, 149, 0.1), transparent 60%), #07080d;
+  opacity: var(--card-opacity, 1);
 }
 
 .sps-graticule {

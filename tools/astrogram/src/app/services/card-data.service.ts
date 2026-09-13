@@ -191,18 +191,19 @@ export class CardDataService {
   }
 
   /**
-   * Selects a card theme and applies its default accent colours. Accents are
-   * passed in by the caller so this service never depends on the theme
+   * Selects a card theme and applies its defaults. Accents and the opacity
+   * are passed in by the caller so this service never depends on the theme
    * registry (which imports theme components). Later manual edits in the
    * Color section still win.
    */
-  setCardTheme(id: CardThemeId, accents: CardThemeAccents) {
+  setCardTheme(id: CardThemeId, accents: CardThemeAccents, cardOpacity: number) {
     this.cardData.update((data) => ({
       ...data,
       cardTheme: id,
       accentColor: accents.accentColor,
       accentColorRgb: accents.accentColorRgb,
       secondaryAccentColor: accents.secondaryAccentColor,
+      cardOpacity,
     }));
   }
 

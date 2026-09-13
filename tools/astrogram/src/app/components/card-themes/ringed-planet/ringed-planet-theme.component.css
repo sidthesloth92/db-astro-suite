@@ -15,9 +15,21 @@
   overflow: hidden;
   font-family: 'Outfit', system-ui, sans-serif;
   color: #f1ecf8;
-  background:
-    radial-gradient(ellipse 70% 50% at 50% 28%, rgba(90, 50, 130, 0.28), transparent 70%),
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.rpl-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 70% 50% at 50% 28%, rgba(90, 50, 130, 0.28), transparent 70%),
     #0a0712;
+  opacity: var(--card-opacity, 1);
 }
 
 .rpl-chart {

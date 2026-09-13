@@ -25,8 +25,20 @@
   padding: 20px;
   color: var(--stc-txt);
   font-family: var(--stc-sans);
-  background:
-    radial-gradient(ellipse 60% 45% at 50% 24%, rgba(232, 199, 136, 0.07), transparent 70%), #05040a;
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.stc-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 60% 45% at 50% 24%, rgba(232, 199, 136, 0.07), transparent 70%), #05040a;
+  opacity: var(--card-opacity, 1);
 }
 
 /* ── Double gold hairline frame ── */

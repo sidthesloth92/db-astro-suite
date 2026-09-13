@@ -22,4 +22,10 @@ export interface CardThemeDefinition {
    * against. Omit to use the shared 540 × 720 design-source artboard.
    */
   readonly basis?: ThemeDesignBasis;
+  /**
+   * Card opacity applied when this theme is picked, fading its backdrop
+   * toward the user's image. Omit for the dark-theme default; light-on-paper
+   * themes declare 1 so their pale type stays readable.
+   */
+  readonly defaultCardOpacity?: number;
 }

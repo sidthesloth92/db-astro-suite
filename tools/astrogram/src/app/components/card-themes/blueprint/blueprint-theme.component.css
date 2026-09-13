@@ -24,9 +24,22 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: var(--bp-bg);
   color: var(--bp-txt);
   font-family: var(--bp-sans);
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.bp-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--bp-bg);
+  opacity: var(--card-opacity, 1);
 }
 
 /* ── Grid + frame + corner marks ── */

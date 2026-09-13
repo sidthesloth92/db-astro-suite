@@ -27,10 +27,22 @@
   color: var(--ave-txt);
   display: flex;
   flex-direction: column;
-  background:
-    radial-gradient(ellipse 70% 50% at 50% -10%, rgba(212, 165, 116, 0.1), transparent 60%),
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.ave-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 70% 50% at 50% -10%, rgba(212, 165, 116, 0.1), transparent 60%),
     radial-gradient(ellipse 60% 50% at 50% 110%, rgba(229, 68, 109, 0.1), transparent 60%),
     linear-gradient(180deg, #0a0e1a 0%, #070912 100%);
+  opacity: var(--card-opacity, 1);
 }
 
 /* Lift every content child above the absolute star field. */

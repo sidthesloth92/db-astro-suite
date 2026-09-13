@@ -22,10 +22,22 @@
   overflow: hidden;
   color: var(--obs-txt);
   font-family: var(--obs-sans);
-  background:
-    radial-gradient(ellipse 80% 60% at 30% 20%, rgba(93, 216, 255, 0.1), transparent 60%),
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.obs-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 80% 60% at 30% 20%, rgba(93, 216, 255, 0.1), transparent 60%),
     radial-gradient(ellipse 60% 50% at 80% 90%, rgba(185, 125, 255, 0.1), transparent 65%),
     linear-gradient(180deg, #0a0e1a 0%, #06080f 60%, #02030a 100%);
+  opacity: var(--card-opacity, 1);
 }
 
 .obs-aurora {

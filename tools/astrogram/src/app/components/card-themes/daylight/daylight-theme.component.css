@@ -26,9 +26,21 @@
   overflow: hidden;
   color: var(--day-ink);
   font-family: var(--day-body);
-  background:
-    radial-gradient(ellipse 70% 40% at 88% 0%, rgba(214, 24, 123, 0.06), transparent 60%),
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.day-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 70% 40% at 88% 0%, rgba(214, 24, 123, 0.06), transparent 60%),
     var(--day-bg);
+  opacity: var(--card-opacity, 1);
 }
 
 .day-graticule {

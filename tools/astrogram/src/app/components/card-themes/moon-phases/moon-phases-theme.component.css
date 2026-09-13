@@ -26,9 +26,21 @@
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  background:
-    radial-gradient(ellipse 60% 40% at 50% 12%, rgba(90, 88, 78, 0.14), transparent 65%),
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.mp-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 60% 40% at 50% 12%, rgba(90, 88, 78, 0.14), transparent 65%),
     var(--mp-bg);
+  opacity: var(--card-opacity, 1);
 }
 
 /* ── Header ── */

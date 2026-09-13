@@ -24,9 +24,21 @@
   overflow: hidden;
   color: var(--cri-ink);
   font-family: var(--cri-sans);
-  background:
-    radial-gradient(ellipse 80% 55% at 50% 0%, rgba(255, 255, 252, 0.7), transparent 65%),
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.cri-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 80% 55% at 50% 0%, rgba(255, 255, 252, 0.7), transparent 65%),
     var(--cri-paper);
+  opacity: var(--card-opacity, 1);
 }
 
 .cri-specks {

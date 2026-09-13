@@ -16,9 +16,21 @@
   overflow: hidden;
   font-family: 'Space Grotesk', 'Outfit', sans-serif;
   color: #efeafb;
-  background:
-    radial-gradient(ellipse 50% 40% at 50% 32%, rgba(120, 80, 30, 0.2), transparent 70%),
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.orr-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 50% 40% at 50% 32%, rgba(120, 80, 30, 0.2), transparent 70%),
     #080611;
+  opacity: var(--card-opacity, 1);
 }
 
 .orr-chart {

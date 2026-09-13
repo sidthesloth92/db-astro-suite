@@ -1,4 +1,5 @@
 import type { SelectItem } from '@db-astro-suite/ui';
+import { DEFAULT_LIGHT_THEME_OPACITY } from '../../constants/theme-canvas.constants';
 import type { CardThemeId } from '../../models/card-theme.model';
 import type { CardThemeDefinition } from './card-theme-definition.model';
 import { OriginalThemeComponent } from './original/original-theme.component';
@@ -265,6 +266,9 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
       accentColorRgb: '43, 35, 22',
       secondaryAccentColor: '#6E5F45',
     },
+    // Light-on-paper: a dark astrophotograph behind pale type would make
+    // the card unreadable, so this theme stays opaque by default.
+    defaultCardOpacity: DEFAULT_LIGHT_THEME_OPACITY,
   },
   'credits-ivory': {
     label: 'Credits Ivory',
@@ -275,6 +279,9 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
       accentColorRgb: '26, 22, 34',
       secondaryAccentColor: '#6A6376',
     },
+    // Light-on-paper: a dark astrophotograph behind pale type would make
+    // the card unreadable, so this theme stays opaque by default.
+    defaultCardOpacity: DEFAULT_LIGHT_THEME_OPACITY,
   },
   daylight: {
     label: 'Daylight',
@@ -285,6 +292,9 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
       accentColorRgb: '214, 24, 123',
       secondaryAccentColor: '#10141F',
     },
+    // Light-on-paper: a dark astrophotograph behind pale type would make
+    // the card unreadable, so this theme stays opaque by default.
+    defaultCardOpacity: DEFAULT_LIGHT_THEME_OPACITY,
   },
   headline: {
     label: 'Headline',

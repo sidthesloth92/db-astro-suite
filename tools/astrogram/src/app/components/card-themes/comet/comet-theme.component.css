@@ -15,9 +15,21 @@
   overflow: hidden;
   font-family: 'Outfit', system-ui, sans-serif;
   color: #eaf4fb;
-  background:
-    radial-gradient(ellipse 50% 40% at 74% 21%, rgba(60, 140, 180, 0.25), transparent 60%),
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.com-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 50% 40% at 74% 21%, rgba(60, 140, 180, 0.25), transparent 60%),
     #04060e;
+  opacity: var(--card-opacity, 1);
 }
 
 .com-chart {

@@ -24,9 +24,21 @@
   overflow: hidden;
   color: var(--hdl-txt);
   font-family: var(--hdl-sans);
-  background:
-    radial-gradient(ellipse 70% 45% at 78% 8%, rgba(255, 45, 149, 0.16), transparent 60%),
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.hdl-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 70% 45% at 78% 8%, rgba(255, 45, 149, 0.16), transparent 60%),
     radial-gradient(ellipse 60% 40% at 12% 92%, rgba(90, 50, 160, 0.22), transparent 60%), #0b0714;
+  opacity: var(--card-opacity, 1);
 }
 
 .hdl-constellation {

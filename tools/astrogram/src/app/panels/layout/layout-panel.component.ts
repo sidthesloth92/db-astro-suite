@@ -11,6 +11,7 @@ import {
   paletteIcon,
   sparklesIcon,
 } from '@db-astro-suite/ui';
+import { DEFAULT_DARK_THEME_OPACITY } from '../../constants/theme-canvas.constants';
 import {
   PREVIEW_SIZES,
   buildPreviewSizeSelectItems,
@@ -86,9 +87,13 @@ export class LayoutPanelComponent {
     if (!isCardThemeId(value)) {
       return;
     }
-    const accents = CARD_THEMES[value]?.accents;
-    if (accents) {
-      this.dataService.setCardTheme(value, accents);
+    const definition = CARD_THEMES[value];
+    if (definition) {
+      this.dataService.setCardTheme(
+        value,
+        definition.accents,
+        definition.defaultCardOpacity ?? DEFAULT_DARK_THEME_OPACITY,
+      );
     }
   }
 

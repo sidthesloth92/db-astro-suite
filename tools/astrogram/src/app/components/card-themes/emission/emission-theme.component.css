@@ -25,9 +25,22 @@
   padding: 30px 32px 26px;
   color: var(--ems-txt);
   font-family: var(--ems-body);
-  background: #04060b;
   display: flex;
   flex-direction: column;
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.ems-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: #04060b;
+  opacity: var(--card-opacity, 1);
 }
 
 .ems-cross {

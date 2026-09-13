@@ -23,9 +23,21 @@
   overflow: hidden;
   color: var(--obv-txt);
   font: 400 10.5px/1.4 var(--obv-mono);
-  background:
-    radial-gradient(ellipse at 50% 0%, rgba(217, 119, 66, 0.08), transparent 70%),
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.obv-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 0%, rgba(217, 119, 66, 0.08), transparent 70%),
     linear-gradient(180deg, #100b07 0%, #0a0805 100%);
+  opacity: var(--card-opacity, 1);
 }
 
 .obv-hatch {

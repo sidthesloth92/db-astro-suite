@@ -27,8 +27,20 @@
   text-align: center;
   display: flex;
   flex-direction: column;
-  background:
-    radial-gradient(ellipse 75% 50% at 50% 0%, rgba(120, 60, 140, 0.18), transparent 62%), #060509;
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.crd-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 75% 50% at 50% 0%, rgba(120, 60, 140, 0.18), transparent 62%), #060509;
+  opacity: var(--card-opacity, 1);
 }
 
 .crd-constellation {

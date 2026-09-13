@@ -21,9 +21,21 @@
   overflow: hidden;
   color: var(--atl-ink);
   font-family: var(--atl-serif);
-  background:
-    radial-gradient(ellipse 90% 80% at 50% 30%, rgba(255, 252, 240, 0.6), transparent 70%),
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.atl-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 90% 80% at 50% 30%, rgba(255, 252, 240, 0.6), transparent 70%),
     var(--atl-paper);
+  opacity: var(--card-opacity, 1);
 }
 
 .atl-specks {

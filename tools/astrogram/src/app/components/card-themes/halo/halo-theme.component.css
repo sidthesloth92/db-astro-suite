@@ -24,10 +24,23 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: #0a0915;
   color: var(--hal-txt);
   display: flex;
   flex-direction: column;
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.hal-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: #0a0915;
+  opacity: var(--card-opacity, 1);
 }
 
 /* ── Soft pastel halos ── */
