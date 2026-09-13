@@ -14,7 +14,8 @@ social media content through automation and high-fidelity generation.
 A free browser-based 4K starfield and galaxy animation generator.
 - Live: https://dbastrosuite.com/starwizz/
 - LLMs: https://dbastrosuite.com/starwizz/llms.txt
-- Features: real-time starfield simulation, galaxy background rendering, shooting stars,
+- Features: real-time starfield simulation, natural star colors with twinkle and
+  diffraction spikes, galaxy background rendering, shooting stars,
   in-browser 4K video recording and download via MediaRecorder API
 
 ### Astrogram
@@ -25,10 +26,31 @@ A free astrophotography exposure card generator for Instagram and social media.
   progress ring visualization, plate solving with WCS annotation overlay (Messier, NGC, IC,
   Tycho-2 catalogs), Bortle scale selector, high-quality JPEG export
 
-### File Grouper (CLI)
-A Go CLI utility for automated astrophotography dataset organisation.
-- Purpose: organises ASIAIR and other capture system output by camera, date, and object target
-- Command: `file-grouper --organize-asiair ./path/to/raw`
+### AstroSpike
+A free browser-based diffraction-spike studio for astrophotography images.
+- Live: https://dbastrosuite.com/astrospike/
+- LLMs: https://dbastrosuite.com/astrospike/llms.txt
+- Features: automatic client-side star detection (background modelling, noise thresholding,
+  seed extraction inside merged star/nebula regions, hot-pixel, satellite-trail, and
+  galaxy-core rejection), additive spike rendering with length and intensity scaled by
+  measured star brightness, per-star colour sampling, chromatic arm gradients, four style
+  presets (Subtle, Classic, JWST, and a spike-free Diffusion mode that halos the brightest
+  stars in their own colour and hazes the frame's brightest regions), 4- or 6-spike toggle, per-star tuning (length, brightness, rotation, glow),
+  click toggling plus
+  manual star placement and drag-to-move, before/after comparison, PNG/JPEG export at the
+  source image's native resolution, and a spikes-only transparent PNG layer export for
+  compositing over 16-bit masters
+- Privacy: fully client-side — images are never uploaded to any server
+- Opens on a bundled Pleiades (desktop) or Cygnus Wall (mobile) sample so it can be tried
+  without an image at hand
+
+### Sortronomy (CLI)
+A single-binary Go wizard for automated astrophotography dataset organisation.
+- Live: https://dbastrosuite.com/tool/sortronomy
+- Purpose: organises FITS captures by camera, focal length, target, session date, and filter,
+  read straight from the FITS headers — works with ASIAIR, N.I.N.A., SharpCap, Ekos/KStars,
+  SGP, Voyager, and APT with zero configuration
+- Command: `sortronomy` (interactive wizard — no flags to remember)
 - Language: Go
 
 ## Tech Stack
@@ -45,5 +67,7 @@ Dinesh Balaji Venkataraj
 - About: https://dbastrosuite.com/about
 - Starwizz Tool: https://dbastrosuite.com/tool/starwizz
 - Astrogram Tool: https://dbastrosuite.com/tool/astrogram
+- AstroSpike Tool: https://dbastrosuite.com/tool/astrospike
+- Sortronomy Tool: https://dbastrosuite.com/tool/sortronomy
 - Repo: https://github.com/sidthesloth92/db-astro-suite
 - Full LLMs context: https://dbastrosuite.com/llms-full.txt

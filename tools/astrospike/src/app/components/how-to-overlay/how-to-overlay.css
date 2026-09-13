@@ -1,0 +1,90 @@
+/* Floats over the studio, so the scrim blurs what is behind rather than hiding
+   it — the user is still meant to see the frame they are working on. */
+.how-to-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--db-color-scrim);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+.how-to-card {
+  width: 580px;
+  max-width: 100%;
+  max-height: 100%;
+  overflow-y: auto;
+  background: var(--db-color-surface);
+  border: 1px solid var(--db-color-border-strong);
+  box-shadow: 0 0 60px var(--db-color-cyan-soft);
+}
+
+.how-to-head {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 16px 22px;
+  border-bottom: 1px solid var(--db-color-border);
+  color: var(--db-color-cyan);
+}
+
+.how-to-title {
+  flex: 1;
+  margin: 0;
+  font-family: var(--db-font-ui);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+  color: var(--db-color-text-primary);
+}
+
+.how-to-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin: 0;
+  padding: 22px;
+  list-style: none;
+}
+
+.how-to-step {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+/* A bordered square rather than a list marker, so the number reads as a step
+   chip and survives the Tailwind preflight stripping list styles. */
+.how-to-num {
+  flex: 0 0 24px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--db-color-cyan);
+  border-radius: 4px;
+  font-family: var(--db-font-mono-code);
+  font-size: 11px;
+  color: var(--db-color-cyan);
+}
+
+.how-to-text {
+  font-size: 13px;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+.how-to-foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 22px;
+  border-top: 1px solid var(--db-color-border);
+  justify-content: flex-end;
+}
+

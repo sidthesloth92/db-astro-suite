@@ -21,7 +21,7 @@ Identify all files changed. Categorise by layer:
 
 - Angular components / templates / stores / services (`hub/`, `tools/astrogram/`, `tools/starwizz/`, `libs/`)
 - Node.js routes / services / models / errors (`tools/astrosolve/`)
-- Go source files (`tools/astro-gen-go/`)
+- Go source files (`tools/sortronomy/`)
 - Pipeline YAML / Dockerfile (`.github/workflows/`, `tools/astrosolve/server/`)
 - Test files (`.spec.ts`, `.test.js`, `e2e/**`)
 

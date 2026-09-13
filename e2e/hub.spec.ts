@@ -46,7 +46,14 @@ test("Hub SEO meta tags and structured data are correct", async ({ page }) => {
   expect(jsonLd["@type"]).toBe("WebApplication");
   expect(jsonLd.name).toBe("DB Astro Suite");
   expect(Array.isArray(jsonLd.hasPart)).toBe(true);
-  expect(jsonLd.hasPart).toHaveLength(2);
+  expect(jsonLd.hasPart).toHaveLength(4);
+  const partNames = jsonLd.hasPart.map((part: { name: string }) => part.name);
+  expect(partNames).toEqual([
+    "Starwizz",
+    "Astrogram",
+    "AstroSpike",
+    "Sortronomy",
+  ]);
 
   const noscriptHtml = await page.evaluate(
     () => document.querySelector("noscript")?.innerHTML ?? "",
@@ -54,6 +61,8 @@ test("Hub SEO meta tags and structured data are correct", async ({ page }) => {
   expect(noscriptHtml).toContain("DB Astro Suite");
   expect(noscriptHtml).toContain("Starwizz");
   expect(noscriptHtml).toContain("Astrogram");
+  expect(noscriptHtml).toContain("AstroSpike");
+  expect(noscriptHtml).toContain("Sortronomy");
 });
 
 test.describe("Hub About page", () => {

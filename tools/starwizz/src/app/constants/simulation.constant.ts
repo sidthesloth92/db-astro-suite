@@ -72,7 +72,7 @@ export const CONTROLS: Record<ControlKey, ControlMetadata> = {
     min: 1,
     max: 8,
     step: 0.5,
-    initial: 4,
+    initial: 3,
     precision: 1,
   },
   starSpeed: {
@@ -81,7 +81,7 @@ export const CONTROLS: Record<ControlKey, ControlMetadata> = {
     min: 0.5,
     max: 10,
     step: 0.5,
-    initial: 5,
+    initial: 4,
     precision: 1,
     // Slider 5 maps to the previous sweet-spot internal speed of 0.6 (0.6 / 5),
     // giving symmetric headroom to speed up (→10) or slow down (→0.5).
@@ -106,6 +106,46 @@ export const CONTROLS: Record<ControlKey, ControlMetadata> = {
     initial: 1000,
     precision: 0,
   },
+  starColorIntensity: {
+    label: 'Star Color Intensity',
+    description:
+      'Controls how saturated the star colours are. 1 is a light pastel wash, 3 is the natural default, and higher values push the tints into deep, vivid saturation.',
+    min: 1,
+    max: 10,
+    step: 1,
+    initial: 4,
+    precision: 0,
+  },
+  colorfulStarRatio: {
+    label: 'Colorful Stars',
+    description:
+      'Controls how many stars get a colour other than white. 1 keeps the field mostly white; higher values trade white stars for blue, yellow and orange ones.',
+    min: 1,
+    max: 10,
+    step: 1,
+    initial: 4,
+    precision: 0,
+  },
+  twinkleStrength: {
+    label: 'Star Twinkle',
+    description:
+      'Controls how strongly stars shimmer. 0 disables the twinkle, 1–3 gives a subtle shimmer that survives video export cleanly, and higher values make stars pulse dramatically — at 10 they blink in and out.',
+    min: 0,
+    max: 10,
+    step: 1,
+    initial: 6,
+    precision: 0,
+  },
+  spikeAmount: {
+    label: 'Diffraction Spikes',
+    description:
+      'Controls the four-point spikes on bright stars: how many stars get them and how long and bright the arms grow. 0 disables spikes; at 10 most stars carry prominent crosses.',
+    min: 0,
+    max: 10,
+    step: 1,
+    initial: 7,
+    precision: 0,
+  },
 };
 
 /**
@@ -123,6 +163,10 @@ export const STAR_FIELD_CONTROL_KEYS: readonly ControlKey[] = [
   'starSpeed',
   'baseStarSize',
   'starCount',
+  'starColorIntensity',
+  'colorfulStarRatio',
+  'spikeAmount',
+  'twinkleStrength',
 ];
 
 /**

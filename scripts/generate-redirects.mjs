@@ -25,7 +25,11 @@ const SITE_ORIGIN = 'https://dbastrosuite.com';
 const REDIRECTS = [
   { from: '/dossier/astrogram', to: '/tool/astrogram' },
   { from: '/dossier/starwizz', to: '/tool/starwizz' },
-  { from: '/dossier/file-grouper', to: '/tool/file-grouper' },
+  // The File Grouper tool was renamed to Sortronomy: its page moved from
+  // /tool/file-grouper to /tool/sortronomy, and the legacy /dossier path points
+  // straight at the new URL (no redirect chain).
+  { from: '/dossier/file-grouper', to: '/tool/sortronomy' },
+  { from: '/tool/file-grouper', to: '/tool/sortronomy' },
 ];
 
 /**

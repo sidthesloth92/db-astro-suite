@@ -22,7 +22,8 @@ export default defineConfig(({ mode }) => ({
           '/about',
           '/tool/starwizz',
           '/tool/astrogram',
-          '/tool/file-grouper',
+          '/tool/astrospike',
+          '/tool/sortronomy',
         ],
       },
       nitro: {
@@ -41,6 +42,10 @@ export default defineConfig(({ mode }) => ({
       },
       '/astrogram': {
         target: 'http://localhost:4201',
+        changeOrigin: true,
+      },
+      '/astrospike': {
+        target: 'http://localhost:4202',
         changeOrigin: true,
       },
     },

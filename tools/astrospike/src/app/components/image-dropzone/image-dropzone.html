@@ -1,0 +1,33 @@
+<div
+  class="dropzone"
+  [class.is-dragging]="isDragging()"
+  (dragenter)="onDragEnter($event)"
+  (dragover)="onDragOver($event)"
+  (dragleave)="onDragLeave()"
+  (drop)="onDrop($event)"
+>
+  <input
+    #fileInput
+    type="file"
+    accept="image/png,image/jpeg"
+    hidden
+    data-testid="file-input"
+    (change)="onFileInputChange($event)"
+  />
+
+  <div class="dropzone__glyph" aria-hidden="true">
+    <dba-ui-icon [def]="uploadIcon" [size]="44" />
+  </div>
+
+  <p class="dropzone__title">Drop your astrophoto here</p>
+  <p class="dropzone__help">PNG or JPEG · drag &amp; drop, or</p>
+
+  <dba-ui-text-button label="Select image" size="sm" (clicked)="openFilePicker()">
+    <dba-ui-icon slot="leading" [def]="uploadIcon" [size]="14" />
+  </dba-ui-text-button>
+
+  <p class="dropzone__privacy">
+    <dba-ui-icon class="dropzone__privacy-icon" [def]="lockIcon" [size]="12" />
+    <span>100% private — your image never leaves your browser.</span>
+  </p>
+</div>

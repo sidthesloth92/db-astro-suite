@@ -2,6 +2,16 @@
 
 A headless Node.js microservice that uses Astrometry.net for plate solving.
 
+## Which doc do I need?
+
+| I want to…                                                     | Read                                                             |
+| -------------------------------------------------------------- | --------------------------------------------------------------- |
+| Configure it, run it locally, manage keys, view analytics      | **This README** (below)                                         |
+| Set up a **brand-new** server from scratch                     | [`scripts/deploy/SERVER-SETUP.md`](scripts/deploy/SERVER-SETUP.md)   |
+| **Move** the backend to a new server (keeping access keys)     | [`scripts/deploy/MIGRATE-SERVER.md`](scripts/deploy/MIGRATE-SERVER.md) |
+| Dry-run the setup scripts in a local VM first                  | [`scripts/deploy/local-test.md`](scripts/deploy/local-test.md)  |
+| (Re)build the local catalog on the server                      | `scripts/deploy/rebuild-catalog.sh` — see [Catalog Builds](#catalog-builds) below |
+
 ## Environment Variables
 
 All configuration is supplied via environment variables. The table below documents every supported variable, its default value, and its effect.
@@ -48,7 +58,7 @@ This runs both `init-astrometry-db` (populates `data/astrometry/`) and `init-loc
 > `scripts/deploy/rebuild-catalog.sh` (a detached `docker run … npm run
 > init-local-catalog-db`) and mounted read-only at runtime — exactly like the
 > Astrometry.net FITS indexes. **Deploys never build it** (they just pull + swap
-> the container); see `scripts/deploy/deploy.md` §3a.
+> the container); see `scripts/deploy/SERVER-SETUP.md` (§ Build the local catalog).
 
 ### 2. Build the image
 
@@ -97,13 +107,15 @@ Production keeps heavy runtime data on the server, not in the image:
 - `celestial.sqlite` is built on the server **out-of-band** via
   `scripts/deploy/rebuild-catalog.sh` (detached, resumable) and mounted read-only
   from `data/local-catalog` on the host — never baked into the image and never
-  built by a deploy (see `scripts/deploy/deploy.md` §3a)
+  built by a deploy (see `scripts/deploy/SERVER-SETUP.md`)
 - uploads are mounted from persistent host storage
 
-Use the deploy runbook for the one-time VPS setup:
+Use the setup runbook for the one-time server setup (from scratch), or the migration runbook to move an
+existing server:
 
 ```bash
-cat tools/astrosolve/server/scripts/deploy/deploy.md
+cat tools/astrosolve/server/scripts/deploy/SERVER-SETUP.md     # brand-new server
+cat tools/astrosolve/server/scripts/deploy/MIGRATE-SERVER.md   # move to a new server (keeps access keys)
 ```
 
 The deployment scripts are:
@@ -131,7 +143,7 @@ never baked into the image. `rebuild-catalog.sh` runs the build **detached**
 **resumable**: each loaded source is recorded and skipped next time, and the
 R-tree is rebuilt only when a source actually (re)loaded.
 
-> Scripts are copied to `/opt/astrosolve/scripts/` by deploy.md step 1. Optional
+> Scripts are copied to `/opt/astrosolve/scripts/` by SERVER-SETUP.md step 3. Optional
 > overrides: `APP_DIR` (default `/opt/astrosolve`) and `IMAGE` (default: the
 > latest pulled astrosolve image).
 
@@ -189,8 +201,8 @@ container picks up the rebuilt catalog (the in-place `DROP`/`CREATE` churns the
 schema and row ids, so a clean reopen beats relying on the live connection to
 re-sync). The restart takes a few seconds.
 
-> The same first-time and refresh flows are in the deploy runbook
-> (`scripts/deploy/deploy.md` §3a); this section is the fuller operational
+> The same first-time and refresh flows are in the setup runbook
+> (`scripts/deploy/SERVER-SETUP.md`); this section is the fuller operational
 > reference.
 
 ## Managing Access Keys

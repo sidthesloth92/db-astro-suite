@@ -62,8 +62,8 @@
     <section class="stats" aria-label="Key metrics">
       @for (s of config().stats; track s.label) {
         <div class="stat">
-          <div class="stat__label">{{ s.label }}</div>
           <div class="stat__value">{{ s.value }}</div>
+          <div class="stat__label">{{ s.label }}</div>
         </div>
       }
     </section>
@@ -125,17 +125,21 @@
             <span class="sec-head__accent">{{ howTitle[0] }}</span>{{ howTitle[1] }}
           </h2>
         </div>
-        <span class="meta">{{ stepCount() }} STEPS</span>
+        <span class="meta">{{ stepsMetaLabel() }}</span>
       </div>
-      <ol class="steps">
-        @for (s of config().steps; track s.title; let i = $index) {
-          <li class="step">
-            <div class="step__num">{{ i + 1 < 10 ? '0' + (i + 1) : i + 1 }}</div>
-            <h4 class="step__title">{{ s.title }}</h4>
-            <p class="step__body">{{ s.body }}</p>
-          </li>
-        }
-      </ol>
+      @if (config().steps.length > 0) {
+        <ol class="steps">
+          @for (s of config().steps; track s.title; let i = $index) {
+            <li class="step">
+              <div class="step__num">{{ i + 1 < 10 ? '0' + (i + 1) : i + 1 }}</div>
+              <h4 class="step__title">{{ s.title }}</h4>
+              <p class="step__body">{{ s.body }}</p>
+            </li>
+          }
+        </ol>
+      } @else {
+        <ng-content select="[how]" />
+      }
     </section>
 
     <!-- OUTPUT -->

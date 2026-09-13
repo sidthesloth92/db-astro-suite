@@ -1,5 +1,5 @@
 ---
-applyTo: "tools/astro-gen-go/**"
+applyTo: "tools/sortronomy/**"
 ---
 
 # Go Rules

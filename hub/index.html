@@ -9,11 +9,11 @@
     <meta name="author" content="Dinesh Balaji Venkataraj" />
     <meta
       name="description"
-      content="Professional astrophotography tools for the modern enthusiast. Generate 4K starfields with Starwizz or create Instagram-ready exposure cards with Astrogram."
+      content="Professional astrophotography tools for the modern enthusiast. Generate 4K starfields with Starwizz, create Instagram-ready exposure cards with Astrogram, or add diffraction spikes to your images with AstroSpike."
     />
     <meta
       name="keywords"
-      content="astrophotography tools, starwizz, astrogram, space tools, starfield generator, exposure card, dinesh balaji venkataraj"
+      content="astrophotography tools, starwizz, astrogram, astrospike, sortronomy, diffraction spikes, space tools, starfield generator, exposure card, FITS organizer, dinesh balaji venkataraj"
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -128,7 +128,7 @@
         "applicationCategory": "PhotographyApplication",
         "operatingSystem": "Any",
         "browserRequirements": "Requires a modern web browser with JavaScript enabled",
-        "description": "A free, professional collection of social-media focused astrophotography tools. Go from sensor to social with Starwizz (4K starfield generator) and Astrogram (exposure card generator with plate solving).",
+        "description": "A free, professional collection of astrophotography tools. Go from sensor to social with Starwizz (4K starfield animations), Astrogram (exposure cards with plate solving), AstroSpike (diffraction spikes in the browser), and Sortronomy (offline FITS organizer CLI).",
         "offers": {
           "@type": "Offer",
           "price": "0",
@@ -148,7 +148,7 @@
             "@type": "WebApplication",
             "name": "Starwizz",
             "url": "https://dbastrosuite.com/starwizz/",
-            "description": "4K Starfield & Galaxy Animation Generator. Create cinematic starfield videos with customizable star density, velocity, rotation, and shooting stars.",
+            "description": "4K Starfield & Galaxy Animation Generator. Create cinematic starfield videos with customizable star density, natural star colors, twinkle, diffraction spikes, velocity, rotation, and shooting stars.",
             "applicationCategory": "MultimediaApplication"
           },
           {
@@ -157,6 +157,21 @@
             "url": "https://dbastrosuite.com/astrogram/",
             "description": "Professional Exposure Card Generator for astrophotographers. Create Instagram-ready cards with filter integration times, gear, Bortle scale, and plate-solved WCS annotation overlays.",
             "applicationCategory": "PhotographyApplication"
+          },
+          {
+            "@type": "WebApplication",
+            "name": "AstroSpike",
+            "url": "https://dbastrosuite.com/astrospike/",
+            "description": "Adds Newtonian and JWST-style diffraction spikes to astrophotography images. Stars are detected automatically in the browser, spike length and colour follow each star's measured brightness, and nothing is ever uploaded.",
+            "applicationCategory": "PhotographyApplication"
+          },
+          {
+            "@type": "SoftwareApplication",
+            "name": "Sortronomy",
+            "url": "https://dbastrosuite.com/tool/sortronomy",
+            "description": "Single-binary, fully offline CLI wizard that organizes astrophotography FITS captures by camera, focal length, target, session date, and filter — read straight from the FITS headers. Works with ASIAIR, N.I.N.A., SharpCap, Ekos/KStars, SGP, Voyager, and APT.",
+            "applicationCategory": "PhotographyApplication",
+            "operatingSystem": "macOS, Windows, Linux"
           }
         ]
       }
@@ -174,14 +189,14 @@
           padding: 1rem;
         "
       >
-        <h1>DB Astro Suite — Professional Astrophotography Tools</h1>
+        <p><strong>DB Astro Suite — Professional Astrophotography Tools</strong></p>
         <p>
           DB Astro Suite is a free collection of social-media focused
           astrophotography tools. Go from sensor to social — transform your raw
           captures into cinematic starfield animations or professional Instagram
           exposure cards.
         </p>
-        <h2>Tools</h2>
+        <p><strong>Tools</strong></p>
         <ul>
           <li>
             <a href="/starwizz/">Starwizz</a> — 4K cinematic starfield &amp;
@@ -190,6 +205,15 @@
           <li>
             <a href="/astrogram/">Astrogram</a> — Professional exposure card
             generator with plate solving
+          </li>
+          <li>
+            <a href="/astrospike/">AstroSpike</a> — Adds diffraction spikes to
+            your astrophotos entirely in the browser
+          </li>
+          <li>
+            <a href="/tool/sortronomy">Sortronomy</a> — Offline CLI wizard that
+            organizes FITS captures by camera, focal length, target, date, and
+            filter
           </li>
         </ul>
         <p>

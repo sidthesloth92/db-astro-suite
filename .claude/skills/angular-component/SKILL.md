@@ -83,7 +83,7 @@ export class <Feature>Component {
 - [ ] `track item.id` in every `@for` loop
 - [ ] Error state rendered — never assume a request succeeded
 - [ ] Semantic HTML elements (`<button>`, `<nav>`, `<main>`) not `<div>` everywhere
-- [ ] No hardcoded colors — design tokens from `@db-astro/theme` only
+- [ ] No hardcoded colors — design tokens from `@db-astro-suite/theme` only
 
 ### Step 6 — Service Pattern
 
@@ -107,7 +107,7 @@ export class <Feature>Service {
 
 ### Step 7 — Dependency Rules
 
-- Cross-package imports: `@db-astro/ui`, `@db-astro/theme` — never relative `../../libs/...`
+- Cross-package imports: `@db-astro-suite/ui`, `@db-astro-suite/theme` — never relative `../../libs/...`
 - Apps must not import from each other
 - `libs/ui` components must not inject stores or call `HttpClient`
 

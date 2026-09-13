@@ -102,8 +102,17 @@ export interface ToolDetailConfig {
 
   /** Capabilities for the "What it does" grid. */
   readonly features: readonly ToolDetailFeature[];
-  /** Steps for the "How it works" strip. */
+  /**
+   * Steps for the "How it works" strip. Leave empty to render the host
+   * page's projected `[how]` content in place of the default step list.
+   */
   readonly steps: readonly ToolDetailStep[];
+  /**
+   * Optional meta label beside the "How it works" title; falls back to the
+   * computed `'NN STEPS'`. Set it when `steps` is empty and the section body
+   * is supplied via the `[how]` projection slot.
+   */
+  readonly stepsMeta?: string;
 
   /** Kicker for the Output section. */
   readonly outputKicker: string;

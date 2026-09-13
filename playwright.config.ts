@@ -51,5 +51,11 @@ export default defineConfig({
       reuseExistingServer: !process.env.CI,
       timeout: 30 * 1000,
     },
+    {
+      command: "pnpm dev:astrospike",
+      url: "http://localhost:4202",
+      reuseExistingServer: !process.env.CI,
+      timeout: 180 * 1000,
+    },
   ],
 });

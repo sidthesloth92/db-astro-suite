@@ -47,7 +47,7 @@ From this output extract:
 | -------------------------------------------------------------- | ------------ | ---------------------------- |
 | `hub/**`, `tools/astrogram/**`, `tools/starwizz/**`, `libs/**` | Frontend     | `frontend-dev`               |
 | `tools/astrosolve/**`, `services/**`                           | Backend      | `backend-dev`                |
-| `tools/astro-gen-go/**`                                        | Backend (Go) | `backend-dev`                |
+| `tools/sortronomy/**`                                        | Backend (Go) | `backend-dev`                |
 | `.github/workflows/**`, `**/Dockerfile`                        | Infra        | `infra-engineer`             |
 | Mixed                                                          | Multiple     | route to each relevant agent |
 

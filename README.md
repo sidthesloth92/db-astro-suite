@@ -16,8 +16,16 @@ A professional, organizational-style monorepo containing a suite of Astro-based 
 ├── services/           # Backend services (Python)
 │   └── (coming soon)
 └── tools/              # Multi-language CLI tools
-    └── astro-gen-go/   # Platform-agnostic script generator (Go)
+    └── sortronomy/   # Platform-agnostic script generator (Go)
 ```
+
+---
+
+## 🔭 Tools
+
+|  | Tool | What it does |
+| --- | --- | --- |
+| <img src="tools/sortronomy/assets/brand/sortronomy-mark.svg" width="28" alt="Sortronomy logo" /> | [Sortronomy](tools/sortronomy/) | Offline CLI wizard that sorts astrophotography FITS captures into a clean library — by camera, target, date, and filter, read straight from the headers. |
 
 ---
 
@@ -61,7 +69,7 @@ pnpm --filter @db-astro-suite/starwizz start
 #### Run the Go Script Generator
 
 ```bash
-cd tools/astro-gen-go
+cd tools/sortronomy
 go run main.go [script-name]
 ```
 

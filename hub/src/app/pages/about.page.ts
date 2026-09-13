@@ -1,6 +1,6 @@
 import { RouteMeta } from '@analogjs/router';
 import { DOCUMENT } from '@angular/common';
-import { ChangeDetectionStrategy, Component, afterNextRender, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { StarryBackgroundComponent, TextButtonComponent } from '@db-astro-suite/ui';
 
 /**
@@ -20,7 +20,7 @@ export default class AboutPageComponent {
   private readonly document = inject(DOCUMENT);
 
   constructor() {
-    afterNextRender(() => this.upsertCanonical('https://dbastrosuite.com/about'));
+    this.upsertCanonical('https://dbastrosuite.com/about');
   }
 
   /** Ensures a `<link rel="canonical">` exists pointing at the supplied URL. */

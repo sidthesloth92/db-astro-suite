@@ -49,7 +49,7 @@ ALLOWED:
 
 FORBIDDEN (MUST FIX):
   app → other app
-  relative ../../libs/... imports  (must use @db-astro/* aliases)
+  relative ../../libs/... imports  (must use @db-astro-suite/* aliases)
 ```
 
 Scan all import statements for violations.

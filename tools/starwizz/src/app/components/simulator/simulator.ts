@@ -8,6 +8,7 @@ import {
   effect,
   inject,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import {
@@ -15,7 +16,15 @@ import {
   GALAXY_PAN_FACTOR,
   MIN_SCALE,
 } from '../../constants/simulation.constant';
+import {
+  CORE_TINT_FACTOR,
+  STAR_COLORS,
+  STAR_SPRITE_SIZE,
+  WHITE_STAR_INDEX,
+} from '../../constants/star-appearance.constant';
+import { RgbColor, StarSprites } from '../../models/star-appearance.model';
 import { SimulationService } from '../../services/simulation.service';
+import { colorMixForIntensity, mixRgb, tintForIntensity } from '../../utils/star-appearance.util';
 import { ClearImageButton } from './clear-image-button/clear-image-button';
 import { HudOverlay } from './hud-overlay/hud-overlay';
 import { ImageUploadOverlay } from './image-upload-overlay/image-upload-overlay';
@@ -92,7 +101,7 @@ export class Simulator implements AfterViewInit {
   private currentRotation = 0;
   private panX = 0;
   private panY = 0;
-  private starTexture: HTMLCanvasElement | null = null;
+  private starSprites: StarSprites | null = null;
   private lastShootingStarSpawn = 0;
   private animationFrameId: number | null = null;
 
@@ -187,6 +196,29 @@ export class Simulator implements AfterViewInit {
     }
   });
 
+  /** Effect: re-render the tinted star sprites live when Star Color Intensity changes. */
+  private readonly _starAppearanceEffect = effect(() => {
+    this.simService.controls.starColorIntensity();
+    if (this.ctx) {
+      this.generateStarSprites();
+    }
+  });
+
+  /**
+   * Effect: re-roll every star's colour when Colorful Stars changes. Colours
+   * are otherwise fixed at spawn, so without this the slider would only
+   * affect newly created stars. The star list itself is read untracked —
+   * spawning stars must not re-trigger a field-wide re-roll.
+   */
+  private readonly _colorRatioEffect = effect(() => {
+    this.simService.controls.colorfulStarRatio();
+    untracked(() => {
+      for (const star of this.simService.stars()) {
+        star.rerollColor();
+      }
+    });
+  });
+
   /**
    * Effect: when the travel direction changes to a depth preset, initialise the
    * zoom to that leg's starting scale so Backward begins zoomed (and zooms out)
@@ -229,7 +261,7 @@ export class Simulator implements AfterViewInit {
   private init() {
     this.ctx = this.canvasRef().nativeElement.getContext('2d');
     this.setupCanvasDimensions();
-    this.generateStarTexture();
+    this.generateStarSprites();
     this.simService.loadingProgress.set('Initializing...');
 
     this.simService.loadDefaultScene();
@@ -275,25 +307,86 @@ export class Simulator implements AfterViewInit {
     });
   }
 
-  private generateStarTexture() {
-    const size = 128;
+  /**
+   * Pre-renders one glow sprite and one diffraction-spike sprite per palette
+   * colour so per-frame star drawing stays a cheap drawImage call. Tints are
+   * resolved against the Star Color Intensity control, so this re-runs when
+   * that slider moves (see `_starAppearanceEffect`).
+   */
+  private generateStarSprites() {
+    const intensity = this.simService.controls.starColorIntensity();
+    const glow: HTMLCanvasElement[] = [];
+    const spikes: HTMLCanvasElement[] = [];
+    for (const color of STAR_COLORS) {
+      const tint = tintForIntensity(color, intensity);
+      // Tint part of the hot core too — small stars show mostly core, so a
+      // pure-white core would leave the whole field reading as white.
+      const coreMix = CORE_TINT_FACTOR * Math.min(1, colorMixForIntensity(intensity));
+      const coreTint = mixRgb({ r: 255, g: 255, b: 255 }, tint, coreMix);
+      const glowSprite = this.renderGlowSprite(tint, coreTint);
+      const spikeSprite = this.renderSpikeSprite(tint);
+      if (!glowSprite || !spikeSprite) return;
+      glow.push(glowSprite);
+      spikes.push(spikeSprite);
+    }
+    this.starSprites = { glow, spikes };
+  }
+
+  /**
+   * Renders a soft radial glow with a lightly tinted core fading through the
+   * full tint — same falloff shape as the original white-only texture.
+   */
+  private renderGlowSprite(tint: RgbColor, coreTint: RgbColor): HTMLCanvasElement | null {
+    const size = STAR_SPRITE_SIZE;
     const half = size / 2;
     const canvas = document.createElement('canvas');
     canvas.width = size;
     canvas.height = size;
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) return null;
 
+    const halo = `${tint.r}, ${tint.g}, ${tint.b}`;
     const gradient = ctx.createRadialGradient(half, half, 0, half, half, half);
-    gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-    gradient.addColorStop(0.2, 'rgba(255, 255, 255, 1)');
-    gradient.addColorStop(0.4, 'rgba(255, 255, 255, 0.6)');
-    gradient.addColorStop(0.7, 'rgba(255, 255, 255, 0.2)');
-    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    gradient.addColorStop(0, `rgba(${coreTint.r}, ${coreTint.g}, ${coreTint.b}, 1)`);
+    gradient.addColorStop(0.2, `rgba(${halo}, 1)`);
+    gradient.addColorStop(0.4, `rgba(${halo}, 0.6)`);
+    gradient.addColorStop(0.7, `rgba(${halo}, 0.2)`);
+    gradient.addColorStop(1, `rgba(${halo}, 0)`);
 
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, size, size);
-    this.starTexture = canvas;
+    return canvas;
+  }
+
+  /**
+   * Renders a four-point diffraction spike: two thin perpendicular strokes
+   * that fade out toward the tips, tinted to match the star's glow.
+   */
+  private renderSpikeSprite(tint: RgbColor): HTMLCanvasElement | null {
+    const size = STAR_SPRITE_SIZE;
+    const half = size / 2;
+    const armWidth = size * 0.02;
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+
+    const arm = `${tint.r}, ${tint.g}, ${tint.b}`;
+    const horizontal = ctx.createLinearGradient(0, 0, size, 0);
+    horizontal.addColorStop(0, `rgba(${arm}, 0)`);
+    horizontal.addColorStop(0.5, 'rgba(255, 255, 255, 0.9)');
+    horizontal.addColorStop(1, `rgba(${arm}, 0)`);
+    ctx.fillStyle = horizontal;
+    ctx.fillRect(0, half - armWidth / 2, size, armWidth);
+
+    const vertical = ctx.createLinearGradient(0, 0, 0, size);
+    vertical.addColorStop(0, `rgba(${arm}, 0)`);
+    vertical.addColorStop(0.5, 'rgba(255, 255, 255, 0.9)');
+    vertical.addColorStop(1, `rgba(${arm}, 0)`);
+    ctx.fillStyle = vertical;
+    ctx.fillRect(half - armWidth / 2, 0, armWidth, size);
+    return canvas;
   }
 
   private animate = () => {
@@ -658,16 +751,20 @@ export class Simulator implements AfterViewInit {
     if (this.simService.isPathMode() && !this.simService.pathFinalized()) return;
 
     const isMoving = this.simService.isImageLoaded();
+    const timeSeconds = performance.now() / 1000;
 
     for (const star of this.simService.stars()) {
       if (isMoving) star.update();
-      star.draw(this.ctx, this.width, this.currentScale, this.starTexture);
+      star.draw(this.ctx, this.width, this.currentScale, this.starSprites, timeSeconds);
     }
 
     if (this.simService.shootingStarsEnabled()) {
+      // Shooting stars deliberately stay white for contrast against the
+      // tinted background field.
+      const whiteGlow = this.starSprites?.glow[WHITE_STAR_INDEX] ?? null;
       for (const star of this.simService.shootingStars()) {
         if (isMoving) star.update();
-        star.draw(this.ctx, this.width, this.currentScale, this.starTexture);
+        star.draw(this.ctx, this.width, this.currentScale, whiteGlow);
       }
     }
   }

@@ -1,0 +1,100 @@
+name: sortronomy-release
+
+# Builds the sortronomy CLI for all six release targets and uploads the
+# archives + checksums.txt to the GitHub release of a `sortronomy-v*` tag.
+#
+# Two entry points:
+#   - workflow_call: invoked by pipeline.yml right after release-please creates
+#     the release. The tag itself can never trigger a workflow here —
+#     release-please runs on the default GITHUB_TOKEN, and GitHub suppresses
+#     workflow triggers for events created by GITHUB_TOKEN. With no tag input,
+#     the version is read from .release-please-manifest.json at the release
+#     commit.
+#   - workflow_dispatch: manual recovery — rebuild and re-upload the assets for
+#     an existing tag (e.g. after a failed release run). Lives in its own
+#     workflow because pipeline.yml's workflow_dispatch also builds and deploys
+#     the backend.
+#
+# GoReleaser is intentionally not used: OSS GoReleaser hard-fails parsing the
+# component-prefixed tag (`sortronomy-v0.0.1`) as semver, and the fix
+# (monorepo.tag_prefix) is Pro-only. tools/sortronomy/.goreleaser.yaml remains
+# for local snapshot builds only.
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: 'sortronomy release tag; empty derives it from the manifest at the current commit'
+        required: false
+        type: string
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing sortronomy tag (e.g. sortronomy-v0.0.1) to rebuild + re-upload assets for'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-upload:
+    name: Build & upload release assets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.sha }}
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: tools/sortronomy/go.mod
+          cache-dependency-path: tools/sortronomy/go.sum
+
+      - name: Resolve version
+        id: ver
+        run: |
+          set -euo pipefail
+          if [ -n "${{ inputs.tag }}" ]; then
+            tag="${{ inputs.tag }}"
+          else
+            tag="sortronomy-v$(jq -r '.["tools/sortronomy"]' .release-please-manifest.json)"
+          fi
+          case "$tag" in
+            sortronomy-v*) ;;
+            *) echo "expected a sortronomy-v* tag, got '$tag'" >&2; exit 1 ;;
+          esac
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "version=${tag#sortronomy-v}" >> "$GITHUB_OUTPUT"
+
+      - name: Build archives
+        working-directory: tools/sortronomy
+        # Archive layout is a contract with scripts/install.sh + install.ps1:
+        # bare binary at the archive root, asset names sortronomy_<os>_<arch>
+        # (.tar.gz, .zip for windows), and a two-column sha256sum checksums.txt.
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          for target in darwin/amd64 darwin/arm64 linux/amd64 linux/arm64 windows/amd64 windows/arm64; do
+            goos="${target%/*}"; goarch="${target#*/}"
+            bin=sortronomy; [ "$goos" = windows ] && bin=sortronomy.exe
+            CGO_ENABLED=0 GOOS="$goos" GOARCH="$goarch" \
+              go build -trimpath -buildvcs=false \
+              -ldflags "-s -w -X main.version=${{ steps.ver.outputs.version }}" \
+              -o "dist/$bin" ./cmd/sortronomy
+            if [ "$goos" = windows ]; then
+              (cd dist && zip -q "sortronomy_${goos}_${goarch}.zip" "$bin" && rm "$bin")
+            else
+              tar -czf "dist/sortronomy_${goos}_${goarch}.tar.gz" -C dist "$bin"
+              rm "dist/$bin"
+            fi
+          done
+          (cd dist && sha256sum *.tar.gz *.zip > checksums.txt)
+
+      - name: Upload release assets
+        working-directory: tools/sortronomy
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "${{ steps.ver.outputs.tag }}" dist/* --clobber

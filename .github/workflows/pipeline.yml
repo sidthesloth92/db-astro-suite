@@ -166,20 +166,40 @@ jobs:
       (needs.verify.result == 'success' || needs.verify.result == 'skipped')
     runs-on: ubuntu-latest
     outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
+      release_created: ${{ steps.release.outputs.releases_created }}
+      # JSON array of released package paths, e.g. ["tools/sortronomy"]. The
+      # per-path outputs (tools/sortronomy--release_created) come through empty
+      # at the job boundary — the sortronomy-v0.0.1 run created the release yet
+      # skipped the gated job — so downstream gates must use this instead.
+      paths_released: ${{ steps.release.outputs.paths_released }}
     steps:
-      # Uses a classic PAT with full `repo` scope. GITHUB_TOKEN gets silently
-      # capped on the create-release endpoint on this repo (returns 403
-      # "Resource not accessible by integration" despite the job header showing
-      # Contents: write). Classic PATs bypass that cap. Do NOT use a
-      # fine-grained PAT here — those hit a separate "Resource not accessible
-      # by personal access token" error on release creation, even with
-      # Contents: Read and write set.
+      # Runs on the default GITHUB_TOKEN. Side effect: the tags/releases it
+      # creates can never trigger `on: push: tags:` workflows (GitHub suppresses
+      # triggers for GITHUB_TOKEN-created events), so the sortronomy release job
+      # below must live in THIS run, gated on paths_released.
       - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         id: release
         with:
-          release-type: node
-          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+      - name: Log release outputs
+        run: |
+          echo "releases_created=${{ steps.release.outputs.releases_created }}"
+          echo "paths_released=${{ steps.release.outputs.paths_released }}"
+
+  release-sortronomy:
+    name: Release sortronomy
+    needs: release-please
+    # Gate on paths_released (a JSON array string like ["tools/sortronomy"]).
+    # The slash-named per-path outputs (tools/sortronomy--release_created)
+    # evaluate empty at the job boundary — that is why this job never fired for
+    # v0.0.1 even though the release was created. Manual re-runs go through
+    # sortronomy-release.yml's workflow_dispatch, not this pipeline.
+    if: contains(needs.release-please.outputs.paths_released, '"tools/sortronomy"')
+    permissions:
+      contents: write
+    uses: ./.github/workflows/sortronomy-release.yml
 
   deploy:
     name: Deploy to GitHub Pages

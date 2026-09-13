@@ -96,6 +96,10 @@ export class SimulationService implements OnDestroy {
     starSpeed: signal(CONTROLS['starSpeed'].initial),
     baseStarSize: signal(CONTROLS['baseStarSize'].initial),
     starCount: signal(CONTROLS['starCount'].initial),
+    starColorIntensity: signal(CONTROLS['starColorIntensity'].initial),
+    colorfulStarRatio: signal(CONTROLS['colorfulStarRatio'].initial),
+    twinkleStrength: signal(CONTROLS['twinkleStrength'].initial),
+    spikeAmount: signal(CONTROLS['spikeAmount'].initial),
   };
 
   /**

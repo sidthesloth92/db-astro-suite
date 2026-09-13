@@ -3,7 +3,6 @@ import { DOCUMENT } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  afterNextRender,
   inject,
 } from '@angular/core';
 import { AnalyticsService } from '@db-astro-suite/ui';
@@ -32,9 +31,7 @@ export default class StarwizzPage {
   private readonly document = inject(DOCUMENT);
 
   constructor() {
-    afterNextRender(() =>
-      this.upsertCanonical('https://dbastrosuite.com/tool/starwizz'),
-    );
+    this.upsertCanonical('https://dbastrosuite.com/tool/starwizz');
   }
 
   /** Fires the hub launch-tool analytics event. */
