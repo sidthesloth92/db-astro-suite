@@ -9,7 +9,6 @@ import { AuroraEditorialThemeComponent } from './aurora-editorial/aurora-editori
 import { SpectrumThemeComponent } from './spectrum/spectrum-theme.component';
 import { HaloThemeComponent } from './halo/halo-theme.component';
 import { BlueprintThemeComponent } from './blueprint/blueprint-theme.component';
-import { MissionDataThemeComponent } from './mission-data/mission-data-theme.component';
 import { DuotonePosterThemeComponent } from './duotone-poster/duotone-poster-theme.component';
 import { FlightLogThemeComponent } from './flight-log/flight-log-theme.component';
 import { SystemLineThemeComponent } from './system-line/system-line-theme.component';
@@ -48,6 +47,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Original',
     subtitle: 'Default · the classic card over your own image',
     component: OriginalThemeComponent,
+    landscapeBasisHeight: 570,
     accents: {
       accentColor: '#ff2d95',
       accentColorRgb: '255, 45, 149',
@@ -61,6 +61,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Obsidian Glass',
     subtitle: 'Glassmorphism · cyan/violet aurora',
     component: ObsidianThemeComponent,
+    landscapeBasisHeight: 600,
     accents: {
       accentColor: '#5DD8FF',
       accentColorRgb: '93, 216, 255',
@@ -71,6 +72,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Observatory',
     subtitle: 'Copper telemetry on near-black',
     component: ObservatoryThemeComponent,
+    landscapeBasisHeight: 600,
     accents: {
       accentColor: '#D97742',
       accentColorRgb: '217, 119, 66',
@@ -81,6 +83,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Aurora',
     subtitle: 'Modern editorial · weight contrast',
     component: AuroraEditorialThemeComponent,
+    landscapeBasisHeight: 530,
     accents: {
       accentColor: '#D4A574',
       accentColorRgb: '212, 165, 116',
@@ -91,6 +94,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Spectrum',
     subtitle: 'Vibrant gradient hero',
     component: SpectrumThemeComponent,
+    landscapeBasisHeight: 540,
     accents: {
       accentColor: '#FF2D95',
       accentColorRgb: '255, 45, 149',
@@ -101,6 +105,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Halo',
     subtitle: 'Ethereal soft pastels',
     component: HaloThemeComponent,
+    landscapeBasisHeight: 660,
     accents: {
       accentColor: '#C6B6FF',
       accentColorRgb: '198, 182, 255',
@@ -111,26 +116,18 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Blueprint',
     subtitle: 'Cyan schematic · technical',
     component: BlueprintThemeComponent,
+    landscapeBasisHeight: 660,
     accents: {
       accentColor: '#4FC3F7',
       accentColorRgb: '79, 195, 247',
       secondaryAccentColor: '#7FD8FF',
     },
   },
-  'mission-data': {
-    label: 'Mission Data',
-    subtitle: 'Dashboard tiles · big stats',
-    component: MissionDataThemeComponent,
-    accents: {
-      accentColor: '#A6F05A',
-      accentColorRgb: '166, 240, 90',
-      secondaryAccentColor: '#34E1E8',
-    },
-  },
   'duotone-poster': {
     label: 'Duotone Poster',
     subtitle: 'Bold riso · indigo + coral',
     component: DuotonePosterThemeComponent,
+    landscapeBasisHeight: 500,
     accents: {
       accentColor: '#FF5E5B',
       accentColorRgb: '255, 94, 91',
@@ -141,6 +138,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Flight Log',
     subtitle: 'Boarding-pass ticket',
     component: FlightLogThemeComponent,
+    landscapeBasisHeight: 540,
     accents: {
       accentColor: '#5EE6B8',
       accentColorRgb: '94, 230, 184',
@@ -151,6 +149,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'System Line',
     subtitle: 'The solar system as a number line',
     component: SystemLineThemeComponent,
+    landscapeBasisHeight: 550,
     accents: {
       accentColor: '#FFCF6B',
       accentColorRgb: '255, 207, 107',
@@ -161,6 +160,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Star Trails',
     subtitle: 'Exposure arcs around Polaris',
     component: StarTrailsThemeComponent,
+    landscapeBasisHeight: 460,
     accents: {
       accentColor: '#FFF4D8',
       accentColorRgb: '255, 244, 216',
@@ -171,6 +171,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Moon Phases',
     subtitle: 'Filter fill as lunar phases',
     component: MoonPhasesThemeComponent,
+    landscapeBasisHeight: 500,
     accents: {
       accentColor: '#E8E4DA',
       accentColorRgb: '232, 228, 218',
@@ -181,6 +182,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Eclipse',
     subtitle: 'The data is the corona',
     component: EclipseThemeComponent,
+    landscapeBasisHeight: 460,
     accents: {
       accentColor: '#FFF2D9',
       accentColorRgb: '255, 242, 217',
@@ -191,6 +193,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Telrad',
     subtitle: 'Red-light finder reticle',
     component: TelradThemeComponent,
+    landscapeBasisHeight: 460,
     accents: {
       accentColor: '#FF4438',
       accentColorRgb: '255, 68, 56',
@@ -211,6 +214,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Radiant',
     subtitle: 'Meteor streaks from the radiant',
     component: RadiantThemeComponent,
+    landscapeBasisHeight: 460,
     accents: {
       accentColor: '#FFC24D',
       accentColorRgb: '255, 194, 77',
@@ -221,6 +225,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Constellation',
     subtitle: 'Star-chart · bands as bright stars',
     component: ConstellationThemeComponent,
+    landscapeBasisHeight: 540,
     accents: {
       accentColor: '#7FE3FF',
       accentColorRgb: '127, 227, 255',
@@ -231,6 +236,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Orrery',
     subtitle: 'Solar-system orbits',
     component: OrreryThemeComponent,
+    landscapeBasisHeight: 580,
     accents: {
       accentColor: '#FFCF6B',
       accentColorRgb: '255, 207, 107',
@@ -241,6 +247,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Comet',
     subtitle: 'Exposure data in the tail',
     component: CometThemeComponent,
+    landscapeBasisHeight: 460,
     accents: {
       accentColor: '#9FE9FF',
       accentColorRgb: '159, 233, 255',
@@ -251,6 +258,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Ringed Planet',
     subtitle: 'Rings encode integration',
     component: RingedPlanetThemeComponent,
+    landscapeBasisHeight: 620,
     accents: {
       accentColor: '#FFD79A',
       accentColorRgb: '255, 215, 154',
@@ -261,6 +269,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Atlas',
     subtitle: 'Light · vintage star-atlas plate',
     component: AtlasThemeComponent,
+    landscapeBasisHeight: 580,
     accents: {
       accentColor: '#2B2316',
       accentColorRgb: '43, 35, 22',
@@ -287,6 +296,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Daylight',
     subtitle: 'Light · ink share card',
     component: DaylightThemeComponent,
+    landscapeBasisHeight: 560,
     accents: {
       accentColor: '#D6187B',
       accentColorRgb: '214, 24, 123',
@@ -300,6 +310,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Headline',
     subtitle: 'The wow-stat is the design',
     component: HeadlineThemeComponent,
+    landscapeBasisHeight: 460,
     accents: {
       accentColor: '#FF2D95',
       accentColorRgb: '255, 45, 149',
@@ -310,6 +321,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Star Card',
     subtitle: 'Collectible archive card',
     component: StarCardThemeComponent,
+    landscapeBasisHeight: 560,
     accents: {
       accentColor: '#E8C788',
       accentColorRgb: '232, 199, 136',
@@ -330,6 +342,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Split Stats',
     subtitle: 'Fitness-style share card',
     component: SplitStatsThemeComponent,
+    landscapeBasisHeight: 500,
     accents: {
       accentColor: '#FF2D95',
       accentColorRgb: '255, 45, 149',
@@ -340,6 +353,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Film Edge',
     subtitle: 'A frame of astro film',
     component: FilmEdgeThemeComponent,
+    landscapeBasisHeight: 510,
     accents: {
       accentColor: '#FFB65C',
       accentColorRgb: '255, 182, 92',
@@ -350,6 +364,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Emission',
     subtitle: 'Spectral lines at true wavelengths',
     component: EmissionThemeComponent,
+    landscapeBasisHeight: 480,
     accents: {
       accentColor: '#7FE3FF',
       accentColorRgb: '127, 227, 255',
@@ -370,10 +385,11 @@ export function isCardThemeId(value: unknown): value is CardThemeId {
 }
 
 /**
- * Picker render order — each entry becomes an `<optgroup>` header wrapping its
- * nested themes. This, not `CARD_THEMES`' key order, is what the Layout panel
- * shows; a theme missing from here would not appear in the picker at all, which
- * `card-themes.constants.spec.ts` guards against.
+ * Picker groups — each entry becomes an `<optgroup>` header wrapping its nested
+ * themes. Group order is fixed here; the themes inside each group are sorted
+ * alphabetically by `buildCardThemeSelectItems`, so the id order below is not
+ * significant. A theme missing from here would not appear in the picker at
+ * all, which `card-themes.constants.spec.ts` guards against.
  */
 export const CARD_THEME_GROUPS: readonly { label: string; ids: readonly CardThemeId[] }[] = [
   {
@@ -412,7 +428,6 @@ export const CARD_THEME_GROUPS: readonly { label: string; ids: readonly CardThem
       'spectrum',
       'halo',
       'blueprint',
-      'mission-data',
       'duotone-poster',
       'flight-log',
       'constellation',
@@ -427,6 +442,11 @@ export const CARD_THEME_GROUPS: readonly { label: string; ids: readonly CardThem
  * Builds the grouped `SelectItem[]` list for the Layout panel's theme picker.
  * Labels are read back out of `CARD_THEMES`, so renaming a theme in the
  * registry can never leave a stale label behind in the picker.
+ *
+ * Within each group the options are sorted alphabetically by label here, at
+ * build time, rather than by hand in `CARD_THEME_GROUPS`: the groups record
+ * *membership*, and a theme added to one lands in the right place without
+ * anyone having to remember the ordering rule.
  */
 export function buildCardThemeSelectItems(): readonly SelectItem[] {
   return CARD_THEME_GROUPS.map((group) => ({
@@ -434,9 +454,11 @@ export function buildCardThemeSelectItems(): readonly SelectItem[] {
     // `flatMap` over a lookup rather than `filter` + `!`: the registry is
     // typed `Partial`, and this keeps the undefined case handled in the type
     // system instead of asserted away.
-    options: group.ids.flatMap((id) => {
-      const definition = CARD_THEMES[id];
-      return definition ? [{ value: id, label: definition.label }] : [];
-    }),
+    options: group.ids
+      .flatMap((id) => {
+        const definition = CARD_THEMES[id];
+        return definition ? [{ value: id, label: definition.label }] : [];
+      })
+      .sort((a, b) => a.label.localeCompare(b.label, 'en', { sensitivity: 'base' })),
   }));
 }

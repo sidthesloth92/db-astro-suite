@@ -17,7 +17,6 @@ const ALL_THEME_IDS: readonly CardThemeId[] = [
   'spectrum',
   'halo',
   'blueprint',
-  'mission-data',
   'duotone-poster',
   'flight-log',
   'constellation',
@@ -98,7 +97,23 @@ describe('CARD_THEME_GROUPS', () => {
       'Celestial',
       'Infographics',
     ]);
-    expect(CARD_THEME_GROUPS.map((group) => group.ids.length)).toEqual([9, 7, 14]);
+    expect(CARD_THEME_GROUPS.map((group) => group.ids.length)).toEqual([9, 7, 13]);
+  });
+
+  it('lists the themes in each picker group alphabetically', () => {
+    const groups = buildCardThemeSelectItems().filter(isSelectOptionGroup);
+
+    for (const group of groups) {
+      const labels = group.options.map((option) => option.label);
+      const sorted = [...labels].sort((a, b) =>
+        a.localeCompare(b, 'en', { sensitivity: 'base' }),
+      );
+      expect(labels).withContext(`group "${group.label}"`).toEqual(sorted);
+    }
+  });
+
+  it('no longer offers the retired Mission Data theme', () => {
+    expect(isCardThemeId('mission-data')).toBeFalse();
   });
 
   it('places every registered theme in exactly one group', () => {

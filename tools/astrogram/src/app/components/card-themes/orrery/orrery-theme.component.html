@@ -3,7 +3,7 @@
 <div class="orr-root">
   <dba-ag-theme-starfield [density]="130" [opacity]="0.5" [seed]="9" />
 
-  <svg class="orr-chart" viewBox="0 0 540 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <svg class="orr-chart" viewBox="0 0 540 720" [attr.preserveAspectRatio]="dataArtFit()" aria-hidden="true">
     <g [attr.transform]="'translate(0 ' + orbitTop + ')'">
       <!-- orbit ellipses -->
       @for (orbit of orbits(); track orbit.band.id) {
@@ -55,13 +55,15 @@
   </div>
 
   <!-- Planet labels -->
-  @for (orbit of orbits(); track orbit.band.id) {
-    <div class="orr-planet-label" [style.top.%]="orbit.labelTopPct" [style.left.%]="orbit.labelLeftPct">
-      <div class="orr-planet-id" [style.color]="orbit.band.color">{{ orbit.band.id }}</div>
-      <div class="orr-planet-time">{{ orbit.band.time }}</div>
-      <div class="orr-planet-frames">{{ orbit.band.frames }}</div>
-    </div>
-  }
+  <div class="orr-label-frame" [class.orr-label-frame--fitted]="isLandscapeFormat()">
+    @for (orbit of orbits(); track orbit.band.id) {
+      <div class="orr-planet-label" [style.top.%]="orbit.labelTopPct" [style.left.%]="orbit.labelLeftPct">
+        <div class="orr-planet-id" [style.color]="orbit.band.color">{{ orbit.band.id }}</div>
+        <div class="orr-planet-time">{{ orbit.band.time }}</div>
+        <div class="orr-planet-frames">{{ orbit.band.frames }}</div>
+      </div>
+    }
+  </div>
 
   <!-- Object title -->
   <div class="orr-title" data-testid="card-hero">

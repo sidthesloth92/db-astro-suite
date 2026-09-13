@@ -3,7 +3,13 @@ import { CardDataService } from '../../services/card-data.service';
 import type { ThemeViewData } from '../../models/card-theme.model';
 import type { ThemeIconName } from './shared/theme-icon.types';
 import { buildThemeViewData } from './theme-view-data.util';
-import { equipmentIcon, softwareIcon } from './theme-view.constants';
+import { LANDSCAPE_ASPECT_RATIOS } from '../../constants/theme-canvas.constants';
+import {
+  DATA_ART_FIT,
+  DATA_ART_FIT_LANDSCAPE,
+  equipmentIcon,
+  softwareIcon,
+} from './theme-view.constants';
 
 /**
  * Shared base for every card-theme component. Injects the card store, maps
@@ -27,6 +33,25 @@ export abstract class CardThemeBaseDirective {
    * (e.g. the unsplit title, or per-filter emoji icons). Treat as read-only.
    */
   protected readonly cardData = this.dataService.cardData;
+
+  /** True on the landscape formats (1.91:1), where data art is fitted rather than cropped. */
+  protected readonly isLandscapeFormat = computed(() =>
+    LANDSCAPE_ASPECT_RATIOS.includes(this.cardData().aspectRatio),
+  );
+
+  /**
+   * `preserveAspectRatio` for a theme's full-card data-art SVG: cover the
+   * canvas on portrait and square formats, fit the whole artboard on landscape.
+   * Only for art that carries data (orbits, planets, star charts) — decorative
+   * backgrounds should keep cropping at every format.
+   *
+   * A theme that overlays HTML labels on the art at viewBox percentages must
+   * also frame those labels to the fitted art box on landscape, or they drift
+   * away from the points they name — see the orrery and constellation themes.
+   */
+  protected readonly dataArtFit = computed(() =>
+    this.isLandscapeFormat() ? DATA_ART_FIT_LANDSCAPE : DATA_ART_FIT,
+  );
 
   /** Resolves the equipment line icon for a row index. */
   equipmentIcon(index: number): ThemeIconName {

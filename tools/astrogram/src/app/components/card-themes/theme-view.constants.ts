@@ -80,3 +80,23 @@ export function equipmentIcon(index: number): ThemeIconName {
 export function softwareIcon(index: number): ThemeIconName {
   return SOFTWARE_ICON_NAMES[index % SOFTWARE_ICON_NAMES.length];
 }
+
+/**
+ * How a full-card data-art SVG (a 540 x 720 viewBox) fits the theme canvas on
+ * portrait and square formats: cover the canvas, cropping any overflow.
+ *
+ * `slice` rather than `none` keeps circles round at every aspect, and at the
+ * artboard's own 3:4 it is indistinguishable from `meet`.
+ */
+export const DATA_ART_FIT = 'xMidYMid slice';
+
+/**
+ * How the same SVG fits on landscape formats: show the whole artboard.
+ *
+ * `slice` covers a 1.91:1 canvas by scaling the portrait artboard to the
+ * canvas *width* — roughly doubling it — and crops most of its height away, so
+ * orbits and planets ran off the top of the card and star nodes landed on the
+ * header. `meet` keeps the full composition in view, centred, at the height
+ * the design was authored for.
+ */
+export const DATA_ART_FIT_LANDSCAPE = 'xMidYMid meet';

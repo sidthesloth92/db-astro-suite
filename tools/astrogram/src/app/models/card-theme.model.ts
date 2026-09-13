@@ -21,7 +21,6 @@ export type CardThemeId =
   | 'spectrum'
   | 'halo'
   | 'blueprint'
-  | 'mission-data'
   | 'duotone-poster'
   | 'flight-log'
   | 'constellation'

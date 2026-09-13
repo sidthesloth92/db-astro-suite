@@ -23,6 +23,14 @@ export interface CardThemeDefinition {
    */
   readonly basis?: ThemeDesignBasis;
   /**
+   * Artboard height to lay out against on landscape formats (1.91:1), in the
+   * same units as `basis`. Shorter than the authored height so the theme
+   * renders larger in a short, wide export; set to the smallest height at which
+   * this theme's content still fits, measured rather than guessed. Omit to keep
+   * the authored height — right for themes whose content cannot shrink.
+   */
+  readonly landscapeBasisHeight?: number;
+  /**
    * Card opacity applied when this theme is picked, fading its backdrop
    * toward the user's image. Omit for the dark-theme default; light-on-paper
    * themes declare 1 so their pale type stays readable.

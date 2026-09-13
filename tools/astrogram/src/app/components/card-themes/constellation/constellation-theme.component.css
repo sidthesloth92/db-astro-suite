@@ -188,3 +188,23 @@
   color: #6b7794;
   margin-top: 2px;
 }
+
+/* ── Label frame ──
+   Labels are placed at viewBox percentages. On portrait formats the chart
+   covers the whole theme, so the theme itself is the right box. On landscape
+   the chart is fitted — full height, 540:720, centred — and a percentage of
+   the whole wide theme no longer lands on the point it names, so the labels
+   are framed to exactly the box the chart is drawn in. */
+.con-label-frame {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.con-label-frame--fitted {
+  inset: 0 auto;
+  left: 50%;
+  aspect-ratio: 540 / 720;
+  transform: translateX(-50%);
+}

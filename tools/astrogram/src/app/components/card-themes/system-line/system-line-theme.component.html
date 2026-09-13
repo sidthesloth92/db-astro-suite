@@ -18,7 +18,7 @@
   <div class="sl-spacer-a"></div>
 
   <!-- The ecliptic number line -->
-  <div class="sl-chart">
+  <div class="sl-chart" [class.sl-chart--landscape]="isLandscapeFormat()">
     <svg class="sl-svg" viewBox="0 0 476 250" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
       <defs>
         @for (p of planets(); track p.gradId) {

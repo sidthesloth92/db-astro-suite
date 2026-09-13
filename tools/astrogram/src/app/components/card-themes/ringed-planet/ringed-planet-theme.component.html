@@ -8,7 +8,7 @@
     <span class="rpl-datestamp">{{ data.dateNumeric }}</span>
   </div>
 
-  <svg class="rpl-chart" viewBox="0 0 540 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <svg class="rpl-chart" viewBox="0 0 540 720" [attr.preserveAspectRatio]="dataArtFit()" aria-hidden="true">
     <defs>
       <radialGradient id="ringed-planet-body" cx="38%" cy="34%" r="75%">
         <stop offset="0%" stop-color="#C9A6E8" />

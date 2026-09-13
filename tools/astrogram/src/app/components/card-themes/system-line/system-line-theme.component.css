@@ -105,6 +105,25 @@
   height: auto;
 }
 
+/* The diagram's height follows its width, so an uncapped chart in a wide
+   landscape canvas grew ~2.5x taller and pushed the totals and footer off the
+   card entirely. Landscape holds it to 476px — the width it was authored at
+   (540 minus the 32px side padding, and the viewBox width).
+
+   Scoped to landscape rather than applied everywhere: the 1:1 and 4:5 canvases
+   are wider than 540px, where the chart has always drawn larger, and capping it
+   there would shrink those designs.
+
+   The container is capped and centred with `align-self` rather than the SVG
+   with auto margins. The live page centres either way, but the exporter did not
+   reproduce auto margins set through a descendant selector and shipped the
+   chart hard against the left edge. */
+.sl-chart--landscape {
+  width: 476px;
+  max-width: 100%;
+  align-self: center;
+}
+
 .sl-tick-label {
   font: 500 8.5px var(--sl-mono);
   fill: var(--sl-faint);

@@ -3,7 +3,7 @@
 <div class="con-root">
   <dba-ag-theme-starfield [density]="150" [opacity]="0.55" [color]="'#F2F7FF'" [seed]="9" />
 
-  <svg class="con-chart" viewBox="0 0 540 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+  <svg class="con-chart" viewBox="0 0 540 720" [attr.preserveAspectRatio]="dataArtFit()" aria-hidden="true">
     <g [attr.transform]="'translate(0 ' + chartTop + ')'">
       <!-- RA/Dec faint graticule -->
       @for (x of graticuleX; track $index) {
@@ -72,13 +72,15 @@
   </div>
 
   <!-- Band labels -->
-  @for (star of brightStars(); track star.band.id) {
-    <div class="con-band-label" [style.top.%]="star.labelTopPct" [style.left.%]="star.labelLeftPct">
-      <div class="con-band-id" [style.color]="star.band.color">{{ star.band.id }}</div>
-      <div class="con-band-time">{{ star.band.time }}</div>
-      <div class="con-band-frames">{{ star.band.frames }}</div>
-    </div>
-  }
+  <div class="con-label-frame" [class.con-label-frame--fitted]="isLandscapeFormat()">
+    @for (star of brightStars(); track star.band.id) {
+      <div class="con-band-label" [style.top.%]="star.labelTopPct" [style.left.%]="star.labelLeftPct">
+        <div class="con-band-id" [style.color]="star.band.color">{{ star.band.id }}</div>
+        <div class="con-band-time">{{ star.band.time }}</div>
+        <div class="con-band-frames">{{ star.band.frames }}</div>
+      </div>
+    }
+  </div>
 
   <!-- Object name plate -->
   <div class="con-nameplate" data-testid="card-hero">

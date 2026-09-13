@@ -1,4 +1,9 @@
-import { THEME_DESIGN_HEIGHT, THEME_DESIGN_WIDTH } from '../constants/theme-canvas.constants';
+import {
+  LANDSCAPE_ASPECT_RATIOS,
+  THEME_DESIGN_HEIGHT,
+  THEME_DESIGN_WIDTH,
+} from '../constants/theme-canvas.constants';
+import type { AspectRatio } from '../models/card-data.model';
 import type { ThemeCanvas, ThemeDesignBasis } from '../models/theme-canvas.model';
 
 /** Design basis used by every theme that does not declare its own. */
@@ -41,4 +46,34 @@ export function computeThemeCanvas(
 
   const scale = cardWidthPx > 0 ? cardWidthPx / width : 1;
   return { width, height, scale };
+}
+
+/**
+ * Resolves the artboard a theme lays out against for the current format.
+ *
+ * Every format uses the theme's authored basis except the landscape presets
+ * in `LANDSCAPE_ASPECT_RATIOS`, where a theme that declares a
+ * `landscapeBasisHeight` swaps in that shorter height. Its width is left
+ * alone: `computeThemeCanvas` widens the canvas to the card's aspect anyway,
+ * so only the height decides how large the theme renders.
+ *
+ * A declared height taller than the authored one is ignored — the landscape
+ * artboard exists to shrink the canvas, never to stretch it.
+ *
+ * @param basis The theme's authored basis, or `undefined` for the default.
+ * @param landscapeBasisHeight The theme's landscape artboard height, if any.
+ * @param aspectRatio The card's current format.
+ */
+export function resolveThemeBasis(
+  basis: ThemeDesignBasis | undefined,
+  landscapeBasisHeight: number | undefined,
+  aspectRatio: AspectRatio,
+): ThemeDesignBasis {
+  const authored = basis ?? DEFAULT_THEME_BASIS;
+  const isLandscape = LANDSCAPE_ASPECT_RATIOS.includes(aspectRatio);
+  if (!isLandscape || landscapeBasisHeight === undefined) {
+    return authored;
+  }
+  const height = Math.min(landscapeBasisHeight, authored.height);
+  return height > 0 ? { width: authored.width, height } : authored;
 }

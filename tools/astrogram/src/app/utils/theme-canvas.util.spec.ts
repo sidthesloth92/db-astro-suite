@@ -1,5 +1,5 @@
 import { THEME_DESIGN_HEIGHT, THEME_DESIGN_WIDTH } from '../constants/theme-canvas.constants';
-import { DEFAULT_THEME_BASIS, computeThemeCanvas } from './theme-canvas.util';
+import { DEFAULT_THEME_BASIS, computeThemeCanvas, resolveThemeBasis } from './theme-canvas.util';
 
 /** Card width the themed (bleed) preview lays out at. */
 const CARD_WIDTH = 538;
@@ -70,5 +70,52 @@ describe('computeThemeCanvas', () => {
 
   it('leaves the canvas unscaled until the card has been measured', () => {
     expect(computeThemeCanvas(0, 1).scale).toBe(1);
+  });
+});
+
+describe('resolveThemeBasis', () => {
+  it('uses the default artboard when a theme declares no basis', () => {
+    expect(resolveThemeBasis(undefined, undefined, '3:4')).toEqual(DEFAULT_THEME_BASIS);
+  });
+
+  it('keeps the authored basis on every portrait and square format', () => {
+    for (const ratio of ['1:1', '4:5', '3:4', '9:16', 'auto'] as const) {
+      expect(resolveThemeBasis(undefined, 480, ratio))
+        .withContext(ratio)
+        .toEqual(DEFAULT_THEME_BASIS);
+    }
+  });
+
+  it('swaps in the shorter landscape height on the 1.91:1 format', () => {
+    expect(resolveThemeBasis(undefined, 480, '1.91:1')).toEqual({
+      width: THEME_DESIGN_WIDTH,
+      height: 480,
+    });
+  });
+
+  it('keeps the authored basis on 1.91:1 when a theme declares no landscape height', () => {
+    // Themes whose content collides the moment they shrink opt out by omission.
+    expect(resolveThemeBasis(undefined, undefined, '1.91:1')).toEqual(DEFAULT_THEME_BASIS);
+  });
+
+  it('applies the landscape height against the theme\'s own authored basis', () => {
+    const authored = { width: 480, height: 640 };
+    expect(resolveThemeBasis(authored, 570, '1.91:1')).toEqual({ width: 480, height: 570 });
+  });
+
+  it('never lets a landscape height stretch the artboard taller than authored', () => {
+    expect(resolveThemeBasis(undefined, 900, '1.91:1')).toEqual(DEFAULT_THEME_BASIS);
+  });
+
+  it('renders a landscape theme larger than the authored artboard would', () => {
+    // The point of the landscape height: a shorter canvas means a larger scale
+    // onto the same card width, so the theme's type exports bigger.
+    const cardWidth = 540;
+    const aspect = 1080 / 566;
+    const authored = computeThemeCanvas(cardWidth, aspect, DEFAULT_THEME_BASIS);
+    const landscape = computeThemeCanvas(cardWidth, aspect, resolveThemeBasis(undefined, 480, '1.91:1'));
+
+    expect(landscape.height).toBe(480);
+    expect(landscape.scale).toBeGreaterThan(authored.scale);
   });
 });

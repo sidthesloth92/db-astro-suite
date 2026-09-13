@@ -12,7 +12,7 @@ import { CardDataService } from '../../services/card-data.service';
 import { ExportCoordinatorService } from '../../services/export-coordinator.service';
 import { BaseCardPreviewComponent } from '../base-card-preview/base-card-preview';
 import { resolveCardTheme } from '../card-themes/card-themes.constants';
-import { DEFAULT_THEME_BASIS } from '../../utils/theme-canvas.util';
+import { resolveThemeBasis } from '../../utils/theme-canvas.util';
 
 /**
  * Infographic card host. Renders the selected card theme via
@@ -41,8 +41,17 @@ export class CardPreviewComponent implements OnInit {
   /** Component class of the active theme (falls back to the default). */
   readonly activeThemeComponent = computed(() => this.activeTheme().component);
 
-  /** Design artboard the active theme was authored against. */
-  readonly activeThemeBasis = computed(() => this.activeTheme().basis ?? DEFAULT_THEME_BASIS);
+  /**
+   * Artboard the active theme lays out against: its authored basis, or its
+   * shorter landscape artboard on the 1.91:1 format.
+   */
+  readonly activeThemeBasis = computed(() =>
+    resolveThemeBasis(
+      this.activeTheme().basis,
+      this.activeTheme().landscapeBasisHeight,
+      this.cardData().aspectRatio,
+    ),
+  );
 
   ngOnInit(): void {
     const unregister = this.exportCoordinator.register(() => this.exportCard());
