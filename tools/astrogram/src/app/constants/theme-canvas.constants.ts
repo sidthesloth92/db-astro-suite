@@ -18,10 +18,12 @@ export const THEME_DESIGN_WIDTH = 540;
 export const THEME_DESIGN_HEIGHT = 720;
 
 /**
- * Card opacity applied when a dark theme is selected. Below 1 the theme's
- * backdrop fades toward the user's own image behind the card.
+ * Card opacity applied when a dark theme is selected, and the value the card
+ * boots with. Below 1 the theme's backdrop fades toward the user's own image
+ * behind the card; 0.8 lets the photograph read through without washing out
+ * the design.
  */
-export const DEFAULT_DARK_THEME_OPACITY = 0.6;
+export const DEFAULT_DARK_THEME_OPACITY = 0.8;
 
 /**
  * Card opacity applied when a light theme is selected. Light-on-paper designs

@@ -1,4 +1,5 @@
 import { Injectable, signal } from '@angular/core';
+import { DEFAULT_DARK_THEME_OPACITY } from '../constants/theme-canvas.constants';
 import {
   DEFAULT_PREVIEW_SIZE_KEY,
   PREVIEW_SIZES,
@@ -46,7 +47,7 @@ export class CardDataService {
     accentColor: '#ff2d95',
     accentColorRgb: '255, 45, 149',
     secondaryAccentColor: '#00E5FF',
-    cardOpacity: 0.6,
+    cardOpacity: DEFAULT_DARK_THEME_OPACITY,
     backgroundImage: 'assets/img/rosette.jpg',
     aspectRatio: '3:4',
     cardTheme: 'original',
