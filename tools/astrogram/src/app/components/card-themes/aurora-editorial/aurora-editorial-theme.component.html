@@ -88,7 +88,7 @@
     <div class="ave-foot-col">
       <div class="ave-foot-title">Sky</div>
       <div class="ave-sky-big">{{ data.bortle }}</div>
-      <div class="ave-sky-sub">Bortle · inner city</div>
+      <div class="ave-sky-sub">Bortle · {{ data.bortleLabel }}</div>
       <div class="ave-sky-bar">
         @for (segment of bortleSegments; track segment) {
           <div class="ave-sky-seg" [class.is-lit]="isBortleLit(segment)"></div>

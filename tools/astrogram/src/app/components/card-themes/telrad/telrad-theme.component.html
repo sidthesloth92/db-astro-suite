@@ -55,6 +55,7 @@
           <div class="tr-row-fill" [style.width]="row.pctWidth"></div>
         </div>
         <span class="tr-row-time">{{ row.time }}</span>
+        <span class="tr-row-frames">{{ row.frames }}</span>
       </div>
     }
   </div>
@@ -80,7 +81,7 @@
     <div class="tr-foot-row">
       <span class="tr-foot-author">{{ data.author }}</span>
       <span class="tr-foot-spacer"></span>
-      <span class="tr-foot-meta">{{ data.location }} · Bortle {{ data.bortle }}</span>
+      <span class="tr-foot-meta">{{ data.dateShort }} · {{ data.location }} · Bortle {{ data.bortle }}</span>
     </div>
   </div>
 </div>

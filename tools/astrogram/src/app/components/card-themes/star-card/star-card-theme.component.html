@@ -63,7 +63,9 @@
         <div class="stc-object-id">{{ data.objectId }}</div>
         <div class="stc-title">
           {{ objectNameFirst() }}<br />
-          <span class="stc-title-rest">{{ objectNameRest() }}</span>
+          @if (objectNameRest(); as rest) {
+            <span class="stc-title-rest">{{ rest }}</span>
+          }
         </div>
       </div>
 
@@ -73,7 +75,7 @@
       <div class="stc-plate">
         <div class="stc-plate-label">Total exposure</div>
         <div class="stc-plate-total">{{ data.total }}</div>
-        <div class="stc-plate-frames">{{ totalFrames() }} FRAMES · 300s</div>
+        <div class="stc-plate-frames">{{ totalFrames() }} FRAMES</div>
       </div>
 
       <!-- Band gems -->
@@ -109,7 +111,9 @@
       <!-- Rarity bar -->
       <div class="stc-rarity">
         <span class="stc-rarity-class">BORTLE CLASS {{ data.bortle }}</span>
-        <span class="stc-rarity-meta">{{ data.dateShort }} · {{ data.author.toUpperCase() }}</span>
+        <span class="stc-rarity-meta">
+          {{ data.dateShort }} · {{ data.location }} · {{ data.author.toUpperCase() }}
+        </span>
       </div>
     </div>
   </div>

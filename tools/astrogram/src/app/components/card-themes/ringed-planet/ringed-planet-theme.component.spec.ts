@@ -23,4 +23,10 @@ describe('RingedPlanetThemeComponent', () => {
     expect(swatches.length).toBe(3);
     expect(el.textContent).toContain('OIII');
   });
+
+  it('should credit the author on the card', () => {
+    // The author is collected by the Object Info panel but was never rendered
+    // by this theme.
+    expect(render().textContent).toContain('@astrogram');
+  });
 });

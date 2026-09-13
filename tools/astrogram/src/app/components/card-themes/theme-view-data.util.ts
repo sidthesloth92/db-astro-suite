@@ -10,7 +10,14 @@ import type {
   ThemeIntegrationBand,
   ThemeViewData,
 } from '../../models/card-theme.model';
-import { FILTER_DISPLAY_IDS, SPECTRAL_NAMES } from './theme-view.constants';
+import {
+  BORTLE_DESCRIPTORS,
+  BROADBAND_FILTERS,
+  FILTER_DISPLAY_IDS,
+  NARROWBAND_FILTERS,
+  PALETTE_LETTERS,
+  SPECTRAL_NAMES,
+} from './theme-view.constants';
 
 /** Splits `"NGC 2237 - Rosette Nebula"` into `["NGC 2237", "Rosette Nebula"]`. */
 function splitTitle(title: string): { objectId: string; objectName: string } {
@@ -68,6 +75,47 @@ function numericDate(iso: string): string {
   return `${y}.${m}.${day}`;
 }
 
+/** Sky descriptor for a Bortle value, clamped into the 1–9 scale. */
+function bortleLabel(value: number): string {
+  const clamped = Math.min(9, Math.max(1, Math.round(value)));
+  return BORTLE_DESCRIPTORS[clamped - 1] ?? '';
+}
+
+/**
+ * Kind of the enabled bands, lower-cased for use mid-sentence. Empty when
+ * nothing is enabled so themes can drop the phrase entirely rather than
+ * render "A  study".
+ */
+function bandKind(names: readonly string[]): string {
+  if (names.length === 0) return '';
+  if (names.every((name) => NARROWBAND_FILTERS.includes(name))) return 'narrowband';
+  if (names.every((name) => BROADBAND_FILTERS.includes(name))) return 'broadband';
+  return 'mixed';
+}
+
+/**
+ * Palette code for the enabled bands. Known filters emit their letter in
+ * canonical L-R-G-B-S-H-O order, so `{L,R,G,B}` reads `LRGB` and
+ * `{SII,Ha,OIII}` reads `SHO` however the user enabled them. Custom filter
+ * rows contribute their first letter, appended after the known ones.
+ */
+function paletteLabel(names: readonly string[]): string {
+  if (names.length === 0) return '';
+
+  const known = Object.entries(PALETTE_LETTERS)
+    .filter(([filter]) => names.includes(filter))
+    .map(([, letter]) => letter)
+    .join('');
+  const custom = names
+    .filter((name) => !(name in PALETTE_LETTERS))
+    .map((name) => name.charAt(0).toUpperCase())
+    .join('');
+
+  // Hα + OIII alone is conventionally written HOO — the OIII channel carries
+  // both green and blue — which plain canonical ordering would render `HO`.
+  return `${known === 'HO' ? 'HOO' : known}${custom}`;
+}
+
 /** Maps an enabled filter to its themed integration band. */
 function toBand(filter: FilterExposure, totalSeconds: number): ThemeIntegrationBand {
   const seconds = calculateTotalSeconds(filter);
@@ -91,6 +139,7 @@ function toBand(filter: FilterExposure, totalSeconds: number): ThemeIntegrationB
 export function buildThemeViewData(data: CardData): ThemeViewData {
   const { objectId, objectName } = splitTitle(data.title);
   const enabled = data.filters.filter((f) => f.enabled && f.frames > 0);
+  const enabledNames = enabled.map((f) => f.name.toUpperCase());
   const totalSeconds = calculateTotalIntegration(data.filters);
 
   const equipment: ThemeGearItem[] = data.equipment.map((e, i) => ({
@@ -120,5 +169,9 @@ export function buildThemeViewData(data: CardData): ThemeViewData {
     equipment,
     software,
     bortle: data.bortleScale,
+    bortleLabel: bortleLabel(data.bortleScale),
+    paletteLabel: paletteLabel(enabledNames),
+    bandKind: bandKind(enabledNames),
+    bandNames: enabled.map((f) => displayId(f.name)).join(' · '),
   };
 }

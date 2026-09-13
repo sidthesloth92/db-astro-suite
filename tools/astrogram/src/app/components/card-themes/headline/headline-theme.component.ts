@@ -50,14 +50,13 @@ export class HeadlineThemeComponent extends CardThemeBaseDirective {
   protected subline(): string {
     const objectId = this.vm().objectId;
     const prefix = objectId ? `${objectId} · ` : '';
-    return `${prefix}${this.totalFrames()} frames · 300s subs`;
+    return `${prefix}${this.totalFrames()} frames`;
   }
 
-  /** Footer gear ticker: scope, camera, mount and filter values joined. */
+  /** Footer gear ticker: every equipment value, in the user's order. */
   protected footerGear(): string {
-    const equipment = this.vm().equipment;
-    return [0, 1, 2, 4]
-      .map((index) => equipment[index]?.value)
+    return this.vm()
+      .equipment.map((item) => item.value)
       .filter(Boolean)
       .join(' · ');
   }

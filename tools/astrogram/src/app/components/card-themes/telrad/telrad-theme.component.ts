@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
 import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfield.component';
-import type { ThemeGearItem } from '../../../models/card-theme.model';
 
 /**
  * Telrad theme — a red-light finder reticle in night-vision mode. Filters are
@@ -89,17 +88,17 @@ export class TelradThemeComponent extends CardThemeBaseDirective {
     this.vm().integration.map((band, i) => ({
       id: band.id,
       time: band.time,
+      frames: band.frames,
       pctWidth: `${band.pct * 100}%`,
       ringLabel: this.ringLabel(i),
     })),
   );
 
-  /** Compact footer gear line: telescope · camera · filter values. */
+  /** Compact footer gear line: every equipment value, in the user's order. */
   protected footerLine(): string {
-    const eq = this.vm().equipment;
-    return [eq[0], eq[1], eq[4]]
-      .filter((item): item is ThemeGearItem => item != null)
-      .map((item) => item.value)
+    return this.vm()
+      .equipment.map((item) => item.value)
+      .filter(Boolean)
       .join(' · ');
   }
 

@@ -57,30 +57,13 @@ export class SplitStatsThemeComponent extends CardThemeBaseDirective {
     return this.vm().integration.reduce((sum, band) => sum + (parseInt(band.frames, 10) || 0), 0);
   }
 
-  /** Palette code — the leading letter of each band, e.g. `HOS` (design `SHO`). */
-  protected filterPalette(): string {
-    return this.vm()
-      .integration.map((band) => band.id.charAt(0).toUpperCase())
-      .join('');
-  }
-
-  /** Band ids joined for the filters sub-label, e.g. `Hα · OIII · SII`. */
-  protected filterNames(): string {
-    return this.vm()
-      .integration.map((band) => band.id)
-      .join(' · ');
-  }
-
   /** Caption with the design's rose emoji stripped (design `sClean`). */
   protected cleanCaption(): string {
     return this.vm().caption.replace(/🌹/g, '').trim();
   }
 
-  /** Gear chip rows: scope, camera, mount and filter, skipping any absent. */
-  protected chipRows(): ThemeGearItem[] {
-    const equipment = this.vm().equipment;
-    return [0, 1, 2, 4]
-      .map((index) => equipment[index])
-      .filter((item): item is ThemeGearItem => item !== undefined);
+  /** Gear chip rows: every equipment row, in the user's order. */
+  protected chipRows(): readonly ThemeGearItem[] {
+    return this.vm().equipment;
   }
 }

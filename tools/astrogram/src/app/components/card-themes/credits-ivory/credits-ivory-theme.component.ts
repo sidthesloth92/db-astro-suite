@@ -78,22 +78,6 @@ export class CreditsIvoryThemeComponent extends CardThemeBaseDirective {
     return this.vm().objectName.split(' ').slice(1).join(' ');
   }
 
-  /** "Shot on" credit: telescope × camera. */
-  protected shotOn(): string {
-    const eq = this.vm().equipment;
-    return [eq[0]?.value, eq[1]?.value].filter(Boolean).join(' × ');
-  }
-
-  /** "Riding" credit: the mount. */
-  protected riding(): string {
-    return this.vm().equipment[2]?.value ?? '';
-  }
-
-  /** "Filtered through" credit: the filter set. */
-  protected filteredThrough(): string {
-    return this.vm().equipment[4]?.value ?? '';
-  }
-
   /** "Processed in" credit: first word of each software value, joined. */
   protected processedIn(): string {
     return this.vm()

@@ -46,14 +46,9 @@ export class CreditsThemeComponent extends CardThemeBaseDirective {
     return this.vm().objectName.split(' ')[0] ?? '';
   }
 
-  /** Remaining words of the object name (outline title line), default `Nebula`. */
+  /** Remaining words of the object name (outline title line), if any. */
   protected objectNameRest(): string {
-    return this.vm().objectName.split(' ').slice(1).join(' ') || 'Nebula';
-  }
-
-  /** Equipment value at a row index, or an empty string when absent. */
-  protected equipmentValue(index: number): string {
-    return this.vm().equipment[index]?.value ?? '';
+    return this.vm().objectName.split(' ').slice(1).join(' ');
   }
 
   /** Software billing: the first word of every software name, dot-joined. */

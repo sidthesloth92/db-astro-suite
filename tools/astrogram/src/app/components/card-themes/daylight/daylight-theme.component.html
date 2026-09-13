@@ -71,9 +71,11 @@
     <div class="day-brand">
       <div class="day-kicker">
         @if (data.objectId) {
-          <span>{{ data.objectId }} · </span>
+          <span>{{ data.objectId }}</span>
         }
-        Narrowband
+        @if (bandKindLabel(); as kind) {
+          <span>@if (data.objectId) { · } {{ kind }}</span>
+        }
       </div>
       <span class="day-brand-spacer"></span>
       <span class="day-date">{{ data.dateNumeric }}</span>
@@ -101,21 +103,20 @@
         <div class="day-stat">
           <div class="day-stat-k">Frames</div>
           <div class="day-stat-v">{{ totalFrames() }}</div>
-          <div class="day-stat-sub">{{ framesSub }}</div>
         </div>
       </div>
       <div class="day-stat-cell">
         <div class="day-stat">
           <div class="day-stat-k">Filters</div>
-          <div class="day-stat-v">{{ filtersValue }}</div>
-          <div class="day-stat-sub">{{ filtersSub }}</div>
+          <div class="day-stat-v">{{ data.paletteLabel }}</div>
+          <div class="day-stat-sub">{{ data.bandNames }}</div>
         </div>
       </div>
       <div class="day-stat-cell day-stat-cell--bl">
         <div class="day-stat">
           <div class="day-stat-k">Bortle</div>
           <div class="day-stat-v">{{ data.bortle }}</div>
-          <div class="day-stat-sub">{{ bortleSub }}</div>
+          <div class="day-stat-sub">{{ data.bortleLabel }}</div>
         </div>
       </div>
     </div>

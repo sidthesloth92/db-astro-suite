@@ -34,6 +34,13 @@ describe('AtlasThemeComponent', () => {
     expect(dots[0].style.background).toBe('rgb(229, 68, 109)');
   });
 
+  it('should render the designation from the catalogue id alone', () => {
+    // The plate used to read "NGC 2237 · in Monoceros" — a constellation
+    // hardcoded to the sample target, wrong for anything else.
+    const designation = host.querySelector('.atl-designation');
+    expect(designation?.textContent?.trim()).toBe('NGC 2237');
+  });
+
   it('should render the colophon with location, bortle and author', () => {
     const colophon = host.querySelector('.atl-colophon');
     expect(colophon?.textContent).toContain('Irving, Texas');

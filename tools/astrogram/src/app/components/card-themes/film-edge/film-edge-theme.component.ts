@@ -30,8 +30,11 @@ export class FilmEdgeThemeComponent extends CardThemeBaseDirective {
     return this.vm().total.replace(/\s/g, '');
   }
 
-  /** Equipment value at a row index, or an empty string when absent. */
-  protected equipmentValue(index: number): string {
-    return this.vm().equipment[index]?.value ?? '';
+  /** Footer gear line: every equipment value, in the user's order. */
+  protected gearLine(): string {
+    return this.vm()
+      .equipment.map((item) => item.value)
+      .filter(Boolean)
+      .join(' · ');
   }
 }

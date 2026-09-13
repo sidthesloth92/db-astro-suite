@@ -47,8 +47,10 @@ describe('DaylightThemeComponent', () => {
   });
 
   it('should render gear chips and the author / location footer', () => {
+    // One chip per equipment row. This was 4 while the theme picked rows by
+    // index and skipped the guide scope; it now follows the user's own list.
     const chips = host.querySelectorAll('.day-chip');
-    expect(chips.length).toBe(4);
+    expect(chips.length).toBe(5);
     expect(host.querySelector('.day-author')?.textContent).toContain('@astrogram');
     expect(host.querySelector('.day-location')?.textContent).toContain('Irving, Texas');
   });

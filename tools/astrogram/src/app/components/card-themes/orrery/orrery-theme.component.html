@@ -59,6 +59,7 @@
     <div class="orr-planet-label" [style.top.%]="orbit.labelTopPct" [style.left.%]="orbit.labelLeftPct">
       <div class="orr-planet-id" [style.color]="orbit.band.color">{{ orbit.band.id }}</div>
       <div class="orr-planet-time">{{ orbit.band.time }}</div>
+      <div class="orr-planet-frames">{{ orbit.band.frames }}</div>
     </div>
   }
 
@@ -90,7 +91,7 @@
             <span class="orr-row-value">{{ item.value }}</span>
           </div>
         }
-        <div class="orr-sky">Bortle {{ data.bortle }} · {{ data.location }}</div>
+        <div class="orr-sky">Bortle {{ data.bortle }} · {{ data.location }} · {{ data.author }}</div>
       </div>
     </div>
   </div>

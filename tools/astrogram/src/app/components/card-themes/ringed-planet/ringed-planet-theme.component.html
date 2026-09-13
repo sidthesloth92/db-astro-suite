@@ -92,6 +92,7 @@
         <span class="rpl-legend-swatch" [style.background]="ring.band.color"></span>
         <span class="rpl-legend-id" [style.color]="ring.band.color">{{ ring.band.id }}</span>
         <span class="rpl-legend-time">{{ ring.band.time }}</span>
+        <span class="rpl-legend-frames">{{ ring.band.frames }}</span>
       </div>
     }
     <div class="rpl-legend-item">
@@ -119,7 +120,7 @@
             <span class="rpl-row-value">{{ item.value }}</span>
           </div>
         }
-        <div class="rpl-sky">Bortle {{ data.bortle }} · {{ data.location }}</div>
+        <div class="rpl-sky">Bortle {{ data.bortle }} · {{ data.location }} · {{ data.author }}</div>
       </div>
     </div>
   </div>

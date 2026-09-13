@@ -47,9 +47,9 @@ export class StarCardThemeComponent extends CardThemeBaseDirective {
     return this.vm().objectName.split(' ')[0] ?? '';
   }
 
-  /** Remaining words of the object name, defaulting to `Nebula`. */
+  /** Remaining words of the object name, if any. */
   protected objectNameRest(): string {
-    return this.vm().objectName.split(' ').slice(1).join(' ') || 'Nebula';
+    return this.vm().objectName.split(' ').slice(1).join(' ');
   }
 
   /** Total light frames across the enabled bands (design `sFrames`). */
@@ -57,11 +57,8 @@ export class StarCardThemeComponent extends CardThemeBaseDirective {
     return this.vm().integration.reduce((sum, band) => sum + (parseInt(band.frames, 10) || 0), 0);
   }
 
-  /** Spec rows: scope, camera, mount and filter, skipping any that are absent. */
-  protected specRows(): ThemeGearItem[] {
-    const equipment = this.vm().equipment;
-    return [0, 1, 2, 4]
-      .map((index) => equipment[index])
-      .filter((item): item is ThemeGearItem => item !== undefined);
+  /** Spec rows: every equipment row, in the user's order. */
+  protected specRows(): readonly ThemeGearItem[] {
+    return this.vm().equipment;
   }
 }

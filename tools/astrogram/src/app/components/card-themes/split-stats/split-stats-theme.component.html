@@ -65,7 +65,14 @@
 
   <!-- Top row: catalogue line opposite the datestamp -->
   <div class="sps-brand">
-    <div class="sps-kicker">{{ data.objectId }} · Narrowband</div>
+    <div class="sps-kicker">
+      @if (data.objectId) {
+        <span>{{ data.objectId }}</span>
+      }
+      @if (bandKindLabel(); as kind) {
+        <span>@if (data.objectId) { · } {{ kind }}</span>
+      }
+    </div>
     <span class="sps-grow"></span>
     <span class="sps-date">{{ data.dateNumeric }}</span>
   </div>
@@ -92,21 +99,20 @@
       <div class="sps-stat">
         <div class="sps-stat-k">Frames</div>
         <div class="sps-stat-v">{{ totalFrames() }}</div>
-        <div class="sps-stat-sub">300s subs</div>
       </div>
     </div>
     <div class="sps-cell sps-cell-bl">
       <div class="sps-stat">
         <div class="sps-stat-k">Filters</div>
-        <div class="sps-stat-v">{{ filterPalette() }}</div>
-        <div class="sps-stat-sub">{{ filterNames() }}</div>
+        <div class="sps-stat-v">{{ data.paletteLabel }}</div>
+        <div class="sps-stat-sub">{{ data.bandNames }}</div>
       </div>
     </div>
     <div class="sps-cell sps-cell-br">
       <div class="sps-stat">
         <div class="sps-stat-k">Bortle</div>
         <div class="sps-stat-v">{{ data.bortle }}</div>
-        <div class="sps-stat-sub">inner city</div>
+        <div class="sps-stat-sub">{{ data.bortleLabel }}</div>
       </div>
     </div>
   </div>

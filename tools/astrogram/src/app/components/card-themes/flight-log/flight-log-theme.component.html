@@ -66,14 +66,12 @@
 
     <!-- Gear strip -->
     <div class="fl-gear">
-      <div class="fl-field">
-        <div class="fl-field-key">Telescope</div>
-        <div class="fl-field-value">{{ telescopeValue() }}</div>
-      </div>
-      <div class="fl-field">
-        <div class="fl-field-key">Camera</div>
-        <div class="fl-field-value">{{ cameraValue() }}</div>
-      </div>
+      @for (item of data.equipment; track $index) {
+        <div class="fl-field">
+          <div class="fl-field-key">{{ item.label }}</div>
+          <div class="fl-field-value">{{ item.value }}</div>
+        </div>
+      }
     </div>
 
     <div class="fl-perf-wrap">

@@ -90,7 +90,9 @@
   <div class="crd-title-block" data-testid="card-hero">
     <div class="crd-the">The</div>
     <div class="crd-title-solid">{{ objectNameFirst() }}</div>
-    <div class="crd-title-outline">{{ objectNameRest() }}</div>
+    @if (objectNameRest(); as rest) {
+      <div class="crd-title-outline">{{ rest }}</div>
+    }
   </div>
 
   <!-- Band colour strip -->
@@ -99,7 +101,14 @@
       <div [style.width]="band.pct * 100 + '%'" [style.background]="band.color"></div>
     }
   </div>
-  <div class="crd-study">{{ data.objectId }} · A narrowband study</div>
+  <div class="crd-study">
+    @if (data.objectId) {
+      <span>{{ data.objectId }}</span>
+    }
+    @if (data.bandKind; as kind) {
+      <span>@if (data.objectId) { · } A {{ kind }} study</span>
+    }
+  </div>
 
   <div class="crd-grow"></div>
 
@@ -109,18 +118,12 @@
       <div class="crd-credit-k">Captured by</div>
       <div class="crd-credit-v">{{ data.author }}</div>
     </div>
-    <div class="crd-credit">
-      <div class="crd-credit-k">Shot on</div>
-      <div class="crd-credit-v">{{ equipmentValue(0) }} × {{ equipmentValue(1) }}</div>
-    </div>
-    <div class="crd-credit">
-      <div class="crd-credit-k">Riding</div>
-      <div class="crd-credit-v">{{ equipmentValue(2) }}</div>
-    </div>
-    <div class="crd-credit">
-      <div class="crd-credit-k">Filtered through</div>
-      <div class="crd-credit-v">{{ equipmentValue(4) }}</div>
-    </div>
+    @for (item of data.equipment; track $index) {
+      <div class="crd-credit">
+        <div class="crd-credit-k">{{ item.label }}</div>
+        <div class="crd-credit-v">{{ item.value }}</div>
+      </div>
+    }
     <div class="crd-credit">
       <div class="crd-credit-k">Processed in</div>
       <div class="crd-credit-v">{{ softwareShort() }}</div>

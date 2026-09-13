@@ -242,3 +242,9 @@
   color: var(--dp-dim);
   margin-top: 4px;
 }
+
+.dp-band-frames {
+  font: 500 9px/1 var(--dp-mono);
+  color: var(--dp-cream);
+  opacity: 0.65;
+}

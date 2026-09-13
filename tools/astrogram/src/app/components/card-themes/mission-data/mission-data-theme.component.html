@@ -69,7 +69,6 @@
   <div class="md-tile md-breakdown">
     <div class="md-breakdown-head">
       <div class="md-breakdown-title">Exposure by band</div>
-      <div class="md-breakdown-sub">300s subs</div>
     </div>
     <div class="md-stack">
       @for (band of data.integration; track band.id) {
@@ -113,6 +112,10 @@
       <div class="md-gear-row md-gear-site">
         <span class="md-gear-label">Site</span>
         <span class="md-gear-value">{{ data.location }}</span>
+      </div>
+      <div class="md-gear-row">
+        <span class="md-gear-label">Operator</span>
+        <span class="md-gear-value">{{ data.author }}</span>
       </div>
     </div>
   </div>

@@ -103,10 +103,12 @@ export class AtlasThemeComponent extends CardThemeBaseDirective {
     return out;
   }
 
-  /** Instruments byline: telescope · camera · filters. */
+  /** Instruments byline: every equipment value, in the user's order. */
   protected instrumentsLine(): string {
-    const eq = this.vm().equipment;
-    return [eq[0]?.value, eq[1]?.value, eq[4]?.value].filter(Boolean).join(' · ');
+    return this.vm()
+      .equipment.map((item) => item.value)
+      .filter(Boolean)
+      .join(' · ');
   }
 
   /** Total frame count across the enabled bands (design `lFrames`). */

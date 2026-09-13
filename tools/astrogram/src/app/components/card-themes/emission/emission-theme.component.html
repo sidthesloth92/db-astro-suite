@@ -62,7 +62,7 @@
   <div class="ems-object" data-testid="card-hero">
     <div class="ems-kicker">Emission-line portrait · {{ data.objectId }}</div>
     <div class="ems-name">{{ data.objectName }}</div>
-    <div class="ems-desc">Three wavelengths of ionised gas, {{ data.total }} of signal.</div>
+    <div class="ems-desc">{{ wavelengthLine() }}</div>
   </div>
 
   <div class="ems-sp-a"></div>
@@ -104,6 +104,7 @@
           ></div>
         </div>
         <span class="ems-row-time">{{ band.time }}</span>
+        <span class="ems-row-frames">{{ band.frames }}</span>
       </div>
     }
     <div class="ems-total-row">

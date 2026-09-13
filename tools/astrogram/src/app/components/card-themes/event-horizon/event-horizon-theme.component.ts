@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
 import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfield.component';
-import type { ThemeGearItem } from '../../../models/card-theme.model';
 
 /**
  * Event Horizon theme — a black hole whose accretion disc encodes the data.
@@ -55,12 +54,11 @@ export class EventHorizonThemeComponent extends CardThemeBaseDirective {
     return this.vm().integration.reduce((sum, band) => sum + (parseInt(band.frames, 10) || 0), 0);
   }
 
-  /** Compact footer gear line: telescope · camera · filter values. */
+  /** Compact footer gear line: every equipment value, in the user's order. */
   protected footerLine(): string {
-    const eq = this.vm().equipment;
-    return [eq[0], eq[1], eq[4]]
-      .filter((item): item is ThemeGearItem => item != null)
-      .map((item) => item.value)
+    return this.vm()
+      .equipment.map((item) => item.value)
+      .filter(Boolean)
       .join(' · ');
   }
 }

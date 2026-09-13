@@ -255,9 +255,9 @@
 .ems-ticker {
   font: 500 10px/1.6 var(--ems-mono);
   color: var(--ems-dim);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  /* Wraps rather than ellipsing: this line carries every equipment row the
+     user entered, and a hidden tail silently drops their gear. */
+  overflow-wrap: break-word;
 }
 
 .ems-footer-row {
@@ -276,4 +276,12 @@
   color: var(--ems-faint);
   letter-spacing: 0.12em;
   text-transform: uppercase;
+}
+
+.ems-row-frames {
+  width: 62px;
+  text-align: right;
+  font: 500 10px/1 var(--ems-sans);
+  color: var(--ems-txt);
+  opacity: 0.55;
 }

@@ -67,26 +67,16 @@ export class DaylightThemeComponent extends CardThemeBaseDirective {
   /** Constellation halo-ring opacity (design `op * 0.45`). */
   protected readonly conHaloOpacity = 0.126;
 
-  /** Static "Filters" stat value (design one-sheet label). */
-  protected readonly filtersValue = 'SHO';
-  /** Static "Filters" stat sub-label (design one-sheet label). */
-  protected readonly filtersSub = 'Hα · OIII · SII';
-  /** Static "Frames" stat sub-label (design one-sheet label). */
-  protected readonly framesSub = '300s subs';
-  /** Static "Bortle" stat sub-label (design one-sheet label). */
-  protected readonly bortleSub = 'inner city';
-
   /** Caption with the design's rose emoji stripped (design `lClean`). */
   protected cleanCaption(): string {
     return this.vm().caption.replace(/🌹/g, '').trim();
   }
 
-  /** Gear chip values: telescope, camera, mount, filters (present ones only). */
+  /** Gear chip values: every equipment value, in the user's order. */
   protected gearChips(): string[] {
-    const eq = this.vm().equipment;
-    return [eq[0]?.value, eq[1]?.value, eq[2]?.value, eq[4]?.value].filter(
-      (v): v is string => !!v,
-    );
+    return this.vm()
+      .equipment.map((item) => item.value)
+      .filter(Boolean);
   }
 
   /** Total frame count across the enabled bands (design `lFrames`). */

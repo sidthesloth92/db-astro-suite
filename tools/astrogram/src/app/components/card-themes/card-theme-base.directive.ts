@@ -38,6 +38,16 @@ export abstract class CardThemeBaseDirective {
     return softwareIcon(index);
   }
 
+  /**
+   * `vm().bandKind` capitalised for use at the start of a label, e.g.
+   * `Narrowband`. Empty when no filter is enabled, so the designs that show
+   * it can drop the whole element rather than render a stray separator.
+   */
+  readonly bandKindLabel = computed<string>(() => {
+    const kind = this.vm().bandKind;
+    return kind ? `${kind.charAt(0).toUpperCase()}${kind.slice(1)}` : '';
+  });
+
   /** Bortle scale segments `[1..9]` for meter rendering. */
   readonly bortleSegments = [1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
 

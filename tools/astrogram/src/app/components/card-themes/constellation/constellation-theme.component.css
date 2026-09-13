@@ -182,3 +182,9 @@
   font: 500 10px/1 'Outfit', system-ui, sans-serif;
   color: #8a97b5;
 }
+
+.con-band-frames {
+  font: 500 8.5px/1 'Outfit', system-ui, sans-serif;
+  color: #6b7794;
+  margin-top: 2px;
+}

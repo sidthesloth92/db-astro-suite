@@ -76,6 +76,7 @@
     <div class="con-band-label" [style.top.%]="star.labelTopPct" [style.left.%]="star.labelLeftPct">
       <div class="con-band-id" [style.color]="star.band.color">{{ star.band.id }}</div>
       <div class="con-band-time">{{ star.band.time }}</div>
+      <div class="con-band-frames">{{ star.band.frames }}</div>
     </div>
   }
 
@@ -112,7 +113,7 @@
         }
         <div class="con-total-row">
           <span class="con-total">Total {{ data.total }}</span>
-          <span class="con-sky">Bortle {{ data.bortle }} · {{ data.location }}</span>
+          <span class="con-sky">Bortle {{ data.bortle }} · {{ data.location }} · {{ data.author }}</span>
         </div>
       </div>
     </div>

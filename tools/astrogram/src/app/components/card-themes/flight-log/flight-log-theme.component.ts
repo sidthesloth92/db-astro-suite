@@ -22,12 +22,6 @@ export class FlightLogThemeComponent extends CardThemeBaseDirective {
   /** Target code — first token of the object name (the ticket's TO). */
   protected readonly targetCode = computed<string>(() => this.vm().objectName.split(' ')[0] ?? '');
 
-  /** First equipment row value (Telescope field), empty when absent. */
-  protected readonly telescopeValue = computed<string>(() => this.vm().equipment[0]?.value ?? '');
-
-  /** Second equipment row value (Camera field), empty when absent. */
-  protected readonly cameraValue = computed<string>(() => this.vm().equipment[1]?.value ?? '');
-
   /** Deterministic barcode bar widths / ink for the ticket stub. */
   protected readonly barcodeBars = Array.from({ length: 56 }, (_unused, i) => ({
     width: ((i * 53) % 4) + 1,

@@ -42,11 +42,21 @@ export class EmissionThemeComponent extends CardThemeBaseDirective {
     return `${((Math.min(nm, 700) - 380) / (700 - 380)) * 100}%`;
   }
 
-  /** Footer gear ticker: scope, camera and filter values joined. */
+  /**
+   * Sub-headline counting the bands actually captured, e.g.
+   * `3 wavelengths, 10h 20m of signal.` Replaces the design's fixed
+   * "Three wavelengths of ionised gas", which only held for a narrowband trio.
+   */
+  protected wavelengthLine(): string {
+    const data = this.vm();
+    const count = data.integration.length;
+    return `${count} wavelength${count === 1 ? '' : 's'}, ${data.total} of signal.`;
+  }
+
+  /** Footer gear ticker: every equipment value joined in the user's order. */
   protected footerGear(): string {
-    const equipment = this.vm().equipment;
-    return [0, 1, 4]
-      .map((index) => equipment[index]?.value)
+    return this.vm()
+      .equipment.map((item) => item.value)
       .filter(Boolean)
       .join(' · ');
   }

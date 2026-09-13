@@ -177,3 +177,8 @@
   color: #9c93b5;
   margin-top: 6px;
 }
+
+.rpl-legend-frames {
+  font: 500 9px/1 'Outfit', system-ui, sans-serif;
+  color: #7d769a;
+}

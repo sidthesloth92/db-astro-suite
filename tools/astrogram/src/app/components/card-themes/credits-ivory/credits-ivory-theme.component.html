@@ -85,9 +85,11 @@
     </div>
     <div class="cri-designation">
       @if (data.objectId) {
-        <span>{{ data.objectId }} · </span>
+        <span>{{ data.objectId }}</span>
       }
-      A narrowband study
+      @if (data.bandKind; as kind) {
+        <span>@if (data.objectId) { · } A {{ kind }} study</span>
+      }
     </div>
 
     <div class="cri-spacer"></div>
@@ -98,18 +100,12 @@
         <div class="cri-credit-k">Captured by</div>
         <div class="cri-credit-v">{{ data.author }}</div>
       </div>
-      <div class="cri-credit">
-        <div class="cri-credit-k">Shot on</div>
-        <div class="cri-credit-v">{{ shotOn() }}</div>
-      </div>
-      <div class="cri-credit">
-        <div class="cri-credit-k">Riding</div>
-        <div class="cri-credit-v">{{ riding() }}</div>
-      </div>
-      <div class="cri-credit">
-        <div class="cri-credit-k">Filtered through</div>
-        <div class="cri-credit-v">{{ filteredThrough() }}</div>
-      </div>
+      @for (item of data.equipment; track $index) {
+        <div class="cri-credit">
+          <div class="cri-credit-k">{{ item.label }}</div>
+          <div class="cri-credit-v">{{ item.value }}</div>
+        </div>
+      }
       <div class="cri-credit">
         <div class="cri-credit-k">Processed in</div>
         <div class="cri-credit-v">{{ processedIn() }}</div>

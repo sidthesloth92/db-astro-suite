@@ -7,6 +7,9 @@
     <div class="pn-meta">
       <span>📅 {{ formattedDate() }}</span>
       <span>📍 {{ card.location }}</span>
+      @if (card.author) {
+        <span>✍️ {{ card.author }}</span>
+      }
     </div>
     @if (card.description; as desc) {
       <p class="pn-description">{{ desc }}</p>

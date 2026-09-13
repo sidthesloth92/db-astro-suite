@@ -115,12 +115,9 @@
 
     <!-- Title -->
     <div class="atl-title-block" data-testid="card-hero">
-      <div class="atl-designation">
-        @if (data.objectId) {
-          <span>{{ data.objectId }} · </span>
-        }
-        in Monoceros
-      </div>
+      @if (data.objectId) {
+        <div class="atl-designation">{{ data.objectId }}</div>
+      }
       <div class="atl-title">The {{ data.objectName }}</div>
     </div>
 

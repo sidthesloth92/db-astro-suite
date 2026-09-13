@@ -119,4 +119,19 @@ export interface ThemeViewData {
   readonly software: readonly ThemeGearItem[];
   /** Bortle sky-brightness scale value (1–9). */
   readonly bortle: number;
+  /** Sky descriptor for the Bortle value, e.g. `inner city`, `rural`. */
+  readonly bortleLabel: string;
+  /**
+   * Filter-palette code derived from the enabled bands, e.g. `SHO`, `HOO`,
+   * `LRGB`. Empty when no filter is enabled.
+   */
+  readonly paletteLabel: string;
+  /**
+   * Lower-case kind of the enabled bands — `narrowband`, `broadband` or
+   * `mixed`. Empty when no filter is enabled. Themes that used to hardcode
+   * "Narrowband" read this instead.
+   */
+  readonly bandKind: string;
+  /** Enabled band ids joined for a sub-label, e.g. `Hα · OIII · SII`. */
+  readonly bandNames: string;
 }

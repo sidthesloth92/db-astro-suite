@@ -149,9 +149,9 @@
 .ec-foot-gear {
   font: 500 10px/1.6 var(--ec-mono);
   color: #8b92a6;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  /* Wraps rather than ellipsing: this line carries every equipment row the
+     user entered, and a hidden tail silently drops their gear. */
+  overflow-wrap: break-word;
 }
 
 .ec-foot-row {
@@ -174,4 +174,11 @@
   color: #5a6175;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+}
+
+.ec-legend-frames {
+  font: 500 9.5px/1 var(--ec-grot);
+  color: var(--ec-txt);
+  opacity: 0.6;
+  margin-top: 3px;
 }

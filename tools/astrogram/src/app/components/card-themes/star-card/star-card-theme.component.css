@@ -231,9 +231,8 @@
   font: 500 10.5px/1.5 var(--stc-sans);
   color: var(--stc-txt);
   text-align: right;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  /* Wraps rather than ellipsing — a truncated value hides the user's gear. */
+  overflow-wrap: break-word;
   max-width: 140px;
 }
 

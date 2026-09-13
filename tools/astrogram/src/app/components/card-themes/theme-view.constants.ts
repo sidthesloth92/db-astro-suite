@@ -22,6 +22,43 @@ export const FILTER_DISPLAY_IDS: Readonly<Record<string, string>> = {
   HA: 'Hα',
 };
 
+/**
+ * Sky descriptors for Bortle 1–9, indexed by `value - 1`. Themes render these
+ * instead of asserting a sky class in fixed copy.
+ */
+export const BORTLE_DESCRIPTORS: readonly string[] = [
+  'excellent dark-sky',
+  'truly dark',
+  'rural',
+  'rural / suburban',
+  'suburban',
+  'bright suburban',
+  'suburban / urban',
+  'city',
+  'inner city',
+];
+
+/** Upper-cased names of the narrowband filters, in canonical S-H-O order. */
+export const NARROWBAND_FILTERS: readonly string[] = ['SII', 'HA', 'OIII'];
+
+/** Upper-cased names of the broadband filters, in canonical L-R-G-B order. */
+export const BROADBAND_FILTERS: readonly string[] = ['L', 'R', 'G', 'B'];
+
+/**
+ * Single-letter palette codes keyed by upper-cased filter name. Iterated in
+ * declaration order so `{L,R,G,B}` reads `LRGB` and `{SII,HA,OIII}` reads
+ * `SHO` regardless of the order the user enabled them in.
+ */
+export const PALETTE_LETTERS: Readonly<Record<string, string>> = {
+  L: 'L',
+  R: 'R',
+  G: 'G',
+  B: 'B',
+  SII: 'S',
+  HA: 'H',
+  OIII: 'O',
+};
+
 /** Themed line icons for equipment rows, indexed by position. */
 export const EQUIPMENT_ICON_NAMES: readonly ThemeIconName[] = [
   'telescope',

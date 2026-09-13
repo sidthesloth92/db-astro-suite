@@ -39,6 +39,7 @@
           <div class="dp-band">
             <span class="dp-band-id" [style.color]="band.color">{{ band.id }}</span>
             <span class="dp-band-time">{{ band.time }}</span>
+            <span class="dp-band-frames">{{ band.frames }}</span>
           </div>
         }
       </div>
@@ -59,7 +60,7 @@
         @for (item of data.software; track $index) {
           <div class="dp-footer-item">{{ item.value }}</div>
         }
-        <div class="dp-footer-item dp-footer-item--dim">Bortle {{ data.bortle }} · {{ data.location }}</div>
+        <div class="dp-footer-item dp-footer-item--dim">Bortle {{ data.bortle }} · {{ data.location }} · {{ data.author }}</div>
       </div>
     </div>
   </div>
