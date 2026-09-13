@@ -57,19 +57,6 @@
   align-items: center;
   gap: 10px;
 }
-
-.fl-logo {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #fff, #06231b 130%);
-}
-
-.fl-brand {
-  font: 700 13px/1 var(--fl-sans);
-  letter-spacing: 0.1em;
-}
-
 .fl-pass {
   font: 700 10px/1 var(--fl-mono);
   letter-spacing: 0.14em;

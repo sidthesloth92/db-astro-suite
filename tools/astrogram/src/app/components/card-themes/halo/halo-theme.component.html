@@ -12,15 +12,13 @@
   <div class="hal-inner">
     <!-- Header -->
     <div class="hal-header">
-      <div class="hal-logo"></div>
-      <div class="hal-brand">Astrogram</div>
+      <div class="hal-hero-id">{{ data.objectId }}</div>
       <div class="hal-spacer"></div>
       <div class="hal-date">{{ data.dateNumeric }}</div>
     </div>
 
     <!-- Hero -->
     <div class="hal-glass hal-hero" data-testid="card-hero">
-      <div class="hal-hero-id">{{ data.objectId }}</div>
       <div class="hal-hero-name">{{ data.objectName }}</div>
       @if (data.caption) {
         <div class="hal-hero-caption">{{ data.caption }}</div>

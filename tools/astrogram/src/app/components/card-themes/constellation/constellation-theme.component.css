@@ -38,28 +38,11 @@
   z-index: 2;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  /* Single item since the brand was removed — keep it on the right rather
+     than letting `space-between` drop it to the left edge. */
+  justify-content: flex-end;
   padding: 20px 24px 0;
-}
-
-.con-brand {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.con-fourstar {
-  display: block;
-}
-
-.con-brand-name {
-  font: 600 10px/1 'JetBrains Mono', monospace;
-  letter-spacing: 0.28em;
-  color: #7fe3ff;
-  text-transform: uppercase;
-}
-
-.con-datestamp {
+}.con-datestamp {
   font: 500 10px/1 'JetBrains Mono', monospace;
   letter-spacing: 0.18em;
   color: #46506b;

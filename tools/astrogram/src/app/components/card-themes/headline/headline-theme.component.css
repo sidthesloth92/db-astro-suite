@@ -71,22 +71,6 @@
   align-items: center;
   gap: 9px;
 }
-
-.hdl-dot {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  background: radial-gradient(circle at 30% 30%, #ffc36b, #ff2d95 70%, #6b1a48);
-}
-
-.hdl-brand-name {
-  font: 600 12px/1 var(--hdl-sans);
-  letter-spacing: 0.14em;
-  color: var(--hdl-txt);
-  text-transform: uppercase;
-}
-
 .hdl-grow {
   flex: 1;
 }

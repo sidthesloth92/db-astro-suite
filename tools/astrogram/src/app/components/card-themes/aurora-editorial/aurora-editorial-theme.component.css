@@ -53,12 +53,6 @@
   align-items: center;
   gap: 10px;
 }
-
-.ave-star {
-  flex-shrink: 0;
-  display: block;
-}
-
 .ave-mast-name {
   font: 500 9.5px/1 var(--ave-mono);
   letter-spacing: 0.32em;

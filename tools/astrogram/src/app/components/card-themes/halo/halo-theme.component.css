@@ -105,24 +105,6 @@
   align-items: center;
   gap: 10px;
 }
-
-.hal-logo {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  background: conic-gradient(from 90deg, var(--hal-lav), var(--hal-rose), var(--hal-peach), var(--hal-mint), var(--hal-sky), var(--hal-lav));
-  filter: blur(0.3px);
-  box-shadow: 0 0 14px rgba(198, 182, 255, 0.4);
-}
-
-.hal-brand {
-  font: 600 11px/1 var(--hal-sans);
-  letter-spacing: 0.16em;
-  color: var(--hal-txt);
-  text-transform: uppercase;
-}
-
 .hal-spacer {
   flex: 1;
 }

@@ -65,28 +65,6 @@
   align-items: center;
   justify-content: space-between;
 }
-
-.obs-brand {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-}
-
-.obs-brand-dot {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: conic-gradient(from 180deg, var(--obs-cyan), var(--obs-violet), var(--obs-gold), var(--obs-cyan));
-  box-shadow: 0 0 12px rgba(93, 216, 255, 0.25);
-}
-
-.obs-brand-name {
-  font: 600 11px/1 var(--obs-sans);
-  letter-spacing: 0.18em;
-  color: var(--obs-txt);
-  text-transform: uppercase;
-}
-
 .obs-frame {
   font: 500 9.5px/1 var(--obs-mono);
   letter-spacing: 0.18em;

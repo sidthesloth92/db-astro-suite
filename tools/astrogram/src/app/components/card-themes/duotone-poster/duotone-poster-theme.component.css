@@ -100,13 +100,6 @@
   color: var(--dp-ink);
   font: 700 9px/1 var(--dp-mono);
 }
-
-.dp-tag--outline {
-  border: 1px solid rgba(245, 239, 224, 0.33);
-  color: var(--dp-cream);
-  font: 500 9px/1 var(--dp-mono);
-}
-
 .dp-date {
   font: 500 10px/1 var(--dp-mono);
   color: var(--dp-dim);

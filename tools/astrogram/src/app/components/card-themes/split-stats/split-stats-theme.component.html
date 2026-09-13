@@ -63,17 +63,15 @@
     }
   </svg>
 
-  <!-- Brand row -->
+  <!-- Top row: catalogue line opposite the datestamp -->
   <div class="sps-brand">
-    <span class="sps-dot"></span>
-    <span class="sps-brand-name">Astrogram</span>
+    <div class="sps-kicker">{{ data.objectId }} · Narrowband</div>
     <span class="sps-grow"></span>
     <span class="sps-date">{{ data.dateNumeric }}</span>
   </div>
 
   <!-- Object -->
   <div class="sps-object" data-testid="card-hero">
-    <div class="sps-kicker">{{ data.objectId }} · Narrowband</div>
     <div class="sps-name">{{ data.objectName }}</div>
     @if (cleanCaption()) {
       <div class="sps-caption">{{ cleanCaption() }}</div>

@@ -54,21 +54,6 @@
   align-items: center;
   gap: 9px;
 }
-
-.sps-dot {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  background: radial-gradient(circle at 30% 30%, #ffc36b, #ff2d95 70%, #6b1a48);
-}
-
-.sps-brand-name {
-  font: 600 12px/1 var(--sps-body);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
 .sps-grow {
   flex: 1;
 }

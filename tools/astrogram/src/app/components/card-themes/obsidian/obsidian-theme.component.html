@@ -17,16 +17,12 @@
   <div class="obs-inner">
     <!-- Masthead -->
     <div class="obs-masthead">
-      <div class="obs-brand">
-        <span class="obs-brand-dot"></span>
-        <span class="obs-brand-name">Astrogram</span>
-      </div>
+      <div class="obs-kicker">Catalogue · {{ data.objectId }}</div>
       <div class="obs-frame">{{ frameLabel }} · {{ data.dateNumeric }}</div>
     </div>
 
     <!-- Hero -->
     <div class="obs-glass obs-hero" data-testid="card-hero">
-      <div class="obs-kicker">Catalogue · {{ data.objectId }}</div>
       <div class="obs-name">{{ data.objectName }}</div>
       <div class="obs-hairline"></div>
       @if (data.caption) {

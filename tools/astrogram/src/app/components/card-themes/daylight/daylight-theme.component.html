@@ -67,22 +67,20 @@
   </svg>
 
   <div class="day-inner">
-    <!-- Brand row -->
+    <!-- Top row: catalogue line opposite the datestamp -->
     <div class="day-brand">
-      <span class="day-brand-dot"></span>
-      <span class="day-brand-name">Astrogram</span>
-      <span class="day-brand-spacer"></span>
-      <span class="day-date">{{ data.dateNumeric }}</span>
-    </div>
-
-    <!-- Object -->
-    <div class="day-object" data-testid="card-hero">
       <div class="day-kicker">
         @if (data.objectId) {
           <span>{{ data.objectId }} · </span>
         }
         Narrowband
       </div>
+      <span class="day-brand-spacer"></span>
+      <span class="day-date">{{ data.dateNumeric }}</span>
+    </div>
+
+    <!-- Object -->
+    <div class="day-object" data-testid="card-hero">
       <div class="day-name">{{ data.objectName }}</div>
       @if (cleanCaption()) {
         <div class="day-caption">{{ cleanCaption() }}</div>

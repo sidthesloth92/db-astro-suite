@@ -84,15 +84,6 @@
   text-align: center;
 }
 
-/* ── Presents ── */
-.cri-presents {
-  font: 500 10px/1 var(--cri-mono);
-  color: var(--cri-dim);
-  letter-spacing: 0.44em;
-  text-transform: uppercase;
-  padding-left: 0.44em;
-}
-
 /* ── Title ── */
 .cri-title-block {
   margin-top: 24px;

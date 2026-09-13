@@ -58,16 +58,6 @@
   opacity: 0.45;
 }
 
-/* ── Presents ── */
-.crd-presents {
-  position: relative;
-  font: 500 10px/1 var(--crd-mono);
-  color: var(--crd-dim);
-  letter-spacing: 0.44em;
-  text-transform: uppercase;
-  padding-left: 0.44em;
-}
-
 /* ── Title ── */
 .crd-title-block {
   position: relative;

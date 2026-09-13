@@ -15,11 +15,19 @@ describe('DaylightThemeComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should render the object hero with designation and name', () => {
+  it('should render the object name in the hero', () => {
     const hero = host.querySelector('[data-testid="card-hero"]');
-    expect(hero?.textContent).toContain('NGC 2237');
-    expect(hero?.textContent).toContain('Narrowband');
+    expect(hero?.textContent).toContain('Rosette Nebula');
     expect(host.querySelector('.day-name')?.textContent).toContain('Rosette Nebula');
+  });
+
+  it('should show the catalogue line in the top row, opposite the datestamp', () => {
+    // The catalogue line moved up into the row the brand lockup used to hold,
+    // so the row still reads as two-ended rather than leaving an empty side.
+    const topRow = host.querySelector('.day-brand');
+    expect(topRow?.textContent).toContain('NGC 2237');
+    expect(topRow?.textContent).toContain('Narrowband');
+    expect(topRow?.querySelector('.day-date')).toBeTruthy();
   });
 
   it('should render the 2×2 giant stats from the card data', () => {
