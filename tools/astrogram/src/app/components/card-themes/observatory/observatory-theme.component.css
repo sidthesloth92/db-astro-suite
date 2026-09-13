@@ -132,6 +132,13 @@
   font: 300 32px/1 var(--obv-sans);
   color: var(--obv-amber);
   letter-spacing: 0.06em;
+  /* The exporter clones each element at its computed size and lays the text
+     out again inside it. This designation only just fits on one line live, so
+     in the exported file it wrapped and its second line printed over the
+     epoch/site row below. A catalogue designation is short by nature, so it
+     stays on one line — nothing is truncated, the line simply cannot break. */
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .obv-target-common {
