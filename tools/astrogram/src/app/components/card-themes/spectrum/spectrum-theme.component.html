@@ -6,7 +6,13 @@
     <div class="spc-grain" aria-hidden="true"></div>
     <div class="spc-hero-content">
       <div class="spc-kicker">{{ data.objectId }}</div>
-      <div class="spc-headline">{{ heroPrimary() }}</div>
+      <!-- A long proper name ("Heart and Soul") shrinks to the hero's width. -->
+      <div
+        class="spc-headline"
+        [dbaAgFitText]="isLandscapeFormat() ? 56 : 60"
+        [fitTextMin]="30"
+        [fitTextContent]="heroName().primary"
+      >{{ heroName().primary }}</div>
       <div class="spc-subhead">{{ heroSubtitle() }}</div>
       <div class="spc-hero-meta">
         <div class="spc-meta-line">
