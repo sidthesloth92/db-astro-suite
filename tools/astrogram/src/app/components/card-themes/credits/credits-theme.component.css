@@ -199,10 +199,11 @@
 /* ── Landscape (1.91:1) ──
    The one-sheet is a single centred column: on a wide card it kept its
    portrait width, so the billing block sat in a narrow strip with most of the
-   frame empty and every credit printed at a few pixels. Landscape splits the
-   sheet — the title stacked over its band strip, with the release date
-   anchored beneath, on the left; the billing block in two columns on the
-   right, with the full-width software and exposure credits closing it. */
+   frame empty and every credit printed at a few pixels. Landscape keeps the
+   one-line title across the top and splits the sheet beneath it — the band
+   strip, designation and release date on the left; the billing block in two
+   columns on the right, with the full-width software and exposure credits
+   closing it. */
 .crd-root--landscape {
   display: grid;
   grid-template-columns: 330px minmax(0, 1fr);
@@ -215,27 +216,22 @@
   display: none;
 }
 
-.crd-root--landscape .crd-title-block,
 .crd-root--landscape .crd-strip,
 .crd-root--landscape .crd-study,
 .crd-root--landscape .crd-release {
   grid-column: 1;
 }
 
+/* The name runs across the whole card on one line, as it does in portrait,
+   with the sheet split into its two columns beneath it. */
 .crd-root--landscape .crd-title-block {
+  grid-column: 1 / -1;
   grid-row: 1;
-  margin-top: 0;
+  margin: 0 0 12px;
 }
 
 .crd-root--landscape .crd-title {
   margin-top: 14px;
-}
-
-/* One word per line: the title column has the height for a stacked name, and
-   the fitted size then follows the longest word rather than the whole name. */
-.crd-root--landscape .crd-title-solid,
-.crd-root--landscape .crd-title-outline {
-  display: block;
 }
 
 .crd-root--landscape .crd-strip {
@@ -288,7 +284,7 @@
    line while the short credits beside it give up the room. */
 .crd-root--landscape .crd-billing {
   grid-column: 2;
-  grid-row: 1 / -1;
+  grid-row: 2 / -1;
   align-self: center;
   display: grid;
   grid-template-columns: auto auto;

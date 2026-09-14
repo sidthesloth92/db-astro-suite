@@ -218,11 +218,11 @@
 /* ── Landscape (1.91:1) ──
    The one-sheet is a single centred column: on a wide card it kept its
    portrait width, so the billing block sat in a narrow strip with most of the
-   paper empty and every credit printed at a few pixels. Landscape splits the
-   sheet as Credits does — the title stacked over its band strip, with the
-   release date anchored beneath, on the left; the billing block in two
-   columns on the right, with the full-width software and exposure credits
-   closing it. */
+   paper empty and every credit printed at a few pixels. Landscape lays the
+   sheet out as Credits does — the one-line title across the top; the band
+   strip, designation and release date on the left beneath it; the billing
+   block in two columns on the right, with the full-width software and
+   exposure credits closing it. */
 .cri-root--landscape .cri-inner {
   display: grid;
   grid-template-columns: 330px minmax(0, 1fr);
@@ -235,27 +235,22 @@
   display: none;
 }
 
-.cri-root--landscape .cri-title-block,
 .cri-root--landscape .cri-strip,
 .cri-root--landscape .cri-designation,
 .cri-root--landscape .cri-release {
   grid-column: 1;
 }
 
+/* The name runs across the whole card on one line, as it does in portrait,
+   with the sheet split into its two columns beneath it. */
 .cri-root--landscape .cri-title-block {
+  grid-column: 1 / -1;
   grid-row: 1;
-  margin-top: 0;
+  margin: 0 0 12px;
 }
 
 .cri-root--landscape .cri-title {
   margin-top: 14px;
-}
-
-/* One word per line: the title column has the height for a stacked name, and
-   the fitted size then follows the longest word rather than the whole name. */
-.cri-root--landscape .cri-title-solid,
-.cri-root--landscape .cri-title-outline {
-  display: block;
 }
 
 .cri-root--landscape .cri-strip {
@@ -309,7 +304,7 @@
    line while the short credits beside it give up the room. */
 .cri-root--landscape .cri-billing {
   grid-column: 2;
-  grid-row: 1 / -1;
+  grid-row: 2 / -1;
   align-self: center;
   display: grid;
   grid-template-columns: auto auto;

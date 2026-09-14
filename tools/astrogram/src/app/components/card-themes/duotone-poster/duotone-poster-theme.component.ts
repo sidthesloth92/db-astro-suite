@@ -25,8 +25,9 @@ export class DuotonePosterThemeComponent extends CardThemeBaseDirective {
     this.vm().objectName.split(' ').slice(1).join(' '),
   );
 
-  /** First five equipment rows shown in the Gear footer column. */
-  protected readonly gearItems = computed<readonly ThemeGearItem[]>(() =>
-    this.vm().equipment.slice(0, 5),
-  );
+  /**
+   * Every equipment row for the Gear footer column. The design capped the list
+   * at five, silently dropping any row a user added beyond that.
+   */
+  protected readonly gearItems = computed<readonly ThemeGearItem[]>(() => this.vm().equipment);
 }
