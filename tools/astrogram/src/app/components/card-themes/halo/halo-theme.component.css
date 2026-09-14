@@ -334,7 +334,8 @@
 
 .hal-gear-label {
   font: 500 8.5px/1 var(--hal-mono);
-  color: var(--hal-faint);
+  /* --hal-faint all but vanished on the dark glass panels. */
+  color: var(--hal-dim);
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
@@ -343,8 +344,10 @@
   font: 500 11px/1.25 var(--hal-sans);
   color: var(--hal-txt);
   margin-top: 2px;
-  /* Wraps rather than ellipsing, so a long piece of kit is never cut short. */
+  /* Wraps rather than ellipsing, so a long piece of kit is never cut short;
+     balanced, so a wrap never leaves a lone "Gen 2" on the second line. */
   overflow-wrap: break-word;
+  text-wrap: balance;
 }
 
 .hal-bortle {
@@ -410,8 +413,8 @@
     'head head'
     'hero lower'
     'int lower';
-  gap: 14px 16px;
-  padding: 24px 28px 26px;
+  gap: 12px 16px;
+  padding: 20px 28px 22px;
 }
 
 .hal-root--landscape .hal-header {
@@ -430,16 +433,17 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 20px 24px;
+  padding: 18px 24px;
 }
 
 .hal-root--landscape .hal-hero-name {
   font-size: 50px;
-  line-height: 1.05;
+  line-height: 1;
   margin-top: 0;
 }
 
 .hal-root--landscape .hal-hero-caption {
+  margin-top: 8px;
   font-size: 14px;
   max-width: none;
 }
@@ -447,19 +451,20 @@
 .hal-root--landscape .hal-hero-meta {
   --hal-meta-gap: 12px;
 
+  margin-top: calc(12px - 0.175em);
   font-size: 11px;
 }
 
 .hal-root--landscape .hal-integration {
   grid-area: int;
-  padding: 16px 18px 18px;
+  padding: 14px 18px 16px;
 }
 
 /* A longer total drops below the label instead of running into it. */
 .hal-root--landscape .hal-int-head {
   flex-wrap: wrap;
   gap: 6px 16px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .hal-root--landscape .hal-int-label,
@@ -494,6 +499,26 @@
   white-space: nowrap;
 }
 
+/* Two rows of pills (a full LRGB + narrowband set) are set tighter: at the
+   single-row spacing they made the left column a fifth taller than the card,
+   and the fit shrank every label in the export below 10px. */
+.hal-root--landscape .hal-pills:has(> .hal-pill:nth-child(4)) {
+  gap: 10px;
+}
+
+.hal-root--landscape .hal-pills:has(> .hal-pill:nth-child(4)) .hal-pill {
+  padding: 10px 12px;
+}
+
+.hal-root--landscape .hal-pills:has(> .hal-pill:nth-child(4)) .hal-pill-time {
+  margin-top: 6px;
+  font-size: 23px;
+}
+
+.hal-root--landscape .hal-pills:has(> .hal-pill:nth-child(4)) .hal-pill-frames {
+  margin-top: 4px;
+}
+
 /* Equipment runs the full width of the right column, so the longest piece
    of kit stays on one line; pipeline and the Bortle gauge share the row
    beneath it. */
@@ -520,7 +545,7 @@
 }
 
 .hal-root--landscape .hal-pipeline {
-  flex: 1.6 1 0;
+  flex: 2 1 0;
   min-width: 0;
 }
 
@@ -529,11 +554,25 @@
   font-size: 11px;
 }
 
+/* Equipment and pipeline read as a spec sheet — label column, value beside
+   it. Stacked label-over-value, a full rig (7 gear, 4 software) made the
+   right column a fifth taller than the card, shrinking every label in the
+   export to ~9px. */
+.hal-root--landscape .hal-gear {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  column-gap: 12px;
+  align-items: baseline;
+}
+
 .hal-root--landscape .hal-gear-label {
-  font-size: 10px;
+  font-size: 10.5px;
+  line-height: 1.25;
+  letter-spacing: 0.1em;
 }
 
 .hal-root--landscape .hal-gear-value {
+  margin-top: 0;
   font-size: 13px;
 }
 
