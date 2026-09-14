@@ -65,12 +65,9 @@
       href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;500&display=swap"
       rel="stylesheet"
     />
-    <!-- Card-theme fonts: Outfit (UI/display), JetBrains Mono, Major Mono Display,
-         Manrope + Inter (editorial themes). Loaded for faithful theme rendering + export. -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Major+Mono+Display&family=Manrope:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <!-- Card-theme fonts (Outfit, JetBrains Mono, Manrope, Inter) are self-hosted in
+         styles.css, not loaded here: the card exporter cannot embed a font from a
+         cross-origin stylesheet, so exports fell back to system fonts. -->
 
     <!-- Structured Data: WebApplication -->
     <script type="application/ld+json">

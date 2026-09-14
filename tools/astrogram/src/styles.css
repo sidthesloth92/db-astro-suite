@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @source "../../../libs/ui/src/**/*.{html,ts}";
 @import '@db-astro-suite/theme';
+@import './card-theme-fonts.css';
 
 @theme {
   --color-neon-pink: var(--db-color-neon-pink);

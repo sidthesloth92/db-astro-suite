@@ -1,0 +1,41 @@
+/*
+ * Card-theme fonts, self-hosted.
+ *
+ * The card exporter (modern-screenshot) can only embed a font whose
+ * `@font-face` rule it can read. Rules in a cross-origin stylesheet — the
+ * Google Fonts `<link>` these faces used to come from — are unreadable to
+ * script, so every export silently rendered these families in a system
+ * fallback: JetBrains Mono became Courier, which is wider, so labels that fit
+ * in the browser wrapped and overlapped in the downloaded image.
+ *
+ * Same-origin rules are readable and embed, so the browser and the exported
+ * file now draw identical glyphs. Outfit is self-hosted in `@db-astro-suite/theme`.
+ *
+ * Each file is the family's variable font (one file covers every weight a
+ * theme uses), SIL Open Font License — see the adjacent *-OFL.txt files.
+ */
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('./fonts/jetbrains-mono-variable.woff2') format('woff2');
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Manrope';
+  src: url('./fonts/manrope-variable.woff2') format('woff2');
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Subset to Latin, Greek, Cyrillic, punctuation and symbols (the full file is ~3x larger). */
+@font-face {
+  font-family: 'Inter';
+  src: url('./fonts/inter-variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
