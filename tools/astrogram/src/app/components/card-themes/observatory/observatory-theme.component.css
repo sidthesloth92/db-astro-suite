@@ -153,12 +153,28 @@
 
 .obv-target-meta {
   display: flex;
-  gap: 16px;
+  /* A long site or handle wraps whole items onto the next line; squeezed
+     onto one line they each broke mid-value ("EPOCH SEP / 13, 2026", "OP"
+     over its handle). */
+  flex-wrap: wrap;
+  gap: 4px 16px;
   margin-top: 10px;
   color: var(--obv-dim);
   letter-spacing: 0.06em;
   font-size: 9.5px;
   text-transform: uppercase;
+}
+
+/* The epoch and operator are short label + value pairs that stay whole. */
+.obv-target-meta span {
+  white-space: nowrap;
+}
+
+/* The site is the one value that can outrun the panel, so it may wrap —
+   within its own item, which moves to a row of its own first. */
+.obv-target-meta .obv-target-site {
+  min-width: 0;
+  white-space: normal;
 }
 
 .obv-target-caption {
@@ -353,7 +369,10 @@
 .obv-root--landscape .obv-inner {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  /* The target row may not shrink below its content: squeezed, the centred
+     designation rose into the observatory bar and the caption spilled onto
+     the telemetry panel, instead of the card growing to hold it. */
+  grid-template-rows: auto 1fr auto;
   grid-template-areas:
     'head head'
     'target lower'
@@ -412,10 +431,6 @@
   gap: 4px 16px;
   margin-top: 12px;
   font-size: 11px;
-}
-
-.obv-root--landscape .obv-target-meta span {
-  white-space: nowrap;
 }
 
 .obv-root--landscape .obv-target-caption {

@@ -32,7 +32,7 @@
       </div>
       <div class="obv-target-meta">
         <span>EPOCH {{ data.dateShort }}</span>
-        <span>SITE {{ data.location }}@if (data.locationCoords) { · {{ data.locationCoords }}}</span>
+        <span class="obv-target-site">SITE {{ data.location }}@if (data.locationCoords) { · {{ data.locationCoords }}}</span>
         <span>OP {{ data.author }}</span>
       </div>
       @if (data.caption) {
