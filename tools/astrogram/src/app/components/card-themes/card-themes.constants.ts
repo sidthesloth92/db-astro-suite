@@ -72,7 +72,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Observatory',
     subtitle: 'Copper telemetry on near-black',
     component: ObservatoryThemeComponent,
-    landscapeBasisHeight: 600,
+    landscapeBasisHeight: 480,
     accents: {
       accentColor: '#D97742',
       accentColorRgb: '217, 119, 66',

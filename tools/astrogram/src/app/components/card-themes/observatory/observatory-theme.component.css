@@ -337,3 +337,214 @@
   background: var(--obv-copper);
   border-color: var(--obv-copper);
 }
+
+/* ── Landscape (1.91:1) ──
+   The portrait panels stretched across a wide card: the fill bars ran
+   ~800px with the frames and times pushed to the far edge, the hardware
+   panel sat 60% empty, and the 8.5px labels in the faint tone all but
+   vanished at the export's size. Landscape sets two columns under the full-
+   width observatory bar — target and telemetry on the left, hardware over
+   pipeline on the right, the Bortle meter beside the pipeline list — with
+   the type raised and the faint tone lifted so the labels read. */
+.obv-root--landscape {
+  --obv-faint: #85765f;
+}
+
+.obv-root--landscape .obv-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    'head head'
+    'target lower'
+    'tel lower';
+  gap: 12px 14px;
+  padding: 20px 24px 22px;
+}
+
+.obv-root--landscape .obv-panel {
+  padding: 14px 16px;
+}
+
+.obv-root--landscape .obv-tick {
+  font-size: 10.5px;
+}
+
+.obv-root--landscape .obv-header {
+  grid-area: head;
+  padding: 9px 14px;
+}
+
+.obv-root--landscape .obv-brand {
+  font-size: 13px;
+}
+
+.obv-root--landscape .obv-session,
+.obv-root--landscape .obv-status {
+  font-size: 12px;
+}
+
+/* The target panel takes the column's spare height; its content is centred
+   rather than leaving the space under the caption. */
+.obv-root--landscape .obv-target {
+  grid-area: target;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.obv-root--landscape .obv-target-name {
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin-top: 10px;
+}
+
+.obv-root--landscape .obv-target-id {
+  font-size: 40px;
+}
+
+.obv-root--landscape .obv-target-common {
+  font-size: 20px;
+}
+
+.obv-root--landscape .obv-target-meta {
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin-top: 12px;
+  font-size: 11px;
+}
+
+.obv-root--landscape .obv-target-meta span {
+  white-space: nowrap;
+}
+
+.obv-root--landscape .obv-target-caption {
+  margin-top: 12px;
+  font-size: 13px;
+}
+
+.obv-root--landscape .obv-inner > .obv-panel:not(.obv-target) {
+  grid-area: tel;
+}
+
+/* A longer total drops below the heading instead of running into it. */
+.obv-root--landscape .obv-tel-head {
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-bottom: 10px;
+}
+
+.obv-root--landscape .obv-tel-total {
+  font-size: 26px;
+}
+
+.obv-root--landscape .obv-tel-total span {
+  font-size: 10.5px;
+}
+
+/* Fill bars sized to the column, so frames and time sit next to the bar
+   they belong to. */
+.obv-root--landscape .obv-tel-cols,
+.obv-root--landscape .obv-tel-row {
+  grid-template-columns: 52px minmax(0, 1fr) 92px 64px;
+  gap: 10px;
+}
+
+.obv-root--landscape .obv-tel-cols {
+  font-size: 10px;
+}
+
+.obv-root--landscape .obv-tel-row {
+  padding: 6px 0;
+  font-size: 12px;
+}
+
+.obv-root--landscape .obv-tel-frames,
+.obv-root--landscape .obv-tel-time {
+  white-space: nowrap;
+}
+
+.obv-root--landscape .obv-lower {
+  grid-area: lower;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.obv-root--landscape .obv-lower > .obv-panel:first-child {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.obv-root--landscape .obv-gear-list {
+  margin-top: 10px;
+  gap: 6px;
+}
+
+.obv-root--landscape .obv-gear-label {
+  font-size: 10px;
+  line-height: 1.2;
+}
+
+.obv-root--landscape .obv-gear-value {
+  font-size: 13px;
+}
+
+/* Pipeline list on the left, the sky reading as a column on the right,
+   divided by the dashed rule the portrait draws above it. */
+.obv-root--landscape .obv-pipeline {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 150px;
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    'tick sky'
+    'list sky';
+  column-gap: 16px;
+}
+
+.obv-root--landscape .obv-pipeline > .obv-tick {
+  grid-area: tick;
+}
+
+.obv-root--landscape .obv-pipeline > .obv-gear-list {
+  grid-area: list;
+}
+
+.obv-root--landscape .obv-spacer {
+  display: none;
+}
+
+.obv-root--landscape .obv-sky {
+  grid-area: sky;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin: 0;
+  padding: 0 0 0 16px;
+  border-top: 0;
+  border-left: 1px dashed rgba(217, 119, 66, 0.149);
+}
+
+.obv-root--landscape .obv-sky-head {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.obv-root--landscape .obv-sky-val {
+  font-size: 34px;
+}
+
+.obv-root--landscape .obv-sky-val span {
+  font-size: 12px;
+}
+
+.obv-root--landscape .obv-bortle-bar {
+  margin-top: 10px;
+}
+
+.obv-root--landscape .obv-bortle-seg {
+  height: 9px;
+}

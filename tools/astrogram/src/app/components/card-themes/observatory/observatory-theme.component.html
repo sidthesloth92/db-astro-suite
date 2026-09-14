@@ -1,6 +1,6 @@
 @let data = vm();
 
-<div class="obv-root">
+<div class="obv-root" [class.obv-root--landscape]="isLandscapeFormat()">
   <div class="obv-hatch" aria-hidden="true"></div>
   <dba-ag-theme-starfield [density]="60" [opacity]="0.3" [color]="'#E8C788'" [seed]="1" />
 
