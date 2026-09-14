@@ -1,4 +1,4 @@
-import { spreadLabels } from './label-spread.util';
+import { spreadLabels, staggerLabels } from './label-spread.util';
 
 describe('spreadLabels', () => {
   it('should leave labels that are already far enough apart on their anchors', () => {
@@ -29,5 +29,42 @@ describe('spreadLabels', () => {
 
   it('should return nothing for no labels', () => {
     expect(spreadLabels([], 62, 30, 446)).toEqual([]);
+  });
+});
+
+describe('staggerLabels', () => {
+  // Planet centres of a 7-filter System Line card, bunched towards the end.
+  const crowded = [85, 205, 325, 384, 413, 426, 440];
+
+  it('should keep labels in one row on their anchors when they are far enough apart', () => {
+    expect(staggerLabels([164, 332, 416], 62, 30, 446)).toEqual([
+      { x: 164, isSecondRow: false },
+      { x: 332, isSecondRow: false },
+      { x: 416, isSecondRow: false },
+    ]);
+  });
+
+  it('should alternate rows when one row would slide labels off their anchors', () => {
+    const out = staggerLabels(crowded, 62, 30, 446);
+
+    expect(out.map((l) => l.isSecondRow)).toEqual([false, true, false, true, false, true, false]);
+  });
+
+  it('should keep labels closer to their anchors than a single spread row does', () => {
+    const worst = (xs: number[]): number => Math.max(...xs.map((x, i) => Math.abs(x - crowded[i])));
+
+    expect(worst(staggerLabels(crowded, 62, 30, 446).map((l) => l.x))).toBeLessThan(
+      worst(spreadLabels(crowded, 62, 30, 446)),
+    );
+  });
+
+  it('should keep the minimum gap between labels that share a row', () => {
+    const out = staggerLabels(crowded, 62, 30, 446);
+
+    out.slice(2).forEach((l, i) => expect(l.x - out[i].x).toBeGreaterThanOrEqual(62 - 1e-9));
+  });
+
+  it('should return nothing for no labels', () => {
+    expect(staggerLabels([], 62, 30, 446)).toEqual([]);
   });
 });

@@ -274,6 +274,19 @@
   margin: -145px 0 -48px;
 }
 
+/* Crowded band labels alternate into a row above the axis (y 21-71), which
+   the usual top trim would pull up over the title; trim only the empty band
+   above that row, and draw the chart narrower so the taller drawing still
+   fits the card at its authored size. */
+.sl-root--landscape.sl-root--labels-above .sl-chart--landscape {
+  width: 660px;
+}
+
+/* The same trims as a share of the chart's width, so they follow it. */
+.sl-root--landscape.sl-root--labels-above .sl-svg {
+  margin: -3.8% 0 -5.85%;
+}
+
 .sl-root--landscape .sl-total {
   grid-column: 2;
   grid-row: 2;
@@ -302,12 +315,12 @@
 }
 
 .sl-root--landscape .sl-foot-gear {
-  font-size: 10.5px;
+  font-size: 11px;
 }
 
 .sl-root--landscape .sl-foot-row {
   flex-wrap: wrap;
-  gap: 6px 16px;
+  gap: 8px 16px;
   margin-top: 8px;
 }
 
@@ -316,23 +329,23 @@
 }
 
 .sl-root--landscape .sl-foot-meta {
-  font-size: 10.5px;
+  font-size: 11px;
   line-height: 1.3;
 }
 
 /* A long handle or location used to run the two ends of this row into each
-   other. The row may wrap: the meta then drops to its own line, pushed to the
-   right edge, and a meta long enough to span the row reads left-aligned
-   rather than as a ragged right-aligned block under the handle. When both
-   fit, the spacer takes the free space as before. */
+   other. The row may wrap. On one line the spacer still pushes the meta to
+   the right edge; once it wraps, the meta starts at the left edge under the
+   handle. Pushed right by an auto margin instead, a wrapped meta sat indented
+   by whatever room was left over and lined up with nothing. */
 .sl-foot-row {
   flex-wrap: wrap;
+  justify-content: space-between;
   column-gap: 16px;
-  row-gap: 6px;
+  row-gap: 8px;
 }
 
 .sl-foot-row .sl-foot-meta {
-  margin-left: auto;
   min-width: 0;
 }
 

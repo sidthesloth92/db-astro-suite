@@ -1,6 +1,6 @@
 @let data = vm();
 
-<div class="sl-root" [class.sl-root--landscape]="isLandscapeFormat()">
+<div class="sl-root" [class.sl-root--landscape]="isLandscapeFormat()" [class.sl-root--labels-above]="hasLabelsAbove()">
   <dba-ag-theme-starfield [density]="110" [opacity]="0.5" [seed]="21" />
 
   <!-- Header -->
@@ -48,7 +48,9 @@
           stroke="rgba(255,255,255,0.3)"
           stroke-width="1"
         />
-        <text [attr.x]="tick.x" y="140" text-anchor="middle" class="sl-tick-label">{{ tick.hh }}h</text>
+        @if (!tick.isLabelHidden) {
+          <text [attr.x]="tick.x" y="140" text-anchor="middle" class="sl-tick-label">{{ tick.hh }}h</text>
+        }
       }
 
       <!-- sun (session origin) -->
@@ -85,11 +87,11 @@
 
       <!-- band labels -->
       @for (p of planets(); track p.id; let i = $index) {
-        <text [attr.x]="labelXs()[i]" y="178" text-anchor="middle" [attr.fill]="p.color" class="sl-band-id">
+        <text [attr.x]="labels()[i].x" [attr.y]="labels()[i].idY" text-anchor="middle" [attr.fill]="p.color" class="sl-band-id">
           {{ p.id }}
         </text>
-        <text [attr.x]="labelXs()[i]" y="200" text-anchor="middle" class="sl-band-time">{{ p.time }}</text>
-        <text [attr.x]="labelXs()[i]" y="217" text-anchor="middle" class="sl-band-frames">{{ p.frames }}</text>
+        <text [attr.x]="labels()[i].x" [attr.y]="labels()[i].timeY" text-anchor="middle" class="sl-band-time">{{ p.time }}</text>
+        <text [attr.x]="labels()[i].x" [attr.y]="labels()[i].framesY" text-anchor="middle" class="sl-band-frames">{{ p.frames }}</text>
       }
     </svg>
   </div>
