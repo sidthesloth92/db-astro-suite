@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
 import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfield.component';
+import { cometStreakLength, cometStreakOffset } from '../../../utils/comet-streak.util';
 
 /**
  * Comet card theme — a comet with its nucleus at upper-right and a curved
@@ -37,16 +38,20 @@ export class CometThemeComponent extends CardThemeBaseDirective {
     `L ${this.tailEndX + 50} ${this.tailEndY + 8} ` +
     `Q ${this.ctrlX + 40} ${this.ctrlY + 30} ${this.nx + 8} ${this.ny + 14} Z`;
 
-  /** Per-band ion streaks: colour-coded, length scaled by integration share. */
+  /**
+   * Per-band ion streaks: colour-coded, length scaled by integration share.
+   * All of them leave the nucleus, fanned tightly enough that seven bands stay
+   * on the tail rather than dropping below it towards the title.
+   */
   protected readonly ionStreaks = computed(() =>
-    this.vm().integration.map((band, i) => {
-      const off = (i - 1) * 16;
+    this.vm().integration.map((band, i, bands) => {
+      const off = cometStreakOffset(i, bands.length);
       return {
         band,
         path:
           `M ${this.nx} ${this.ny + off} ` +
           `Q ${this.ctrlX} ${this.ctrlY + off} ${this.tailEndX + 10} ${this.tailEndY + off}`,
-        dash: `${band.pct * 260} 600`,
+        dash: `${cometStreakLength(band.pct)} 600`,
       };
     }),
   );
