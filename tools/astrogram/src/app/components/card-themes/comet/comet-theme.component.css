@@ -217,8 +217,52 @@
   text-align: right;
 }
 
-.com-nowrap {
-  white-space: nowrap;
+/* One run of text wrapped "…San / Diego County, California ·" and led the
+   next line with the handle after a dangling separator. The place now breaks
+   only after a comma and the handle wraps as a whole item. The separator
+   before the handle ends the run, and the line is pushed right by one
+   separator so a separator that ends a line falls outside the clipped box.
+   It is drawn rather than typed: clipped text would read as overflow to the
+   card's content-fit check. */
+.com-sky {
+  --com-sep-gap: 0.2em;
+  --com-sep-dot: 2px;
+  --com-sep-width: calc(2 * var(--com-sep-gap) + var(--com-sep-dot));
+
+  overflow: hidden;
+}
+
+.com-sky-line {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin-right: calc(-1 * var(--com-sep-width));
+}
+
+.com-sky-part {
+  display: flex;
+  align-items: flex-end;
+  min-width: 0;
+}
+
+.com-sky-part:last-child {
+  margin-right: var(--com-sep-width);
+}
+
+/* Balanced, so a wrapped place does not leave "California" alone. */
+.com-sky-text {
+  min-width: 0;
+  text-wrap: balance;
+}
+
+/* Sits where a typed "·" would, half an x-height above the last baseline. */
+.com-sep {
+  flex: none;
+  width: var(--com-sep-dot);
+  height: var(--com-sep-dot);
+  margin: 0 var(--com-sep-gap) 0.6em;
+  border-radius: 50%;
+  background: currentColor;
 }
 
 /* ── Landscape (1.91:1) ──

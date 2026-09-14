@@ -103,7 +103,22 @@
         }
         <div class="com-total-row">
           <span class="com-total">{{ data.total }}</span>
-          <span class="com-sky"><span class="com-nowrap">Bortle {{ data.bortle }}</span> · {{ data.location }} · {{ data.author }}</span>
+          <!-- The sky and the place wrap as one run that breaks only after a
+               comma; the handle is a whole item, and the separator before it
+               is clipped when it ends a line (see .com-sky-line). -->
+          <span class="com-sky">
+            <span class="com-sky-line">
+              <span class="com-sky-part">
+                <span class="com-sky-text">Bortle&nbsp;{{ data.bortle }}@if (placeName()) {<span>&nbsp;·&nbsp;{{ placeName() }}</span>}</span>
+                @if (data.author) {
+                  <span class="com-sep" aria-hidden="true"></span>
+                }
+              </span>
+              @if (data.author) {
+                <span class="com-sky-part">{{ data.author }}</span>
+              }
+            </span>
+          </span>
         </div>
       </div>
     </div>

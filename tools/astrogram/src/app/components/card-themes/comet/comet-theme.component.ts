@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
 import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfield.component';
 import { cometStreakLength, cometStreakOffset } from '../../../utils/comet-streak.util';
+import { keepPlaceNamesTogether } from '../../../utils/keep-together.util';
 
 /**
  * Comet card theme — a comet with its nucleus at upper-right and a curved
@@ -55,6 +56,9 @@ export class CometThemeComponent extends CardThemeBaseDirective {
       };
     }),
   );
+
+  /** Location for the footer's sky line, wrapping only between its comma-separated parts. */
+  protected readonly placeName = computed<string>(() => keepPlaceNamesTogether(this.vm().location));
 
   /** Dust particles distributed along the tail's quadratic curve. */
   protected readonly dust = Array.from({ length: 46 }, (_unused, i) => {
