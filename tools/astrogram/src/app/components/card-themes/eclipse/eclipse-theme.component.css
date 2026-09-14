@@ -192,3 +192,117 @@
   opacity: 0.6;
   margin-top: 3px;
 }
+
+/* ── Landscape (1.91:1) ──
+   The portrait column dropped into the wide frame left the eclipse small in
+   the middle, the outer thirds empty and the title pressed onto the footer
+   rule, with the label inside the ring at about 4 export px. Here the eclipse
+   takes the full height of a left column and the header, title, legend and
+   footer stack in a column beside it, at sizes that read in a 566px image. */
+.ec-root--landscape {
+  display: grid;
+  grid-template-columns: 420px minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto auto minmax(0, 1fr) auto;
+  column-gap: 36px;
+}
+
+.ec-root--landscape .ec-header {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+/* Wider than its column: the viewBox has ~60px of empty margin either side of
+   the streamers, so the art bleeds into the card padding instead of wasting
+   it. An explicit margin rather than auto, which the exporter drops. */
+.ec-root--landscape .ec-svg {
+  grid-column: 1;
+  grid-row: 1 / -1;
+  width: 500px;
+  max-width: none;
+  margin: 0 0 0 -40px;
+  align-self: center;
+}
+
+.ec-root--landscape .ec-total-label {
+  font-size: 10px;
+}
+
+.ec-root--landscape .ec-title {
+  grid-column: 2;
+  grid-row: 3;
+  margin-top: 0;
+  text-align: left;
+}
+
+.ec-root--landscape .ec-kicker {
+  font-size: 11.5px;
+}
+
+.ec-root--landscape .ec-name {
+  font-size: 42px;
+  margin-top: 10px;
+}
+
+.ec-root--landscape .ec-legend {
+  grid-column: 2;
+  grid-row: 4;
+  justify-content: flex-start;
+  gap: 34px;
+  margin-top: 28px;
+}
+
+.ec-root--landscape .ec-legend-item {
+  text-align: left;
+}
+
+.ec-root--landscape .ec-legend-swatch {
+  width: 26px;
+  margin: 0;
+}
+
+.ec-root--landscape .ec-legend-id {
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+.ec-root--landscape .ec-legend-time {
+  font-size: 18px;
+  margin-top: 7px;
+  white-space: nowrap;
+}
+
+.ec-root--landscape .ec-legend-frames {
+  font-size: 11px;
+  margin-top: 5px;
+  white-space: nowrap;
+}
+
+.ec-root--landscape .ec-spacer {
+  display: none;
+}
+
+.ec-root--landscape .ec-footer {
+  grid-column: 2;
+  grid-row: 6;
+}
+
+.ec-root--landscape .ec-foot-gear {
+  font-size: 10.5px;
+}
+
+/* Author and place drop onto separate lines rather than squeezing when a long
+   location fills the narrower column. */
+.ec-root--landscape .ec-foot-row {
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-top: 9px;
+}
+
+.ec-root--landscape .ec-foot-author {
+  font-size: 13px;
+}
+
+.ec-root--landscape .ec-foot-meta {
+  font-size: 10px;
+  line-height: 1.3;
+}
