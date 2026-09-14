@@ -242,11 +242,46 @@
   margin-top: 4px;
 }
 
+/* One run of text wrapped "…San Diego / County, California / · @handle",
+   splitting the place and leading a line with an orphan separator. The place
+   now breaks only after a comma, and the handle is its own item that wraps
+   whole; the line is pulled left by one separator so the separator of an item
+   that starts a line falls outside the clipped box. */
+.dp-sky {
+  --dp-sep-width: 0.7em;
+
+  overflow: hidden;
+}
+
+.dp-sky-line {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: calc(-1 * var(--dp-sep-width));
+}
+
+/* Balanced, so a wrapped place does not leave "California" alone. */
+.dp-sky-part {
+  min-width: 0;
+  text-wrap: balance;
+}
+
+.dp-sky-part:first-child {
+  margin-left: var(--dp-sep-width);
+}
+
+.dp-sep {
+  display: inline-block;
+  width: var(--dp-sep-width);
+  text-align: center;
+}
+
 /* A gear or software name that wraps hangs its second line, so the run-on
-   ("Filter Wheel", "Gen 2") never reads as another item. */
+   ("Filter Wheel", "Gen 2") never reads as another item. Balanced, so the
+   run-on is never a lone "Gen 2". */
 .dp-footer-item:not(.dp-footer-item--dim) {
   padding-left: 0.9em;
   text-indent: -0.9em;
+  text-wrap: balance;
 }
 
 .dp-band-frames {

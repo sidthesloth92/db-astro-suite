@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
 import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfield.component';
 import type { ThemeGearItem } from '../../../models/card-theme.model';
+import { keepPlaceNamesTogether } from '../../../utils/keep-together.util';
 
 /**
  * Duotone Poster theme — a bold riso print in indigo, coral and sky. Overprinted
@@ -30,4 +31,7 @@ export class DuotonePosterThemeComponent extends CardThemeBaseDirective {
    * at five, silently dropping any row a user added beyond that.
    */
   protected readonly gearItems = computed<readonly ThemeGearItem[]>(() => this.vm().equipment);
+
+  /** Location for the Process footer, wrapping only between its comma-separated parts. */
+  protected readonly placeName = computed<string>(() => keepPlaceNamesTogether(this.vm().location));
 }

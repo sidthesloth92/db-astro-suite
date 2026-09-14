@@ -60,10 +60,16 @@
         @for (item of data.software; track $index) {
           <div class="dp-footer-item">{{ item.value }}</div>
         }
-        <!-- Each separator is glued to the item after it, so a wrapping line
-             never ends on a dangling "·". -->
-        <div class="dp-footer-item dp-footer-item--dim">
-          Bortle {{ data.bortle }} ·&nbsp;{{ data.location }} ·&nbsp;{{ data.author }}
+        <!-- The sky and the place wrap as one run that breaks only after a
+             comma; the handle follows as a whole item whose separator is
+             clipped when it starts a line (see .dp-sky-line). -->
+        <div class="dp-footer-item dp-footer-item--dim dp-sky">
+          <div class="dp-sky-line">
+            <span class="dp-sky-part">Bortle&nbsp;{{ data.bortle }}@if (placeName()) {<span>&nbsp;·&nbsp;{{ placeName() }}</span>}</span>
+            @if (data.author) {
+              <span class="dp-sky-part"><span class="dp-sep" aria-hidden="true">·</span>{{ data.author }}</span>
+            }
+          </div>
         </div>
       </div>
     </div>
