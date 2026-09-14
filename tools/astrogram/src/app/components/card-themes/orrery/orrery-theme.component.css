@@ -176,7 +176,11 @@
   color: #544e72;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  white-space: nowrap;
+  /* May wrap: a nowrap label (e.g. "Guide scope and camera") squeezed its
+     value into a sliver and broke it over three lines with one word left alone. */
+  flex: 1 1 0;
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 
 .orr-row-value {
@@ -185,7 +189,8 @@
   text-align: right;
   min-width: 0;
   overflow-wrap: break-word;
-  max-width: 140px;
+  flex: 0 1 auto;
+  max-width: 64%;
 }
 
 .orr-sky {
@@ -200,12 +205,22 @@
   margin-top: 2px;
 }
 
-/* ── Label frame ──
-   Labels are placed at viewBox percentages. On portrait formats the chart
-   covers the whole theme, so the theme itself is the right box. On landscape
-   the chart is fitted — full height, 540:720, centred — and a percentage of
-   the whole wide theme no longer lands on the point it names, so the labels
-   are framed to exactly the box the chart is drawn in. */
+/* ── Art box ──
+   The chart and every label pinned to it share one 540 x 720 box, so a label
+   placed at a viewBox percentage always lands beside its planet. The chart
+   used to cover whatever canvas the format produced while its labels were
+   placed against the whole canvas: on 1:1 the total slid off the sun and the
+   captions sat ~70px below their planets, and on 9:16 the outer orbit ran off
+   both edges. Every portrait and square canvas is at least 540 wide and 720
+   tall, so the artboard sits there at its own size, pinned to the top. */
+.orr-art {
+  position: absolute;
+  top: 0;
+  left: calc(50% - 270px);
+  width: 540px;
+  height: 720px;
+}
+
 .orr-label-frame {
   position: absolute;
   inset: 0;
@@ -213,9 +228,69 @@
   pointer-events: none;
 }
 
-.orr-label-frame--fitted {
-  inset: 0 auto;
+/* ── Landscape (1.91:1) ──
+   The portrait design centres a 540 x 720 orbit artboard in the frame, which
+   in a wide card left the orbits in the middle of the image and pressed the
+   title and a full-width, tiny data footer into the bottom strip. Here the
+   art box is scaled up and raised so the orbit system — which only occupies
+   y 150-385 of its artboard — fills a band across the top, and the title and
+   footer take the lower half at a larger size. */
+.orr-root--landscape .orr-art {
+  top: -21%;
   left: 50%;
+  width: auto;
+  height: 142%;
   aspect-ratio: 540 / 720;
   transform: translateX(-50%);
+}
+
+.orr-root--landscape .orr-title {
+  top: 50%;
+}
+
+.orr-root--landscape .orr-object-id {
+  font-size: 11px;
+}
+
+.orr-root--landscape .orr-object-name {
+  font-size: 34px;
+  margin-top: 6px;
+}
+
+.orr-root--landscape .orr-footer {
+  padding: 0 40px 24px;
+}
+
+.orr-root--landscape .orr-cols {
+  gap: 48px;
+  padding-top: 14px;
+}
+
+.orr-root--landscape .orr-col-title {
+  font-size: 11px;
+  margin-bottom: 8px;
+}
+
+/* Labels and values read as pairs, not as two ends of a 400px-wide row. */
+.orr-root--landscape .orr-row {
+  justify-content: flex-start;
+  gap: 16px;
+  padding: 2px 0;
+}
+
+.orr-root--landscape .orr-row-label {
+  flex: 0 0 180px;
+  white-space: nowrap;
+  font-size: 10.5px;
+}
+
+.orr-root--landscape .orr-row-value {
+  font-size: 12.5px;
+  text-align: left;
+  max-width: none;
+}
+
+.orr-root--landscape .orr-sky {
+  font-size: 12px;
+  margin-top: 8px;
 }

@@ -96,7 +96,9 @@
 
 .com-legend-frames {
   font: 400 9.5px/1 'JetBrains Mono', monospace;
-  color: #42526a;
+  /* Lighter than the design's #42526a, which disappeared into the comet's
+     bright tail running behind the legend. */
+  color: #8fa3ba;
 }
 
 /* ── Object title near the nucleus ── */
@@ -167,7 +169,11 @@
   color: #42526a;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  white-space: nowrap;
+  /* May wrap: a nowrap label (e.g. "Guide scope and camera") squeezed its
+     value into a sliver and broke it over three lines with one word left alone. */
+  flex: 1 1 0;
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 
 .com-row-value {
@@ -176,7 +182,8 @@
   text-align: right;
   min-width: 0;
   overflow-wrap: break-word;
-  max-width: 140px;
+  flex: 0 1 auto;
+  max-width: 64%;
 }
 
 .com-total-row {

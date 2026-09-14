@@ -100,6 +100,10 @@
   padding: 30px 28px 26px;
   display: flex;
   flex-direction: column;
+  /* Spare height goes between the sections, not inside the bottom panels:
+     stretching the lower grid left bordered boxes up to three-quarters empty
+     on tall formats. */
+  justify-content: space-between;
   gap: 16px;
   box-sizing: border-box;
 }
@@ -220,7 +224,8 @@
 
 .hal-pill-frames {
   font: 400 9.5px/1 var(--hal-mono);
-  color: var(--hal-faint);
+  /* --hal-faint vanished on the pastel pill tints, most of all the rose one. */
+  color: var(--hal-dim);
   margin-top: 6px;
 }
 
@@ -229,8 +234,6 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
-  flex: 1;
-  min-height: 0;
 }
 
 .hal-equipment {
@@ -280,9 +283,8 @@
   font: 500 11px/1.25 var(--hal-sans);
   color: var(--hal-txt);
   margin-top: 2px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  /* Wraps rather than ellipsing, so a long piece of kit is never cut short. */
+  overflow-wrap: break-word;
 }
 
 .hal-bortle {

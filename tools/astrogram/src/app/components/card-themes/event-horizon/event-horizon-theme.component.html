@@ -1,6 +1,6 @@
 @let data = vm();
 
-<div class="eh-root">
+<div class="eh-root" [class.eh-root--landscape]="isLandscapeFormat()">
   <dba-ag-theme-starfield [density]="110" [opacity]="0.4" [seed]="26" />
 
   <!-- Header -->

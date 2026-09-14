@@ -233,9 +233,8 @@
 .dp-footer-item {
   font: 500 10px/1.5 var(--dp-sans);
   color: var(--dp-cream);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  /* Wraps rather than ellipsing, so a long value is never cut short. */
+  overflow-wrap: break-word;
 }
 
 .dp-footer-item--dim {

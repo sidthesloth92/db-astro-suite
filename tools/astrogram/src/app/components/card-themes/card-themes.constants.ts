@@ -204,6 +204,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Event Horizon',
     subtitle: 'Accretion-disk exposure arcs',
     component: EventHorizonThemeComponent,
+    landscapeBasisHeight: 480,
     accents: {
       accentColor: '#FFE9C4',
       accentColorRgb: '255, 233, 196',
@@ -236,7 +237,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Orrery',
     subtitle: 'Solar-system orbits',
     component: OrreryThemeComponent,
-    landscapeBasisHeight: 580,
+    landscapeBasisHeight: 480,
     accents: {
       accentColor: '#FFCF6B',
       accentColorRgb: '255, 207, 107',
@@ -258,7 +259,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Ringed Planet',
     subtitle: 'Rings encode integration',
     component: RingedPlanetThemeComponent,
-    landscapeBasisHeight: 620,
+    landscapeBasisHeight: 500,
     accents: {
       accentColor: '#FFD79A',
       accentColorRgb: '255, 215, 154',
@@ -269,7 +270,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Atlas',
     subtitle: 'Light · vintage star-atlas plate',
     component: AtlasThemeComponent,
-    landscapeBasisHeight: 580,
+    landscapeBasisHeight: 460,
     accents: {
       accentColor: '#2B2316',
       accentColorRgb: '43, 35, 22',

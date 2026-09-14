@@ -70,6 +70,19 @@
   width: 100%;
   height: auto;
   margin-top: 12px;
+  /* Held to the 476px it was authored at and centred. Its height follows its
+     width, so on the wider 1:1 and 4:5 canvases it grew about a third taller
+     than at 3:4 and shoved the title onto the footer rule, while those formats
+     have no more height than 3:4 does. */
+  max-width: 476px;
+  align-self: center;
+  /* The corona glow's radius (218) exceeds the 380-tall viewBox; clipping it
+     left a faint hard-edged box above the ring and over the legend. */
+  overflow: visible;
+  /* A flex item with visible overflow may not shrink below its intrinsic
+     height; without this the art could no longer give way on short canvases
+     and pushed the title and footer off the card. */
+  min-height: 0;
 }
 
 .ec-total-label {

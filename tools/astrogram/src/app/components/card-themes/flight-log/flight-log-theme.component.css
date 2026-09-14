@@ -87,10 +87,20 @@
   text-align: right;
 }
 
+.fl-route-end {
+  /* Each end takes its text's width but never more than its share, so a long
+     name wraps onto a second line instead of shoving the route line out. */
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 44%;
+}
+
 .fl-route-code {
-  font: 800 30px/1 var(--fl-sans);
+  font: 800 26px/1.05 var(--fl-sans);
   color: var(--fl-txt);
   letter-spacing: 0.02em;
+  overflow-wrap: break-word;
+  text-wrap: balance;
 }
 
 .fl-route-code--mint {
@@ -108,6 +118,7 @@
 
 .fl-route-mid {
   flex: 1;
+  min-width: 36px;
   position: relative;
   display: flex;
   align-items: center;
@@ -143,9 +154,8 @@
   font: 600 13px/1.2 var(--fl-sans);
   color: var(--fl-txt);
   margin-top: 5px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  /* Wraps rather than ellipsing, so a long value is never cut short. */
+  overflow-wrap: break-word;
 }
 
 .fl-field-value--mint {

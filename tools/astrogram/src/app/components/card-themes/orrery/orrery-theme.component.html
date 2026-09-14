@@ -1,68 +1,73 @@
 @let data = vm();
 
-<div class="orr-root">
+<div class="orr-root" [class.orr-root--landscape]="isLandscapeFormat()">
   <dba-ag-theme-starfield [density]="130" [opacity]="0.5" [seed]="9" />
 
-  <svg class="orr-chart" viewBox="0 0 540 720" [attr.preserveAspectRatio]="dataArtFit()" aria-hidden="true">
-    <g [attr.transform]="'translate(0 ' + orbitTop + ')'">
-      <!-- orbit ellipses -->
-      @for (orbit of orbits(); track orbit.band.id) {
-        <ellipse
-          [attr.cx]="cx"
-          [attr.cy]="cy"
-          [attr.rx]="orbit.rx"
-          [attr.ry]="orbit.ry"
-          fill="none"
-          [attr.stroke]="orbit.band.color"
-          stroke-width="1"
-          opacity="0.35"
-        />
-      }
-
-      <!-- sun glow -->
-      <circle [attr.cx]="cx" [attr.cy]="cy" r="46" fill="#FFCF6B" opacity="0.12" />
-      <circle [attr.cx]="cx" [attr.cy]="cy" r="30" fill="#FFCF6B" opacity="0.2" />
-
-      <!-- planets -->
-      @for (orbit of orbits(); track orbit.band.id) {
-        <g>
-          <circle [attr.cx]="orbit.x" [attr.cy]="orbit.y" [attr.r]="orbit.haloR" [attr.fill]="orbit.band.color" opacity="0.16" />
-          <circle [attr.cx]="orbit.x" [attr.cy]="orbit.y" [attr.r]="orbit.pr" [attr.fill]="orbit.band.color" />
-          <circle
-            [attr.cx]="orbit.x"
-            [attr.cy]="orbit.y"
-            [attr.r]="orbit.pr"
+  <!-- Art box: the orbit chart and every label pinned to it. It fills the theme
+       on portrait formats; on landscape it is sized and raised so the orbits sit
+       in a band across the top and the title and data get the lower half. -->
+  <div class="orr-art">
+    <svg class="orr-chart" viewBox="0 0 540 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <g [attr.transform]="'translate(0 ' + orbitTop + ')'">
+        <!-- orbit ellipses -->
+        @for (orbit of orbits(); track orbit.band.id) {
+          <ellipse
+            [attr.cx]="cx"
+            [attr.cy]="cy"
+            [attr.rx]="orbit.rx"
+            [attr.ry]="orbit.ry"
             fill="none"
-            stroke="#fff"
-            stroke-width="0.7"
-            opacity="0.5"
+            [attr.stroke]="orbit.band.color"
+            stroke-width="1"
+            opacity="0.35"
           />
-        </g>
+        }
+
+        <!-- sun glow -->
+        <circle [attr.cx]="cx" [attr.cy]="cy" r="46" fill="#FFCF6B" opacity="0.12" />
+        <circle [attr.cx]="cx" [attr.cy]="cy" r="30" fill="#FFCF6B" opacity="0.2" />
+
+        <!-- planets -->
+        @for (orbit of orbits(); track orbit.band.id) {
+          <g>
+            <circle [attr.cx]="orbit.x" [attr.cy]="orbit.y" [attr.r]="orbit.haloR" [attr.fill]="orbit.band.color" opacity="0.16" />
+            <circle [attr.cx]="orbit.x" [attr.cy]="orbit.y" [attr.r]="orbit.pr" [attr.fill]="orbit.band.color" />
+            <circle
+              [attr.cx]="orbit.x"
+              [attr.cy]="orbit.y"
+              [attr.r]="orbit.pr"
+              fill="none"
+              stroke="#fff"
+              stroke-width="0.7"
+              opacity="0.5"
+            />
+          </g>
+        }
+      </g>
+    </svg>
+
+    <!-- Sun label (total) -->
+    <div class="orr-sun-label">
+      <div class="orr-sun-total">{{ data.total }}</div>
+      <div class="orr-sun-badge">TOTAL</div>
+    </div>
+
+    <!-- Planet labels -->
+    <div class="orr-label-frame">
+      @for (orbit of orbits(); track orbit.band.id) {
+        <div class="orr-planet-label" [style.top.%]="orbit.labelTopPct" [style.left.%]="orbit.labelLeftPct">
+          <div class="orr-planet-id" [style.color]="orbit.band.color">{{ orbit.band.id }}</div>
+          <div class="orr-planet-time">{{ orbit.band.time }}</div>
+          <div class="orr-planet-frames">{{ orbit.band.frames }}</div>
+        </div>
       }
-    </g>
-  </svg>
+    </div>
+  </div>
 
   <!-- Header -->
   <div class="orr-header">
     <span class="orr-brand">Orrery</span>
     <span class="orr-datestamp">{{ data.dateNumeric }}</span>
-  </div>
-
-  <!-- Sun label (total) -->
-  <div class="orr-sun-label">
-    <div class="orr-sun-total">{{ data.total }}</div>
-    <div class="orr-sun-badge">TOTAL</div>
-  </div>
-
-  <!-- Planet labels -->
-  <div class="orr-label-frame" [class.orr-label-frame--fitted]="isLandscapeFormat()">
-    @for (orbit of orbits(); track orbit.band.id) {
-      <div class="orr-planet-label" [style.top.%]="orbit.labelTopPct" [style.left.%]="orbit.labelLeftPct">
-        <div class="orr-planet-id" [style.color]="orbit.band.color">{{ orbit.band.id }}</div>
-        <div class="orr-planet-time">{{ orbit.band.time }}</div>
-        <div class="orr-planet-frames">{{ orbit.band.frames }}</div>
-      </div>
-    }
   </div>
 
   <!-- Object title -->

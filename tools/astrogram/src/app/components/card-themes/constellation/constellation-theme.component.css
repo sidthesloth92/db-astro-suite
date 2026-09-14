@@ -150,7 +150,11 @@
   color: #46506b;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  white-space: nowrap;
+  /* May wrap: a nowrap label (e.g. "Guide scope and camera") squeezed its
+     value into a sliver and broke it over three lines with one word left alone. */
+  flex: 1 1 0;
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 
 .con-row-value {
@@ -159,7 +163,8 @@
   text-align: right;
   min-width: 0;
   overflow-wrap: break-word;
-  max-width: 150px;
+  flex: 0 1 auto;
+  max-width: 64%;
 }
 
 .con-total-row {
@@ -172,15 +177,18 @@
 }
 
 .con-total {
-  font: 600 9px/1 'JetBrains Mono', monospace;
+  font: 600 9px/1.4 'JetBrains Mono', monospace;
   color: #ffd79a;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+  /* A total is one figure; it wrapped as "TOTAL 10H / 20M" in the 3:4 column. */
+  white-space: nowrap;
 }
 
 .con-sky {
-  font: 500 10px/1 'Outfit', system-ui, sans-serif;
+  font: 500 10px/1.4 'Outfit', system-ui, sans-serif;
   color: #8a97b5;
+  text-align: right;
 }
 
 .con-band-frames {
@@ -189,22 +197,35 @@
   margin-top: 2px;
 }
 
-/* ── Label frame ──
-   Labels are placed at viewBox percentages. On portrait formats the chart
-   covers the whole theme, so the theme itself is the right box. On landscape
-   the chart is fitted — full height, 540:720, centred — and a percentage of
-   the whole wide theme no longer lands on the point it names, so the labels
-   are framed to exactly the box the chart is drawn in. */
+/* ── Art box ──
+   The chart is authored on a 540 x 720 artboard and its band labels are placed
+   at percentages of that artboard. It used to cover whatever canvas the format
+   produced, cropping the artboard on 1:1 and 9:16 while the labels were placed
+   against the whole canvas — so they landed up to 160px away from their stars
+   and the top star was cut off. Every portrait and square canvas is at least
+   540 wide and 720 tall, so the artboard now sits there at its own size, pinned
+   to the top and centred, with the labels inside it. */
+.con-art {
+  position: absolute;
+  top: 0;
+  left: calc(50% - 270px);
+  width: 540px;
+  height: 720px;
+}
+
+/* Landscape is shorter than the artboard: fit it to the full height instead. */
+.con-art--landscape {
+  inset: 0 auto;
+  left: 50%;
+  width: auto;
+  height: auto;
+  aspect-ratio: 540 / 720;
+  transform: translateX(-50%);
+}
+
 .con-label-frame {
   position: absolute;
   inset: 0;
   z-index: 2;
   pointer-events: none;
-}
-
-.con-label-frame--fitted {
-  inset: 0 auto;
-  left: 50%;
-  aspect-ratio: 540 / 720;
-  transform: translateX(-50%);
 }

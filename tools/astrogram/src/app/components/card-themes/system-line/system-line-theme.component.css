@@ -103,6 +103,9 @@
   display: block;
   width: 100%;
   height: auto;
+  /* The sun's halo starts 2 units left of the viewBox; clipping it cut the
+     glow off with a flat vertical edge. */
+  overflow: visible;
 }
 
 /* The diagram's height follows its width, so an uncapped chart in a wide

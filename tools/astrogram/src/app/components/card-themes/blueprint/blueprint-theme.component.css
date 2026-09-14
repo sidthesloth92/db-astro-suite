@@ -311,9 +311,8 @@
 .bp-parts-value {
   font: 500 11px/1.2 var(--bp-sans);
   color: var(--bp-txt);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  /* Wraps rather than ellipsing, so a long value is never cut short. */
+  overflow-wrap: break-word;
 }
 
 /* ── Footer titleblock ── */
@@ -337,7 +336,6 @@
   font: 500 11px/1.2 var(--bp-sans);
   color: var(--bp-txt);
   margin-top: 4px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  /* Wraps rather than ellipsing, so a long value is never cut short. */
+  overflow-wrap: break-word;
 }

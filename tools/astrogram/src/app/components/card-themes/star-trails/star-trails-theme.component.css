@@ -71,6 +71,12 @@
   width: 100%;
   height: auto;
   margin-top: 2px;
+  /* Held to the 476px it was authored at and centred. Its height follows its
+     width, so on the wider 1:1 and 4:5 canvases it grew about a third taller
+     than at 3:4 and shoved the title onto the footer rule, while those formats
+     have no more height than 3:4 does. */
+  max-width: 476px;
+  align-self: center;
 }
 
 .st-polaris {

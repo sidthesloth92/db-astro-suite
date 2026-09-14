@@ -3,83 +3,87 @@
 <div class="con-root">
   <dba-ag-theme-starfield [density]="150" [opacity]="0.55" [color]="'#F2F7FF'" [seed]="9" />
 
-  <svg class="con-chart" viewBox="0 0 540 720" [attr.preserveAspectRatio]="dataArtFit()" aria-hidden="true">
-    <g [attr.transform]="'translate(0 ' + chartTop + ')'">
-      <!-- RA/Dec faint graticule -->
-      @for (x of graticuleX; track $index) {
-        <line
-          [attr.x1]="x"
-          y1="20"
-          [attr.x2]="x"
-          [attr.y2]="graticuleBottom"
-          stroke="#7FE3FF"
-          stroke-width="0.4"
-          opacity="0.1"
-        />
-      }
-      @for (y of graticuleY; track $index) {
-        <line
-          x1="20"
-          [attr.y1]="y"
-          [attr.x2]="graticuleRight"
-          [attr.y2]="y"
-          stroke="#7FE3FF"
-          stroke-width="0.4"
-          opacity="0.1"
-        />
-      }
-
-      <!-- edges -->
-      @for (edge of edgeLines; track $index) {
-        <line
-          [attr.x1]="edge.x1"
-          [attr.y1]="edge.y1"
-          [attr.x2]="edge.x2"
-          [attr.y2]="edge.y2"
-          stroke="#7FE3FF"
-          stroke-width="1"
-          opacity="0.5"
-        />
-      }
-
-      <!-- normal stars -->
-      @for (node of starNodes; track $index) {
-        <circle [attr.cx]="node.x" [attr.cy]="node.y" r="2.4" fill="#F2F7FF" opacity="0.9" />
-      }
-
-      <!-- bright band stars -->
-      @for (star of brightStars(); track star.band.id) {
-        <g>
-          <circle [attr.cx]="star.x" [attr.cy]="star.y" r="11" [attr.fill]="star.band.color" opacity="0.18" />
-          <circle [attr.cx]="star.x" [attr.cy]="star.y" r="4.4" [attr.fill]="star.band.color" />
-          <circle
-            [attr.cx]="star.x"
-            [attr.cy]="star.y"
-            r="4.4"
-            fill="none"
-            stroke="#fff"
-            stroke-width="0.8"
-            opacity="0.7"
+  <!-- Art box: the chart and the band labels pinned to its stars share one
+       540 x 720 box, so every label stays beside its star in every format. -->
+  <div class="con-art" [class.con-art--landscape]="isLandscapeFormat()">
+    <svg class="con-chart" viewBox="0 0 540 720" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <g [attr.transform]="'translate(0 ' + chartTop + ')'">
+        <!-- RA/Dec faint graticule -->
+        @for (x of graticuleX; track $index) {
+          <line
+            [attr.x1]="x"
+            y1="20"
+            [attr.x2]="x"
+            [attr.y2]="graticuleBottom"
+            stroke="#7FE3FF"
+            stroke-width="0.4"
+            opacity="0.1"
           />
-        </g>
+        }
+        @for (y of graticuleY; track $index) {
+          <line
+            x1="20"
+            [attr.y1]="y"
+            [attr.x2]="graticuleRight"
+            [attr.y2]="y"
+            stroke="#7FE3FF"
+            stroke-width="0.4"
+            opacity="0.1"
+          />
+        }
+
+        <!-- edges -->
+        @for (edge of edgeLines; track $index) {
+          <line
+            [attr.x1]="edge.x1"
+            [attr.y1]="edge.y1"
+            [attr.x2]="edge.x2"
+            [attr.y2]="edge.y2"
+            stroke="#7FE3FF"
+            stroke-width="1"
+            opacity="0.5"
+          />
+        }
+
+        <!-- normal stars -->
+        @for (node of starNodes; track $index) {
+          <circle [attr.cx]="node.x" [attr.cy]="node.y" r="2.4" fill="#F2F7FF" opacity="0.9" />
+        }
+
+        <!-- bright band stars -->
+        @for (star of brightStars(); track star.band.id) {
+          <g>
+            <circle [attr.cx]="star.x" [attr.cy]="star.y" r="11" [attr.fill]="star.band.color" opacity="0.18" />
+            <circle [attr.cx]="star.x" [attr.cy]="star.y" r="4.4" [attr.fill]="star.band.color" />
+            <circle
+              [attr.cx]="star.x"
+              [attr.cy]="star.y"
+              r="4.4"
+              fill="none"
+              stroke="#fff"
+              stroke-width="0.8"
+              opacity="0.7"
+            />
+          </g>
+        }
+      </g>
+    </svg>
+
+    <!-- Band labels -->
+    <div class="con-label-frame">
+      @for (star of brightStars(); track star.band.id) {
+        <div class="con-band-label" [style.top.%]="star.labelTopPct" [style.left.%]="star.labelLeftPct">
+          <div class="con-band-id" [style.color]="star.band.color">{{ star.band.id }}</div>
+          <div class="con-band-time">{{ star.band.time }}</div>
+          <div class="con-band-frames">{{ star.band.frames }}</div>
+        </div>
       }
-    </g>
-  </svg>
+    </div>
+  </div>
 
   <!-- Chart header -->
   <div class="con-header">
     <span class="con-datestamp">Star Chart · {{ data.dateNumeric }}</span>
-  </div>
-
-  <!-- Band labels -->
-  <div class="con-label-frame" [class.con-label-frame--fitted]="isLandscapeFormat()">
-    @for (star of brightStars(); track star.band.id) {
-      <div class="con-band-label" [style.top.%]="star.labelTopPct" [style.left.%]="star.labelLeftPct">
-        <div class="con-band-id" [style.color]="star.band.color">{{ star.band.id }}</div>
-        <div class="con-band-time">{{ star.band.time }}</div>
-        <div class="con-band-frames">{{ star.band.frames }}</div>
-      </div>
-    }
   </div>
 
   <!-- Object name plate -->

@@ -13,7 +13,9 @@
     <!-- Route: FROM → TO -->
     <div class="fl-route" data-testid="card-hero">
       <div class="fl-route-end">
-        <div class="fl-route-code">{{ originCode() }}</div>
+        <!-- The whole designation and name, not their first words: "NGC" and
+             "Rosette" on their own named nothing. -->
+        <div class="fl-route-code">{{ data.objectId }}</div>
         <div class="fl-route-label">Catalogue</div>
       </div>
       <div class="fl-route-mid">
@@ -24,7 +26,7 @@
         <div class="fl-route-line"></div>
       </div>
       <div class="fl-route-end fl-route-end--to">
-        <div class="fl-route-code fl-route-code--mint">{{ targetCode() }}</div>
+        <div class="fl-route-code fl-route-code--mint">{{ data.objectName }}</div>
         <div class="fl-route-label">Target</div>
       </div>
     </div>

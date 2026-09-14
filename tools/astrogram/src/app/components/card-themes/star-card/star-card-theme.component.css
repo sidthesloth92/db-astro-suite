@@ -69,6 +69,9 @@
   left: 50%;
   margin-left: -110px;
   pointer-events: none;
+  /* Background texture only: it sits behind the designation and title, and
+     at full strength its node rings read as marks on the letters. */
+  opacity: 0.5;
 }
 
 .stc-grow {

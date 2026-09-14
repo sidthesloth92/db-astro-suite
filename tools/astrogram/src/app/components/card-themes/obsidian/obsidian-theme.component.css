@@ -56,6 +56,10 @@
   padding: 22px;
   display: flex;
   flex-direction: column;
+  /* Spare height goes between the sections, not inside the bottom panels:
+     stretching the lower grid left bordered boxes up to three-quarters empty
+     on tall formats. */
+  justify-content: space-between;
   gap: 14px;
   box-sizing: border-box;
 }
@@ -214,8 +218,6 @@
   display: grid;
   grid-template-columns: 1.1fr 1fr;
   gap: 12px;
-  flex: 1;
-  min-height: 0;
 }
 
 .obs-apparatus,
@@ -265,9 +267,8 @@
   font: 500 11px/1.25 var(--obs-sans);
   color: var(--obs-txt);
   margin-top: 2px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  /* Wraps rather than ellipsing, so a long piece of kit is never cut short. */
+  overflow-wrap: break-word;
 }
 
 .obs-stack {

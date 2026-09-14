@@ -22,6 +22,10 @@ export class RadiantThemeComponent extends CardThemeBaseDirective {
   protected readonly rx = 238;
   /** Radiant point Y in chart coordinates. */
   protected readonly ry = 128;
+  /** Meteor-field viewBox width. */
+  private readonly chartWidth = 476;
+  /** Meteor-field viewBox height. */
+  private readonly chartHeight = 300;
 
   /** Ambient decorative micro-streaks around the radiant. */
   protected readonly ambientStreaks = ((): { x1: number; y1: number; x2: number; y2: number }[] => {
@@ -61,8 +65,14 @@ export class RadiantThemeComponent extends CardThemeBaseDirective {
         const a = (seed * 1.7 + bi * 40) % 360;
         const rad = (a * Math.PI) / 180;
         const r0 = 30 + (seed % 26);
-        const len = 52 + band.pct * 170 + (seed % 38);
         const w = 1.4 + band.pct * 1.6;
+        // Longer rays mean a bigger exposure share, but the chart is only 300
+        // units tall with the radiant at 128, so steep rays ran out of the
+        // viewBox and their heads were sliced off. Each ray stops just inside.
+        const len = Math.min(
+          52 + band.pct * 170 + (seed % 38),
+          this.rayRoom(rx, ry, rad, w * 1.15 + 3) - r0,
+        );
         out.push({
           color: band.color,
           x1: rx + r0 * Math.cos(rad),
@@ -76,6 +86,18 @@ export class RadiantThemeComponent extends CardThemeBaseDirective {
     });
     return out;
   });
+
+  /**
+   * Distance from the radiant to the chart edge along a direction, less a
+   * margin that keeps a ray's head fully visible.
+   */
+  private rayRoom(rx: number, ry: number, rad: number, margin: number): number {
+    const dx = Math.cos(rad);
+    const dy = Math.sin(rad);
+    const toX = dx > 0 ? (this.chartWidth - margin - rx) / dx : dx < 0 ? (margin - rx) / dx : Infinity;
+    const toY = dy > 0 ? (this.chartHeight - margin - ry) / dy : dy < 0 ? (margin - ry) / dy : Infinity;
+    return Math.min(toX, toY);
+  }
 
   /** Per-band bar rows beneath the meteor field. */
   protected readonly rows = computed(() =>

@@ -81,9 +81,20 @@
 .tr-svg {
   position: relative;
   display: block;
-  width: 100%;
+  width: 88%;
   height: auto;
   margin-top: 4px;
+  /* Held to the 476px it was authored at and centred. Its height follows its
+     width, so on the wider 1:1 and 4:5 canvases it grew about a third taller
+     than at 3:4 and shoved the title onto the footer rule, while those formats
+     have no more height than 3:4 does. */
+  max-width: 476px;
+  align-self: center;
+  overflow: visible;
+  /* A flex item with visible overflow may not shrink below its intrinsic
+     height; without this the art could no longer give way on short canvases
+     and pushed the title and footer off the card. */
+  min-height: 0;
 }
 
 .tr-ring-label {
@@ -96,7 +107,10 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  margin-top: -34px;
+  /* Clear of the reticle. The design tucked the rows 34px up into it, so the
+     outer ring and the bottom crosshair tick ran straight through the first
+     band's bar and the divider below it. */
+  margin-top: 10px;
 }
 
 .tr-row {

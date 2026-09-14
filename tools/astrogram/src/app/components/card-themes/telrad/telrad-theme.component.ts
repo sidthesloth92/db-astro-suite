@@ -45,8 +45,10 @@ export class TelradThemeComponent extends CardThemeBaseDirective {
         strokeWidth: i === 0 ? 1.6 : 1.1,
         opacity: 0.8 - i * 0.18,
         label: labels[i],
-        labelX: lx - 4,
-        labelY: ly - 4,
+        // Just outside the ring at 135°: sitting on the stroke, the ring ran
+        // through the label and "0.5°" read as "0 5°".
+        labelX: lx + 7,
+        labelY: ly + 13,
       };
     });
   })();

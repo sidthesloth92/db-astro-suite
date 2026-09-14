@@ -1,6 +1,6 @@
 @let data = vm();
 
-<div class="rpl-root">
+<div class="rpl-root" [class.rpl-root--landscape]="isLandscapeFormat()">
   <dba-ag-theme-starfield [density]="140" [opacity]="0.55" [seed]="9" />
 
   <!-- Header -->
@@ -8,74 +8,78 @@
     <span class="rpl-datestamp">{{ data.dateNumeric }}</span>
   </div>
 
-  <svg class="rpl-chart" viewBox="0 0 540 720" [attr.preserveAspectRatio]="dataArtFit()" aria-hidden="true">
-    <defs>
-      <radialGradient id="ringed-planet-body" cx="38%" cy="34%" r="75%">
-        <stop offset="0%" stop-color="#C9A6E8" />
-        <stop offset="42%" stop-color="#8A5BC2" />
-        <stop offset="78%" stop-color="#46256E" />
-        <stop offset="100%" stop-color="#1C0E33" />
-      </radialGradient>
-      <linearGradient id="ringed-planet-band" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.16" />
-        <stop offset="50%" stop-color="#ffffff" stop-opacity="0" />
-        <stop offset="100%" stop-color="#000000" stop-opacity="0.22" />
-      </linearGradient>
-    </defs>
+  <!-- Art box: fills the theme on portrait formats; on landscape it is scaled
+       and raised so the planet sits in a band across the top. -->
+  <div class="rpl-art">
+    <svg class="rpl-chart" viewBox="0 0 540 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <defs>
+        <radialGradient id="ringed-planet-body" cx="38%" cy="34%" r="75%">
+          <stop offset="0%" stop-color="#C9A6E8" />
+          <stop offset="42%" stop-color="#8A5BC2" />
+          <stop offset="78%" stop-color="#46256E" />
+          <stop offset="100%" stop-color="#1C0E33" />
+        </radialGradient>
+        <linearGradient id="ringed-planet-band" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.16" />
+          <stop offset="50%" stop-color="#ffffff" stop-opacity="0" />
+          <stop offset="100%" stop-color="#000000" stop-opacity="0.22" />
+        </linearGradient>
+      </defs>
 
-    <g [attr.transform]="'translate(0 ' + planetTop + ')'">
-      <!-- back half of rings -->
-      <g [attr.transform]="ringGroupTransform">
-        @for (ring of rings(); track ring.band.id) {
-          <ellipse
-            cx="0"
-            cy="0"
-            [attr.rx]="ring.rr"
-            [attr.ry]="ring.ry"
-            fill="none"
-            [attr.stroke]="ring.band.color"
-            stroke-width="6"
-            opacity="0.5"
-            [attr.stroke-dasharray]="ring.backDash"
-            transform="rotate(180)"
-          />
+      <g [attr.transform]="'translate(0 ' + planetTop + ')'">
+        <!-- back half of rings -->
+        <g [attr.transform]="ringGroupTransform">
+          @for (ring of rings(); track ring.band.id) {
+            <ellipse
+              cx="0"
+              cy="0"
+              [attr.rx]="ring.rr"
+              [attr.ry]="ring.ry"
+              fill="none"
+              [attr.stroke]="ring.band.color"
+              stroke-width="6"
+              opacity="0.5"
+              [attr.stroke-dasharray]="ring.backDash"
+              transform="rotate(180)"
+            />
+          }
+        </g>
+
+        <!-- planet body -->
+        <circle [attr.cx]="cx" [attr.cy]="cy" [attr.r]="planetRadius" fill="url(#ringed-planet-body)" />
+        <ellipse
+          [attr.cx]="cx"
+          [attr.cy]="cy"
+          [attr.rx]="planetRadius"
+          [attr.ry]="planetRadius"
+          fill="url(#ringed-planet-band)"
+        />
+
+        <!-- latitude bands -->
+        @for (lat of latitudeBands; track $index) {
+          <ellipse [attr.cx]="cx" [attr.cy]="lat.cy" [attr.rx]="lat.rx" ry="6" fill="#fff" opacity="0.05" />
         }
+
+        <!-- front half of rings -->
+        <g [attr.transform]="ringGroupTransform">
+          @for (ring of rings(); track ring.band.id) {
+            <ellipse
+              cx="0"
+              cy="0"
+              [attr.rx]="ring.rr"
+              [attr.ry]="ring.ry"
+              fill="none"
+              [attr.stroke]="ring.band.color"
+              stroke-width="6"
+              opacity="0.95"
+              [attr.stroke-dasharray]="ring.frontDash"
+              stroke-linecap="round"
+            />
+          }
+        </g>
       </g>
-
-      <!-- planet body -->
-      <circle [attr.cx]="cx" [attr.cy]="cy" [attr.r]="planetRadius" fill="url(#ringed-planet-body)" />
-      <ellipse
-        [attr.cx]="cx"
-        [attr.cy]="cy"
-        [attr.rx]="planetRadius"
-        [attr.ry]="planetRadius"
-        fill="url(#ringed-planet-band)"
-      />
-
-      <!-- latitude bands -->
-      @for (lat of latitudeBands; track $index) {
-        <ellipse [attr.cx]="cx" [attr.cy]="lat.cy" [attr.rx]="lat.rx" ry="6" fill="#fff" opacity="0.05" />
-      }
-
-      <!-- front half of rings -->
-      <g [attr.transform]="ringGroupTransform">
-        @for (ring of rings(); track ring.band.id) {
-          <ellipse
-            cx="0"
-            cy="0"
-            [attr.rx]="ring.rr"
-            [attr.ry]="ring.ry"
-            fill="none"
-            [attr.stroke]="ring.band.color"
-            stroke-width="6"
-            opacity="0.95"
-            [attr.stroke-dasharray]="ring.frontDash"
-            stroke-linecap="round"
-          />
-        }
-      </g>
-    </g>
-  </svg>
+    </svg>
+  </div>
 
   <!-- Object title overlay -->
   <div class="rpl-title" data-testid="card-hero">

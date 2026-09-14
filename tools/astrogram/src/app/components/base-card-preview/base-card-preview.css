@@ -245,6 +245,9 @@
   position: relative;
   z-index: 5;
   height: 100%;
+  /* Inherited by every theme: avoid leaving a lone word or emoji on the last
+     line of a description ("Day 🌹" orphaned under a full line of text). */
+  text-wrap: pretty;
   display: flex;
   flex-direction: column;
   /* Distribute the projected sections with `space-between` plus a small floor

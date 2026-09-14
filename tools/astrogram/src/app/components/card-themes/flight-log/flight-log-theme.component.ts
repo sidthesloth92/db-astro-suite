@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
 import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfield.component';
 
@@ -16,11 +16,6 @@ import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfie
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FlightLogThemeComponent extends CardThemeBaseDirective {
-  /** Catalogue code — first token of the object id (the ticket's FROM). */
-  protected readonly originCode = computed<string>(() => this.vm().objectId.split(' ')[0] ?? '');
-
-  /** Target code — first token of the object name (the ticket's TO). */
-  protected readonly targetCode = computed<string>(() => this.vm().objectName.split(' ')[0] ?? '');
 
   /** Deterministic barcode bar widths / ink for the ticket stub. */
   protected readonly barcodeBars = Array.from({ length: 56 }, (_unused, i) => ({

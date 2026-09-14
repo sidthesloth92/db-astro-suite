@@ -229,3 +229,98 @@
   letter-spacing: 0.2em;
   text-transform: uppercase;
 }
+
+/* ── Landscape (1.91:1) ──
+   The plate is a single centred column: on a wide card it sat as a narrow
+   strip with the outer thirds empty, and with the plate squeezed to the
+   format's height the colophon ran onto the frame's inner rule. Landscape lays
+   the plate out as a spread — star chart on the left, title, exposure record
+   and instruments on the right — with the masthead and colophon across the
+   full width. */
+.atl-inner--landscape {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto 1fr auto auto auto 1fr auto;
+  grid-template-areas:
+    'mast mast'
+    'rule rule'
+    '. .'
+    'chart title'
+    'chart ledger'
+    'chart instruments'
+    '. .'
+    'colophon colophon';
+  column-gap: 40px;
+  padding: 36px 52px 34px;
+}
+
+.atl-inner--landscape .atl-masthead {
+  grid-area: mast;
+  font-size: 13px;
+}
+
+.atl-inner--landscape .atl-rule {
+  grid-area: rule;
+  /* Centred by the grid: the exporter dropped the auto side margins and
+     shipped the rule against the left edge. */
+  justify-self: center;
+}
+
+.atl-inner--landscape .atl-chart {
+  grid-area: chart;
+  align-self: center;
+  justify-self: end;
+  margin: 0;
+}
+
+.atl-inner--landscape .atl-spacer {
+  display: none;
+}
+
+.atl-inner--landscape .atl-title-block {
+  grid-area: title;
+  margin-top: 0;
+  text-align: left;
+}
+
+.atl-inner--landscape .atl-designation {
+  font-size: 11px;
+  padding-left: 0;
+}
+
+.atl-inner--landscape .atl-title {
+  font-size: 34px;
+  margin-top: 6px;
+}
+
+.atl-inner--landscape .atl-ledger {
+  grid-area: ledger;
+  width: auto;
+  max-width: 380px;
+  margin: 16px 0 0;
+}
+
+.atl-inner--landscape .atl-ledger-greek,
+.atl-inner--landscape .atl-ledger-time {
+  font-size: 14.5px;
+}
+
+.atl-inner--landscape .atl-ledger-frame-count {
+  font-size: 11px;
+}
+
+.atl-inner--landscape .atl-instruments {
+  grid-area: instruments;
+  justify-content: flex-start;
+  max-width: 380px;
+  margin: 12px 0 0;
+  font-size: 12.5px;
+  text-align: left;
+}
+
+.atl-inner--landscape .atl-colophon {
+  grid-area: colophon;
+  margin-top: 14px;
+  font-size: 10px;
+}
+

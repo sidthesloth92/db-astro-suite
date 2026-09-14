@@ -160,7 +160,11 @@
   color: #564e6f;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  white-space: nowrap;
+  /* May wrap: a nowrap label (e.g. "Guide scope and camera") squeezed its
+     value into a sliver and broke it over three lines with one word left alone. */
+  flex: 1 1 0;
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 
 .rpl-row-value {
@@ -169,7 +173,8 @@
   text-align: right;
   min-width: 0;
   overflow-wrap: break-word;
-  max-width: 140px;
+  flex: 0 1 auto;
+  max-width: 64%;
 }
 
 .rpl-sky {
@@ -182,3 +187,97 @@
   font: 500 9px/1 'Outfit', system-ui, sans-serif;
   color: #7d769a;
 }
+
+/* ── Art box ──
+   Portrait and square formats: the whole theme, with the planet art covering
+   it exactly as the design draws it. */
+.rpl-art {
+  position: absolute;
+  inset: 0;
+}
+
+/* ── Landscape (1.91:1) ──
+   The portrait design centres the planet on a 540 x 720 artboard, which in a
+   wide card put it in the middle of the image and squeezed the title, legend
+   and a full-width, tiny data footer into the bottom strip. The planet and its
+   rings only occupy y 180-372 of that artboard, so the art box is scaled up and
+   raised to put them in a band across the top, and the text below is larger. */
+.rpl-root--landscape .rpl-art {
+  inset: auto;
+  top: -27.5%;
+  left: 50%;
+  height: 142%;
+  aspect-ratio: 540 / 720;
+  transform: translateX(-50%);
+}
+
+.rpl-root--landscape .rpl-title {
+  top: 46%;
+}
+
+.rpl-root--landscape .rpl-object-id {
+  font-size: 11px;
+}
+
+.rpl-root--landscape .rpl-object-name {
+  font-size: 32px;
+  margin-top: 6px;
+}
+
+.rpl-root--landscape .rpl-legend {
+  top: 60%;
+  gap: 26px;
+}
+
+.rpl-root--landscape .rpl-legend-id {
+  font-size: 11.5px;
+}
+
+.rpl-root--landscape .rpl-legend-time,
+.rpl-root--landscape .rpl-legend-total {
+  font-size: 13px;
+}
+
+.rpl-root--landscape .rpl-legend-frames {
+  font-size: 11px;
+  color: #9c93b5;
+}
+
+.rpl-root--landscape .rpl-footer {
+  padding: 0 40px 22px;
+}
+
+.rpl-root--landscape .rpl-cols {
+  gap: 48px;
+  padding-top: 12px;
+}
+
+.rpl-root--landscape .rpl-col-title {
+  font-size: 11px;
+  margin-bottom: 7px;
+}
+
+/* Labels and values read as pairs, not as two ends of a 400px-wide row. */
+.rpl-root--landscape .rpl-row {
+  justify-content: flex-start;
+  gap: 16px;
+  padding: 1.5px 0;
+}
+
+.rpl-root--landscape .rpl-row-label {
+  flex: 0 0 180px;
+  white-space: nowrap;
+  font-size: 10.5px;
+}
+
+.rpl-root--landscape .rpl-row-value {
+  font-size: 12.5px;
+  text-align: left;
+  max-width: none;
+}
+
+.rpl-root--landscape .rpl-sky {
+  font-size: 12px;
+  margin-top: 7px;
+}
+
