@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
+import { FitTextDirective } from '../shared/fit-text/fit-text.directive';
+import { ThemeGearLineComponent } from '../shared/theme-gear-line/theme-gear-line.component';
 
 /**
  * Credits Ivory theme — a movie one-sheet printed on ivory paper. Ink speckle,
@@ -10,6 +12,7 @@ import { CardThemeBaseDirective } from '../card-theme-base.directive';
 @Component({
   selector: 'dba-ag-credits-ivory-theme',
   standalone: true,
+  imports: [FitTextDirective, ThemeGearLineComponent],
   templateUrl: './credits-ivory-theme.component.html',
   styleUrl: './credits-ivory-theme.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -76,13 +79,6 @@ export class CreditsIvoryThemeComponent extends CardThemeBaseDirective {
   /** Remaining words of the object name (rendered as an outline). */
   protected titleRest(): string {
     return this.vm().objectName.split(' ').slice(1).join(' ');
-  }
-
-  /** "Processed in" credit: first word of each software value, joined. */
-  protected processedIn(): string {
-    return this.vm()
-      .software.map((s) => s.value.split(' ')[0])
-      .join(' · ');
   }
 
   /** Big release date reformatted `MM.DD.YY` from the numeric date. */

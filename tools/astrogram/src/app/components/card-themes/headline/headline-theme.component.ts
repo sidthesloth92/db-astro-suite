@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
+import { ThemeGearLineComponent } from '../shared/theme-gear-line/theme-gear-line.component';
 import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfield.component';
 
 /**
@@ -11,7 +12,7 @@ import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfie
 @Component({
   selector: 'dba-ag-headline-theme',
   standalone: true,
-  imports: [ThemeStarfieldComponent],
+  imports: [ThemeStarfieldComponent, ThemeGearLineComponent],
   templateUrl: './headline-theme.component.html',
   styleUrl: './headline-theme.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -51,13 +52,5 @@ export class HeadlineThemeComponent extends CardThemeBaseDirective {
     const objectId = this.vm().objectId;
     const prefix = objectId ? `${objectId} · ` : '';
     return `${prefix}${this.totalFrames()} frames`;
-  }
-
-  /** Footer gear ticker: every equipment value, in the user's order. */
-  protected footerGear(): string {
-    return this.vm()
-      .equipment.map((item) => item.value)
-      .filter(Boolean)
-      .join(' · ');
   }
 }

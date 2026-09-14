@@ -1,17 +1,19 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
+import { ThemeGearLineComponent } from '../shared/theme-gear-line/theme-gear-line.component';
+import { FitTextDirective } from '../shared/fit-text/fit-text.directive';
 import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfield.component';
 
 /**
- * Credits theme — a cinema one-sheet. "Astrogram presents", a stacked title
- * with an outline-stroke second line, a band colour strip, a centred billing
+ * Credits theme — a cinema one-sheet. A one-line title fitted to the card
+ * width, its first word solid and the rest outline-stroked, a band colour strip, a centred billing
  * block (captured by / shot on / processed in / total exposure) and a big
  * release date. Decorated with the shared astro kit's constellation and spikes.
  */
 @Component({
   selector: 'dba-ag-credits-theme',
   standalone: true,
-  imports: [ThemeStarfieldComponent],
+  imports: [ThemeStarfieldComponent, FitTextDirective, ThemeGearLineComponent],
   templateUrl: './credits-theme.component.html',
   styleUrl: './credits-theme.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -49,13 +51,6 @@ export class CreditsThemeComponent extends CardThemeBaseDirective {
   /** Remaining words of the object name (outline title line), if any. */
   protected objectNameRest(): string {
     return this.vm().objectName.split(' ').slice(1).join(' ');
-  }
-
-  /** Software billing: the first word of every software name, dot-joined. */
-  protected softwareShort(): string {
-    return this.vm()
-      .software.map((item) => item.value.split(' ')[0])
-      .join(' · ');
   }
 
   /** Total light frames across the enabled bands (design `sFrames`). */

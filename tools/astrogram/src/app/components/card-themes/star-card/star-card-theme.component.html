@@ -61,8 +61,10 @@
           <path d="M12 1.5l2 8.5 8.5 2-8.5 2-2 8.5-2-8.5-8.5-2 8.5-2z" fill="#E8C788" />
         </svg>
         <div class="stc-object-id">{{ data.objectId }}</div>
-        <div class="stc-title">
-          {{ objectNameFirst() }}<br />
+        <!-- One line, fitted to the width: stacking the name over two lines
+             pushed the specs and rarity bar into the bottom edge. -->
+        <div class="stc-title" [dbaAgFitText]="44" [fitTextMin]="22" [fitTextContent]="data.objectName">
+          {{ objectNameFirst() }}
           @if (objectNameRest(); as rest) {
             <span class="stc-title-rest">{{ rest }}</span>
           }

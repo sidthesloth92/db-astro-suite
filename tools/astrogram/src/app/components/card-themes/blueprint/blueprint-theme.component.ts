@@ -18,10 +18,15 @@ import type { ThemeGearItem } from '../../../models/card-theme.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BlueprintThemeComponent extends CardThemeBaseDirective {
-  /** Equipment then software rows, capped at the seven parts-list slots. */
-  protected readonly partsList = computed<readonly ThemeGearItem[]>(() =>
-    [...this.vm().equipment, ...this.vm().software].slice(0, 7),
-  );
+  /**
+   * Equipment then software rows — every one of them. The design capped the
+   * list at seven slots, which silently dropped the default rig's last
+   * software row and anything a user added.
+   */
+  protected readonly partsList = computed<readonly ThemeGearItem[]>(() => [
+    ...this.vm().equipment,
+    ...this.vm().software,
+  ]);
 
   /** Zero-padded parts-list row number (`01`, `02`, …) for a row index. */
   protected rowNumber(index: number): string {

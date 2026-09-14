@@ -71,10 +71,14 @@
     <!-- Title -->
     <div class="cri-title-block" data-testid="card-hero">
       <div class="cri-the">The</div>
-      <div class="cri-title-solid">{{ titleFirst() }}</div>
-      @if (titleRest()) {
-        <div class="cri-title-outline">{{ titleRest() }}</div>
-      }
+      <!-- One line fitted to the width, as in Credits: a stacked two-line name
+           took the room the billing block needs. -->
+      <div class="cri-title" [dbaAgFitText]="64" [fitTextMin]="26" [fitTextContent]="data.objectName">
+        <span class="cri-title-solid">{{ titleFirst() }}</span>
+        @if (titleRest(); as rest) {
+          <span class="cri-title-outline"> {{ rest }}</span>
+        }
+      </div>
     </div>
 
     <!-- Band strip -->
@@ -108,7 +112,9 @@
       }
       <div class="cri-credit">
         <div class="cri-credit-k">Processed in</div>
-        <div class="cri-credit-v">{{ processedIn() }}</div>
+        <!-- Full names, item by item: the design's first-word shorthand
+             dropped most of each software name. -->
+        <dba-ag-theme-gear-line class="cri-credit-v cri-credit-list" [values]="softwareValues()" />
       </div>
       <div class="cri-credit">
         <div class="cri-credit-k">Total exposure</div>
@@ -116,7 +122,7 @@
           {{ data.total }} <span class="cri-faint">across</span> {{ totalFrames() }} frames
           <span class="cri-credit-bands">
             @for (band of data.integration; track band.id; let last = $last) {
-              <span [style.color]="band.color">{{ band.id }} {{ band.time }}</span
+              <span [style.color]="band.color"><span class="cri-band-id">{{ band.id }}</span> {{ band.time }}</span
               >@if (!last) {<span class="cri-faint"> · </span>}
             }
           </span>

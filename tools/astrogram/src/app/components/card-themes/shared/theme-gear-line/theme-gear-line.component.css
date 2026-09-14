@@ -1,0 +1,15 @@
+:host {
+  display: flex;
+  flex-wrap: wrap;
+  /* Matches the non-breaking space before each dot, so the separator sits
+     centred between its neighbours. */
+  column-gap: 0.3em;
+  min-width: 0;
+}
+
+/* One unit per value. The trailing separator lives inside the item so a line
+   ends on "…150i ·" rather than starting on a stray dot. */
+.gear-item {
+  min-width: 0;
+  overflow-wrap: break-word;
+}

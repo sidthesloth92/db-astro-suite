@@ -53,6 +53,23 @@ export abstract class CardThemeBaseDirective {
     this.isLandscapeFormat() ? DATA_ART_FIT_LANDSCAPE : DATA_ART_FIT,
   );
 
+  /**
+   * Every non-empty equipment value, in the user's order — the list the
+   * one-line gear footers print through `dba-ag-theme-gear-line`.
+   */
+  readonly equipmentValues = computed<readonly string[]>(() =>
+    this.vm()
+      .equipment.map((item) => item.value)
+      .filter((value) => value.length > 0),
+  );
+
+  /** Every non-empty software value, in the user's order. */
+  readonly softwareValues = computed<readonly string[]>(() =>
+    this.vm()
+      .software.map((item) => item.value)
+      .filter((value) => value.length > 0),
+  );
+
   /** Resolves the equipment line icon for a row index. */
   equipmentIcon(index: number): ThemeIconName {
     return equipmentIcon(index);

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
+import { ThemeGearLineComponent } from '../shared/theme-gear-line/theme-gear-line.component';
 import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfield.component';
 
 /**
@@ -10,7 +11,7 @@ import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfie
 @Component({
   selector: 'dba-ag-moon-phases-theme',
   standalone: true,
-  imports: [ThemeStarfieldComponent],
+  imports: [ThemeStarfieldComponent, ThemeGearLineComponent],
   templateUrl: './moon-phases-theme.component.html',
   styleUrl: './moon-phases-theme.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -34,14 +35,6 @@ export class MoonPhasesThemeComponent extends CardThemeBaseDirective {
       pctLabel: Math.round(band.pct * 100),
     })),
   );
-
-  /** Compact footer gear line: every equipment value, in the user's order. */
-  protected footerLine(): string {
-    return this.vm()
-      .equipment.map((item) => item.value)
-      .filter(Boolean)
-      .join(' · ');
-  }
 
   /** SVG path for a right-lit moon phase at illuminated fraction `f`. */
   private moonPath(f: number): string {

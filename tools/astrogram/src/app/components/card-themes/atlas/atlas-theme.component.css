@@ -216,6 +216,7 @@
   color: var(--atl-dim);
   margin: 14px auto 0;
   max-width: 400px;
+  justify-content: center;
 }
 
 /* ── Colophon ── */

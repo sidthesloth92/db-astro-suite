@@ -67,11 +67,6 @@ export class DaylightThemeComponent extends CardThemeBaseDirective {
   /** Constellation halo-ring opacity (design `op * 0.45`). */
   protected readonly conHaloOpacity = 0.126;
 
-  /** Caption with the design's rose emoji stripped (design `lClean`). */
-  protected cleanCaption(): string {
-    return this.vm().caption.replace(/🌹/g, '').trim();
-  }
-
   /** Gear chip values: every equipment value, in the user's order. */
   protected gearChips(): string[] {
     return this.vm()

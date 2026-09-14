@@ -89,10 +89,14 @@
   <!-- Title -->
   <div class="crd-title-block" data-testid="card-hero">
     <div class="crd-the">The</div>
-    <div class="crd-title-solid">{{ objectNameFirst() }}</div>
-    @if (objectNameRest(); as rest) {
-      <div class="crd-title-outline">{{ rest }}</div>
-    }
+    <!-- One line across the card: the name is fitted to the width rather than
+         stacked, which kept a long name from eating the billing block's room. -->
+    <div class="crd-title" [dbaAgFitText]="64" [fitTextMin]="26" [fitTextContent]="data.objectName">
+      <span class="crd-title-solid">{{ objectNameFirst() }}</span>
+      @if (objectNameRest(); as rest) {
+        <span class="crd-title-outline"> {{ rest }}</span>
+      }
+    </div>
   </div>
 
   <!-- Band colour strip -->
@@ -126,7 +130,9 @@
     }
     <div class="crd-credit">
       <div class="crd-credit-k">Processed in</div>
-      <div class="crd-credit-v">{{ softwareShort() }}</div>
+      <!-- Full names, item by item: the design's first-word shorthand turned
+           "PixInsight + Photoshop" into "PixInsight" and "Seti Astro Suite" into "Seti". -->
+      <dba-ag-theme-gear-line class="crd-credit-v crd-credit-list" [values]="softwareValues()" />
     </div>
     <div class="crd-credit">
       <div class="crd-credit-k">Total exposure</div>
@@ -134,7 +140,7 @@
         {{ data.total }} <span class="crd-faint">across</span> {{ totalFrames() }} frames
         <span class="crd-band-line">
           @for (band of data.integration; track band.id) {
-            <span [style.color]="band.color">{{ band.id }} {{ band.time }}</span>
+            <span [style.color]="band.color"><span class="crd-band-id">{{ band.id }}</span> {{ band.time }}</span>
             @if (!$last) {
               <span class="crd-faint"> · </span>
             }

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
+import { ThemeGearLineComponent } from '../shared/theme-gear-line/theme-gear-line.component';
 import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfield.component';
 
 /**
@@ -10,7 +11,7 @@ import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfie
 @Component({
   selector: 'dba-ag-telrad-theme',
   standalone: true,
-  imports: [ThemeStarfieldComponent],
+  imports: [ThemeStarfieldComponent, ThemeGearLineComponent],
   templateUrl: './telrad-theme.component.html',
   styleUrl: './telrad-theme.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -93,14 +94,6 @@ export class TelradThemeComponent extends CardThemeBaseDirective {
       ringLabel: this.ringLabel(i),
     })),
   );
-
-  /** Compact footer gear line: every equipment value, in the user's order. */
-  protected footerLine(): string {
-    return this.vm()
-      .equipment.map((item) => item.value)
-      .filter(Boolean)
-      .join(' · ');
-  }
 
   /** Degree label for the ring a band sits on (`0.5°` / `2°` / `4°`). */
   private ringLabel(index: number): string {

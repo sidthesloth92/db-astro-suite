@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
+import { ThemeGearLineComponent } from '../shared/theme-gear-line/theme-gear-line.component';
 import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfield.component';
 
 /**
@@ -11,7 +12,7 @@ import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfie
 @Component({
   selector: 'dba-ag-event-horizon-theme',
   standalone: true,
-  imports: [ThemeStarfieldComponent],
+  imports: [ThemeStarfieldComponent, ThemeGearLineComponent],
   templateUrl: './event-horizon-theme.component.html',
   styleUrl: './event-horizon-theme.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -52,13 +53,5 @@ export class EventHorizonThemeComponent extends CardThemeBaseDirective {
   /** Total captured frames across every enabled band. */
   protected totalFrames(): number {
     return this.vm().integration.reduce((sum, band) => sum + (parseInt(band.frames, 10) || 0), 0);
-  }
-
-  /** Compact footer gear line: every equipment value, in the user's order. */
-  protected footerLine(): string {
-    return this.vm()
-      .equipment.map((item) => item.value)
-      .filter(Boolean)
-      .join(' · ');
   }
 }

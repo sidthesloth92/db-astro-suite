@@ -57,11 +57,6 @@ export class SplitStatsThemeComponent extends CardThemeBaseDirective {
     return this.vm().integration.reduce((sum, band) => sum + (parseInt(band.frames, 10) || 0), 0);
   }
 
-  /** Caption with the design's rose emoji stripped (design `sClean`). */
-  protected cleanCaption(): string {
-    return this.vm().caption.replace(/🌹/g, '').trim();
-  }
-
   /** Gear chip rows: every equipment row, in the user's order. */
   protected chipRows(): readonly ThemeGearItem[] {
     return this.vm().equipment;

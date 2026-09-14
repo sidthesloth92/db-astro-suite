@@ -109,21 +109,21 @@
   padding-left: 0.5em;
 }
 
-.cri-title-solid {
-  font: 400 64px/0.98 var(--cri-display);
-  color: var(--cri-ink);
+/* Size is set by the fit-text directive (64px at most); the spans inherit it. */
+.cri-title {
+  font: 400 64px/1 var(--cri-display);
   letter-spacing: 0.01em;
   text-transform: uppercase;
   margin-top: 10px;
 }
 
+.cri-title-solid {
+  color: var(--cri-ink);
+}
+
 .cri-title-outline {
-  font: 400 64px/0.98 var(--cri-display);
-  letter-spacing: 0.01em;
-  text-transform: uppercase;
   color: transparent;
   -webkit-text-stroke: 1.5px var(--cri-ink);
-  margin-top: 2px;
 }
 
 /* ── Band strip ── */
@@ -202,4 +202,15 @@
   text-transform: uppercase;
   margin-top: 10px;
   padding-left: 0.26em;
+}
+
+/* Software credit printed as a centred run of whole names. */
+.cri-credit-list {
+  justify-content: center;
+}
+
+/* Band ids keep their own case inside the uppercase credit: "Hα" uppercased
+   becomes a capital Alpha, which reads as "HA". OIII and SII are capitals already. */
+.cri-band-id {
+  text-transform: none;
 }

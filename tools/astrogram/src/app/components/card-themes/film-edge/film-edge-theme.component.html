@@ -129,6 +129,12 @@
         <div class="flm-object-name">{{ data.objectName }}</div>
         <div class="flm-total">{{ data.total }}</div>
         <div class="flm-total-label">Total exposure · {{ totalFrames() }} frames</div>
+        <!-- Gear and site sit in the frame, not the edge print: the rebate is a
+             single printed line, and a full equipment list overran it. -->
+        <dba-ag-theme-gear-line class="flm-gear" [values]="equipmentValues()" />
+        @if (data.location) {
+          <div class="flm-site">{{ data.location }}</div>
+        }
       </div>
 
       <div class="flm-grow"></div>
@@ -152,8 +158,8 @@
 
   <!-- Bottom edge print -->
   <div class="flm-edge">
-    <span>EXP {{ totalNoSpace() }} · {{ gearLine() }}</span>
-    <span>{{ data.author }} · {{ data.location }} · B{{ data.bortle }}</span>
+    <span>EXP {{ totalNoSpace() }} · B{{ data.bortle }}</span>
+    <span>{{ data.author }}</span>
   </div>
 
   <!-- Bottom sprockets -->

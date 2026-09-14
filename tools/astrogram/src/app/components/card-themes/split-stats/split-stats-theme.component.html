@@ -80,8 +80,8 @@
   <!-- Object -->
   <div class="sps-object" data-testid="card-hero">
     <div class="sps-name">{{ data.objectName }}</div>
-    @if (cleanCaption()) {
-      <div class="sps-caption">{{ cleanCaption() }}</div>
+    @if (data.caption) {
+      <div class="sps-caption">{{ data.caption }}</div>
     }
   </div>
 

@@ -176,6 +176,32 @@
   margin-top: 10px;
 }
 
+/* Gear run and capture site under the total. Mono caps to match the frame's
+   own labels; centred and held narrower than the frame so a long list wraps
+   into a tidy block. */
+.flm-gear {
+  justify-content: center;
+  max-width: 400px;
+  margin: 22px auto 0;
+  font: 500 9.5px/1.7 var(--flm-mono);
+  color: rgba(255, 255, 255, 0.62);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.flm-site {
+  margin-top: 8px;
+  font: 500 9.5px/1 var(--flm-mono);
+  color: var(--flm-amber);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+/* The rebate print is one line by design: never let it wrap. */
+.flm-edge span {
+  white-space: nowrap;
+}
+
 /* ── Bands as exposure codes ── */
 .flm-codes {
   display: flex;

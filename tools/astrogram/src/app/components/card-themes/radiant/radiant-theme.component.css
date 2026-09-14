@@ -208,9 +208,6 @@
 .rd-foot-gear {
   font: 500 10px/1.6 var(--rd-mono);
   color: #8b92a6;
-  /* Wraps rather than ellipsing: this line carries every equipment row the
-     user entered, and a hidden tail silently drops their gear. */
-  overflow-wrap: break-word;
 }
 
 .rd-foot-row {

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
+import { ThemeGearLineComponent } from '../shared/theme-gear-line/theme-gear-line.component';
 import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfield.component';
 
 /**
@@ -11,7 +12,7 @@ import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfie
 @Component({
   selector: 'dba-ag-radiant-theme',
   standalone: true,
-  imports: [ThemeStarfieldComponent],
+  imports: [ThemeStarfieldComponent, ThemeGearLineComponent],
   templateUrl: './radiant-theme.component.html',
   styleUrl: './radiant-theme.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -89,7 +90,8 @@ export class RadiantThemeComponent extends CardThemeBaseDirective {
 
   /** Caption split into runs, flagging the object-name word for highlight. */
   protected readonly captionParts = computed(() => {
-    const caption = this.vm().caption.replace(/🌹/g, '').trim();
+    // The user's own words, emoji included — the design stripped its sample rose.
+    const caption = this.vm().caption.trim();
     if (!caption) return [];
     const token = this.vm().objectName.split(' ')[0];
     if (!token) return [{ text: caption, highlight: false }];
@@ -99,12 +101,4 @@ export class RadiantThemeComponent extends CardThemeBaseDirective {
       .filter((part) => part.length > 0)
       .map((part) => ({ text: part, highlight: part.toLowerCase() === token.toLowerCase() }));
   });
-
-  /** Compact footer gear line: every equipment value, in the user's order. */
-  protected footerLine(): string {
-    return this.vm()
-      .equipment.map((item) => item.value)
-      .filter(Boolean)
-      .join(' · ');
-  }
 }

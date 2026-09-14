@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
+import { ThemeGearLineComponent } from '../shared/theme-gear-line/theme-gear-line.component';
 import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfield.component';
 
 /**
@@ -11,7 +12,7 @@ import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfie
 @Component({
   selector: 'dba-ag-star-trails-theme',
   standalone: true,
-  imports: [ThemeStarfieldComponent],
+  imports: [ThemeStarfieldComponent, ThemeGearLineComponent],
   templateUrl: './star-trails-theme.component.html',
   styleUrl: './star-trails-theme.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -49,13 +50,5 @@ export class StarTrailsThemeComponent extends CardThemeBaseDirective {
   /** Total captured frames across every enabled band. */
   protected totalFrames(): number {
     return this.vm().integration.reduce((sum, band) => sum + (parseInt(band.frames, 10) || 0), 0);
-  }
-
-  /** Compact footer gear line: every equipment value, in the user's order. */
-  protected footerLine(): string {
-    return this.vm()
-      .equipment.map((item) => item.value)
-      .filter(Boolean)
-      .join(' · ');
   }
 }

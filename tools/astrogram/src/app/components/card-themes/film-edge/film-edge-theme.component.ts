@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
+import { ThemeGearLineComponent } from '../shared/theme-gear-line/theme-gear-line.component';
 import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfield.component';
 
 /**
@@ -11,7 +12,7 @@ import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfie
 @Component({
   selector: 'dba-ag-film-edge-theme',
   standalone: true,
-  imports: [ThemeStarfieldComponent],
+  imports: [ThemeStarfieldComponent, ThemeGearLineComponent],
   templateUrl: './film-edge-theme.component.html',
   styleUrl: './film-edge-theme.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -28,13 +29,5 @@ export class FilmEdgeThemeComponent extends CardThemeBaseDirective {
   /** Total exposure with whitespace removed for the edge print, e.g. `10h20m`. */
   protected totalNoSpace(): string {
     return this.vm().total.replace(/\s/g, '');
-  }
-
-  /** Footer gear line: every equipment value, in the user's order. */
-  protected gearLine(): string {
-    return this.vm()
-      .equipment.map((item) => item.value)
-      .filter(Boolean)
-      .join(' · ');
   }
 }

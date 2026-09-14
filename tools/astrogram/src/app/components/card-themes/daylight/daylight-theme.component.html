@@ -84,8 +84,8 @@
     <!-- Object -->
     <div class="day-object" data-testid="card-hero">
       <div class="day-name">{{ data.objectName }}</div>
-      @if (cleanCaption()) {
-        <div class="day-caption">{{ cleanCaption() }}</div>
+      @if (data.caption) {
+        <div class="day-caption">{{ data.caption }}</div>
       }
     </div>
 

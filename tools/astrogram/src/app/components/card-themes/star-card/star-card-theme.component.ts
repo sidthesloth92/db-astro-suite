@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
+import { FitTextDirective } from '../shared/fit-text/fit-text.directive';
 import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfield.component';
 import type { ThemeGearItem } from '../../../models/card-theme.model';
 
@@ -12,7 +13,7 @@ import type { ThemeGearItem } from '../../../models/card-theme.model';
 @Component({
   selector: 'dba-ag-star-card-theme',
   standalone: true,
-  imports: [ThemeStarfieldComponent],
+  imports: [ThemeStarfieldComponent, FitTextDirective],
   templateUrl: './star-card-theme.component.html',
   styleUrl: './star-card-theme.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

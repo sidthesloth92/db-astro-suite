@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
+import { ThemeGearLineComponent } from '../shared/theme-gear-line/theme-gear-line.component';
 import type { AtlasBandStar } from './atlas-band-star.model';
 
 /**
@@ -11,6 +12,7 @@ import type { AtlasBandStar } from './atlas-band-star.model';
 @Component({
   selector: 'dba-ag-atlas-theme',
   standalone: true,
+  imports: [ThemeGearLineComponent],
   templateUrl: './atlas-theme.component.html',
   styleUrl: './atlas-theme.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -101,14 +103,6 @@ export class AtlasThemeComponent extends CardThemeBaseDirective {
       }
     });
     return out;
-  }
-
-  /** Instruments byline: every equipment value, in the user's order. */
-  protected instrumentsLine(): string {
-    return this.vm()
-      .equipment.map((item) => item.value)
-      .filter(Boolean)
-      .join(' · ');
   }
 
   /** Total frame count across the enabled bands (design `lFrames`). */

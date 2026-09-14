@@ -195,7 +195,6 @@
   font: 500 10px/1.6 var(--hdl-mono);
   color: var(--hdl-dim);
   letter-spacing: 0.04em;
-  overflow-wrap: break-word;
 }
 
 .hdl-footer-row {
