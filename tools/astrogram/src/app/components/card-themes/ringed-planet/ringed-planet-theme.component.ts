@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
+import { bandRowBreak } from '../../../utils/band-rows.util';
 import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfield.component';
 
 /**
@@ -47,6 +48,15 @@ export class RingedPlanetThemeComponent extends CardThemeBaseDirective {
       };
     }),
   );
+
+  /**
+   * Bands on the landscape legend's first row when it splits in two (0 = one
+   * row). Left to wrap, seven bands filled the row and left "B" alone beside
+   * the total. Portrait legends wrap within their narrower width as before.
+   */
+  protected legendBreak(): number {
+    return this.isLandscapeFormat() ? bandRowBreak(this.vm().integration.length) : 0;
+  }
 
   /** Faint latitude bands across the planet body. */
   protected readonly latitudeBands = [-0.4, -0.1, 0.2, 0.5].map((f) => ({

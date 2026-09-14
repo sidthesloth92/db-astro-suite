@@ -121,6 +121,11 @@
   gap: 7px;
 }
 
+.rpl-legend-break {
+  flex-basis: 100%;
+  height: 0;
+}
+
 .rpl-legend-swatch {
   width: 16px;
   height: 4px;

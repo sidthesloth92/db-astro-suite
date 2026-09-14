@@ -94,7 +94,10 @@
 
     <!-- Ring legend -->
     <div class="rpl-legend">
-      @for (ring of rings(); track ring.band.id) {
+      @for (ring of rings(); track ring.band.id; let i = $index) {
+        @if (i > 0 && i === legendBreak()) {
+          <span class="rpl-legend-break"></span>
+        }
         <div class="rpl-legend-item">
           <span class="rpl-legend-swatch" [style.background]="ring.band.color"></span>
           <span class="rpl-legend-id" [style.color]="ring.band.color">{{ ring.band.id }}</span>
