@@ -187,3 +187,123 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
+
+/* ── Landscape (1.91:1) ──
+   The centred portrait stack in a wide card pressed the moons up under the
+   tagline while about a quarter of the width stayed empty either side, and
+   the captions, total label and footer printed small and faint. Landscape
+   sets the title and the full-night total on the left and the three moons,
+   larger, on the right, over a full-width footer. */
+.mp-root--landscape {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  grid-template-rows: auto 1fr auto auto 1fr auto;
+  grid-template-areas:
+    'header header'
+    '. .'
+    'title moons'
+    'total moons'
+    '. .'
+    'footer footer';
+  column-gap: 44px;
+  padding: 28px 36px 26px;
+}
+
+.mp-root--landscape .mp-spacer {
+  display: none;
+}
+
+.mp-root--landscape .mp-header {
+  grid-area: header;
+}
+
+.mp-root--landscape .mp-eyebrow {
+  font-size: 11px;
+}
+
+.mp-root--landscape .mp-date {
+  font-size: 11px;
+  color: var(--mp-dim);
+}
+
+.mp-root--landscape .mp-title {
+  grid-area: title;
+  align-self: end;
+  margin-top: 0;
+  text-align: left;
+}
+
+.mp-root--landscape .mp-kicker {
+  font-size: 11.5px;
+}
+
+.mp-root--landscape .mp-name {
+  font-size: 46px;
+}
+
+.mp-root--landscape .mp-tagline {
+  font-size: 14px;
+}
+
+.mp-root--landscape .mp-total {
+  grid-area: total;
+  align-self: start;
+  margin: 26px 0 0;
+  padding-top: 18px;
+  border-top: 1px solid rgba(232, 228, 218, 0.1);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.mp-root--landscape .mp-total-label {
+  font-size: 11.5px;
+  color: var(--mp-dim);
+}
+
+.mp-root--landscape .mp-total-value {
+  font-size: 38px;
+}
+
+.mp-root--landscape .mp-moons {
+  grid-area: moons;
+  align-self: center;
+  gap: 16px;
+}
+
+.mp-root--landscape .mp-moon {
+  max-width: 132px;
+}
+
+.mp-root--landscape .mp-moon-id {
+  font-size: 13px;
+  margin-top: 14px;
+}
+
+.mp-root--landscape .mp-moon-time {
+  font-size: 23px;
+  white-space: nowrap;
+}
+
+.mp-root--landscape .mp-moon-frames {
+  font-size: 11px;
+  color: var(--mp-dim);
+  margin-top: 7px;
+  white-space: nowrap;
+}
+
+.mp-root--landscape .mp-footer {
+  grid-area: footer;
+}
+
+.mp-root--landscape .mp-foot-gear {
+  font-size: 10.5px;
+}
+
+.mp-root--landscape .mp-foot-author {
+  font-size: 13px;
+}
+
+.mp-root--landscape .mp-foot-meta {
+  font-size: 11px;
+  color: #8b92a6;
+}

@@ -171,7 +171,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Moon Phases',
     subtitle: 'Filter fill as lunar phases',
     component: MoonPhasesThemeComponent,
-    landscapeBasisHeight: 500,
+    landscapeBasisHeight: 460,
     accents: {
       accentColor: '#E8E4DA',
       accentColorRgb: '232, 228, 218',

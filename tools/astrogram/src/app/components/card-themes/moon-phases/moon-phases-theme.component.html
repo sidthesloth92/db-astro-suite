@@ -1,6 +1,6 @@
 @let data = vm();
 
-<div class="mp-root">
+<div class="mp-root" [class.mp-root--landscape]="isLandscapeFormat()">
   <dba-ag-theme-starfield [density]="100" [opacity]="0.42" [seed]="23" />
 
   <!-- Header -->
