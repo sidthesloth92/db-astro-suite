@@ -143,9 +143,10 @@
   gap: 16px;
 }
 
+/* Keys use the dim ink: the faint grey all but vanished on the navy ticket. */
 .fl-field-key {
   font: 500 8.5px/1 var(--fl-mono);
-  color: var(--fl-faint);
+  color: var(--fl-dim);
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
@@ -206,7 +207,7 @@
 
 .fl-segments-title {
   font: 500 8.5px/1 var(--fl-mono);
-  color: var(--fl-faint);
+  color: var(--fl-dim);
   letter-spacing: 0.16em;
   text-transform: uppercase;
   margin-bottom: 10px;
@@ -257,6 +258,12 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
+}
+
+/* An odd last item spans both columns rather than wrapping ("…Advance /
+   Gen 2") beside an empty cell. */
+.fl-gear .fl-field:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
 }
 
 /* ── Barcode stub ── */
@@ -313,13 +320,13 @@
   min-height: 0;
   display: grid;
   grid-template-columns: minmax(0, 1.75fr) 22px minmax(0, 1fr);
-  grid-template-rows: auto auto auto auto 1fr;
+  grid-template-rows: auto auto auto auto 1fr auto;
 }
 
 .fl-root--landscape .fl-header {
   grid-column: 1 / -1;
   grid-row: 1;
-  padding: 15px 26px;
+  padding: 13px 26px;
 }
 
 .fl-root--landscape .fl-pass {
@@ -329,7 +336,7 @@
 .fl-root--landscape .fl-route {
   grid-column: 1;
   grid-row: 2;
-  padding: 30px 26px 20px;
+  padding: 24px 26px 18px;
 }
 
 .fl-root--landscape .fl-route-end {
@@ -341,25 +348,28 @@
 }
 
 .fl-root--landscape .fl-route-label {
-  font-size: 10px;
+  font-size: 11px;
   margin-top: 6px;
 }
 
+/* The site takes what the date and handle leave, not an equal third that
+   stacked a long site four lines deep. */
 .fl-root--landscape .fl-fields {
   grid-column: 1;
   grid-row: 3;
-  padding: 0 26px 14px;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 22px;
+  padding: 0 26px 10px;
 }
 
 .fl-root--landscape .fl-field-key,
 .fl-root--landscape .fl-segments-title {
-  font-size: 10px;
-  color: var(--fl-dim);
+  font-size: 11px;
 }
 
 .fl-root--landscape .fl-field-value {
-  font-size: 16px;
-  margin-top: 6px;
+  font-size: 14.5px;
+  margin-top: 5px;
 }
 
 /* The body's tear line runs into the stub's, so it loses its right notch. */
@@ -373,21 +383,31 @@
   display: none;
 }
 
+/* The segment rows take the body's remaining height, each up to its full
+   39px pitch: seven bands at that fixed pitch ran the body 50% past the
+   ticket, so the whole card shrank to ~7 export px labels. They now close up
+   (to 20px) only as far as the bands need. */
 .fl-root--landscape .fl-segments {
   grid-column: 1;
-  grid-row: 5;
-  align-self: center;
-  padding: 14px 26px 20px;
+  grid-row: 5 / 7;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 10px 26px 16px;
 }
 
 .fl-root--landscape .fl-segments-title {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .fl-root--landscape .fl-seg-row {
   grid-template-columns: 44px minmax(0, 1fr) auto 64px;
   gap: 14px;
-  padding: 12px 0;
+  flex: 1 1 auto;
+  min-height: 20px;
+  max-height: 39px;
+  padding: 0;
 }
 
 .fl-root--landscape .fl-seg-id {
@@ -447,24 +467,28 @@
   bottom: -11px;
 }
 
-/* Gear heads the stub and the barcode closes it; both span the stub's full
-   height so neither stretches the body's rows. */
+/* Gear heads the stub and the barcode closes it in its own last row, so a
+   long gear list can never run under the barcode and the total: it pushes
+   the barcode down past the ticket's edge, where the content fit sees it. */
 .fl-root--landscape .fl-gear {
   grid-column: 3;
-  grid-row: 2 / -1;
+  grid-row: 2 / 6;
   align-self: start;
   grid-template-columns: minmax(0, 1fr);
-  gap: 16px;
-  padding: 28px 24px 0 18px;
+  gap: 12px;
+  padding: 24px 24px 14px 18px;
 }
 
 .fl-root--landscape .fl-gear .fl-field-value {
-  font-size: 15px;
+  font-size: 14px;
+  margin-top: 4px;
+  /* Two-line names split evenly rather than stranding "Gen 2". */
+  text-wrap: balance;
 }
 
 .fl-root--landscape .fl-stub {
   grid-column: 3;
-  grid-row: 2 / -1;
+  grid-row: 6;
   align-self: end;
   padding: 0 24px 22px 18px;
 }
@@ -483,7 +507,7 @@
 }
 
 .fl-root--landscape .fl-stub-sub {
-  font-size: 10px;
+  font-size: 11px;
   margin-top: 6px;
   white-space: nowrap;
 }
