@@ -96,11 +96,17 @@
   position: relative;
   display: flex;
   justify-content: center;
-  gap: 26px;
+  /* Seven bands at a fixed 26px gap squeezed each column to ~46px and broke
+     "2h 42m" and "54 × 180s" over two lines; the legend wraps into rows
+     instead, and each value stays whole. */
+  flex-wrap: wrap;
+  column-gap: 26px;
+  row-gap: 14px;
 }
 
 .eh-legend-item {
   text-align: center;
+  white-space: nowrap;
 }
 
 .eh-legend-id {
@@ -161,6 +167,9 @@
   position: relative;
   border-top: 1px solid rgba(255, 233, 196, 0.1);
   padding-top: 12px;
+  /* A floor under the spacer: with a two-line name and a full legend it
+     shrank to nothing and the name's descenders sat on this rule. */
+  margin-top: 16px;
 }
 
 .eh-foot-gear {
@@ -213,8 +222,14 @@
 }
 
 .eh-root--landscape .eh-legend {
-  gap: 36px;
+  column-gap: 36px;
   margin-top: 4px;
+}
+
+/* The chart is drawn at about 0.6x here, which left "CAPTURED" at ~5px. */
+.eh-root--landscape .eh-total-label {
+  font-size: 13px;
+  letter-spacing: 0.2em;
 }
 
 .eh-root--landscape .eh-legend-id {
@@ -256,18 +271,17 @@
 }
 
 /* A long handle or location used to run the two ends of this row into each
-   other. The row may wrap: the meta then drops to its own line, pushed to the
-   right edge, and a meta long enough to span the row reads left-aligned
-   rather than as a ragged right-aligned block under the handle. When both
-   fit, the spacer takes the free space as before. */
+   other. The row may wrap: the meta then starts its own line at the left edge,
+   under the handle — pushed right, it hung indented and lined up with nothing.
+   When both fit, the spacer holds the meta at the right as before. */
 .eh-foot-row {
   flex-wrap: wrap;
+  justify-content: space-between;
   column-gap: 16px;
-  row-gap: 6px;
+  row-gap: 8px;
 }
 
 .eh-foot-row .eh-foot-meta {
-  margin-left: auto;
   min-width: 0;
 }
 
