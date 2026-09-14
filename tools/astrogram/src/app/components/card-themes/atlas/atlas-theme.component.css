@@ -116,6 +116,11 @@
 .atl-chart-id {
   font: 700 10px var(--atl-mono);
   letter-spacing: 0.06em;
+  /* A hairline of ink under each band colour: pale bands such as OIII's cyan
+     all but disappeared on the cream paper. */
+  stroke: rgba(43, 35, 22, 0.55);
+  stroke-width: 0.5px;
+  paint-order: stroke fill;
 }
 
 .atl-chart-time {
@@ -309,6 +314,21 @@
 
 .atl-inner--landscape .atl-spacer {
   display: none;
+}
+
+/* The chart is scaled to its column here, so its labels are set larger to
+   export at a readable size. */
+.atl-inner--landscape .atl-chart-id {
+  font-size: 13px;
+}
+
+.atl-inner--landscape .atl-chart-time {
+  font-size: 15px;
+}
+
+/* The larger labels under the lowest band star reach just past the chart. */
+.atl-inner--landscape .atl-chart svg {
+  overflow: visible;
 }
 
 .atl-inner--landscape .atl-title-block {

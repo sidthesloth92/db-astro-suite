@@ -100,7 +100,7 @@
             />
             <text
               [attr.x]="s.x"
-              [attr.y]="s.y + 25"
+              [attr.y]="s.y + (isLandscapeFormat() ? 28 : 25)"
               text-anchor="middle"
               [attr.fill]="s.isLight ? '#2B2316' : s.band.color"
               class="atl-chart-id"
@@ -109,7 +109,7 @@
             </text>
             <text
               [attr.x]="s.x"
-              [attr.y]="s.y + 39"
+              [attr.y]="s.y + (isLandscapeFormat() ? 46 : 39)"
               text-anchor="middle"
               fill="#2B2316"
               class="atl-chart-time"
