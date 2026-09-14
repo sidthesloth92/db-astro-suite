@@ -159,16 +159,57 @@
 }
 
 .hal-hero-meta {
-  display: flex;
-  gap: 14px;
-  margin-top: 16px;
-  font: 500 10px/1 var(--hal-mono);
+  --hal-meta-gap: 14px;
+  /* A separator's width: one mono advance plus its letter-spacing. */
+  --hal-meta-lead: calc(0.68em + var(--hal-meta-gap));
+
+  /* Lines are spaced to read when the row wraps; the negative block margins
+     cancel the extra leading so a single line sits exactly where it did. */
+  margin: calc(16px - 0.175em) 0 -0.175em;
+  font: 500 10px/1.35 var(--hal-mono);
   color: var(--hal-dim);
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  /* Clips the separator that leads a wrapped line (see .hal-meta-line). */
+  overflow: hidden;
+}
+
+/* A long location or handle wraps whole items onto the next line; squeezed
+   onto one line the date broke into "SEP 13, / 2026" and the separators were
+   left floating between stacked fragments. Each item after the first carries
+   its own leading separator, and the line is pulled left by one separator's
+   width so the separator of an item that starts a line falls outside the
+   clipped row. */
+.hal-meta-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px var(--hal-meta-gap);
+  margin-left: calc(-1 * var(--hal-meta-lead));
+}
+
+.hal-meta-item {
+  display: flex;
+  white-space: nowrap;
+}
+
+.hal-meta-item:first-child {
+  margin-left: var(--hal-meta-lead);
+}
+
+/* The location is the one value that can outrun the panel, so it wraps —
+   within its own item, hanging under its first line. */
+.hal-meta-location {
+  min-width: 0;
+}
+
+.hal-meta-text {
+  min-width: 0;
+  white-space: normal;
 }
 
 .hal-sep {
+  flex: none;
+  margin-right: var(--hal-meta-gap);
   opacity: 0.4;
 }
 
@@ -195,7 +236,8 @@
 
 .hal-int-total span {
   font: 500 10px/1 var(--hal-mono);
-  color: var(--hal-faint);
+  /* --hal-faint all but vanished beside the total over the halo glow. */
+  color: var(--hal-dim);
   letter-spacing: 0.1em;
 }
 
@@ -203,6 +245,24 @@
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 14px;
+}
+
+.hal-pills:has(> .hal-pill:nth-child(7)) {
+  /* Seven or more bands in three columns left the last alone on a third row,
+     and that row's height pushed the lower panels to the card's edge; four
+     columns hold them in two rows. */
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+/* Narrower pills: a tighter inset keeps a duration like "2h 40m" whole. */
+.hal-pills:has(> .hal-pill:nth-child(7)) .hal-pill {
+  min-width: 0;
+  padding: 12px;
+}
+
+.hal-pills:has(> .hal-pill:nth-child(7)) .hal-pill-time {
+  white-space: nowrap;
 }
 
 .hal-pill {
@@ -342,7 +402,10 @@
 .hal-root--landscape .hal-inner {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  /* The hero row may not shrink below its content: squeezed, the hero's
+     centred title and meta ran out past its border, instead of the card
+     growing to hold them. */
+  grid-template-rows: auto 1fr auto;
   grid-template-areas:
     'head head'
     'hero lower'
@@ -382,13 +445,9 @@
 }
 
 .hal-root--landscape .hal-hero-meta {
-  flex-wrap: wrap;
-  gap: 6px 12px;
-  font-size: 11px;
-}
+  --hal-meta-gap: 12px;
 
-.hal-root--landscape .hal-hero-meta span {
-  white-space: nowrap;
+  font-size: 11px;
 }
 
 .hal-root--landscape .hal-integration {

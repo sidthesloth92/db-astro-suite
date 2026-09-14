@@ -24,11 +24,13 @@
         <div class="hal-hero-caption">{{ data.caption }}</div>
       }
       <div class="hal-hero-meta">
-        <span>{{ data.dateShort }}</span>
-        <span class="hal-sep">·</span>
-        <span>{{ data.location }}</span>
-        <span class="hal-sep">·</span>
-        <span>{{ data.author }}</span>
+        <div class="hal-meta-line">
+          <span class="hal-meta-item">{{ data.dateShort }}</span>
+          <span class="hal-meta-item hal-meta-location">
+            <span class="hal-sep">·</span><span class="hal-meta-text">{{ data.location }}</span>
+          </span>
+          <span class="hal-meta-item"><span class="hal-sep">·</span>{{ data.author }}</span>
+        </div>
       </div>
     </div>
 
@@ -42,10 +44,10 @@
         @for (band of data.integration; track band.id) {
           <div
             class="hal-pill"
-            [style.background]="pillBackground($index)"
-            [style.border]="pillBorder($index)"
+            [style.background]="pillBackground(band.id, $index)"
+            [style.border]="pillBorder(band.id, $index)"
           >
-            <div class="hal-pill-id" [style.color]="pastel($index)">{{ band.id }}</div>
+            <div class="hal-pill-id" [style.color]="pastel(band.id, $index)">{{ band.id }}</div>
             <div class="hal-pill-time">{{ band.time }}</div>
             <div class="hal-pill-frames">{{ band.frames }}</div>
           </div>
