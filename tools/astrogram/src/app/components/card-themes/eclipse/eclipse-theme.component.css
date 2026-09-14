@@ -150,6 +150,10 @@
 
 .ec-spacer {
   flex: 1;
+  /* Never collapses to nothing: with a two-line name and a full footer the
+     free space ran out, and the descender of the name's last line (drawn below
+     its 1.05 line box) crossed the footer rule. The art gives way instead. */
+  min-height: 14px;
 }
 
 /* ── Footer ── */
@@ -251,6 +255,30 @@
   margin-top: 28px;
 }
 
+/* ── Landscape with five or more bands ──
+   In one row the legend ran past the column's right edge, and the card grew
+   to hold it, shrinking every label and the footer to about 9 export px. The
+   bands set in rows of four instead, and the footer runs the full width under
+   both columns so the taller legend still fits: the gear list takes fewer
+   lines there and the handle and place share one. */
+.ec-root--landscape.ec-root--dense .ec-legend {
+  display: grid;
+  grid-template-columns: repeat(4, max-content);
+  gap: 16px 34px;
+}
+
+/* Stops above the footer; the viewBox's `meet` fit keeps the eclipse round at
+   the height left over, still bleeding into the left padding. */
+.ec-root--landscape.ec-root--dense .ec-svg {
+  grid-row: 1 / 6;
+  height: 100%;
+}
+
+.ec-root--landscape.ec-root--dense .ec-footer {
+  grid-column: 1 / -1;
+  margin-top: 18px;
+}
+
 .ec-root--landscape .ec-legend-item {
   text-align: left;
 }
@@ -294,7 +322,7 @@
    location fills the narrower column. */
 .ec-root--landscape .ec-foot-row {
   flex-wrap: wrap;
-  gap: 6px 16px;
+  gap: 8px 16px;
   margin-top: 9px;
 }
 
@@ -308,18 +336,18 @@
 }
 
 /* A long handle or location used to run the two ends of this row into each
-   other. The row may wrap: the meta then drops to its own line, pushed to the
-   right edge, and a meta long enough to span the row reads left-aligned
-   rather than as a ragged right-aligned block under the handle. When both
-   fit, the spacer takes the free space as before. */
+   other. The row may wrap. On one line the spacer still pushes the meta to
+   the right edge; once it wraps, the meta starts at the left edge under the
+   handle. Pushed right by an auto margin instead, a wrapped meta sat indented
+   by whatever room was left over and lined up with nothing. */
 .ec-foot-row {
   flex-wrap: wrap;
+  justify-content: space-between;
   column-gap: 16px;
-  row-gap: 6px;
+  row-gap: 8px;
 }
 
 .ec-foot-row .ec-foot-meta {
-  margin-left: auto;
   min-width: 0;
 }
 
