@@ -1,6 +1,6 @@
 @let data = vm();
 
-<div class="bp-root">
+<div class="bp-root" [class.bp-root--landscape]="isLandscapeFormat()">
   <div class="bp-grid bp-grid--fine" aria-hidden="true"></div>
   <div class="bp-grid bp-grid--coarse" aria-hidden="true"></div>
   <dba-ag-theme-starfield [density]="50" [opacity]="0.3" [color]="'#7FD8FF'" [seed]="5" />

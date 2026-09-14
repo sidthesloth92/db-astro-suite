@@ -116,7 +116,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Blueprint',
     subtitle: 'Cyan schematic · technical',
     component: BlueprintThemeComponent,
-    landscapeBasisHeight: 660,
+    landscapeBasisHeight: 500,
     accents: {
       accentColor: '#4FC3F7',
       accentColorRgb: '79, 195, 247',
