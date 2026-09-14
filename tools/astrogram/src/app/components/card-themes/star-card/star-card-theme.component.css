@@ -232,7 +232,9 @@
 
 .stc-spec-label {
   font: 500 8.5px/1.5 var(--stc-mono);
-  color: var(--stc-faint);
+  /* A step lighter than the faint ink: at 8.5px the labels all but vanished
+     against the near-black card. */
+  color: #7a7388;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
@@ -271,6 +273,8 @@
    back by the margins, so a one-line bar keeps its height. */
 .stc-rarity-meta {
   font: 600 9.5px/15.5px var(--stc-mono);
+  /* Uppercase like the rest of the bar; a typed place name kept its case. */
+  text-transform: uppercase;
   letter-spacing: 0.14em;
   text-align: right;
   text-wrap: balance;
@@ -288,9 +292,15 @@
    full-width rarity bar. */
 .stc-root--landscape .stc-inner {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
-  grid-template-rows: auto 1fr auto auto 1fr auto;
-  column-gap: 52px;
+  /* The right column holds seven gems and the spec values, the left only a
+     one-line title and a plate. At an even split each gem was ~55px wide,
+     shrinking its frame count to ~9 export px, and long gear values wrapped
+     ("Advance / Gen 2"); the taller column then filled the free row under
+     the header and ran the gems into "N° 027". The right column takes the
+     larger share, and the row under the header never closes completely. */
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  grid-template-rows: auto minmax(14px, 1fr) auto auto 1fr auto;
+  column-gap: 40px;
 }
 
 .stc-root--landscape .stc-grow,
@@ -311,7 +321,7 @@
 /* Behind the ornament and designation in the left column, clear of the plate. */
 .stc-root--landscape .stc-constellation {
   top: 66px;
-  left: 224px;
+  left: 196px;
 }
 
 .stc-root--landscape .stc-title-block {

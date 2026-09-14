@@ -33,8 +33,11 @@ describe('StarCardThemeComponent', () => {
 
     const meta = host.querySelector('.stc-rarity-meta')?.textContent ?? '';
 
-    // Place names keep their words together, and each separator is held to
-    // the item before it so no line starts with a dot.
-    expect(meta).toContain('Mount Laguna Observatory, San Diego County · @ASTROGRAM');
+    // Place names keep their words together, and a wrap may break only before
+    // a separator, so no line ends on a dangling dot.
+    expect(meta).toContain(
+      'Mount Laguna Observatory, San Diego County · @ASTROGRAM',
+    );
+    expect(meta).not.toContain('Mount Laguna Observatory, San Diego County · @ASTROGRAM');
   });
 });

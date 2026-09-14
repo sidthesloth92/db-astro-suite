@@ -4,6 +4,7 @@ import { FitTextDirective } from '../shared/fit-text/fit-text.directive';
 import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfield.component';
 import type { ThemeGearItem } from '../../../models/card-theme.model';
 import { keepPlaceNamesTogether, keepWordsTogether } from '../../../utils/keep-together.util';
+import { joinMetaItems } from '../../../utils/meta-join.util';
 
 /**
  * Star Card theme — a collectible gold-foil archive card. A double gold
@@ -66,15 +67,15 @@ export class StarCardThemeComponent extends CardThemeBaseDirective {
 
   /**
    * Rarity-bar meta line: date, location and handle. The date and each place
-   * name stay whole, and each separator is held to the item before it, so a
-   * long line wraps only between items and never starts a line with a dot.
+   * name stay whole, and a wrap breaks only before a dot. Holding each dot to
+   * the item before it left "California ·" dangling at a line end.
    */
   protected rarityMeta(): string {
     const data = this.vm();
-    return [
+    return joinMetaItems([
       keepWordsTogether(data.dateShort),
       keepPlaceNamesTogether(data.location),
       data.author.toUpperCase(),
-    ].join('\u00a0· ');
+    ]);
   }
 }
