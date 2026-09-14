@@ -8,4 +8,6 @@ export interface AtlasBandStar {
   readonly y: number;
   /** Integration band the marker represents. */
   readonly band: ThemeIntegrationBand;
+  /** Whether the band colour is too light to see on the cream paper (a white L band). */
+  readonly isLight: boolean;
 }

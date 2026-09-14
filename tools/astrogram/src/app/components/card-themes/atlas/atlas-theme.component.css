@@ -67,11 +67,17 @@
 }
 
 .atl-inner {
-  position: relative;
+  /* The margins inside the plate frame are the box's inset, not padding, and
+     the box clips: text that outgrows the plate then counts as overflow for
+     the content fit. As padding, a long colophon ran onto both frame rules
+     while still technically inside the card. The clip margin keeps glyph
+     ascenders and descenders at the edges from being shaved. */
+  position: absolute;
+  inset: 40px 44px 38px;
   z-index: 1;
-  height: 100%;
   box-sizing: border-box;
-  padding: 40px 44px 38px;
+  overflow: clip;
+  overflow-clip-margin: 10px;
   display: flex;
   flex-direction: column;
   text-align: center;
@@ -154,7 +160,9 @@
 .atl-ledger {
   width: 380px;
   max-width: 100%;
-  margin: 0 auto;
+  /* A floor under the spacer above: with a two-line name it collapsed and the
+     title's descenders sat on the record's heading. */
+  margin: 16px auto 0;
   text-align: left;
 }
 
@@ -198,6 +206,12 @@
   flex-shrink: 0;
 }
 
+/* A white band's dot would vanish on the paper. */
+.atl-ledger-dot--light {
+  box-sizing: border-box;
+  border: 1px solid var(--atl-ink);
+}
+
 .atl-ledger-greek {
   font: 500 13.5px/1 var(--atl-serif);
 }
@@ -236,7 +250,8 @@
   margin-top: 12px;
   padding-top: 10px;
   border-top: 1px solid rgba(43, 35, 22, 0.33);
-  font: 600 9px/1 var(--atl-mono);
+  /* Line height 1 overprinted a wrapped second line onto the first. */
+  font: 600 9px/1.6 var(--atl-mono);
   color: var(--atl-dim);
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -246,24 +261,31 @@
    The plate is a single centred column: on a wide card it sat as a narrow
    strip with the outer thirds empty, and with the plate squeezed to the
    format's height the colophon ran onto the frame's inner rule. Landscape lays
-   the plate out as a spread — star chart on the left, title, exposure record
-   and instruments on the right — with the masthead and colophon across the
-   full width. */
+   the plate out as a spread — star chart and instruments on the left, title
+   and exposure record on the right — with the masthead and colophon across
+   the full width. The instruments sit under the chart so a long gear list
+   and a seven-band record share the height instead of stacking in one column. */
+.atl-colophon .atl-nowrap {
+  white-space: nowrap;
+}
+
 .atl-inner--landscape {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto auto 1fr auto auto auto 1fr auto;
+  /* The free rows keep a floor, so heavy data cannot butt the title against
+     the masthead rule or the instruments against the colophon. */
+  grid-template-rows: auto auto minmax(14px, 1fr) auto auto auto minmax(14px, 1fr) auto;
   grid-template-areas:
     'mast mast'
     'rule rule'
     '. .'
     'chart title'
     'chart ledger'
-    'chart instruments'
+    'instruments ledger'
     '. .'
     'colophon colophon';
   column-gap: 40px;
-  padding: 36px 52px 34px;
+  inset: 36px 52px 34px;
 }
 
 .atl-inner--landscape .atl-masthead {
@@ -307,6 +329,7 @@
 
 .atl-inner--landscape .atl-ledger {
   grid-area: ledger;
+  align-self: start;
   width: auto;
   max-width: 380px;
   margin: 16px 0 0;
@@ -323,16 +346,23 @@
 
 .atl-inner--landscape .atl-instruments {
   grid-area: instruments;
-  justify-content: flex-start;
-  max-width: 380px;
+  align-self: start;
+  /* Centred under the chart, which is right-aligned in its column. */
+  justify-self: end;
+  justify-content: center;
+  width: 440px;
+  max-width: 100%;
   margin: 12px 0 0;
   font-size: 12.5px;
-  text-align: left;
 }
 
 .atl-inner--landscape .atl-colophon {
   grid-area: colophon;
   margin-top: 14px;
-  font-size: 10px;
+  font-size: 10.5px;
+}
+
+.atl-inner--landscape .atl-ledger-label {
+  font-size: 11px;
 }
 

@@ -67,12 +67,14 @@
         }
         @for (s of bandStars(); track s.band.id) {
           <g>
+            <!-- A white band would vanish on the paper, so its marker is
+                 drawn and labelled in ink instead. -->
             <line
               [attr.x1]="s.x - 10"
               [attr.y1]="s.y"
               [attr.x2]="s.x + 10"
               [attr.y2]="s.y"
-              [attr.stroke]="s.band.color"
+              [attr.stroke]="s.isLight ? '#2B2316' : s.band.color"
               stroke-width="1"
             />
             <line
@@ -80,16 +82,19 @@
               [attr.y1]="s.y - 10"
               [attr.x2]="s.x"
               [attr.y2]="s.y + 10"
-              [attr.stroke]="s.band.color"
+              [attr.stroke]="s.isLight ? '#2B2316' : s.band.color"
               stroke-width="1"
             />
             <circle [attr.cx]="s.x" [attr.cy]="s.y" r="3.4" [attr.fill]="s.band.color" />
+            @if (s.isLight) {
+              <circle [attr.cx]="s.x" [attr.cy]="s.y" r="3.4" fill="none" stroke="#2B2316" stroke-width="0.9" />
+            }
             <circle
               [attr.cx]="s.x"
               [attr.cy]="s.y"
               r="6.5"
               fill="none"
-              [attr.stroke]="s.band.color"
+              [attr.stroke]="s.isLight ? '#2B2316' : s.band.color"
               stroke-width="0.6"
               opacity="0.6"
             />
@@ -97,7 +102,7 @@
               [attr.x]="s.x"
               [attr.y]="s.y + 25"
               text-anchor="middle"
-              [attr.fill]="s.band.color"
+              [attr.fill]="s.isLight ? '#2B2316' : s.band.color"
               class="atl-chart-id"
             >
               {{ s.band.id }}
@@ -137,7 +142,11 @@
       </div>
       @for (band of data.integration; track band.id) {
         <div class="atl-ledger-row">
-          <span class="atl-ledger-dot" [style.background]="band.color"></span>
+          <span
+            class="atl-ledger-dot"
+            [class.atl-ledger-dot--light]="isLightBand(band.color)"
+            [style.background]="band.color"
+          ></span>
           <span class="atl-ledger-greek">{{ band.greek }}</span>
           <span class="atl-ledger-lead"></span>
           <span class="atl-ledger-frame-count">{{ band.frames }}</span>
@@ -150,9 +159,14 @@
     <dba-ag-theme-gear-line class="atl-instruments" [values]="equipmentValues()" />
 
     <!-- Colophon -->
+    <!-- Short items never break inside, and each separator ends the item
+         before it, so a wrapped colophon never starts a line with "·" or
+         leaves "Bortle" and its number apart. -->
     <div class="atl-colophon">
-      Observed {{ data.dateShort }} · {{ data.location }} · Bortle {{ data.bortle }} ·
-      {{ data.author }}
+      <span class="atl-nowrap">Observed {{ data.dateShort }} ·</span>&ngsp;{{ data.location }} ·&ngsp;<span
+        class="atl-nowrap"
+        >Bortle {{ data.bortle }} ·</span
+      >&ngsp;<span class="atl-nowrap">{{ data.author }}</span>
     </div>
   </div>
 </div>

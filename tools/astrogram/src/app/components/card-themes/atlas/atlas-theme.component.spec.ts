@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { CardDataService } from '../../../services/card-data.service';
 import { AtlasThemeComponent } from './atlas-theme.component';
 
 describe('AtlasThemeComponent', () => {
@@ -46,5 +47,21 @@ describe('AtlasThemeComponent', () => {
     expect(colophon?.textContent).toContain('Irving, Texas');
     expect(colophon?.textContent).toContain('Bortle 9');
     expect(colophon?.textContent).toContain('@astrogram');
+  });
+
+  it('should draw a white luminance band in ink so it shows on the cream paper', () => {
+    TestBed.inject(CardDataService).cardData.update((card) => ({
+      ...card,
+      filters: card.filters.map((filter) => ({ ...filter, enabled: true })),
+    }));
+    fixture.detectChanges();
+
+    const dots = host.querySelectorAll<HTMLElement>('.atl-ledger-dot');
+    expect(dots[0].classList).toContain('atl-ledger-dot--light');
+    expect(dots[1].classList).not.toContain('atl-ledger-dot--light');
+
+    const ids = Array.from(host.querySelectorAll('.atl-chart-id'));
+    const luminance = ids.find((id) => id.textContent?.trim() === 'L');
+    expect(luminance?.getAttribute('fill')).toBe('#2B2316');
   });
 });

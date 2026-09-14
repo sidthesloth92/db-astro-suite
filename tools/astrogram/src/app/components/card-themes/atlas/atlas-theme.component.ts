@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
 import { ThemeGearLineComponent } from '../shared/theme-gear-line/theme-gear-line.component';
 import type { AtlasBandStar } from './atlas-band-star.model';
+import { isLightColor } from '../../../utils/light-color.util';
 
 /**
  * Atlas theme — a vintage star-atlas plate printed on cream paper. Ink
@@ -99,10 +100,20 @@ export class AtlasThemeComponent extends CardThemeBaseDirective {
     this.brightNodeIndices.forEach((nodeIdx, slot) => {
       const band = bands[slot];
       if (band) {
-        out.push({ x: this.nodes[nodeIdx][0], y: this.nodes[nodeIdx][1], band });
+        out.push({
+          x: this.nodes[nodeIdx][0],
+          y: this.nodes[nodeIdx][1],
+          band,
+          isLight: isLightColor(band.color),
+        });
       }
     });
     return out;
+  }
+
+  /** Whether a band colour needs an ink outline to show on the cream paper. */
+  protected isLightBand(color: string): boolean {
+    return isLightColor(color);
   }
 
   /** Total frame count across the enabled bands (design `lFrames`). */
