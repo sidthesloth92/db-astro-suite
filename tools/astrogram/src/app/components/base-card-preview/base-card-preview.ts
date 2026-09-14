@@ -361,13 +361,15 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
     const root = canvas?.firstElementChild?.firstElementChild;
     if (!canvas || !(root instanceof HTMLElement) || !this.bleedContent()) return;
 
-    const base = computeThemeCanvas(this.cardLayoutWidth(), this.cardAspectValue(), {
-      width: this.themeBasisWidth(),
-      height: this.themeBasisHeight(),
-    });
+    // Sized exactly as the `themeCanvas` binding will size it, whole pixels
+    // included, so the measured layout is the one that renders.
     const applyFactor = (factor: number): void => {
-      canvas.style.width = `${base.width * factor}px`;
-      canvas.style.height = `${base.height * factor}px`;
+      const sized = computeThemeCanvas(this.cardLayoutWidth(), this.cardAspectValue(), {
+        width: this.themeBasisWidth() * factor,
+        height: this.themeBasisHeight() * factor,
+      });
+      canvas.style.width = `${sized.width}px`;
+      canvas.style.height = `${sized.height}px`;
     };
 
     let factor = 1;

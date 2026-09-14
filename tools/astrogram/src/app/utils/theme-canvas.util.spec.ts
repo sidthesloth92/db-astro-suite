@@ -27,7 +27,7 @@ describe('computeThemeCanvas', () => {
     const canvas = computeThemeCanvas(CARD_WIDTH, 9 / 16);
 
     expect(canvas.width).toBe(THEME_DESIGN_WIDTH);
-    expect(canvas.height).toBeCloseTo(THEME_DESIGN_WIDTH / (9 / 16), 6);
+    expect(canvas.height).toBe(THEME_DESIGN_WIDTH / (9 / 16));
   });
 
   it('never gives a theme less room than its artboard, at any aspect', () => {
@@ -43,12 +43,26 @@ describe('computeThemeCanvas', () => {
     }
   });
 
-  it('produces a canvas that exactly covers the card once scaled', () => {
-    for (const aspect of [9 / 16, 0.75, 1, 1.91]) {
+  it('produces a canvas that covers the card once scaled, overshooting by under a pixel', () => {
+    for (const aspect of [9 / 16, 0.75, 0.8, 1, 1.91]) {
       const canvas = computeThemeCanvas(CARD_WIDTH, aspect);
+      const cardHeight = CARD_WIDTH / aspect;
 
-      expect(canvas.width * canvas.scale).toBeCloseTo(CARD_WIDTH, 6);
-      expect(canvas.height * canvas.scale).toBeCloseTo(CARD_WIDTH / aspect, 6);
+      expect(canvas.width * canvas.scale).toBeGreaterThanOrEqual(CARD_WIDTH - 1e-9);
+      expect(canvas.height * canvas.scale).toBeGreaterThanOrEqual(cardHeight - 1e-9);
+      expect(canvas.width * canvas.scale).toBeLessThan(CARD_WIDTH + 1);
+      expect(canvas.height * canvas.scale).toBeLessThan(cardHeight + 1);
+    }
+  });
+
+  it('sizes the canvas in whole pixels even when the card aspect is fractional', () => {
+    // A 992.23px-wide canvas was laid out a hair narrower by the exporter,
+    // leaving a dark last column on the downloaded image.
+    for (const aspect of [9 / 16, 0.8, 1.91]) {
+      const canvas = computeThemeCanvas(CARD_WIDTH, aspect, { width: 540, height: 519.7 });
+
+      expect(Number.isInteger(canvas.width)).withContext(`width at ${aspect}`).toBeTrue();
+      expect(Number.isInteger(canvas.height)).withContext(`height at ${aspect}`).toBeTrue();
     }
   });
 

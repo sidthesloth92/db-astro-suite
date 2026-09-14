@@ -24,8 +24,13 @@ export const DEFAULT_THEME_BASIS: ThemeDesignBasis = {
  * Instead the canvas keeps the artboard's *limiting* dimension and grows
  * the other one to match the card's aspect, so the theme always has at
  * least its authored room on both axes. The canvas is then scaled by a
- * single uniform factor to exactly cover the card, which preserves the
- * design's proportions and keeps the export pixel-faithful.
+ * single uniform factor to cover the card, which preserves the design's
+ * proportions and keeps the export pixel-faithful.
+ *
+ * Both sides are rounded up to whole pixels and the scale covers both, so the
+ * canvas overshoots the card by under one canvas pixel, clipped by the card.
+ * A fractional canvas (992.23px wide) was laid out a hair narrower in the
+ * exporter and left the card's backdrop showing as a dark last column.
  *
  * @param cardWidthPx Card's layout width in px (pre-transform).
  * @param cardAspect Card's width / height ratio.
@@ -41,10 +46,11 @@ export function computeThemeCanvas(
 
   // Card at least as wide as the artboard → keep the artboard height and
   // widen. Card narrower → keep the artboard width and grow taller.
-  const width = safeAspect >= designAspect ? basis.height * safeAspect : basis.width;
-  const height = safeAspect >= designAspect ? basis.height : basis.width / safeAspect;
+  const width = Math.ceil(safeAspect >= designAspect ? basis.height * safeAspect : basis.width);
+  const height = Math.ceil(safeAspect >= designAspect ? basis.height : basis.width / safeAspect);
 
-  const scale = cardWidthPx > 0 ? cardWidthPx / width : 1;
+  const scale =
+    cardWidthPx > 0 ? Math.max(cardWidthPx / width, cardWidthPx / safeAspect / height) : 1;
   return { width, height, scale };
 }
 
