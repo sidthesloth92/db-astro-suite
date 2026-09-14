@@ -2,6 +2,9 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
 import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfield.component';
 import type { ThemeGearItem } from '../../../models/card-theme.model';
+import { keepPlaceNamesTogether } from '../../../utils/keep-together.util';
+import { bandRowBreak } from '../../../utils/band-rows.util';
+import { SPLIT_STATS_LONG_NAME_CHARS } from './split-stats.constants';
 
 /**
  * Split Stats theme — a fitness-app style share card. A brand row, the object
@@ -60,5 +63,20 @@ export class SplitStatsThemeComponent extends CardThemeBaseDirective {
   /** Gear chip rows: every equipment row, in the user's order. */
   protected chipRows(): readonly ThemeGearItem[] {
     return this.vm().equipment;
+  }
+
+  /** Whether the object name is long enough to take the smaller landscape headline. */
+  protected isLongName(): boolean {
+    return this.vm().objectName.length > SPLIT_STATS_LONG_NAME_CHARS;
+  }
+
+  /** Bands on the first legend row when the legend splits in two (0 = one row). */
+  protected bandBreak(): number {
+    return bandRowBreak(this.vm().integration.length);
+  }
+
+  /** Footer location, wrapping only between its comma-separated parts. */
+  protected footerLocation(): string {
+    return keepPlaceNamesTogether(this.vm().location);
   }
 }

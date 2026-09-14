@@ -173,19 +173,37 @@
   background: rgba(255, 255, 255, 0.05);
 }
 
+/* Seven bands do not fit one row: items flow onto a second row whole,
+   rather than squeezing each duration onto two lines ("2h / 42m") and
+   pushing the last one past the margin. */
 .sps-legend {
   display: flex;
-  gap: 18px;
+  flex-wrap: wrap;
+  gap: 4px 18px;
   margin-top: 10px;
+}
+
+/* Zero-height full-width item that starts the second row; with the row gap
+   on either side it leaves 8px between the rows. */
+.sps-legend-break {
+  flex-basis: 100%;
+  height: 0;
+}
+
+/* The square card holds every band on one row. */
+:host-context(.card.aspect-1-1) .sps-legend-break {
+  display: none;
 }
 
 .sps-legend-item {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  white-space: nowrap;
 }
 
 .sps-legend-dot {
+  flex-shrink: 0;
   width: 7px;
   height: 7px;
   border-radius: 50%;
@@ -229,8 +247,11 @@
   color: var(--sps-txt);
 }
 
+/* Leading for a location that wraps; the 6px it adds (whole pixels, so the
+   text keeps its pixel row) is taken back by the margins on one line. */
 .sps-loc {
-  font: 500 10px/1 var(--sps-mono);
+  font: 500 10px/16px var(--sps-mono);
+  margin: -3px 0;
   color: var(--sps-faint);
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -281,6 +302,12 @@
   font-size: 64px;
   line-height: 0.98;
   margin-top: 0;
+}
+
+/* A long name's lines are wider than the column at 64px (see
+   SPLIT_STATS_LONG_NAME_CHARS); a notch smaller keeps it to two lines. */
+.sps-root--landscape .sps-name--long {
+  font-size: 54px;
 }
 
 .sps-root--landscape .sps-caption {
@@ -348,7 +375,7 @@
 }
 
 .sps-root--landscape .sps-legend {
-  gap: 22px;
+  gap: 4px 22px;
   margin-top: 12px;
 }
 
@@ -392,21 +419,22 @@
 
 .sps-root--landscape .sps-loc {
   font-size: 11px;
+  line-height: 17px;
 }
 
 /* A long handle or location used to run the two ends of this row into each
-   other. The row may wrap: the meta then drops to its own line, pushed to the
-   right edge, and a meta long enough to span the row reads left-aligned
-   rather than as a ragged right-aligned block under the handle. When both
-   fit, the spacer takes the free space as before. */
+   other. The row may wrap: the location then starts its own line at the left
+   edge, under the handle, instead of hanging right-aligned from nowhere. When
+   both fit, the spacer takes the free space and the location stays at the
+   right. */
 .sps-author-row {
+  justify-content: space-between;
   flex-wrap: wrap;
   column-gap: 16px;
-  row-gap: 6px;
+  row-gap: 8px;
 }
 
 .sps-author-row .sps-loc {
-  margin-left: auto;
   min-width: 0;
 }
 

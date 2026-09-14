@@ -79,7 +79,7 @@
 
   <!-- Object -->
   <div class="sps-object" data-testid="card-hero">
-    <div class="sps-name">{{ data.objectName }}</div>
+    <div class="sps-name" [class.sps-name--long]="isLongName()">{{ data.objectName }}</div>
     @if (data.caption) {
       <div class="sps-caption">{{ data.caption }}</div>
     }
@@ -125,7 +125,12 @@
       }
     </div>
     <div class="sps-legend">
-      @for (band of data.integration; track band.id) {
+      <!-- A long legend splits into balanced rows (four and three) instead of
+           leaving the last band alone on the second row. -->
+      @for (band of data.integration; track band.id; let i = $index) {
+        @if (i > 0 && i === bandBreak()) {
+          <span class="sps-legend-break"></span>
+        }
         <span class="sps-legend-item">
           <span class="sps-legend-dot" [style.background]="band.color"></span>
           <span class="sps-legend-id" [style.color]="band.color">{{ band.id }}</span>
@@ -146,6 +151,6 @@
   <div class="sps-author-row">
     <span class="sps-author">{{ data.author }}</span>
     <span class="sps-grow"></span>
-    <span class="sps-loc">{{ data.location }}</span>
+    <span class="sps-loc">{{ footerLocation() }}</span>
   </div>
 </div>
