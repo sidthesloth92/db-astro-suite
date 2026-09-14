@@ -1,6 +1,6 @@
 @let data = vm();
 
-<div class="con-root">
+<div class="con-root" [class.con-root--landscape]="isLandscapeFormat()">
   <dba-ag-theme-starfield [density]="150" [opacity]="0.55" [color]="'#F2F7FF'" [seed]="9" />
 
   <!-- Art box: the chart and the band labels pinned to its stars share one

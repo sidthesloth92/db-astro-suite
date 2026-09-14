@@ -213,12 +213,15 @@
   height: 720px;
 }
 
-/* Landscape is shorter than the artboard: fit it to the full height instead. */
+/* Landscape is shorter than the artboard. The chart only uses the artboard's
+   top band (y 50-330, the rest is room for portrait text), so the box is
+   scaled until that band fills the left half's height and centred on it —
+   the empty lower artboard runs off the bottom of the card. */
 .con-art--landscape {
-  inset: 0 auto;
-  left: 50%;
+  top: 5%;
+  left: 25.5%;
   width: auto;
-  height: auto;
+  height: 142%;
   aspect-ratio: 540 / 720;
   transform: translateX(-50%);
 }
@@ -228,4 +231,136 @@
   inset: 0;
   z-index: 2;
   pointer-events: none;
+}
+
+/* ── Landscape (1.91:1) ──
+   The portrait stack (chart, name plate, caption, two-column legend) squeezed
+   into the wide card put the name plate against the lowest band label and the
+   legend into a full-width strip of 7-10 export px type. Landscape is a chart
+   spread: the star chart on the left with the caption set beneath it as its
+   note, and the name plate, apparatus, pipeline and total on the right. The
+   legend box is unwrapped so its caption and columns can sit in different
+   halves. */
+.con-root--landscape {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: 1fr auto auto 1fr;
+  column-gap: 44px;
+  box-sizing: border-box;
+  padding: 26px 34px 26px 30px;
+}
+
+.con-root--landscape .con-datestamp {
+  font-size: 10.5px;
+  color: #6b7794;
+}
+
+.con-root--landscape .con-header {
+  padding: 22px 34px 0;
+}
+
+.con-root--landscape .con-band-id {
+  font-size: 12.5px;
+}
+
+.con-root--landscape .con-band-time {
+  font-size: 12px;
+  margin-top: 4px;
+  white-space: nowrap;
+}
+
+.con-root--landscape .con-band-frames {
+  font-size: 10.5px;
+  color: #8a97b5;
+  margin-top: 3px;
+  white-space: nowrap;
+}
+
+.con-root--landscape .con-nameplate {
+  position: relative;
+  top: auto;
+  grid-column: 2;
+  grid-row: 2;
+  text-align: left;
+}
+
+.con-root--landscape .con-object-id {
+  font-size: 12px;
+}
+
+.con-root--landscape .con-object-name {
+  font-size: 44px;
+  line-height: 1.05;
+  margin-top: 10px;
+}
+
+.con-root--landscape .con-legend {
+  display: contents;
+}
+
+/* Set under the chart, centred on it, as the chart's note. */
+.con-root--landscape .con-caption {
+  position: relative;
+  z-index: 2;
+  grid-column: 1;
+  grid-row: 1 / -1;
+  align-self: end;
+  justify-self: center;
+  max-width: 400px;
+  margin: 0;
+  font-size: 14px;
+}
+
+.con-root--landscape .con-cols {
+  position: relative;
+  z-index: 2;
+  grid-column: 2;
+  grid-row: 3;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+  margin-top: 24px;
+  padding-top: 18px;
+}
+
+.con-root--landscape .con-col-title {
+  font-size: 10.5px;
+  margin-bottom: 10px;
+}
+
+/* Labels and values read as a two-column table rather than two ends of a
+   400px row. */
+.con-root--landscape .con-row {
+  justify-content: flex-start;
+  gap: 14px;
+  padding: 2px 0;
+}
+
+.con-root--landscape .con-row-label {
+  flex: 0 0 158px;
+  font-size: 10px;
+  line-height: 1.5;
+  color: #6b7794;
+}
+
+.con-root--landscape .con-row-value {
+  flex: 1 1 auto;
+  max-width: none;
+  font-size: 13px;
+  line-height: 1.35;
+  text-align: left;
+}
+
+.con-root--landscape .con-total-row {
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin-top: 10px;
+  padding-top: 10px;
+}
+
+.con-root--landscape .con-total {
+  font-size: 11.5px;
+}
+
+.con-root--landscape .con-sky {
+  font-size: 12px;
 }

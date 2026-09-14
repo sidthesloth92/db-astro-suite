@@ -226,7 +226,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Constellation',
     subtitle: 'Star-chart · bands as bright stars',
     component: ConstellationThemeComponent,
-    landscapeBasisHeight: 540,
+    landscapeBasisHeight: 480,
     accents: {
       accentColor: '#7FE3FF',
       accentColorRgb: '127, 227, 255',
