@@ -277,3 +277,177 @@
 .ave-sky-seg.is-lit {
   background: var(--ave-gold);
 }
+
+/* ── Landscape (1.91:1) ──
+   The portrait page is one column: in a wide card the headline block hugged
+   the left edge, the band figures drifted to the far right and the three-up
+   footer ran as a thin strip of tiny type along the bottom. Landscape sets
+   the page as a spread under the full-width masthead — the story (headline,
+   standfirst, byline, integration) on the left, the apparatus / workflow /
+   sky colophon on the right behind a gold hairline. */
+.ave-root--landscape {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  grid-template-rows: auto auto auto auto auto auto 1fr auto;
+  column-gap: 36px;
+  padding: 30px 40px 32px;
+}
+
+.ave-root--landscape .ave-masthead {
+  grid-column: 1 / -1;
+  grid-row: 1;
+}
+
+.ave-root--landscape .ave-mast-name,
+.ave-root--landscape .ave-mast-issue {
+  font-size: 10.5px;
+}
+
+.ave-root--landscape .ave-eyebrow {
+  grid-row: 2;
+  margin-top: 30px;
+  font-size: 10.5px;
+}
+
+.ave-root--landscape .ave-headline {
+  grid-row: 3;
+  font-size: 68px;
+  margin-top: 14px;
+}
+
+.ave-root--landscape .ave-subhead {
+  grid-row: 4;
+  font-size: 19px;
+  margin-top: 8px;
+}
+
+.ave-root--landscape .ave-standfirst {
+  grid-row: 5;
+  margin-top: 24px;
+}
+
+.ave-root--landscape .ave-standtext {
+  font-size: 16px;
+}
+
+/* Wraps between items, never inside one, when a location runs long. */
+.ave-root--landscape .ave-byline {
+  grid-row: 6;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin-top: 22px;
+}
+
+.ave-root--landscape .ave-meta {
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.ave-root--landscape .ave-flexspacer {
+  grid-row: 7;
+}
+
+/* Longer totals or more bands drop the band figures to a second line rather
+   than breaking the total itself. */
+.ave-root--landscape .ave-integration {
+  grid-row: 8;
+  flex-wrap: wrap;
+  row-gap: 10px;
+  margin-top: 18px;
+  padding-top: 16px;
+}
+
+.ave-root--landscape .ave-int-label {
+  font-size: 10px;
+}
+
+.ave-root--landscape .ave-int-total {
+  font-size: 52px;
+  white-space: nowrap;
+}
+
+.ave-root--landscape .ave-int-bands {
+  gap: 12px;
+}
+
+.ave-root--landscape .ave-int-id {
+  font-size: 11px;
+}
+
+.ave-root--landscape .ave-int-time {
+  font-size: 16px;
+  white-space: nowrap;
+}
+
+/* The faint portrait grey is lifted a step so the small type holds up at the
+   landscape export scale. */
+.ave-root--landscape .ave-int-frames {
+  font-size: 10px;
+  color: var(--ave-dim);
+  white-space: nowrap;
+}
+
+/* The colophon becomes the right-hand column, stacked apparatus / workflow /
+   sky behind a gold hairline. */
+.ave-root--landscape .ave-footer {
+  grid-column: 2;
+  grid-row: 2 / -1;
+  align-self: center;
+  grid-template-columns: 1fr;
+  gap: 18px;
+  margin-top: 24px;
+  padding: 0 0 0 24px;
+  border-top: 0;
+  border-left: 1px solid rgba(212, 165, 116, 0.2);
+}
+
+.ave-root--landscape .ave-foot-title {
+  font-size: 10px;
+  margin-bottom: 10px;
+}
+
+.ave-root--landscape .ave-foot-row {
+  gap: 12px;
+  margin-bottom: 5px;
+}
+
+.ave-root--landscape .ave-foot-label {
+  flex-basis: 76px;
+  width: 76px;
+  font-size: 10px;
+  color: var(--ave-dim);
+}
+
+.ave-root--landscape .ave-foot-value {
+  font-size: 12px;
+}
+
+/* Sky reads across: the Bortle figure beside its label and scale bar. */
+.ave-root--landscape .ave-foot-col:last-child {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto 1fr auto;
+  column-gap: 16px;
+}
+
+.ave-root--landscape .ave-foot-col:last-child .ave-foot-title {
+  grid-column: 1 / -1;
+}
+
+.ave-root--landscape .ave-sky-big {
+  grid-row: 2 / 4;
+  font-size: 46px;
+}
+
+.ave-root--landscape .ave-sky-sub {
+  grid-column: 2;
+  grid-row: 2;
+  align-self: end;
+  font-size: 11px;
+}
+
+.ave-root--landscape .ave-sky-bar {
+  grid-column: 2;
+  grid-row: 3;
+  margin: 8px 0 6px;
+}

@@ -83,7 +83,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Aurora',
     subtitle: 'Modern editorial · weight contrast',
     component: AuroraEditorialThemeComponent,
-    landscapeBasisHeight: 530,
+    landscapeBasisHeight: 480,
     accents: {
       accentColor: '#D4A574',
       accentColorRgb: '212, 165, 116',

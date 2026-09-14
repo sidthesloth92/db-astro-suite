@@ -1,6 +1,6 @@
 @let data = vm();
 
-<div class="ave-root">
+<div class="ave-root" [class.ave-root--landscape]="isLandscapeFormat()">
   <dba-ag-theme-starfield [density]="70" [opacity]="0.35" [seed]="1" />
 
   <!-- Masthead -->
