@@ -60,7 +60,11 @@
         @for (item of data.software; track $index) {
           <div class="dp-footer-item">{{ item.value }}</div>
         }
-        <div class="dp-footer-item dp-footer-item--dim">Bortle {{ data.bortle }} · {{ data.location }} · {{ data.author }}</div>
+        <!-- Each separator is glued to the item after it, so a wrapping line
+             never ends on a dangling "·". -->
+        <div class="dp-footer-item dp-footer-item--dim">
+          Bortle {{ data.bortle }} ·&nbsp;{{ data.location }} ·&nbsp;{{ data.author }}
+        </div>
       </div>
     </div>
   </div>

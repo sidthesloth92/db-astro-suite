@@ -242,6 +242,13 @@
   margin-top: 4px;
 }
 
+/* A gear or software name that wraps hangs its second line, so the run-on
+   ("Filter Wheel", "Gen 2") never reads as another item. */
+.dp-footer-item:not(.dp-footer-item--dim) {
+  padding-left: 0.9em;
+  text-indent: -0.9em;
+}
+
 .dp-band-frames {
   font: 500 9px/1 var(--dp-mono);
   color: var(--dp-cream);
