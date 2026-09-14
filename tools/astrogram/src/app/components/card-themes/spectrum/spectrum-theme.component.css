@@ -45,6 +45,15 @@
 /* ── Hero gradient block ── */
 .spc-hero {
   position: relative;
+  /* Hero and body share the height the content leaves spare, so a tall card
+     is balanced rather than ending in a quarter (on 9:16 nearly half) of
+     empty black: the gradient grows with its headline set at its foot, and
+     the body spreads its sections apart. The hero takes the larger share so
+     the body's gaps stay proportionate. */
+  flex: 3 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
   padding: 30px 30px 26px;
   background: linear-gradient(135deg, var(--spc-pink) 0%, var(--spc-magenta) 35%, var(--spc-violet) 65%, var(--spc-cyan) 100%);
 }
@@ -84,15 +93,55 @@
 }
 
 .spc-hero-meta {
-  display: flex;
-  gap: 12px;
-  margin-top: 18px;
-  font: 500 10.5px/1 var(--spc-mono);
+  --spc-meta-gap: 12px;
+  /* A separator's width: one mono advance plus its letter-spacing. */
+  --spc-meta-lead: calc(0.64em + var(--spc-meta-gap));
+
+  /* Lines are spaced to read when the row wraps; the negative block margins
+     cancel the extra leading so a single line sits exactly where it did. */
+  margin: calc(18px - 0.175em) 0 -0.175em;
+  font: 500 10.5px/1.35 var(--spc-mono);
   color: rgba(255, 255, 255, 0.95);
   letter-spacing: 0.04em;
+  /* Clips the separator that leads a wrapped line (see .spc-meta-line). */
+  overflow: hidden;
+}
+
+/* A long location or handle wraps whole items onto the next line; squeezed
+   onto one line the date broke into "SEP / 13, / 2026" and the location into
+   three touching lines. Each item after the first carries its own leading
+   separator, and the line is pulled left by one separator's width so the
+   separator of an item that starts a line falls outside the clipped row. */
+.spc-meta-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px var(--spc-meta-gap);
+  margin-left: calc(-1 * var(--spc-meta-lead));
+}
+
+.spc-meta-item {
+  display: flex;
+  white-space: nowrap;
+}
+
+.spc-meta-item:first-child {
+  margin-left: var(--spc-meta-lead);
+}
+
+/* The location is the one value that can outrun the hero, so it wraps —
+   within its own item, hanging under its first line. */
+.spc-meta-location {
+  min-width: 0;
+}
+
+.spc-meta-text {
+  min-width: 0;
+  white-space: normal;
 }
 
 .spc-sep {
+  flex: none;
+  margin-right: var(--spc-meta-gap);
   opacity: 0.4;
 }
 
@@ -105,8 +154,9 @@
   padding: 20px 30px 24px;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   gap: 18px;
-  flex: 1;
+  flex: 2 1 auto;
   min-height: 0;
 }
 
@@ -193,8 +243,6 @@
   gap: 22px;
   padding-top: 14px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
-  flex: 1;
-  min-height: 0;
 }
 
 .spc-col-title {
@@ -215,6 +263,9 @@
 .spc-eq-row {
   display: grid;
   grid-template-columns: 84px 1fr;
+  /* A label wrapping to two lines ("GUIDE SCOPE / AND CAMERA") ran right up
+     against its value. */
+  column-gap: 10px;
   padding: 4px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
@@ -326,10 +377,18 @@
 /* One item per line: side by side the three wrapped at the panel's width
    and left a separator dangling at a line end. */
 .spc-root--landscape .spc-hero-meta {
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 22px;
+  margin: calc(22px - 0.175em) 0 -0.175em;
   font-size: 11.5px;
+}
+
+.spc-root--landscape .spc-meta-line {
+  flex-direction: column;
+  gap: 4px;
+  margin-left: 0;
+}
+
+.spc-root--landscape .spc-meta-item:first-child {
+  margin-left: 0;
 }
 
 .spc-root--landscape .spc-sep {
@@ -337,7 +396,11 @@
 }
 
 .spc-root--landscape .spc-body {
-  justify-content: center;
+  flex: 1 1 0;
+  /* Safe: heavy data overflowed a centred column at both ends, cutting the
+     caption's first line off the top edge; it now runs downward only, where
+     the card grows to hold it. */
+  justify-content: safe center;
   gap: 16px;
   padding: 24px 28px;
   min-width: 0;
@@ -385,7 +448,6 @@
 }
 
 .spc-root--landscape .spc-lower {
-  flex: none;
   grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
 }
 

@@ -9,11 +9,13 @@
       <div class="spc-headline">{{ heroPrimary() }}</div>
       <div class="spc-subhead">{{ heroSubtitle() }}</div>
       <div class="spc-hero-meta">
-        <span>{{ data.dateShort }}</span>
-        <span class="spc-sep">·</span>
-        <span class="spc-up">{{ data.location }}</span>
-        <span class="spc-sep">·</span>
-        <span class="spc-up">{{ data.author }}</span>
+        <div class="spc-meta-line">
+          <span class="spc-meta-item">{{ data.dateShort }}</span>
+          <span class="spc-meta-item spc-meta-location spc-up">
+            <span class="spc-sep">·</span><span class="spc-meta-text">{{ data.location }}</span>
+          </span>
+          <span class="spc-meta-item spc-up"><span class="spc-sep">·</span>{{ data.author }}</span>
+        </div>
       </div>
     </div>
   </div>
