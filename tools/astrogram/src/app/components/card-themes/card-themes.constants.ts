@@ -354,7 +354,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Film Edge',
     subtitle: 'A frame of astro film',
     component: FilmEdgeThemeComponent,
-    landscapeBasisHeight: 510,
+    landscapeBasisHeight: 480,
     accents: {
       accentColor: '#FFB65C',
       accentColorRgb: '255, 182, 92',

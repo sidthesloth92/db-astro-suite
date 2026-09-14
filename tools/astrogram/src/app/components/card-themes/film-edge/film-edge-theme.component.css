@@ -230,3 +230,152 @@
   color: #fff;
   margin-top: 6px;
 }
+
+/* ── Landscape (1.91:1) ──
+   The portrait frame is one centred stack: in a wide frame it left the outer
+   thirds empty and pressed the gear run, site and band codes into a tight
+   column that ran down to the frame's lower edge, with labels too small to
+   read. Landscape opens the frame out — subject and total on the left; band
+   codes, gear run and site in a ruled column on the right. The subject
+   wrapper steps aside (`display: contents`) so its lines join the frame's
+   grid alongside the codes. */
+.flm-root--landscape .flm-edge {
+  font-size: 10px;
+}
+
+.flm-root--landscape .flm-frame-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  grid-template-rows: auto 1fr auto auto auto auto 1fr;
+  grid-template-areas:
+    'head head'
+    '. .'
+    'id codes'
+    'name codes'
+    'total gear'
+    'label site'
+    '. .';
+  column-gap: 44px;
+  padding: 24px 40px 26px;
+}
+
+.flm-root--landscape .flm-frame-head {
+  grid-area: head;
+}
+
+/* The starfield artboard is sliced to the frame's width, which blows its
+   stars up to dots that read as marks on the type; dim them. */
+.flm-root--landscape dba-ag-theme-starfield {
+  opacity: 0.55;
+}
+
+.flm-root--landscape .flm-grow {
+  display: none;
+}
+
+.flm-root--landscape .flm-frame-no,
+.flm-root--landscape .flm-frame-date {
+  font-size: 10.5px;
+}
+
+.flm-root--landscape .flm-subject {
+  display: contents;
+  text-align: left;
+}
+
+.flm-root--landscape .flm-object-id {
+  grid-area: id;
+  font-size: 12px;
+  padding-left: 0;
+}
+
+.flm-root--landscape .flm-object-name {
+  grid-area: name;
+  font-size: 50px;
+  margin-top: 10px;
+}
+
+/* Held down against its label when the gear run makes the row taller. */
+.flm-root--landscape .flm-total {
+  grid-area: total;
+  align-self: end;
+  font-size: 64px;
+  margin-top: 14px;
+}
+
+.flm-root--landscape .flm-total-label {
+  grid-area: label;
+  font-size: 11px;
+}
+
+/* The right column is ruled off like a caption strip: codes level with the
+   subject, the gear run level with the total, and the site level with the
+   total's label. Spacing is padding, not margin, so the rule runs unbroken. */
+.flm-root--landscape .flm-codes,
+.flm-root--landscape .flm-gear,
+.flm-root--landscape .flm-site {
+  padding-left: 22px;
+  border-left: 1px solid rgba(255, 182, 92, 0.3);
+}
+
+.flm-root--landscape .flm-codes {
+  grid-area: codes;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 34px;
+  padding-top: 4px;
+}
+
+.flm-root--landscape .flm-gear {
+  grid-area: gear;
+  align-content: flex-end;
+  justify-content: flex-start;
+  max-width: none;
+  margin: 0;
+  padding-top: 18px;
+  font-size: 11px;
+  line-height: 1.75;
+}
+
+.flm-root--landscape .flm-site {
+  grid-area: site;
+  margin-top: 0;
+  padding-top: 10px;
+  padding-bottom: 2px;
+  font-size: 11px;
+}
+
+.flm-root--landscape .flm-code {
+  text-align: left;
+}
+
+.flm-root--landscape .flm-code-bar {
+  width: 34px;
+  margin: 0;
+}
+
+.flm-root--landscape .flm-code-id {
+  font-size: 12px;
+}
+
+.flm-root--landscape .flm-code-time {
+  font-size: 19px;
+}
+
+/* Spikes move into the open space around the two columns. */
+.flm-root--landscape .flm-spike-1 {
+  left: auto;
+  right: 64px;
+  top: 58px;
+}
+
+.flm-root--landscape .flm-spike-2 {
+  right: 44%;
+  top: auto;
+  bottom: 40px;
+}
+
+.flm-root--landscape .flm-spike-3 {
+  left: 46%;
+  top: 36px;
+}
