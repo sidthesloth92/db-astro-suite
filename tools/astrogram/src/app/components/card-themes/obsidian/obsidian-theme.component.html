@@ -1,6 +1,6 @@
 @let data = vm();
 
-<div class="obs-root">
+<div class="obs-root" [class.obs-root--landscape]="isLandscapeFormat()">
   <dba-ag-theme-starfield [density]="100" [opacity]="0.55" [seed]="1" />
 
   <svg class="obs-aurora" viewBox="0 0 540 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true">

@@ -61,7 +61,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Obsidian Glass',
     subtitle: 'Glassmorphism · cyan/violet aurora',
     component: ObsidianThemeComponent,
-    landscapeBasisHeight: 600,
+    landscapeBasisHeight: 480,
     accents: {
       accentColor: '#5DD8FF',
       accentColorRgb: '93, 216, 255',

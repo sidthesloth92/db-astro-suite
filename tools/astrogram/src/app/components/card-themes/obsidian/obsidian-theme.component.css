@@ -323,3 +323,181 @@
 .obs-bortle-seg.is-lit {
   background: var(--obs-gold);
 }
+
+/* ── Landscape (1.91:1) ──
+   The portrait stack dropped into a wide card as full-width strips: the hero
+   panel ran empty past its caption, the integration legend spread its three
+   bands 350px apart, and the mono labels exported at 5-6px. Landscape splits
+   the card into two columns under the masthead — hero and integration on the
+   left, the apparatus panel over pipeline and a Bortle gauge on the right —
+   with the type raised to read at the export's size. */
+.obs-root--landscape .obs-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    'mast mast'
+    'hero lower'
+    'int lower';
+  gap: 14px 16px;
+  padding: 24px 28px 26px;
+}
+
+.obs-root--landscape .obs-masthead {
+  grid-area: mast;
+}
+
+.obs-root--landscape .obs-kicker,
+.obs-root--landscape .obs-frame {
+  font-size: 11px;
+}
+
+/* The hero takes the column's spare height, so its content is centred in
+   the panel rather than leaving the space under the chips. */
+.obs-root--landscape .obs-hero {
+  grid-area: hero;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 22px 24px;
+}
+
+.obs-root--landscape .obs-name {
+  font-size: 46px;
+  line-height: 1.05;
+  margin-top: 0;
+}
+
+.obs-root--landscape .obs-hairline {
+  margin-top: 14px;
+}
+
+.obs-root--landscape .obs-caption {
+  font-size: 13.5px;
+  max-width: none;
+  margin-top: 14px;
+}
+
+.obs-root--landscape .obs-meta {
+  gap: 8px 18px;
+  margin-top: 16px;
+}
+
+.obs-root--landscape .obs-chip {
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.obs-root--landscape .obs-integration {
+  grid-area: int;
+  padding: 16px 20px 18px;
+}
+
+/* A longer total drops below the label instead of running into it. */
+.obs-root--landscape .obs-int-head {
+  flex-wrap: wrap;
+  gap: 6px 16px;
+}
+
+.obs-root--landscape .obs-int-label,
+.obs-root--landscape .obs-int-total span {
+  font-size: 10.5px;
+}
+
+.obs-root--landscape .obs-int-total {
+  font-size: 28px;
+}
+
+.obs-root--landscape .obs-legend-id {
+  font-size: 11px;
+}
+
+.obs-root--landscape .obs-legend-time {
+  font-size: 15px;
+}
+
+.obs-root--landscape .obs-legend-frames {
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+/* Apparatus runs the full width of the right column, so the longest piece
+   of kit stays on one line; pipeline and the Bortle gauge share the row
+   beneath it. */
+.obs-root--landscape .obs-lower {
+  grid-area: lower;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.obs-root--landscape .obs-apparatus {
+  flex: 1;
+  justify-content: center;
+}
+
+.obs-root--landscape .obs-apparatus,
+.obs-root--landscape .obs-pipeline {
+  gap: 8px;
+  padding: 14px 18px;
+}
+
+.obs-root--landscape .obs-stack {
+  flex-direction: row;
+  gap: 12px;
+}
+
+.obs-root--landscape .obs-pipeline {
+  flex: 1.6 1 0;
+  min-width: 0;
+}
+
+.obs-root--landscape .obs-col-title,
+.obs-root--landscape .obs-bortle-title {
+  font-size: 10.5px;
+}
+
+/* The faint label tone held up at portrait's size; at landscape's it needs
+   a step more contrast to read. */
+.obs-root--landscape .obs-gear-label,
+.obs-root--landscape .obs-legend-frames {
+  color: #7d869c;
+}
+
+.obs-root--landscape .obs-gear-label {
+  font-size: 10px;
+}
+
+.obs-root--landscape .obs-gear-value {
+  font-size: 13px;
+}
+
+/* Beside the pipeline panel the Bortle panel is as tall as it, so it reads
+   as a gauge: title over a large reading, the meter along the bottom. */
+.obs-root--landscape .obs-bortle {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 14px 16px 16px;
+}
+
+.obs-root--landscape .obs-bortle-head {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.obs-root--landscape .obs-bortle-val {
+  font-size: 40px;
+}
+
+.obs-root--landscape .obs-bortle-val span {
+  font-size: 13px;
+}
+
+.obs-root--landscape .obs-bortle-seg {
+  height: 5px;
+}
