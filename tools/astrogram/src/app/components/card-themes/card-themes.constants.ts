@@ -149,7 +149,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'System Line',
     subtitle: 'The solar system as a number line',
     component: SystemLineThemeComponent,
-    landscapeBasisHeight: 550,
+    landscapeBasisHeight: 500,
     accents: {
       accentColor: '#FFCF6B',
       accentColorRgb: '255, 207, 107',

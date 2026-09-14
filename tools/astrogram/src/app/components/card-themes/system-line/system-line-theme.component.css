@@ -111,7 +111,8 @@
 /* The diagram's height follows its width, so an uncapped chart in a wide
    landscape canvas grew ~2.5x taller and pushed the totals and footer off the
    card entirely. Landscape holds it to 476px — the width it was authored at
-   (540 minus the 32px side padding, and the viewBox width).
+   (540 minus the 32px side padding, and the viewBox width) — unless the
+   landscape layout at the end of this file sizes it for its own grid.
 
    Scoped to landscape rather than applied everywhere: the 1:1 and 4:5 canvases
    are wider than 540px, where the chart has always drawn larger, and capping it
@@ -207,4 +208,114 @@
   color: #5a6175;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+}
+
+/* ── Landscape (1.91:1) ──
+   Holding the chart to 476px kept it off the footer, but left a small
+   diagram centred under a big left-aligned title, an empty band beside the
+   title, axis labels at 5-6 export px and the frames line near the footer
+   rule. The number line is a horizontal timeline, so here it runs most of
+   the card's width as the hero, with the object on the left of the band
+   above it, the total on the right, and the footer beneath. */
+.sl-root--landscape {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto minmax(0, 1fr) auto minmax(0, 1fr) auto;
+  column-gap: 32px;
+}
+
+.sl-root--landscape .sl-header {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  margin-bottom: 16px;
+}
+
+.sl-root--landscape .sl-eyebrow,
+.sl-root--landscape .sl-date {
+  font-size: 10.5px;
+}
+
+.sl-root--landscape .sl-object {
+  grid-column: 1;
+  grid-row: 2;
+  align-self: end;
+  margin-top: 0;
+}
+
+.sl-root--landscape .sl-kicker {
+  font-size: 11.5px;
+}
+
+.sl-root--landscape .sl-name {
+  font-size: 46px;
+}
+
+.sl-root--landscape .sl-spacer-a,
+.sl-root--landscape .sl-spacer-b,
+.sl-root--landscape .sl-spacer-c {
+  display: none;
+}
+
+/* Scaled to 820px, as wide as the height left by the title band and footer
+   allows, and centred under the title-and-total band. The viewBox is 250
+   tall but the drawing only spans y 84-220, so negative margins trim the
+   empty bands above and below; the SVG's visible overflow still draws
+   anything that reaches past them. */
+.sl-root--landscape .sl-chart--landscape {
+  grid-column: 1 / -1;
+  grid-row: 4;
+  width: 820px;
+  max-width: 100%;
+  align-self: auto;
+  justify-self: center;
+}
+
+.sl-root--landscape .sl-svg {
+  margin: -145px 0 -48px;
+}
+
+.sl-root--landscape .sl-total {
+  grid-column: 2;
+  grid-row: 2;
+  align-self: end;
+  text-align: right;
+}
+
+.sl-root--landscape .sl-total-label {
+  font-size: 10.5px;
+}
+
+.sl-root--landscape .sl-total-value {
+  font-size: 46px;
+  margin-top: 8px;
+  white-space: nowrap;
+}
+
+.sl-root--landscape .sl-total-sub {
+  font-size: 10.5px;
+  margin-top: 8px;
+}
+
+.sl-root--landscape .sl-footer {
+  grid-column: 1 / -1;
+  grid-row: 6;
+}
+
+.sl-root--landscape .sl-foot-gear {
+  font-size: 10.5px;
+}
+
+.sl-root--landscape .sl-foot-row {
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-top: 8px;
+}
+
+.sl-root--landscape .sl-foot-author {
+  font-size: 13px;
+}
+
+.sl-root--landscape .sl-foot-meta {
+  font-size: 10.5px;
+  line-height: 1.3;
 }
