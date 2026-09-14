@@ -25,8 +25,9 @@ const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
  * A text node, by contrast, is always content the user needs to read.
  *
  * Each text run is checked against the theme root and against every ancestor
- * between them that clips its overflow (a bordered panel, a film frame), so
- * text cut off inside a panel counts even when the panel itself fits the card.
+ * between them that clips its overflow or draws a border around it (a panel, a
+ * film frame), so text cut off by — or spilling past — a panel counts even when
+ * the panel itself fits the card.
  *
  * @param root The theme's root element (the host's first child).
  */
@@ -53,7 +54,7 @@ export function measureTextOverflow(root: HTMLElement): number {
     worst = Math.max(worst, overflowRatio(bottom, right, rootBox));
 
     for (let el = node.parentElement; el && el !== root; el = el.parentElement) {
-      if (!clipsOverflow(el)) continue;
+      if (!boundsText(el)) continue;
       let box = clipBoxes.get(el);
       if (!box) {
         box = el.getBoundingClientRect();
@@ -76,9 +77,18 @@ function overflowRatio(bottom: number, right: number, box: DOMRect): number {
   return Math.max(down, across);
 }
 
-/** Whether an element hides content that overflows it. */
-function clipsOverflow(el: Element): boolean {
+/**
+ * Whether an element bounds the text inside it: it hides overflow, or it draws
+ * a border — a bordered panel frames its text, so text past the border reads
+ * as broken even where nothing clips it.
+ */
+function boundsText(el: Element): boolean {
   const style = el.ownerDocument.defaultView?.getComputedStyle(el);
   if (!style) return false;
-  return /hidden|clip/.test(style.overflowY) || /hidden|clip/.test(style.overflowX);
+  if (/hidden|clip/.test(style.overflowY) || /hidden|clip/.test(style.overflowX)) return true;
+  const drawn = (width: string, line: string): boolean => parseFloat(width) > 0 && line !== 'none';
+  return (
+    drawn(style.borderTopWidth, style.borderTopStyle) &&
+    drawn(style.borderBottomWidth, style.borderBottomStyle)
+  );
 }

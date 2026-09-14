@@ -39,7 +39,7 @@
       <line x1="14" y1="120" x2="462" y2="120" stroke="rgba(255,255,255,0.22)" stroke-width="1" />
 
       <!-- hour ticks -->
-      @for (tick of hourTicks; track tick.hh) {
+      @for (tick of hourTicks(); track tick.hh) {
         <line
           [attr.x1]="tick.x"
           y1="116"

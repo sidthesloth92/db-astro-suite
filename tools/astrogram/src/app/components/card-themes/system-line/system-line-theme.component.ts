@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
+import { calculateTotalIntegration } from '../../../models/card-data.model';
+import { hourTicksFor } from '../../../utils/hour-ticks.util';
 import { spreadLabels } from '../../../utils/label-spread.util';
 import {
   SYSTEM_LINE_LABEL_GAP,
@@ -24,11 +26,17 @@ import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfie
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SystemLineThemeComponent extends CardThemeBaseDirective {
-  /** Hour graticule ticks along the ecliptic axis (0h–10h). */
-  protected readonly hourTicks = [0, 2, 4, 6, 8, 10].map((hh) => ({
-    hh,
-    x: 48 + ((hh * 60) / 620) * 400,
-  }));
+  /**
+   * Hour ticks along the axis, scaled to this card's total integration. The
+   * design hard-coded ticks for its 10h 20m sample, so any other total put
+   * planets and hour labels on different scales — a 14h 30m session still
+   * read 0h–10h with its last planet past the "10h" mark.
+   */
+  protected readonly hourTicks = computed(() => {
+    const totalHours = calculateTotalIntegration(this.cardData().filters) / 3600;
+    if (totalHours <= 0) return [];
+    return hourTicksFor(totalHours).map((hh) => ({ hh, x: 48 + (hh / totalHours) * 400 }));
+  });
 
   /** Planet geometry: one disc per filter, placed by cumulative share. */
   protected readonly planets = computed(() => {

@@ -1,9 +1,10 @@
 :host {
   display: flex;
   flex-wrap: wrap;
-  /* Matches the non-breaking space before each dot, so the separator sits
-     centred between its neighbours. */
-  column-gap: 0.3em;
+  /* Wider than the non-breaking space before each dot: themes letter-space
+     this text, which widens the space before the dot but not the flex gap
+     after it, so an equal gap read as "APO ·ZWO". */
+  column-gap: 0.55em;
   min-width: 0;
 }
 
