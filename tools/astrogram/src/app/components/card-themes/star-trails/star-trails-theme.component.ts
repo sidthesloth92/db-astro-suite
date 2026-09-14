@@ -1,5 +1,12 @@
 import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
+import { ringRadii } from '../../../utils/ring-radii.util';
+import {
+  STAR_TRAILS_INNER_RADIUS,
+  STAR_TRAILS_MIN_INNER_RADIUS,
+  STAR_TRAILS_OUTER_RADIUS,
+  STAR_TRAILS_RING_STEP,
+} from './star-trails.constants';
 import { ThemeGearLineComponent } from '../shared/theme-gear-line/theme-gear-line.component';
 import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfield.component';
 
@@ -31,10 +38,23 @@ export class StarTrailsThemeComponent extends CardThemeBaseDirective {
     return { r, dash: `${circ * frac} ${circ}`, rot: (i * 53) % 360 };
   });
 
-  /** Band trail arcs — radius by index, sweep by exposure share. */
-  protected readonly bands = computed(() =>
-    this.vm().integration.map((band, i) => {
-      const r = 96 + i * 34;
+  /**
+   * Band trail arcs — radius by index, sweep by exposure share. The design
+   * stepped each trail 34 units out from the last, which only fits three: a
+   * fourth ran past the chart's top edge and later bands were drawn outside
+   * the chart entirely. Radii now tighten to fit every band.
+   */
+  protected readonly bands = computed(() => {
+    const integration = this.vm().integration;
+    const radii = ringRadii(
+      integration.length,
+      STAR_TRAILS_INNER_RADIUS,
+      STAR_TRAILS_RING_STEP,
+      STAR_TRAILS_OUTER_RADIUS,
+      STAR_TRAILS_MIN_INNER_RADIUS,
+    );
+    return integration.map((band, i) => {
+      const r = radii[i];
       const circ = 2 * Math.PI * r;
       return {
         id: band.id,
@@ -44,8 +64,8 @@ export class StarTrailsThemeComponent extends CardThemeBaseDirective {
         r,
         dash: `${circ * band.pct * 0.88} ${circ}`,
       };
-    }),
-  );
+    });
+  });
 
   /** Total captured frames across every enabled band. */
   protected totalFrames(): number {

@@ -77,6 +77,9 @@
      have no more height than 3:4 does. */
   max-width: 476px;
   align-self: center;
+  /* May give way when a heavy card needs the height, rather than pushing the
+     caption onto the footer rule and the footer into the bottom padding. */
+  min-height: 0;
 }
 
 .st-polaris {
@@ -91,6 +94,17 @@
   justify-content: center;
   gap: 28px;
   margin-top: -26px;
+  /* A legend wider than the card wraps onto a second row, centred. */
+  flex-wrap: wrap;
+  row-gap: 14px;
+}
+
+/* Five or more bands: seven columns at the designed spacing ran wider than
+   the card and squeezed each one until "2h 42m" and "54 × 180s" broke over
+   two lines. Tighter columns keep them on one row where the card is wide
+   enough. */
+.st-root--dense .st-legend {
+  column-gap: 16px;
 }
 
 .st-legend-item {
@@ -114,12 +128,14 @@
   font: 600 14px/1 var(--st-grot);
   color: var(--st-txt);
   margin-top: 6px;
+  white-space: nowrap;
 }
 
 .st-legend-frames {
   font: 400 9px/1 var(--st-mono);
   color: var(--st-faint);
   margin-top: 5px;
+  white-space: nowrap;
 }
 
 /* ── Title + total ── */
@@ -151,6 +167,19 @@
 
 .st-spacer {
   flex: 1;
+  /* Never collapses to nothing: the frames caption sat on the footer rule
+     once a heavy card used up the free space. */
+  min-height: 14px;
+}
+
+/* 9:16 is 240px taller than 3:4 and all of that height pooled above the
+   footer, leaving a large empty band under the title. The header now takes
+   a third of it, its labels staying at the top, so the chart group sits lower
+   and the card reads balanced top to bottom. (Growing the chart's own box
+   instead left the trails floating well above the legend beneath.) */
+:host-context(.card.aspect-9-16) .st-header {
+  flex: 0.5 1 auto;
+  align-items: flex-start;
 }
 
 /* ── Footer ── */
@@ -254,6 +283,22 @@
   margin-top: 30px;
 }
 
+/* Five or more bands: in one row the legend ran past the right margin and
+   grew the card by a quarter, shrinking the counts and footer to ~9 export
+   px. The bands set in rows of four instead. */
+.st-root--landscape.st-root--dense .st-legend {
+  display: grid;
+  grid-template-columns: repeat(4, max-content);
+  gap: 14px 34px;
+  margin-top: 22px;
+}
+
+/* The second legend row used up the free rows around the title, which then
+   sat directly under the header; this keeps them apart. */
+.st-root--landscape.st-root--dense .st-title {
+  margin-top: 16px;
+}
+
 .st-root--landscape .st-legend-item {
   text-align: left;
 }
@@ -296,7 +341,7 @@
 
 .st-root--landscape .st-foot-row {
   flex-wrap: wrap;
-  gap: 6px 16px;
+  gap: 8px 16px;
   margin-top: 8px;
 }
 
@@ -310,18 +355,18 @@
 }
 
 /* A long handle or location used to run the two ends of this row into each
-   other. The row may wrap: the meta then drops to its own line, pushed to the
-   right edge, and a meta long enough to span the row reads left-aligned
-   rather than as a ragged right-aligned block under the handle. When both
-   fit, the spacer takes the free space as before. */
+   other. The row may wrap. On one line the spacer still pushes the meta to
+   the right edge; once it wraps, the meta starts at the left edge under the
+   handle. Pushed right by an auto margin instead, a wrapped meta sat indented
+   by whatever room was left over and lined up with nothing. */
 .st-foot-row {
   flex-wrap: wrap;
+  justify-content: space-between;
   column-gap: 16px;
-  row-gap: 6px;
+  row-gap: 8px;
 }
 
 .st-foot-row .st-foot-meta {
-  margin-left: auto;
   min-width: 0;
 }
 
