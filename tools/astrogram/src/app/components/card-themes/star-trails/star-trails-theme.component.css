@@ -186,3 +186,125 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
+
+/* ── Landscape (1.91:1) ──
+   The portrait column dropped into the wide frame left ~350px empty either
+   side of a narrow centre stack that was still over-packed vertically: the
+   trails shrank to about 300px with POLARIS near 5 export px, and the frames
+   caption sat on the footer rule. Here the trails fill a left column, the
+   header, title and legend stack beside them, and the footer runs the full
+   width beneath both. */
+.st-root--landscape {
+  display: grid;
+  grid-template-columns: 400px minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto auto minmax(0, 1fr) auto;
+  column-gap: 40px;
+}
+
+.st-root--landscape .st-header {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+/* Fills its grid area; the viewBox's `meet` fit keeps the trails round and
+   centred at whatever height the footer leaves. */
+.st-root--landscape .st-svg {
+  grid-column: 1;
+  grid-row: 1 / 6;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-width: none;
+  margin-top: 0;
+  align-self: stretch;
+}
+
+.st-root--landscape .st-polaris {
+  font-size: 11px;
+}
+
+/* Title first, then the legend it explains, reading down the column. */
+.st-root--landscape .st-title {
+  grid-column: 2;
+  grid-row: 3;
+  margin-top: 0;
+  text-align: left;
+}
+
+.st-root--landscape .st-kicker {
+  font-size: 11px;
+}
+
+.st-root--landscape .st-name {
+  font-size: 42px;
+  margin-top: 12px;
+}
+
+.st-root--landscape .st-sub {
+  font-size: 10.5px;
+  line-height: 1.3;
+  margin-top: 12px;
+}
+
+.st-root--landscape .st-legend {
+  grid-column: 2;
+  grid-row: 4;
+  justify-content: flex-start;
+  gap: 34px;
+  margin-top: 30px;
+}
+
+.st-root--landscape .st-legend-item {
+  text-align: left;
+}
+
+.st-root--landscape .st-legend-swatch {
+  width: 26px;
+  margin: 0;
+}
+
+.st-root--landscape .st-legend-id {
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+.st-root--landscape .st-legend-time {
+  font-size: 18px;
+  margin-top: 7px;
+  white-space: nowrap;
+}
+
+.st-root--landscape .st-legend-frames {
+  font-size: 11px;
+  margin-top: 6px;
+  white-space: nowrap;
+}
+
+.st-root--landscape .st-spacer {
+  display: none;
+}
+
+.st-root--landscape .st-footer {
+  grid-column: 1 / -1;
+  grid-row: 6;
+  margin-top: 14px;
+}
+
+.st-root--landscape .st-foot-gear {
+  font-size: 10.5px;
+}
+
+.st-root--landscape .st-foot-row {
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-top: 8px;
+}
+
+.st-root--landscape .st-foot-author {
+  font-size: 13px;
+}
+
+.st-root--landscape .st-foot-meta {
+  font-size: 10.5px;
+  line-height: 1.3;
+}
