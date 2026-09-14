@@ -183,6 +183,13 @@
   margin-top: 12px;
 }
 
+.obs-legend:has(> .obs-legend-item:nth-child(7)) {
+  /* Seven bands in three columns left the last alone on a third row, and
+     that row's height pushed the lower panels off short cards; four columns
+     hold them in two rows. */
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
 .obs-legend-item {
   display: flex;
   align-items: center;
@@ -334,7 +341,10 @@
 .obs-root--landscape .obs-inner {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  /* The hero row may not shrink below its content: squeezed, the hero's
+     centred text ran out over its own border and the panel above, instead of
+     the card growing to hold it. */
+  grid-template-rows: auto 1fr auto;
   grid-template-areas:
     'mast mast'
     'hero lower'
