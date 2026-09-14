@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
 import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfield.component';
 
@@ -11,7 +12,7 @@ import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfie
 @Component({
   selector: 'dba-ag-constellation-theme',
   standalone: true,
-  imports: [ThemeStarfieldComponent],
+  imports: [NgTemplateOutlet, ThemeStarfieldComponent],
   templateUrl: './constellation-theme.component.html',
   styleUrl: './constellation-theme.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

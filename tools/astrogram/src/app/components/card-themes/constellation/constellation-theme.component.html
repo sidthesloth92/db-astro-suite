@@ -96,7 +96,7 @@
 
   <!-- Lower legend panel -->
   <div class="con-legend">
-    @if (data.caption) {
+    @if (data.caption && !isLandscapeFormat()) {
       <div class="con-caption">{{ data.caption }}</div>
     }
     <div class="con-cols">
@@ -117,11 +117,30 @@
             <span class="con-row-value">{{ item.value }}</span>
           </div>
         }
-        <div class="con-total-row">
-          <span class="con-total">Total {{ data.total }}</span>
-          <span class="con-sky">Bortle {{ data.bortle }} · {{ data.location }} · {{ data.author }}</span>
-        </div>
+        @if (!isLandscapeFormat()) {
+          <ng-container [ngTemplateOutlet]="totalRow" />
+        }
       </div>
     </div>
   </div>
+
+  <!-- Landscape chart note: the caption and total set under the chart, which
+       leaves the right-hand column to the name plate and the two lists. -->
+  @if (isLandscapeFormat()) {
+    <div class="con-note">
+      @if (data.caption) {
+        <div class="con-caption">{{ data.caption }}</div>
+      }
+      <ng-container [ngTemplateOutlet]="totalRow" />
+    </div>
+  }
 </div>
+
+<ng-template #totalRow>
+  <div class="con-total-row">
+    <span class="con-total">Total {{ data.total }}</span>
+    <!-- Each separator is glued to the item after it, so a wrapping line
+         never ends on a dangling "·". -->
+    <span class="con-sky">Bortle {{ data.bortle }} ·&nbsp;{{ data.location }} ·&nbsp;{{ data.author }}</span>
+  </div>
+</ng-template>
