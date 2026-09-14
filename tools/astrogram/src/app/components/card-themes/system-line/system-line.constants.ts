@@ -40,3 +40,18 @@ export const SYSTEM_LINE_LABEL_ROW_BELOW: readonly [number, number, number] = [1
  * above the axis — clear of the tick over even the largest planet (radius 37).
  */
 export const SYSTEM_LINE_LABEL_ROW_ABOVE: readonly [number, number, number] = [30, 52, 69];
+
+/** Halo drawn around each planet beyond its disc, where neighbours leave room for it. */
+export const SYSTEM_LINE_GLOW_WIDTH = 6;
+
+/** Distance a label may sit from its planet before a leader line ties the two together. */
+export const SYSTEM_LINE_LEADER_MIN_OFFSET = 4;
+
+/** Space between a planet's halo (or tick) and the start of its leader line. */
+export const SYSTEM_LINE_LEADER_GAP = 2;
+
+/** Where a leader to the row under the axis bends and ends: below the hour labels, above the band id. */
+export const SYSTEM_LINE_LEADER_BELOW: readonly [number, number] = [150, 164];
+
+/** Where a leader to the row above the axis bends and ends: just under the frames line. */
+export const SYSTEM_LINE_LEADER_ABOVE: readonly [number, number] = [92, 77];

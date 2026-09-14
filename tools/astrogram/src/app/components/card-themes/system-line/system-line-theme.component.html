@@ -85,6 +85,13 @@
         }
       }
 
+      <!-- leaders from crowded planets to labels that moved off them -->
+      @for (p of planets(); track p.id; let i = $index) {
+        @if (labels()[i].leader; as points) {
+          <polyline [attr.points]="points" fill="none" [attr.stroke]="p.color" stroke-width="1" opacity="0.75" />
+        }
+      }
+
       <!-- band labels -->
       @for (p of planets(); track p.id; let i = $index) {
         <text [attr.x]="labels()[i].x" [attr.y]="labels()[i].idY" text-anchor="middle" [attr.fill]="p.color" class="sl-band-id">
