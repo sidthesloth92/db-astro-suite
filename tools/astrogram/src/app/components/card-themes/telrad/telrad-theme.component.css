@@ -204,10 +204,17 @@
   color: var(--tr-red2);
   letter-spacing: -0.01em;
   margin-top: 6px;
+  /* One duration, one line: beside a long name it wrapped to "14h" over
+     "30m". The name takes the narrower share instead. */
+  white-space: nowrap;
 }
 
 .tr-spacer {
   flex: 1;
+  /* Never collapses to nothing: with a two-line name and a full footer the
+     free space ran out, and the descender of the name's last line (drawn below
+     its 1.05 line box) crossed the footer rule. The reticle gives way instead. */
+  min-height: 14px;
 }
 
 /* ── Footer ── */
@@ -238,10 +245,26 @@
 }
 
 .tr-foot-meta {
-  font: 500 9.5px/1 var(--tr-mono);
+  /* Room between lines once the meta wraps; no taller than the 12px handle
+     beside it, so a one-line row keeps its height. */
+  font: 500 9.5px/1.25 var(--tr-mono);
   color: var(--tr-faint);
   letter-spacing: 0.12em;
   text-transform: uppercase;
+}
+
+/* Date, place and Bortle class are separate units, each carrying the dot that
+   follows it. A meta too long for its line breaks between them, never inside
+   "Bortle 9", after a lone dot, or before one; a place too long for a whole
+   line still wraps within itself. */
+.tr-foot-meta-item {
+  display: inline-block;
+}
+
+/* Five or more bands: tighter rows hand the reticle back the height seven
+   full-size rows took from it. */
+.tr-root--dense .tr-row {
+  padding: 6px 0;
 }
 
 .tr-row-frames {
@@ -289,6 +312,9 @@
 
 .tr-root--landscape .tr-ring-label {
   font-size: 11px;
+  /* The faint red all but vanished against the reticle's glow in a 566px-tall
+     image; the dim red still reads as secondary to the rings. */
+  fill: var(--tr-dim);
 }
 
 .tr-root--landscape .tr-readout {
@@ -332,6 +358,33 @@
   width: 64px;
   font-size: 12px;
   white-space: nowrap;
+}
+
+/* Five or more bands: with each bar on its own line beneath, seven rows
+   overfilled the column and the card grew by a third to hold them, leaving
+   the ring labels at ~7 and the footer at ~8 export px. The bar returns
+   inline between the ring and the times, so each band takes one line. */
+.tr-root--landscape.tr-root--dense .tr-row {
+  flex-wrap: nowrap;
+  gap: 12px;
+  padding: 6px 0;
+}
+
+.tr-root--landscape.tr-root--dense .tr-row-ring {
+  flex: none;
+  /* Wide enough for "RING 0.5°", so every bar starts in one column. */
+  width: 6.6em;
+}
+
+.tr-root--landscape.tr-root--dense .tr-row-bar {
+  order: 0;
+  flex: 1;
+  min-width: 32px;
+}
+
+/* A common width for the times so the bars end in one column. */
+.tr-root--landscape.tr-root--dense .tr-row-time {
+  min-width: 3.6em;
 }
 
 /* The spacer's own gap pushed a one-line name onto two lines in the narrower
@@ -380,7 +433,7 @@
 
 .tr-root--landscape .tr-foot-row {
   flex-wrap: wrap;
-  gap: 6px 16px;
+  gap: 8px 16px;
   margin-top: 8px;
 }
 
@@ -394,18 +447,18 @@
 }
 
 /* A long handle or location used to run the two ends of this row into each
-   other. The row may wrap: the meta then drops to its own line, pushed to the
-   right edge, and a meta long enough to span the row reads left-aligned
-   rather than as a ragged right-aligned block under the handle. When both
-   fit, the spacer takes the free space as before. */
+   other. The row may wrap. On one line the spacer still pushes the meta to
+   the right edge; once it wraps, the meta starts at the left edge under the
+   handle. Pushed right by an auto margin instead, a wrapped meta sat indented
+   by whatever room was left over and lined up with nothing. */
 .tr-foot-row {
   flex-wrap: wrap;
+  justify-content: space-between;
   column-gap: 16px;
-  row-gap: 6px;
+  row-gap: 8px;
 }
 
 .tr-foot-row .tr-foot-meta {
-  margin-left: auto;
   min-width: 0;
 }
 

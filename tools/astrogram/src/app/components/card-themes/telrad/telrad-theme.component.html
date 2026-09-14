@@ -1,6 +1,6 @@
 @let data = vm();
 
-<div class="tr-root" [class.tr-root--landscape]="isLandscapeFormat()">
+<div class="tr-root" [class.tr-root--landscape]="isLandscapeFormat()" [class.tr-root--dense]="rows().length > 4">
   <dba-ag-theme-starfield [density]="90" [opacity]="0.3" color="#FF7A66" [seed]="25" />
 
   <!-- Header -->
@@ -81,7 +81,7 @@
     <div class="tr-foot-row">
       <span class="tr-foot-author">{{ data.author }}</span>
       <span class="tr-foot-spacer"></span>
-      <span class="tr-foot-meta">{{ data.dateShort }} · {{ data.location }} · Bortle {{ data.bortle }}</span>
+      <span class="tr-foot-meta"><span class="tr-foot-meta-item">{{ data.dateShort }}&nbsp;·</span>&ngsp;<span class="tr-foot-meta-item">{{ data.location }}&nbsp;·</span>&ngsp;<span class="tr-foot-meta-item">Bortle {{ data.bortle }}</span></span>
     </div>
   </div>
 </div>
