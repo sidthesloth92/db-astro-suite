@@ -55,7 +55,9 @@ export class OrreryThemeComponent extends CardThemeBaseDirective {
         Math.abs(x - this.cx) < this.sunLabelHalfWidth + this.planetLabelWidth / 2 &&
         below < this.cy + this.sunLabelHalfHeight &&
         below + this.planetLabelHeight > this.cy - this.sunLabelHalfHeight;
-      const labelTop = hitsSun ? y - pr - 6 - this.planetLabelHeight : below;
+      // An above label is pinned by its bottom edge (see `.orr-planet-label--above`),
+      // so larger landscape type grows it away from the planet, not onto it.
+      const labelTop = hitsSun ? y - pr - 6 : below;
       return {
         band,
         rx,
@@ -64,6 +66,7 @@ export class OrreryThemeComponent extends CardThemeBaseDirective {
         y,
         pr,
         haloR: pr + 5,
+        isLabelAbove: hitsSun,
         labelTopPct: ((this.orbitTop + labelTop) / 720) * 100,
         labelLeftPct: (x / 540) * 100,
       };

@@ -102,11 +102,18 @@
   z-index: 2;
   transform: translateX(-50%);
   text-align: center;
-  /* A soft halo in the backdrop colour, so an orbit passing behind a label
-     reads as passing behind it rather than striking through the text. */
-  text-shadow:
-    0 0 3px #080611,
-    0 0 6px #080611;
+  /* A backing in the backdrop colour, so an orbit passing behind a caption
+     reads as passing behind it — a text halo alone still let seven coloured
+     orbits strike through the figures. */
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: rgba(8, 6, 17, 0.78);
+}
+
+/* Captions moved above their planet hang from their top value, so the
+   caption's own height — larger on landscape — never lands on the planet. */
+.orr-planet-label--above {
+  transform: translate(-50%, -100%);
 }
 
 .orr-planet-id {
@@ -253,7 +260,9 @@
    y 150-385 of its artboard — sits in a band across the top ~40%, and the
    title and footer get the rest at a larger, readable size. */
 .orr-root--landscape .orr-art {
-  top: -20%;
+  /* Low enough that a caption hung above a planet near the top of the
+     orbits stays on the card even when heavy data grows the canvas. */
+  top: -17%;
   left: 50%;
   width: auto;
   height: 110%;
@@ -264,7 +273,7 @@
 /* Low enough that a planet's label at the bottom of its orbit clears the
    designation above the title. */
 .orr-root--landscape .orr-lower {
-  top: 42%;
+  top: 48%;
 }
 
 .orr-root--landscape .orr-planet-id {

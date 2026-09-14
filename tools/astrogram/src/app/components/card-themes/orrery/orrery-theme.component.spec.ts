@@ -50,7 +50,9 @@ describe('OrreryThemeComponent', () => {
     const sunTop = 252 - 26;
     const sunBottom = 252 + 26;
     for (const label of labels) {
-      const top = (parseFloat(label.style.top) / 100) * 720;
+      // A caption above its planet hangs from its top value.
+      const anchor = (parseFloat(label.style.top) / 100) * 720;
+      const top = label.classList.contains('orr-planet-label--above') ? anchor - 38 : anchor;
       const x = (parseFloat(label.style.left) / 100) * 540;
       const overlapsX = Math.abs(x - 270) < 55 + 32;
       const overlapsY = top < sunBottom && top + 38 > sunTop;
