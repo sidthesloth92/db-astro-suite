@@ -50,10 +50,19 @@
 }
 
 .obs-inner {
-  position: relative;
+  /* The margins are the box's inset, not padding, and the box clips: text
+     that outgrows it then counts as overflow for the content fit. As padding,
+     a full rig pushed the bottom panels to within a few pixels of the card
+     edge while still technically inside the card. The bottom inset also
+     holds the bottom panels' padding and border (15px), which the panels
+     hang into through a negative margin (see .obs-lower): the fit measures
+     only text, so their last line has to meet the box's edge for the gutter
+     under the panel to count. The clip margin lets that chrome paint. */
+  position: absolute;
+  inset: 22px 22px 37px;
+  overflow: clip;
+  overflow-clip-margin: 16px;
   z-index: 1;
-  height: 100%;
-  padding: 22px;
   display: flex;
   flex-direction: column;
   /* Spare height goes between the sections, not inside the bottom panels:
@@ -225,6 +234,8 @@
   display: grid;
   grid-template-columns: 1.1fr 1fr;
   gap: 12px;
+  /* Hangs its panels' bottom padding and border below the content box. */
+  margin-bottom: -15px;
 }
 
 .obs-apparatus,
@@ -274,8 +285,10 @@
   font: 500 11px/1.25 var(--obs-sans);
   color: var(--obs-txt);
   margin-top: 2px;
-  /* Wraps rather than ellipsing, so a long piece of kit is never cut short. */
+  /* Wraps rather than ellipsing, so a long piece of kit is never cut short;
+     balanced, so a wrap never leaves a lone "Gen 2" on the second line. */
   overflow-wrap: break-word;
+  text-wrap: balance;
 }
 
 .obs-stack {
@@ -350,7 +363,7 @@
     'hero lower'
     'int lower';
   gap: 14px 16px;
-  padding: 24px 28px 26px;
+  inset: 24px 28px 41px;
 }
 
 .obs-root--landscape .obs-masthead {
@@ -370,28 +383,28 @@
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  padding: 22px 24px;
+  padding: 18px 24px;
 }
 
 .obs-root--landscape .obs-name {
   font-size: 46px;
-  line-height: 1.05;
+  line-height: 1;
   margin-top: 0;
 }
 
 .obs-root--landscape .obs-hairline {
-  margin-top: 14px;
+  margin-top: 10px;
 }
 
 .obs-root--landscape .obs-caption {
   font-size: 13.5px;
   max-width: none;
-  margin-top: 14px;
+  margin-top: 10px;
 }
 
 .obs-root--landscape .obs-meta {
-  gap: 8px 18px;
-  margin-top: 16px;
+  gap: 4px 18px;
+  margin-top: 12px;
 }
 
 .obs-root--landscape .obs-chip {
@@ -401,13 +414,20 @@
 
 .obs-root--landscape .obs-integration {
   grid-area: int;
-  padding: 16px 20px 18px;
+  padding: 14px 20px 16px;
+  margin-bottom: -15px;
 }
 
 /* A longer total drops below the label instead of running into it. */
 .obs-root--landscape .obs-int-head {
   flex-wrap: wrap;
   gap: 6px 16px;
+  margin-bottom: 10px;
+}
+
+.obs-root--landscape .obs-legend {
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .obs-root--landscape .obs-int-label,
@@ -449,7 +469,7 @@
 
 .obs-root--landscape .obs-apparatus,
 .obs-root--landscape .obs-pipeline {
-  gap: 8px;
+  gap: 6px;
   padding: 14px 18px;
 }
 
@@ -459,7 +479,7 @@
 }
 
 .obs-root--landscape .obs-pipeline {
-  flex: 1.6 1 0;
+  flex: 2 1 0;
   min-width: 0;
 }
 
@@ -475,11 +495,29 @@
   color: #7d869c;
 }
 
+/* Apparatus and pipeline read as a spec sheet — label column, value beside
+   it — without the row icons. Stacked label-over-value with icons, a full
+   rig (7 gear, 4 software) needed a quarter more height than the card has,
+   and the fit shrank every label in the export below 10px. */
+.obs-root--landscape .obs-gear-icon {
+  display: none;
+}
+
+.obs-root--landscape .obs-gear-text {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr);
+  column-gap: 12px;
+  align-items: baseline;
+}
+
 .obs-root--landscape .obs-gear-label {
-  font-size: 10px;
+  font-size: 10.5px;
+  line-height: 1.25;
+  letter-spacing: 0.12em;
 }
 
 .obs-root--landscape .obs-gear-value {
+  margin-top: 0;
   font-size: 13px;
 }
 
