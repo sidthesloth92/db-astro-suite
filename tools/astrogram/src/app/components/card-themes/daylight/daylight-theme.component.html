@@ -125,14 +125,33 @@
     <div class="day-bands">
       <div class="day-band-bar">
         @for (band of data.integration; track band.id) {
-          <div class="day-band-seg" [style.width.%]="band.pct * 100" [style.background]="band.color"></div>
+          <div
+            class="day-band-seg"
+            [class.day-light-swatch]="isLightBand(band.color)"
+            [style.width.%]="band.pct * 100"
+            [style.background]="band.color"
+          ></div>
         }
       </div>
       <div class="day-legend">
-        @for (band of data.integration; track band.id) {
+        <!-- A long legend splits into balanced rows (four and three) instead of
+             leaving the last band alone on the second row. -->
+        @for (band of data.integration; track band.id; let i = $index) {
+          @if (i > 0 && i === bandBreak()) {
+            <span class="day-legend-break"></span>
+          }
           <span class="day-legend-item">
-            <span class="day-legend-dot" [style.background]="band.color"></span>
-            <span class="day-legend-id" [style.color]="band.color">{{ band.id }}</span>
+            <span
+              class="day-legend-dot"
+              [class.day-light-swatch]="isLightBand(band.color)"
+              [style.background]="band.color"
+            ></span>
+            <span
+              class="day-legend-id"
+              [class.day-legend-id--light]="isLightBand(band.color)"
+              [style.color]="isLightBand(band.color) ? null : band.color"
+              >{{ band.id }}</span
+            >
             <span class="day-legend-time">{{ band.time }}</span>
           </span>
         }
@@ -150,7 +169,7 @@
     <div class="day-footer">
       <span class="day-author">{{ data.author }}</span>
       <span class="day-footer-spacer"></span>
-      <span class="day-location">{{ data.location }}</span>
+      <span class="day-location">{{ footerLocation() }}</span>
     </div>
   </div>
 </div>

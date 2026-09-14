@@ -1,5 +1,8 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
+import { keepPlaceNamesTogether } from '../../../utils/keep-together.util';
+import { bandRowBreak } from '../../../utils/band-rows.util';
+import { isLightColor } from '../../../utils/light-color.util';
 
 /**
  * Daylight theme — a light ink share card on near-white paper with a magenta
@@ -77,5 +80,20 @@ export class DaylightThemeComponent extends CardThemeBaseDirective {
   /** Total frame count across the enabled bands (design `lFrames`). */
   protected totalFrames(): number {
     return this.vm().integration.reduce((sum, band) => sum + (parseInt(band.frames, 10) || 0), 0);
+  }
+
+  /** Whether a band colour (a white luminance band) would vanish on the paper. */
+  protected isLightBand(color: string): boolean {
+    return isLightColor(color);
+  }
+
+  /** Bands on the first legend row when the legend splits in two (0 = one row). */
+  protected bandBreak(): number {
+    return bandRowBreak(this.vm().integration.length);
+  }
+
+  /** Footer location, wrapping only between its comma-separated parts. */
+  protected footerLocation(): string {
+    return keepPlaceNamesTogether(this.vm().location);
   }
 }

@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DaylightThemeComponent } from './daylight-theme.component';
+import { CardDataService } from '../../../services/card-data.service';
 
 describe('DaylightThemeComponent', () => {
   let fixture: ComponentFixture<DaylightThemeComponent>;
@@ -53,5 +54,52 @@ describe('DaylightThemeComponent', () => {
     expect(chips.length).toBe(5);
     expect(host.querySelector('.day-author')?.textContent).toContain('@astrogram');
     expect(host.querySelector('.day-location')?.textContent).toContain('Irving, Texas');
+  });
+
+  it('should give a white luminance band an ink label and outlined swatches on the paper', () => {
+    TestBed.inject(CardDataService).cardData.update((d) => ({
+      ...d,
+      filters: d.filters.map((f) => ({ ...f, enabled: true })),
+    }));
+    fixture.detectChanges();
+
+    const ids = Array.from(host.querySelectorAll<HTMLElement>('.day-legend-id'));
+    const luminance = ids.find((el) => el.textContent?.trim() === 'L');
+    const alpha = ids.find((el) => el.textContent?.trim() === 'Hα');
+
+    expect(luminance?.classList).toContain('day-legend-id--light');
+    expect(luminance?.style.color).toBe('');
+    expect(alpha?.style.color).toBe('rgb(229, 68, 109)');
+    // One outlined bar segment and one outlined legend dot, both for L.
+    expect(host.querySelectorAll('.day-light-swatch').length).toBe(2);
+  });
+
+  it('should keep each place name in the footer location whole', () => {
+    TestBed.inject(CardDataService).cardData.update((d) => ({
+      ...d,
+      location: 'Mount Laguna Observatory, San Diego County',
+    }));
+    fixture.detectChanges();
+
+    expect(host.querySelector('.day-location')?.textContent).toBe(
+      'Mount\u00a0Laguna\u00a0Observatory, San\u00a0Diego\u00a0County',
+    );
+  });
+
+  it('should split a seven-band legend into rows of four and three', () => {
+    TestBed.inject(CardDataService).cardData.update((d) => ({
+      ...d,
+      filters: d.filters.map((f) => ({ ...f, enabled: true })),
+    }));
+    fixture.detectChanges();
+
+    const legend = Array.from(host.querySelector('.day-legend')?.children ?? []);
+
+    expect(legend.length).toBe(8);
+    expect(legend[4].classList).toContain('day-legend-break');
+  });
+
+  it('should keep a short legend on one row', () => {
+    expect(host.querySelector('.day-legend-break')).toBeNull();
   });
 });

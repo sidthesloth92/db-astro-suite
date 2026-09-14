@@ -195,16 +195,33 @@
   height: 100%;
 }
 
+/* Seven bands do not fit one row: items flow onto a second row whole,
+   rather than squeezing each duration onto two lines ("2h / 42m") and
+   pushing the last one past the margin. */
 .day-legend {
   display: flex;
-  gap: 18px;
+  flex-wrap: wrap;
+  gap: 4px 18px;
   margin-top: 10px;
+}
+
+/* Zero-height full-width item that starts the second row; with the row gap
+   on either side it leaves 8px between the rows. */
+.day-legend-break {
+  flex-basis: 100%;
+  height: 0;
+}
+
+/* The square card holds every band on one row. */
+:host-context(.card.aspect-1-1) .day-legend-break {
+  display: none;
 }
 
 .day-legend-item {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  white-space: nowrap;
 }
 
 .day-legend-dot {
@@ -220,6 +237,16 @@
 
 .day-legend-time {
   font: 500 12px/1 var(--day-body);
+  color: var(--day-ink);
+}
+
+/* A white band (luminance) disappears into the paper: its bar segment and
+   dot get an ink hairline and its id is set in ink, other bands unchanged. */
+.day-light-swatch {
+  box-shadow: inset 0 0 0 1px rgba(16, 20, 31, 0.5);
+}
+
+.day-legend-id--light {
   color: var(--day-ink);
 }
 
@@ -255,8 +282,11 @@
   flex: 1;
 }
 
+/* Leading for a location that wraps; the 6px it adds (whole pixels, so the
+   text keeps its pixel row) is taken back by the margins on one line. */
 .day-location {
-  font: 500 10px/1 var(--day-mono);
+  font: 500 10px/16px var(--day-mono);
+  margin: -3px 0;
   color: var(--day-faint);
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -321,7 +351,12 @@
 }
 
 .day-root--landscape .day-legend {
-  gap: 22px;
+  gap: 4px 22px;
+}
+
+/* The full-width landscape legend holds every band on one row. */
+.day-root--landscape .day-legend-break {
+  display: none;
 }
 
 /* Baseline-aligned so the mono band id and the Outfit duration share a line;
@@ -353,6 +388,7 @@
 
 .day-root--landscape .day-location {
   font-size: 11px;
+  line-height: 17px;
 }
 
 .day-root--landscape .day-constellation {
@@ -370,18 +406,18 @@
 }
 
 /* A long handle or location used to run the two ends of this row into each
-   other. The row may wrap: the meta then drops to its own line, pushed to the
-   right edge, and a meta long enough to span the row reads left-aligned
-   rather than as a ragged right-aligned block under the handle. When both
-   fit, the spacer takes the free space as before. */
+   other. The row may wrap: the location then starts its own line at the left
+   edge, under the handle, instead of hanging right-aligned from nowhere. When
+   both fit, the spacer takes the free space and the location stays at the
+   right. */
 .day-footer {
+  justify-content: space-between;
   flex-wrap: wrap;
   column-gap: 16px;
-  row-gap: 6px;
+  row-gap: 8px;
 }
 
 .day-footer .day-location {
-  margin-left: auto;
   min-width: 0;
 }
 
