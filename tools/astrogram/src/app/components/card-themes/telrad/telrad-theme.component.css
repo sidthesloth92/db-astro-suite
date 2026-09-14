@@ -248,17 +248,12 @@
   /* Room between lines once the meta wraps; no taller than the 12px handle
      beside it, so a one-line row keeps its height. */
   font: 500 9.5px/1.25 var(--tr-mono);
-  color: var(--tr-faint);
+  /* The faint red of the ring labels read as barely there at footer size,
+     dark red on near-black; a step toward the dim red keeps it secondary to
+     the gear line above but legible. */
+  color: #a8554b;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-}
-
-/* Date, place and Bortle class are separate units, each carrying the dot that
-   follows it. A meta too long for its line breaks between them, never inside
-   "Bortle 9", after a lone dot, or before one; a place too long for a whole
-   line still wraps within itself. */
-.tr-foot-meta-item {
-  display: inline-block;
 }
 
 /* Five or more bands: tighter rows hand the reticle back the height seven
@@ -292,6 +287,9 @@
 .tr-root--landscape .tr-header {
   grid-column: 2;
   grid-row: 1;
+  /* The free rows around the readout collapse once seven bands fill the
+     column, which left the header sitting on the first band row. */
+  margin-bottom: 12px;
 }
 
 .tr-root--landscape .tr-status {
@@ -367,7 +365,8 @@
 .tr-root--landscape.tr-root--dense .tr-row {
   flex-wrap: nowrap;
   gap: 12px;
-  padding: 6px 0;
+  /* 5px rather than 6px pays back most of the header's gap above. */
+  padding: 5px 0;
 }
 
 .tr-root--landscape.tr-root--dense .tr-row-ring {

@@ -2,6 +2,8 @@ import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
 import { ThemeGearLineComponent } from '../shared/theme-gear-line/theme-gear-line.component';
 import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfield.component';
+import { keepPlaceNamesTogether, keepWordsTogether } from '../../../utils/keep-together.util';
+import { joinMetaItems } from '../../../utils/meta-join.util';
 
 /**
  * Telrad theme — a red-light finder reticle in night-vision mode. Filters are
@@ -98,6 +100,20 @@ export class TelradThemeComponent extends CardThemeBaseDirective {
       ringLabel: this.ringLabel(i),
     })),
   );
+
+  /**
+   * Footer meta line: date, place and Bortle class. Each item stays whole and
+   * a wrap breaks only before a dot, with "Bortle 9" held to the place before
+   * it. Wrapping between whole items instead left "Sep 13, 2026 ·" alone on a
+   * line above a long place, or "Bortle 9" alone below it.
+   */
+  protected readonly footMeta = computed(() => {
+    const data = this.vm();
+    return joinMetaItems(
+      [keepWordsTogether(data.dateShort), keepPlaceNamesTogether(data.location), keepWordsTogether(`Bortle ${data.bortle}`)],
+      true,
+    );
+  });
 
   /** Degree label for the ring a band sits on (`0.5°` / `2°` / `4°`). */
   private ringLabel(index: number): string {
