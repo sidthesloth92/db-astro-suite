@@ -261,3 +261,110 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
+
+/* ── Landscape (1.91:1) ──
+   The portrait 2×2 stats stretched across the wide card left each cell mostly
+   empty, while the labels, chips and footer exported at 9-10px, the legend's
+   mono ids sat higher than their Outfit durations, and the spike landed on
+   the location. Landscape runs the four stats as one row under the title, so
+   the saved height goes into larger type throughout, and moves the
+   constellation and spike into the open space beside the title. */
+.day-root--landscape .day-inner {
+  padding: 30px 36px 28px;
+}
+
+.day-root--landscape .day-kicker,
+.day-root--landscape .day-date {
+  font-size: 11px;
+}
+
+.day-root--landscape .day-object {
+  margin-top: 22px;
+}
+
+.day-root--landscape .day-name {
+  font-size: 56px;
+  margin-top: 0;
+}
+
+.day-root--landscape .day-caption {
+  font-size: 14px;
+  max-width: 600px;
+  margin-top: 10px;
+}
+
+.day-root--landscape .day-stats {
+  grid-template-columns: 1.3fr 1fr 1fr 1fr;
+  column-gap: 26px;
+}
+
+.day-root--landscape .day-stat-cell--br {
+  border-bottom: none;
+}
+
+.day-root--landscape .day-stat-cell:nth-child(n + 2) {
+  border-left: 1px solid var(--day-rule);
+  padding-left: 26px;
+}
+
+.day-root--landscape .day-stat-k {
+  font-size: 10.5px;
+}
+
+.day-root--landscape .day-stat-v {
+  font-size: 50px;
+  white-space: nowrap;
+}
+
+.day-root--landscape .day-stat-sub {
+  font-size: 11px;
+}
+
+.day-root--landscape .day-legend {
+  gap: 22px;
+}
+
+/* Baseline-aligned so the mono band id and the Outfit duration share a line;
+   centring their boxes put the id a few pixels high. */
+.day-root--landscape .day-legend-item {
+  align-items: baseline;
+}
+
+.day-root--landscape .day-legend-dot {
+  align-self: center;
+}
+
+.day-root--landscape .day-legend-id {
+  font-size: 12px;
+}
+
+.day-root--landscape .day-legend-time {
+  font-size: 13px;
+}
+
+.day-root--landscape .day-chip {
+  font-size: 12px;
+  padding: 7px 12px;
+}
+
+.day-root--landscape .day-author {
+  font-size: 14px;
+}
+
+.day-root--landscape .day-location {
+  font-size: 11px;
+}
+
+.day-root--landscape .day-constellation {
+  top: 44px;
+  right: 64px;
+  width: 190px;
+  height: 130px;
+}
+
+/* The spike keeps to the right gutter, in the gap between legend and chips. */
+.day-root--landscape .day-spike {
+  top: auto;
+  bottom: 112px;
+  right: 40px;
+}

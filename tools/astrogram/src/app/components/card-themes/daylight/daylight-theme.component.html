@@ -1,6 +1,6 @@
 @let data = vm();
 
-<div class="day-root">
+<div class="day-root" [class.day-root--landscape]="isLandscapeFormat()">
   <!-- Graticule -->
   <svg class="day-graticule" viewBox="0 0 300 300" aria-hidden="true">
     @for (r of graticuleArcs; track r) {

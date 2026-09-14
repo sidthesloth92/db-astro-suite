@@ -298,7 +298,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Daylight',
     subtitle: 'Light · ink share card',
     component: DaylightThemeComponent,
-    landscapeBasisHeight: 560,
+    landscapeBasisHeight: 520,
     accents: {
       accentColor: '#D6187B',
       accentColorRgb: '214, 24, 123',
