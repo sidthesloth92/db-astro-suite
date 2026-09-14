@@ -1,6 +1,6 @@
 @let data = vm();
 
-<div class="sps-root">
+<div class="sps-root" [class.sps-root--landscape]="isLandscapeFormat()">
   <dba-ag-theme-starfield [density]="70" [opacity]="0.35" color="#ffffff" [seed]="1" />
 
   <svg class="sps-graticule" width="280" height="280" viewBox="0 0 300 300" aria-hidden="true">

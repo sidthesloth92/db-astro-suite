@@ -235,3 +235,161 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
+
+/* ── Landscape (1.91:1) ──
+   The portrait stack squeezed into the format's height ran the caption onto
+   the stats grid's top rule, wedged the legend between the band bar and the
+   chips, and left each full-width stat cell mostly empty, with labels
+   exporting at 7-8px. Landscape splits the card: the title and caption over
+   the band bar on the left, the 2×2 stats on the right, and the gear chips
+   and author row across the foot. */
+.sps-root--landscape {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  grid-template-rows: auto auto 1fr auto auto;
+  grid-template-areas:
+    'brand brand'
+    'object stats'
+    'band stats'
+    'chips chips'
+    'author author';
+  column-gap: 48px;
+  padding: 30px 36px 28px;
+}
+
+.sps-root--landscape .sps-grow-v {
+  display: none;
+}
+
+.sps-root--landscape .sps-brand {
+  grid-area: brand;
+}
+
+.sps-root--landscape .sps-kicker,
+.sps-root--landscape .sps-date {
+  font-size: 11px;
+}
+
+.sps-root--landscape .sps-object {
+  grid-area: object;
+  margin-top: 26px;
+}
+
+/* Sized for the left column's height rather than one line: a two-word name
+   stacks, a long one wraps into the space above the band bar. */
+.sps-root--landscape .sps-name {
+  font-size: 64px;
+  line-height: 0.98;
+  margin-top: 0;
+}
+
+.sps-root--landscape .sps-caption {
+  font-size: 14px;
+  max-width: none;
+  margin-top: 14px;
+}
+
+/* The wider left-hand cells hold the integration time and palette, the
+   longest values; frames and Bortle are a few digits. */
+.sps-root--landscape .sps-stats {
+  grid-area: stats;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  grid-template-rows: 1fr 1fr;
+  column-gap: 26px;
+  margin-top: 26px;
+}
+
+/* The stats share the column's height evenly; each stat sits centred in its
+   cell rather than leaving the slack under the value. */
+.sps-root--landscape .sps-cell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.sps-root--landscape .sps-cell-tr,
+.sps-root--landscape .sps-cell-br {
+  padding-left: 26px;
+}
+
+.sps-root--landscape .sps-stat {
+  padding: 18px 0 16px;
+}
+
+.sps-root--landscape .sps-stat-k {
+  font-size: 10.5px;
+}
+
+.sps-root--landscape .sps-stat-v {
+  font-size: 50px;
+  white-space: nowrap;
+  margin-top: 12px;
+}
+
+.sps-root--landscape .sps-stat-sub {
+  font-size: 11px;
+}
+
+/* The band bar closes the left column level with the foot of the stats. */
+.sps-root--landscape .sps-band {
+  grid-area: band;
+  align-self: end;
+  margin: 20px 0 14px;
+}
+
+/* The constellation moves off the stats into the open stretch of the left
+   column, between the caption and the band bar. */
+.sps-root--landscape .sps-constellation {
+  top: 272px;
+  right: auto;
+  left: 280px;
+  width: 130px;
+  height: 90px;
+}
+
+.sps-root--landscape .sps-legend {
+  gap: 22px;
+  margin-top: 12px;
+}
+
+/* Baseline-aligned so the mono band id and the Outfit duration share a line;
+   centring their boxes put the id a few pixels high. */
+.sps-root--landscape .sps-legend-item {
+  align-items: baseline;
+}
+
+.sps-root--landscape .sps-legend-dot {
+  align-self: center;
+}
+
+.sps-root--landscape .sps-legend-id {
+  font-size: 12px;
+}
+
+.sps-root--landscape .sps-legend-time {
+  font-size: 13px;
+}
+
+.sps-root--landscape .sps-chips {
+  grid-area: chips;
+  gap: 7px;
+  margin-top: 22px;
+}
+
+.sps-root--landscape .sps-chip {
+  font-size: 12px;
+  padding: 7px 12px;
+}
+
+.sps-root--landscape .sps-author-row {
+  grid-area: author;
+  margin-top: 16px;
+}
+
+.sps-root--landscape .sps-author {
+  font-size: 14px;
+}
+
+.sps-root--landscape .sps-loc {
+  font-size: 11px;
+}
