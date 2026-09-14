@@ -1,6 +1,6 @@
 @let card = cardData();
 
-<div class="pn-root">
+<div class="pn-root" [class.pn-root--landscape]="isLandscapeFormat()">
   <!-- Hero block -->
   <section class="pn-hero" data-testid="card-hero">
     <h1 class="pn-title">{{ card.title }}</h1>

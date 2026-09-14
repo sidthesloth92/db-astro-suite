@@ -47,7 +47,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Original',
     subtitle: 'Default · the classic card over your own image',
     component: OriginalThemeComponent,
-    landscapeBasisHeight: 570,
+    landscapeBasisHeight: 460,
     accents: {
       accentColor: '#ff2d95',
       accentColorRgb: '255, 45, 149',

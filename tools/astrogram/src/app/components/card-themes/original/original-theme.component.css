@@ -204,3 +204,125 @@
 :host-context(.card.aspect-9-16) .pn-stack {
   gap: 16px;
 }
+
+/* ── Landscape (1.91:1) ──
+   The portrait stack spread across a wide card: the rings sat 330px apart in
+   a mostly empty integration panel, the gear labels exported at ~5px, and the
+   Bortle title was pressed between the panel's top edge and its track.
+   Landscape keeps the centred hero as a band across the top and sets the rest
+   as three columns beneath it — integration, equipment, then software over the
+   Bortle scale — on the shortest artboard, so every panel reads at size. */
+.pn-root--landscape {
+  display: grid;
+  /* Integration is just wide enough for three rings in a row, equipment for
+     the longest piece of kit on one line. */
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.3fr) minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-areas:
+    'hero hero hero'
+    'int equip stack';
+  gap: 10px;
+  padding: 16px 18px 18px;
+  /* The faint gear-label tone is lost over a photograph at this size. */
+  --db-color-text-faint: #8b92a6;
+}
+
+.pn-root--landscape .pn-hero {
+  grid-area: hero;
+  margin: 0;
+  padding: 14px 24px 16px;
+}
+
+.pn-root--landscape .pn-title {
+  font-size: 28px;
+}
+
+/* Wraps between chips, never inside one, when the location runs long. */
+.pn-root--landscape .pn-meta {
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  margin-top: 8px;
+  font-size: 10px;
+}
+
+.pn-root--landscape .pn-description {
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+.pn-root--landscape .pn-integration {
+  grid-area: int;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 12px 10px;
+}
+
+/* The column is taller than the portrait panel, so the heading splits: the
+   kicker stays level with the other columns' kickers, the rings take the
+   spare height centred, and the total closes the panel beneath them. */
+.pn-root--landscape .pn-integration-head {
+  display: contents;
+}
+
+.pn-root--landscape .pn-integration-kicker {
+  order: 0;
+  line-height: 1.2;
+}
+
+.pn-root--landscape .pn-ring-row {
+  order: 1;
+  flex: 1;
+  align-content: center;
+  gap: 10px 6px;
+}
+
+.pn-root--landscape .pn-integration-total {
+  order: 2;
+  align-self: center;
+  font-size: 12px;
+}
+
+.pn-root--landscape .pn-integration-total strong {
+  font-size: 20px;
+  margin-left: 6px;
+}
+
+.pn-root--landscape .pn-two-col {
+  display: contents;
+}
+
+.pn-root--landscape .pn-equipment {
+  grid-area: equip;
+}
+
+.pn-root--landscape .pn-stack {
+  grid-area: stack;
+}
+
+.pn-root--landscape .pn-software {
+  flex: 1;
+}
+
+.pn-root--landscape .pn-bortle {
+  padding: 10px 10px 12px;
+}
+
+/* The shared gear rows and Bortle scale carry their own type, sized for the
+   portrait card: raise the rows to fill the taller columns, lift the Bortle
+   title off its track and its markers to a readable size. */
+.pn-root--landscape ::ng-deep dba-ui-data-row .label {
+  font-size: 10px;
+}
+
+.pn-root--landscape ::ng-deep dba-ui-data-row .value {
+  font-size: 14px;
+}
+
+.pn-root--landscape .pn-bortle ::ng-deep .bortle-header {
+  margin-bottom: 6px;
+}
+
+.pn-root--landscape .pn-bortle ::ng-deep .bortle-markers span {
+  font-size: 9.5px;
+}
