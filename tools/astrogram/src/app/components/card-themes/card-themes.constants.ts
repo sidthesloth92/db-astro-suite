@@ -94,7 +94,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Spectrum',
     subtitle: 'Vibrant gradient hero',
     component: SpectrumThemeComponent,
-    landscapeBasisHeight: 540,
+    landscapeBasisHeight: 480,
     accents: {
       accentColor: '#FF2D95',
       accentColorRgb: '255, 45, 149',

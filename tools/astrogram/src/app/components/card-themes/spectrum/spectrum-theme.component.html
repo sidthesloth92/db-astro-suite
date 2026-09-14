@@ -1,6 +1,6 @@
 @let data = vm();
 
-<div class="spc-root">
+<div class="spc-root" [class.spc-root--landscape]="isLandscapeFormat()">
   <!-- Hero gradient block -->
   <div class="spc-hero" data-testid="card-hero">
     <div class="spc-grain" aria-hidden="true"></div>

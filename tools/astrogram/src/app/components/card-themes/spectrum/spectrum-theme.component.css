@@ -285,3 +285,140 @@
   font: 700 14px/1 var(--spc-display);
   color: var(--spc-txt);
 }
+
+/* ── Landscape (1.91:1) ──
+   The gradient hero ran as a full-width band with its right half empty, which
+   left the body so little height that the Bortle row finished ~35px off the
+   bottom edge, and the faint mono labels exported at ~7px. Landscape turns
+   the hero into a full-height gradient panel on the left and sets the body
+   beside it — caption, integration, then equipment and pipeline — with the
+   equipment rows stacked label-over-value so no piece of kit splits, the type
+   raised and the faint tone lifted so the labels read. */
+.spc-root--landscape {
+  --spc-faint: #8a90a8;
+
+  flex-direction: row;
+}
+
+.spc-root--landscape .spc-hero {
+  flex: 0 0 38%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 28px 28px 30px;
+}
+
+.spc-root--landscape .spc-kicker {
+  font-size: 11.5px;
+}
+
+.spc-root--landscape .spc-headline {
+  font-size: 56px;
+  margin-top: 16px;
+}
+
+.spc-root--landscape .spc-subhead {
+  font-size: 20px;
+  margin-top: 6px;
+}
+
+/* One item per line: side by side the three wrapped at the panel's width
+   and left a separator dangling at a line end. */
+.spc-root--landscape .spc-hero-meta {
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 22px;
+  font-size: 11.5px;
+}
+
+.spc-root--landscape .spc-sep {
+  display: none;
+}
+
+.spc-root--landscape .spc-body {
+  justify-content: center;
+  gap: 16px;
+  padding: 24px 28px;
+  min-width: 0;
+}
+
+.spc-root--landscape .spc-caption {
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+
+.spc-root--landscape .spc-integration {
+  gap: 22px;
+}
+
+.spc-root--landscape .spc-int-label,
+.spc-root--landscape .spc-col-title {
+  font-size: 10.5px;
+}
+
+.spc-root--landscape .spc-int-total {
+  font-size: 50px;
+  white-space: nowrap;
+}
+
+.spc-root--landscape .spc-int-bands {
+  min-width: 0;
+  gap: 8px;
+}
+
+.spc-root--landscape .spc-int-id {
+  width: 34px;
+  font-size: 12px;
+}
+
+.spc-root--landscape .spc-int-time {
+  width: 58px;
+  font-size: 13.5px;
+  white-space: nowrap;
+}
+
+.spc-root--landscape .spc-int-frames {
+  width: 74px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.spc-root--landscape .spc-lower {
+  flex: none;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+}
+
+.spc-root--landscape .spc-col-title {
+  margin-bottom: 8px;
+}
+
+.spc-root--landscape .spc-eq-row {
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: 2px;
+}
+
+.spc-root--landscape .spc-eq-label,
+.spc-root--landscape .spc-sw-label,
+.spc-root--landscape .spc-bortle-label {
+  font-size: 10px;
+  line-height: 1.2;
+}
+
+.spc-root--landscape .spc-eq-value,
+.spc-root--landscape .spc-sw-value {
+  font-size: 13px;
+}
+
+.spc-root--landscape .spc-bortle {
+  gap: 10px;
+}
+
+.spc-root--landscape .spc-bortle-dot {
+  width: 10px;
+  height: 10px;
+}
+
+.spc-root--landscape .spc-bortle-val {
+  font-size: 16px;
+}
