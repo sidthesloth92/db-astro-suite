@@ -35,6 +35,11 @@ describe('measureTextOverflow', () => {
     expect(measureTextOverflow(root)).toBeCloseTo(2, 1);
   });
 
+  it('should count a bordered panel holding text that runs past the root, even when its text fits', () => {
+    const root = make('<div style="height:200px;border:1px solid red"><span>ok</span></div>');
+    expect(measureTextOverflow(root)).toBeCloseTo(2, 1);
+  });
+
   it('should ignore decorative boxes that bleed past the edge without text', () => {
     const root = make('<div style="position:absolute;top:0;height:400px;width:400px"></div><span>ok</span>');
     expect(measureTextOverflow(root)).toBe(1);

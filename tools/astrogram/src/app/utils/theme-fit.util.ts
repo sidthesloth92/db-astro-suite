@@ -59,6 +59,10 @@ export function measureTextOverflow(root: HTMLElement): number {
       if (!box) {
         box = el.getBoundingClientRect();
         clipBoxes.set(el, box);
+        // A panel that holds text must itself fit the card: its border or a
+        // meter along its bottom edge running off the card is as broken as
+        // clipped text, even when the text inside still fits.
+        worst = Math.max(worst, overflowRatio(box.bottom, box.right, rootBox));
       }
       worst = Math.max(worst, overflowRatio(bottom, right, box));
     }
