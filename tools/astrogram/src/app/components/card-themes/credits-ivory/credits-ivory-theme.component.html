@@ -73,7 +73,7 @@
       <div class="cri-the">The</div>
       <!-- One line fitted to the width, as in Credits: a stacked two-line name
            took the room the billing block needs. -->
-      <div class="cri-title" [dbaAgFitText]="64" [fitTextMin]="26" [fitTextContent]="data.objectName">
+      <div class="cri-title" [dbaAgFitText]="64" [fitTextMin]="18" [fitTextContent]="data.objectName">
         <span class="cri-title-solid">{{ titleFirst() }}</span>
         @if (titleRest(); as rest) {
           <span class="cri-title-outline"> {{ rest }}</span>
@@ -84,7 +84,12 @@
     <!-- Band strip -->
     <div class="cri-strip">
       @for (band of data.integration; track band.id) {
-        <div class="cri-strip-seg" [style.width.%]="band.pct * 100" [style.background]="band.color"></div>
+        <div
+          class="cri-strip-seg"
+          [class.cri-strip-seg--light]="isLightBand(band.color)"
+          [style.width.%]="band.pct * 100"
+          [style.background]="band.color"
+        ></div>
       }
     </div>
     <div class="cri-designation">
@@ -121,21 +126,27 @@
         <div class="cri-credit-v">
           {{ data.total }} <span class="cri-faint">across</span> {{ totalFrames() }} frames
           <span class="cri-credit-bands">
-            @for (band of data.integration; track band.id; let last = $last) {
-              <span [style.color]="band.color"><span class="cri-band-id">{{ band.id }}</span> {{ band.time }}</span
-              >@if (!last) {<span class="cri-faint"> · </span>}
+            <!-- Each band stays whole; a long run splits into two balanced rows
+                 at a separator rather than leaving the last band alone on a line. -->
+            @for (band of data.integration; track band.id; let last = $last, i = $index) {
+              <span
+                class="cri-band"
+                [class.cri-band--light]="isLightBand(band.color)"
+                [style.color]="isLightBand(band.color) ? null : band.color"
+                ><span class="cri-band-id">{{ band.id }}</span> {{ band.time }}</span
+              >@if (!last) {<span class="cri-faint" [class.cri-band-break]="i + 1 === bandBreak()"> · </span>}
             }
           </span>
         </div>
       </div>
     </div>
 
-    <div class="cri-spacer"></div>
+    <div class="cri-spacer cri-spacer--release"></div>
 
     <!-- Release date -->
     <div class="cri-release">
       <div class="cri-release-date">{{ releaseDate() }}</div>
-      <div class="cri-release-sub">Under Bortle {{ data.bortle }} skies · {{ data.location }}</div>
+      <div class="cri-release-sub">Under&nbsp;Bortle&nbsp;{{ data.bortle }}&nbsp;skies · {{ releaseLocation() }}</div>
     </div>
   </div>
 </div>

@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CreditsIvoryThemeComponent } from './credits-ivory-theme.component';
+import { CardDataService } from '../../../services/card-data.service';
 
 describe('CreditsIvoryThemeComponent', () => {
   let fixture: ComponentFixture<CreditsIvoryThemeComponent>;
@@ -50,7 +51,41 @@ describe('CreditsIvoryThemeComponent', () => {
 
   it('should render the release sub-line with bortle and location', () => {
     const sub = host.querySelector('.cri-release-sub');
-    expect(sub?.textContent).toContain('Bortle 9');
+    // "Under Bortle 9 skies" is held together with no-break spaces so a long
+    // location wraps after it rather than inside it.
+    expect(sub?.textContent).toContain('Bortle\u00a09');
     expect(sub?.textContent).toContain('Irving, Texas');
+  });
+
+  describe('with every filter enabled', () => {
+    beforeEach(() => {
+      const data = TestBed.inject(CardDataService);
+      data.cardData.update((d) => ({ ...d, filters: d.filters.map((f) => ({ ...f, enabled: true })) }));
+      fixture.detectChanges();
+    });
+
+    it('should print the white luminance band in ink so it shows on the paper', () => {
+      const bands = Array.from(host.querySelectorAll<HTMLElement>('.cri-band'));
+      const luminance = bands.find((el) => el.textContent?.trim().startsWith('L '));
+
+      expect(luminance?.classList).toContain('cri-band--light');
+      expect(luminance?.style.color).toBe('');
+      expect(host.querySelectorAll('.cri-strip-seg--light').length).toBe(1);
+    });
+
+    it('should keep the coloured bands in their own colours', () => {
+      const bands = Array.from(host.querySelectorAll<HTMLElement>('.cri-band'));
+      const alpha = bands.find((el) => el.textContent?.includes('Hα'));
+
+      expect(alpha?.classList).not.toContain('cri-band--light');
+      expect(alpha?.style.color).toBe('rgb(229, 68, 109)');
+    });
+
+    it('should split seven bands into rows of four and three', () => {
+      const separators = Array.from(host.querySelectorAll('.cri-credit-bands .cri-faint'));
+
+      expect(separators.length).toBe(6);
+      expect(separators.findIndex((el) => el.classList.contains('cri-band-break'))).toBe(3);
+    });
   });
 });

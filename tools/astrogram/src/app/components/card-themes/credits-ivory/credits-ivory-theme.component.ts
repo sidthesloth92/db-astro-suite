@@ -2,6 +2,9 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
 import { FitTextDirective } from '../shared/fit-text/fit-text.directive';
 import { ThemeGearLineComponent } from '../shared/theme-gear-line/theme-gear-line.component';
+import { bandRowBreak } from '../../../utils/band-rows.util';
+import { keepPlaceNamesTogether } from '../../../utils/keep-together.util';
+import { isLightColor } from '../../../utils/light-color.util';
 
 /**
  * Credits Ivory theme — a movie one-sheet printed on ivory paper. Ink speckle,
@@ -94,5 +97,20 @@ export class CreditsIvoryThemeComponent extends CardThemeBaseDirective {
   /** Total frame count across the enabled bands (design `lFrames`). */
   protected totalFrames(): number {
     return this.vm().integration.reduce((sum, band) => sum + (parseInt(band.frames, 10) || 0), 0);
+  }
+
+  /** Whether a band colour (a white luminance band) would vanish on the ivory paper. */
+  protected isLightBand(color: string): boolean {
+    return isLightColor(color);
+  }
+
+  /** Bands on the first row when the band credits split in two (0 = one row). */
+  protected bandBreak(): number {
+    return bandRowBreak(this.vm().integration.length);
+  }
+
+  /** Location for the release line, wrapping only between its comma-separated parts. */
+  protected releaseLocation(): string {
+    return keepPlaceNamesTogether(this.vm().location);
   }
 }
