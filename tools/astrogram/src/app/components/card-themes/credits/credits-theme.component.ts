@@ -3,6 +3,8 @@ import { CardThemeBaseDirective } from '../card-theme-base.directive';
 import { ThemeGearLineComponent } from '../shared/theme-gear-line/theme-gear-line.component';
 import { FitTextDirective } from '../shared/fit-text/fit-text.directive';
 import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfield.component';
+import { bandRowBreak } from '../../../utils/band-rows.util';
+import { keepPlaceNamesTogether } from '../../../utils/keep-together.util';
 
 /**
  * Credits theme — a cinema one-sheet. A one-line title fitted to the card
@@ -64,5 +66,15 @@ export class CreditsThemeComponent extends CardThemeBaseDirective {
     if (parts.length !== 3) return '';
     const [year, month, day] = parts;
     return `${month}.${day}.${year.slice(2)}`;
+  }
+
+  /** Bands on the first row when the band credits split in two (0 = one row). */
+  protected bandBreak(): number {
+    return bandRowBreak(this.vm().integration.length);
+  }
+
+  /** Location for the release line, wrapping only between its comma-separated parts. */
+  protected releaseLocation(): string {
+    return keepPlaceNamesTogether(this.vm().location);
   }
 }

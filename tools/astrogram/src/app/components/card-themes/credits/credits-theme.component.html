@@ -38,60 +38,12 @@
     }
   </svg>
 
-  <svg class="crd-spike crd-spike-1" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
-    <line x1="12" y1="0" x2="12" y2="24" stroke="#C9BEDA" stroke-width="0.9" />
-    <line x1="0" y1="12" x2="24" y2="12" stroke="#C9BEDA" stroke-width="0.9" />
-    <line
-      x1="5.5"
-      y1="5.5"
-      x2="18.5"
-      y2="18.5"
-      stroke="#C9BEDA"
-      stroke-width="0.45"
-      opacity="0.6"
-    />
-    <line
-      x1="18.5"
-      y1="5.5"
-      x2="5.5"
-      y2="18.5"
-      stroke="#C9BEDA"
-      stroke-width="0.45"
-      opacity="0.6"
-    />
-    <circle cx="12" cy="12" r="1.5" fill="#C9BEDA" />
-  </svg>
-
-  <svg class="crd-spike crd-spike-2" width="26" height="26" viewBox="0 0 24 24" aria-hidden="true">
-    <line x1="12" y1="0" x2="12" y2="24" stroke="#C9BEDA" stroke-width="0.9" />
-    <line x1="0" y1="12" x2="24" y2="12" stroke="#C9BEDA" stroke-width="0.9" />
-    <line
-      x1="5.5"
-      y1="5.5"
-      x2="18.5"
-      y2="18.5"
-      stroke="#C9BEDA"
-      stroke-width="0.45"
-      opacity="0.6"
-    />
-    <line
-      x1="18.5"
-      y1="5.5"
-      x2="5.5"
-      y2="18.5"
-      stroke="#C9BEDA"
-      stroke-width="0.45"
-      opacity="0.6"
-    />
-    <circle cx="12" cy="12" r="1.5" fill="#C9BEDA" />
-  </svg>
-
   <!-- Title -->
   <div class="crd-title-block" data-testid="card-hero">
     <div class="crd-the">The</div>
     <!-- One line across the card: the name is fitted to the width rather than
          stacked, which kept a long name from eating the billing block's room. -->
-    <div class="crd-title" [dbaAgFitText]="64" [fitTextMin]="26" [fitTextContent]="data.objectName">
+    <div class="crd-title" [dbaAgFitText]="64" [fitTextMin]="18" [fitTextContent]="data.objectName">
       <span class="crd-title-solid">{{ objectNameFirst() }}</span>
       @if (objectNameRest(); as rest) {
         <span class="crd-title-outline"> {{ rest }}</span>
@@ -139,10 +91,12 @@
       <div class="crd-credit-v">
         {{ data.total }} <span class="crd-faint">across</span> {{ totalFrames() }} frames
         <span class="crd-band-line">
-          @for (band of data.integration; track band.id) {
-            <span [style.color]="band.color"><span class="crd-band-id">{{ band.id }}</span> {{ band.time }}</span>
+          <!-- Each band stays whole; a long run splits into two balanced rows at
+               a separator rather than leaving the last band alone on a line. -->
+          @for (band of data.integration; track band.id; let i = $index) {
+            <span class="crd-band" [style.color]="band.color"><span class="crd-band-id">{{ band.id }}</span> {{ band.time }}</span>
             @if (!$last) {
-              <span class="crd-faint"> · </span>
+              <span class="crd-faint" [class.crd-band-break]="i + 1 === bandBreak()"> · </span>
             }
           }
         </span>
@@ -150,11 +104,60 @@
     </div>
   </div>
 
-  <div class="crd-grow"></div>
+  <div class="crd-grow crd-grow--release"></div>
 
   <!-- Release date -->
   <div class="crd-release">
+    <!-- The spikes flank the date: pinned to the card they landed on the band
+         credits once a long billing block pushed the date down. -->
+    <svg class="crd-spike crd-spike-1" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+      <line x1="12" y1="0" x2="12" y2="24" stroke="#C9BEDA" stroke-width="0.9" />
+      <line x1="0" y1="12" x2="24" y2="12" stroke="#C9BEDA" stroke-width="0.9" />
+      <line
+        x1="5.5"
+        y1="5.5"
+        x2="18.5"
+        y2="18.5"
+        stroke="#C9BEDA"
+        stroke-width="0.45"
+        opacity="0.6"
+      />
+      <line
+        x1="18.5"
+        y1="5.5"
+        x2="5.5"
+        y2="18.5"
+        stroke="#C9BEDA"
+        stroke-width="0.45"
+        opacity="0.6"
+      />
+      <circle cx="12" cy="12" r="1.5" fill="#C9BEDA" />
+    </svg>
+
+    <svg class="crd-spike crd-spike-2" width="26" height="26" viewBox="0 0 24 24" aria-hidden="true">
+      <line x1="12" y1="0" x2="12" y2="24" stroke="#C9BEDA" stroke-width="0.9" />
+      <line x1="0" y1="12" x2="24" y2="12" stroke="#C9BEDA" stroke-width="0.9" />
+      <line
+        x1="5.5"
+        y1="5.5"
+        x2="18.5"
+        y2="18.5"
+        stroke="#C9BEDA"
+        stroke-width="0.45"
+        opacity="0.6"
+      />
+      <line
+        x1="18.5"
+        y1="5.5"
+        x2="5.5"
+        y2="18.5"
+        stroke="#C9BEDA"
+        stroke-width="0.45"
+        opacity="0.6"
+      />
+      <circle cx="12" cy="12" r="1.5" fill="#C9BEDA" />
+    </svg>
     <div class="crd-release-date">{{ releaseDate() }}</div>
-    <div class="crd-release-meta">Under Bortle {{ data.bortle }} skies · {{ data.location }}</div>
+    <div class="crd-release-meta">Under&nbsp;Bortle&nbsp;{{ data.bortle }}&nbsp;skies · {{ releaseLocation() }}</div>
   </div>
 </div>

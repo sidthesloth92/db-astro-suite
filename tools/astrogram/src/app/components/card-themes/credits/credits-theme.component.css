@@ -21,9 +21,9 @@
   height: 100%;
   overflow: hidden;
   box-sizing: border-box;
-  padding: 36px 34px 30px;
   color: var(--crd-txt);
   font-family: var(--crd-sans);
+  padding: 36px 34px 30px;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -59,15 +59,26 @@
 }
 
 .crd-spike-1 {
-  left: 92px;
-  top: 606px;
+  left: 58px;
+  top: -24.5px;
   opacity: 0.55;
 }
 
 .crd-spike-2 {
-  right: 86px;
-  top: 622px;
+  right: 52px;
+  top: -8.5px;
   opacity: 0.45;
+}
+
+/* The sheet's blocks keep their height when a long billing block fills the
+   card: shrinking, the 4px band strip collapsed to nothing and the
+   designation slid under "Captured by". The card grows to fit instead. */
+.crd-title-block,
+.crd-strip,
+.crd-study,
+.crd-billing,
+.crd-release {
+  flex-shrink: 0;
 }
 
 /* ── Title ── */
@@ -124,6 +135,12 @@
 
 .crd-grow {
   flex: 1;
+  /* Room kept between the blocks when the billing block leaves no slack. */
+  min-height: 18px;
+}
+
+.crd-grow--release {
+  min-height: 28px;
 }
 
 /* ── Billing block ── */
@@ -165,9 +182,37 @@
   letter-spacing: 0.08em;
 }
 
+.crd-band {
+  white-space: nowrap;
+}
+
+/* The separator where a long run of bands splits becomes the row break. */
+.crd-band-break {
+  display: block;
+  height: 5px;
+  font-size: 0;
+}
+
+/* The wider square and landscape cards hold every band on one line. */
+:host-context(.card.aspect-1-1) .crd-band-break,
+.crd-root--landscape .crd-band-break {
+  display: inline;
+  height: auto;
+  font-size: inherit;
+}
+
 /* ── Release date ── */
 .crd-release {
   position: relative;
+  /* The footer reaches down through the card's bottom margin inside an
+     invisible border, so the content fit keeps that margin: a long billing
+     block grows the card instead of pushing the footer onto its edge. The
+     margins cancel the border and padding, leaving the layout unchanged. */
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+  margin-top: -1px;
+  padding-bottom: 29px;
+  margin-bottom: -30px;
 }
 
 .crd-release-date {
@@ -177,11 +222,15 @@
 }
 
 .crd-release-meta {
-  font: 500 9.5px/1 var(--crd-mono);
+  /* Leading for a location that wraps. The 6px it adds (3px above and below,
+     a whole pixel each so the text lands on the same pixel row) is taken back
+     by the margins, keeping a one-line footer exactly where it was. */
+  font: 500 9.5px/15.5px var(--crd-mono);
   color: var(--crd-faint);
   letter-spacing: 0.26em;
   text-transform: uppercase;
-  margin-top: 10px;
+  margin-top: 7px;
+  margin-bottom: -3px;
   padding-left: 0.26em;
 }
 
@@ -227,7 +276,7 @@
 .crd-root--landscape .crd-title-block {
   grid-column: 1 / -1;
   grid-row: 1;
-  margin: 0 0 12px;
+  margin: 0 0 24px;
 }
 
 .crd-root--landscape .crd-title {
@@ -248,6 +297,8 @@
 
 .crd-root--landscape .crd-release {
   grid-row: 5;
+  padding-bottom: 39px;
+  margin-bottom: -40px;
 }
 
 .crd-root--landscape .crd-release-date {
@@ -259,6 +310,7 @@
   line-height: 1.4;
   letter-spacing: 0.2em;
   margin-top: 10px;
+  margin-bottom: 0;
 }
 
 /* The constellation fills the open stretch of the title column, between the
@@ -270,14 +322,14 @@
 
 /* The spikes flank the release date, as they do on the portrait sheet. */
 .crd-root--landscape .crd-spike-1 {
-  left: 62px;
-  top: 452px;
+  left: 16px;
+  top: 3.5px;
 }
 
 .crd-root--landscape .crd-spike-2 {
   right: auto;
-  left: 336px;
-  top: 470px;
+  left: 290px;
+  top: 21.5px;
 }
 
 /* Columns sized to their widest credit, so a long guide-scope name keeps its
