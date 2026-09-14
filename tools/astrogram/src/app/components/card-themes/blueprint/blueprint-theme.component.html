@@ -72,35 +72,39 @@
 
     <div class="bp-spacer"></div>
 
-    <!-- Parts list -->
-    <div class="bp-parts">
-      <div class="bp-parts-head">
-        <span class="bp-tick bp-tick--cyan">#</span>
-        <span class="bp-tick bp-tick--cyan">Item</span>
-        <span class="bp-tick bp-tick--cyan">Spec</span>
-      </div>
-      @for (item of partsList(); track $index) {
-        <div class="bp-parts-row">
-          <span class="bp-parts-num">{{ rowNumber($index) }}</span>
-          <span class="bp-parts-label">{{ item.label }}</span>
-          <span class="bp-parts-value">{{ item.value }}</span>
+    <!-- Parts list and footer titleblock: one flow in portrait, the right-hand
+         sheet in landscape. -->
+    <div class="bp-sheet">
+      <!-- Parts list -->
+      <div class="bp-parts">
+        <div class="bp-parts-head">
+          <span class="bp-tick bp-tick--cyan">#</span>
+          <span class="bp-tick bp-tick--cyan">Item</span>
+          <span class="bp-tick bp-tick--cyan">Spec</span>
         </div>
-      }
-    </div>
+        @for (item of partsList(); track $index) {
+          <div class="bp-parts-row">
+            <span class="bp-parts-num">{{ rowNumber($index) }}</span>
+            <span class="bp-parts-label">{{ item.label }}</span>
+            <span class="bp-parts-value">{{ item.value }}</span>
+          </div>
+        }
+      </div>
 
-    <!-- Footer titleblock -->
-    <div class="bp-footer">
-      <div class="bp-footer-cell">
-        <span class="bp-tick bp-tick--faint">Site</span>
-        <div class="bp-footer-value">{{ data.location }}</div>
-      </div>
-      <div class="bp-footer-cell">
-        <span class="bp-tick bp-tick--faint">Operator</span>
-        <div class="bp-footer-value">{{ data.author }}</div>
-      </div>
-      <div class="bp-footer-cell">
-        <span class="bp-tick bp-tick--faint">Bortle</span>
-        <div class="bp-footer-value">Class {{ data.bortle }}</div>
+      <!-- Footer titleblock -->
+      <div class="bp-footer">
+        <div class="bp-footer-cell">
+          <span class="bp-tick bp-tick--faint">Site</span>
+          <div class="bp-footer-value">{{ data.location }}</div>
+        </div>
+        <div class="bp-footer-cell">
+          <span class="bp-tick bp-tick--faint">Operator</span>
+          <div class="bp-footer-value">{{ data.author }}</div>
+        </div>
+        <div class="bp-footer-cell">
+          <span class="bp-tick bp-tick--faint">Bortle</span>
+          <div class="bp-footer-value">Class {{ data.bortle }}</div>
+        </div>
       </div>
     </div>
   </div>
