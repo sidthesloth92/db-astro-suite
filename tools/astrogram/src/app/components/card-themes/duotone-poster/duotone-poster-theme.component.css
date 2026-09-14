@@ -247,3 +247,149 @@
   color: var(--dp-cream);
   opacity: 0.65;
 }
+
+/* ── Landscape (1.91:1) ──
+   The portrait poster is a single column: in a wide card the headline and
+   total sat in the left half, the band breakdown floated alone at the far
+   right and the gear / process lists ran as small type under a full-width
+   rule. Landscape keeps the poster's two-band structure but uses the width:
+   an oversized headline across the top with the caption beside it, and under
+   the cream rule three columns — total with its band breakdown, gear, and
+   process. The headline sits centred in the space above the rule so the air
+   is shared above and below it. */
+.dp-root--landscape .dp-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.15fr) minmax(0, 1fr);
+  grid-template-rows: auto 1fr auto 1fr auto auto;
+  grid-template-areas:
+    'tags tags tags'
+    '. . .'
+    'headline headline caption'
+    '. . .'
+    'rule rule rule'
+    'total footer footer';
+  column-gap: 32px;
+  padding: 28px 32px 30px;
+}
+
+/* The cream rule, drawn as its own grid item across all three columns. */
+.dp-root--landscape .dp-inner::before {
+  content: '';
+  grid-area: rule;
+  height: 2px;
+  margin-bottom: 16px;
+  background: var(--dp-cream);
+}
+
+.dp-root--landscape .dp-tags {
+  grid-area: tags;
+}
+
+.dp-root--landscape .dp-tag--solid {
+  font-size: 11px;
+  padding: 5px 10px;
+}
+
+.dp-root--landscape .dp-date {
+  font-size: 12px;
+}
+
+.dp-root--landscape .dp-headline {
+  grid-area: headline;
+  margin: 18px 0;
+}
+
+.dp-root--landscape .dp-headline-main {
+  font-size: 108px;
+}
+
+.dp-root--landscape .dp-headline-sub {
+  font-size: 42px;
+  margin-top: 8px;
+}
+
+/* Bottom-aligned to the headline, reading as its standfirst. */
+.dp-root--landscape .dp-caption {
+  grid-area: caption;
+  align-self: end;
+  max-width: none;
+  margin: 0 0 18px;
+  font-size: 14.5px;
+}
+
+.dp-root--landscape .dp-inner > .dp-spacer {
+  display: none;
+}
+
+/* Total and its label on the first line, the band breakdown beneath. */
+.dp-root--landscape .dp-total-row {
+  grid-area: total;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  align-content: flex-start;
+  gap: 0 14px;
+  margin-top: 0;
+}
+
+.dp-root--landscape .dp-total-row > .dp-spacer {
+  flex-basis: 100%;
+}
+
+.dp-root--landscape .dp-total {
+  font-size: 56px;
+  white-space: nowrap;
+}
+
+.dp-root--landscape .dp-total-label {
+  font-size: 12px;
+}
+
+.dp-root--landscape .dp-total-sub {
+  font-size: 12px;
+}
+
+.dp-root--landscape .dp-total-bands {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  justify-content: start;
+  gap: 7px 12px;
+  margin-top: 16px;
+  padding-bottom: 0;
+}
+
+.dp-root--landscape .dp-band {
+  display: contents;
+}
+
+.dp-root--landscape .dp-band-id,
+.dp-root--landscape .dp-band-time {
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.dp-root--landscape .dp-band-frames {
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.dp-root--landscape .dp-footer {
+  grid-area: footer;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 32px;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.dp-root--landscape .dp-footer-title {
+  font-size: 11px;
+  margin-bottom: 10px;
+}
+
+.dp-root--landscape .dp-footer-item {
+  font-size: 14px;
+}
+
+.dp-root--landscape .dp-footer-item--dim {
+  font-size: 12.5px;
+  margin-top: 6px;
+}

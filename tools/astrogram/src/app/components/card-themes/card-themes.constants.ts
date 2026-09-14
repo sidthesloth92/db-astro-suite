@@ -127,7 +127,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Duotone Poster',
     subtitle: 'Bold riso · indigo + coral',
     component: DuotonePosterThemeComponent,
-    landscapeBasisHeight: 500,
+    landscapeBasisHeight: 480,
     accents: {
       accentColor: '#FF5E5B',
       accentColorRgb: '255, 94, 91',

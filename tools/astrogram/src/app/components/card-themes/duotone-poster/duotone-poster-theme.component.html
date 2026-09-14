@@ -1,6 +1,6 @@
 @let data = vm();
 
-<div class="dp-root">
+<div class="dp-root" [class.dp-root--landscape]="isLandscapeFormat()">
   <div class="dp-blob dp-blob--halftone" aria-hidden="true"></div>
   <dba-ag-theme-starfield [density]="70" [opacity]="0.4" [color]="'#F5EFE0'" [seed]="5" />
   <div class="dp-blob dp-blob--coral" aria-hidden="true"></div>
