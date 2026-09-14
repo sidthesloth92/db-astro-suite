@@ -294,3 +294,20 @@
   font-size: 12px;
   margin-top: 8px;
 }
+
+/* ── Story (9:16) ──
+   The artboard pinned to the top left the orbits small in the upper fifth of
+   a tall canvas with wide gaps below. On the story format the art box is
+   enlarged (the orbits still clear both edges) and lowered, and the title
+   follows it, so the chart, title and footer are evenly spaced. */
+:host-context(.card.aspect-9-16) .orr-art {
+  top: 40px;
+  left: calc(50% - 318.5px);
+  width: 637px;
+  height: 850px;
+}
+
+:host-context(.card.aspect-9-16) .orr-title {
+  top: 55%;
+}
+

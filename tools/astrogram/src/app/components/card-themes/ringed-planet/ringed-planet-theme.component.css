@@ -93,7 +93,12 @@
   z-index: 2;
   display: flex;
   justify-content: center;
-  gap: 22px;
+  /* Held inside the footer's margins, wrapping if a band list is long: with
+     frame counts added the row ran almost edge to edge. */
+  flex-wrap: wrap;
+  column-gap: 18px;
+  row-gap: 6px;
+  padding: 0 26px;
 }
 
 .rpl-legend-item {

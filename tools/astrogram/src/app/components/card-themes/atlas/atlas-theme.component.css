@@ -138,6 +138,18 @@
   flex: 1;
 }
 
+.atl-spacer--story {
+  flex: 0;
+}
+
+/* ── Story (9:16) ──
+   One spacer between the title and the exposure record left a ~700px empty
+   plate on the story canvas. A second spacer above the chart halves it, so the
+   chart and title sit in the middle of the plate. */
+:host-context(.card.aspect-9-16) .atl-spacer--story {
+  flex: 1;
+}
+
 /* ── Exposure ledger ── */
 .atl-ledger {
   width: 380px;

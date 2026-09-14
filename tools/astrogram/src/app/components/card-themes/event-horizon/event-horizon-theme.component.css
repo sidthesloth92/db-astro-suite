@@ -143,6 +143,19 @@
   flex: 1;
 }
 
+.eh-spacer--story {
+  flex: 0;
+}
+
+/* ── Story (9:16) ──
+   The layout's one spacer sat under the title, so on the tall story canvas
+   the art, legend and title hugged the top above a ~660px void. A second
+   spacer above the art shares that height, centring the group between the
+   header and the footer. */
+:host-context(.card.aspect-9-16) .eh-spacer--story {
+  flex: 1;
+}
+
 /* ── Footer ── */
 .eh-footer {
   position: relative;
