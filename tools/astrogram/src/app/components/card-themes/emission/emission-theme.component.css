@@ -22,11 +22,26 @@
   height: 100%;
   overflow: hidden;
   box-sizing: border-box;
-  padding: 30px 32px 26px;
   color: var(--ems-txt);
   font-family: var(--ems-body);
+}
+
+/* The content column. The bottom margin is the column's distance from the
+   card edge, not padding, and the column clips: heavy data that outgrows it
+   then counts as overflow for the content fit, which would otherwise stop
+   once the location line merely touched the card's bottom edge. The footer
+   takes the last 4px as padding, room for glyphs that overhang their line. */
+.ems-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 22px;
+  box-sizing: border-box;
+  padding: 30px 32px 0;
   display: flex;
   flex-direction: column;
+  overflow: clip;
 }
 
 /* Backdrop layer. The theme paints its background here rather than on
@@ -107,8 +122,11 @@
   max-width: 410px;
 }
 
+/* Minimum gaps keep a full card from setting the subtitle, spectrum, total
+   and footer rule on top of each other; roomier cards never reach them. */
 .ems-sp-a {
   flex: 0.8;
+  min-height: 12px;
 }
 
 .ems-sp-b {
@@ -117,6 +135,13 @@
 
 .ems-sp-c {
   flex: 1;
+  min-height: 10px;
+}
+
+/* Five or more bands (the fifth child is then a band row, not the total):
+   tighter rows, so a full set of filters does not shrink the whole card. */
+.ems-readout:has(> .ems-row:nth-child(5)) .ems-row {
+  padding: 8px 0;
 }
 
 /* ── Spectrum strip ── */
@@ -249,7 +274,7 @@
 .ems-footer {
   position: relative;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding-top: 12px;
+  padding: 12px 0 4px;
 }
 
 .ems-ticker {
@@ -291,10 +316,12 @@
    and through the Hα row. Landscape sets the title and spectrum on the left
    and the band readout and total on the right, drops the reticle, and raises
    the small labels. */
-.ems-root--landscape {
+.ems-root--landscape .ems-inner {
   display: grid;
-  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
-  grid-template-rows: auto 1fr auto auto 1fr auto;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  /* The free rows keep a minimum: on a full card they used to close up, setting
+     the kicker right under the header and the total on the footer rule. */
+  grid-template-rows: auto minmax(14px, 1fr) auto auto minmax(16px, 1fr) auto;
   grid-template-areas:
     'header header'
     '. .'
@@ -303,7 +330,7 @@
     '. .'
     'footer footer';
   column-gap: 52px;
-  padding: 28px 36px 26px;
+  padding: 28px 36px 0;
 }
 
 .ems-root--landscape .ems-sp-a,
@@ -313,9 +340,11 @@
   display: none;
 }
 
+/* On the header line between brand and date: lower down, a full readout's
+   first row reached it. */
 .ems-root--landscape .ems-spike {
   left: 49%;
-  top: 70px;
+  top: 24px;
 }
 
 .ems-root--landscape .ems-header {
@@ -360,7 +389,7 @@
 
 .ems-root--landscape .ems-axis {
   margin-top: 9px;
-  font-size: 10px;
+  font-size: 10.5px;
   color: var(--ems-dim);
 }
 
@@ -401,6 +430,21 @@
   padding-top: 20px;
 }
 
+/* Five or more bands (the fifth child is then a band row, not the total):
+   tighter rows, so seven bands and the total fit the card's height instead
+   of shrinking the whole card to fit them. */
+.ems-root--landscape .ems-readout:has(> .ems-row:nth-child(5)) .ems-row {
+  padding: 9px 0;
+}
+
+.ems-root--landscape .ems-readout:has(> .ems-row:nth-child(5)) .ems-total-row {
+  padding-top: 12px;
+}
+
+.ems-root--landscape .ems-readout:has(> .ems-row:nth-child(5)) .ems-total-val {
+  font-size: 40px;
+}
+
 .ems-root--landscape .ems-total-label {
   font-size: 11px;
   color: var(--ems-dim);
@@ -428,18 +472,17 @@
 }
 
 /* A long handle or location used to run the two ends of this row into each
-   other. The row may wrap: the meta then drops to its own line, pushed to the
-   right edge, and a meta long enough to span the row reads left-aligned
-   rather than as a ragged right-aligned block under the handle. When both
-   fit, the spacer takes the free space as before. */
+   other. The row may wrap: the meta then starts its own line at the left
+   margin under the handle (pushing it right left it indented against
+   nothing). When both fit, the spacer holds the meta at the right. */
 .ems-footer-row {
   flex-wrap: wrap;
+  justify-content: space-between;
   column-gap: 16px;
-  row-gap: 6px;
+  row-gap: 8px;
 }
 
 .ems-footer-row .ems-loc {
-  margin-left: auto;
   min-width: 0;
 }
 

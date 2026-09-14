@@ -52,77 +52,82 @@
     <circle cx="12" cy="12" r="1.5" fill="#7FE3FF" />
   </svg>
 
-  <!-- Header -->
-  <div class="ems-header">
-    <span class="ems-brand">Spectroscopy</span>
-    <span class="ems-date">{{ data.dateNumeric }}</span>
-  </div>
+  <!-- Content column. Its bottom margin is its distance from the card edge
+       and it clips, so heavy data that outgrows it counts for the content fit
+       instead of settling flush on the edge. -->
+  <div class="ems-inner">
+    <!-- Header -->
+    <div class="ems-header">
+      <span class="ems-brand">Spectroscopy</span>
+      <span class="ems-date">{{ data.dateNumeric }}</span>
+    </div>
 
-  <!-- Object -->
-  <div class="ems-object" data-testid="card-hero">
-    <div class="ems-kicker">Emission-line portrait · {{ data.objectId }}</div>
-    <div class="ems-name">{{ data.objectName }}</div>
-    <div class="ems-desc">{{ wavelengthLine() }}</div>
-  </div>
+    <!-- Object -->
+    <div class="ems-object" data-testid="card-hero">
+      <div class="ems-kicker">Emission-line portrait · {{ data.objectId }}</div>
+      <div class="ems-name">{{ data.objectName }}</div>
+      <div class="ems-desc">{{ wavelengthLine() }}</div>
+    </div>
 
-  <div class="ems-sp-a"></div>
+    <div class="ems-sp-a"></div>
 
-  <!-- Spectrum strip -->
-  <div class="ems-spectrum">
-    <div class="ems-strip">
-      <div class="ems-absorption"></div>
-      @for (band of data.integration; track band.id) {
-        @if (wavelength(band.id) !== null) {
-          <div
-            class="ems-line"
-            [style.left]="spectrumPos(band.id)"
-            [style.background]="band.color"
-            [style.box-shadow]="'0 0 12px 2px ' + band.color + 'AA'"
-          ></div>
+    <!-- Spectrum strip -->
+    <div class="ems-spectrum">
+      <div class="ems-strip">
+        <div class="ems-absorption"></div>
+        @for (band of data.integration; track band.id) {
+          @if (wavelength(band.id) !== null) {
+            <div
+              class="ems-line"
+              [style.left]="spectrumPos(band.id)"
+              [style.background]="band.color"
+              [style.box-shadow]="'0 0 12px 2px ' + band.color + 'AA'"
+            ></div>
+          }
         }
-      }
-    </div>
-    <div class="ems-axis">
-      <span>380nm</span><span>ULTRAVIOLET → INFRARED</span><span>700nm</span>
-    </div>
-  </div>
-
-  <div class="ems-sp-b"></div>
-
-  <!-- Band readout rows -->
-  <div class="ems-readout">
-    @for (band of data.integration; track band.id) {
-      <div class="ems-row" [class.ems-row-div]="!$first">
-        <span class="ems-row-id" [style.color]="band.color">{{ band.id }}</span>
-        <span class="ems-row-nm">{{ wavelengthLabel(band.id) }}</span>
-        <div class="ems-row-bar">
-          <div
-            class="ems-row-fill"
-            [style.width]="band.pct * 100 + '%'"
-            [style.background]="band.color"
-            [style.box-shadow]="'0 0 8px ' + band.color + '66'"
-          ></div>
-        </div>
-        <span class="ems-row-time">{{ band.time }}</span>
-        <span class="ems-row-frames">{{ band.frames }}</span>
       </div>
-    }
-    <div class="ems-total-row">
-      <span class="ems-total-label">Total</span>
-      <span class="ems-grow"></span>
-      <span class="ems-total-val">{{ data.total }}</span>
+      <div class="ems-axis">
+        <span>380nm</span><span>ULTRAVIOLET → INFRARED</span><span>700nm</span>
+      </div>
     </div>
-  </div>
 
-  <div class="ems-sp-c"></div>
+    <div class="ems-sp-b"></div>
 
-  <!-- Footer -->
-  <div class="ems-footer">
-    <dba-ag-theme-gear-line class="ems-ticker" [values]="equipmentValues()" />
-    <div class="ems-footer-row">
-      <span class="ems-author">{{ data.author }}</span>
-      <span class="ems-grow"></span>
-      <span class="ems-loc">{{ data.location }} · Bortle {{ data.bortle }}</span>
+    <!-- Band readout rows -->
+    <div class="ems-readout">
+      @for (band of data.integration; track band.id) {
+        <div class="ems-row" [class.ems-row-div]="!$first">
+          <span class="ems-row-id" [style.color]="band.color">{{ band.id }}</span>
+          <span class="ems-row-nm">{{ wavelengthLabel(band.id) }}</span>
+          <div class="ems-row-bar">
+            <div
+              class="ems-row-fill"
+              [style.width]="band.pct * 100 + '%'"
+              [style.background]="band.color"
+              [style.box-shadow]="'0 0 8px ' + band.color + '66'"
+            ></div>
+          </div>
+          <span class="ems-row-time">{{ band.time }}</span>
+          <span class="ems-row-frames">{{ band.frames }}</span>
+        </div>
+      }
+      <div class="ems-total-row">
+        <span class="ems-total-label">Total</span>
+        <span class="ems-grow"></span>
+        <span class="ems-total-val">{{ data.total }}</span>
+      </div>
+    </div>
+
+    <div class="ems-sp-c"></div>
+
+    <!-- Footer -->
+    <div class="ems-footer">
+      <dba-ag-theme-gear-line class="ems-ticker" [values]="equipmentValues()" />
+      <div class="ems-footer-row">
+        <span class="ems-author">{{ data.author }}</span>
+        <span class="ems-grow"></span>
+        <span class="ems-loc">{{ data.location }} · Bortle&nbsp;{{ data.bortle }}</span>
+      </div>
     </div>
   </div>
 </div>
