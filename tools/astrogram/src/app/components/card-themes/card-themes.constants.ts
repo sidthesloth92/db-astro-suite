@@ -323,7 +323,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Star Card',
     subtitle: 'Collectible archive card',
     component: StarCardThemeComponent,
-    landscapeBasisHeight: 560,
+    landscapeBasisHeight: 500,
     accents: {
       accentColor: '#E8C788',
       accentColorRgb: '232, 199, 136',

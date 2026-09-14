@@ -1,6 +1,6 @@
 @let data = vm();
 
-<div class="stc-root">
+<div class="stc-root" [class.stc-root--landscape]="isLandscapeFormat()">
   <dba-ag-theme-starfield [density]="80" [opacity]="0.35" color="#E8C788" [seed]="1" />
 
   <!-- Card frame — double gold hairline -->

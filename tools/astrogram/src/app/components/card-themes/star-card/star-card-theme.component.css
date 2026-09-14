@@ -260,3 +260,132 @@
   font: 600 9.5px/1 var(--stc-mono);
   letter-spacing: 0.14em;
 }
+
+/* ── Landscape (1.91:1) ──
+   The portrait card is one centred stack: squeezed to the format's height the
+   title ran into the exposure plate, the gem frame counts sat on the specs
+   rule and the constellation's rings landed on the plate label, while the
+   plate stretched ~970px around its number and the spec labels sat 350-400px
+   from their values at ~6px. Landscape lays the card out in two columns —
+   ornament, title and exposure plate on the left; band gems and the spec
+   list on the right, their tops level with the title and plate — above the
+   full-width rarity bar. */
+.stc-root--landscape .stc-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  grid-template-rows: auto 1fr auto auto 1fr auto;
+  column-gap: 52px;
+}
+
+.stc-root--landscape .stc-grow,
+.stc-root--landscape .stc-grow-sm {
+  display: none;
+}
+
+.stc-root--landscape .stc-archive {
+  grid-column: 1 / -1;
+  grid-row: 1;
+}
+
+.stc-root--landscape .stc-archive-name,
+.stc-root--landscape .stc-archive-no {
+  font-size: 11px;
+}
+
+/* Behind the ornament and designation in the left column, clear of the plate. */
+.stc-root--landscape .stc-constellation {
+  top: 66px;
+  left: 224px;
+}
+
+.stc-root--landscape .stc-title-block {
+  grid-column: 1;
+  grid-row: 3;
+}
+
+.stc-root--landscape .stc-object-id {
+  font-size: 12px;
+  margin-top: 14px;
+}
+
+/* The plate matches the spec list's height, its reading centred inside. */
+.stc-root--landscape .stc-plate {
+  grid-column: 1;
+  grid-row: 4;
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.stc-root--landscape .stc-plate-label {
+  font-size: 11px;
+}
+
+.stc-root--landscape .stc-plate-total {
+  font-size: 48px;
+}
+
+.stc-root--landscape .stc-plate-frames {
+  font-size: 11px;
+}
+
+.stc-root--landscape .stc-gems {
+  grid-column: 2;
+  grid-row: 3;
+  align-self: end;
+  margin-top: 0;
+}
+
+.stc-root--landscape .stc-gem-id {
+  font-size: 13px;
+}
+
+.stc-root--landscape .stc-gem-time {
+  font-size: 20px;
+}
+
+.stc-root--landscape .stc-gem-frames {
+  font-size: 11px;
+  margin-top: 6px;
+}
+
+/* One spec per line, each value in a column beside its label rather than at
+   the far end of a half-card-wide row. */
+.stc-root--landscape .stc-specs {
+  grid-column: 2;
+  grid-row: 4;
+  margin-top: 24px;
+  padding-top: 14px;
+  grid-template-columns: 1fr;
+  row-gap: 6px;
+}
+
+.stc-root--landscape .stc-spec-row {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  align-items: baseline;
+  gap: 14px;
+}
+
+.stc-root--landscape .stc-spec-label {
+  font-size: 10.5px;
+}
+
+.stc-root--landscape .stc-spec-value {
+  font-size: 13.5px;
+  line-height: 1.35;
+  text-align: left;
+  max-width: none;
+}
+
+.stc-root--landscape .stc-rarity {
+  grid-column: 1 / -1;
+  grid-row: 6;
+  padding: 11px 24px;
+}
+
+.stc-root--landscape .stc-rarity-class,
+.stc-root--landscape .stc-rarity-meta {
+  font-size: 11px;
+}
