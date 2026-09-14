@@ -273,7 +273,7 @@
 /* Low enough that a planet's label at the bottom of its orbit clears the
    designation above the title. */
 .orr-root--landscape .orr-lower {
-  top: 48%;
+  top: 46.5%;
 }
 
 .orr-root--landscape .orr-planet-id {
@@ -293,30 +293,32 @@
 }
 
 .orr-root--landscape .orr-object-name {
-  font-size: 34px;
-  margin-top: 6px;
+  font-size: 32px;
+  margin-top: 5px;
 }
 
+/* Spacing is kept tight: the title, a five-row rig and the columns' headings
+   share the lower half of a short card. */
 .orr-root--landscape .orr-footer {
-  padding: 14px 40px 0;
+  padding: 10px 40px 0;
 }
 
 .orr-root--landscape .orr-cols {
-  gap: 48px;
-  padding-top: 14px;
+  gap: 36px;
+  padding-top: 10px;
 }
 
 .orr-root--landscape .orr-col-title {
   font-size: 12px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 /* Labels and values read as pairs, not as two ends of a 400px-wide row. */
 .orr-root--landscape .orr-row {
   justify-content: flex-start;
   align-items: baseline;
-  gap: 16px;
-  padding: 2px 0;
+  gap: 14px;
+  padding: 1px 0;
 }
 
 .orr-root--landscape .orr-row-label {
@@ -335,7 +337,7 @@
 
 .orr-root--landscape .orr-sky {
   font-size: 13px;
-  margin-top: 8px;
+  margin-top: 6px;
 }
 
 /* ── Story (9:16) ──
