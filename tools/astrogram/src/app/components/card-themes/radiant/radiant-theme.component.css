@@ -231,3 +231,146 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
+
+/* ── Landscape (1.91:1) ──
+   The portrait column dropped into the wide frame shrank the meteor burst to
+   about 180px wide, with its radiant label near 3 export px, while the band
+   bars stretched ~750px and the footer text sat at 6px. Here the burst fills a
+   left column, the header, band rows, title and total stack beside it, and the
+   caption chip and footer run the full width beneath both. */
+.rd-root--landscape {
+  display: grid;
+  grid-template-columns: 400px minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto auto minmax(0, 1fr) auto auto;
+  column-gap: 30px;
+}
+
+.rd-root--landscape .rd-header {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+/* Fills its grid area; the viewBox's `meet` fit scales the burst to whatever
+   height the caption and footer leave. */
+.rd-root--landscape .rd-svg {
+  grid-column: 1;
+  grid-row: 1 / 6;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin-top: 0;
+}
+
+/* At a readable size the label crosses the streaks around the radiant; a
+   background-coloured halo drawn under the glyphs keeps it clean. */
+.rd-root--landscape .rd-radiant {
+  font-size: 11px;
+  paint-order: stroke;
+  stroke: var(--rd-bg);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+
+.rd-root--landscape .rd-rows {
+  grid-column: 2;
+  grid-row: 3;
+  margin-top: 0;
+}
+
+/* Id, frames and time on one line with the bar full width beneath: inline,
+   the bar was left a stub by the narrower column. */
+.rd-root--landscape .rd-row {
+  flex-wrap: wrap;
+  gap: 7px 12px;
+  padding: 8px 0;
+}
+
+.rd-root--landscape .rd-row-id {
+  width: 46px;
+  font-size: 15px;
+}
+
+.rd-root--landscape .rd-row-frames {
+  flex: 1;
+  width: auto;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.rd-root--landscape .rd-row-bar {
+  order: 1;
+  flex: 0 0 100%;
+}
+
+.rd-root--landscape .rd-row-time {
+  width: auto;
+  font-size: 18px;
+  white-space: nowrap;
+}
+
+/* The spacer's own gap would push a one-line name onto two lines in the
+   narrower column; space-between does its job without taking width. */
+.rd-root--landscape .rd-title {
+  grid-column: 2;
+  grid-row: 4;
+  justify-content: space-between;
+  column-gap: 16px;
+}
+
+.rd-root--landscape .rd-title-spacer {
+  display: none;
+}
+
+.rd-root--landscape .rd-kicker {
+  font-size: 11px;
+}
+
+.rd-root--landscape .rd-name {
+  font-size: 29px;
+}
+
+.rd-root--landscape .rd-total-label {
+  font-size: 10px;
+}
+
+.rd-root--landscape .rd-total-value {
+  font-size: 32px;
+  white-space: nowrap;
+}
+
+.rd-root--landscape .rd-caption {
+  grid-column: 1 / -1;
+  grid-row: 6;
+  margin-top: 16px;
+  padding: 10px 16px;
+  font-size: 14px;
+}
+
+.rd-root--landscape .rd-spacer {
+  display: none;
+}
+
+.rd-root--landscape .rd-footer {
+  grid-column: 1 / -1;
+  grid-row: 7;
+  margin-top: 16px;
+}
+
+.rd-root--landscape .rd-foot-gear {
+  font-size: 10.5px;
+}
+
+.rd-root--landscape .rd-foot-row {
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-top: 8px;
+}
+
+.rd-root--landscape .rd-foot-author {
+  font-size: 13px;
+}
+
+.rd-root--landscape .rd-foot-meta {
+  font-size: 10.5px;
+  line-height: 1.3;
+}
