@@ -127,10 +127,13 @@
   flex: 1;
 }
 
-/* ── Byline ── */
+/* ── Byline ──
+   Wraps between items, never inside the date or handle: squeezed onto one
+   line, a long location broke the date into "SEP / 13, / 2026". */
 .ave-byline {
   display: flex;
-  gap: 18px;
+  flex-wrap: wrap;
+  gap: 8px 18px;
   margin-top: 18px;
 }
 
@@ -142,16 +145,35 @@
   color: var(--ave-dim);
   letter-spacing: 0.18em;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
-/* ── Integration ── */
+/* Only a location longer than the whole line may wrap. It gets real leading,
+   and the negative margin keeps a one-line byline at its original height. */
+.ave-meta--place {
+  min-width: 0;
+  white-space: normal;
+}
+
+.ave-meta-text {
+  min-width: 0;
+  line-height: 1.4;
+  margin-block: -0.2em;
+}
+
+/* ── Integration ──
+   Every figure is atomic ("2h 42m", "54 × 180s"). When the band figures no
+   longer fit beside the total they drop to their own right-aligned line
+   instead of breaking each figure over two. */
 .ave-integration {
   margin-top: 22px;
   padding-top: 18px;
   border-top: 1px solid rgba(212, 165, 116, 0.2);
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   align-items: baseline;
-  gap: 18px;
+  gap: 12px 18px;
 }
 
 .ave-int-label {
@@ -165,6 +187,7 @@
   font: 800 54px/0.92 var(--ave-display);
   color: var(--ave-cream);
   margin-top: 8px;
+  white-space: nowrap;
 }
 
 .ave-int-spacer {
@@ -190,12 +213,14 @@
   font: 300 14px/1 var(--ave-serif);
   color: var(--ave-cream);
   margin-top: 6px;
+  white-space: nowrap;
 }
 
 .ave-int-frames {
   font: 400 8.5px/1 var(--ave-mono);
   color: var(--ave-faint);
   margin-top: 4px;
+  white-space: nowrap;
 }
 
 .ave-flexspacer {
@@ -249,6 +274,8 @@
   flex: 1;
   min-width: 0;
   overflow-wrap: break-word;
+  /* No lone "Gen 2" left on a value's last line. */
+  text-wrap: pretty;
 }
 
 .ave-sky-big {
@@ -289,7 +316,7 @@
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
   grid-template-rows: auto auto auto auto auto auto 1fr auto;
-  column-gap: 36px;
+  column-gap: 28px;
   padding: 30px 40px 32px;
 }
 
@@ -305,69 +332,73 @@
 
 .ave-root--landscape .ave-eyebrow {
   grid-row: 2;
-  margin-top: 30px;
+  margin-top: 20px;
   font-size: 10.5px;
 }
 
 .ave-root--landscape .ave-headline {
   grid-row: 3;
-  font-size: 68px;
-  margin-top: 14px;
+  font-size: 62px;
+  margin-top: 12px;
 }
 
 .ave-root--landscape .ave-subhead {
   grid-row: 4;
-  font-size: 19px;
+  font-size: 18px;
   margin-top: 8px;
 }
 
 .ave-root--landscape .ave-standfirst {
   grid-row: 5;
-  margin-top: 24px;
+  margin-top: 18px;
 }
 
 .ave-root--landscape .ave-standtext {
-  font-size: 16px;
+  font-size: 15px;
+  line-height: 1.5;
 }
 
-/* Wraps between items, never inside one, when a location runs long. */
 .ave-root--landscape .ave-byline {
   grid-row: 6;
-  flex-wrap: wrap;
-  gap: 8px 18px;
-  margin-top: 22px;
+  gap: 6px 18px;
+  margin-top: 18px;
 }
 
 .ave-root--landscape .ave-meta {
-  font-size: 10px;
-  white-space: nowrap;
+  font-size: 10.5px;
+}
+
+/* The date and handle share the first line and a long location takes the
+   next, so the byline costs two lines rather than three. */
+.ave-root--landscape .ave-meta--place {
+  order: 1;
 }
 
 .ave-root--landscape .ave-flexspacer {
   grid-row: 7;
 }
 
-/* Longer totals or more bands drop the band figures to a second line rather
-   than breaking the total itself. */
+/* Band figures that drop under the total start at the column's left edge,
+   under the total, rather than hanging off to the right. */
 .ave-root--landscape .ave-integration {
   grid-row: 8;
-  flex-wrap: wrap;
+  justify-content: flex-start;
   row-gap: 10px;
-  margin-top: 18px;
-  padding-top: 16px;
+  margin-top: 16px;
+  padding-top: 14px;
 }
 
 .ave-root--landscape .ave-int-label {
-  font-size: 10px;
+  font-size: 10.5px;
 }
 
 .ave-root--landscape .ave-int-total {
-  font-size: 52px;
-  white-space: nowrap;
+  font-size: 50px;
 }
 
+/* Seven bands must share the story column, so the figures sit closer. */
 .ave-root--landscape .ave-int-bands {
-  gap: 12px;
+  gap: 9px;
 }
 
 .ave-root--landscape .ave-int-id {
@@ -376,15 +407,14 @@
 
 .ave-root--landscape .ave-int-time {
   font-size: 16px;
-  white-space: nowrap;
 }
 
 /* The faint portrait grey is lifted a step so the small type holds up at the
    landscape export scale. */
 .ave-root--landscape .ave-int-frames {
-  font-size: 10px;
+  font-size: 10.5px;
+  word-spacing: -0.1em;
   color: var(--ave-dim);
-  white-space: nowrap;
 }
 
 /* The colophon becomes the right-hand column, stacked apparatus / workflow /
@@ -394,32 +424,36 @@
   grid-row: 2 / -1;
   align-self: center;
   grid-template-columns: 1fr;
-  gap: 18px;
-  margin-top: 24px;
-  padding: 0 0 0 24px;
+  gap: 14px;
+  margin-top: 12px;
+  padding: 0 0 0 20px;
   border-top: 0;
   border-left: 1px solid rgba(212, 165, 116, 0.2);
 }
 
 .ave-root--landscape .ave-foot-title {
-  font-size: 10px;
-  margin-bottom: 10px;
+  font-size: 10.5px;
+  margin-bottom: 9px;
 }
 
 .ave-root--landscape .ave-foot-row {
-  gap: 12px;
-  margin-bottom: 5px;
+  gap: 8px;
+  margin-bottom: 4px;
 }
 
 .ave-root--landscape .ave-foot-label {
-  flex-basis: 76px;
-  width: 76px;
-  font-size: 10px;
+  flex-basis: 72px;
+  width: 72px;
+  font-size: 10.5px;
+  line-height: 1.25;
   color: var(--ave-dim);
 }
 
 .ave-root--landscape .ave-foot-value {
-  font-size: 12px;
+  font-size: 12.5px;
+  line-height: 1.25;
+  /* Two-line values split evenly rather than stranding "Gen 2". */
+  text-wrap: balance;
 }
 
 /* Sky reads across: the Bortle figure beside its label and scale bar. */
@@ -443,7 +477,7 @@
   grid-column: 2;
   grid-row: 2;
   align-self: end;
-  font-size: 11px;
+  font-size: 12.5px;
 }
 
 .ave-root--landscape .ave-sky-bar {
