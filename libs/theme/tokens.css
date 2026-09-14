@@ -4,7 +4,7 @@
  * Import this file in any project to use the shared theme.
  * Example: @import '@db-astro-suite/theme';
  *
- * NOTE: Web fonts loaded over the network (Fira Code, Orbitron, Rajdhani)
+ * NOTE: Web fonts loaded over the network (Orbitron, Rajdhani)
  * are linked from each consuming app's `index.html` rather than via CSS
  * `@import url(...)`. The `@import` form is order-sensitive (must precede
  * every other rule), and Tailwind v4's `@import "tailwindcss"` emits
@@ -50,6 +50,18 @@
   font-family: "Rajdhani";
   src: url("./fonts/Rajdhani-Bold.ttf") format("truetype");
   font-weight: 700;
+  font-display: swap;
+}
+
+/* Fira Code (mono) — self-hosted variable font, SIL OFL (fonts/fira-code-OFL.txt).
+   It used to come only from each app's Google Fonts <link>. A cross-origin
+   stylesheet is unreadable to script, so Astrogram's card exporter could not
+   embed it and every downloaded card drew this font's text in Courier. */
+@font-face {
+  font-family: "Fira Code";
+  src: url("./fonts/fira-code-variable.woff2") format("woff2");
+  font-weight: 300 700;
+  font-style: normal;
   font-display: swap;
 }
 
