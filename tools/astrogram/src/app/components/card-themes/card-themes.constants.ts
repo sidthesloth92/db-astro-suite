@@ -138,7 +138,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Flight Log',
     subtitle: 'Boarding-pass ticket',
     component: FlightLogThemeComponent,
-    landscapeBasisHeight: 540,
+    landscapeBasisHeight: 480,
     accents: {
       accentColor: '#5EE6B8',
       accentColorRgb: '94, 230, 184',

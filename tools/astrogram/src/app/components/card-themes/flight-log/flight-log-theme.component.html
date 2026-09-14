@@ -1,6 +1,6 @@
 @let data = vm();
 
-<div class="fl-root">
+<div class="fl-root" [class.fl-root--landscape]="isLandscapeFormat()">
   <dba-ag-theme-starfield [density]="70" [opacity]="0.25" [color]="'#5EE6B8'" [seed]="5" />
 
   <div class="fl-ticket">
