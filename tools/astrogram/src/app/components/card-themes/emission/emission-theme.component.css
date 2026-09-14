@@ -282,3 +282,147 @@
   color: var(--ems-txt);
   opacity: 0.55;
 }
+
+/* ── Landscape (1.91:1) ──
+   The portrait column stretched across a wide card stacked the title,
+   spectrum, band readout, total and footer into too little height: the
+   subtitle sat on the spectrum strip, the scale labels on the Hα row and the
+   total on the footer rule, while the reticle ran over the strip's right end
+   and through the Hα row. Landscape sets the title and spectrum on the left
+   and the band readout and total on the right, drops the reticle, and raises
+   the small labels. */
+.ems-root--landscape {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  grid-template-rows: auto 1fr auto auto 1fr auto;
+  grid-template-areas:
+    'header header'
+    '. .'
+    'object readout'
+    'spectrum readout'
+    '. .'
+    'footer footer';
+  column-gap: 52px;
+  padding: 28px 36px 26px;
+}
+
+.ems-root--landscape .ems-sp-a,
+.ems-root--landscape .ems-sp-b,
+.ems-root--landscape .ems-sp-c,
+.ems-root--landscape .ems-cross {
+  display: none;
+}
+
+.ems-root--landscape .ems-spike {
+  left: 49%;
+  top: 70px;
+}
+
+.ems-root--landscape .ems-header {
+  grid-area: header;
+}
+
+.ems-root--landscape .ems-brand {
+  font-size: 11px;
+}
+
+.ems-root--landscape .ems-date {
+  font-size: 11px;
+  color: var(--ems-dim);
+}
+
+.ems-root--landscape .ems-object {
+  grid-area: object;
+  margin-top: 0;
+}
+
+.ems-root--landscape .ems-kicker {
+  font-size: 11px;
+}
+
+.ems-root--landscape .ems-name {
+  font-size: 52px;
+}
+
+.ems-root--landscape .ems-desc {
+  font-size: 14px;
+  max-width: none;
+}
+
+.ems-root--landscape .ems-spectrum {
+  grid-area: spectrum;
+  margin-top: 26px;
+}
+
+.ems-root--landscape .ems-strip {
+  height: 82px;
+}
+
+.ems-root--landscape .ems-axis {
+  margin-top: 9px;
+  font-size: 10px;
+  color: var(--ems-dim);
+}
+
+.ems-root--landscape .ems-readout {
+  grid-area: readout;
+  align-self: center;
+}
+
+.ems-root--landscape .ems-row {
+  gap: 12px;
+  padding: 15px 0;
+}
+
+.ems-root--landscape .ems-row-id {
+  width: 42px;
+  font-size: 15px;
+}
+
+.ems-root--landscape .ems-row-nm {
+  width: 72px;
+  font-size: 11.5px;
+}
+
+.ems-root--landscape .ems-row-time {
+  width: 72px;
+  font-size: 18px;
+  white-space: nowrap;
+}
+
+.ems-root--landscape .ems-row-frames {
+  width: 66px;
+  font-size: 11.5px;
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+.ems-root--landscape .ems-total-row {
+  padding-top: 20px;
+}
+
+.ems-root--landscape .ems-total-label {
+  font-size: 11px;
+  color: var(--ems-dim);
+}
+
+.ems-root--landscape .ems-total-val {
+  font-size: 46px;
+}
+
+.ems-root--landscape .ems-footer {
+  grid-area: footer;
+}
+
+.ems-root--landscape .ems-ticker {
+  font-size: 10.5px;
+}
+
+.ems-root--landscape .ems-author {
+  font-size: 13px;
+}
+
+.ems-root--landscape .ems-loc {
+  font-size: 11px;
+  color: var(--ems-dim);
+}

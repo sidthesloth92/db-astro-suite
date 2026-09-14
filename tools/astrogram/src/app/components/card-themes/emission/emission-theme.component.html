@@ -1,6 +1,6 @@
 @let data = vm();
 
-<div class="ems-root">
+<div class="ems-root" [class.ems-root--landscape]="isLandscapeFormat()">
   <dba-ag-theme-starfield [density]="90" [opacity]="0.4" color="#ffffff" [seed]="1" />
 
   <svg class="ems-cross" width="230" height="230" viewBox="0 0 200 200" aria-hidden="true">
