@@ -3,55 +3,60 @@
 <div class="mp-root" [class.mp-root--landscape]="isLandscapeFormat()">
   <dba-ag-theme-starfield [density]="100" [opacity]="0.42" [seed]="23" />
 
-  <!-- Header -->
-  <div class="mp-header">
-    <span class="mp-eyebrow">Phases</span>
-    <span class="mp-date">{{ data.dateNumeric }}</span>
-  </div>
+  <!-- Content column. Its bottom margin is its distance from the card edge
+       and it clips, so heavy data that outgrows it counts for the content fit
+       instead of settling flush on the edge. -->
+  <div class="mp-inner">
+    <!-- Header -->
+    <div class="mp-header">
+      <span class="mp-eyebrow">Phases</span>
+      <span class="mp-date">{{ data.dateNumeric }}</span>
+    </div>
 
-  <!-- Title -->
-  <div class="mp-title" data-testid="card-hero">
-    <div class="mp-kicker">{{ data.objectId }}</div>
-    <div class="mp-name">{{ data.objectName }}</div>
-    <div class="mp-tagline">Each filter, as much of the night as it filled.</div>
-  </div>
+    <!-- Title -->
+    <div class="mp-title" data-testid="card-hero">
+      <div class="mp-kicker">{{ data.objectId }}</div>
+      <div class="mp-name">{{ data.objectName }}</div>
+      <div class="mp-tagline">Each filter, as much of the night as it filled.</div>
+    </div>
 
-  <div class="mp-spacer"></div>
+    <div class="mp-spacer"></div>
 
-  <!-- Moons -->
-  <div class="mp-moons">
-    @for (m of moons(); track m.id) {
-      <div class="mp-moon-item">
-        <svg class="mp-moon" viewBox="0 0 116 116" aria-hidden="true">
-          <circle cx="58" cy="58" r="54" fill="#15161B" stroke="rgba(255,255,255,0.10)" stroke-width="1" />
-          <path [attr.d]="m.d" fill="#E8E4DA" />
-          @for (c of craters; track $index) {
-            <circle [attr.cx]="c.cx" [attr.cy]="c.cy" [attr.r]="c.r" fill="#0D0D10" [attr.opacity]="c.opacity" />
-          }
-          <circle cx="58" cy="58" r="57" fill="none" [attr.stroke]="m.color" stroke-width="1.4" opacity="0.85" />
-        </svg>
-        <div class="mp-moon-id" [style.color]="m.color">{{ m.id }}</div>
-        <div class="mp-moon-time">{{ m.time }}</div>
-        <div class="mp-moon-frames">{{ m.frames }} · {{ m.pctLabel }}%</div>
+    <!-- Moons -->
+    <div class="mp-moons">
+      @for (m of moons(); track m.id) {
+        <div class="mp-moon-item">
+          <svg class="mp-moon" viewBox="0 0 116 116" aria-hidden="true">
+            <circle cx="58" cy="58" r="54" fill="#15161B" stroke="rgba(255,255,255,0.10)" stroke-width="1" />
+            <path [attr.d]="m.d" fill="#E8E4DA" />
+            @for (c of craters; track $index) {
+              <circle [attr.cx]="c.cx" [attr.cy]="c.cy" [attr.r]="c.r" fill="#0D0D10" [attr.opacity]="c.opacity" />
+            }
+            <circle cx="58" cy="58" r="57" fill="none" [attr.stroke]="m.color" stroke-width="1.4" opacity="0.85" />
+          </svg>
+          <div class="mp-moon-id" [style.color]="m.color">{{ m.id }}</div>
+          <div class="mp-moon-time">{{ m.time }}</div>
+          <div class="mp-moon-frames">{{ m.frames }} · {{ m.pctLabel }}%</div>
+        </div>
+      }
+    </div>
+
+    <div class="mp-spacer"></div>
+
+    <!-- Total -->
+    <div class="mp-total">
+      <span class="mp-total-label">Full night · </span>
+      <span class="mp-total-value">{{ data.total }}</span>
+    </div>
+
+    <!-- Footer -->
+    <div class="mp-footer">
+      <dba-ag-theme-gear-line class="mp-foot-gear" [values]="equipmentValues()" />
+      <div class="mp-foot-row">
+        <span class="mp-foot-author">{{ data.author }}</span>
+        <span class="mp-foot-spacer"></span>
+        <span class="mp-foot-meta">{{ data.location }} · Bortle&nbsp;{{ data.bortle }}</span>
       </div>
-    }
-  </div>
-
-  <div class="mp-spacer"></div>
-
-  <!-- Total -->
-  <div class="mp-total">
-    <span class="mp-total-label">Full night · </span>
-    <span class="mp-total-value">{{ data.total }}</span>
-  </div>
-
-  <!-- Footer -->
-  <div class="mp-footer">
-    <dba-ag-theme-gear-line class="mp-foot-gear" [values]="equipmentValues()" />
-    <div class="mp-foot-row">
-      <span class="mp-foot-author">{{ data.author }}</span>
-      <span class="mp-foot-spacer"></span>
-      <span class="mp-foot-meta">{{ data.location }} · Bortle {{ data.bortle }}</span>
     </div>
   </div>
 </div>

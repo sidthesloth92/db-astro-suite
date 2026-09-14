@@ -22,10 +22,25 @@
   overflow: hidden;
   color: var(--mp-txt);
   font-family: var(--mp-sans);
-  padding: 28px 32px 26px;
   box-sizing: border-box;
+}
+
+/* The content column. The bottom margin is the column's distance from the
+   card edge, not padding, and the column clips: heavy data that outgrows it
+   then counts as overflow for the content fit, which would otherwise stop
+   once the footer merely touched the card's bottom edge. The footer takes
+   the last 4px as padding, room for glyphs that overhang their line. */
+.mp-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 22px;
+  box-sizing: border-box;
+  padding: 28px 32px 0;
   display: flex;
   flex-direction: column;
+  overflow: clip;
 }
 
 /* Backdrop layer. The theme paints its background here rather than on
@@ -89,8 +104,11 @@
   margin-top: 10px;
 }
 
+/* A minimum gap keeps a full card's first moons off the tagline and its
+   last captions off the total; roomier cards never reach it. */
 .mp-spacer {
   flex: 1;
+  min-height: 14px;
 }
 
 /* ── Moons ── */
@@ -127,10 +145,25 @@
   margin-top: 8px;
 }
 
+/* Dim rather than faint: the faint tone all but disappeared on the black. */
 .mp-moon-frames {
   font: 400 9.5px/1 var(--mp-mono);
-  color: var(--mp-faint);
+  color: var(--mp-dim);
   margin-top: 6px;
+  white-space: nowrap;
+}
+
+/* Four or more filters: four moons to a row. Seven in threes took three
+   rows, left the last moon alone and crowded each caption onto the next
+   row's moons, and the content fit then shrank the whole card to hold
+   them. */
+.mp-moons:has(> .mp-moon-item:nth-child(4)) {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  row-gap: 14px;
+}
+
+.mp-moons:has(> .mp-moon-item:nth-child(4)) .mp-moon {
+  max-width: 88px;
 }
 
 /* ── Total ── */
@@ -158,7 +191,7 @@
 .mp-footer {
   position: relative;
   border-top: 1px solid rgba(232, 228, 218, 0.1);
-  padding-top: 12px;
+  padding: 12px 0 4px;
 }
 
 .mp-foot-gear {
@@ -194,10 +227,12 @@
    the captions, total label and footer printed small and faint. Landscape
    sets the title and the full-night total on the left and the three moons,
    larger, on the right, over a full-width footer. */
-.mp-root--landscape {
+.mp-root--landscape .mp-inner {
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-  grid-template-rows: auto 1fr auto auto 1fr auto;
+  /* The free rows keep a minimum so a full moon grid never meets the header
+     or the footer rule. */
+  grid-template-rows: auto minmax(14px, 1fr) auto auto minmax(14px, 1fr) auto;
   grid-template-areas:
     'header header'
     '. .'
@@ -206,7 +241,7 @@
     '. .'
     'footer footer';
   column-gap: 44px;
-  padding: 28px 36px 26px;
+  padding: 28px 36px 0;
 }
 
 .mp-root--landscape .mp-spacer {
@@ -286,9 +321,39 @@
 
 .mp-root--landscape .mp-moon-frames {
   font-size: 11px;
-  color: var(--mp-dim);
   margin-top: 7px;
-  white-space: nowrap;
+}
+
+/* Four to a row here too, with smaller moons and tighter captions, so two
+   rows of seven fit the card's height at full size. The moon column takes a
+   little more of the width so neighbouring captions keep clear of each
+   other. */
+.mp-root--landscape .mp-inner:has(.mp-moon-item:nth-child(4)) {
+  grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
+  column-gap: 36px;
+}
+
+.mp-root--landscape .mp-moons:has(> .mp-moon-item:nth-child(4)) {
+  column-gap: 10px;
+  row-gap: 14px;
+}
+
+.mp-root--landscape .mp-moons:has(> .mp-moon-item:nth-child(4)) .mp-moon {
+  max-width: 76px;
+}
+
+.mp-root--landscape .mp-moons:has(> .mp-moon-item:nth-child(4)) .mp-moon-id {
+  margin-top: 10px;
+}
+
+.mp-root--landscape .mp-moons:has(> .mp-moon-item:nth-child(4)) .mp-moon-time {
+  margin-top: 6px;
+  font-size: 20px;
+}
+
+.mp-root--landscape .mp-moons:has(> .mp-moon-item:nth-child(4)) .mp-moon-frames {
+  margin-top: 6px;
+  font-size: 10.5px;
 }
 
 .mp-root--landscape .mp-footer {
@@ -309,18 +374,17 @@
 }
 
 /* A long handle or location used to run the two ends of this row into each
-   other. The row may wrap: the meta then drops to its own line, pushed to the
-   right edge, and a meta long enough to span the row reads left-aligned
-   rather than as a ragged right-aligned block under the handle. When both
-   fit, the spacer takes the free space as before. */
+   other. The row may wrap: the meta then starts its own line at the left
+   margin under the handle (pushing it right left it indented against
+   nothing). When both fit, the spacer holds the meta at the right. */
 .mp-foot-row {
   flex-wrap: wrap;
+  justify-content: space-between;
   column-gap: 16px;
-  row-gap: 6px;
+  row-gap: 8px;
 }
 
 .mp-foot-row .mp-foot-meta {
-  margin-left: auto;
   min-width: 0;
 }
 
