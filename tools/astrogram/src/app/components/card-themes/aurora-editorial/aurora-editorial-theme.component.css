@@ -256,6 +256,11 @@
   flex-shrink: 0;
 }
 
+/* Holds an added row's value in line with the iconned rows above it. */
+.ave-foot-icon--blank {
+  width: 10px;
+}
+
 .ave-foot-label {
   font: 300 9px/1.35 var(--ave-serif);
   color: var(--ave-faint);

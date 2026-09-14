@@ -15,9 +15,16 @@
   <div class="ave-eyebrow">Deep-sky catalogue · {{ data.objectId }}</div>
 
   <!-- Headline -->
-  <div class="ave-headline" data-testid="card-hero">{{ heroPrimary() }}<span class="ave-dot">.</span></div>
-  @if (heroRest()) {
-    <div class="ave-subhead">— {{ heroRest() }}</div>
+  <!-- A long proper name ("Heart and Soul") shrinks to the column width. -->
+  <div
+    class="ave-headline"
+    data-testid="card-hero"
+    [dbaAgFitText]="isLandscapeFormat() ? 62 : 60"
+    [fitTextMin]="30"
+    [fitTextContent]="heroName().primary"
+  >{{ heroName().primary }}<span class="ave-dot">.</span></div>
+  @if (heroName().rest) {
+    <div class="ave-subhead">— {{ heroName().rest }}</div>
   }
 
   <!-- Standfirst -->
@@ -67,7 +74,11 @@
       <div class="ave-foot-title">Apparatus</div>
       @for (item of data.equipment; track $index) {
         <div class="ave-foot-row">
-          <dba-ag-theme-icon class="ave-foot-icon" [name]="equipmentIcon($index)" [size]="10" color="#555A6E" />
+          @if ($index < equipmentIconCount) {
+            <dba-ag-theme-icon class="ave-foot-icon" [name]="equipmentIcon($index)" [size]="10" color="#555A6E" />
+          } @else {
+            <span class="ave-foot-icon ave-foot-icon--blank"></span>
+          }
           <div class="ave-foot-label">{{ item.label }}</div>
           <div class="ave-foot-value">{{ item.value }}</div>
         </div>
@@ -78,7 +89,11 @@
       <div class="ave-foot-title">Workflow</div>
       @for (item of data.software; track $index) {
         <div class="ave-foot-row">
-          <dba-ag-theme-icon class="ave-foot-icon" [name]="softwareIcon($index)" [size]="10" color="#555A6E" />
+          @if ($index < softwareIconCount) {
+            <dba-ag-theme-icon class="ave-foot-icon" [name]="softwareIcon($index)" [size]="10" color="#555A6E" />
+          } @else {
+            <span class="ave-foot-icon ave-foot-icon--blank"></span>
+          }
           <div class="ave-foot-label">{{ item.label }}</div>
           <div class="ave-foot-value">{{ item.value }}</div>
         </div>
