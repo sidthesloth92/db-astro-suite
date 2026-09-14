@@ -102,6 +102,11 @@
   z-index: 2;
   transform: translateX(-50%);
   text-align: center;
+  /* A soft halo in the backdrop colour, so an orbit passing behind a label
+     reads as passing behind it rather than striking through the text. */
+  text-shadow:
+    0 0 3px #080611,
+    0 0 6px #080611;
 }
 
 .orr-planet-id {
@@ -126,7 +131,11 @@
   top: 65.28%;
   left: 0;
   right: 0;
-  bottom: 0;
+  /* The bottom margin lives here, not as footer padding, and the column clips:
+     text that outgrows it then counts as overflow for the content fit, which
+     would otherwise stop once the text merely touched the card's edge. */
+  bottom: 22px;
+  overflow: clip;
   z-index: 2;
   display: flex;
   flex-direction: column;
@@ -153,7 +162,7 @@
 /* ── Footer ── */
 .orr-footer {
   margin-top: auto;
-  padding: 14px 26px 22px;
+  padding: 14px 26px 0;
 }
 
 .orr-cols {
@@ -240,24 +249,38 @@
    The portrait design centres a 540 x 720 orbit artboard in the frame, which
    in a wide card left the orbits in the middle of the image and pressed the
    title and a full-width, tiny data footer into the bottom strip. Here the
-   art box is scaled up and raised so the orbit system — which only occupies
-   y 150-385 of its artboard — fills a band across the top, and the title and
-   footer take the lower half at a larger size. */
+   art box is shrunk and raised so the orbit system — which only occupies
+   y 150-385 of its artboard — sits in a band across the top ~40%, and the
+   title and footer get the rest at a larger, readable size. */
 .orr-root--landscape .orr-art {
-  top: -21%;
+  top: -20%;
   left: 50%;
   width: auto;
-  height: 142%;
+  height: 110%;
   aspect-ratio: 540 / 720;
   transform: translateX(-50%);
 }
 
+/* Low enough that a planet's label at the bottom of its orbit clears the
+   designation above the title. */
 .orr-root--landscape .orr-lower {
-  top: 50%;
+  top: 42%;
+}
+
+.orr-root--landscape .orr-planet-id {
+  font-size: 13px;
+}
+
+.orr-root--landscape .orr-planet-time {
+  font-size: 12px;
+}
+
+.orr-root--landscape .orr-planet-frames {
+  font-size: 10.5px;
 }
 
 .orr-root--landscape .orr-object-id {
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .orr-root--landscape .orr-object-name {
@@ -266,7 +289,7 @@
 }
 
 .orr-root--landscape .orr-footer {
-  padding: 14px 40px 24px;
+  padding: 14px 40px 0;
 }
 
 .orr-root--landscape .orr-cols {
@@ -275,31 +298,34 @@
 }
 
 .orr-root--landscape .orr-col-title {
-  font-size: 11px;
+  font-size: 12px;
   margin-bottom: 8px;
 }
 
 /* Labels and values read as pairs, not as two ends of a 400px-wide row. */
 .orr-root--landscape .orr-row {
   justify-content: flex-start;
+  align-items: baseline;
   gap: 16px;
   padding: 2px 0;
 }
 
 .orr-root--landscape .orr-row-label {
-  flex: 0 0 180px;
+  flex: 0 0 165px;
   white-space: nowrap;
-  font-size: 10.5px;
+  font-size: 11px;
+  /* Lifted from the portrait grey, which at this size read as a smudge. */
+  color: #736c93;
 }
 
 .orr-root--landscape .orr-row-value {
-  font-size: 12.5px;
+  font-size: 13.5px;
   text-align: left;
   max-width: none;
 }
 
 .orr-root--landscape .orr-sky {
-  font-size: 12px;
+  font-size: 13px;
   margin-top: 8px;
 }
 
@@ -309,13 +335,14 @@
    enlarged (the orbits still clear both edges) and lowered, and the title
    follows it, so the chart, title and footer are evenly spaced. */
 :host-context(.card.aspect-9-16) .orr-art {
-  top: 40px;
-  left: calc(50% - 318.5px);
-  width: 637px;
-  height: 850px;
+  top: 80px;
+  /* 600 wide keeps the outermost planet's caption ~18px clear of the edge. */
+  left: calc(50% - 300px);
+  width: 600px;
+  height: 800px;
 }
 
 :host-context(.card.aspect-9-16) .orr-lower {
-  top: 55%;
+  top: 59%;
 }
 

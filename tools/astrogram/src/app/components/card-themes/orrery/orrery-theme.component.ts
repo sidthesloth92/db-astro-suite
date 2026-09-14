@@ -24,6 +24,14 @@ export class OrreryThemeComponent extends CardThemeBaseDirective {
   protected readonly orbitTop = 20;
   /** Orbit start angles (degrees) for the first three bands. */
   protected readonly orbitAngles: readonly number[] = [-32, 158, 64];
+  /** Half-width of the sun's total label, in design units, for collision checks. */
+  private readonly sunLabelHalfWidth = 55;
+  /** Half-height of the sun's total label around the orbit centre, in design units. */
+  private readonly sunLabelHalfHeight = 26;
+  /** Approximate width of a planet's three-line label, in design units. */
+  private readonly planetLabelWidth = 64;
+  /** Approximate height of a planet's three-line label, in design units. */
+  private readonly planetLabelHeight = 38;
 
   /** Per-band orbit geometry, planet position/size and HTML label placement. */
   protected readonly orbits = computed(() =>
@@ -39,6 +47,15 @@ export class OrreryThemeComponent extends CardThemeBaseDirective {
       const x = this.cx + rx * Math.cos(a);
       const y = this.cy + ry * Math.sin(a);
       const pr = 7 + band.pct * 16;
+      // Labels sit under their planet — unless that lands on the sun's total,
+      // which a planet on a tight inner orbit can reach when many bands share
+      // the footprint; then the label goes above the planet instead.
+      const below = y + 12 + band.pct * 16;
+      const hitsSun =
+        Math.abs(x - this.cx) < this.sunLabelHalfWidth + this.planetLabelWidth / 2 &&
+        below < this.cy + this.sunLabelHalfHeight &&
+        below + this.planetLabelHeight > this.cy - this.sunLabelHalfHeight;
+      const labelTop = hitsSun ? y - pr - 6 - this.planetLabelHeight : below;
       return {
         band,
         rx,
@@ -47,7 +64,7 @@ export class OrreryThemeComponent extends CardThemeBaseDirective {
         y,
         pr,
         haloR: pr + 5,
-        labelTopPct: ((this.orbitTop + y + 12 + band.pct * 16) / 720) * 100,
+        labelTopPct: ((this.orbitTop + labelTop) / 720) * 100,
         labelLeftPct: (x / 540) * 100,
       };
     }),
