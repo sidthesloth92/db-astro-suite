@@ -16,9 +16,15 @@
 
     <!-- Poster headline -->
     <div class="dp-headline" data-testid="card-hero">
-      <div class="dp-headline-main">{{ objectNameHead() }}</div>
-      @if (objectNameTail()) {
-        <div class="dp-headline-sub">{{ objectNameTail() }}</div>
+      <!-- A long proper name ("North America") shrinks to the column's width. -->
+      <div
+        class="dp-headline-main"
+        [dbaAgFitText]="isLandscapeFormat() ? 108 : 76"
+        [fitTextMin]="40"
+        [fitTextContent]="headlineName().primary"
+      >{{ headlineName().primary }}</div>
+      @if (headlineName().rest) {
+        <div class="dp-headline-sub">{{ headlineName().rest }}</div>
       }
     </div>
 
