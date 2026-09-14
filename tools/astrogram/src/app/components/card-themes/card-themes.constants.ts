@@ -284,6 +284,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Credits Ivory',
     subtitle: 'Light · one-sheet on paper',
     component: CreditsIvoryThemeComponent,
+    landscapeBasisHeight: 560,
     accents: {
       accentColor: '#1A1622',
       accentColorRgb: '26, 22, 34',

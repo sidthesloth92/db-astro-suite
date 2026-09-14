@@ -1,6 +1,6 @@
 @let data = vm();
 
-<div class="cri-root">
+<div class="cri-root" [class.cri-root--landscape]="isLandscapeFormat()">
   <svg class="cri-specks" viewBox="0 0 540 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     @for (speck of specks; track $index) {
       <circle
