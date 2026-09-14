@@ -291,7 +291,7 @@
 
 .crd-root--landscape .crd-study {
   grid-row: 3;
-  font-size: 11px;
+  font-size: 12.5px;
   margin-top: 14px;
 }
 
@@ -306,7 +306,7 @@
 }
 
 .crd-root--landscape .crd-release-meta {
-  font-size: 11px;
+  font-size: 12.5px;
   line-height: 1.4;
   letter-spacing: 0.2em;
   margin-top: 10px;
@@ -337,12 +337,14 @@
 .crd-root--landscape .crd-billing {
   grid-column: 2;
   grid-row: 2 / -1;
-  align-self: center;
+  /* Safe: a block taller than its rows overflows downward, where the content
+     fit can see it, instead of rising under the title. */
+  align-self: safe center;
   display: grid;
   grid-template-columns: auto auto;
   justify-content: space-evenly;
   column-gap: 44px;
-  row-gap: 32px;
+  row-gap: 26px;
 }
 
 /* Software and exposure are the longest credits and close the block across
@@ -351,18 +353,20 @@
   grid-column: 1 / -1;
 }
 
+/* Landscape type is set a step up from portrait: at the old sizes the
+   labels, band line and footer exported at 8-9px. */
 .crd-root--landscape .crd-credit-k {
-  font-size: 11px;
+  font-size: 12.5px;
   letter-spacing: 0.28em;
   padding-left: 0.28em;
 }
 
 .crd-root--landscape .crd-credit-v {
-  font-size: 14.5px;
+  font-size: 16px;
   margin-top: 8px;
 }
 
 .crd-root--landscape .crd-band-line {
-  font-size: 12px;
+  font-size: 13.5px;
   margin-top: 6px;
 }
