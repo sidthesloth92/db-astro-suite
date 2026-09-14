@@ -105,7 +105,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Halo',
     subtitle: 'Ethereal soft pastels',
     component: HaloThemeComponent,
-    landscapeBasisHeight: 660,
+    landscapeBasisHeight: 500,
     accents: {
       accentColor: '#C6B6FF',
       accentColorRgb: '198, 182, 255',

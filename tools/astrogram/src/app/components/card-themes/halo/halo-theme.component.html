@@ -1,6 +1,6 @@
 @let data = vm();
 
-<div class="hal-root">
+<div class="hal-root" [class.hal-root--landscape]="isLandscapeFormat()">
   <!-- Soft pastel halos -->
   <div class="hal-halos" aria-hidden="true">
     <div class="hal-halo hal-halo-lav"></div>

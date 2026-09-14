@@ -326,3 +326,179 @@
 .hal-bortle-seg.is-lit {
   background: linear-gradient(90deg, var(--hal-mint), var(--hal-peach), var(--hal-rose));
 }
+
+/* ── Landscape (1.91:1) ──
+   The portrait stack became full-width strips on a wide card: the caption
+   filled only the left third of the hero, each band pill was 325px wide with
+   its reading in the left fifth, and the 8.5px labels in the faint tone were
+   near-invisible at the export's size. Landscape splits the card into two
+   columns under the header — hero and integration on the left, equipment over
+   pipeline and a Bortle gauge on the right — with the type raised and the
+   faint tone lifted so the labels read. */
+.hal-root--landscape {
+  --hal-faint: #86839c;
+}
+
+.hal-root--landscape .hal-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    'head head'
+    'hero lower'
+    'int lower';
+  gap: 14px 16px;
+  padding: 24px 28px 26px;
+}
+
+.hal-root--landscape .hal-header {
+  grid-area: head;
+}
+
+.hal-root--landscape .hal-hero-id,
+.hal-root--landscape .hal-date {
+  font-size: 11.5px;
+}
+
+/* The hero takes the column's spare height; its content is centred rather
+   than leaving the space under the meta line. */
+.hal-root--landscape .hal-hero {
+  grid-area: hero;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 20px 24px;
+}
+
+.hal-root--landscape .hal-hero-name {
+  font-size: 50px;
+  line-height: 1.05;
+  margin-top: 0;
+}
+
+.hal-root--landscape .hal-hero-caption {
+  font-size: 14px;
+  max-width: none;
+}
+
+.hal-root--landscape .hal-hero-meta {
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  font-size: 11px;
+}
+
+.hal-root--landscape .hal-hero-meta span {
+  white-space: nowrap;
+}
+
+.hal-root--landscape .hal-integration {
+  grid-area: int;
+  padding: 16px 18px 18px;
+}
+
+/* A longer total drops below the label instead of running into it. */
+.hal-root--landscape .hal-int-head {
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-bottom: 12px;
+}
+
+.hal-root--landscape .hal-int-label,
+.hal-root--landscape .hal-int-total span {
+  font-size: 11px;
+}
+
+.hal-root--landscape .hal-int-total {
+  font-size: 30px;
+}
+
+.hal-root--landscape .hal-pills {
+  gap: 12px;
+}
+
+.hal-root--landscape .hal-pill {
+  min-width: 0;
+  padding: 12px 14px;
+}
+
+.hal-root--landscape .hal-pill-id {
+  font-size: 12px;
+}
+
+.hal-root--landscape .hal-pill-time {
+  font-size: 25px;
+  white-space: nowrap;
+}
+
+.hal-root--landscape .hal-pill-frames {
+  font-size: 10.5px;
+  white-space: nowrap;
+}
+
+/* Equipment runs the full width of the right column, so the longest piece
+   of kit stays on one line; pipeline and the Bortle gauge share the row
+   beneath it. */
+.hal-root--landscape .hal-lower {
+  grid-area: lower;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.hal-root--landscape .hal-equipment {
+  flex: 1;
+  justify-content: center;
+}
+
+.hal-root--landscape .hal-equipment,
+.hal-root--landscape .hal-pipeline {
+  gap: 7px;
+  padding: 14px 18px;
+}
+
+.hal-root--landscape .hal-stack {
+  flex-direction: row;
+}
+
+.hal-root--landscape .hal-pipeline {
+  flex: 1.6 1 0;
+  min-width: 0;
+}
+
+.hal-root--landscape .hal-col-title,
+.hal-root--landscape .hal-bortle-label {
+  font-size: 11px;
+}
+
+.hal-root--landscape .hal-gear-label {
+  font-size: 10px;
+}
+
+.hal-root--landscape .hal-gear-value {
+  font-size: 13px;
+}
+
+/* Beside the pipeline panel the Bortle panel is as tall as it, so it reads
+   as a gauge: label over a large reading, the meter along the bottom. */
+.hal-root--landscape .hal-bortle {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 14px 16px 16px;
+}
+
+.hal-root--landscape .hal-bortle-head {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.hal-root--landscape .hal-bortle-val {
+  font-size: 44px;
+}
+
+.hal-root--landscape .hal-bortle-seg {
+  height: 5px;
+}
