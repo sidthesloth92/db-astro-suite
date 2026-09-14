@@ -204,3 +204,126 @@
   font: 500 10px/1 'Outfit', system-ui, sans-serif;
   color: #8398ad;
 }
+
+/* ── Landscape (1.91:1) ──
+   The chart is a 540 x 720 artboard sliced to fill the card, so on a wide
+   card only a strip of the tail showed — the nucleus was cut off above the
+   frame — and the tail ran under the description and the band legend, with
+   the labels too small to read. Landscape draws the artboard at its own
+   aspect on the left (comet at 1:1, whole), keeps the title under the
+   nucleus and the legend in the curve of the tail, and moves the
+   description, apparatus and pipeline into a column on the right. Positions
+   are in artboard pixels: the landscape canvas is 460 tall. */
+.com-root--landscape .com-chart {
+  inset: auto;
+  top: -72px;
+  left: -18px;
+  width: 540px;
+  height: 720px;
+}
+
+.com-root--landscape .com-header {
+  padding: 22px 30px 0;
+}
+
+.com-root--landscape .com-datestamp {
+  font-size: 11px;
+  color: #6f829a;
+}
+
+.com-root--landscape .com-title {
+  top: 178px;
+  right: auto;
+  left: 150px;
+  width: 300px;
+  max-width: none;
+}
+
+.com-root--landscape .com-object-id {
+  font-size: 11px;
+}
+
+.com-root--landscape .com-object-name {
+  font-size: 38px;
+}
+
+.com-root--landscape .com-legend {
+  top: 294px;
+  left: 236px;
+  gap: 10px;
+}
+
+.com-root--landscape .com-legend-swatch {
+  width: 24px;
+}
+
+.com-root--landscape .com-legend-id {
+  width: 38px;
+  font-size: 12px;
+}
+
+.com-root--landscape .com-legend-time {
+  width: 58px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.com-root--landscape .com-legend-frames {
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.com-root--landscape .com-footer {
+  top: 0;
+  left: 486px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 44px 30px 24px 0;
+}
+
+.com-root--landscape .com-caption {
+  font-size: 13.5px;
+  max-width: none;
+}
+
+/* Apparatus and pipeline stack in the column rather than sit side by side,
+   so a long gear value keeps a line to itself. */
+.com-root--landscape .com-cols {
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.com-root--landscape .com-col-title {
+  font-size: 10px;
+  margin-bottom: 6px;
+}
+
+.com-root--landscape .com-row {
+  align-items: baseline;
+}
+
+.com-root--landscape .com-row-label {
+  font-size: 9.5px;
+  color: #6a7d94;
+}
+
+.com-root--landscape .com-row-value {
+  font-size: 11.5px;
+}
+
+.com-root--landscape .com-total-row {
+  align-items: baseline;
+  margin-top: 8px;
+  padding-top: 8px;
+}
+
+.com-root--landscape .com-total {
+  font-size: 17px;
+  white-space: nowrap;
+}
+
+.com-root--landscape .com-sky {
+  font-size: 11px;
+  text-align: right;
+}
