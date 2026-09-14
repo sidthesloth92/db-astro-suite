@@ -102,9 +102,17 @@
   opacity: 0.55;
 }
 
+/* Centred in the gap under the site line (see the template): at a fixed
+   frame position it landed on the gear run whenever that ran long. */
+.flm-grow--spark {
+  position: relative;
+  z-index: -1;
+}
+
 .flm-spike-3 {
   left: 84px;
-  top: 408px;
+  top: 50%;
+  margin-top: -9px;
   opacity: 0.45;
 }
 
@@ -189,9 +197,12 @@
   text-transform: uppercase;
 }
 
+/* Leading for a location long enough to wrap; the negative margins keep a
+   one-line site as tall as before. */
 .flm-site {
-  margin-top: 8px;
-  font: 500 9.5px/1 var(--flm-mono);
+  margin-top: calc(8px - 0.2em);
+  margin-bottom: -0.2em;
+  font: 500 9.5px/1.4 var(--flm-mono);
   color: var(--flm-amber);
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -225,42 +236,50 @@
   margin-top: 8px;
 }
 
+/* A duration is one reading: squeezed, it broke into "2h / 42m". */
 .flm-code-time {
   font: 600 13px/1 var(--flm-sans);
   color: #fff;
   margin-top: 6px;
+  white-space: nowrap;
 }
 
 /* ── Landscape (1.91:1) ──
    The portrait frame is one centred stack: in a wide frame it left the outer
    thirds empty and pressed the gear run, site and band codes into a tight
    column that ran down to the frame's lower edge, with labels too small to
-   read. Landscape opens the frame out — subject and total on the left; band
-   codes, gear run and site in a ruled column on the right. The subject
+   read. Landscape opens the frame out — subject, total and site on the left;
+   band codes and gear run in a ruled column on the right. The site used to
+   close the right column, which a full gear run then pushed onto the frame's
+   lower edge. The subject
    wrapper steps aside (`display: contents`) so its lines join the frame's
    grid alongside the codes. */
 .flm-root--landscape .flm-edge {
-  font-size: 10px;
+  font-size: 11.5px;
 }
 
 .flm-root--landscape .flm-frame-content {
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-  grid-template-rows: auto 1fr auto auto auto auto 1fr;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  grid-template-rows: auto 1fr auto auto auto auto auto 1fr;
   grid-template-areas:
     'head head'
     '. .'
     'id codes'
     'name codes'
     'total gear'
-    'label site'
+    'label gear'
+    'site gear'
     '. .';
   column-gap: 44px;
   padding: 24px 40px 26px;
 }
 
+/* Its own margin: a full card takes up the free rows, which used to leave
+   the designation sitting right under the frame number. */
 .flm-root--landscape .flm-frame-head {
   grid-area: head;
+  margin-bottom: 14px;
 }
 
 /* The starfield artboard is sliced to the frame's width, which blows its
@@ -309,20 +328,23 @@
 }
 
 /* The right column is ruled off like a caption strip: codes level with the
-   subject, the gear run level with the total, and the site level with the
-   total's label. Spacing is padding, not margin, so the rule runs unbroken. */
+   subject, the gear run level with the total and site. Spacing is padding,
+   not margin, so the rule runs unbroken. */
 .flm-root--landscape .flm-codes,
-.flm-root--landscape .flm-gear,
-.flm-root--landscape .flm-site {
+.flm-root--landscape .flm-gear {
   padding-left: 22px;
   border-left: 1px solid rgba(255, 182, 92, 0.3);
 }
 
+/* Four codes to a row. Seven in one row ran past the frame's edge and broke
+   every duration over two lines; a short set still reads as one row. */
 .flm-root--landscape .flm-codes {
   grid-area: codes;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 34px;
+  display: grid;
+  grid-template-columns: repeat(4, max-content);
+  align-items: start;
+  justify-content: start;
+  gap: 10px 34px;
   padding-top: 4px;
 }
 
@@ -332,16 +354,17 @@
   justify-content: flex-start;
   max-width: none;
   margin: 0;
-  padding-top: 18px;
+  padding-top: 12px;
   font-size: 11px;
-  line-height: 1.75;
+  line-height: 1.6;
+  /* Tighter than portrait so a long item such as a filter wheel's full name
+     holds one line in the column instead of breaking inside itself. */
+  letter-spacing: 0.08em;
 }
 
 .flm-root--landscape .flm-site {
   grid-area: site;
-  margin-top: 0;
-  padding-top: 10px;
-  padding-bottom: 2px;
+  margin: calc(12px - 0.2em) 0 -0.2em;
   font-size: 11px;
 }
 
@@ -362,20 +385,32 @@
   font-size: 19px;
 }
 
-/* Spikes move into the open space around the two columns. */
+/* Spikes move into the open space around the two columns: the upper right
+   one under the fourth code column (a second row of codes stops short of
+   it), the lower one low in the gutter before the column rule, below where
+   the text of either column ends. */
 .flm-root--landscape .flm-spike-1 {
   left: auto;
-  right: 64px;
-  top: 58px;
+  right: 40px;
+  top: 128px;
 }
 
 .flm-root--landscape .flm-spike-2 {
-  right: 44%;
+  left: 45%;
+  right: auto;
   top: auto;
-  bottom: 40px;
+  bottom: 12px;
+}
+
+/* The gap that holds the lower sparkle in portrait is hidden here; the
+   sparkle places against the frame instead. */
+.flm-root--landscape .flm-grow--spark {
+  display: contents;
 }
 
 .flm-root--landscape .flm-spike-3 {
+  z-index: -1;
   left: 46%;
   top: 36px;
+  margin-top: 0;
 }
