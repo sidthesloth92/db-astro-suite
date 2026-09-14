@@ -251,3 +251,144 @@
   color: var(--tr-txt);
   opacity: 0.6;
 }
+
+/* ── Landscape (1.91:1) ──
+   The portrait column dropped into the wide frame shrank the reticle to a
+   small circle in the middle while the band rows ran the full width, left the
+   ring labels at about 4 export px and sat the title and total on the footer
+   rule. Here the reticle fills a left column, the header, band readout, title
+   and total stack beside it, and the footer runs the full width beneath both
+   so the gear list stays on as few lines as possible. */
+.tr-root--landscape {
+  display: grid;
+  grid-template-columns: 394px minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto auto minmax(0, 1fr) auto;
+  column-gap: 36px;
+}
+
+.tr-root--landscape .tr-header {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.tr-root--landscape .tr-status {
+  font-size: 10px;
+}
+
+/* Fills its grid area; the viewBox's `meet` fit keeps the reticle round and
+   centred at whatever height the footer leaves. */
+.tr-root--landscape .tr-svg {
+  grid-column: 1;
+  grid-row: 1 / 6;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  margin-top: 0;
+  align-self: stretch;
+}
+
+.tr-root--landscape .tr-ring-label {
+  font-size: 11px;
+}
+
+.tr-root--landscape .tr-readout {
+  grid-column: 2;
+  grid-row: 3;
+  margin-top: 0;
+}
+
+/* Id, ring and times on one line with the bar full width beneath: inline, the
+   bar was left under 70px wide by the narrower column. */
+.tr-root--landscape .tr-row {
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  padding: 9px 0;
+}
+
+.tr-root--landscape .tr-row-id {
+  width: 46px;
+  font-size: 15px;
+}
+
+.tr-root--landscape .tr-row-ring {
+  flex: 1;
+  width: auto;
+  font-size: 10.5px;
+  white-space: nowrap;
+}
+
+.tr-root--landscape .tr-row-bar {
+  order: 1;
+  flex: 0 0 100%;
+}
+
+.tr-root--landscape .tr-row-time {
+  width: auto;
+  font-size: 18px;
+  white-space: nowrap;
+}
+
+.tr-root--landscape .tr-row-frames {
+  width: 64px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* The spacer's own gap pushed a one-line name onto two lines in the narrower
+   column; space-between does its job without taking width. */
+.tr-root--landscape .tr-title {
+  grid-column: 2;
+  grid-row: 4;
+  justify-content: space-between;
+  column-gap: 16px;
+}
+
+.tr-root--landscape .tr-title-spacer {
+  display: none;
+}
+
+.tr-root--landscape .tr-kicker {
+  font-size: 11px;
+}
+
+.tr-root--landscape .tr-name {
+  font-size: 31px;
+}
+
+.tr-root--landscape .tr-total-label {
+  font-size: 10px;
+}
+
+.tr-root--landscape .tr-total-value {
+  font-size: 34px;
+  white-space: nowrap;
+}
+
+.tr-root--landscape .tr-spacer {
+  display: none;
+}
+
+.tr-root--landscape .tr-footer {
+  grid-column: 1 / -1;
+  grid-row: 6;
+  margin-top: 22px;
+}
+
+.tr-root--landscape .tr-foot-gear {
+  font-size: 10.5px;
+}
+
+.tr-root--landscape .tr-foot-row {
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-top: 8px;
+}
+
+.tr-root--landscape .tr-foot-author {
+  font-size: 13px;
+}
+
+.tr-root--landscape .tr-foot-meta {
+  font-size: 10.5px;
+  line-height: 1.3;
+}
