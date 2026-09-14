@@ -27,9 +27,13 @@ export class OrreryThemeComponent extends CardThemeBaseDirective {
 
   /** Per-band orbit geometry, planet position/size and HTML label placement. */
   protected readonly orbits = computed(() =>
-    this.vm().integration.map((band, i) => {
-      const rx = 92 + i * 56;
-      const ry = 40 + i * 24;
+    this.vm().integration.map((band, i, bands) => {
+      // Orbits spread across the design's three-band footprint (outermost
+      // rx 204, ry 88) however many bands there are; spaced a fixed step
+      // apart, a seventh filter's orbit was 856 wide and ran off the card.
+      const steps = Math.max(bands.length - 1, 2);
+      const rx = 92 + i * (112 / steps);
+      const ry = 40 + i * (48 / steps);
       const angle = this.orbitAngles[i] ?? -32 + i * 96; // exact for the first 3 bands
       const a = (angle * Math.PI) / 180;
       const x = this.cx + rx * Math.cos(a);

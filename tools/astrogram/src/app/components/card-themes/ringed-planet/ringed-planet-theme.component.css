@@ -61,13 +61,26 @@
   color: #564e6f;
 }
 
-/* ── Object title overlay ── */
-.rpl-title {
+/* ── Title, legend + footer column ──
+   Each used to be positioned on its own — the title at 54%, the legend at 64%,
+   the footer growing up from the bottom — so a two-line name ran into the
+   legend and a long gear list slid the footer over both. They now stack in
+   one column from the title's position to the bottom edge; content that
+   outgrows it overflows downward, where the card's content fit enlarges the
+   canvas to hold it. */
+.rpl-lower {
   position: absolute;
   top: 54.44%;
   left: 0;
   right: 0;
+  bottom: 0;
   z-index: 2;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Object title ── */
+.rpl-title {
   text-align: center;
 }
 
@@ -86,11 +99,8 @@
 
 /* ── Ring legend ── */
 .rpl-legend {
-  position: absolute;
-  top: 63.89%;
-  left: 0;
-  right: 0;
-  z-index: 2;
+  /* Where the design placed it: 16px under the title's last line. */
+  margin-top: 16px;
   display: flex;
   justify-content: center;
   /* Held inside the footer's margins, wrapping if a band list is long: with
@@ -129,12 +139,8 @@
 
 /* ── Footer ── */
 .rpl-footer {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 2;
-  padding: 0 26px 22px;
+  margin-top: auto;
+  padding: 14px 26px 22px;
 }
 
 .rpl-cols {
@@ -216,7 +222,7 @@
   transform: translateX(-50%);
 }
 
-.rpl-root--landscape .rpl-title {
+.rpl-root--landscape .rpl-lower {
   top: 46%;
 }
 
@@ -230,8 +236,8 @@
 }
 
 .rpl-root--landscape .rpl-legend {
-  top: 60%;
-  gap: 26px;
+  margin-top: 21px;
+  column-gap: 26px;
 }
 
 .rpl-root--landscape .rpl-legend-id {
@@ -249,7 +255,7 @@
 }
 
 .rpl-root--landscape .rpl-footer {
-  padding: 0 40px 22px;
+  padding: 14px 40px 22px;
 }
 
 .rpl-root--landscape .rpl-cols {

@@ -16,6 +16,7 @@ import {
   OnInit,
   signal,
   ViewChild,
+  viewChild,
 } from '@angular/core';
 import { EXPORT_DIMENSIONS_BY_RATIO } from '../../constants/preview-sizes.constants';
 import { THEME_DESIGN_HEIGHT, THEME_DESIGN_WIDTH } from '../../constants/theme-canvas.constants';
@@ -24,6 +25,12 @@ import { CardDataService } from '../../services/card-data.service';
 import { PreviewLayoutService } from '../../services/preview-layout.service';
 import { resizeDataUrlToExactDimensions } from '../../utils/resize-data-url.util';
 import { computeThemeCanvas } from '../../utils/theme-canvas.util';
+import {
+  CONTENT_FIT_MAX_PASSES,
+  CONTENT_FIT_TOLERANCE,
+  MAX_CONTENT_FIT_FACTOR,
+  measureTextOverflow,
+} from '../../utils/theme-fit.util';
 
 /** File extension + MIME info per exportable format. */
 const EXPORT_FORMAT_MAP = {
@@ -213,12 +220,32 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
    * its authored artboard room on both axes, so short aspects (1:1) no
    * longer clip the tail of the content.
    */
-  readonly themeCanvas = computed(() =>
-    computeThemeCanvas(this.cardLayoutWidth(), this.cardAspectValue(), {
-      width: this.themeBasisWidth(),
-      height: this.themeBasisHeight(),
-    }),
-  );
+  readonly themeCanvas = computed(() => {
+    const fit = this.contentFitFactor();
+    return computeThemeCanvas(this.cardLayoutWidth(), this.cardAspectValue(), {
+      width: this.themeBasisWidth() * fit,
+      height: this.themeBasisHeight() * fit,
+    });
+  });
+
+  /**
+   * How much the theme canvas is grown beyond its artboard so the user's text
+   * fits (1 = not at all). Themes are designed around typical data; a long
+   * object name, seven filters or extra gear rows can need more room than the
+   * artboard has, and without this the tail of the card was clipped off. A
+   * larger canvas is scaled down onto the same card, so the whole design
+   * shrinks slightly instead of losing content.
+   */
+  private readonly contentFitFactor = signal(1);
+
+  /** The theme canvas element, measured to fit content. */
+  private readonly themeCanvasRef = viewChild<ElementRef<HTMLElement>>('themeCanvasEl');
+
+  /** Watches the projected theme for re-renders that can change its height. */
+  private contentObserver: MutationObserver | null = null;
+
+  /** Pending animation frame for a coalesced content-fit pass, if any. */
+  private contentFitFrame = 0;
 
   /** `transform` applied to the theme canvas, or `null` outside bleed mode. */
   readonly themeCanvasTransform = computed(() =>
@@ -258,11 +285,15 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
 
   ngAfterViewInit() {
     this.setupResizeObserver();
+    this.setupContentFit();
     setTimeout(() => this.calculateScale(), 100);
   }
 
   ngOnDestroy() {
     this.resizeObserver?.disconnect();
+    this.contentObserver?.disconnect();
+    cancelAnimationFrame(this.contentFitFrame);
+    document.fonts.removeEventListener('loadingdone', this.onFontsLoaded);
   }
 
   onImageLoad(evt: Event) {
@@ -270,6 +301,92 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
     this.naturalImageWidth.set(img.naturalWidth);
     this.naturalImageHeight.set(img.naturalHeight);
     setTimeout(() => this.calculateScale(), 50);
+  }
+
+  /** Re-fits the theme whenever its content, the canvas size or the fonts change. */
+  private setupContentFit(): void {
+    const canvas = this.themeCanvasRef()?.nativeElement;
+    if (!canvas || !this.bleedContent()) return;
+
+    this.contentObserver = new MutationObserver((mutations) => {
+      // The fit pass writes the canvas's own size; only changes inside the
+      // theme are a reason to measure again.
+      if (mutations.some((m) => m.target !== canvas)) this.scheduleContentFit();
+    });
+    this.contentObserver.observe(canvas, {
+      subtree: true,
+      childList: true,
+      characterData: true,
+      attributes: true,
+    });
+    document.fonts.addEventListener('loadingdone', this.onFontsLoaded);
+
+    // Format and artboard changes resize the canvas without touching the theme.
+    effect(
+      () => {
+        this.cardLayoutWidth();
+        this.cardAspectValue();
+        this.themeBasisWidth();
+        this.themeBasisHeight();
+        this.scheduleContentFit();
+      },
+      { injector: this.injector },
+    );
+  }
+
+  /** Web fonts landing late reflow text, so the fit is measured again. */
+  private readonly onFontsLoaded = (): void => this.scheduleContentFit();
+
+  /** Coalesces fit requests into one pass on the next animation frame. */
+  private scheduleContentFit(): void {
+    if (this.contentFitFrame) return;
+    this.contentFitFrame = requestAnimationFrame(() => {
+      this.contentFitFrame = 0;
+      this.fitThemeToContent();
+    });
+  }
+
+  /**
+   * Grows the theme canvas just enough that none of the user's text is cut
+   * off, and no further.
+   *
+   * Runs synchronously: the canvas is reset to its artboard, measured, and
+   * enlarged in steps within one task, so the preview never paints an
+   * intermediate size. Each step grows by the measured shortfall; when a step
+   * stops helping (content inside a fixed-height box) the best factor found
+   * is kept rather than shrinking the card for nothing.
+   */
+  private fitThemeToContent(): void {
+    const canvas = this.themeCanvasRef()?.nativeElement;
+    const root = canvas?.firstElementChild?.firstElementChild;
+    if (!canvas || !(root instanceof HTMLElement) || !this.bleedContent()) return;
+
+    const base = computeThemeCanvas(this.cardLayoutWidth(), this.cardAspectValue(), {
+      width: this.themeBasisWidth(),
+      height: this.themeBasisHeight(),
+    });
+    const applyFactor = (factor: number): void => {
+      canvas.style.width = `${base.width * factor}px`;
+      canvas.style.height = `${base.height * factor}px`;
+    };
+
+    let factor = 1;
+    applyFactor(factor);
+    let overflow = measureTextOverflow(root);
+    let best = { factor, overflow };
+
+    for (let pass = 0; pass < CONTENT_FIT_MAX_PASSES && overflow > CONTENT_FIT_TOLERANCE; pass++) {
+      const next = Math.min(MAX_CONTENT_FIT_FACTOR, factor * overflow * 1.01);
+      if (next <= factor) break;
+      factor = next;
+      applyFactor(factor);
+      overflow = measureTextOverflow(root);
+      if (overflow < best.overflow - 0.005) best = { factor, overflow };
+      else if (overflow >= best.overflow) break;
+    }
+
+    applyFactor(best.factor);
+    this.contentFitFactor.set(best.factor);
   }
 
   private setupResizeObserver() {

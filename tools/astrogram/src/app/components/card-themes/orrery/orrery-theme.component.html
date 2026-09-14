@@ -70,35 +70,39 @@
     <span class="orr-datestamp">{{ data.dateNumeric }}</span>
   </div>
 
-  <!-- Object title -->
-  <div class="orr-title" data-testid="card-hero">
-    @if (data.objectId) {
-      <div class="orr-object-id">{{ data.objectId }}</div>
-    }
-    <div class="orr-object-name">{{ data.objectName }}</div>
-  </div>
+  <!-- Title and footer share one column from the title's position to the
+       bottom edge, so a tall footer can never slide up over the title. -->
+  <div class="orr-lower">
+    <!-- Object title -->
+    <div class="orr-title" data-testid="card-hero">
+      @if (data.objectId) {
+        <div class="orr-object-id">{{ data.objectId }}</div>
+      }
+      <div class="orr-object-name">{{ data.objectName }}</div>
+    </div>
 
-  <!-- Footer -->
-  <div class="orr-footer">
-    <div class="orr-cols">
-      <div class="orr-col">
-        <div class="orr-col-title">Rig</div>
-        @for (item of data.equipment; track $index) {
-          <div class="orr-row">
-            <span class="orr-row-label">{{ item.label }}</span>
-            <span class="orr-row-value">{{ item.value }}</span>
-          </div>
-        }
-      </div>
-      <div class="orr-col">
-        <div class="orr-col-title">Pipeline</div>
-        @for (item of data.software; track $index) {
-          <div class="orr-row">
-            <span class="orr-row-label">{{ item.label }}</span>
-            <span class="orr-row-value">{{ item.value }}</span>
-          </div>
-        }
-        <div class="orr-sky">Bortle {{ data.bortle }} · {{ data.location }} · {{ data.author }}</div>
+    <!-- Footer -->
+    <div class="orr-footer">
+      <div class="orr-cols">
+        <div class="orr-col">
+          <div class="orr-col-title">Rig</div>
+          @for (item of data.equipment; track $index) {
+            <div class="orr-row">
+              <span class="orr-row-label">{{ item.label }}</span>
+              <span class="orr-row-value">{{ item.value }}</span>
+            </div>
+          }
+        </div>
+        <div class="orr-col">
+          <div class="orr-col-title">Pipeline</div>
+          @for (item of data.software; track $index) {
+            <div class="orr-row">
+              <span class="orr-row-label">{{ item.label }}</span>
+              <span class="orr-row-value">{{ item.value }}</span>
+            </div>
+          }
+          <div class="orr-sky">Bortle {{ data.bortle }} · {{ data.location }} · {{ data.author }}</div>
+        </div>
       </div>
     </div>
   </div>

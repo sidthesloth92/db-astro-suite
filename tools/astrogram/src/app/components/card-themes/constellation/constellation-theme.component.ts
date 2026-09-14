@@ -53,8 +53,13 @@ export class ConstellationThemeComponent extends CardThemeBaseDirective {
     [9, 10],
     [10, 0],
   ];
-  /** Node indices whose stars are lit to carry the first three bands. */
-  protected readonly brightNodeIndices: readonly number[] = [3, 5, 8];
+  /**
+   * Node indices whose stars are lit to carry the bands, in band order. The
+   * design lit three; a fourth filter and beyond (LRGB, or LRGB plus
+   * narrowband) had no star and vanished from the card, so four more
+   * well-separated nodes follow.
+   */
+  protected readonly brightNodeIndices: readonly number[] = [3, 5, 8, 0, 6, 1, 9];
 
   /** Node centres in chart-space px. */
   protected readonly starNodes = this.nodeFractions.map((n) => ({

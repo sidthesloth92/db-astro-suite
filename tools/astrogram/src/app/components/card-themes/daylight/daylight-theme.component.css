@@ -368,3 +368,19 @@
   bottom: 112px;
   right: 40px;
 }
+
+/* A long handle or location used to run the two ends of this row into each
+   other. The row may wrap: the meta then drops to its own line, still
+   right-aligned. When both fit, the spacer takes the free space as before. */
+.day-footer {
+  flex-wrap: wrap;
+  column-gap: 16px;
+  row-gap: 4px;
+}
+
+.day-footer .day-location {
+  margin-left: auto;
+  min-width: 0;
+  text-align: right;
+}
+

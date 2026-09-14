@@ -73,7 +73,9 @@ export class TelradThemeComponent extends CardThemeBaseDirective {
     const cx = 238;
     const cy = 214;
     const rings = [52, 118, 184];
-    const angles = [210, 318, 74];
+    // Past the third band the rings repeat, so each band also needs its own
+    // angle or its dot lands exactly on an earlier band's.
+    const angles = [210, 318, 74, 150, 20, 262, 112];
     const polar = (r: number, deg: number): [number, number] => {
       const rad = ((deg - 90) * Math.PI) / 180;
       return [cx + r * Math.cos(rad), cy + r * Math.sin(rad)];

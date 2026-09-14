@@ -115,12 +115,24 @@
 }
 
 /* ── Object title ── */
-.orr-title {
+/* ── Title + footer column ──
+   Both used to be positioned independently — the title at 65% of the card,
+   the footer growing up from the bottom — so a long gear list or a two-line
+   name slid the footer over the title. They now share one column from the
+   title's position to the bottom edge; content that outgrows it overflows
+   downward, where the card's content fit enlarges the canvas to hold it. */
+.orr-lower {
   position: absolute;
   top: 65.28%;
   left: 0;
   right: 0;
+  bottom: 0;
   z-index: 2;
+  display: flex;
+  flex-direction: column;
+}
+
+.orr-title {
   text-align: center;
 }
 
@@ -140,12 +152,8 @@
 
 /* ── Footer ── */
 .orr-footer {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 2;
-  padding: 0 26px 22px;
+  margin-top: auto;
+  padding: 14px 26px 22px;
 }
 
 .orr-cols {
@@ -244,7 +252,7 @@
   transform: translateX(-50%);
 }
 
-.orr-root--landscape .orr-title {
+.orr-root--landscape .orr-lower {
   top: 50%;
 }
 
@@ -258,7 +266,7 @@
 }
 
 .orr-root--landscape .orr-footer {
-  padding: 0 40px 24px;
+  padding: 14px 40px 24px;
 }
 
 .orr-root--landscape .orr-cols {
@@ -307,7 +315,7 @@
   height: 850px;
 }
 
-:host-context(.card.aspect-9-16) .orr-title {
+:host-context(.card.aspect-9-16) .orr-lower {
   top: 55%;
 }
 

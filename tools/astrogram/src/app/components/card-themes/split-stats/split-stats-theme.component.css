@@ -393,3 +393,19 @@
 .sps-root--landscape .sps-loc {
   font-size: 11px;
 }
+
+/* A long handle or location used to run the two ends of this row into each
+   other. The row may wrap: the meta then drops to its own line, still
+   right-aligned. When both fit, the spacer takes the free space as before. */
+.sps-author-row {
+  flex-wrap: wrap;
+  column-gap: 16px;
+  row-gap: 4px;
+}
+
+.sps-author-row .sps-loc {
+  margin-left: auto;
+  min-width: 0;
+  text-align: right;
+}
+

@@ -81,50 +81,54 @@
     </svg>
   </div>
 
-  <!-- Object title overlay -->
-  <div class="rpl-title" data-testid="card-hero">
-    @if (data.objectId) {
-      <div class="rpl-object-id">{{ data.objectId }}</div>
-    }
-    <div class="rpl-object-name">{{ data.objectName }}</div>
-  </div>
-
-  <!-- Ring legend -->
-  <div class="rpl-legend">
-    @for (ring of rings(); track ring.band.id) {
-      <div class="rpl-legend-item">
-        <span class="rpl-legend-swatch" [style.background]="ring.band.color"></span>
-        <span class="rpl-legend-id" [style.color]="ring.band.color">{{ ring.band.id }}</span>
-        <span class="rpl-legend-time">{{ ring.band.time }}</span>
-        <span class="rpl-legend-frames">{{ ring.band.frames }}</span>
-      </div>
-    }
-    <div class="rpl-legend-item">
-      <span class="rpl-legend-total">{{ data.total }}</span>
+  <!-- Title, legend and footer share one column from the title's position to
+       the bottom edge, so none of them can slide over another. -->
+  <div class="rpl-lower">
+    <!-- Object title overlay -->
+    <div class="rpl-title" data-testid="card-hero">
+      @if (data.objectId) {
+        <div class="rpl-object-id">{{ data.objectId }}</div>
+      }
+      <div class="rpl-object-name">{{ data.objectName }}</div>
     </div>
-  </div>
 
-  <!-- Footer -->
-  <div class="rpl-footer">
-    <div class="rpl-cols">
-      <div class="rpl-col">
-        <div class="rpl-col-title">Apparatus</div>
-        @for (item of data.equipment; track $index) {
-          <div class="rpl-row">
-            <span class="rpl-row-label">{{ item.label }}</span>
-            <span class="rpl-row-value">{{ item.value }}</span>
-          </div>
-        }
+    <!-- Ring legend -->
+    <div class="rpl-legend">
+      @for (ring of rings(); track ring.band.id) {
+        <div class="rpl-legend-item">
+          <span class="rpl-legend-swatch" [style.background]="ring.band.color"></span>
+          <span class="rpl-legend-id" [style.color]="ring.band.color">{{ ring.band.id }}</span>
+          <span class="rpl-legend-time">{{ ring.band.time }}</span>
+          <span class="rpl-legend-frames">{{ ring.band.frames }}</span>
+        </div>
+      }
+      <div class="rpl-legend-item">
+        <span class="rpl-legend-total">{{ data.total }}</span>
       </div>
-      <div class="rpl-col">
-        <div class="rpl-col-title">Pipeline</div>
-        @for (item of data.software; track $index) {
-          <div class="rpl-row">
-            <span class="rpl-row-label">{{ item.label }}</span>
-            <span class="rpl-row-value">{{ item.value }}</span>
-          </div>
-        }
-        <div class="rpl-sky">Bortle {{ data.bortle }} · {{ data.location }} · {{ data.author }}</div>
+    </div>
+
+    <!-- Footer -->
+    <div class="rpl-footer">
+      <div class="rpl-cols">
+        <div class="rpl-col">
+          <div class="rpl-col-title">Apparatus</div>
+          @for (item of data.equipment; track $index) {
+            <div class="rpl-row">
+              <span class="rpl-row-label">{{ item.label }}</span>
+              <span class="rpl-row-value">{{ item.value }}</span>
+            </div>
+          }
+        </div>
+        <div class="rpl-col">
+          <div class="rpl-col-title">Pipeline</div>
+          @for (item of data.software; track $index) {
+            <div class="rpl-row">
+              <span class="rpl-row-label">{{ item.label }}</span>
+              <span class="rpl-row-value">{{ item.value }}</span>
+            </div>
+          }
+          <div class="rpl-sky">Bortle {{ data.bortle }} · {{ data.location }} · {{ data.author }}</div>
+        </div>
       </div>
     </div>
   </div>

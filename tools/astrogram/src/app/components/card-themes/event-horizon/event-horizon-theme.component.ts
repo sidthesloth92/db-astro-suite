@@ -30,8 +30,10 @@ export class EventHorizonThemeComponent extends CardThemeBaseDirective {
     const offsets = [-24, 140, 258];
     const perim = (rx: number, ry: number): number =>
       Math.PI * (3 * (rx + ry) - Math.sqrt((3 * rx + ry) * (rx + 3 * ry)));
-    return this.vm().integration.map((band, i) => {
-      const rx = 96 + i * 32;
+    return this.vm().integration.map((band, i, bands) => {
+      // Up to three bands keep the design's 32 spacing; more share a span
+      // ending at rx 192, instead of running off the card.
+      const rx = 96 + i * (bands.length <= 3 ? 32 : 96 / (bands.length - 1));
       const ry = rx * 0.34;
       const p = perim(rx, ry);
       const off = offsets[i % offsets.length];

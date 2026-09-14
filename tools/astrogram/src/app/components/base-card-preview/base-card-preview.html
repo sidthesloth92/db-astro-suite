@@ -81,6 +81,7 @@
                to fill the card, so no aspect starves the layout. Outside
                bleed mode this is `display: contents` and changes nothing. -->
           <div
+            #themeCanvasEl
             class="theme-canvas"
             [class.is-fitted]="bleedContent()"
             [style.width.px]="bleedContent() ? themeCanvas().width : null"

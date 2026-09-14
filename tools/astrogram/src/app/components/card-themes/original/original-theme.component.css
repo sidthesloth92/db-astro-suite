@@ -51,11 +51,14 @@
 .pn-meta {
   display: flex;
   justify-content: center;
-  /* Keep the date + location on one line. Without this the row reflows in
-     the modern-screenshot export (text is re-measured at capture scale),
-     wrapping the location chip onto a second line even though it fits. */
-  flex-wrap: nowrap;
-  gap: 14px;
+  /* Chips wrap onto a second line when a long location or handle needs it.
+     This was held to one line because exports used to wrap it even when it
+     fit — a symptom of the exporter drawing the fallback mono font, which is
+     wider; with Fira Code now embedded the export measures as the page does,
+     and a forced single line only pushed long values off the card. */
+  flex-wrap: wrap;
+  column-gap: 14px;
+  row-gap: 4px;
   margin-top: 10px;
   font-family: var(--db-font-mono-code);
   font-weight: 400;

@@ -1,5 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
+import { spreadLabels } from '../../../utils/label-spread.util';
+import {
+  SYSTEM_LINE_LABEL_GAP,
+  SYSTEM_LINE_LABEL_MAX_X,
+  SYSTEM_LINE_LABEL_MIN_X,
+} from './system-line.constants';
 import { ThemeGearLineComponent } from '../shared/theme-gear-line/theme-gear-line.component';
 import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfield.component';
 
@@ -49,6 +55,22 @@ export class SystemLineThemeComponent extends CardThemeBaseDirective {
       };
     });
   });
+
+  /**
+   * Horizontal position of each band's label under its planet. Labels sit
+   * directly under their planet unless that would crowd a neighbour: planets
+   * are placed by cumulative share, so short bands cluster, and a seventh
+   * filter's labels printed on top of each other. Crowded labels are pushed
+   * apart to a minimum spacing and kept inside the chart.
+   */
+  protected readonly labelXs = computed<readonly number[]>(() =>
+    spreadLabels(
+      this.planets().map((p) => p.cx),
+      SYSTEM_LINE_LABEL_GAP,
+      SYSTEM_LINE_LABEL_MIN_X,
+      SYSTEM_LINE_LABEL_MAX_X,
+    ),
+  );
 
   /** Total captured frames across every enabled band. */
   protected totalFrames(): number {

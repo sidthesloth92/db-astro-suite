@@ -32,8 +32,11 @@ export class RingedPlanetThemeComponent extends CardThemeBaseDirective {
 
   /** Per-band ring geometry with back/front dash arrays (front encodes share). */
   protected readonly rings = computed(() =>
-    this.vm().integration.map((band, i) => {
-      const rr = this.planetRadius + 34 + i * 26;
+    this.vm().integration.map((band, i, bands) => {
+      // Rings share the design's three-band span (outermost 52 past the
+      // first) however many bands there are; at a fixed 26 apart, seven
+      // filters pushed the outer rings off both edges of the card.
+      const rr = this.planetRadius + 34 + i * (52 / Math.max(bands.length - 1, 2));
       const circ = Math.PI * rr;
       return {
         band,

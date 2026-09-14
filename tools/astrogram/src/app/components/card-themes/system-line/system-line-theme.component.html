@@ -84,12 +84,12 @@
       }
 
       <!-- band labels -->
-      @for (p of planets(); track p.id) {
-        <text [attr.x]="p.cx" y="178" text-anchor="middle" [attr.fill]="p.color" class="sl-band-id">
+      @for (p of planets(); track p.id; let i = $index) {
+        <text [attr.x]="labelXs()[i]" y="178" text-anchor="middle" [attr.fill]="p.color" class="sl-band-id">
           {{ p.id }}
         </text>
-        <text [attr.x]="p.cx" y="200" text-anchor="middle" class="sl-band-time">{{ p.time }}</text>
-        <text [attr.x]="p.cx" y="217" text-anchor="middle" class="sl-band-frames">{{ p.frames }}</text>
+        <text [attr.x]="labelXs()[i]" y="200" text-anchor="middle" class="sl-band-time">{{ p.time }}</text>
+        <text [attr.x]="labelXs()[i]" y="217" text-anchor="middle" class="sl-band-frames">{{ p.frames }}</text>
       }
     </svg>
   </div>
