@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
 import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfield.component';
+import { keepPlaceNamesTogether } from '../../../utils/keep-together.util';
 
 /**
  * Constellation card theme — plots the target as a star-chart constellation
@@ -84,6 +85,9 @@ export class ConstellationThemeComponent extends CardThemeBaseDirective {
   protected readonly graticuleBottom = this.chartHeight - 20;
   /** Chart-space x of the graticule's right edge. */
   protected readonly graticuleRight = this.chartWidth - 20;
+
+  /** Location for the total row's sky line, wrapping only between its comma-separated parts. */
+  protected readonly placeName = computed<string>(() => keepPlaceNamesTogether(this.vm().location));
 
   /** Lit band stars: node centre, band, and HTML label placement (percent). */
   protected readonly brightStars = computed(() => {

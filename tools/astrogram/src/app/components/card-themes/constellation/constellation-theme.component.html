@@ -139,8 +139,28 @@
 <ng-template #totalRow>
   <div class="con-total-row">
     <span class="con-total">Total {{ data.total }}</span>
-    <!-- Each separator is glued to the item after it, so a wrapping line
-         never ends on a dangling "·". -->
-    <span class="con-sky">Bortle {{ data.bortle }} ·&nbsp;{{ data.location }} ·&nbsp;{{ data.author }}</span>
+    @if (isLandscapeFormat()) {
+      <!-- Centred under the chart, with room to spare: every separator is
+           glued to both neighbours, so no line starts or ends on a "·", and
+           the place breaks only after a comma. -->
+      <span class="con-sky">Bortle&nbsp;{{ data.bortle }}@if (placeName()) {<span>&nbsp;·&nbsp;{{ placeName() }}</span>}@if (data.author) {<span>&nbsp;·&nbsp;{{ data.author }}</span>}</span>
+    } @else {
+      <!-- The sky and the place wrap as one run that breaks only after a
+           comma; the handle is a whole item, and the separator before it is
+           clipped when it ends a line (see .con-sky-line). -->
+      <span class="con-sky">
+        <span class="con-sky-line">
+          <span class="con-sky-part">
+            <span class="con-sky-text">Bortle&nbsp;{{ data.bortle }}@if (placeName()) {<span>&nbsp;·&nbsp;{{ placeName() }}</span>}</span>
+            @if (data.author) {
+              <span class="con-sep" aria-hidden="true"></span>
+            }
+          </span>
+          @if (data.author) {
+            <span class="con-sky-part">{{ data.author }}</span>
+          }
+        </span>
+      </span>
+    }
   </div>
 </ng-template>

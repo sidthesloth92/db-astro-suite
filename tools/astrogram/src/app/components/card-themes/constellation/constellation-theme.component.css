@@ -191,6 +191,60 @@
   text-align: right;
 }
 
+/* One run of text wrapped into four ragged lines, splitting "San / Diego"
+   and leading a line with "· @handle". The place now breaks only after a
+   comma and the handle wraps as a whole item. When the run cannot sit beside
+   the total it takes the row below at the column's full width. The separator
+   before the handle ends the run, and the line is pushed right by one
+   separator so a separator that ends a line falls outside the clipped box.
+   It is drawn rather than typed: clipped text would read as overflow to the
+   card's content-fit check. */
+.con-legend .con-total-row {
+  flex-wrap: wrap;
+}
+
+.con-legend .con-sky {
+  --con-sep-gap: 0.2em;
+  --con-sep-dot: 2px;
+  --con-sep-width: calc(2 * var(--con-sep-gap) + var(--con-sep-dot));
+
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+.con-sky-line {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin-right: calc(-1 * var(--con-sep-width));
+}
+
+.con-sky-part {
+  display: flex;
+  align-items: flex-end;
+  min-width: 0;
+}
+
+.con-sky-part:last-child {
+  margin-right: var(--con-sep-width);
+}
+
+/* Balanced, so a wrapped place does not leave "California" alone. */
+.con-sky-text {
+  min-width: 0;
+  text-wrap: balance;
+}
+
+/* Sits where a typed "·" would, half an x-height above the last baseline. */
+.con-sep {
+  flex: none;
+  width: var(--con-sep-dot);
+  height: var(--con-sep-dot);
+  margin: 0 var(--con-sep-gap) 0.6em;
+  border-radius: 50%;
+  background: currentColor;
+}
+
 .con-band-frames {
   font: 500 8.5px/1 'Outfit', system-ui, sans-serif;
   color: #6b7794;
