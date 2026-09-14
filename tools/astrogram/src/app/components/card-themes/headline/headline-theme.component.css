@@ -214,3 +214,135 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
+
+/* ── Landscape (1.91:1) ──
+   The portrait stack dropped into a wide card left the three band chips as
+   broad tiles with their text in the left quarter, the sparkles over the
+   object name and a chip border, and the gear and location lines too small
+   and faint to read. Here the stat takes the left of the card, the bands
+   stack as one-line readouts on the right under the constellation, and the
+   footer runs across the full width. */
+.hdl-root--landscape .hdl-inner {
+  display: grid;
+  grid-template-columns: 1fr 316px;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+    'brand brand'
+    'stat chips'
+    'footer footer';
+  column-gap: 40px;
+  padding: 28px 36px 26px;
+}
+
+.hdl-root--landscape .hdl-sp1,
+.hdl-root--landscape .hdl-sp2,
+.hdl-root--landscape .hdl-sp3 {
+  display: none;
+}
+
+.hdl-root--landscape .hdl-brand {
+  grid-area: brand;
+}
+
+.hdl-root--landscape .hdl-date {
+  font-size: 11px;
+  color: var(--hdl-dim);
+}
+
+.hdl-root--landscape .hdl-stat {
+  grid-area: stat;
+  align-self: center;
+}
+
+.hdl-root--landscape .hdl-eyebrow {
+  font-size: 12px;
+}
+
+.hdl-root--landscape .hdl-total {
+  font-size: 108px;
+}
+
+.hdl-root--landscape .hdl-object {
+  font-size: 28px;
+}
+
+.hdl-root--landscape .hdl-subline {
+  font-size: 12px;
+  color: var(--hdl-dim);
+}
+
+/* Bands: one-line readouts — band, time, frames — at the foot of the right
+   column, leaving its top to the constellation. */
+.hdl-root--landscape .hdl-chips {
+  grid-area: chips;
+  align-self: end;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.hdl-root--landscape .hdl-chip {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 11px 16px;
+  border-radius: 12px;
+}
+
+.hdl-root--landscape .hdl-chip-head {
+  flex: 0 0 64px;
+}
+
+.hdl-root--landscape .hdl-chip-id {
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.hdl-root--landscape .hdl-chip-time {
+  flex: 1;
+  margin-top: 0;
+  font-size: 22px;
+  white-space: nowrap;
+}
+
+.hdl-root--landscape .hdl-chip-frames {
+  margin-top: 0;
+  font-size: 11px;
+  color: var(--hdl-dim);
+  white-space: nowrap;
+}
+
+.hdl-root--landscape .hdl-footer {
+  grid-area: footer;
+}
+
+.hdl-root--landscape .hdl-ticker {
+  font-size: 10.5px;
+}
+
+.hdl-root--landscape .hdl-author {
+  font-size: 13px;
+}
+
+.hdl-root--landscape .hdl-loc {
+  font-size: 11px;
+  color: var(--hdl-dim);
+}
+
+/* Ornaments move off the type: the constellation crowns the band column and
+   the sparkles sit in the open space above the stat and between the columns. */
+.hdl-root--landscape .hdl-constellation {
+  top: 44px;
+  right: 64px;
+}
+
+.hdl-root--landscape .hdl-spike-1 {
+  left: 380px;
+  top: 58px;
+}
+
+.hdl-root--landscape .hdl-spike-2 {
+  top: auto;
+  right: 380px;
+  bottom: 118px;
+}

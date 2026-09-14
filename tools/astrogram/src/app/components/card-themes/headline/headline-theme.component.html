@@ -1,6 +1,6 @@
 @let data = vm();
 
-<div class="hdl-root">
+<div class="hdl-root" [class.hdl-root--landscape]="isLandscapeFormat()">
   <dba-ag-theme-starfield [density]="90" [opacity]="0.45" color="#ffffff" [seed]="1" />
 
   <svg class="hdl-constellation" width="220" height="150" viewBox="0 0 220 150" aria-hidden="true">
