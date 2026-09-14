@@ -306,8 +306,10 @@
   font: 500 10.5px/1.2 var(--obv-sans);
   color: var(--obv-txt);
   margin-top: 2px;
-  /* Wraps rather than ellipsing, so a long piece of kit is never cut short. */
+  /* Wraps rather than ellipsing, so a long piece of kit is never cut short;
+     balanced, so a wrap never leaves a lone "Gen 2" on the second line. */
   overflow-wrap: break-word;
+  text-wrap: balance;
 }
 
 .obv-spacer {
@@ -363,12 +365,14 @@
    pipeline on the right, the Bortle meter beside the pipeline list — with
    the type raised and the faint tone lifted so the labels read. */
 .obv-root--landscape {
-  --obv-faint: #85765f;
+  --obv-faint: #9a8b73;
 }
 
 .obv-root--landscape .obv-inner {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  /* The left column is the taller stack (target over telemetry), so it takes
+     the width: a long name, site and caption then need fewer lines. */
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
   /* The target row may not shrink below its content: squeezed, the centred
      designation rose into the observatory bar and the caption spilled onto
      the telemetry panel, instead of the card growing to hold it. */
@@ -377,8 +381,8 @@
     'head head'
     'target lower'
     'tel lower';
-  gap: 12px 14px;
-  padding: 20px 24px 22px;
+  gap: 10px 14px;
+  padding: 16px 24px 18px;
 }
 
 .obv-root--landscape .obv-panel {
@@ -415,7 +419,7 @@
 .obv-root--landscape .obv-target-name {
   flex-wrap: wrap;
   gap: 4px 14px;
-  margin-top: 10px;
+  margin-top: 8px;
 }
 
 .obv-root--landscape .obv-target-id {
@@ -428,13 +432,13 @@
 
 .obv-root--landscape .obv-target-meta {
   flex-wrap: wrap;
-  gap: 4px 16px;
-  margin-top: 12px;
+  gap: 2px 16px;
+  margin-top: 8px;
   font-size: 11px;
 }
 
 .obv-root--landscape .obv-target-caption {
-  margin-top: 12px;
+  margin-top: 8px;
   font-size: 13px;
 }
 
@@ -446,7 +450,7 @@
 .obv-root--landscape .obv-tel-head {
   flex-wrap: wrap;
   gap: 6px 16px;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 
 .obv-root--landscape .obv-tel-total {
@@ -466,12 +470,13 @@
 }
 
 .obv-root--landscape .obv-tel-cols {
-  font-size: 10px;
+  font-size: 10.5px;
 }
 
 .obv-root--landscape .obv-tel-row {
-  padding: 6px 0;
+  padding: 2px 0;
   font-size: 12px;
+  line-height: 1.25;
 }
 
 .obv-root--landscape .obv-tel-frames,
@@ -495,69 +500,45 @@
 
 .obv-root--landscape .obv-gear-list {
   margin-top: 10px;
-  gap: 6px;
+  gap: 5px;
 }
 
-.obv-root--landscape .obv-gear-label {
-  font-size: 10px;
-  line-height: 1.2;
-}
-
-.obv-root--landscape .obv-gear-value {
-  font-size: 13px;
-}
-
-/* Pipeline list on the left, the sky reading as a column on the right,
-   divided by the dashed rule the portrait draws above it. */
-.obv-root--landscape .obv-pipeline {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 150px;
-  grid-template-rows: auto 1fr;
-  grid-template-areas:
-    'tick sky'
-    'list sky';
-  column-gap: 16px;
-}
-
-.obv-root--landscape .obv-pipeline > .obv-tick {
-  grid-area: tick;
-}
-
-.obv-root--landscape .obv-pipeline > .obv-gear-list {
-  grid-area: list;
-}
-
-.obv-root--landscape .obv-spacer {
+/* Hardware and pipeline read as a spec sheet — label column, value beside
+   it — without the row icons. Stacked label-over-value with icons, a full
+   rig (7 gear, 4 software, 7 bands) needed a third more height than the
+   card has, and the fit shrank every label to ~9px in the export. */
+.obv-root--landscape .obv-gear-icon {
   display: none;
 }
 
-.obv-root--landscape .obv-sky {
-  grid-area: sky;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  margin: 0;
-  padding: 0 0 0 16px;
-  border-top: 0;
-  border-left: 1px dashed rgba(217, 119, 66, 0.149);
+.obv-root--landscape .obv-gear-text {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  column-gap: 12px;
+  align-items: baseline;
 }
 
-.obv-root--landscape .obv-sky-head {
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 12px;
+.obv-root--landscape .obv-gear-label {
+  font-size: 10.5px;
+  line-height: 1.25;
+  letter-spacing: 0.12em;
 }
 
+.obv-root--landscape .obv-gear-value {
+  margin-top: 0;
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+/* The sky meter closes the pipeline panel under its dashed rule, as in the
+   portrait. Set as a column beside the list it left the software names
+   ~120px, so "PixInsight + Photoshop" broke onto three lines. */
 .obv-root--landscape .obv-sky-val {
-  font-size: 34px;
+  font-size: 24px;
 }
 
 .obv-root--landscape .obv-sky-val span {
   font-size: 12px;
-}
-
-.obv-root--landscape .obv-bortle-bar {
-  margin-top: 10px;
 }
 
 .obv-root--landscape .obv-bortle-seg {
