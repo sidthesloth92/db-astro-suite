@@ -174,6 +174,9 @@
 .stc-gem {
   flex: 1;
   text-align: center;
+  /* Sizes the duration to its column: seven bands leave each gem ~55px, and
+     "2h 42m" at the designed size wrapped onto two lines. */
+  container-type: inline-size;
 }
 
 .stc-gem-icon {
@@ -198,14 +201,18 @@
 
 .stc-gem-time {
   font: 600 17px/1 var(--stc-sans);
+  font-size: min(17px, 26cqi);
   color: var(--stc-txt);
   margin-top: 7px;
+  white-space: nowrap;
 }
 
 .stc-gem-frames {
   font: 400 9px/1 var(--stc-mono);
+  font-size: min(9px, 17cqi);
   color: var(--stc-faint);
   margin-top: 5px;
+  white-space: nowrap;
 }
 
 /* ── Compact specs ── */
@@ -245,20 +252,29 @@
   background: linear-gradient(90deg, var(--stc-gold-2), var(--stc-gold));
   color: #171208;
   padding: 9px 24px;
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
-  justify-content: space-between;
+  column-gap: 16px;
   border-radius: 0 0 8px 8px;
 }
 
 .stc-rarity-class {
   font: 700 9.5px/1 var(--stc-mono);
   letter-spacing: 0.2em;
+  white-space: nowrap;
 }
 
+/* A long meta wraps into right-aligned, balanced lines with real leading
+   (with line-height 1 the lines ran together). The 6px of leading (3px above
+   and below, whole pixels so a single line keeps its pixel row) is taken
+   back by the margins, so a one-line bar keeps its height. */
 .stc-rarity-meta {
-  font: 600 9.5px/1 var(--stc-mono);
+  font: 600 9.5px/15.5px var(--stc-mono);
   letter-spacing: 0.14em;
+  text-align: right;
+  text-wrap: balance;
+  margin: -3px 0;
 }
 
 /* ── Landscape (1.91:1) ──
@@ -342,11 +358,11 @@
 }
 
 .stc-root--landscape .stc-gem-time {
-  font-size: 20px;
+  font-size: min(20px, 26cqi);
 }
 
 .stc-root--landscape .stc-gem-frames {
-  font-size: 11px;
+  font-size: min(11px, 17cqi);
   margin-top: 6px;
 }
 
@@ -372,6 +388,14 @@
   font-size: 10.5px;
 }
 
+/* The small print a notch brighter on the wide card, where the faint ink at
+   export size read as dim smudges beside its values. */
+.stc-root--landscape .stc-spec-label,
+.stc-root--landscape .stc-gem-frames,
+.stc-root--landscape .stc-plate-frames {
+  color: var(--stc-dim);
+}
+
 .stc-root--landscape .stc-spec-value {
   font-size: 13.5px;
   line-height: 1.35;
@@ -388,4 +412,9 @@
 .stc-root--landscape .stc-rarity-class,
 .stc-root--landscape .stc-rarity-meta {
   font-size: 11px;
+}
+
+/* Line height for the landscape size: 11px plus whole-pixel leading. */
+.stc-root--landscape .stc-rarity-meta {
+  line-height: 17px;
 }

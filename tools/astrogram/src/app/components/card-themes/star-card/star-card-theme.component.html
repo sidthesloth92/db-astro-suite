@@ -63,7 +63,7 @@
         <div class="stc-object-id">{{ data.objectId }}</div>
         <!-- One line, fitted to the width: stacking the name over two lines
              pushed the specs and rarity bar into the bottom edge. -->
-        <div class="stc-title" [dbaAgFitText]="44" [fitTextMin]="22" [fitTextContent]="data.objectName">
+        <div class="stc-title" [dbaAgFitText]="44" [fitTextMin]="18" [fitTextContent]="data.objectName">
           {{ objectNameFirst() }}
           @if (objectNameRest(); as rest) {
             <span class="stc-title-rest">{{ rest }}</span>
@@ -111,11 +111,12 @@
       </div>
 
       <!-- Rarity bar -->
+      <!-- Class and meta sit in two columns; the meta column takes all the
+           remaining width, so a line that only just fits live does not wrap
+           in the exporter, which re-lays text in frozen boxes. -->
       <div class="stc-rarity">
         <span class="stc-rarity-class">BORTLE CLASS {{ data.bortle }}</span>
-        <span class="stc-rarity-meta">
-          {{ data.dateShort }} · {{ data.location }} · {{ data.author.toUpperCase() }}
-        </span>
+        <span class="stc-rarity-meta">{{ rarityMeta() }}</span>
       </div>
     </div>
   </div>
