@@ -501,9 +501,15 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
       const tag = this.exportTag() || 'astrogram';
       const filename = `${name}_${tag}_${aspectSlug(targetDim.width, targetDim.height)}_${targetDim.width}_${targetDim.height}.${fmtInfo.ext}`;
 
-      // The card element's natural dimensions (unaffected by CSS transform on parent)
-      const naturalWidth = element.offsetWidth;
-      const naturalHeight = element.offsetHeight;
+      // The card element's natural dimensions (unaffected by CSS transform on
+      // parent), floored to whole CSS pixels. The card's height is usually
+      // fractional (538 wide at 3:4 is 717.33 tall); captured at that size,
+      // the rendered image rounded up to 718 and left its last export row
+      // almost black. Clipping the sub-pixel sliver instead costs nothing
+      // visible, and the resize below stretches the capture to the target.
+      const cardStyle = getComputedStyle(element);
+      const naturalWidth = Math.floor(parseFloat(cardStyle.width)) || element.offsetWidth;
+      const naturalHeight = Math.floor(parseFloat(cardStyle.height)) || element.offsetHeight;
 
       // Calculate scale to reach target resolution (e.g. 1080px wide)
       const captureScale = targetDim.width / naturalWidth;
@@ -524,6 +530,8 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
       let dataUrl: string;
       try {
         const opts = {
+          width: naturalWidth,
+          height: naturalHeight,
           scale: captureScale,
           quality: 0.95,
           backgroundColor: '#000000',
