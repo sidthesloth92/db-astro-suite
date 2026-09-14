@@ -86,7 +86,8 @@
 }
 
 .eh-total-value {
-  font: 300 30px var(--eh-grot);
+  /* 30px ran "10h 20m" to within a few pixels of the photon ring. */
+  font: 300 26px var(--eh-grot);
   fill: #fff;
   letter-spacing: -0.01em;
 }
@@ -107,6 +108,11 @@
 .eh-legend-item {
   text-align: center;
   white-space: nowrap;
+}
+
+.eh-legend-break {
+  flex-basis: 100%;
+  height: 0;
 }
 
 .eh-legend-id {
@@ -226,11 +232,8 @@
   margin-top: 4px;
 }
 
-/* The chart is drawn at about 0.6x here, which left "CAPTURED" at ~5px. */
-.eh-root--landscape .eh-total-label {
-  font-size: 13px;
-  letter-spacing: 0.2em;
-}
+/* The chart is drawn at about 0.6x here, too small for the "CAPTURED"
+   caption to read; it is dropped and the total sits alone in the ring. */
 
 .eh-root--landscape .eh-legend-id {
   font-size: 12px;

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
+import { bandRowBreak } from '../../../utils/band-rows.util';
 import { ThemeGearLineComponent } from '../shared/theme-gear-line/theme-gear-line.component';
 import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfield.component';
 
@@ -51,6 +52,14 @@ export class EventHorizonThemeComponent extends CardThemeBaseDirective {
       };
     });
   });
+
+  /**
+   * Bands on the legend's first row when it splits in two (0 = one row).
+   * Landscape has the width for all seven in one row, so it never splits.
+   */
+  protected legendBreak(): number {
+    return this.isLandscapeFormat() ? 0 : bandRowBreak(this.vm().integration.length);
+  }
 
   /** Total captured frames across every enabled band. */
   protected totalFrames(): number {

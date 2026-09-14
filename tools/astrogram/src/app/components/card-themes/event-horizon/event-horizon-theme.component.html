@@ -77,14 +77,29 @@
     <circle [attr.cx]="cx" [attr.cy]="cy" r="66" fill="none" stroke="#FFE9C4" stroke-width="6" opacity="0.14" />
     <circle [attr.cx]="cx" [attr.cy]="cy" r="60" fill="#010101" />
 
-    <!-- total inside the void -->
-    <text [attr.x]="cx" [attr.y]="cy - 14" text-anchor="middle" class="eh-total-label">CAPTURED</text>
-    <text [attr.x]="cx" [attr.y]="cy + 18" text-anchor="middle" class="eh-total-value">{{ data.total }}</text>
+    <!-- total inside the void. The landscape chart is drawn too small for the
+         "CAPTURED" caption to read, so there the total stands alone. -->
+    @if (!isLandscapeFormat()) {
+      <text [attr.x]="cx" [attr.y]="cy - 14" text-anchor="middle" class="eh-total-label">CAPTURED</text>
+    }
+    <text
+      [attr.x]="cx"
+      [attr.y]="isLandscapeFormat() ? cy + 9 : cy + 18"
+      text-anchor="middle"
+      class="eh-total-value"
+    >
+      {{ data.total }}
+    </text>
   </svg>
 
   <!-- Legend -->
   <div class="eh-legend">
-    @for (d of disks(); track d.id) {
+    <!-- A long legend splits into balanced rows (four and three) instead of
+         leaving the last band alone on the second row. -->
+    @for (d of disks(); track d.id; let i = $index) {
+      @if (i > 0 && i === legendBreak()) {
+        <span class="eh-legend-break"></span>
+      }
       <div class="eh-legend-item">
         <div class="eh-legend-id" [style.color]="d.color">{{ d.id }}</div>
         <div class="eh-legend-time">{{ d.time }}</div>
