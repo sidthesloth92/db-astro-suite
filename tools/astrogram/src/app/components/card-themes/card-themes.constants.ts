@@ -333,6 +333,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
     label: 'Credits',
     subtitle: 'Movie one-sheet billing block',
     component: CreditsThemeComponent,
+    landscapeBasisHeight: 560,
     accents: {
       accentColor: '#C9BEDA',
       accentColorRgb: '201, 190, 218',

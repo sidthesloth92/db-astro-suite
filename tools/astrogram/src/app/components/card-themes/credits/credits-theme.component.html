@@ -1,6 +1,6 @@
 @let data = vm();
 
-<div class="crd-root">
+<div class="crd-root" [class.crd-root--landscape]="isLandscapeFormat()">
   <dba-ag-theme-starfield [density]="110" [opacity]="0.4" color="#ffffff" [seed]="1" />
 
   <svg class="crd-constellation" width="260" height="170" viewBox="0 0 220 150" aria-hidden="true">
