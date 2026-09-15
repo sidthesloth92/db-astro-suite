@@ -1,5 +1,6 @@
 /* Flight Log card theme — faithful port of the design source ThemeFlightLog.
-   Per-theme palette/typography is the theme's identity, so colours are literal.
+   Per-theme palette/typography is the theme's identity, so colours are literal,
+   bar the mint the Layout panel's accent picker sets.
    The prototype's `sans` stack leads with "DM Sans" (not loaded), so it renders
    in the app body font Outfit — declared directly here. Exposure segment ids /
    fills use each band's own filter colour. */
@@ -7,7 +8,9 @@
 :host {
   --fl-bg: #0e1117;
   --fl-card: #141925;
-  --fl-mint: #5ee6b8;
+  /* Mint is the card's one accent (the header band, figures, route star and
+     stars); the theme has no second decorative colour. */
+  --fl-mint: var(--accent-color);
   --fl-txt: #eaf2f0;
   --fl-dim: #7c8a93;
   --fl-faint: #49555e;
@@ -128,11 +131,12 @@
 .fl-route-line {
   flex: 1;
   height: 1px;
-  background: rgba(94, 230, 184, 0.33);
+  background: rgba(var(--accent-color-rgb), 0.33);
 }
 
 .fl-route-star {
   margin: 0 4px;
+  fill: var(--fl-mint);
 }
 
 /* ── Detail grid ── */

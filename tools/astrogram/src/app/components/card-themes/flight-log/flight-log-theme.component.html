@@ -1,7 +1,7 @@
 @let data = vm();
 
 <div class="fl-root" [class.fl-root--landscape]="isLandscapeFormat()">
-  <dba-ag-theme-starfield [density]="70" [opacity]="0.25" [color]="'#5EE6B8'" [seed]="5" />
+  <dba-ag-theme-starfield [density]="70" [opacity]="0.25" [color]="cardData().accentColor" [seed]="5" />
 
   <div class="fl-ticket">
     <!-- Ticket header -->
@@ -20,7 +20,7 @@
       </div>
       <div class="fl-route-mid">
         <div class="fl-route-line"></div>
-        <svg class="fl-route-star" width="22" height="22" viewBox="0 0 24 24" fill="#5EE6B8" aria-hidden="true">
+        <svg class="fl-route-star" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
           <path d="M2 12l8-2 4-8 1 9 7 1-7 1-1 9-4-8z" />
         </svg>
         <div class="fl-route-line"></div>
