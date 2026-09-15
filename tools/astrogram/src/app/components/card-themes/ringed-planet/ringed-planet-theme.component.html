@@ -1,6 +1,10 @@
 @let data = vm();
 
-<div class="rpl-root" [class.rpl-root--landscape]="isLandscapeFormat()">
+<div
+  class="rpl-root"
+  [class.rpl-root--landscape]="isLandscapeFormat()"
+  [style.--rpl-glow-rgb]="glowRgb()"
+>
   <dba-ag-theme-starfield [density]="140" [opacity]="0.55" [seed]="9" />
 
   <!-- Header -->
@@ -14,10 +18,9 @@
     <svg class="rpl-chart" viewBox="0 0 540 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
       <defs>
         <radialGradient id="ringed-planet-body" cx="38%" cy="34%" r="75%">
-          <stop offset="0%" stop-color="#C9A6E8" />
-          <stop offset="42%" stop-color="#8A5BC2" />
-          <stop offset="78%" stop-color="#46256E" />
-          <stop offset="100%" stop-color="#1C0E33" />
+          @for (stop of bodyStops(); track stop.offset) {
+            <stop [attr.offset]="stop.offset" [attr.stop-color]="stop.color" />
+          }
         </radialGradient>
         <linearGradient id="ringed-planet-band" x1="0" y1="0" x2="1" y2="0">
           <stop offset="0%" stop-color="#ffffff" stop-opacity="0.16" />

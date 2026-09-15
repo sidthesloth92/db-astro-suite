@@ -2,6 +2,9 @@ import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
 import { bandRowBreak } from '../../../utils/band-rows.util';
 import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfield.component';
+import { matchTone, rgbTriplet } from '../../../utils/picker-color.util';
+import type { RingedPlanetGradientStop } from './ringed-planet-gradient-stop.model';
+import { RINGED_PLANET_BODY_BASE, RINGED_PLANET_BODY_STOPS, RINGED_PLANET_GLOW } from './ringed-planet.constants';
 
 /**
  * Ringed Planet card theme — a Saturn-like portrait where each integration
@@ -30,6 +33,23 @@ export class RingedPlanetThemeComponent extends CardThemeBaseDirective {
   protected readonly ringSquash = 0.32;
   /** Rotation transform placing the tilted ring plane at the planet centre. */
   protected readonly ringGroupTransform = `translate(${this.cx} ${this.cy}) rotate(-18)`;
+
+  /**
+   * Planet body gradient in the secondary picker colour, its highlight, shade
+   * and limb re-toned from it so the planet keeps its lighting in any colour.
+   */
+  protected readonly bodyStops = computed<readonly RingedPlanetGradientStop[]>(() => {
+    const picked = this.cardData().secondaryAccentColor;
+    return RINGED_PLANET_BODY_STOPS.map((stop) => ({
+      offset: stop.offset,
+      color: matchTone(picked, RINGED_PLANET_BODY_BASE, stop.color),
+    }));
+  });
+
+  /** Backdrop glow as `"r, g, b"`, a shade of the secondary picker colour like the body's. */
+  protected readonly glowRgb = computed<string>(() =>
+    rgbTriplet(matchTone(this.cardData().secondaryAccentColor, RINGED_PLANET_BODY_BASE, RINGED_PLANET_GLOW)),
+  );
 
   /** Per-band ring geometry with back/front dash arrays (front encodes share). */
   protected readonly rings = computed(() =>
