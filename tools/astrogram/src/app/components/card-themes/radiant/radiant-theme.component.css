@@ -1,8 +1,12 @@
-/* Radiant card theme — faithful port of the design source ThemeRadiant. */
+/* Radiant card theme — faithful port of the design source ThemeRadiant.
+   The gold highlight is the card's accent and the violet sky glow its
+   secondary colour (Layout panel); their defaults are the design's own. The
+   glow reads the secondary as channels the component derives
+   (`--rd-secondary-rgb`): a `color-mix()` there shifted exports by a level. */
 
 :host {
   --rd-bg: #06060f;
-  --rd-gold: #ffc24d;
+  --rd-gold: var(--accent-color);
   --rd-txt: #eff0f8;
   --rd-dim: #8f94ac;
   --rd-faint: #4f546c;
@@ -38,7 +42,7 @@
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background: radial-gradient(ellipse 75% 50% at 50% 22%, rgba(70, 50, 160, 0.26), transparent 65%),
+  background: radial-gradient(ellipse 75% 50% at 50% 22%, rgba(var(--rd-secondary-rgb), 0.26), transparent 65%),
     radial-gradient(ellipse 50% 35% at 80% 80%, rgba(160, 40, 110, 0.14), transparent 65%),
     var(--rd-bg);
   opacity: var(--card-opacity, 1);

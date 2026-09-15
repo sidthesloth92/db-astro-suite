@@ -1,6 +1,11 @@
 @let data = vm();
 
-<div class="rd-root" [class.rd-root--landscape]="isLandscapeFormat()" [class.rd-root--dense]="rows().length > 4">
+<div
+  class="rd-root"
+  [class.rd-root--landscape]="isLandscapeFormat()"
+  [class.rd-root--dense]="rows().length > 4"
+  [style.--rd-secondary-rgb]="secondaryRgb()"
+>
   <dba-ag-theme-starfield [density]="130" [opacity]="0.5" [seed]="27" />
 
   <!-- Flow content, clipped at the padding edge so the content fit sees it -->
