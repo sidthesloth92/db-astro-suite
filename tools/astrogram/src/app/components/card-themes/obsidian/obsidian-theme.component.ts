@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
+import { rgbTriplet } from '../../../utils/rgb-triplet.util';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
 import { ThemeIconComponent } from '../shared/theme-icon/theme-icon.component';
 import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfield.component';
@@ -20,6 +21,9 @@ import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfie
 export class ObsidianThemeComponent extends CardThemeBaseDirective {
   /** Frame number shown in the masthead (fixed design detail). */
   protected readonly frameLabel = 'FRAME N° 027';
+
+  /** Secondary accent as `r, g, b`, for the violet glow in the backdrop. */
+  protected readonly secondaryRgb = computed(() => rgbTriplet(this.cardData().secondaryAccentColor));
 
   /** Stacked-bar segment width as a CSS percentage for a band. */
   bandWidth(pct: number): string {

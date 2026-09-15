@@ -1,8 +1,10 @@
 /* Obsidian Glass card theme — faithful port of the design source ThemeObsidian. */
 
 :host {
-  --obs-cyan: #5dd8ff;
-  --obs-violet: #b97dff;
+  /* Cyan is the card's accent and violet its secondary, so the Layout
+     panel's colour pickers restyle both; gold stays the Bortle meter's own. */
+  --obs-cyan: var(--accent-color);
+  --obs-violet: var(--secondary-accent-color);
   --obs-gold: #e8c788;
   --obs-txt: #e8ecf5;
   --obs-dim: #9aa3b8;
@@ -34,8 +36,8 @@
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background: radial-gradient(ellipse 80% 60% at 30% 20%, rgba(93, 216, 255, 0.1), transparent 60%),
-    radial-gradient(ellipse 60% 50% at 80% 90%, rgba(185, 125, 255, 0.1), transparent 65%),
+  background: radial-gradient(ellipse 80% 60% at 30% 20%, rgba(var(--accent-color-rgb), 0.1), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 90%, rgba(var(--obs-violet-rgb), 0.1), transparent 65%),
     linear-gradient(180deg, #0a0e1a 0%, #06080f 60%, #02030a 100%);
   opacity: var(--card-opacity, 1);
 }
@@ -47,6 +49,18 @@
   height: 100%;
   pointer-events: none;
   z-index: 0;
+}
+
+.obs-aurora-stop--cyan {
+  stop-color: var(--obs-cyan);
+}
+
+.obs-aurora-stop--violet {
+  stop-color: var(--obs-violet);
+}
+
+.obs-meta dba-ag-theme-icon {
+  color: var(--obs-cyan);
 }
 
 .obs-inner {
