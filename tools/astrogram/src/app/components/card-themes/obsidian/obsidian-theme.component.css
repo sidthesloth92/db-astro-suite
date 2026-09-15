@@ -65,11 +65,13 @@
   z-index: 1;
   display: flex;
   flex-direction: column;
-  /* Spare height goes between the sections, not inside the bottom panels:
-     stretching the lower grid left bordered boxes up to three-quarters empty
-     on tall formats. */
+  /* The sections sit at one fixed gap and the hero panel takes the spare
+     height (see .obs-hero), so space-between no longer has any to spread:
+     before, the spare opened as three equal empty bands between the panels
+     — over a third of a 9:16 card; stretching the lower grid instead left
+     its bordered boxes up to three-quarters empty. */
   justify-content: space-between;
-  gap: 14px;
+  gap: 16px;
   box-sizing: border-box;
 }
 
@@ -91,25 +93,32 @@
   justify-content: space-between;
 }
 .obs-frame {
-  font: 500 9.5px/1 var(--obs-mono);
+  font: 500 11px/1 var(--obs-mono);
   letter-spacing: 0.18em;
   color: var(--obs-faint);
 }
 
 /* ── Hero ── */
+/* The title plate takes whatever height the stack leaves, its content
+   centred, so the spare reads as the plate's margin rather than as gaps. */
 .obs-hero {
-  padding: 20px 20px 18px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 20px 22px;
 }
 
 .obs-kicker {
-  font: 500 9.5px/1 var(--obs-mono);
+  font: 500 11px/1 var(--obs-mono);
   letter-spacing: 0.28em;
   color: var(--obs-cyan);
   text-transform: uppercase;
 }
 
 .obs-name {
-  font: 300 38px/1 var(--obs-sans);
+  font: 300 44px/1 var(--obs-sans);
   color: var(--obs-txt);
   letter-spacing: -0.02em;
   margin-top: 10px;
@@ -124,7 +133,7 @@
 }
 
 .obs-caption {
-  font: 400 12px/1.55 var(--obs-sans);
+  font: 400 14px/1.55 var(--obs-sans);
   color: var(--obs-dim);
   margin-top: 12px;
   max-width: 440px;
@@ -132,8 +141,8 @@
 
 .obs-meta {
   display: flex;
-  gap: 16px;
-  margin-top: 14px;
+  gap: 6px 18px;
+  margin-top: 16px;
   flex-wrap: wrap;
 }
 
@@ -141,7 +150,7 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font: 500 9.5px/1 var(--obs-mono);
+  font: 500 11px/1 var(--obs-mono);
   color: var(--obs-dim);
   letter-spacing: 0.04em;
 }
@@ -155,20 +164,20 @@
 }
 
 .obs-int-label {
-  font: 500 9.5px/1 var(--obs-mono);
+  font: 500 11px/1 var(--obs-mono);
   letter-spacing: 0.22em;
   color: var(--obs-cyan);
   text-transform: uppercase;
 }
 
 .obs-int-total {
-  font: 300 24px/1 var(--obs-sans);
+  font: 300 30px/1 var(--obs-sans);
   color: var(--obs-txt);
   letter-spacing: -0.02em;
 }
 
 .obs-int-total span {
-  font: 500 9.5px/1 var(--obs-mono);
+  font: 500 11px/1 var(--obs-mono);
   color: var(--obs-faint);
   letter-spacing: 0.1em;
 }
@@ -189,7 +198,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 12px;
-  margin-top: 12px;
+  margin-top: 14px;
 }
 
 .obs-legend:has(> .obs-legend-item:nth-child(7)) {
@@ -197,6 +206,11 @@
      that row's height pushed the lower panels off short cards; four columns
      hold them in two rows. */
   grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+/* Its two rows sit a little closer, for the same reason as a full rig's. */
+.obs-root:not(.obs-root--landscape) .obs-legend:has(> .obs-legend-item:nth-child(7)) {
+  row-gap: 9px;
 }
 
 .obs-legend-item {
@@ -213,19 +227,20 @@
 }
 
 .obs-legend-id {
-  font: 600 10px/1.1 var(--obs-mono);
+  font: 600 11.5px/1.1 var(--obs-mono);
   letter-spacing: 0.1em;
 }
 
 .obs-legend-time {
-  font: 500 13px/1.1 var(--obs-sans);
+  font: 500 16px/1.1 var(--obs-sans);
   color: var(--obs-txt);
   margin-top: 3px;
 }
 
 .obs-legend-frames {
-  font: 400 8.5px/1 var(--obs-mono);
-  color: var(--obs-faint);
+  font: 400 10.5px/1 var(--obs-mono);
+  /* A step lighter than the faint tone, which vanished at the export's size. */
+  color: #7d869c;
   margin-top: 3px;
 }
 
@@ -242,15 +257,23 @@
 .obs-pipeline {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 10px;
 }
 
 .obs-pipeline {
   flex: 1;
 }
 
+/* A full rig closes up the apparatus and pipeline rows alike, so the larger
+   type still leaves the card near its artboard instead of shrinking the whole
+   design to hold it. */
+.obs-root:not(.obs-root--landscape) .obs-lower:has(.obs-gear-row:nth-child(7)) .obs-apparatus,
+.obs-root:not(.obs-root--landscape) .obs-lower:has(.obs-gear-row:nth-child(7)) .obs-pipeline {
+  gap: 5px;
+}
+
 .obs-col-title {
-  font: 500 9.5px/1 var(--obs-mono);
+  font: 500 11px/1 var(--obs-mono);
   letter-spacing: 0.22em;
   color: var(--obs-violet);
   text-transform: uppercase;
@@ -275,16 +298,16 @@
 }
 
 .obs-gear-label {
-  font: 500 8.5px/1 var(--obs-mono);
-  color: var(--obs-faint);
-  letter-spacing: 0.16em;
+  font: 500 10.5px/1 var(--obs-mono);
+  color: #7d869c;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
 .obs-gear-value {
-  font: 500 11px/1.25 var(--obs-sans);
+  font: 500 13px/1.25 var(--obs-sans);
   color: var(--obs-txt);
-  margin-top: 2px;
+  margin-top: 3px;
   /* Wraps rather than ellipsing, so a long piece of kit is never cut short;
      balanced, so a wrap never leaves a lone "Gen 2" on the second line. */
   overflow-wrap: break-word;
@@ -294,11 +317,11 @@
 .obs-stack {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .obs-bortle {
-  padding: 10px 12px;
+  padding: 12px 14px;
 }
 
 .obs-bortle-head {
@@ -311,19 +334,19 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font: 500 9.5px/1 var(--obs-mono);
+  font: 500 11px/1 var(--obs-mono);
   letter-spacing: 0.2em;
   color: var(--obs-gold);
   text-transform: uppercase;
 }
 
 .obs-bortle-val {
-  font: 300 18px/1 var(--obs-sans);
+  font: 300 24px/1 var(--obs-sans);
   color: var(--obs-txt);
 }
 
 .obs-bortle-val span {
-  font: 500 10px/1 var(--obs-mono);
+  font: 500 12px/1 var(--obs-mono);
   color: var(--obs-faint);
 }
 
@@ -335,13 +358,150 @@
 
 .obs-bortle-seg {
   flex: 1;
-  height: 4px;
+  height: 5px;
   border-radius: 1px;
   background: rgba(255, 255, 255, 0.06);
 }
 
 .obs-bortle-seg.is-lit {
   background: var(--obs-gold);
+}
+
+/* ── Tall format (9:16) ──
+   The story card is 240px taller than the artboard. Carried at the portrait
+   sizes, all of that became empty hero plate; instead every panel sets its
+   type and spacing a step larger, so the plate keeps only a modest margin. */
+:host-context(.card.aspect-9-16) .obs-inner {
+  gap: 20px;
+}
+
+:host-context(.card.aspect-9-16) .obs-kicker,
+:host-context(.card.aspect-9-16) .obs-frame {
+  font-size: 12.5px;
+}
+
+:host-context(.card.aspect-9-16) .obs-hero {
+  padding: 32px 28px;
+}
+
+:host-context(.card.aspect-9-16) .obs-name {
+  font-size: 62px;
+  margin-top: 0;
+}
+
+:host-context(.card.aspect-9-16) .obs-hairline {
+  margin-top: 14px;
+  width: 72px;
+}
+
+:host-context(.card.aspect-9-16) .obs-caption {
+  font-size: 17px;
+  margin-top: 16px;
+}
+
+:host-context(.card.aspect-9-16) .obs-meta {
+  gap: 8px 22px;
+  margin-top: 22px;
+}
+
+:host-context(.card.aspect-9-16) .obs-chip {
+  gap: 7px;
+  font-size: 12.5px;
+}
+
+:host-context(.card.aspect-9-16) .obs-integration {
+  padding: 18px 18px 20px;
+}
+
+:host-context(.card.aspect-9-16) .obs-int-head {
+  margin-bottom: 16px;
+}
+
+:host-context(.card.aspect-9-16) .obs-int-label,
+:host-context(.card.aspect-9-16) .obs-int-total span {
+  font-size: 12px;
+}
+
+:host-context(.card.aspect-9-16) .obs-int-total {
+  font-size: 40px;
+}
+
+:host-context(.card.aspect-9-16) .obs-bar {
+  height: 8px;
+  border-radius: 4px;
+}
+
+:host-context(.card.aspect-9-16) .obs-legend {
+  margin-top: 18px;
+  gap: 16px 12px;
+}
+
+:host-context(.card.aspect-9-16) .obs-legend-dot {
+  width: 10px;
+  height: 10px;
+}
+
+:host-context(.card.aspect-9-16) .obs-legend-id {
+  font-size: 13px;
+}
+
+:host-context(.card.aspect-9-16) .obs-legend-time {
+  font-size: 22px;
+  margin-top: 4px;
+}
+
+:host-context(.card.aspect-9-16) .obs-legend-frames {
+  font-size: 12.5px;
+  margin-top: 5px;
+}
+
+:host-context(.card.aspect-9-16) .obs-apparatus,
+:host-context(.card.aspect-9-16) .obs-pipeline {
+  gap: 18px;
+  padding: 18px 14px;
+}
+
+:host-context(.card.aspect-9-16) .obs-lower:has(.obs-gear-row:nth-child(7)) .obs-apparatus,
+:host-context(.card.aspect-9-16) .obs-lower:has(.obs-gear-row:nth-child(7)) .obs-pipeline {
+  gap: 10px;
+}
+
+:host-context(.card.aspect-9-16) .obs-col-title,
+:host-context(.card.aspect-9-16) .obs-bortle-title {
+  font-size: 12.5px;
+}
+
+:host-context(.card.aspect-9-16) .obs-gear-label {
+  font-size: 12px;
+}
+
+:host-context(.card.aspect-9-16) .obs-gear-value {
+  font-size: 15px;
+  margin-top: 4px;
+}
+
+:host-context(.card.aspect-9-16) .obs-stack {
+  gap: 16px;
+}
+
+:host-context(.card.aspect-9-16) .obs-bortle {
+  padding: 16px;
+}
+
+:host-context(.card.aspect-9-16) .obs-bortle-val {
+  font-size: 30px;
+}
+
+:host-context(.card.aspect-9-16) .obs-bortle-val span {
+  font-size: 14px;
+}
+
+:host-context(.card.aspect-9-16) .obs-bortle-bar {
+  margin-top: 12px;
+}
+
+:host-context(.card.aspect-9-16) .obs-bortle-seg {
+  height: 6px;
 }
 
 /* ── Landscape (1.91:1) ──
