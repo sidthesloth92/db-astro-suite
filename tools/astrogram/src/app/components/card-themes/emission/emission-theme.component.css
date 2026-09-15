@@ -1,9 +1,11 @@
 /* Emission card theme — faithful port of the design source ThemeEmission.
-   Per-theme palette/typography is the theme's identity, so colours are literal.
+   Per-theme palette/typography is the theme's identity, so colours are literal,
+   except the cyan accent (kicker, finder crosshair and spike), which follows
+   the Layout panel's accent picker. The emission lines keep their band colours.
    "Space Grotesk" falls back to Outfit when not loaded (design intent). */
 
 :host {
-  --ems-cyan: #7fe3ff;
+  --ems-cyan: var(--accent-color);
   --ems-txt: #edf2f9;
   --ems-dim: #8794a9;
   --ems-faint: #4a5468;
@@ -73,6 +75,16 @@
   z-index: 0;
   pointer-events: none;
   opacity: 0.4;
+}
+
+/* SVG presentation attributes cannot read a CSS variable, so the accent
+   reaches the crosshair and spike through these classes. */
+.ems-accent-stroke {
+  stroke: var(--ems-cyan);
+}
+
+.ems-accent-fill {
+  fill: var(--ems-cyan);
 }
 
 /* ── Header ── */
