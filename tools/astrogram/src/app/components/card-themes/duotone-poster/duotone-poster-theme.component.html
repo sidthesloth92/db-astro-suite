@@ -19,7 +19,7 @@
       <!-- A long proper name ("North America") shrinks to the column's width. -->
       <div
         class="dp-headline-main"
-        [dbaAgFitText]="isLandscapeFormat() ? 108 : 76"
+        [dbaAgFitText]="isLandscapeFormat() ? 108 : 104"
         [fitTextMin]="40"
         [fitTextContent]="headlineName().primary"
       >{{ headlineName().primary }}</div>
@@ -31,6 +31,8 @@
     @if (data.caption) {
       <div class="dp-caption">{{ data.caption }}</div>
     }
+
+    <div class="dp-spacer dp-spacer--upper"></div>
 
     <!-- Big integration number -->
     <div class="dp-total-row">

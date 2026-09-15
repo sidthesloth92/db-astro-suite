@@ -94,6 +94,16 @@
   flex: 1;
 }
 
+/* Portrait / square rhythm. The design pooled every spare pixel in one spacer
+   above the footer: on a 720-tall card ~40% of the card stood empty between the
+   total and a footer of 10px type crammed at the bottom. The spare height is
+   now split — a little lifts the total off the caption, the rest sits above
+   the rule — and the type below the headline is set a step larger, so the
+   poster fills its frame with the air kept in two measured bands. */
+.dp-spacer--upper {
+  flex: 0.6;
+}
+
 /* ── Tag row ── */
 .dp-tags {
   display: flex;
@@ -111,10 +121,10 @@
 .dp-tag--solid {
   background: var(--dp-coral);
   color: var(--dp-ink);
-  font: 700 9px/1 var(--dp-mono);
+  font: 700 10.5px/1 var(--dp-mono);
 }
 .dp-date {
-  font: 500 10px/1 var(--dp-mono);
+  font: 500 11.5px/1 var(--dp-mono);
   color: var(--dp-dim);
   letter-spacing: 0.1em;
 }
@@ -126,7 +136,7 @@
 
 .dp-headline-main {
   font-family: var(--dp-sans);
-  font-size: 76px;
+  font-size: 104px;
   line-height: 0.86;
   color: var(--dp-cream);
   letter-spacing: -0.02em;
@@ -135,19 +145,19 @@
 
 .dp-headline-sub {
   font-family: var(--dp-sans);
-  font-size: 30px;
+  font-size: 36px;
   line-height: 0.9;
   color: var(--dp-coral);
   letter-spacing: -0.01em;
   text-transform: uppercase;
-  margin-top: 6px;
+  margin-top: 8px;
 }
 
 .dp-caption {
-  font: 400 12.5px/1.55 var(--dp-sans);
+  font: 400 14.5px/1.55 var(--dp-sans);
   color: var(--dp-dim);
-  margin-top: 18px;
-  max-width: 380px;
+  margin-top: 20px;
+  max-width: 440px;
 }
 
 /* ── Big integration number ── */
@@ -160,7 +170,7 @@
 
 .dp-total {
   font-family: var(--dp-sans);
-  font-size: 54px;
+  font-size: 72px;
   line-height: 0.85;
   color: var(--dp-sky);
   letter-spacing: -0.03em;
@@ -171,14 +181,14 @@
 }
 
 .dp-total-label {
-  font: 700 10px/1 var(--dp-mono);
+  font: 700 12px/1 var(--dp-mono);
   color: var(--dp-cream);
   letter-spacing: 0.18em;
   text-transform: uppercase;
 }
 
 .dp-total-sub {
-  font: 500 10px/1.4 var(--dp-mono);
+  font: 500 12px/1.4 var(--dp-mono);
   color: var(--dp-dim);
   margin-top: 4px;
 }
@@ -186,7 +196,7 @@
 .dp-total-bands {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 7px;
   padding-bottom: 4px;
 }
 
@@ -198,28 +208,28 @@
 }
 
 .dp-band-id {
-  font: 600 11px/1 var(--dp-mono);
+  font: 600 13px/1 var(--dp-mono);
 }
 
 .dp-band-time {
-  font: 500 11px/1 var(--dp-mono);
+  font: 500 13px/1 var(--dp-mono);
   color: var(--dp-cream);
 }
 
 /* ── Footer columns ── */
 .dp-footer {
   border-top: 2px solid var(--dp-cream);
-  padding-top: 14px;
+  padding-top: 18px;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 24px;
+  gap: 28px;
 }
 
 .dp-footer-title {
-  font: 700 9px/1 var(--dp-mono);
+  font: 700 11px/1 var(--dp-mono);
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  margin-bottom: 8px;
+  margin-bottom: 11px;
 }
 
 .dp-footer-title--coral {
@@ -231,7 +241,7 @@
 }
 
 .dp-footer-item {
-  font: 500 10px/1.5 var(--dp-sans);
+  font: 500 13.5px/1.5 var(--dp-sans);
   color: var(--dp-cream);
   /* Wraps rather than ellipsing, so a long value is never cut short. */
   overflow-wrap: break-word;
@@ -239,7 +249,8 @@
 
 .dp-footer-item--dim {
   color: var(--dp-dim);
-  margin-top: 4px;
+  font-size: 12.5px;
+  margin-top: 6px;
 }
 
 /* One run of text wrapped "…San Diego / County, California / · @handle",
@@ -285,9 +296,171 @@
 }
 
 .dp-band-frames {
-  font: 500 9px/1 var(--dp-mono);
+  font: 500 11.5px/1 var(--dp-mono);
   color: var(--dp-cream);
   opacity: 0.65;
+}
+
+/* At the larger portrait sizes the number, its label and the band list no
+   longer fit one line: "10h 20m" broke over two lines and the band rows
+   wrapped. The label now sits under the number, leaving the band list its
+   column at the right. A long band list grows the number's row only, so the
+   label stays tucked under the number. */
+.dp-root:not(.dp-root--landscape) .dp-total-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-rows: 1fr auto;
+  grid-template-areas:
+    'total . bands'
+    'meta . bands';
+  align-items: end;
+  gap: 10px 16px;
+}
+
+.dp-root:not(.dp-root--landscape) .dp-total {
+  grid-area: total;
+  white-space: nowrap;
+}
+
+.dp-root:not(.dp-root--landscape) .dp-total-meta {
+  grid-area: meta;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding-bottom: 0;
+}
+
+.dp-root:not(.dp-root--landscape) .dp-total-sub {
+  margin-top: 0;
+}
+
+.dp-root:not(.dp-root--landscape) .dp-total-row > .dp-spacer {
+  display: none;
+}
+
+.dp-root:not(.dp-root--landscape) .dp-total-bands {
+  grid-area: bands;
+  padding-bottom: 2px;
+}
+
+.dp-root:not(.dp-root--landscape) .dp-band {
+  white-space: nowrap;
+}
+
+/* 4:5: a little wider than 3:4, so the gear no longer wraps; the total and
+   the lists take the height that frees. */
+:host-context(.card.aspect-4-5) .dp-total {
+  font-size: 78px;
+}
+
+:host-context(.card.aspect-4-5) .dp-footer-item {
+  font-size: 14px;
+}
+
+/* Square: the wider column set the caption and gear on single lines, leaving
+   more height spare than the 3:4 card, so the lower type steps up again. */
+:host-context(.card.aspect-1-1) .dp-headline-sub {
+  font-size: 42px;
+}
+
+:host-context(.card.aspect-1-1) .dp-caption {
+  max-width: 540px;
+  font-size: 15.5px;
+  text-wrap: balance;
+}
+
+:host-context(.card.aspect-1-1) .dp-total {
+  font-size: 84px;
+}
+
+:host-context(.card.aspect-1-1) .dp-band-id,
+:host-context(.card.aspect-1-1) .dp-band-time {
+  font-size: 14.5px;
+}
+
+:host-context(.card.aspect-1-1) .dp-band-frames {
+  font-size: 12.5px;
+}
+
+:host-context(.card.aspect-1-1) .dp-footer-title {
+  font-size: 12px;
+}
+
+:host-context(.card.aspect-1-1) .dp-footer-item {
+  font-size: 15px;
+}
+
+:host-context(.card.aspect-1-1) .dp-footer-item--dim {
+  font-size: 13.5px;
+}
+
+/* Story (9:16): 240px taller than the other portrait cards. The total grows to
+   a second headline and its band breakdown moves under it as a full-width
+   table, so the extra height carries type rather than one more empty band. */
+:host-context(.card.aspect-9-16) .dp-headline {
+  margin-top: 40px;
+}
+
+:host-context(.card.aspect-9-16) .dp-headline-sub {
+  font-size: 44px;
+}
+
+:host-context(.card.aspect-9-16) .dp-caption {
+  font-size: 15.5px;
+  margin-top: 24px;
+}
+
+:host-context(.card.aspect-9-16) .dp-total-row {
+  grid-template-columns: auto;
+  grid-template-rows: none;
+  grid-template-areas:
+    'total'
+    'meta'
+    'bands';
+  justify-items: start;
+  row-gap: 12px;
+}
+
+:host-context(.card.aspect-9-16) .dp-total {
+  font-size: 100px;
+}
+
+:host-context(.card.aspect-9-16) .dp-total-bands {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  gap: 10px 16px;
+  margin-top: 14px;
+  padding-bottom: 0;
+}
+
+:host-context(.card.aspect-9-16) .dp-band {
+  display: contents;
+}
+
+:host-context(.card.aspect-9-16) .dp-band-id,
+:host-context(.card.aspect-9-16) .dp-band-time {
+  font-size: 16px;
+}
+
+:host-context(.card.aspect-9-16) .dp-band-frames {
+  font-size: 14px;
+}
+
+:host-context(.card.aspect-9-16) .dp-footer {
+  padding-top: 22px;
+}
+
+:host-context(.card.aspect-9-16) .dp-footer-title {
+  font-size: 12px;
+  margin-bottom: 13px;
+}
+
+:host-context(.card.aspect-9-16) .dp-footer-item {
+  font-size: 15px;
+}
+
+:host-context(.card.aspect-9-16) .dp-footer-item--dim {
+  font-size: 13.5px;
 }
 
 /* ── Landscape (1.91:1) ──
