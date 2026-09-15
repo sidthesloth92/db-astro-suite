@@ -1,10 +1,14 @@
 /* Star Card theme — faithful port of the design source ThemeStarCard.
-   Per-theme palette/typography is the theme's identity, so colours are literal.
+   Per-theme palette/typography is the theme's identity, so colours are literal,
+   except the two golds the Layout panel's pickers recolour: the accent (the
+   bright foil — kicker, title, ornament, constellation, stars and plate) and
+   the secondary (the deeper foil of the hairline frame, rules and the start
+   of the rarity bar).
    "Space Grotesk" falls back to Outfit when not loaded (design intent). */
 
 :host {
-  --stc-gold: #e8c788;
-  --stc-gold-2: #c9a86a;
+  --stc-gold: var(--accent-color);
+  --stc-gold-2: var(--secondary-accent-color);
   --stc-txt: #f4efe2;
   --stc-dim: #9a8fa8;
   --stc-faint: #565064;
@@ -37,7 +41,7 @@
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background: radial-gradient(ellipse 60% 45% at 50% 24%, rgba(232, 199, 136, 0.07), transparent 70%), #05040a;
+  background: radial-gradient(ellipse 60% 45% at 50% 24%, rgba(var(--accent-color-rgb), 0.07), transparent 70%), #05040a;
   opacity: var(--card-opacity, 1);
 }
 
@@ -47,7 +51,7 @@
   z-index: 1;
   height: 100%;
   box-sizing: border-box;
-  border: 1px solid rgba(201, 168, 106, 0.33);
+  border: 1px solid rgba(var(--stc-secondary-rgb), 0.33);
   border-radius: 14px;
   padding: 7px;
 }
@@ -56,11 +60,21 @@
   position: relative;
   height: 100%;
   box-sizing: border-box;
-  border: 1px solid rgba(201, 168, 106, 0.18);
+  border: 1px solid rgba(var(--stc-secondary-rgb), 0.18);
   border-radius: 9px;
   padding: 20px 24px;
   display: flex;
   flex-direction: column;
+}
+
+/* SVG presentation attributes cannot read a CSS variable, so the accent
+   reaches the constellation and ornament through these classes. */
+.stc-accent-stroke {
+  stroke: var(--stc-gold);
+}
+
+.stc-accent-fill {
+  fill: var(--stc-gold);
 }
 
 .stc-constellation {
@@ -136,9 +150,9 @@
 
 /* ── Total plate ── */
 .stc-plate {
-  border: 1px solid rgba(201, 168, 106, 0.27);
+  border: 1px solid rgba(var(--stc-secondary-rgb), 0.27);
   border-radius: 10px;
-  background: linear-gradient(180deg, rgba(232, 199, 136, 0.07), rgba(232, 199, 136, 0.02));
+  background: linear-gradient(180deg, rgba(var(--accent-color-rgb), 0.07), rgba(var(--accent-color-rgb), 0.02));
   padding: 14px 18px;
   text-align: center;
 }
@@ -217,7 +231,7 @@
 
 /* ── Compact specs ── */
 .stc-specs {
-  border-top: 1px solid rgba(201, 168, 106, 0.15);
+  border-top: 1px solid rgba(var(--stc-secondary-rgb), 0.15);
   padding-top: 12px;
   display: grid;
   grid-template-columns: 1fr 1fr;

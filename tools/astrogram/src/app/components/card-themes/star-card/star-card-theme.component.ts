@@ -1,10 +1,11 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
 import { FitTextDirective } from '../shared/fit-text/fit-text.directive';
 import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfield.component';
 import type { ThemeGearItem } from '../../../models/card-theme.model';
 import { keepPlaceNamesTogether, keepWordsTogether } from '../../../utils/keep-together.util';
 import { joinMetaItems } from '../../../utils/meta-join.util';
+import { rgbTriplet } from '../../../utils/picker-color.util';
 
 /**
  * Star Card theme — a collectible gold-foil archive card. A double gold
@@ -21,6 +22,9 @@ import { joinMetaItems } from '../../../utils/meta-join.util';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StarCardThemeComponent extends CardThemeBaseDirective {
+  /** Secondary picker colour as `"r, g, b"`, for the translucent hairline frame and rules. */
+  protected readonly secondaryRgb = computed<string>(() => rgbTriplet(this.cardData().secondaryAccentColor));
+
   /** Shared constellation figure edges (astro kit, 220×150 design space). */
   protected readonly constellationEdges = [
     { x1: 8, y1: 82, x2: 48, y2: 30 },

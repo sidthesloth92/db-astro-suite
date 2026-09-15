@@ -24,6 +24,15 @@ describe('StarCardThemeComponent', () => {
     expect(meta).toContain('@ASTROGRAM');
   });
 
+  it('should draw the hairline frame from the secondary colour', () => {
+    TestBed.inject(CardDataService).cardData.update((d) => ({ ...d, secondaryAccentColor: '#FF00FF' }));
+    fixture.detectChanges();
+
+    const root = host.querySelector<HTMLElement>('.stc-root');
+
+    expect(root?.style.getPropertyValue('--stc-secondary-rgb')).toBe('255, 0, 255');
+  });
+
   it('should let a long rarity meta wrap only between whole items', () => {
     TestBed.inject(CardDataService).cardData.update((d) => ({
       ...d,
