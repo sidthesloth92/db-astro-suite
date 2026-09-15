@@ -70,22 +70,45 @@
 }
 
 .con-band-id {
-  font: 600 11px/1 'JetBrains Mono', monospace;
+  font: 600 12px/1 'JetBrains Mono', monospace;
   letter-spacing: 0.08em;
 }
 
 .con-band-time {
-  font: 500 10px/1 'Outfit', system-ui, sans-serif;
+  font: 500 11.5px/1 'Outfit', system-ui, sans-serif;
   color: #8a97b5;
   margin-top: 3px;
 }
 
-/* ── Object name plate ── */
-.con-nameplate {
+/* ── Name plate + legend column ──
+   The name plate used to sit at 46% of the card and the legend grew up from
+   the bottom edge, which left a wide empty band between them on sample data
+   and only room for 9 px legend type — while a heavy legend could still slide
+   up over the name. They now share one column from just under the lowest band
+   label to the bottom edge, with the legend set larger; content that outgrows
+   the column overflows downward, where the card's content fit enlarges the
+   canvas to hold it. */
+.con-lower {
   position: absolute;
-  top: 46.11%;
+  /* Clear of the lowest band label (its frames line ends near y 318). */
+  top: 46.5%;
   left: 0;
   right: 0;
+  /* The bottom margin lives here, not as legend padding, and the column clips:
+     text that outgrows it then counts as overflow for the content fit, which
+     would otherwise stop once the text merely touched the card's edge. */
+  bottom: 22px;
+  overflow: clip;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  /* Keeps a heavy legend from closing up under the name. */
+  gap: 18px;
+}
+
+/* ── Object name plate ── */
+.con-nameplate {
+  position: relative;
   z-index: 2;
   text-align: center;
 }
@@ -106,48 +129,47 @@
 
 /* ── Lower legend panel ── */
 .con-legend {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  position: relative;
   z-index: 2;
-  padding: 0 24px 22px;
+  margin-top: auto;
+  padding: 0 24px;
 }
 
 .con-caption {
-  font: 300 12.5px/1.55 'Outfit', system-ui, sans-serif;
+  font: 300 13.5px/1.55 'Outfit', system-ui, sans-serif;
   color: rgba(242, 247, 255, 0.78);
   text-align: center;
-  max-width: 400px;
-  margin: 0 auto 16px;
+  max-width: 420px;
+  margin: 0 auto 18px;
 }
 
 .con-cols {
   border-top: 1px solid rgba(127, 227, 255, 0.18);
-  padding-top: 14px;
+  padding-top: 16px;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 22px;
+  gap: 20px;
 }
 
 .con-col-title {
-  font: 600 9px/1 'JetBrains Mono', monospace;
+  font: 600 11px/1 'JetBrains Mono', monospace;
   color: #7fe3ff;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  margin-bottom: 8px;
+  margin-bottom: 11px;
 }
 
 .con-row {
   display: flex;
   justify-content: space-between;
   gap: 8px;
-  padding: 1.5px 0;
+  padding: 2.5px 0;
 }
 
 .con-row-label {
-  font: 500 9px/1.4 'JetBrains Mono', monospace;
-  color: #46506b;
+  font: 500 10.5px/1.45 'JetBrains Mono', monospace;
+  /* Lifted from the design's grey, which at this size read as a smudge. */
+  color: #6b7794;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   /* May wrap: a nowrap label (e.g. "Guide scope and camera") squeezed its
@@ -157,8 +179,14 @@
   overflow-wrap: break-word;
 }
 
+/* Tracked a touch tighter than the landscape table, so "Guide scope" still
+   fits one line beside its value in a 3:4 column at this size. */
+.con-root:not(.con-root--landscape) .con-row-label {
+  letter-spacing: 0.06em;
+}
+
 .con-row-value {
-  font: 400 10.5px/1.4 'Outfit', system-ui, sans-serif;
+  font: 400 12.5px/1.35 'Outfit', system-ui, sans-serif;
   color: #f2f7ff;
   text-align: right;
   min-width: 0;
@@ -171,13 +199,13 @@
   display: flex;
   justify-content: space-between;
   gap: 8px;
-  margin-top: 6px;
-  padding-top: 6px;
+  margin-top: 8px;
+  padding-top: 8px;
   border-top: 1px solid rgba(127, 227, 255, 0.12);
 }
 
 .con-total {
-  font: 600 9px/1.4 'JetBrains Mono', monospace;
+  font: 600 11px/1.4 'JetBrains Mono', monospace;
   color: #ffd79a;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -186,7 +214,7 @@
 }
 
 .con-sky {
-  font: 500 10px/1.4 'Outfit', system-ui, sans-serif;
+  font: 500 12px/1.4 'Outfit', system-ui, sans-serif;
   color: #8a97b5;
   text-align: right;
 }
@@ -246,7 +274,7 @@
 }
 
 .con-band-frames {
-  font: 500 8.5px/1 'Outfit', system-ui, sans-serif;
+  font: 500 10px/1 'Outfit', system-ui, sans-serif;
   color: #6b7794;
   margin-top: 2px;
 }
@@ -348,6 +376,7 @@
   margin-top: 10px;
 }
 
+.con-root--landscape .con-lower,
 .con-root--landscape .con-legend {
   display: contents;
 }
@@ -426,4 +455,39 @@
   text-align: left;
   /* Two-line values split evenly rather than stranding "Gen 2". */
   text-wrap: balance;
+}
+
+/* ── Square (1:1) and story (9:16) ──
+   The artboard at its own size, pinned to the top, left the chart small in
+   the upper part of these cards and a wide band between the name and the
+   legend (on 1:1 the rows rarely wrap, on 9:16 the card is 240px taller). The
+   art box is enlarged, and the name plate is centred in the height between
+   the chart and the legend, so the chart, name and legend are evenly spaced. */
+:host-context(.card.aspect-1-1) .con-art {
+  left: calc(50% - 295px);
+  width: 590px;
+  height: 787px;
+}
+
+:host-context(.card.aspect-1-1) .con-lower {
+  top: 49%;
+}
+
+:host-context(.card.aspect-9-16) .con-art {
+  top: 44px;
+  left: calc(50% - 300px);
+  width: 600px;
+  height: 800px;
+}
+
+:host-context(.card.aspect-9-16) .con-lower {
+  top: 41.5%;
+}
+
+:host-context(.card.aspect-1-1) .con-nameplate,
+:host-context(.card.aspect-9-16) .con-nameplate {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }

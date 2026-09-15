@@ -86,40 +86,44 @@
     <span class="con-datestamp">Star Chart · {{ data.dateNumeric }}</span>
   </div>
 
-  <!-- Object name plate -->
-  <div class="con-nameplate" data-testid="card-hero">
-    @if (data.objectId) {
-      <div class="con-object-id">{{ data.objectId }}</div>
-    }
-    <div class="con-object-name">{{ data.objectName }}</div>
-  </div>
+  <!-- Name plate and legend share one column from the name plate's position to
+       the bottom edge, so a tall legend can never slide up over the name. -->
+  <div class="con-lower">
+    <!-- Object name plate -->
+    <div class="con-nameplate" data-testid="card-hero">
+      @if (data.objectId) {
+        <div class="con-object-id">{{ data.objectId }}</div>
+      }
+      <div class="con-object-name">{{ data.objectName }}</div>
+    </div>
 
-  <!-- Lower legend panel -->
-  <div class="con-legend">
-    @if (data.caption && !isLandscapeFormat()) {
-      <div class="con-caption">{{ data.caption }}</div>
-    }
-    <div class="con-cols">
-      <div class="con-col">
-        <div class="con-col-title">Apparatus</div>
-        @for (item of data.equipment; track $index) {
-          <div class="con-row">
-            <span class="con-row-label">{{ item.label }}</span>
-            <span class="con-row-value">{{ item.value }}</span>
-          </div>
-        }
-      </div>
-      <div class="con-col">
-        <div class="con-col-title">Pipeline</div>
-        @for (item of data.software; track $index) {
-          <div class="con-row">
-            <span class="con-row-label">{{ item.label }}</span>
-            <span class="con-row-value">{{ item.value }}</span>
-          </div>
-        }
-        @if (!isLandscapeFormat()) {
-          <ng-container [ngTemplateOutlet]="totalRow" />
-        }
+    <!-- Lower legend panel -->
+    <div class="con-legend">
+      @if (data.caption && !isLandscapeFormat()) {
+        <div class="con-caption">{{ data.caption }}</div>
+      }
+      <div class="con-cols">
+        <div class="con-col">
+          <div class="con-col-title">Apparatus</div>
+          @for (item of data.equipment; track $index) {
+            <div class="con-row">
+              <span class="con-row-label">{{ item.label }}</span>
+              <span class="con-row-value">{{ item.value }}</span>
+            </div>
+          }
+        </div>
+        <div class="con-col">
+          <div class="con-col-title">Pipeline</div>
+          @for (item of data.software; track $index) {
+            <div class="con-row">
+              <span class="con-row-label">{{ item.label }}</span>
+              <span class="con-row-value">{{ item.value }}</span>
+            </div>
+          }
+          @if (!isLandscapeFormat()) {
+            <ng-container [ngTemplateOutlet]="totalRow" />
+          }
+        </div>
       </div>
     </div>
   </div>
