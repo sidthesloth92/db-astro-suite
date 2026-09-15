@@ -1,6 +1,7 @@
 /* Duotone Poster card theme — faithful port of the design source
    ThemeDuotonePoster. Per-theme palette/typography is the theme's identity, so
-   colours are literal. The prototype's display/sans stacks lead with
+   colours are literal, bar the coral and sky the Layout panel's colour
+   pickers set. The prototype's display/sans stacks lead with
    "Archivo Black" / "Space Grotesk" (not loaded), so they render in the app
    body font Outfit — declared directly here. The big headline and total use a
    bare `font: display` shorthand (invalid → dropped), so they render at Outfit's
@@ -9,9 +10,10 @@
 :host {
   --dp-bg: #191240;
   --dp-ink: #120d2e;
-  --dp-coral: #ff5e5b;
+  /* Coral is the card's accent and sky its secondary. */
+  --dp-coral: var(--accent-color);
   --dp-cream: #f5efe0;
-  --dp-sky: #6fe0ff;
+  --dp-sky: var(--secondary-accent-color);
   --dp-dim: rgba(245, 239, 224, 0.62);
   --dp-sans: 'Outfit', -apple-system, system-ui, sans-serif;
   --dp-mono: 'JetBrains Mono', ui-monospace, monospace;
@@ -57,7 +59,7 @@
   height: 300px;
   left: calc(78% - 150px);
   top: calc(20% - 150px);
-  background: radial-gradient(circle, rgba(255, 94, 91, 0.9), rgba(255, 94, 91, 0) 70%);
+  background: radial-gradient(circle, rgba(var(--accent-color-rgb), 0.9), rgba(var(--accent-color-rgb), 0) 70%);
   opacity: 0.55;
 }
 
@@ -66,7 +68,7 @@
   height: 280px;
   right: -90px;
   top: -90px;
-  background: radial-gradient(circle at 35% 35%, #ff5e5b, rgba(255, 94, 91, 0) 72%);
+  background: radial-gradient(circle at 35% 35%, var(--dp-coral), rgba(var(--accent-color-rgb), 0) 72%);
   opacity: 0.85;
 }
 
@@ -75,7 +77,7 @@
   height: 240px;
   left: -110px;
   bottom: -60px;
-  background: radial-gradient(circle at 50% 50%, rgba(111, 224, 255, 0.6), rgba(111, 224, 255, 0) 70%);
+  background: radial-gradient(circle at 50% 50%, rgba(var(--dp-sky-rgb), 0.6), rgba(var(--dp-sky-rgb), 0) 70%);
   opacity: 0.55;
 }
 

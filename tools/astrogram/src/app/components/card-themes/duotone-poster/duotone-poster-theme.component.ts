@@ -7,6 +7,7 @@ import type { HeroNameParts } from '../../../models/hero-name-parts.model';
 import { splitHeroName } from '../../../utils/hero-name.util';
 import type { ThemeGearItem } from '../../../models/card-theme.model';
 import { keepPlaceNamesTogether } from '../../../utils/keep-together.util';
+import { rgbTriplet } from '../../../utils/rgb-triplet.util';
 
 /**
  * Duotone Poster theme — a bold riso print in indigo, coral and sky. Overprinted
@@ -37,4 +38,7 @@ export class DuotonePosterThemeComponent extends CardThemeBaseDirective {
 
   /** Location for the Process footer, wrapping only between its comma-separated parts. */
   protected readonly placeName = computed<string>(() => keepPlaceNamesTogether(this.vm().location));
+
+  /** Secondary accent as `r, g, b`, for the sky planet's glow. */
+  protected readonly secondaryRgb = computed(() => rgbTriplet(this.cardData().secondaryAccentColor));
 }
