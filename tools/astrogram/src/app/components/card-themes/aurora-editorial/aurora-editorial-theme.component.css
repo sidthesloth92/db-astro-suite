@@ -66,14 +66,14 @@
   gap: 10px;
 }
 .ave-mast-name {
-  font: 500 9.5px/1 var(--ave-mono);
+  font: 500 10.5px/1 var(--ave-mono);
   letter-spacing: 0.32em;
   color: var(--ave-gold);
   text-transform: uppercase;
 }
 
 .ave-mast-issue {
-  font: 500 9.5px/1 var(--ave-mono);
+  font: 500 10.5px/1 var(--ave-mono);
   letter-spacing: 0.22em;
   color: var(--ave-faint);
   text-transform: uppercase;
@@ -82,14 +82,14 @@
 /* ── Headline block ── */
 .ave-eyebrow {
   margin-top: 26px;
-  font: 500 9.5px/1 var(--ave-mono);
+  font: 500 10.5px/1 var(--ave-mono);
   letter-spacing: 0.32em;
   color: var(--ave-rose);
   text-transform: uppercase;
 }
 
 .ave-headline {
-  font: 800 60px/0.92 var(--ave-display);
+  font: 800 64px/0.92 var(--ave-display);
   color: var(--ave-cream);
   margin-top: 12px;
   letter-spacing: -0.01em;
@@ -100,7 +100,7 @@
 }
 
 .ave-subhead {
-  font: 400 16px/1 var(--ave-display);
+  font: 400 19px/1 var(--ave-display);
   color: var(--ave-gold);
   margin-top: 6px;
   letter-spacing: 0.04em;
@@ -122,7 +122,7 @@
 }
 
 .ave-standtext {
-  font: 300 13.5px/1.55 var(--ave-serif);
+  font: 300 15px/1.55 var(--ave-serif);
   color: var(--ave-txt);
   flex: 1;
 }
@@ -141,7 +141,7 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font: 500 9px/1 var(--ave-mono);
+  font: 500 10.5px/1 var(--ave-mono);
   color: var(--ave-dim);
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -177,14 +177,14 @@
 }
 
 .ave-int-label {
-  font: 500 9px/1 var(--ave-mono);
+  font: 500 10.5px/1 var(--ave-mono);
   letter-spacing: 0.28em;
   color: var(--ave-gold);
   text-transform: uppercase;
 }
 
 .ave-int-total {
-  font: 800 54px/0.92 var(--ave-display);
+  font: 800 58px/0.92 var(--ave-display);
   color: var(--ave-cream);
   margin-top: 8px;
   white-space: nowrap;
@@ -205,19 +205,19 @@
 }
 
 .ave-int-id {
-  font: 500 10px/1 var(--ave-mono);
+  font: 500 11.5px/1 var(--ave-mono);
   letter-spacing: 0.1em;
 }
 
 .ave-int-time {
-  font: 300 14px/1 var(--ave-serif);
+  font: 300 16.5px/1 var(--ave-serif);
   color: var(--ave-cream);
   margin-top: 6px;
   white-space: nowrap;
 }
 
 .ave-int-frames {
-  font: 400 8.5px/1 var(--ave-mono);
+  font: 400 10.5px/1 var(--ave-mono);
   color: var(--ave-faint);
   margin-top: 4px;
   white-space: nowrap;
@@ -238,7 +238,7 @@
 }
 
 .ave-foot-title {
-  font: 500 9px/1 var(--ave-mono);
+  font: 500 11px/1 var(--ave-mono);
   letter-spacing: 0.3em;
   color: var(--ave-gold);
   text-transform: uppercase;
@@ -262,7 +262,7 @@
 }
 
 .ave-foot-label {
-  font: 300 9px/1.35 var(--ave-serif);
+  font: 300 10.5px/1.35 var(--ave-serif);
   color: var(--ave-faint);
   /* Fixed column: `min-width` alone let a long label ("Guide Scope and
      Camera") grow past 50px and push that one row's value out of the shared
@@ -274,7 +274,7 @@
 }
 
 .ave-foot-value {
-  font: 400 10.5px/1.2 var(--ave-serif);
+  font: 400 12.5px/1.25 var(--ave-serif);
   color: var(--ave-txt);
   flex: 1;
   min-width: 0;
@@ -289,7 +289,7 @@
 }
 
 .ave-sky-sub {
-  font: 300 9.5px/1.2 var(--ave-serif);
+  font: 300 12px/1.2 var(--ave-serif);
   color: var(--ave-dim);
   margin-top: 4px;
 }
@@ -308,6 +308,237 @@
 
 .ave-sky-seg.is-lit {
   background: var(--ave-gold);
+}
+
+/* ── Portrait / square layout ──
+   The page pooled its spare height in one spacer above the footer — on a
+   720-tall card over a fifth of the card empty — while the apparatus and
+   workflow lists were set at 9–10.5px in narrow thirds, wrapping nearly every
+   value. The type is now a step larger throughout, the spare height is split
+   above the integration rule and above the footer rule, and the footer is two
+   columns: apparatus beside workflow, with the sky reading across beneath
+   workflow where the lone Bortle figure had held a whole column. */
+.ave-flexspacer--upper {
+  flex: 0.8;
+}
+
+/* At the larger sizes the band figures always take their own line under the
+   total, starting under it; seven bands still fit that line because the
+   figures sit a little closer. */
+.ave-root:not(.ave-root--landscape) .ave-integration {
+  justify-content: flex-start;
+}
+
+.ave-root:not(.ave-root--landscape) .ave-int-bands {
+  flex-basis: 100%;
+  gap: 12px;
+}
+
+.ave-root:not(.ave-root--landscape) .ave-int-frames {
+  color: var(--ave-dim);
+  margin-top: 5px;
+  word-spacing: -0.1em;
+}
+
+.ave-root:not(.ave-root--landscape) .ave-footer {
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    'apparatus workflow'
+    'apparatus sky';
+  gap: 16px 24px;
+  padding-top: 16px;
+}
+
+.ave-root:not(.ave-root--landscape) .ave-foot-col:first-child {
+  grid-area: apparatus;
+}
+
+.ave-root:not(.ave-root--landscape) .ave-foot-col:nth-child(2) {
+  grid-area: workflow;
+}
+
+.ave-root:not(.ave-root--landscape) .ave-foot-title {
+  margin-bottom: 11px;
+}
+
+.ave-root:not(.ave-root--landscape) .ave-foot-row {
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+/* The faint grey was near-invisible at the export scale. */
+.ave-root:not(.ave-root--landscape) .ave-foot-label {
+  flex-basis: 64px;
+  width: 64px;
+  line-height: 1.25;
+  color: var(--ave-dim);
+}
+
+.ave-root:not(.ave-root--landscape) .ave-foot-col:last-child {
+  grid-area: sky;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto auto;
+  align-content: start;
+  column-gap: 16px;
+}
+
+.ave-root:not(.ave-root--landscape) .ave-foot-col:last-child .ave-foot-title {
+  grid-column: 1 / -1;
+  margin-bottom: 8px;
+}
+
+.ave-root:not(.ave-root--landscape) .ave-sky-big {
+  grid-row: 2 / 4;
+  font-size: 42px;
+}
+
+.ave-root:not(.ave-root--landscape) .ave-sky-sub {
+  grid-column: 2;
+  grid-row: 2;
+  align-self: end;
+}
+
+.ave-root:not(.ave-root--landscape) .ave-sky-bar {
+  grid-column: 2;
+  grid-row: 3;
+  margin: 8px 0 4px;
+}
+
+/* Square: the wider page sets the standfirst and most values on one line,
+   so the whole page steps up a size to keep the height spent on type. */
+:host-context(.card.aspect-1-1) .ave-subhead {
+  font-size: 21px;
+}
+
+:host-context(.card.aspect-1-1) .ave-standtext {
+  font-size: 16.5px;
+}
+
+:host-context(.card.aspect-1-1) .ave-meta {
+  font-size: 11.5px;
+}
+
+:host-context(.card.aspect-1-1) .ave-int-total {
+  font-size: 72px;
+}
+
+:host-context(.card.aspect-1-1) .ave-int-id {
+  font-size: 12.5px;
+}
+
+:host-context(.card.aspect-1-1) .ave-int-time {
+  font-size: 19px;
+}
+
+:host-context(.card.aspect-1-1) .ave-int-frames {
+  font-size: 11.5px;
+}
+
+:host-context(.card.aspect-1-1) .ave-foot-title {
+  font-size: 12px;
+}
+
+:host-context(.card.aspect-1-1) .ave-foot-label {
+  flex-basis: 72px;
+  width: 72px;
+  font-size: 11.5px;
+}
+
+:host-context(.card.aspect-1-1) .ave-foot-value {
+  font-size: 14px;
+}
+
+:host-context(.card.aspect-1-1) .ave-sky-sub {
+  font-size: 13px;
+}
+
+/* Story (9:16): 240px taller. The headline block and the integration figure
+   grow, and the band figures set as a four-up table under the total so seven
+   bands keep their larger size. */
+:host-context(.card.aspect-9-16) .ave-eyebrow {
+  margin-top: 34px;
+}
+
+:host-context(.card.aspect-9-16) .ave-subhead {
+  font-size: 22px;
+  margin-top: 10px;
+}
+
+:host-context(.card.aspect-9-16) .ave-standfirst {
+  margin-top: 24px;
+}
+
+:host-context(.card.aspect-9-16) .ave-standtext {
+  font-size: 16.5px;
+}
+
+:host-context(.card.aspect-9-16) .ave-byline {
+  gap: 10px 18px;
+  margin-top: 22px;
+}
+
+:host-context(.card.aspect-9-16) .ave-meta {
+  font-size: 11.5px;
+}
+
+:host-context(.card.aspect-9-16) .ave-int-label {
+  font-size: 11.5px;
+}
+
+:host-context(.card.aspect-9-16) .ave-int-total {
+  font-size: 84px;
+  margin-top: 12px;
+}
+
+:host-context(.card.aspect-9-16) .ave-int-bands {
+  display: grid;
+  grid-template-columns: repeat(4, max-content);
+  gap: 16px 22px;
+  margin-top: 6px;
+}
+
+:host-context(.card.aspect-9-16) .ave-int-id {
+  font-size: 13px;
+}
+
+:host-context(.card.aspect-9-16) .ave-int-time {
+  font-size: 21px;
+  margin-top: 7px;
+}
+
+:host-context(.card.aspect-9-16) .ave-int-frames {
+  font-size: 12px;
+}
+
+:host-context(.card.aspect-9-16) .ave-footer {
+  padding-top: 20px;
+}
+
+:host-context(.card.aspect-9-16) .ave-foot-title {
+  font-size: 12px;
+  margin-bottom: 14px;
+}
+
+:host-context(.card.aspect-9-16) .ave-foot-row {
+  margin-bottom: 8px;
+}
+
+:host-context(.card.aspect-9-16) .ave-foot-label {
+  font-size: 11.5px;
+}
+
+:host-context(.card.aspect-9-16) .ave-foot-value {
+  font-size: 14px;
+}
+
+:host-context(.card.aspect-9-16) .ave-sky-big {
+  font-size: 60px;
+}
+
+:host-context(.card.aspect-9-16) .ave-sky-sub {
+  font-size: 13px;
 }
 
 /* ── Landscape (1.91:1) ──

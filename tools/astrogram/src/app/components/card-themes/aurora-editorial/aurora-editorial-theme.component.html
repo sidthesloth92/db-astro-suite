@@ -19,7 +19,7 @@
   <div
     class="ave-headline"
     data-testid="card-hero"
-    [dbaAgFitText]="isLandscapeFormat() ? 62 : 60"
+    [dbaAgFitText]="isLandscapeFormat() ? 62 : 64"
     [fitTextMin]="30"
     [fitTextContent]="heroName().primary"
   >{{ heroName().primary }}<span class="ave-dot">.</span></div>
@@ -47,6 +47,11 @@
       <dba-ag-theme-icon name="user" [size]="11" color="#D4A574" />{{ data.author }}
     </span>
   </div>
+
+  <!-- Portrait / square only: shares the spare height with the footer spacer. -->
+  @if (!isLandscapeFormat()) {
+    <div class="ave-flexspacer ave-flexspacer--upper"></div>
+  }
 
   <!-- Integration as editorial display -->
   <div class="ave-integration">
