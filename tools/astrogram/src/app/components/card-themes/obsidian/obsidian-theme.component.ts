@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
-import { rgbTriplet } from '../../../utils/rgb-triplet.util';
+import { rgbTriplet } from '../../../utils/picker-color.util';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
 import { ThemeIconComponent } from '../shared/theme-icon/theme-icon.component';
 import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfield.component';

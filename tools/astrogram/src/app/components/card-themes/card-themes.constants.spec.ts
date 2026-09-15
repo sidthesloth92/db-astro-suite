@@ -3,6 +3,7 @@ import type { CardThemeId } from '../../models/card-theme.model';
 import {
   CARD_THEMES,
   CARD_THEME_GROUPS,
+  DEFAULT_COLOR_ROLES,
   buildCardThemeSelectItems,
   isCardThemeId,
   resolveCardTheme,
@@ -125,5 +126,17 @@ describe('CARD_THEME_GROUPS', () => {
     expect(new Set(grouped).size)
       .withContext('a theme is listed in more than one group')
       .toBe(grouped.length);
+  });
+
+  it('hides the colour pickers a theme does not paint with', () => {
+    // Ink-on-paper themes have no highlight colour to offer; a single-accent
+    // theme's secondary default is only a text tone.
+    expect(CARD_THEMES.atlas?.colorRoles).toEqual({ accent: false, secondary: false });
+    expect(CARD_THEMES['credits-ivory']?.colorRoles).toEqual({ accent: false, secondary: false });
+    expect(CARD_THEMES['split-stats']?.colorRoles).toEqual({ accent: true, secondary: false });
+    expect(CARD_THEMES.obsidian?.colorRoles ?? DEFAULT_COLOR_ROLES).toEqual({
+      accent: true,
+      secondary: true,
+    });
   });
 });

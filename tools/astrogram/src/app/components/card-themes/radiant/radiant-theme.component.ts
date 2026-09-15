@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
-import { hexToRgbChannels } from '../../../utils/hex-rgb.util';
+import { rgbTriplet } from '../../../utils/picker-color.util';
 import { ThemeGearLineComponent } from '../shared/theme-gear-line/theme-gear-line.component';
 import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfield.component';
 
@@ -29,7 +29,7 @@ export class RadiantThemeComponent extends CardThemeBaseDirective {
   private readonly chartHeight = 300;
 
   /** The secondary colour's `r, g, b` channels, for the translucent sky glow behind the burst. */
-  protected readonly secondaryRgb = computed(() => hexToRgbChannels(this.cardData().secondaryAccentColor));
+  protected readonly secondaryRgb = computed(() => rgbTriplet(this.cardData().secondaryAccentColor));
 
   /** Ambient decorative micro-streaks around the radiant. */
   protected readonly ambientStreaks = ((): { x1: number; y1: number; x2: number; y2: number }[] => {

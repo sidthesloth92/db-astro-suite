@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { haloBandPastel } from '../../../utils/halo-band-pastel.util';
-import { rgbTriplet } from '../../../utils/rgb-triplet.util';
+import { rgbTriplet } from '../../../utils/picker-color.util';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
 
 /**

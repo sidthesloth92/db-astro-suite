@@ -147,6 +147,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
       accentColorRgb: '94, 230, 184',
       secondaryAccentColor: '#5EE6B8',
     },
+    colorRoles: { accent: true, secondary: false },
   },
   'system-line': {
     label: 'System Line',
@@ -169,6 +170,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
       accentColorRgb: '255, 244, 216',
       secondaryAccentColor: '#8A96AC',
     },
+    colorRoles: { accent: true, secondary: false },
   },
   'moon-phases': {
     label: 'Moon Phases',
@@ -180,6 +182,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
       accentColorRgb: '232, 228, 218',
       secondaryAccentColor: '#95928A',
     },
+    colorRoles: { accent: true, secondary: false },
   },
   eclipse: {
     label: 'Eclipse',
@@ -191,6 +194,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
       accentColorRgb: '255, 242, 217',
       secondaryAccentColor: '#94908A',
     },
+    colorRoles: { accent: true, secondary: false },
   },
   telrad: {
     label: 'Telrad',
@@ -246,6 +250,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
       accentColorRgb: '255, 207, 107',
       secondaryAccentColor: '#9A92B8',
     },
+    colorRoles: { accent: true, secondary: false },
   },
   comet: {
     label: 'Comet',
@@ -279,6 +284,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
       accentColorRgb: '43, 35, 22',
       secondaryAccentColor: '#6E5F45',
     },
+    colorRoles: { accent: false, secondary: false },
     // Light-on-paper: a dark astrophotograph behind pale type would make
     // the card unreadable, so this theme stays opaque by default.
     defaultCardOpacity: DEFAULT_LIGHT_THEME_OPACITY,
@@ -293,6 +299,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
       accentColorRgb: '26, 22, 34',
       secondaryAccentColor: '#6A6376',
     },
+    colorRoles: { accent: false, secondary: false },
     // Light-on-paper: a dark astrophotograph behind pale type would make
     // the card unreadable, so this theme stays opaque by default.
     defaultCardOpacity: DEFAULT_LIGHT_THEME_OPACITY,
@@ -307,6 +314,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
       accentColorRgb: '214, 24, 123',
       secondaryAccentColor: '#10141F',
     },
+    colorRoles: { accent: true, secondary: false },
     // Light-on-paper: a dark astrophotograph behind pale type would make
     // the card unreadable, so this theme stays opaque by default.
     defaultCardOpacity: DEFAULT_LIGHT_THEME_OPACITY,
@@ -354,6 +362,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
       accentColorRgb: '255, 45, 149',
       secondaryAccentColor: '#8B92A6',
     },
+    colorRoles: { accent: true, secondary: false },
   },
   'film-edge': {
     label: 'Film Edge',
@@ -376,6 +385,7 @@ export const CARD_THEMES: Partial<Record<CardThemeId, CardThemeDefinition>> = {
       accentColorRgb: '127, 227, 255',
       secondaryAccentColor: '#E8A451',
     },
+    colorRoles: { accent: true, secondary: false },
   },
 };
 
