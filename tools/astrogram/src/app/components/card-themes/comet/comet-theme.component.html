@@ -6,14 +6,14 @@
   <svg class="com-chart" viewBox="0 0 540 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <defs>
       <linearGradient id="comet-tail" x1="74%" y1="29%" x2="10%" y2="90%">
-        <stop offset="0%" stop-color="#D8F6FF" stop-opacity="0.9" />
-        <stop offset="35%" stop-color="#9FE9FF" stop-opacity="0.4" />
-        <stop offset="100%" stop-color="#9FE9FF" stop-opacity="0" />
+        <stop class="com-secondary-stop" offset="0%" stop-opacity="0.9" />
+        <stop class="com-accent-stop" offset="35%" stop-opacity="0.4" />
+        <stop class="com-accent-stop" offset="100%" stop-opacity="0" />
       </linearGradient>
       <radialGradient id="comet-nuc" cx="50%" cy="50%" r="50%">
         <stop offset="0%" stop-color="#fff" />
-        <stop offset="40%" stop-color="#D8F6FF" />
-        <stop offset="100%" stop-color="#9FE9FF" stop-opacity="0" />
+        <stop class="com-secondary-stop" offset="40%" />
+        <stop class="com-accent-stop" offset="100%" stop-opacity="0" />
       </radialGradient>
     </defs>
 
@@ -39,7 +39,7 @@
         [attr.cx]="particle.cx"
         [attr.cy]="particle.cy"
         [attr.r]="particle.r"
-        fill="#D8F6FF"
+        class="com-dust"
         [attr.opacity]="particle.opacity"
       />
     }

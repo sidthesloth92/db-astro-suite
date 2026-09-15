@@ -1,6 +1,9 @@
 /* Comet card theme — faithful port of the design source ThemeComet.
    Per-theme palette/typography is the theme's identity, so colours are
-   literal hex. */
+   literal hex — except the two the Layout panel's pickers recolour: the
+   accent (the ice-blue tail, catalogue number, column titles and rules) and
+   the secondary (the pale comet head, its dust and the total), read from the
+   card's --accent-color / --secondary-accent-color. */
 
 :host {
   display: block;
@@ -39,6 +42,20 @@
   height: 100%;
   z-index: 1;
   pointer-events: none;
+}
+
+/* SVG presentation attributes cannot read a CSS variable, so the picker
+   colours reach the gradients and dust through these classes. */
+.com-accent-stop {
+  stop-color: var(--accent-color);
+}
+
+.com-secondary-stop {
+  stop-color: var(--secondary-accent-color);
+}
+
+.com-dust {
+  fill: var(--secondary-accent-color);
 }
 
 /* ── Header ── */
@@ -113,7 +130,7 @@
 
 .com-object-id {
   font: 500 11px/1 'JetBrains Mono', monospace;
-  color: #9fe9ff;
+  color: var(--accent-color);
   letter-spacing: 0.24em;
   text-transform: uppercase;
 }
@@ -142,7 +159,7 @@
 }
 
 .com-cols {
-  border-top: 1px solid rgba(159, 233, 255, 0.18);
+  border-top: 1px solid rgba(var(--accent-color-rgb), 0.18);
   padding-top: 14px;
   display: grid;
   /* Gear names run far longer than software names, so the apparatus column
@@ -153,7 +170,7 @@
 
 .com-col-title {
   font: 600 10.5px/1 'JetBrains Mono', monospace;
-  color: #9fe9ff;
+  color: var(--accent-color);
   letter-spacing: 0.22em;
   text-transform: uppercase;
   margin-bottom: 8px;
@@ -197,7 +214,7 @@
   gap: 8px;
   margin-top: 6px;
   padding-top: 6px;
-  border-top: 1px solid rgba(159, 233, 255, 0.12);
+  border-top: 1px solid rgba(var(--accent-color-rgb), 0.12);
 }
 
 /* The total is one reading: squeezed by a long location it broke into
@@ -205,7 +222,7 @@
 .com-total {
   flex-shrink: 0;
   font: 600 15px/1 'Outfit', system-ui, sans-serif;
-  color: #d8f6ff;
+  color: var(--secondary-accent-color);
   white-space: nowrap;
 }
 
