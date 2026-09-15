@@ -1,8 +1,10 @@
-/* Moon Phases card theme — faithful port of the design source ThemeMoonPhases. */
+/* Moon Phases card theme — faithful port of the design source ThemeMoonPhases.
+   Moonlight (the lit discs, the total and the rules) is the card's accent
+   (Layout panel), defaulting to the design's own. */
 
 :host {
   --mp-bg: #070709;
-  --mp-moon: #e8e4da;
+  --mp-moon: var(--accent-color);
   --mp-txt: #f0eee8;
   --mp-dim: #95928a;
   --mp-faint: #55534c;
@@ -132,6 +134,12 @@
   margin: 0 auto;
 }
 
+/* The lit side takes the accent through CSS: SVG presentation attributes
+   cannot read a custom property. */
+.mp-moon-lit {
+  fill: var(--mp-moon);
+}
+
 .mp-moon-id {
   font: 700 12px/1 var(--mp-mono);
   letter-spacing: 0.06em;
@@ -190,7 +198,7 @@
 /* ── Footer ── */
 .mp-footer {
   position: relative;
-  border-top: 1px solid rgba(232, 228, 218, 0.1);
+  border-top: 1px solid rgba(var(--accent-color-rgb), 0.1);
   padding: 12px 0 4px;
 }
 
@@ -285,7 +293,7 @@
   align-self: start;
   margin: 26px 0 0;
   padding-top: 18px;
-  border-top: 1px solid rgba(232, 228, 218, 0.1);
+  border-top: 1px solid rgba(var(--accent-color-rgb), 0.1);
   text-align: left;
   white-space: nowrap;
 }

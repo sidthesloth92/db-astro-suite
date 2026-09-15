@@ -28,7 +28,7 @@
         <div class="mp-moon-item">
           <svg class="mp-moon" viewBox="0 0 116 116" aria-hidden="true">
             <circle cx="58" cy="58" r="54" fill="#15161B" stroke="rgba(255,255,255,0.10)" stroke-width="1" />
-            <path [attr.d]="m.d" fill="#E8E4DA" />
+            <path class="mp-moon-lit" [attr.d]="m.d" />
             @for (c of craters; track $index) {
               <circle [attr.cx]="c.cx" [attr.cy]="c.cy" [attr.r]="c.r" fill="#0D0D10" [attr.opacity]="c.opacity" />
             }
