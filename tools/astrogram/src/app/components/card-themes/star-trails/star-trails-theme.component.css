@@ -120,19 +120,19 @@
 }
 
 .st-legend-id {
-  font: 700 11px/1 var(--st-mono);
+  font: 700 12px/1 var(--st-mono);
   margin-top: 8px;
 }
 
 .st-legend-time {
-  font: 600 14px/1 var(--st-grot);
+  font: 600 15px/1 var(--st-grot);
   color: var(--st-txt);
   margin-top: 6px;
   white-space: nowrap;
 }
 
 .st-legend-frames {
-  font: 400 9px/1 var(--st-mono);
+  font: 400 10.5px/1 var(--st-mono);
   color: var(--st-faint);
   margin-top: 5px;
   white-space: nowrap;
@@ -146,7 +146,7 @@
 }
 
 .st-kicker {
-  font: 600 10.5px/1 var(--st-mono);
+  font: 600 11px/1 var(--st-mono);
   color: var(--st-pole);
   letter-spacing: 0.3em;
   text-transform: uppercase;
@@ -158,7 +158,7 @@
 }
 
 .st-sub {
-  font: 500 10px/1 var(--st-mono);
+  font: 500 10.5px/1 var(--st-mono);
   color: var(--st-faint);
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -174,12 +174,22 @@
 
 /* 9:16 is 240px taller than 3:4 and all of that height pooled above the
    footer, leaving a large empty band under the title. The header now takes
-   a third of it, its labels staying at the top, so the chart group sits lower
+   under 40% of it (the faint trails start inside the chart's own box), its
+   labels staying at the top, so the chart group sits lower
    and the card reads balanced top to bottom. (Growing the chart's own box
    instead left the trails floating well above the legend beneath.) */
 :host-context(.card.aspect-9-16) .st-header {
-  flex: 0.5 1 auto;
+  flex: 0.6 1 auto;
   align-items: flex-start;
+}
+
+/* The story card is no wider than 3:4, so the trails are allowed to run to
+   the card's edges there (the band trails still clear them); the taller chart
+   takes up part of the height that pooled above and below it. */
+:host-context(.card.aspect-9-16) .st-root:not(.st-root--landscape) .st-svg {
+  max-width: none;
+  width: calc(100% + 64px);
+  margin-inline: -32px;
 }
 
 /* ── Footer ── */
@@ -190,7 +200,7 @@
 }
 
 .st-foot-gear {
-  font: 500 10px/1.6 var(--st-mono);
+  font: 500 11.5px/1.6 var(--st-mono);
   color: #8b92a6;
 }
 
@@ -201,7 +211,7 @@
 }
 
 .st-foot-author {
-  font: 600 12px/1 var(--st-sans);
+  font: 600 13.5px/1 var(--st-sans);
   color: #e7eaf2;
 }
 
@@ -210,10 +220,59 @@
 }
 
 .st-foot-meta {
-  font: 500 9.5px/1 var(--st-mono);
+  font: 500 11px/1 var(--st-mono);
   color: #5a6175;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+}
+
+/* ── Portrait and square: the text block ──
+   The trails took 400px of a 720px card and pushed the legend, title and
+   footer into the lower third, where they sat close together at 9-10 px.
+   The trails are held a little smaller, which moves the text block up and
+   gives it room to be set larger and spaced more openly. */
+.st-root:not(.st-root--landscape) .st-svg {
+  max-width: 440px;
+}
+
+.st-root:not(.st-root--landscape) .st-legend {
+  margin-top: -22px;
+}
+
+.st-root:not(.st-root--landscape) .st-title {
+  margin-top: 22px;
+}
+
+.st-root:not(.st-root--landscape) .st-sub {
+  /* Lifted from the faint grey, which at this size read as a smudge. */
+  color: #6a7488;
+  margin-top: 12px;
+}
+
+.st-root:not(.st-root--landscape) .st-footer {
+  padding-top: 16px;
+}
+
+.st-root:not(.st-root--landscape) .st-foot-row {
+  margin-top: 10px;
+}
+
+.st-root:not(.st-root--landscape) .st-foot-meta {
+  color: #6f778b;
+  line-height: 1.3;
+  /* A long place wraps in two even lines rather than leaving "Bortle 9" alone. */
+  text-wrap: balance;
+}
+
+/* Seven bands at the larger frame counts ran wider than a 3:4 card and left
+   the last band alone on a second row; the dense legend keeps them a step
+   smaller and closer so they stay on one row. */
+.st-root--dense:not(.st-root--landscape) .st-legend {
+  column-gap: 12px;
+}
+
+.st-root--dense:not(.st-root--landscape) .st-legend-frames {
+  font-size: 9.5px;
 }
 
 /* ── Landscape (1.91:1) ──

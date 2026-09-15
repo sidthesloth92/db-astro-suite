@@ -91,7 +91,9 @@
     <div class="st-foot-row">
       <span class="st-foot-author">{{ data.author }}</span>
       <span class="st-foot-spacer"></span>
-      <span class="st-foot-meta">{{ data.location }} · Bortle {{ data.bortle }}</span>
+      <!-- Wraps only after a comma of the place, never inside "San Diego" or
+           between the separator and "Bortle 9". -->
+      <span class="st-foot-meta">{{ placeName() }}&nbsp;·&nbsp;Bortle&nbsp;{{ data.bortle }}</span>
     </div>
   </div>
 </div>

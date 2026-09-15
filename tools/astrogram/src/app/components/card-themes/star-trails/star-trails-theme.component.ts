@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
+import { keepPlaceNamesTogether } from '../../../utils/keep-together.util';
 import { ringRadii } from '../../../utils/ring-radii.util';
 import {
   STAR_TRAILS_INNER_RADIUS,
@@ -66,6 +67,9 @@ export class StarTrailsThemeComponent extends CardThemeBaseDirective {
       };
     });
   });
+
+  /** Location for the footer meta, wrapping only between its comma-separated parts. */
+  protected readonly placeName = computed<string>(() => keepPlaceNamesTogether(this.vm().location));
 
   /** Total captured frames across every enabled band. */
   protected totalFrames(): number {
