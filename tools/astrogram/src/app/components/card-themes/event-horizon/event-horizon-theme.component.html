@@ -18,7 +18,7 @@
     <defs>
       <radialGradient id="eh-glow" cx="50%" cy="50%" r="50%">
         <stop offset="40%" stop-color="#000" stop-opacity="0" />
-        <stop offset="58%" stop-color="#8A4A20" stop-opacity="0.22" />
+        <stop class="eh-glow-stop" offset="58%" stop-opacity="0.22" />
         <stop offset="100%" stop-color="#000" stop-opacity="0" />
       </radialGradient>
     </defs>
@@ -73,8 +73,8 @@
     </g>
 
     <!-- photon ring + horizon -->
-    <circle [attr.cx]="cx" [attr.cy]="cy" r="66" fill="none" stroke="#FFE9C4" stroke-width="1.6" opacity="0.9" />
-    <circle [attr.cx]="cx" [attr.cy]="cy" r="66" fill="none" stroke="#FFE9C4" stroke-width="6" opacity="0.14" />
+    <circle [attr.cx]="cx" [attr.cy]="cy" r="66" fill="none" class="eh-photon-ring" stroke-width="1.6" opacity="0.9" />
+    <circle [attr.cx]="cx" [attr.cy]="cy" r="66" fill="none" class="eh-photon-ring" stroke-width="6" opacity="0.14" />
     <circle [attr.cx]="cx" [attr.cy]="cy" r="60" fill="#010101" />
 
     <!-- total inside the void. The landscape chart is drawn too small for the

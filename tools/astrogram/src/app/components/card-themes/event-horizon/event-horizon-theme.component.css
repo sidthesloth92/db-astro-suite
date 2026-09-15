@@ -1,8 +1,11 @@
-/* Event Horizon card theme — faithful port of the design source ThemeEventHorizon. */
+/* Event Horizon card theme — faithful port of the design source ThemeEventHorizon.
+   The photon-ring cream is the card's accent and the dusky glow around the
+   black hole its secondary colour (Layout panel), both defaulting to the
+   design's own. */
 
 :host {
   --eh-bg: #050308;
-  --eh-ring: #ffe9c4;
+  --eh-ring: var(--accent-color);
   --eh-txt: #f2ede4;
   --eh-dim: #95908a;
   --eh-faint: #524e48;
@@ -77,6 +80,16 @@
      have no more height than 3:4 does. */
   max-width: 476px;
   align-self: center;
+}
+
+/* The photon ring and the glow take the accent and secondary through CSS: SVG
+   presentation attributes cannot read a custom property. */
+.eh-photon-ring {
+  stroke: var(--eh-ring);
+}
+
+.eh-glow-stop {
+  stop-color: var(--secondary-accent-color);
 }
 
 .eh-total-label {
@@ -171,7 +184,7 @@
 /* ── Footer ── */
 .eh-footer {
   position: relative;
-  border-top: 1px solid rgba(255, 233, 196, 0.1);
+  border-top: 1px solid rgba(var(--accent-color-rgb), 0.1);
   padding-top: 12px;
   /* A floor under the spacer: with a two-line name and a full legend it
      shrank to nothing and the name's descenders sat on this rule. */
