@@ -1,0 +1,518 @@
+/* Blueprint card theme — faithful port of the design source ThemeBlueprint.
+   Per-theme palette/typography is the theme's identity, so colours are literal,
+   bar the cyans the Layout panel's colour pickers set.
+   The prototype's `sans` stack leads with "Space Grotesk" (not loaded), so it
+   renders in the app body font Outfit — declared directly here. */
+
+:host {
+  --bp-bg: #06101c;
+  /* The schematic's cyan is the card's accent and the paler figure cyan its
+     secondary, so the Layout panel's colour pickers redraw the linework,
+     grid and figures; the paper and the ink greys stay the design's own. */
+  --bp-cyan: var(--accent-color);
+  --bp-cyan-2: var(--secondary-accent-color);
+  --bp-line: rgba(var(--accent-color-rgb), 0.18);
+  --bp-txt: #dceef8;
+  --bp-dim: #6e8ba0;
+  --bp-faint: #3a5364;
+  --bp-sans: 'Outfit', -apple-system, system-ui, sans-serif;
+  --bp-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.bp-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: var(--bp-txt);
+  font-family: var(--bp-sans);
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.bp-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--bp-bg);
+  opacity: var(--card-opacity, 1);
+}
+
+/* ── Grid + frame + corner marks ── */
+.bp-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.bp-grid--fine {
+  background-image:
+    linear-gradient(var(--bp-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--bp-line) 1px, transparent 1px);
+  background-size: 26px 26px;
+  opacity: 0.6;
+}
+
+.bp-grid--coarse {
+  background-image:
+    linear-gradient(var(--bp-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--bp-line) 1px, transparent 1px);
+  background-size: 130px 130px;
+}
+
+.bp-frame {
+  position: absolute;
+  inset: 16px;
+  border: 1px solid rgba(var(--accent-color-rgb), 0.27);
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+.bp-cross {
+  position: absolute;
+  pointer-events: none;
+}
+
+.bp-cross line {
+  stroke: var(--bp-cyan);
+  stroke-width: 1;
+  opacity: 0.7;
+}
+
+.bp-cross--tl {
+  top: 13px;
+  left: 13px;
+}
+
+.bp-cross--tr {
+  top: 13px;
+  right: 13px;
+}
+
+.bp-cross--bl {
+  bottom: 13px;
+  left: 13px;
+}
+
+.bp-cross--br {
+  bottom: 13px;
+  right: 13px;
+}
+
+/* ── Content column ──
+   The margin is the column's inset rather than its padding, and the column
+   clips: text that outgrows it then counts as overflow for the content fit,
+   which would otherwise stop once the text merely touched the card's edge. */
+.bp-inner {
+  position: absolute;
+  inset: 30px;
+  z-index: 1;
+  overflow: clip;
+  display: flex;
+  flex-direction: column;
+}
+
+.bp-tick {
+  font: 500 9px/1 var(--bp-mono);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.bp-tick--cyan {
+  color: var(--bp-cyan);
+}
+
+.bp-tick--dim {
+  color: var(--bp-dim);
+}
+
+.bp-tick--faint {
+  color: var(--bp-faint);
+}
+
+.bp-titlerow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ── Subject ── */
+.bp-subject {
+  margin-top: 28px;
+}
+
+.bp-subject-name {
+  font: 600 40px/1 var(--bp-sans);
+  color: var(--bp-txt);
+  letter-spacing: -0.02em;
+  margin-top: 10px;
+}
+
+.bp-subject-id-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.bp-subject-id {
+  font: 500 13px/1 var(--bp-mono);
+  color: var(--bp-cyan);
+  letter-spacing: 0.1em;
+}
+
+.bp-subject-rule {
+  flex: 1;
+  height: 1px;
+  background: rgba(var(--accent-color-rgb), 0.27);
+}
+
+/* ── Annotation ── */
+.bp-annotation {
+  margin-top: 16px;
+  display: flex;
+  gap: 10px;
+}
+
+.bp-annotation-bar {
+  width: 1px;
+  background: var(--bp-cyan);
+  opacity: 0.5;
+}
+
+.bp-annotation-text {
+  font: 400 11.5px/1.55 var(--bp-sans);
+  color: var(--bp-dim);
+  flex: 1;
+}
+
+/* ── Dimensioned integration ── */
+.bp-integration {
+  margin-top: 22px;
+  border: 1px solid rgba(var(--accent-color-rgb), 0.2);
+  border-radius: 4px;
+  padding: 14px;
+  background: rgba(var(--accent-color-rgb), 0.03);
+}
+
+.bp-int-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 12px;
+}
+
+.bp-int-total {
+  font: 600 18px/1 var(--bp-sans);
+  color: var(--bp-cyan-2);
+}
+
+.bp-dim-row {
+  display: grid;
+  grid-template-columns: 44px 1fr 70px 56px;
+  gap: 10px;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.bp-dim-id {
+  font: 600 11px/1 var(--bp-mono);
+  letter-spacing: 0.06em;
+}
+
+.bp-dim-line {
+  position: relative;
+  height: 10px;
+}
+
+.bp-dim-track {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(var(--accent-color-rgb), 0.33);
+}
+
+.bp-dim-tick {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 8px;
+  background: var(--bp-cyan);
+}
+
+.bp-dim-dot {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: 1.5px solid var(--bp-cyan);
+  background: var(--bp-bg);
+}
+
+.bp-dim-frames {
+  font: 400 10px/1 var(--bp-mono);
+  color: var(--bp-dim);
+  text-align: right;
+}
+
+.bp-dim-time {
+  font: 500 11px/1 var(--bp-mono);
+  color: var(--bp-txt);
+  text-align: right;
+}
+
+.bp-spacer {
+  flex: 1;
+}
+
+/* Only a grouping for landscape; portrait lays its children out directly. */
+.bp-sheet {
+  display: contents;
+}
+
+/* ── Parts list ──
+   Never shrinks: as a clipping flex item it used to be squeezed to a sliver
+   with heavy data, hiding its rows and reading to the content fit as text
+   running 2.3x past its box — the card shrank to the 1.75 cap while the
+   spacer above still left a 300px gap. */
+.bp-parts {
+  flex-shrink: 0;
+  border: 1px solid rgba(var(--accent-color-rgb), 0.2);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 18px;
+}
+
+.bp-parts-head {
+  display: grid;
+  grid-template-columns: 28px 1fr 1fr;
+  background: rgba(var(--accent-color-rgb), 0.07);
+  padding: 7px 12px;
+}
+
+.bp-parts-row {
+  display: grid;
+  grid-template-columns: 28px 1fr 1fr;
+  padding: 5px 12px;
+  border-top: 1px solid rgba(var(--accent-color-rgb), 0.1);
+  align-items: center;
+}
+
+.bp-parts-num {
+  font: 500 10px/1 var(--bp-mono);
+  color: var(--bp-faint);
+}
+
+.bp-parts-label {
+  font: 500 10px/1.2 var(--bp-mono);
+  color: var(--bp-dim);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.bp-parts-value {
+  font: 500 11px/1.2 var(--bp-sans);
+  color: var(--bp-txt);
+  /* Wraps rather than ellipsing, so a long value is never cut short. */
+  overflow-wrap: break-word;
+}
+
+/* ── Footer titleblock ── */
+.bp-footer {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  margin-top: 14px;
+  border: 1px solid rgba(var(--accent-color-rgb), 0.2);
+  border-radius: 4px;
+}
+
+.bp-footer-cell {
+  padding: 8px 12px;
+}
+
+.bp-footer-cell + .bp-footer-cell {
+  border-left: 1px solid rgba(var(--accent-color-rgb), 0.2);
+}
+
+.bp-footer-value {
+  font: 500 11px/1.2 var(--bp-sans);
+  color: var(--bp-txt);
+  margin-top: 4px;
+  /* Wraps rather than ellipsing, so a long value is never cut short. */
+  overflow-wrap: break-word;
+}
+
+/* ── Landscape (1.91:1) ──
+   The portrait drawing is one column of full-width boxes: stretched across a
+   wide card the exposure schedule became 900px dimension lines with the
+   figures pinned to the far edge, the parts list left its right third empty,
+   and every tick label shrank to a faint 7-9 export px. Landscape lays the
+   sheet out as two panels under the title row — subject, annotation and the
+   exposure schedule on the left, the parts list over the site titleblock on
+   the right, where a drawing keeps its titleblock — with larger type and the
+   faintest ticks lifted to the dim ink. The titleblock used to close the left
+   panel, where a long site ran to four lines under a seven-band schedule and
+   pushed the panel off the card. */
+.bp-root--landscape .bp-inner {
+  inset: 32px 34px;
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  grid-template-rows: auto auto auto 1fr auto;
+  grid-template-areas:
+    'titlerow titlerow'
+    'subject sheet'
+    'annotation sheet'
+    'spacer sheet'
+    'integration sheet';
+  column-gap: 26px;
+}
+
+.bp-root--landscape .bp-tick {
+  font-size: 10.5px;
+}
+
+.bp-root--landscape .bp-tick--faint {
+  color: var(--bp-dim);
+}
+
+.bp-root--landscape .bp-titlerow {
+  grid-area: titlerow;
+  margin-bottom: 20px;
+}
+
+.bp-root--landscape .bp-subject {
+  grid-area: subject;
+  margin-top: 0;
+}
+
+.bp-root--landscape .bp-subject-name {
+  font-size: 42px;
+}
+
+.bp-root--landscape .bp-subject-id {
+  font-size: 14px;
+}
+
+.bp-root--landscape .bp-annotation {
+  grid-area: annotation;
+}
+
+.bp-root--landscape .bp-annotation-text {
+  font-size: 13.5px;
+}
+
+.bp-root--landscape .bp-integration {
+  grid-area: integration;
+  margin-top: 18px;
+  padding: 14px 16px;
+}
+
+.bp-root--landscape .bp-int-head {
+  margin-bottom: 10px;
+}
+
+.bp-root--landscape .bp-int-total {
+  font-size: 22px;
+}
+
+.bp-root--landscape .bp-dim-row {
+  grid-template-columns: 40px 1fr auto 52px;
+  gap: 12px;
+  padding: 4px 0;
+}
+
+.bp-root--landscape .bp-dim-id {
+  font-size: 12px;
+}
+
+.bp-root--landscape .bp-dim-frames {
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.bp-root--landscape .bp-dim-time {
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
+.bp-root--landscape .bp-spacer {
+  grid-area: spacer;
+}
+
+/* The site takes the width the handle and class leave, rather than an equal
+   third that stacked a long site four lines deep. */
+.bp-root--landscape .bp-footer {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  margin-top: 14px;
+}
+
+.bp-root--landscape .bp-footer-cell {
+  padding: 9px 12px;
+}
+
+.bp-root--landscape .bp-footer-value {
+  font-size: 13px;
+  margin-top: 6px;
+}
+
+/* The parts list fills the right panel above the titleblock, its rows
+   sharing the height so the sheet closes level with the schedule. */
+.bp-root--landscape .bp-sheet {
+  grid-area: sheet;
+  display: flex;
+  flex-direction: column;
+}
+
+.bp-root--landscape .bp-parts {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  margin-top: 0;
+}
+
+.bp-root--landscape .bp-parts-head,
+.bp-root--landscape .bp-parts-row {
+  grid-template-columns: 28px 124px minmax(0, 1fr);
+  column-gap: 12px;
+  padding: 0 14px;
+}
+
+.bp-root--landscape .bp-parts-head {
+  min-height: 28px;
+  align-items: center;
+}
+
+.bp-root--landscape .bp-parts-row {
+  flex: 1;
+  padding-top: 3px;
+  padding-bottom: 3px;
+}
+
+.bp-root--landscape .bp-parts-num {
+  font-size: 11px;
+  color: var(--bp-dim);
+}
+
+.bp-root--landscape .bp-parts-label {
+  font-size: 11px;
+}
+
+.bp-root--landscape .bp-parts-value {
+  font-size: 13.5px;
+  /* Two-line specs split evenly rather than stranding "Gen 2". */
+  text-wrap: balance;
+}

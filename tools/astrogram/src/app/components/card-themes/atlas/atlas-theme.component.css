@@ -1,0 +1,487 @@
+/* Atlas card theme — faithful port of the design source ThemeAtlas.
+   Vintage star-atlas plate on cream paper; per-theme palette is literal. */
+
+:host {
+  --atl-paper: #f1ead9;
+  --atl-ink: #2b2316;
+  --atl-dim: #6e5f45;
+  --atl-faint: #a0906f;
+  --atl-serif: 'EB Garamond', Georgia, serif;
+  --atl-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.atl-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: var(--atl-ink);
+  font-family: var(--atl-serif);
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.atl-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 90% 80% at 50% 30%, rgba(255, 252, 240, 0.6), transparent 70%),
+    var(--atl-paper);
+  opacity: var(--card-opacity, 1);
+}
+
+.atl-specks {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Plate frame ── */
+.atl-frame-outer {
+  position: absolute;
+  inset: 16px;
+  border: 1.5px solid var(--atl-ink);
+  border-radius: 3px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.atl-frame-inner {
+  position: absolute;
+  inset: 22px;
+  border: 0.5px solid rgba(43, 35, 22, 0.53);
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.atl-inner {
+  /* The margins inside the plate frame are the box's inset, not padding, and
+     the box clips: text that outgrows the plate then counts as overflow for
+     the content fit. As padding, a long colophon ran onto both frame rules
+     while still technically inside the card. The clip margin keeps glyph
+     ascenders and descenders at the edges from being shaved. */
+  position: absolute;
+  inset: 40px 44px 38px;
+  z-index: 1;
+  box-sizing: border-box;
+  overflow: clip;
+  overflow-clip-margin: 10px;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+/* ── Masthead ── */
+.atl-masthead {
+  font: 600 13px/1 var(--atl-serif);
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  padding-left: 0.42em;
+}
+
+.atl-rule {
+  width: 54px;
+  height: 1px;
+  background: var(--atl-ink);
+  opacity: 0.7;
+  margin: 10px auto 0;
+}
+/* ── Star chart ── */
+.atl-chart {
+  position: relative;
+  width: 440px;
+  max-width: 100%;
+  height: 236px;
+  margin: 16px auto 0;
+}
+
+.atl-chart svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.atl-chart-id {
+  font: 700 11px var(--atl-mono);
+  letter-spacing: 0.06em;
+  /* A hairline of ink under each band colour: pale bands such as OIII's cyan
+     all but disappeared on the cream paper. */
+  stroke: rgba(43, 35, 22, 0.55);
+  stroke-width: 0.5px;
+  paint-order: stroke fill;
+}
+
+.atl-chart-time {
+  font: 600 13.5px var(--atl-serif);
+}
+
+/* ── Title ── */
+.atl-title-block {
+  margin-top: 10px;
+}
+
+.atl-designation {
+  font: 600 11.5px/1 var(--atl-mono);
+  color: var(--atl-dim);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  padding-left: 0.3em;
+}
+
+.atl-title {
+  font: 500 36px/1.05 var(--atl-serif);
+  margin-top: 8px;
+}
+
+.atl-spacer {
+  flex: 1;
+}
+
+.atl-spacer--story {
+  flex: 0.6;
+}
+
+/* ── Spare height ──
+   One spacer between the title and the exposure record pooled all of the
+   plate's spare height there — a sixth of a 720-tall card, and a ~700px empty
+   plate on the story canvas — while the record and colophon below were set
+   small. The record, instruments and colophon are now set larger, and a second
+   spacer above the chart takes a share of what remains, so the chart and title
+   sit lower on the plate. On the story canvas the two spacers split it evenly. */
+:host-context(.card.aspect-9-16) .atl-spacer--story {
+  flex: 1;
+}
+
+/* Square: the wider plate set the record in a narrow column and the gear on
+   short lines, so the record widens and the lower type steps up. */
+:host-context(.card.aspect-1-1) .atl-ledger {
+  width: 460px;
+}
+
+:host-context(.card.aspect-1-1) .atl-ledger-greek,
+:host-context(.card.aspect-1-1) .atl-ledger-time {
+  font-size: 16px;
+}
+
+:host-context(.card.aspect-1-1) .atl-ledger-frame-count {
+  font-size: 11.5px;
+}
+
+:host-context(.card.aspect-1-1) .atl-instruments {
+  font-size: 14px;
+  max-width: 540px;
+}
+
+:host-context(.card.aspect-1-1) .atl-colophon {
+  font-size: 11px;
+}
+
+/* The story canvas has 240px more height than the other portrait cards, so the
+   chart widens into the plate's side margins and the type steps up again. */
+:host-context(.card.aspect-9-16) .atl-chart {
+  width: 500px;
+  max-width: none;
+  height: 268px;
+  margin: 20px -24px 0;
+}
+
+:host-context(.card.aspect-9-16) .atl-chart-time {
+  font-size: 14.5px;
+}
+
+:host-context(.card.aspect-9-16) .atl-title-block {
+  margin-top: 14px;
+}
+
+:host-context(.card.aspect-9-16) .atl-designation {
+  font-size: 12.5px;
+}
+
+:host-context(.card.aspect-9-16) .atl-title {
+  font-size: 44px;
+  margin-top: 10px;
+}
+
+:host-context(.card.aspect-9-16) .atl-ledger {
+  width: 452px;
+}
+
+:host-context(.card.aspect-9-16) .atl-ledger-greek,
+:host-context(.card.aspect-9-16) .atl-ledger-time {
+  font-size: 16.5px;
+}
+
+:host-context(.card.aspect-9-16) .atl-ledger-frame-count {
+  font-size: 12px;
+}
+
+:host-context(.card.aspect-9-16) .atl-ledger-row {
+  padding: 8px 0;
+}
+
+:host-context(.card.aspect-9-16) .atl-instruments {
+  font-size: 14.5px;
+  margin-top: 18px;
+}
+
+:host-context(.card.aspect-9-16) .atl-colophon {
+  font-size: 11.5px;
+  margin-top: 16px;
+  padding-top: 12px;
+}
+
+/* ── Exposure ledger ── */
+.atl-ledger {
+  width: 400px;
+  max-width: 100%;
+  /* A floor under the spacer above: with a two-line name it collapsed and the
+     title's descenders sat on the record's heading. */
+  margin: 16px auto 0;
+  text-align: left;
+}
+
+.atl-ledger-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--atl-ink);
+  padding-bottom: 5px;
+}
+
+.atl-ledger-label {
+  font: 600 11px/1 var(--atl-mono);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--atl-dim);
+}
+
+.atl-ledger-total {
+  font: 600 15px/1 var(--atl-serif);
+}
+
+.atl-ledger-frames {
+  font: italic 400 11px/1 var(--atl-serif);
+  color: var(--atl-dim);
+}
+
+.atl-ledger-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 5.5px 0;
+  border-bottom: 0.5px solid rgba(43, 35, 22, 0.2);
+}
+
+.atl-ledger-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  align-self: center;
+  flex-shrink: 0;
+}
+
+/* A white band's dot would vanish on the paper. */
+.atl-ledger-dot--light {
+  box-sizing: border-box;
+  border: 1px solid var(--atl-ink);
+}
+
+.atl-ledger-greek {
+  font: 500 15px/1 var(--atl-serif);
+}
+
+.atl-ledger-lead {
+  flex: 1;
+  border-bottom: 1px dotted var(--atl-faint);
+  transform: translateY(-3px);
+}
+
+.atl-ledger-frame-count {
+  font: 500 11px/1 var(--atl-mono);
+  color: var(--atl-dim);
+}
+
+.atl-ledger-time {
+  font: 600 15px/1 var(--atl-serif);
+  /* Durations are short derived values, so keep them on one line; `width`
+     capped the cell at 52px and wrapped "2h 40m" onto a second line. */
+  min-width: 52px;
+  white-space: nowrap;
+  text-align: right;
+}
+
+/* ── Instruments ── */
+.atl-instruments {
+  font: italic 500 13px/1.6 var(--atl-serif);
+  color: var(--atl-dim);
+  margin: 14px auto 0;
+  max-width: 440px;
+  justify-content: center;
+}
+
+/* ── Colophon ── */
+.atl-colophon {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(43, 35, 22, 0.33);
+  /* Line height 1 overprinted a wrapped second line onto the first. */
+  font: 600 10.5px/1.6 var(--atl-mono);
+  color: var(--atl-dim);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+/* Portrait / square: the record's heading grows with its larger type, and the
+   colophon's tracking eases so a long place wraps less at its larger size. */
+.atl-inner:not(.atl-inner--landscape) .atl-ledger-head {
+  padding-bottom: 6px;
+}
+
+.atl-inner:not(.atl-inner--landscape) .atl-ledger-total {
+  font-size: 17px;
+}
+
+.atl-inner:not(.atl-inner--landscape) .atl-ledger-frames {
+  font-size: 12.5px;
+}
+
+.atl-inner:not(.atl-inner--landscape) .atl-colophon {
+  letter-spacing: 0.16em;
+}
+
+/* ── Landscape (1.91:1) ──
+   The plate is a single centred column: on a wide card it sat as a narrow
+   strip with the outer thirds empty, and with the plate squeezed to the
+   format's height the colophon ran onto the frame's inner rule. Landscape lays
+   the plate out as a spread — star chart and instruments on the left, title
+   and exposure record on the right — with the masthead and colophon across
+   the full width. The instruments sit under the chart so a long gear list
+   and a seven-band record share the height instead of stacking in one column. */
+.atl-colophon .atl-nowrap {
+  white-space: nowrap;
+}
+
+.atl-inner--landscape {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  /* The free rows keep a floor, so heavy data cannot butt the title against
+     the masthead rule or the instruments against the colophon. */
+  grid-template-rows: auto auto minmax(14px, 1fr) auto auto auto minmax(14px, 1fr) auto;
+  grid-template-areas:
+    'mast mast'
+    'rule rule'
+    '. .'
+    'chart title'
+    'chart ledger'
+    'instruments ledger'
+    '. .'
+    'colophon colophon';
+  column-gap: 40px;
+  inset: 36px 52px 34px;
+}
+
+.atl-inner--landscape .atl-masthead {
+  grid-area: mast;
+  font-size: 13px;
+}
+
+.atl-inner--landscape .atl-rule {
+  grid-area: rule;
+  /* Centred by the grid: the exporter dropped the auto side margins and
+     shipped the rule against the left edge. */
+  justify-self: center;
+}
+
+.atl-inner--landscape .atl-chart {
+  grid-area: chart;
+  align-self: center;
+  justify-self: end;
+  margin: 0;
+}
+
+.atl-inner--landscape .atl-spacer {
+  display: none;
+}
+
+/* The chart is scaled to its column here, so its labels are set larger to
+   export at a readable size. */
+.atl-inner--landscape .atl-chart-id {
+  font-size: 13px;
+}
+
+.atl-inner--landscape .atl-chart-time {
+  font-size: 15px;
+}
+
+/* The larger labels under the lowest band star reach just past the chart. */
+.atl-inner--landscape .atl-chart svg {
+  overflow: visible;
+}
+
+.atl-inner--landscape .atl-title-block {
+  grid-area: title;
+  margin-top: 0;
+  text-align: left;
+}
+
+.atl-inner--landscape .atl-designation {
+  font-size: 11px;
+  padding-left: 0;
+}
+
+.atl-inner--landscape .atl-title {
+  font-size: 34px;
+  margin-top: 6px;
+}
+
+.atl-inner--landscape .atl-ledger {
+  grid-area: ledger;
+  align-self: start;
+  width: auto;
+  max-width: 380px;
+  margin: 16px 0 0;
+}
+
+.atl-inner--landscape .atl-ledger-greek,
+.atl-inner--landscape .atl-ledger-time {
+  font-size: 14.5px;
+}
+
+.atl-inner--landscape .atl-ledger-frame-count {
+  font-size: 11px;
+}
+
+.atl-inner--landscape .atl-instruments {
+  grid-area: instruments;
+  align-self: start;
+  /* Centred under the chart, which is right-aligned in its column. */
+  justify-self: end;
+  justify-content: center;
+  width: 440px;
+  max-width: 100%;
+  margin: 12px 0 0;
+  font-size: 12.5px;
+}
+
+.atl-inner--landscape .atl-colophon {
+  grid-area: colophon;
+  margin-top: 14px;
+  font-size: 10.5px;
+}
+
+.atl-inner--landscape .atl-ledger-label {
+  font-size: 11px;
+}
+

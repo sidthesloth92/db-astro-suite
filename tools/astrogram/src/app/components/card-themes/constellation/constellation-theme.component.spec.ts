@@ -1,0 +1,56 @@
+import { TestBed } from '@angular/core/testing';
+import { CardDataService } from '../../../services/card-data.service';
+import { ConstellationThemeComponent } from './constellation-theme.component';
+
+/** Renders the component against the default `CardDataService` document. */
+function render(): HTMLElement {
+  TestBed.configureTestingModule({ imports: [ConstellationThemeComponent] });
+  const fixture = TestBed.createComponent(ConstellationThemeComponent);
+  fixture.detectChanges();
+  return fixture.nativeElement as HTMLElement;
+}
+
+/** Renders the component with the card switched to the landscape format. */
+function renderLandscape(): HTMLElement {
+  TestBed.configureTestingModule({ imports: [ConstellationThemeComponent] });
+  TestBed.inject(CardDataService).cardData.update((data) => ({ ...data, aspectRatio: '1.91:1' }));
+  const fixture = TestBed.createComponent(ConstellationThemeComponent);
+  fixture.detectChanges();
+  return fixture.nativeElement as HTMLElement;
+}
+
+describe('ConstellationThemeComponent', () => {
+  it('should render the object name in the hero name-plate', () => {
+    const el = render();
+    const hero = el.querySelector('[data-testid="card-hero"]');
+    expect(hero).toBeTruthy();
+    expect(hero?.textContent).toContain('Rosette Nebula');
+  });
+
+  it('should light one band star per enabled integration band', () => {
+    const el = render();
+    const bandLabels = el.querySelectorAll('.con-band-label');
+    expect(bandLabels.length).toBe(3);
+    expect(el.textContent).toContain('OIII');
+  });
+
+  it('should credit the author on the card', () => {
+    // The author is collected by the Object Info panel but was never rendered
+    // by this theme.
+    expect(render().textContent).toContain('@astrogram');
+  });
+
+  it('should set the total in the chart note, once, on a landscape card', () => {
+    const el = renderLandscape();
+    const totals = el.querySelectorAll('.con-total-row');
+    expect(totals.length).toBe(1);
+    expect(totals[0].closest('.con-note')).toBeTruthy();
+    expect(el.querySelectorAll('.con-caption').length).toBe(1);
+  });
+
+  it('should keep the total in the pipeline column on a portrait card', () => {
+    const el = render();
+    expect(el.querySelector('.con-note')).toBeNull();
+    expect(el.querySelector('.con-col .con-total-row')).toBeTruthy();
+  });
+});

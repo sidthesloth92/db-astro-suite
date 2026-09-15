@@ -1,0 +1,303 @@
+/* Event Horizon card theme — faithful port of the design source ThemeEventHorizon.
+   The photon-ring cream is the card's accent and the dusky glow around the
+   black hole its secondary colour (Layout panel), both defaulting to the
+   design's own. */
+
+:host {
+  --eh-bg: #050308;
+  --eh-ring: var(--accent-color);
+  --eh-txt: #f2ede4;
+  --eh-dim: #95908a;
+  --eh-faint: #524e48;
+  --eh-sans: 'Outfit', system-ui, sans-serif;
+  --eh-grot: 'Space Grotesk', 'Outfit', sans-serif;
+  --eh-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.eh-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: var(--eh-txt);
+  font-family: var(--eh-sans);
+  padding: 28px 32px 26px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.eh-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 70% 45% at 50% 26%, rgba(120, 70, 40, 0.14), transparent 65%),
+    var(--eh-bg);
+  opacity: var(--card-opacity, 1);
+}
+
+/* ── Header ── */
+.eh-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.eh-eyebrow {
+  font: 600 10px/1 var(--eh-mono);
+  color: var(--eh-dim);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.eh-date {
+  font: 500 10px/1 var(--eh-mono);
+  color: var(--eh-faint);
+  letter-spacing: 0.14em;
+}
+
+/* ── Black hole ── */
+.eh-svg {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: 8px;
+  /* Held to the 476px it was authored at and centred. Its height follows its
+     width, so on the wider 1:1 and 4:5 canvases it grew about a third taller
+     than at 3:4 and shoved the title onto the footer rule, while those formats
+     have no more height than 3:4 does. */
+  max-width: 476px;
+  align-self: center;
+}
+
+/* The photon ring and the glow take the accent and secondary through CSS: SVG
+   presentation attributes cannot read a custom property. */
+.eh-photon-ring {
+  stroke: var(--eh-ring);
+}
+
+.eh-glow-stop {
+  stop-color: var(--secondary-accent-color);
+}
+
+.eh-total-label {
+  font: 500 8.5px var(--eh-mono);
+  fill: var(--eh-dim);
+  letter-spacing: 0.28em;
+}
+
+.eh-total-value {
+  /* 30px ran "10h 20m" to within a few pixels of the photon ring. */
+  font: 300 26px var(--eh-grot);
+  fill: #fff;
+  letter-spacing: -0.01em;
+}
+
+/* ── Legend ── */
+.eh-legend {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  /* Seven bands at a fixed 26px gap squeezed each column to ~46px and broke
+     "2h 42m" and "54 × 180s" over two lines; the legend wraps into rows
+     instead, and each value stays whole. */
+  flex-wrap: wrap;
+  column-gap: 26px;
+  row-gap: 14px;
+}
+
+.eh-legend-item {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.eh-legend-break {
+  flex-basis: 100%;
+  height: 0;
+}
+
+.eh-legend-id {
+  font: 700 11px/1 var(--eh-mono);
+}
+
+.eh-legend-time {
+  font: 600 14px/1 var(--eh-grot);
+  color: var(--eh-txt);
+  margin-top: 6px;
+}
+
+.eh-legend-frames {
+  font: 400 9px/1 var(--eh-mono);
+  /* --eh-faint was near-black on near-black and all but invisible. */
+  color: var(--eh-dim);
+  margin-top: 5px;
+}
+
+/* ── Title ── */
+.eh-title {
+  position: relative;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.eh-kicker {
+  font: 600 10.5px/1 var(--eh-mono);
+  color: var(--eh-ring);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.eh-name {
+  font: 300 36px/1.05 var(--eh-sans);
+  margin-top: 8px;
+}
+
+.eh-spacer {
+  flex: 1;
+}
+
+.eh-spacer--story {
+  flex: 0;
+}
+
+/* ── Story (9:16) ──
+   The layout's one spacer sat under the title, so on the tall story canvas
+   the art, legend and title hugged the top above a ~660px void. A second
+   spacer above the art shares that height, centring the group between the
+   header and the footer. */
+:host-context(.card.aspect-9-16) .eh-spacer--story {
+  flex: 1;
+}
+
+/* ── Footer ── */
+.eh-footer {
+  position: relative;
+  border-top: 1px solid rgba(var(--accent-color-rgb), 0.1);
+  padding-top: 12px;
+  /* A floor under the spacer: with a two-line name and a full legend it
+     shrank to nothing and the name's descenders sat on this rule. */
+  margin-top: 16px;
+}
+
+.eh-foot-gear {
+  font: 500 10px/1.6 var(--eh-mono);
+  color: #8b92a6;
+}
+
+.eh-foot-row {
+  display: flex;
+  align-items: center;
+  margin-top: 7px;
+}
+
+.eh-foot-author {
+  font: 600 12px/1 var(--eh-sans);
+  color: #e7eaf2;
+}
+
+.eh-foot-spacer {
+  flex: 1;
+}
+
+.eh-foot-meta {
+  font: 500 9.5px/1 var(--eh-mono);
+  color: #5a6175;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ── Landscape (1.91:1) ──
+   The portrait stack kept the black hole at full column width, so on a wide
+   card it filled the middle of the image while the legend, title and footer
+   were pressed into a strip at the bottom in type too small to read. Here the
+   black hole is held to a band across the top, and the text below it is set
+   larger to use the room that frees. */
+.eh-root--landscape {
+  padding: 22px 40px 20px;
+}
+
+.eh-root--landscape .eh-svg {
+  width: auto;
+  max-width: none;
+  height: 50%;
+  margin-top: 0;
+}
+
+.eh-root--landscape .eh-eyebrow,
+.eh-root--landscape .eh-date {
+  font-size: 11px;
+}
+
+.eh-root--landscape .eh-legend {
+  column-gap: 36px;
+  margin-top: 4px;
+}
+
+/* The chart is drawn at about 0.6x here, too small for the "CAPTURED"
+   caption to read; it is dropped and the total sits alone in the ring. */
+
+.eh-root--landscape .eh-legend-id {
+  font-size: 12px;
+}
+
+.eh-root--landscape .eh-legend-time {
+  font-size: 17px;
+}
+
+.eh-root--landscape .eh-legend-frames {
+  font-size: 11px;
+}
+
+.eh-root--landscape .eh-title {
+  margin-top: 10px;
+}
+
+.eh-root--landscape .eh-kicker {
+  font-size: 11.5px;
+}
+
+.eh-root--landscape .eh-name {
+  font-size: 36px;
+  margin-top: 6px;
+}
+
+.eh-root--landscape .eh-foot-gear {
+  font-size: 11.5px;
+  justify-content: center;
+}
+
+.eh-root--landscape .eh-foot-author {
+  font-size: 13px;
+}
+
+.eh-root--landscape .eh-foot-meta {
+  font-size: 11px;
+}
+
+/* A long handle or location used to run the two ends of this row into each
+   other. The row may wrap: the meta then starts its own line at the left edge,
+   under the handle — pushed right, it hung indented and lined up with nothing.
+   When both fit, the spacer holds the meta at the right as before. */
+.eh-foot-row {
+  flex-wrap: wrap;
+  justify-content: space-between;
+  column-gap: 16px;
+  row-gap: 8px;
+}
+
+.eh-foot-row .eh-foot-meta {
+  min-width: 0;
+}
+

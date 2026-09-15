@@ -1,0 +1,111 @@
+@let data = vm();
+
+<div class="bp-root" [class.bp-root--landscape]="isLandscapeFormat()">
+  <div class="bp-grid bp-grid--fine" aria-hidden="true"></div>
+  <div class="bp-grid bp-grid--coarse" aria-hidden="true"></div>
+  <dba-ag-theme-starfield [density]="50" [opacity]="0.3" [color]="cardData().secondaryAccentColor" [seed]="5" />
+  <div class="bp-frame" aria-hidden="true"></div>
+
+  <svg class="bp-cross bp-cross--tl" width="14" height="14" aria-hidden="true">
+    <line x1="7" y1="0" x2="7" y2="14" />
+    <line x1="0" y1="7" x2="14" y2="7" />
+  </svg>
+  <svg class="bp-cross bp-cross--tr" width="14" height="14" aria-hidden="true">
+    <line x1="7" y1="0" x2="7" y2="14" />
+    <line x1="0" y1="7" x2="14" y2="7" />
+  </svg>
+  <svg class="bp-cross bp-cross--bl" width="14" height="14" aria-hidden="true">
+    <line x1="7" y1="0" x2="7" y2="14" />
+    <line x1="0" y1="7" x2="14" y2="7" />
+  </svg>
+  <svg class="bp-cross bp-cross--br" width="14" height="14" aria-hidden="true">
+    <line x1="7" y1="0" x2="7" y2="14" />
+    <line x1="0" y1="7" x2="14" y2="7" />
+  </svg>
+
+  <div class="bp-inner">
+    <!-- Titleblock header -->
+    <div class="bp-titlerow">
+      <span class="bp-tick bp-tick--cyan">Schematic</span>
+      <span class="bp-tick bp-tick--dim">REV — {{ data.dateNumeric }}</span>
+    </div>
+
+    <!-- Subject -->
+    <div class="bp-subject" data-testid="card-hero">
+      <span class="bp-tick bp-tick--dim">Subject</span>
+      <div class="bp-subject-name">{{ data.objectName }}</div>
+      <div class="bp-subject-id-row">
+        @if (data.objectId) {
+          <div class="bp-subject-id">{{ data.objectId }}</div>
+        }
+        <div class="bp-subject-rule"></div>
+      </div>
+    </div>
+
+    <!-- Annotation -->
+    @if (data.caption) {
+      <div class="bp-annotation">
+        <div class="bp-annotation-bar"></div>
+        <div class="bp-annotation-text">{{ data.caption }}</div>
+      </div>
+    }
+
+    <!-- Dimensioned integration -->
+    <div class="bp-integration">
+      <div class="bp-int-head">
+        <span class="bp-tick bp-tick--cyan">Exposure ◢ schedule</span>
+        <div class="bp-int-total">{{ data.total }}</div>
+      </div>
+      @for (band of data.integration; track band.id) {
+        <div class="bp-dim-row">
+          <span class="bp-dim-id" [style.color]="band.color">{{ band.id }}</span>
+          <div class="bp-dim-line">
+            <div class="bp-dim-track"></div>
+            <div class="bp-dim-tick"></div>
+            <div class="bp-dim-dot" [style.left.%]="band.pct * 100" [style.border-color]="band.color"></div>
+          </div>
+          <span class="bp-dim-frames">{{ band.frames }}</span>
+          <span class="bp-dim-time">{{ band.time }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="bp-spacer"></div>
+
+    <!-- Parts list and footer titleblock: one flow in portrait, the right-hand
+         sheet in landscape. -->
+    <div class="bp-sheet">
+      <!-- Parts list -->
+      <div class="bp-parts">
+        <div class="bp-parts-head">
+          <span class="bp-tick bp-tick--cyan">#</span>
+          <span class="bp-tick bp-tick--cyan">Item</span>
+          <span class="bp-tick bp-tick--cyan">Spec</span>
+        </div>
+        @for (item of partsList(); track $index) {
+          <div class="bp-parts-row">
+            <span class="bp-parts-num">{{ rowNumber($index) }}</span>
+            <span class="bp-parts-label">{{ item.label }}</span>
+            <span class="bp-parts-value">{{ item.value }}</span>
+          </div>
+        }
+      </div>
+
+      <!-- Footer titleblock -->
+      <div class="bp-footer">
+        <div class="bp-footer-cell">
+          <span class="bp-tick bp-tick--faint">Site</span>
+          <div class="bp-footer-value">{{ data.location }}</div>
+        </div>
+        <div class="bp-footer-cell">
+          <span class="bp-tick bp-tick--faint">Operator</span>
+          <div class="bp-footer-value">{{ data.author }}</div>
+        </div>
+        <div class="bp-footer-cell">
+          <span class="bp-tick bp-tick--faint">Bortle</span>
+          <div class="bp-footer-value">Class {{ data.bortle }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

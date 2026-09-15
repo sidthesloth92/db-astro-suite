@@ -1,0 +1,132 @@
+@let data = vm();
+
+<div
+  class="obs-root"
+  [class.obs-root--landscape]="isLandscapeFormat()"
+  [style.--obs-violet-rgb]="secondaryRgb()"
+>
+  <dba-ag-theme-starfield [density]="100" [opacity]="0.55" [seed]="1" />
+
+  <svg class="obs-aurora" viewBox="0 0 540 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs>
+      <linearGradient id="obs-aurora-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop class="obs-aurora-stop--cyan" offset="0%" stop-opacity="0" />
+        <stop class="obs-aurora-stop--cyan" offset="50%" stop-opacity="0.5" />
+        <stop class="obs-aurora-stop--violet" offset="100%" stop-opacity="0" />
+      </linearGradient>
+    </defs>
+    <path d="M0,252 Q270,180 540,302" fill="none" stroke="url(#obs-aurora-grad)" stroke-width="1" opacity="0.6" />
+  </svg>
+
+  <div class="obs-inner">
+    <!-- Masthead -->
+    <div class="obs-masthead">
+      <div class="obs-kicker">Catalogue · {{ data.objectId }}</div>
+      <div class="obs-frame">{{ frameLabel }} · {{ data.dateNumeric }}</div>
+    </div>
+
+    <!-- Hero -->
+    <div class="obs-glass obs-hero" data-testid="card-hero">
+      <div class="obs-name">{{ data.objectName }}</div>
+      <div class="obs-hairline"></div>
+      @if (data.caption) {
+        <div class="obs-caption">{{ data.caption }}</div>
+      }
+      <div class="obs-meta">
+        <span class="obs-chip">
+          <dba-ag-theme-icon name="calendar" [size]="11" />{{ data.dateShort }}
+        </span>
+        <span class="obs-chip">
+          <dba-ag-theme-icon name="pin" [size]="11" />{{ data.location }}
+        </span>
+        <span class="obs-chip">
+          <dba-ag-theme-icon name="user" [size]="11" />{{ data.author }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Integration -->
+    <div class="obs-glass obs-integration">
+      <div class="obs-int-head">
+        <div class="obs-int-label">Integration</div>
+        <div class="obs-int-total">{{ data.total }} <span>TOTAL</span></div>
+      </div>
+      <div class="obs-bar">
+        @for (band of data.integration; track band.id) {
+          <div
+            class="obs-bar-seg"
+            [style.width]="bandWidth(band.pct)"
+            [style.background]="band.color"
+            [style.box-shadow]="'0 0 10px ' + band.color + '66'"
+          ></div>
+        }
+      </div>
+      <div class="obs-legend">
+        @for (band of data.integration; track band.id) {
+          <div class="obs-legend-item">
+            <span
+              class="obs-legend-dot"
+              [style.background]="band.color"
+              [style.box-shadow]="'0 0 8px ' + band.color + '88'"
+            ></span>
+            <div>
+              <div class="obs-legend-id" [style.color]="band.color">{{ band.id }}</div>
+              <div class="obs-legend-time">{{ band.time }}</div>
+              <div class="obs-legend-frames">{{ band.frames }}</div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Lower grid -->
+    <div class="obs-lower">
+      <div class="obs-glass obs-apparatus">
+        <div class="obs-col-title">Apparatus</div>
+        @for (item of data.equipment; track $index) {
+          <div class="obs-gear-row">
+            <dba-ag-theme-icon class="obs-gear-icon" [name]="equipmentIcon($index)" [size]="13" />
+            <div class="obs-gear-text">
+              <div class="obs-gear-label">{{ item.label }}</div>
+              <div class="obs-gear-value">{{ item.value }}</div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="obs-stack">
+        <div class="obs-glass obs-pipeline">
+          <div class="obs-col-title">Pipeline</div>
+          @for (item of data.software; track $index) {
+            <div class="obs-gear-row">
+              <dba-ag-theme-icon class="obs-gear-icon" [name]="softwareIcon($index)" [size]="13" />
+              <div class="obs-gear-text">
+                <div class="obs-gear-label">{{ item.label }}</div>
+                <div class="obs-gear-value">{{ item.value }}</div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="obs-glass obs-bortle">
+          <div class="obs-bortle-head">
+            <div class="obs-bortle-title">
+              <dba-ag-theme-icon name="mountain" [size]="12" color="#E8C788" />
+              <span>Bortle</span>
+            </div>
+            <div class="obs-bortle-val">{{ data.bortle }}<span>/9</span></div>
+          </div>
+          <div class="obs-bortle-bar">
+            @for (segment of bortleSegments; track segment) {
+              <div
+                class="obs-bortle-seg"
+                [class.is-lit]="isBortleLit(segment)"
+                [style.opacity]="bortleOpacity(segment)"
+              ></div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

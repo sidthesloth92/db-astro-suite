@@ -1,0 +1,500 @@
+/* Emission card theme — faithful port of the design source ThemeEmission.
+   Per-theme palette/typography is the theme's identity, so colours are literal,
+   except the cyan accent (kicker, finder crosshair and spike), which follows
+   the Layout panel's accent picker. The emission lines keep their band colours.
+   "Space Grotesk" falls back to Outfit when not loaded (design intent). */
+
+:host {
+  --ems-cyan: var(--accent-color);
+  --ems-txt: #edf2f9;
+  --ems-dim: #8794a9;
+  --ems-faint: #4a5468;
+  --ems-sans: 'Space Grotesk', 'Outfit', sans-serif;
+  --ems-body: 'Outfit', system-ui, sans-serif;
+  --ems-mono: 'JetBrains Mono', monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.ems-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+  color: var(--ems-txt);
+  font-family: var(--ems-body);
+}
+
+/* The content column. The bottom margin is the column's distance from the
+   card edge, not padding, and the column clips: heavy data that outgrows it
+   then counts as overflow for the content fit, which would otherwise stop
+   once the location line merely touched the card's bottom edge. The footer
+   takes the last 4px as padding, room for glyphs that overhang their line. */
+.ems-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 22px;
+  box-sizing: border-box;
+  padding: 30px 32px 0;
+  display: flex;
+  flex-direction: column;
+  overflow: clip;
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.ems-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: #04060b;
+  opacity: var(--card-opacity, 1);
+}
+
+.ems-cross {
+  position: absolute;
+  top: 44px;
+  right: -30px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.ems-spike {
+  position: absolute;
+  left: 38px;
+  top: 168px;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+/* SVG presentation attributes cannot read a CSS variable, so the accent
+   reaches the crosshair and spike through these classes. */
+.ems-accent-stroke {
+  stroke: var(--ems-cyan);
+}
+
+.ems-accent-fill {
+  fill: var(--ems-cyan);
+}
+
+/* ── Header ── */
+.ems-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ems-brand {
+  font: 600 10px/1 var(--ems-mono);
+  color: var(--ems-dim);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.ems-date {
+  font: 500 10px/1 var(--ems-mono);
+  color: var(--ems-faint);
+  letter-spacing: 0.14em;
+}
+
+/* ── Object ── */
+.ems-object {
+  position: relative;
+  margin-top: 28px;
+}
+
+.ems-kicker {
+  font: 600 10.5px/1 var(--ems-mono);
+  color: var(--ems-cyan);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+}
+
+.ems-name {
+  font: 700 44px/1.02 var(--ems-sans);
+  letter-spacing: -0.03em;
+  margin-top: 12px;
+}
+
+.ems-desc {
+  font: 400 12.5px/1.5 var(--ems-body);
+  color: var(--ems-dim);
+  margin-top: 10px;
+  max-width: 410px;
+}
+
+/* Minimum gaps keep a full card from setting the subtitle, spectrum, total
+   and footer rule on top of each other; roomier cards never reach them. */
+.ems-sp-a {
+  flex: 0.8;
+  min-height: 12px;
+}
+
+.ems-sp-b {
+  flex: 0.5;
+}
+
+.ems-sp-c {
+  flex: 1;
+  min-height: 10px;
+}
+
+/* Five or more bands (the fifth child is then a band row, not the total):
+   tighter rows, so a full set of filters does not shrink the whole card. */
+.ems-readout:has(> .ems-row:nth-child(5)) .ems-row {
+  padding: 8px 0;
+}
+
+/* ── Spectrum strip ── */
+.ems-spectrum {
+  position: relative;
+}
+
+.ems-strip {
+  position: relative;
+  height: 62px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(
+    90deg,
+    #150c2e 0%,
+    #101a40 18%,
+    #0c2e42 32%,
+    #0e3a34 44%,
+    #27350f 56%,
+    #3e2a0c 68%,
+    #46150f 82%,
+    #330a12 100%
+  );
+}
+
+.ems-absorption {
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.35) 0 1px,
+    transparent 1px 9px
+  );
+  opacity: 0.5;
+}
+
+.ems-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  margin-left: -1.5px;
+}
+
+.ems-axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 7px;
+  font: 500 8.5px/1 var(--ems-mono);
+  color: var(--ems-faint);
+  letter-spacing: 0.14em;
+}
+
+/* ── Band readout ── */
+.ems-readout {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.ems-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 11px 0;
+}
+
+.ems-row-div {
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.ems-row-id {
+  width: 44px;
+  font: 700 14px/1 var(--ems-mono);
+}
+
+.ems-row-nm {
+  width: 78px;
+  font: 500 11px/1 var(--ems-mono);
+  color: var(--ems-dim);
+}
+
+.ems-row-bar {
+  flex: 1;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.05);
+  position: relative;
+}
+
+.ems-row-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: 3px;
+}
+
+.ems-row-time {
+  width: 66px;
+  text-align: right;
+  font: 600 16px/1 var(--ems-sans);
+  color: var(--ems-txt);
+}
+
+.ems-total-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.ems-total-label {
+  font: 500 9.5px/1 var(--ems-mono);
+  color: var(--ems-faint);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.ems-grow {
+  flex: 1;
+}
+
+.ems-total-val {
+  font: 700 34px/1 var(--ems-sans);
+  letter-spacing: -0.02em;
+}
+
+/* ── Footer ── */
+.ems-footer {
+  position: relative;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 12px 0 4px;
+}
+
+.ems-ticker {
+  font: 500 10px/1.6 var(--ems-mono);
+  color: var(--ems-dim);
+}
+
+.ems-footer-row {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.ems-author {
+  font: 600 12px/1 var(--ems-body);
+  color: var(--ems-txt);
+}
+
+.ems-loc {
+  font: 500 9.5px/1 var(--ems-mono);
+  color: var(--ems-faint);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.ems-row-frames {
+  width: 62px;
+  text-align: right;
+  font: 500 10px/1 var(--ems-sans);
+  color: var(--ems-txt);
+  opacity: 0.55;
+}
+
+/* ── Landscape (1.91:1) ──
+   The portrait column stretched across a wide card stacked the title,
+   spectrum, band readout, total and footer into too little height: the
+   subtitle sat on the spectrum strip, the scale labels on the Hα row and the
+   total on the footer rule, while the reticle ran over the strip's right end
+   and through the Hα row. Landscape sets the title and spectrum on the left
+   and the band readout and total on the right, drops the reticle, and raises
+   the small labels. */
+.ems-root--landscape .ems-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  /* The free rows keep a minimum: on a full card they used to close up, setting
+     the kicker right under the header and the total on the footer rule. */
+  grid-template-rows: auto minmax(14px, 1fr) auto auto minmax(16px, 1fr) auto;
+  grid-template-areas:
+    'header header'
+    '. .'
+    'object readout'
+    'spectrum readout'
+    '. .'
+    'footer footer';
+  column-gap: 52px;
+  padding: 28px 36px 0;
+}
+
+.ems-root--landscape .ems-sp-a,
+.ems-root--landscape .ems-sp-b,
+.ems-root--landscape .ems-sp-c,
+.ems-root--landscape .ems-cross {
+  display: none;
+}
+
+/* On the header line between brand and date: lower down, a full readout's
+   first row reached it. */
+.ems-root--landscape .ems-spike {
+  left: 49%;
+  top: 24px;
+}
+
+.ems-root--landscape .ems-header {
+  grid-area: header;
+}
+
+.ems-root--landscape .ems-brand {
+  font-size: 11px;
+}
+
+.ems-root--landscape .ems-date {
+  font-size: 11px;
+  color: var(--ems-dim);
+}
+
+.ems-root--landscape .ems-object {
+  grid-area: object;
+  margin-top: 0;
+}
+
+.ems-root--landscape .ems-kicker {
+  font-size: 11px;
+}
+
+.ems-root--landscape .ems-name {
+  font-size: 52px;
+}
+
+.ems-root--landscape .ems-desc {
+  font-size: 14px;
+  max-width: none;
+}
+
+.ems-root--landscape .ems-spectrum {
+  grid-area: spectrum;
+  margin-top: 26px;
+}
+
+.ems-root--landscape .ems-strip {
+  height: 82px;
+}
+
+.ems-root--landscape .ems-axis {
+  margin-top: 9px;
+  font-size: 10.5px;
+  color: var(--ems-dim);
+}
+
+.ems-root--landscape .ems-readout {
+  grid-area: readout;
+  align-self: center;
+}
+
+.ems-root--landscape .ems-row {
+  gap: 12px;
+  padding: 15px 0;
+}
+
+.ems-root--landscape .ems-row-id {
+  width: 42px;
+  font-size: 15px;
+}
+
+.ems-root--landscape .ems-row-nm {
+  width: 72px;
+  font-size: 11.5px;
+}
+
+.ems-root--landscape .ems-row-time {
+  width: 72px;
+  font-size: 18px;
+  white-space: nowrap;
+}
+
+.ems-root--landscape .ems-row-frames {
+  width: 66px;
+  font-size: 11.5px;
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+.ems-root--landscape .ems-total-row {
+  padding-top: 20px;
+}
+
+/* Five or more bands (the fifth child is then a band row, not the total):
+   tighter rows, so seven bands and the total fit the card's height instead
+   of shrinking the whole card to fit them. */
+.ems-root--landscape .ems-readout:has(> .ems-row:nth-child(5)) .ems-row {
+  padding: 9px 0;
+}
+
+.ems-root--landscape .ems-readout:has(> .ems-row:nth-child(5)) .ems-total-row {
+  padding-top: 12px;
+}
+
+.ems-root--landscape .ems-readout:has(> .ems-row:nth-child(5)) .ems-total-val {
+  font-size: 40px;
+}
+
+.ems-root--landscape .ems-total-label {
+  font-size: 11px;
+  color: var(--ems-dim);
+}
+
+.ems-root--landscape .ems-total-val {
+  font-size: 46px;
+}
+
+.ems-root--landscape .ems-footer {
+  grid-area: footer;
+}
+
+.ems-root--landscape .ems-ticker {
+  font-size: 10.5px;
+}
+
+.ems-root--landscape .ems-author {
+  font-size: 13px;
+}
+
+.ems-root--landscape .ems-loc {
+  font-size: 11px;
+  color: var(--ems-dim);
+}
+
+/* A long handle or location used to run the two ends of this row into each
+   other. The row may wrap: the meta then starts its own line at the left
+   margin under the handle (pushing it right left it indented against
+   nothing). When both fit, the spacer holds the meta at the right. */
+.ems-footer-row {
+  flex-wrap: wrap;
+  justify-content: space-between;
+  column-gap: 16px;
+  row-gap: 8px;
+}
+
+.ems-footer-row .ems-loc {
+  min-width: 0;
+}
+
