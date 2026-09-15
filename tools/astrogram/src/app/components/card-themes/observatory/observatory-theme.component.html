@@ -2,7 +2,7 @@
 
 <div class="obv-root" [class.obv-root--landscape]="isLandscapeFormat()">
   <div class="obv-hatch" aria-hidden="true"></div>
-  <dba-ag-theme-starfield [density]="60" [opacity]="0.3" [color]="'#E8C788'" [seed]="1" />
+  <dba-ag-theme-starfield [density]="60" [opacity]="0.3" [color]="cardData().secondaryAccentColor" [seed]="1" />
 
   <div class="obv-inner">
     <!-- Header — observatory bar -->
@@ -73,7 +73,7 @@
         <div class="obv-gear-list">
           @for (item of data.equipment; track $index) {
             <div class="obv-gear-row">
-              <dba-ag-theme-icon class="obv-gear-icon" [name]="equipmentIcon($index)" [size]="12" color="#D97742" />
+              <dba-ag-theme-icon class="obv-gear-icon" [name]="equipmentIcon($index)" [size]="12" />
               <div class="obv-gear-text">
                 <div class="obv-gear-label">{{ item.label }}</div>
                 <div class="obv-gear-value">{{ item.value }}</div>
@@ -88,7 +88,7 @@
         <div class="obv-gear-list">
           @for (item of data.software; track $index) {
             <div class="obv-gear-row">
-              <dba-ag-theme-icon class="obv-gear-icon" [name]="softwareIcon($index)" [size]="12" color="#D97742" />
+              <dba-ag-theme-icon class="obv-gear-icon" [name]="softwareIcon($index)" [size]="12" />
               <div class="obv-gear-text">
                 <div class="obv-gear-label">{{ item.label }}</div>
                 <div class="obv-gear-value">{{ item.value }}</div>

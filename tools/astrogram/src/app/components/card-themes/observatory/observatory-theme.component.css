@@ -1,9 +1,13 @@
 /* Observatory card theme — faithful port of the design source ThemeObservatory.
-   Per-theme palette/typography is the theme's identity, so colours are literal. */
+   Per-theme palette/typography is the theme's identity, so colours are literal,
+   bar the accent and secondary the Layout panel's colour pickers set. */
 
 :host {
-  --obv-copper: #d97742;
-  --obv-amber: #e8c788;
+  /* Copper is the card's accent and amber (the readouts) its secondary, so
+     the Layout panel's colour pickers restyle both; sage stays the status
+     lamp's own. */
+  --obv-copper: var(--accent-color);
+  --obv-amber: var(--secondary-accent-color);
   --obv-sage: #7aa59a;
   --obv-txt: #e8dcc4;
   --obv-dim: #9a8b73;
@@ -37,7 +41,7 @@
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background: radial-gradient(ellipse at 50% 0%, rgba(217, 119, 66, 0.08), transparent 70%),
+  background: radial-gradient(ellipse at 50% 0%, rgba(var(--accent-color-rgb), 0.08), transparent 70%),
     linear-gradient(180deg, #100b07 0%, #0a0805 100%);
   opacity: var(--card-opacity, 1);
 }
@@ -47,7 +51,7 @@
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  background-image: repeating-linear-gradient(45deg, rgba(217, 119, 66, 0.02) 0 1px, transparent 1px 8px);
+  background-image: repeating-linear-gradient(45deg, rgba(var(--accent-color-rgb), 0.02) 0 1px, transparent 1px 8px);
 }
 
 .obv-inner {
@@ -68,8 +72,8 @@
 }
 
 .obv-panel {
-  border: 1px solid rgba(217, 119, 66, 0.2);
-  background: linear-gradient(180deg, rgba(217, 119, 66, 0.04), rgba(0, 0, 0, 0.3));
+  border: 1px solid rgba(var(--accent-color-rgb), 0.2);
+  background: linear-gradient(180deg, rgba(var(--accent-color-rgb), 0.04), rgba(0, 0, 0, 0.3));
   border-radius: 4px;
   padding: 14px;
 }
@@ -86,9 +90,9 @@
   align-items: center;
   gap: 10px;
   padding: 9px 14px;
-  border: 1px solid rgba(217, 119, 66, 0.333);
+  border: 1px solid rgba(var(--accent-color-rgb), 0.333);
   border-radius: 4px;
-  background: linear-gradient(180deg, rgba(217, 119, 66, 0.1), rgba(217, 119, 66, 0.02));
+  background: linear-gradient(180deg, rgba(var(--accent-color-rgb), 0.1), rgba(var(--accent-color-rgb), 0.02));
 }
 
 .obv-logo {
@@ -229,7 +233,7 @@
   color: var(--obv-faint);
   letter-spacing: 0.14em;
   padding: 0 0 4px;
-  border-bottom: 1px solid rgba(217, 119, 66, 0.133);
+  border-bottom: 1px solid rgba(var(--accent-color-rgb), 0.133);
 }
 
 .obv-r {
@@ -242,7 +246,7 @@
   gap: 6px;
   align-items: center;
   padding: 4px 0;
-  border-bottom: 1px solid rgba(217, 119, 66, 0.063);
+  border-bottom: 1px solid rgba(var(--accent-color-rgb), 0.063);
   font-size: 12px;
 }
 
@@ -319,6 +323,7 @@
 
 .obv-gear-icon {
   flex-shrink: 0;
+  color: var(--obv-copper);
 }
 
 .obv-gear-text {
@@ -351,7 +356,7 @@
 .obv-sky {
   margin-top: 10px;
   padding-top: 8px;
-  border-top: 1px dashed rgba(217, 119, 66, 0.149);
+  border-top: 1px dashed rgba(var(--accent-color-rgb), 0.149);
 }
 
 .obv-sky-head {
@@ -380,7 +385,7 @@
   flex: 1;
   height: 8px;
   background: transparent;
-  border: 1px solid rgba(217, 119, 66, 0.149);
+  border: 1px solid rgba(var(--accent-color-rgb), 0.149);
 }
 
 .obv-bortle-seg.is-lit {
