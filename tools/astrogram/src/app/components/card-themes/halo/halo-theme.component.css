@@ -292,7 +292,9 @@
 /* ── Lower grid ── */
 .hal-lower {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  /* Gear names run far longer than software names, so the equipment panel
+     takes three fifths of the width instead of half. */
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
   gap: 12px;
 }
 
