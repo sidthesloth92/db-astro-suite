@@ -7,7 +7,9 @@
   --obv-sage: #7aa59a;
   --obv-txt: #e8dcc4;
   --obv-dim: #9a8b73;
-  --obv-faint: #5a4f40;
+  /* Lifted from the design source's #5a4f40, which all but vanished in the
+     exported labels. */
+  --obv-faint: #857760;
   --obv-mono: 'JetBrains Mono', ui-monospace, monospace;
   --obv-sans: 'Outfit', -apple-system, system-ui, sans-serif;
 
@@ -55,11 +57,13 @@
   padding: 18px;
   display: flex;
   flex-direction: column;
-  /* Spare height goes between the sections, not inside the bottom panels:
-     stretching the lower grid left bordered boxes up to three-quarters empty
-     on tall formats. */
+  /* The sections sit at one fixed gap and the target panel takes the spare
+     height (see .obv-target), so space-between no longer has any to spread:
+     before, the spare opened as three equal empty bands between the panels
+     — two-fifths of a 9:16 card; stretching the lower grid instead left its
+     bordered boxes up to three-quarters empty. */
   justify-content: space-between;
-  gap: 10px;
+  gap: 12px;
   box-sizing: border-box;
 }
 
@@ -67,11 +71,11 @@
   border: 1px solid rgba(217, 119, 66, 0.2);
   background: linear-gradient(180deg, rgba(217, 119, 66, 0.04), rgba(0, 0, 0, 0.3));
   border-radius: 4px;
-  padding: 12px;
+  padding: 14px;
 }
 
 .obv-tick {
-  font: 500 9px/1 var(--obv-mono);
+  font: 500 10.5px/1 var(--obv-mono);
   color: var(--obv-copper);
   letter-spacing: 0.18em;
 }
@@ -81,7 +85,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 12px;
+  padding: 9px 14px;
   border: 1px solid rgba(217, 119, 66, 0.333);
   border-radius: 4px;
   background: linear-gradient(180deg, rgba(217, 119, 66, 0.1), rgba(217, 119, 66, 0.02));
@@ -93,13 +97,14 @@
 }
 
 .obv-brand {
-  font: 700 11px/1 var(--obv-mono);
+  font: 700 13px/1 var(--obv-mono);
   letter-spacing: 0.2em;
   color: var(--obv-copper);
 }
 
 .obv-session {
   flex: 1;
+  font-size: 12px;
   text-align: center;
   color: var(--obv-dim);
   letter-spacing: 0.16em;
@@ -107,6 +112,7 @@
 
 .obv-status {
   display: flex;
+  font-size: 12px;
   align-items: center;
   gap: 5px;
   color: var(--obv-sage);
@@ -121,19 +127,25 @@
 }
 
 /* ── Target panel ── */
+/* The target panel takes whatever height the stack leaves, its content
+   centred, so the spare reads as the panel's margin rather than as gaps. */
 .obv-target {
-  padding: 14px 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 16px 18px;
 }
 
 .obv-target-name {
   display: flex;
   align-items: baseline;
   gap: 14px;
-  margin-top: 6px;
+  margin-top: 8px;
 }
 
 .obv-target-id {
-  font: 300 32px/1 var(--obv-sans);
+  font: 300 38px/1 var(--obv-sans);
   color: var(--obv-amber);
   letter-spacing: 0.06em;
   /* The exporter clones each element at its computed size and lays the text
@@ -146,7 +158,7 @@
 }
 
 .obv-target-common {
-  font: 500 16px/1 var(--obv-sans);
+  font: 500 19px/1 var(--obv-sans);
   color: var(--obv-txt);
   letter-spacing: 0.02em;
 }
@@ -158,10 +170,10 @@
      over its handle). */
   flex-wrap: wrap;
   gap: 4px 16px;
-  margin-top: 10px;
+  margin-top: 12px;
   color: var(--obv-dim);
   letter-spacing: 0.06em;
-  font-size: 9.5px;
+  font-size: 11px;
   text-transform: uppercase;
 }
 
@@ -178,10 +190,10 @@
 }
 
 .obv-target-caption {
-  margin-top: 10px;
+  margin-top: 12px;
   padding-left: 10px;
   border-left: 2px solid var(--obv-copper);
-  font: 400 11.5px/1.5 var(--obv-sans);
+  font: 400 13px/1.5 var(--obv-sans);
   color: var(--obv-txt);
   font-style: italic;
 }
@@ -189,19 +201,22 @@
 /* ── Integration telemetry ── */
 .obv-tel-head {
   display: flex;
+  /* A longer total drops below the heading instead of running into it. */
+  flex-wrap: wrap;
+  gap: 6px 16px;
   justify-content: space-between;
   align-items: baseline;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .obv-tel-total {
-  font: 300 22px/1 var(--obv-sans);
+  font: 300 26px/1 var(--obv-sans);
   color: var(--obv-amber);
   letter-spacing: 0.02em;
 }
 
 .obv-tel-total span {
-  font: 500 9px/1 var(--obv-mono);
+  font: 500 10.5px/1 var(--obv-mono);
   color: var(--obv-dim);
   letter-spacing: 0.16em;
 }
@@ -210,7 +225,7 @@
   display: grid;
   grid-template-columns: 60px 1fr 90px 70px;
   gap: 4px;
-  font-size: 8.5px;
+  font-size: 10px;
   color: var(--obv-faint);
   letter-spacing: 0.14em;
   padding: 0 0 4px;
@@ -226,9 +241,15 @@
   grid-template-columns: 60px 1fr 90px 70px;
   gap: 6px;
   align-items: center;
-  padding: 5px 0;
+  padding: 4px 0;
   border-bottom: 1px solid rgba(217, 119, 66, 0.063);
-  font-size: 10.5px;
+  font-size: 12px;
+}
+
+/* Seven bands close their rows up, so a full filter set still leaves the
+   card near its artboard instead of shrinking the whole design to hold it. */
+.obv-root:not(.obv-root--landscape) .obv-panel:has(> .obv-tel-row:nth-child(9)) .obv-tel-row {
+  padding: 2px 0;
 }
 
 .obv-tel-band {
@@ -268,16 +289,26 @@
   gap: 10px;
 }
 
+/* Hardware carries the longer names, so it takes a little more width. */
+.obv-root:not(.obv-root--landscape) .obv-lower {
+  grid-template-columns: 1.2fr 1fr;
+}
+
 .obv-pipeline {
   display: flex;
   flex-direction: column;
 }
 
 .obv-gear-list {
-  margin-top: 8px;
+  margin-top: 10px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
+}
+
+/* A full rig closes its rows up, for the same reason as the bands above. */
+.obv-root:not(.obv-root--landscape) .obv-gear-list:has(> .obv-gear-row:nth-child(6)) {
+  gap: 5px;
 }
 
 .obv-gear-row {
@@ -296,16 +327,17 @@
 }
 
 .obv-gear-label {
-  font-size: 8.5px;
+  font-size: 10.5px;
+  line-height: 1.2;
   color: var(--obv-faint);
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 
 .obv-gear-value {
-  font: 500 10.5px/1.2 var(--obv-sans);
+  font: 500 12.5px/1.2 var(--obv-sans);
   color: var(--obv-txt);
-  margin-top: 2px;
+  margin-top: 3px;
   /* Wraps rather than ellipsing, so a long piece of kit is never cut short;
      balanced, so a wrap never leaves a lone "Gen 2" on the second line. */
   overflow-wrap: break-word;
@@ -329,12 +361,12 @@
 }
 
 .obv-sky-val {
-  font: 300 16px/1 var(--obv-sans);
+  font: 300 20px/1 var(--obv-sans);
   color: var(--obv-amber);
 }
 
 .obv-sky-val span {
-  font-size: 9px;
+  font-size: 11px;
   color: var(--obv-faint);
 }
 
@@ -346,7 +378,7 @@
 
 .obv-bortle-seg {
   flex: 1;
-  height: 7px;
+  height: 8px;
   background: transparent;
   border: 1px solid rgba(217, 119, 66, 0.149);
 }
@@ -354,6 +386,158 @@
 .obv-bortle-seg.is-lit {
   background: var(--obv-copper);
   border-color: var(--obv-copper);
+}
+
+/* The square card is a third wider, so its caption and gear rarely wrap and
+   the target panel is left more of the height: its type steps up to hold
+   it, and the telemetry and gear rows open up a little. */
+:host-context(.card.aspect-1-1) .obv-target-id {
+  font-size: 44px;
+}
+
+:host-context(.card.aspect-1-1) .obv-target-common {
+  font-size: 22px;
+}
+
+:host-context(.card.aspect-1-1) .obv-target-meta {
+  font-size: 12px;
+}
+
+:host-context(.card.aspect-1-1) .obv-target-caption {
+  font-size: 14px;
+}
+
+:host-context(.card.aspect-1-1) .obv-tel-row {
+  padding: 6px 0;
+}
+
+:host-context(.card.aspect-1-1) .obv-gear-list {
+  gap: 10px;
+}
+
+/* ── Tall format (9:16) ──
+   The story card is 240px taller than the artboard. Carried at the portrait
+   sizes, all of that became empty target panel; instead every panel sets its
+   type and spacing a step larger, so the target keeps only a modest margin. */
+:host-context(.card.aspect-9-16) .obv-inner {
+  gap: 18px;
+}
+
+:host-context(.card.aspect-9-16) .obv-panel {
+  padding: 18px;
+}
+
+:host-context(.card.aspect-9-16) .obv-tick {
+  font-size: 12px;
+}
+
+:host-context(.card.aspect-9-16) .obv-header {
+  padding: 12px 16px;
+}
+
+:host-context(.card.aspect-9-16) .obv-brand {
+  font-size: 14px;
+}
+
+:host-context(.card.aspect-9-16) .obv-session,
+:host-context(.card.aspect-9-16) .obv-status {
+  font-size: 13px;
+}
+
+:host-context(.card.aspect-9-16) .obv-target {
+  padding: 24px 22px;
+}
+
+:host-context(.card.aspect-9-16) .obv-target-name {
+  margin-top: 12px;
+}
+
+:host-context(.card.aspect-9-16) .obv-target-id {
+  font-size: 48px;
+}
+
+:host-context(.card.aspect-9-16) .obv-target-common {
+  font-size: 23px;
+}
+
+:host-context(.card.aspect-9-16) .obv-target-meta {
+  gap: 6px 18px;
+  margin-top: 16px;
+  font-size: 12.5px;
+}
+
+:host-context(.card.aspect-9-16) .obv-target-caption {
+  margin-top: 16px;
+  padding-left: 12px;
+  font-size: 15px;
+}
+
+:host-context(.card.aspect-9-16) .obv-tel-head {
+  margin-bottom: 14px;
+}
+
+:host-context(.card.aspect-9-16) .obv-tel-total {
+  font-size: 32px;
+}
+
+:host-context(.card.aspect-9-16) .obv-tel-total span {
+  font-size: 12px;
+}
+
+:host-context(.card.aspect-9-16) .obv-tel-cols {
+  padding-bottom: 6px;
+  font-size: 11.5px;
+}
+
+:host-context(.card.aspect-9-16) .obv-tel-row {
+  padding: 8px 0;
+  font-size: 14px;
+}
+
+:host-context(.card.aspect-9-16) .obv-panel:has(> .obv-tel-row:nth-child(9)) .obv-tel-row {
+  padding: 5px 0;
+}
+
+:host-context(.card.aspect-9-16) .obv-tel-bar {
+  height: 6px;
+}
+
+:host-context(.card.aspect-9-16) .obv-gear-list {
+  margin-top: 14px;
+  gap: 14px;
+}
+
+:host-context(.card.aspect-9-16) .obv-gear-list:has(> .obv-gear-row:nth-child(6)) {
+  gap: 10px;
+}
+
+:host-context(.card.aspect-9-16) .obv-gear-label {
+  font-size: 12px;
+}
+
+:host-context(.card.aspect-9-16) .obv-gear-value {
+  margin-top: 4px;
+  font-size: 15px;
+}
+
+:host-context(.card.aspect-9-16) .obv-sky {
+  padding-top: 12px;
+}
+
+:host-context(.card.aspect-9-16) .obv-sky-val {
+  font-size: 26px;
+}
+
+:host-context(.card.aspect-9-16) .obv-sky-val span {
+  font-size: 13px;
+}
+
+:host-context(.card.aspect-9-16) .obv-bortle-bar {
+  margin-top: 10px;
+}
+
+:host-context(.card.aspect-9-16) .obv-bortle-seg {
+  height: 10px;
 }
 
 /* ── Landscape (1.91:1) ──
