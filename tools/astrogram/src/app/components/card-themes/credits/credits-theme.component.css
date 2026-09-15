@@ -1,5 +1,8 @@
 /* Credits card theme — faithful port of the design source ThemeCredits.
-   Per-theme palette/typography is the theme's identity, so colours are literal.
+   Per-theme palette/typography is the theme's identity, so colours are literal,
+   except the two the Layout panel's pickers recolour: the accent (the
+   constellation and the spikes by the date) and the secondary (the glow at
+   the top of the sheet).
    "Archivo Black"/"Space Grotesk" fall back to Outfit when not loaded. */
 
 :host {
@@ -39,7 +42,7 @@
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background: radial-gradient(ellipse 75% 50% at 50% 0%, rgba(120, 60, 140, 0.18), transparent 62%), #060509;
+  background: radial-gradient(ellipse 75% 50% at 50% 0%, rgba(var(--crd-secondary-rgb), 0.18), transparent 62%), #060509;
   opacity: var(--card-opacity, 1);
 }
 
@@ -56,6 +59,16 @@
   position: absolute;
   z-index: 0;
   pointer-events: none;
+}
+
+/* SVG presentation attributes cannot read a CSS variable, so the accent
+   reaches the constellation and spike marks through these classes. */
+.crd-accent-stroke {
+  stroke: var(--accent-color);
+}
+
+.crd-accent-fill {
+  fill: var(--accent-color);
 }
 
 .crd-spike-1 {

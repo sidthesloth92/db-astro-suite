@@ -1,10 +1,11 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
 import { ThemeGearLineComponent } from '../shared/theme-gear-line/theme-gear-line.component';
 import { FitTextDirective } from '../shared/fit-text/fit-text.directive';
 import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfield.component';
 import { bandRowBreak } from '../../../utils/band-rows.util';
 import { keepPlaceNamesTogether } from '../../../utils/keep-together.util';
+import { rgbTriplet } from '../../../utils/picker-color.util';
 
 /**
  * Credits theme — a cinema one-sheet. A one-line title fitted to the card
@@ -21,6 +22,9 @@ import { keepPlaceNamesTogether } from '../../../utils/keep-together.util';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CreditsThemeComponent extends CardThemeBaseDirective {
+  /** Secondary picker colour as `"r, g, b"`, for the translucent glow at the top of the sheet. */
+  protected readonly secondaryRgb = computed<string>(() => rgbTriplet(this.cardData().secondaryAccentColor));
+
   /** Shared constellation figure edges (astro kit, 220×150 design space). */
   protected readonly constellationEdges = [
     { x1: 8, y1: 82, x2: 48, y2: 30 },

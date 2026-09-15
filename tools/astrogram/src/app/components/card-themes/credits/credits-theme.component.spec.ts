@@ -33,6 +33,15 @@ describe('CreditsThemeComponent', () => {
     expect(separators.findIndex((el) => el.classList.contains('crd-band-break'))).toBe(3);
   });
 
+  it('should tint the glow at the top of the sheet with the secondary colour', () => {
+    data.cardData.update((d) => ({ ...d, secondaryAccentColor: '#FF00FF' }));
+    fixture.detectChanges();
+
+    const root = host.querySelector<HTMLElement>('.crd-root');
+
+    expect(root?.style.getPropertyValue('--crd-secondary-rgb')).toBe('255, 0, 255');
+  });
+
   it('should keep each place name in the release line whole', () => {
     data.cardData.update((d) => ({ ...d, location: 'Mount Laguna Observatory, San Diego County' }));
     fixture.detectChanges();
