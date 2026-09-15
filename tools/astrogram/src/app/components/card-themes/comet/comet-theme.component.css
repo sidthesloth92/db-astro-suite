@@ -145,7 +145,9 @@
   border-top: 1px solid rgba(159, 233, 255, 0.18);
   padding-top: 14px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  /* Gear names run far longer than software names, so the apparatus column
+     takes three fifths of the width instead of half. */
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
   gap: 22px;
 }
 
@@ -320,6 +322,26 @@
 
 .com-root:not(.com-root--landscape) .com-row-label {
   letter-spacing: 0.04em;
+}
+
+/* Software names are short, but "PixInsight + Photoshop" still broke in the
+   narrower pipeline column at the apparatus column's value cap. */
+.com-root:not(.com-root--landscape) .com-col + .com-col .com-row-value {
+  max-width: 74%;
+}
+
+/* The pipeline column is two fifths of the portrait footer: a handle too wide
+   to sit beside the total drops, whole, to its own line under it. The sky is
+   as wide as its widest unbreakable part, so the row wraps rather than
+   clipping it. */
+.com-root:not(.com-root--landscape) .com-total-row {
+  flex-wrap: wrap;
+  row-gap: 2px;
+}
+
+.com-root:not(.com-root--landscape) .com-sky {
+  flex: 1 1 auto;
+  min-width: min-content;
 }
 
 
