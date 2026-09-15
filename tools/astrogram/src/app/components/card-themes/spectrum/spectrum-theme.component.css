@@ -1,10 +1,14 @@
 /* Spectrum card theme — faithful port of the design source ThemeSpectrum.
-   Per-theme palette/typography is the theme's identity, so colours are literal. */
+   Per-theme palette/typography is the theme's identity, so colours are literal,
+   bar the accent and secondary the Layout panel's colour pickers set. */
 
 :host {
-  --spc-pink: #ff2d95;
+  /* Pink opens the spectrum and cyan closes it: they are the card's accent
+     and secondary, so the Layout panel's colour pickers restyle both ends
+     (the hero, the column titles, the Bortle dots) around the fixed middle. */
+  --spc-pink: var(--accent-color);
   --spc-magenta: #b83bff;
-  --spc-cyan: #00e5ff;
+  --spc-cyan: var(--secondary-accent-color);
   --spc-violet: #7b5cff;
   --spc-txt: #ffffff;
   --spc-dim: #b0b5c8;
