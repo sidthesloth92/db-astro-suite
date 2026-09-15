@@ -1,10 +1,12 @@
 /* Daylight card theme — faithful port of the design source ThemeDaylight.
-   Light ink share card on near-white paper; per-theme palette is literal. */
+   Light ink share card on near-white paper; per-theme palette is literal,
+   except the magenta highlight, which follows the Layout panel's accent
+   picker. The ink stays fixed: it is the body text, not a decoration. */
 
 :host {
   --day-bg: #fafaf7;
   --day-ink: #10141f;
-  --day-pink: #d6187b;
+  --day-pink: var(--accent-color);
   --day-dim: #5d6472;
   --day-faint: #9aa0ac;
   --day-rule: rgba(16, 20, 31, 0.12);
@@ -38,7 +40,7 @@
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background: radial-gradient(ellipse 70% 40% at 88% 0%, rgba(214, 24, 123, 0.06), transparent 60%),
+  background: radial-gradient(ellipse 70% 40% at 88% 0%, rgba(var(--accent-color-rgb), 0.06), transparent 60%),
     var(--day-bg);
   opacity: var(--card-opacity, 1);
 }
@@ -51,6 +53,9 @@
   height: 280px;
   pointer-events: none;
   z-index: 0;
+  /* Inherited by the arcs and rays: an SVG stroke attribute cannot read the
+     accent variable. */
+  stroke: var(--day-pink);
 }
 
 .day-constellation {

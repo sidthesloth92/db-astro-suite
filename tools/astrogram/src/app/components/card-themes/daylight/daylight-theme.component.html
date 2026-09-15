@@ -4,7 +4,7 @@
   <!-- Graticule -->
   <svg class="day-graticule" viewBox="0 0 300 300" aria-hidden="true">
     @for (r of graticuleArcs; track r) {
-      <circle cx="300" cy="0" [attr.r]="r" fill="none" stroke="#D6187B" stroke-width="0.7" opacity="0.12" />
+      <circle cx="300" cy="0" [attr.r]="r" fill="none" stroke-width="0.7" opacity="0.12" />
     }
     @for (ray of graticuleRays; track $index) {
       <line
@@ -12,7 +12,6 @@
         y1="0"
         [attr.x2]="ray.x2"
         [attr.y2]="ray.y2"
-        stroke="#D6187B"
         stroke-width="0.7"
         opacity="0.096"
       />
