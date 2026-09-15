@@ -56,7 +56,7 @@
   padding: 20px 24px 0;
 }
 .com-datestamp {
-  font: 500 10px/1 'JetBrains Mono', monospace;
+  font: 500 11px/1 'JetBrains Mono', monospace;
   letter-spacing: 0.16em;
   color: #42526a;
 }
@@ -85,17 +85,17 @@
 }
 
 .com-legend-id {
-  font: 600 11px/1 'JetBrains Mono', monospace;
-  width: 34px;
+  font: 600 12px/1 'JetBrains Mono', monospace;
+  width: 38px;
 }
 
 .com-legend-time {
-  font: 500 12px/1 'Outfit', system-ui, sans-serif;
+  font: 500 14px/1 'Outfit', system-ui, sans-serif;
   color: #eaf4fb;
 }
 
 .com-legend-frames {
-  font: 400 9.5px/1 'JetBrains Mono', monospace;
+  font: 400 11px/1 'JetBrains Mono', monospace;
   /* Lighter than the design's #42526a, which disappeared into the comet's
      bright tail running behind the legend. */
   color: #8fa3ba;
@@ -112,14 +112,14 @@
 }
 
 .com-object-id {
-  font: 500 10px/1 'JetBrains Mono', monospace;
+  font: 500 11px/1 'JetBrains Mono', monospace;
   color: #9fe9ff;
   letter-spacing: 0.24em;
   text-transform: uppercase;
 }
 
 .com-object-name {
-  font: 300 32px/1.02 'Outfit', system-ui, sans-serif;
+  font: 300 36px/1.02 'Outfit', system-ui, sans-serif;
   color: #fff;
   margin-top: 8px;
 }
@@ -135,7 +135,7 @@
 }
 
 .com-caption {
-  font: 300 12.5px/1.55 'Outfit', system-ui, sans-serif;
+  font: 300 14px/1.55 'Outfit', system-ui, sans-serif;
   color: rgba(234, 244, 251, 0.78);
   max-width: 420px;
   margin-bottom: 14px;
@@ -150,11 +150,11 @@
 }
 
 .com-col-title {
-  font: 600 9px/1 'JetBrains Mono', monospace;
+  font: 600 10.5px/1 'JetBrains Mono', monospace;
   color: #9fe9ff;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  margin-bottom: 7px;
+  margin-bottom: 8px;
 }
 
 .com-row {
@@ -165,8 +165,9 @@
 }
 
 .com-row-label {
-  font: 500 9px/1.4 'JetBrains Mono', monospace;
-  color: #42526a;
+  font: 500 10.5px/1.4 'JetBrains Mono', monospace;
+  /* Lifted from the design's #42526a, which all but vanished on the sky. */
+  color: #6a7d94;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   /* May wrap: a nowrap label (e.g. "Guide scope and camera") squeezed its
@@ -177,7 +178,7 @@
 }
 
 .com-row-value {
-  font: 400 10px/1.4 'Outfit', system-ui, sans-serif;
+  font: 400 12.5px/1.4 'Outfit', system-ui, sans-serif;
   color: #eaf4fb;
   text-align: right;
   min-width: 0;
@@ -201,7 +202,7 @@
    "14h / 30m". */
 .com-total {
   flex-shrink: 0;
-  font: 600 11px/1 'Outfit', system-ui, sans-serif;
+  font: 600 15px/1 'Outfit', system-ui, sans-serif;
   color: #d8f6ff;
   white-space: nowrap;
 }
@@ -212,7 +213,7 @@
 .com-sky {
   min-width: 0;
   margin-block: -0.2em;
-  font: 500 10px/1.4 'Outfit', system-ui, sans-serif;
+  font: 500 12px/1.4 'Outfit', system-ui, sans-serif;
   color: #8398ad;
   text-align: right;
 }
@@ -263,6 +264,69 @@
   margin: 0 var(--com-sep-gap) 0.6em;
   border-radius: 50%;
   background: currentColor;
+}
+
+/* ── Portrait / square layout ──
+   The legend was pinned at 42% of the card and the footer at its bottom edge,
+   so on a 720-tall card a quarter of the card stood empty between them while
+   the apparatus and pipeline were set at 9–10px. With the footer type a step
+   larger, the legend and footer now flow up from the bottom edge: the height
+   left over is shared above and below the legend, the legend never rises
+   into the header, and a tall legend and footer push each other apart rather
+   than overlapping. The title keeps its place under the nucleus, clear of the
+   legend at the left. */
+.com-root:not(.com-root--landscape) {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding: 200px 24px 22px;
+}
+
+.com-spacer {
+  flex: 1;
+}
+
+/* Most of the spare height goes above the legend, into the sky the comet
+   crosses, so the legend reads as the head of the footer block. */
+.com-spacer--lower {
+  flex: 0.4;
+}
+
+.com-root:not(.com-root--landscape) .com-legend,
+.com-root:not(.com-root--landscape) .com-footer {
+  position: relative;
+  inset: auto;
+}
+
+.com-root:not(.com-root--landscape) .com-footer {
+  margin-top: 20px;
+  padding: 0;
+}
+
+.com-root:not(.com-root--landscape) .com-legend {
+  gap: 10px;
+}
+
+/* A closer gutter and tighter label tracking give the larger labels and
+   values their width back, so "Guide scope" still fits one line. */
+.com-root:not(.com-root--landscape) .com-cols {
+  gap: 18px;
+}
+
+.com-root:not(.com-root--landscape) .com-row {
+  gap: 6px;
+  padding: 2px 0;
+}
+
+.com-root:not(.com-root--landscape) .com-row-label {
+  letter-spacing: 0.04em;
+}
+
+
+/* The title sits lower on the taller story canvas, under the nucleus, so the
+   legend's floor moves with it. */
+:host-context(.card.aspect-9-16) .com-root {
+  padding-top: 270px;
 }
 
 /* ── Landscape (1.91:1) ──

@@ -54,6 +54,12 @@
     <span class="com-datestamp">{{ data.dateNumeric }}</span>
   </div>
 
+  <!-- Portrait / square only: the legend and footer flow up from the bottom,
+       and these spacers share the height above the footer between them. -->
+  @if (!isLandscapeFormat()) {
+    <div class="com-spacer"></div>
+  }
+
   <!-- Title and band legend. A plain block on portrait cards, where each is
        placed on its own; the landscape card stacks them in one column. -->
   <div class="com-art-text">
@@ -77,6 +83,10 @@
       }
     </div>
   </div>
+
+  @if (!isLandscapeFormat()) {
+    <div class="com-spacer com-spacer--lower"></div>
+  }
 
   <!-- Footer -->
   <div class="com-footer">
