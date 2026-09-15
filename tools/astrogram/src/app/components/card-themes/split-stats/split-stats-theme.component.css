@@ -1,9 +1,12 @@
 /* Split Stats card theme — faithful port of the design source ThemeSplitStats.
-   Per-theme palette/typography is the theme's identity, so colours are literal.
+   Per-theme palette/typography is the theme's identity, so colours are literal,
+   bar the pink the Layout panel's accent picker sets.
    "Space Grotesk" falls back to Outfit when not loaded (design intent). */
 
 :host {
-  --sps-pink: #ff2d95;
+  /* Pink is the card's one accent (kicker, highlighted figure, graticule and
+     glow); the greys are ink, not a second decorative colour. */
+  --sps-pink: var(--accent-color);
   --sps-txt: #f2f5fa;
   --sps-dim: #8b92a6;
   --sps-faint: #4e5468;
@@ -39,11 +42,12 @@
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background: radial-gradient(ellipse 70% 40% at 85% 0%, rgba(255, 45, 149, 0.1), transparent 60%), #07080d;
+  background: radial-gradient(ellipse 70% 40% at 85% 0%, rgba(var(--accent-color-rgb), 0.1), transparent 60%), #07080d;
   opacity: var(--card-opacity, 1);
 }
 
 .sps-graticule {
+  color: var(--sps-pink);
   position: absolute;
   top: 0;
   right: 0;
