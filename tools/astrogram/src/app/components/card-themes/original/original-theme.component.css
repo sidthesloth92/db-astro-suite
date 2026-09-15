@@ -9,10 +9,11 @@
 }
 
 /* Owns the column layout the base card's `.card-content` used to provide
-   before themes rendered full-bleed. `space-between` keeps the inter-section
-   space flexible: it expands when content is sparse and collapses toward the
-   floor gap as rows are added, so extra equipment reclaims slack before
-   anything is pushed out of the card. */
+   before themes rendered full-bleed. The sections sit at fixed gaps and the
+   hero takes the slack (see .pn-hero), so extra equipment still reclaims it
+   before anything is pushed out of the card and `space-between` no longer
+   has any to spread: before, it opened as equal empty bands above and below
+   the integration panel. */
 .pn-root {
   box-sizing: border-box;
   height: 100%;
@@ -21,11 +22,13 @@
   justify-content: space-between;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
+  /* The design's faint gear-label tone is lost over a photograph. */
+  --db-color-text-faint: #8b92a6;
 }
 
 .pn-hero {
   margin: 12px 6px 0;
-  padding: 16px 8px 14px;
+  padding: 16px 10px;
   border-radius: 10px;
   border: 1px solid var(--db-color-border-strong);
   /* Decorative pink/purple radials layered on top of a `--card-opacity`-
@@ -42,7 +45,7 @@
   margin: 0;
   font-family: var(--db-font-ui);
   font-weight: 700;
-  font-size: 20px;
+  font-size: 22px;
   line-height: 1.2;
   letter-spacing: 0.01em;
   color: var(--accent-color, var(--db-color-neon-pink));
@@ -62,7 +65,7 @@
   margin-top: 10px;
   font-family: var(--db-font-mono-code);
   font-weight: 400;
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: 0.05em;
   color: rgba(255, 255, 255, 0.7);
 }
@@ -88,7 +91,7 @@
 
 .pn-integration {
   margin: 10px 6px;
-  padding: 12px 8px;
+  padding: 14px 10px;
   /* Decorative purple radial layered on top of a `--card-opacity`-
      driven solid (matches the other inner sections). */
   background:
@@ -117,7 +120,7 @@
 .pn-integration-total {
   font-family: var(--db-font-mono-code);
   font-weight: 400;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--db-color-text-dim);
   /* Keep "TOTAL 5h 14m" on one line — the export otherwise wraps the value. */
   white-space: nowrap;
@@ -125,7 +128,7 @@
 
 .pn-integration-total strong {
   color: var(--db-color-text-primary);
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   margin-left: 4px;
 }
@@ -182,6 +185,91 @@
   font-size: 14px;
   font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji',
     sans-serif;
+}
+
+/* ── Portrait & square ──
+   The hero takes the height the stack leaves, its text centred in it, and
+   the panels below set their type a step larger — including the shared ring,
+   gear rows and Bortle scale, which carry their own sizes. Landscape sizes
+   its own below. */
+.pn-root:not(.pn-root--landscape) .pn-hero {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.pn-root:not(.pn-root--landscape) .pn-integration-head {
+  margin-bottom: 12px;
+}
+
+.pn-root:not(.pn-root--landscape) .pn-integration-kicker {
+  font-size: 13px;
+}
+
+.pn-root:not(.pn-root--landscape) .pn-col-kicker {
+  font-size: 12px;
+}
+
+.pn-root:not(.pn-root--landscape) ::ng-deep dba-ui-progress-ring .center {
+  font-size: 13px;
+}
+
+.pn-root:not(.pn-root--landscape) ::ng-deep dba-ui-progress-ring .label {
+  font-size: 11px;
+}
+
+/* A narrower icon column hands its width to the gear names, so the larger
+   value type wraps no more often than the design's did. */
+.pn-root:not(.pn-root--landscape) ::ng-deep dba-ui-data-row .row {
+  gap: 8px;
+}
+
+.pn-root:not(.pn-root--landscape) ::ng-deep dba-ui-data-row .icon {
+  width: 20px;
+}
+
+.pn-root:not(.pn-root--landscape) ::ng-deep dba-ui-data-row .label {
+  font-size: 9.5px;
+}
+
+.pn-root:not(.pn-root--landscape) ::ng-deep dba-ui-data-row .value {
+  font-size: 13px;
+}
+
+/* A full rig closes up the gear and software rows alike, so the larger type
+   still leaves the card near its artboard instead of shrinking the whole
+   design to hold it. */
+.pn-root:not(.pn-root--landscape) .pn-two-col:has(> .pn-equipment > dba-ui-data-row:nth-of-type(6)) ::ng-deep dba-ui-data-row .row {
+  padding: 4px 0;
+}
+
+.pn-root:not(.pn-root--landscape) .pn-bortle {
+  padding: 10px;
+}
+
+.pn-root:not(.pn-root--landscape) .pn-bortle ::ng-deep .bortle-title {
+  font-size: 11px;
+}
+
+.pn-root:not(.pn-root--landscape) .pn-bortle ::ng-deep .bortle-header {
+  margin-bottom: 4px;
+}
+
+.pn-root:not(.pn-root--landscape) .pn-bortle ::ng-deep .bortle-markers span {
+  font-size: 10px;
+}
+
+/* The square card is a third wider, so its gear rarely wraps and the hero is
+   left more of the height: its type steps up to hold it. */
+:host-context(.card.aspect-1-1) .pn-meta {
+  margin-top: 12px;
+  font-size: 11px;
+}
+
+:host-context(.card.aspect-1-1) .pn-description {
+  margin-top: 12px;
+  font-size: 12px;
 }
 
 /* ── Tall-format expansion (9:16) ─────────────────────────────────────
