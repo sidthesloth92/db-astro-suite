@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { haloBandPastel } from '../../../utils/halo-band-pastel.util';
+import { rgbTriplet } from '../../../utils/rgb-triplet.util';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
 
 /**
@@ -18,6 +19,9 @@ import { CardThemeBaseDirective } from '../card-theme-base.directive';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HaloThemeComponent extends CardThemeBaseDirective {
+  /** Secondary accent as `r, g, b`, for the rose halo in the backdrop. */
+  protected readonly secondaryRgb = computed(() => rgbTriplet(this.cardData().secondaryAccentColor));
+
   /** Resolves the pastel accent for an integration pill from its band and position. */
   pastel(bandId: string, index: number): string {
     return haloBandPastel(bandId, index);

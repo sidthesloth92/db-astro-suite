@@ -1,12 +1,16 @@
 /* Halo card theme — faithful port of the design source ThemeHalo.
-   Per-theme palette/typography is the theme's identity, so colours are literal. */
+   Per-theme palette/typography is the theme's identity, so colours are literal,
+   bar the accent and secondary the Layout panel's colour pickers set. */
 
 :host {
-  --hal-lav: #c6b6ff;
+  /* Lavender is the card's accent and rose its secondary, so the Layout
+     panel's colour pickers restyle the two lead halos and what they tint;
+     the other pastels (and the band pills) stay the design's own. */
+  --hal-lav: var(--accent-color);
   --hal-peach: #ffb8a8;
   --hal-mint: #a8e8d0;
   --hal-sky: #a8d5ff;
-  --hal-rose: #ffb0ce;
+  --hal-rose: var(--secondary-accent-color);
   --hal-txt: #f0edfa;
   --hal-dim: #9f9cb8;
   --hal-faint: #5e5c75;
@@ -61,7 +65,7 @@
   height: 360px;
   top: -100px;
   left: -80px;
-  background: radial-gradient(circle, #c6b6ff66 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(var(--accent-color-rgb), 0.4) 0%, transparent 70%);
   filter: blur(30px);
 }
 
@@ -70,7 +74,7 @@
   height: 320px;
   top: 200px;
   right: -100px;
-  background: radial-gradient(circle, #ffb0ce55 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(var(--hal-rose-rgb), 0.3333) 0%, transparent 70%);
   filter: blur(30px);
 }
 
