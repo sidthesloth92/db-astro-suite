@@ -1,9 +1,12 @@
-/* Telrad card theme — faithful port of the design source ThemeTelrad. */
+/* Telrad card theme — faithful port of the design source ThemeTelrad.
+   The reticle red is the card's accent and the lighter red of the band marks
+   its secondary colour (Layout panel), both defaulting to the design's own;
+   the red-tinted text tones stay literal. */
 
 :host {
   --tr-bg: #0a0202;
-  --tr-red: #ff4438;
-  --tr-red2: #ff7a66;
+  --tr-red: var(--accent-color);
+  --tr-red2: var(--secondary-accent-color);
   --tr-txt: #ffd9d2;
   --tr-dim: #c4685c;
   --tr-faint: #7a3b33;
@@ -39,7 +42,7 @@
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background: radial-gradient(ellipse 70% 50% at 50% 30%, rgba(255, 68, 56, 0.06), transparent 65%),
+  background: radial-gradient(ellipse 70% 50% at 50% 30%, rgba(var(--accent-color-rgb), 0.06), transparent 65%),
     var(--tr-bg);
   opacity: var(--card-opacity, 1);
 }
@@ -97,6 +100,24 @@
   min-height: 0;
 }
 
+/* The reticle and band dots take the accent and secondary through CSS: SVG
+   presentation attributes cannot read a custom property. */
+.tr-reticle-stroke {
+  stroke: var(--tr-red);
+}
+
+.tr-reticle-fill {
+  fill: var(--tr-red);
+}
+
+.tr-mark-stroke {
+  stroke: var(--tr-red2);
+}
+
+.tr-mark-fill {
+  fill: var(--tr-red2);
+}
+
 .tr-ring-label {
   font: 500 8.5px var(--tr-mono);
   fill: var(--tr-faint);
@@ -121,7 +142,7 @@
 }
 
 .tr-row + .tr-row {
-  border-top: 1px solid rgba(255, 68, 56, 0.14);
+  border-top: 1px solid rgba(var(--accent-color-rgb), 0.14);
 }
 
 .tr-row-id {
@@ -141,7 +162,7 @@
   flex: 1;
   height: 4px;
   border-radius: 2px;
-  background: rgba(255, 68, 56, 0.1);
+  background: rgba(var(--accent-color-rgb), 0.1);
   position: relative;
 }
 
@@ -168,7 +189,7 @@
   align-items: flex-end;
   margin-top: 14px;
   padding-top: 12px;
-  border-top: 1px solid rgba(255, 68, 56, 0.22);
+  border-top: 1px solid rgba(var(--accent-color-rgb), 0.22);
 }
 
 .tr-kicker {
@@ -220,7 +241,7 @@
 /* ── Footer ── */
 .tr-footer {
   position: relative;
-  border-top: 1px solid rgba(255, 68, 56, 0.16);
+  border-top: 1px solid rgba(var(--accent-color-rgb), 0.16);
   padding-top: 12px;
 }
 
