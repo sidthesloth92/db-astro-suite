@@ -1,9 +1,11 @@
 /* System Line card theme — faithful port of the design source ThemeSystemLine.
-   Per-theme palette/typography is the theme's identity, so colours are literal. */
+   Per-theme palette/typography is the theme's identity, so colours are literal,
+   except the Sun: its gold is the card's accent and its shaded limb the
+   secondary colour (Layout panel), both defaulting to the design's own. */
 
 :host {
   --sl-bg: #05070f;
-  --sl-sun: #ffcf6b;
+  --sl-sun: var(--accent-color);
   --sl-txt: #edf1f9;
   --sl-dim: #8b93a8;
   --sl-faint: #4e5568;
@@ -126,6 +128,20 @@
   width: 476px;
   max-width: 100%;
   align-self: center;
+}
+
+/* The Sun's halo and gradient take the accent and secondary through CSS:
+   SVG presentation attributes cannot read a custom property. */
+.sl-sun-halo {
+  fill: var(--sl-sun);
+}
+
+.sl-sun-stop-mid {
+  stop-color: var(--sl-sun);
+}
+
+.sl-sun-stop-limb {
+  stop-color: var(--secondary-accent-color);
 }
 
 .sl-tick-label {
