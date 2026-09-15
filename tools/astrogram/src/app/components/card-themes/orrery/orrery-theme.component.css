@@ -117,16 +117,15 @@
 }
 
 .orr-planet-id {
-  font: 600 11px/1 'JetBrains Mono', monospace;
+  font: 600 12px/1 'JetBrains Mono', monospace;
 }
 
 .orr-planet-time {
-  font: 500 10px/1 'Space Grotesk', 'Outfit', sans-serif;
+  font: 500 11px/1 'Space Grotesk', 'Outfit', sans-serif;
   color: #9a92b8;
   margin-top: 3px;
 }
 
-/* ── Object title ── */
 /* ── Title + footer column ──
    Both used to be positioned independently — the title at 65% of the card,
    the footer growing up from the bottom — so a long gear list or a two-line
@@ -135,7 +134,7 @@
    downward, where the card's content fit enlarges the canvas to hold it. */
 .orr-lower {
   position: absolute;
-  top: 65.28%;
+  top: 47.5%;
   left: 0;
   right: 0;
   /* The bottom margin lives here, not as footer padding, and the column clips:
@@ -150,6 +149,16 @@
 
 .orr-title {
   text-align: center;
+}
+
+/* Portrait and square: the title is centred in the height between the orbits
+   and the footer. At 65% of the card with the footer pushed to the bottom it
+   left one wide empty band under the orbits and another under the title. */
+.orr-root:not(.orr-root--landscape) .orr-title {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .orr-object-id {
@@ -169,35 +178,36 @@
 /* ── Footer ── */
 .orr-footer {
   margin-top: auto;
-  padding: 14px 26px 0;
+  padding: 14px 24px 0;
 }
 
 .orr-cols {
   border-top: 1px solid rgba(255, 207, 107, 0.18);
-  padding-top: 14px;
+  padding-top: 16px;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 22px;
+  gap: 20px;
 }
 
 .orr-col-title {
-  font: 600 9px/1 'JetBrains Mono', monospace;
+  font: 600 11px/1 'JetBrains Mono', monospace;
   color: #ffcf6b;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  margin-bottom: 7px;
+  margin-bottom: 11px;
 }
 
 .orr-row {
   display: flex;
   justify-content: space-between;
   gap: 8px;
-  padding: 1.5px 0;
+  padding: 2.5px 0;
 }
 
 .orr-row-label {
-  font: 500 9px/1.4 'JetBrains Mono', monospace;
-  color: #544e72;
+  font: 500 10.5px/1.4 'JetBrains Mono', monospace;
+  /* Lifted from the design's grey, which at this size read as a smudge. */
+  color: #736c93;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   /* May wrap: a nowrap label (e.g. "Guide scope and camera") squeezed its
@@ -208,7 +218,7 @@
 }
 
 .orr-row-value {
-  font: 400 10px/1.4 'Space Grotesk', 'Outfit', sans-serif;
+  font: 400 12.5px/1.4 'Space Grotesk', 'Outfit', sans-serif;
   color: #efeafb;
   text-align: right;
   min-width: 0;
@@ -218,13 +228,13 @@
 }
 
 .orr-sky {
-  font: 500 10px/1.4 'Space Grotesk', 'Outfit', sans-serif;
+  font: 500 12px/1.4 'Space Grotesk', 'Outfit', sans-serif;
   color: #9a92b8;
-  margin-top: 6px;
+  margin-top: 8px;
 }
 
 .orr-planet-frames {
-  font: 500 8.5px/1 'Space Grotesk', 'Outfit', sans-serif;
+  font: 500 9.5px/1 'Space Grotesk', 'Outfit', sans-serif;
   color: #7b7397;
   margin-top: 2px;
 }
@@ -236,13 +246,17 @@
    placed against the whole canvas: on 1:1 the total slid off the sun and the
    captions sat ~70px below their planets, and on 9:16 the outer orbit ran off
    both edges. Every portrait and square canvas is at least 540 wide and 720
-   tall, so the artboard sits there at its own size, pinned to the top. */
+   tall, so the artboard sits there. The orbits only occupy y 150-385 of it,
+   so it is enlarged (600 wide keeps the outermost planet's caption ~18px clear
+   of a 3:4 edge) and raised until a caption hung above the highest planet
+   sits just under the header, which gives the title and footer below the
+   height the empty top of the artboard used to take. */
 .orr-art {
   position: absolute;
-  top: 0;
-  left: calc(50% - 270px);
-  width: 540px;
-  height: 720px;
+  top: -92px;
+  left: calc(50% - 300px);
+  width: 600px;
+  height: 800px;
 }
 
 .orr-label-frame {
@@ -340,20 +354,50 @@
   margin-top: 6px;
 }
 
+/* ── Square (1:1) ──
+   The wider card has room for a larger orbit system, which also takes the
+   height the title and footer need less of here (their rows rarely wrap). */
+:host-context(.card.aspect-1-1) .orr-art {
+  top: -112px;
+  left: calc(50% - 350px);
+  width: 700px;
+  height: 933px;
+}
+
+:host-context(.card.aspect-1-1) .orr-lower {
+  top: 55%;
+}
+
 /* ── Story (9:16) ──
-   The artboard pinned to the top left the orbits small in the upper fifth of
-   a tall canvas with wide gaps below. On the story format the art box is
-   enlarged (the orbits still clear both edges) and lowered, and the title
-   follows it, so the chart, title and footer are evenly spaced. */
+   The story card is 240px taller than 3:4 but no wider, so the orbits cannot
+   grow further. The art box is lowered to split the extra height evenly above
+   the orbits, above the title and above the footer, and the title and footer
+   are set a step larger. */
 :host-context(.card.aspect-9-16) .orr-art {
-  top: 80px;
-  /* 600 wide keeps the outermost planet's caption ~18px clear of the edge. */
-  left: calc(50% - 300px);
-  width: 600px;
-  height: 800px;
+  top: -10px;
 }
 
 :host-context(.card.aspect-9-16) .orr-lower {
-  top: 59%;
+  top: 44%;
 }
 
+:host-context(.card.aspect-9-16) .orr-object-id {
+  font-size: 11px;
+}
+
+:host-context(.card.aspect-9-16) .orr-object-name {
+  font-size: 34px;
+  margin-top: 10px;
+}
+
+:host-context(.card.aspect-9-16) .orr-cols {
+  padding-top: 20px;
+}
+
+:host-context(.card.aspect-9-16) .orr-col-title {
+  margin-bottom: 13px;
+}
+
+:host-context(.card.aspect-9-16) .orr-row {
+  padding: 3.5px 0;
+}
