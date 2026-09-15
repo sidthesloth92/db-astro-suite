@@ -1,5 +1,5 @@
 import type { Type } from '@angular/core';
-import type { CardThemeAccents } from '../../models/card-theme.model';
+import type { CardThemeAccents, CardThemeColorRoles } from '../../models/card-theme.model';
 import type { ThemeDesignBasis } from '../../models/theme-canvas.model';
 import type { CardThemeBaseDirective } from './card-theme-base.directive';
 
@@ -17,6 +17,11 @@ export interface CardThemeDefinition {
   readonly component: Type<CardThemeBaseDirective>;
   /** Accents applied to `CardData` when this theme is picked. */
   readonly accents: CardThemeAccents;
+  /**
+   * Colour pickers this theme responds to. Omit when it paints with both
+   * Accent and Secondary; the Layout panel hides a picker the theme ignores.
+   */
+  readonly colorRoles?: CardThemeColorRoles;
   /**
    * Design artboard this theme's absolute type / spacing was authored
    * against. Omit to use the shared 540 × 720 design-source artboard.

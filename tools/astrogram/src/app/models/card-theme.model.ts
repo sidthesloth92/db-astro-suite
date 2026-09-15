@@ -56,6 +56,18 @@ export interface CardThemeAccents {
   readonly secondaryAccentColor: string;
 }
 
+/**
+ * Which of the Layout panel's colour pickers restyle a theme. A theme with a
+ * single signature colour hides Secondary rather than offering a swatch that
+ * changes nothing on the card.
+ */
+export interface CardThemeColorRoles {
+  /** Whether the theme paints with the Accent colour. */
+  readonly accent: boolean;
+  /** Whether the theme paints with the Secondary colour. */
+  readonly secondary: boolean;
+}
+
 /** One integration (filter) band rendered by every theme's stats section. */
 export interface ThemeIntegrationBand {
   /** Display id, e.g. `Hα`, `OIII`, `SII`. */

@@ -1,6 +1,6 @@
 import type { SelectItem } from '@db-astro-suite/ui';
 import { DEFAULT_LIGHT_THEME_OPACITY } from '../../constants/theme-canvas.constants';
-import type { CardThemeId } from '../../models/card-theme.model';
+import type { CardThemeColorRoles, CardThemeId } from '../../models/card-theme.model';
 import type { CardThemeDefinition } from './card-theme-definition.model';
 import { OriginalThemeComponent } from './original/original-theme.component';
 import { ObsidianThemeComponent } from './obsidian/obsidian-theme.component';
@@ -34,6 +34,9 @@ import { EmissionThemeComponent } from './emission/emission-theme.component';
 
 /** Fallback theme id used whenever a requested id has no registry entry. */
 export const DEFAULT_CARD_THEME_ID: CardThemeId = 'original';
+
+/** Colour pickers a theme responds to when its entry declares none: both. */
+export const DEFAULT_COLOR_ROLES: CardThemeColorRoles = { accent: true, secondary: true };
 
 /**
  * Registry of every selectable card theme, keyed by `CardThemeId`. Adding a

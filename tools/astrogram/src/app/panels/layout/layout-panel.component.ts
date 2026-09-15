@@ -19,6 +19,7 @@ import {
 } from '../../constants/preview-sizes.constants';
 import {
   CARD_THEMES,
+  DEFAULT_COLOR_ROLES,
   buildCardThemeSelectItems,
   isCardThemeId,
 } from '../../components/card-themes/card-themes.constants';
@@ -70,6 +71,11 @@ export class LayoutPanelComponent {
     () => CARD_THEMES[this.cardData().cardTheme]?.subtitle ?? '',
   );
 
+  /** Colour pickers the active theme responds to; a picker it ignores is hidden. */
+  readonly colorRoles = computed(
+    () => CARD_THEMES[this.cardData().cardTheme]?.colorRoles ?? DEFAULT_COLOR_ROLES,
+  );
+
   /** Metadata for the selected size (drives the ratio proxy + px caption). */
   readonly selectedSizeMeta = computed(() => PREVIEW_SIZES[this.selectedSizeKey()]);
 
@@ -108,7 +114,7 @@ export class LayoutPanelComponent {
     this.dataService.updateData({ accentColor: hex, accentColorRgb: rgb });
   }
 
-  /** Patches the secondary accent colour (drives the cyan OIII ring / pills). */
+  /** Patches the secondary accent colour. */
   setSecondaryColor(hex: string): void {
     this.dataService.updateData({ secondaryAccentColor: hex });
   }
