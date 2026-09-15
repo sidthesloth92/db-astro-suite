@@ -6,6 +6,7 @@ import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfie
 import { EQUIPMENT_ICON_NAMES, SOFTWARE_ICON_NAMES } from '../theme-view.constants';
 import type { HeroNameParts } from '../../../models/hero-name-parts.model';
 import { splitHeroName } from '../../../utils/hero-name.util';
+import { rgbTriplet } from '../../../utils/rgb-triplet.util';
 
 /**
  * Aurora theme — modern magazine editorial with weight-contrast Manrope. A
@@ -38,4 +39,7 @@ export class AuroraEditorialThemeComponent extends CardThemeBaseDirective {
 
   /** Workflow rows that carry a designed icon; see `equipmentIconCount`. */
   protected readonly softwareIconCount = SOFTWARE_ICON_NAMES.length;
+
+  /** Secondary accent as `r, g, b`, for the rose glow in the backdrop. */
+  protected readonly secondaryRgb = computed(() => rgbTriplet(this.cardData().secondaryAccentColor));
 }

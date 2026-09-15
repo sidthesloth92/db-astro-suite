@@ -1,6 +1,10 @@
 @let data = vm();
 
-<div class="ave-root" [class.ave-root--landscape]="isLandscapeFormat()">
+<div
+  class="ave-root"
+  [class.ave-root--landscape]="isLandscapeFormat()"
+  [style.--ave-rose-rgb]="secondaryRgb()"
+>
   <dba-ag-theme-starfield [density]="70" [opacity]="0.35" [seed]="1" />
 
   <!-- Masthead -->
@@ -38,13 +42,13 @@
   <!-- Byline -->
   <div class="ave-byline">
     <span class="ave-meta">
-      <dba-ag-theme-icon name="calendar" [size]="11" color="#D4A574" />{{ data.dateShort }}
+      <dba-ag-theme-icon name="calendar" [size]="11" />{{ data.dateShort }}
     </span>
     <span class="ave-meta ave-meta--place">
-      <dba-ag-theme-icon name="pin" [size]="11" color="#D4A574" /><span class="ave-meta-text">{{ data.location }}</span>
+      <dba-ag-theme-icon name="pin" [size]="11" /><span class="ave-meta-text">{{ data.location }}</span>
     </span>
     <span class="ave-meta">
-      <dba-ag-theme-icon name="user" [size]="11" color="#D4A574" />{{ data.author }}
+      <dba-ag-theme-icon name="user" [size]="11" />{{ data.author }}
     </span>
   </div>
 
