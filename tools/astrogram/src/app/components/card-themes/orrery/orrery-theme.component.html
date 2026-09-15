@@ -24,8 +24,8 @@
         }
 
         <!-- sun glow -->
-        <circle [attr.cx]="cx" [attr.cy]="cy" r="46" fill="#FFCF6B" opacity="0.12" />
-        <circle [attr.cx]="cx" [attr.cy]="cy" r="30" fill="#FFCF6B" opacity="0.2" />
+        <circle [attr.cx]="cx" [attr.cy]="cy" r="46" class="orr-sun-glow" opacity="0.12" />
+        <circle [attr.cx]="cx" [attr.cy]="cy" r="30" class="orr-sun-glow" opacity="0.2" />
 
         <!-- planets -->
         @for (orbit of orbits(); track orbit.band.id) {

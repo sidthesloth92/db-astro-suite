@@ -1,6 +1,8 @@
 /* Orrery card theme — faithful port of the design source ThemeOrrery.
    Per-theme palette/typography is the theme's identity, so colours are
-   literal hex. `Space Grotesk` is not bundled, so the stack falls back to
+   literal hex, except the Sun's gold (brand, glow, badge, object id, column
+   titles and rule), which is the card's accent (Layout panel) and defaults to
+   the design's own. `Space Grotesk` is not bundled, so the stack falls back to
    Outfit exactly as the prototype renders. */
 
 :host {
@@ -42,6 +44,12 @@
   pointer-events: none;
 }
 
+/* The Sun's glow takes the accent through CSS: SVG presentation attributes
+   cannot read a custom property. */
+.orr-sun-glow {
+  fill: var(--accent-color);
+}
+
 /* ── Header ── */
 .orr-header {
   position: absolute;
@@ -58,7 +66,7 @@
 .orr-brand {
   font: 600 10px/1 'JetBrains Mono', monospace;
   letter-spacing: 0.26em;
-  color: #ffcf6b;
+  color: var(--accent-color);
   text-transform: uppercase;
 }
 
@@ -89,7 +97,7 @@
   display: inline-block;
   font: 500 8px/1 'JetBrains Mono', monospace;
   color: rgba(8, 6, 17, 0.9);
-  background: #ffcf6b;
+  background: var(--accent-color);
   border-radius: 3px;
   padding: 2px 5px;
   margin-top: 5px;
@@ -163,7 +171,7 @@
 
 .orr-object-id {
   font: 500 10px/1 'JetBrains Mono', monospace;
-  color: #ffcf6b;
+  color: var(--accent-color);
   letter-spacing: 0.28em;
   text-transform: uppercase;
 }
@@ -182,7 +190,7 @@
 }
 
 .orr-cols {
-  border-top: 1px solid rgba(255, 207, 107, 0.18);
+  border-top: 1px solid rgba(var(--accent-color-rgb), 0.18);
   padding-top: 16px;
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -191,7 +199,7 @@
 
 .orr-col-title {
   font: 600 11px/1 'JetBrains Mono', monospace;
-  color: #ffcf6b;
+  color: var(--accent-color);
   letter-spacing: 0.2em;
   text-transform: uppercase;
   margin-bottom: 11px;
