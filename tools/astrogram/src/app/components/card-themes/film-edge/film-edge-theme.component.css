@@ -1,9 +1,12 @@
 /* Film Edge card theme — faithful port of the design source ThemeFilmEdge.
-   Per-theme palette/typography is the theme's identity, so colours are literal.
+   Per-theme palette/typography is the theme's identity, so colours are literal,
+   except the two the Layout panel's pickers recolour: the accent (the amber
+   edge print, catalogue number, total, site and the film's amber rims) and the
+   secondary (the magenta nebula glow in the frame).
    "DM Sans" falls back to Outfit when not loaded (design intent). */
 
 :host {
-  --flm-amber: #ffb65c;
+  --flm-amber: var(--accent-color);
   --flm-txt: #f5efe4;
   --flm-dim: #9c927e;
   --flm-sans: 'DM Sans', 'Outfit', sans-serif;
@@ -54,7 +57,7 @@
   height: 14px;
   border-radius: 4px;
   background: #0e0c08;
-  border: 1px solid rgba(255, 182, 92, 0.22);
+  border: 1px solid rgba(var(--accent-color-rgb), 0.22);
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.8);
 }
 
@@ -78,9 +81,9 @@
   border-radius: 6px;
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(255, 182, 92, 0.25);
+  border: 1px solid rgba(var(--accent-color-rgb), 0.25);
   background:
-    radial-gradient(ellipse 65% 50% at 50% 42%, rgba(190, 50, 120, 0.45), transparent 68%),
+    radial-gradient(ellipse 65% 50% at 50% 42%, rgba(var(--flm-secondary-rgb), 0.45), transparent 68%),
     radial-gradient(ellipse 45% 35% at 28% 70%, rgba(90, 30, 110, 0.4), transparent 70%), #0a0410;
 }
 
@@ -333,7 +336,7 @@
 .flm-root--landscape .flm-codes,
 .flm-root--landscape .flm-gear {
   padding-left: 22px;
-  border-left: 1px solid rgba(255, 182, 92, 0.3);
+  border-left: 1px solid rgba(var(--accent-color-rgb), 0.3);
 }
 
 /* Four codes to a row. Seven in one row ran past the frame's edge and broke

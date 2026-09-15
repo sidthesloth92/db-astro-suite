@@ -1,6 +1,10 @@
 @let data = vm();
 
-<div class="flm-root" [class.flm-root--landscape]="isLandscapeFormat()">
+<div
+  class="flm-root"
+  [class.flm-root--landscape]="isLandscapeFormat()"
+  [style.--flm-secondary-rgb]="secondaryRgb()"
+>
   <!-- Top sprockets -->
   <div class="flm-sprockets">
     @for (hole of sprockets; track $index) {

@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
 import { ThemeGearLineComponent } from '../shared/theme-gear-line/theme-gear-line.component';
 import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfield.component';
+import { rgbTriplet } from '../../../utils/picker-color.util';
 
 /**
  * Film Edge theme — a single frame of astro film. Sprocket holes and amber
@@ -18,6 +19,9 @@ import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfie
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FilmEdgeThemeComponent extends CardThemeBaseDirective {
+  /** Secondary picker colour as `"r, g, b"`, for the translucent nebula glow in the frame. */
+  protected readonly secondaryRgb = computed<string>(() => rgbTriplet(this.cardData().secondaryAccentColor));
+
   /** Sprocket-hole placeholders per edge strip (design renders 10). */
   protected readonly sprockets = Array.from({ length: 10 });
 
