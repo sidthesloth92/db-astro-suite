@@ -1,11 +1,13 @@
-/* Star Trails card theme — faithful port of the design source ThemeStarTrails. */
+/* Star Trails card theme — faithful port of the design source ThemeStarTrails.
+   The pole-star cream (Polaris and the kicker) is the card's accent (Layout
+   panel), defaulting to the design's own. */
 
 :host {
   --st-bg: #040810;
   --st-txt: #eaf1fa;
   --st-dim: #8a96ac;
   --st-faint: #4b5669;
-  --st-pole: #fff4d8;
+  --st-pole: var(--accent-color);
   --st-sans: 'Outfit', system-ui, sans-serif;
   --st-grot: 'Space Grotesk', 'Outfit', sans-serif;
   --st-mono: 'JetBrains Mono', ui-monospace, monospace;
@@ -85,6 +87,16 @@
 .st-polaris {
   font: 500 8.5px var(--st-mono);
   letter-spacing: 0.16em;
+}
+
+/* Polaris takes the accent through CSS: SVG presentation attributes cannot
+   read a custom property. */
+.st-pole-stroke {
+  stroke: var(--st-pole);
+}
+
+.st-pole-fill {
+  fill: var(--st-pole);
 }
 
 /* ── Legend ── */

@@ -56,11 +56,11 @@
 
     <!-- Polaris -->
     <g>
-      <line [attr.x1]="cx - 12" [attr.y1]="cy" [attr.x2]="cx + 12" [attr.y2]="cy" stroke="#FFF4D8" stroke-width="0.8" opacity="0.9" />
-      <line [attr.x1]="cx" [attr.y1]="cy - 12" [attr.x2]="cx" [attr.y2]="cy + 12" stroke="#FFF4D8" stroke-width="0.8" opacity="0.9" />
-      <circle [attr.cx]="cx" [attr.cy]="cy" r="3" fill="#FFF4D8" />
-      <circle [attr.cx]="cx" [attr.cy]="cy" r="8" fill="none" stroke="#FFF4D8" stroke-width="0.6" opacity="0.5" />
-      <text [attr.x]="cx + 15" [attr.y]="cy - 11" class="st-polaris" fill="#FFF4D8" opacity="0.85">POLARIS</text>
+      <line [attr.x1]="cx - 12" [attr.y1]="cy" [attr.x2]="cx + 12" [attr.y2]="cy" class="st-pole-stroke" stroke-width="0.8" opacity="0.9" />
+      <line [attr.x1]="cx" [attr.y1]="cy - 12" [attr.x2]="cx" [attr.y2]="cy + 12" class="st-pole-stroke" stroke-width="0.8" opacity="0.9" />
+      <circle [attr.cx]="cx" [attr.cy]="cy" r="3" class="st-pole-fill" />
+      <circle [attr.cx]="cx" [attr.cy]="cy" r="8" fill="none" class="st-pole-stroke" stroke-width="0.6" opacity="0.5" />
+      <text [attr.x]="cx + 15" [attr.y]="cy - 11" class="st-polaris st-pole-fill" opacity="0.85">POLARIS</text>
     </g>
   </svg>
 
