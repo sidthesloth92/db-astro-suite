@@ -1,6 +1,8 @@
 /* Constellation card theme — faithful port of the design source
    ThemeConstellation. Per-theme palette/typography is the theme's identity,
-   so colours are literal hex. */
+   so colours are literal hex, except the chart cyan (lines, rules, column
+   titles) and the gold of the object id and total: those are the card's
+   accent and secondary colour (Layout panel), defaulting to the design's own. */
 
 :host {
   display: block;
@@ -39,6 +41,12 @@
   height: 100%;
   z-index: 1;
   pointer-events: none;
+}
+
+/* The chart lines take the accent through CSS: SVG presentation attributes
+   cannot read a custom property. */
+.con-chart-line {
+  stroke: var(--accent-color);
 }
 
 /* ── Header ── */
@@ -115,7 +123,7 @@
 
 .con-object-id {
   font: 500 10px/1 'JetBrains Mono', monospace;
-  color: #ffd79a;
+  color: var(--secondary-accent-color);
   letter-spacing: 0.3em;
   text-transform: uppercase;
 }
@@ -144,7 +152,7 @@
 }
 
 .con-cols {
-  border-top: 1px solid rgba(127, 227, 255, 0.18);
+  border-top: 1px solid rgba(var(--accent-color-rgb), 0.18);
   padding-top: 16px;
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -153,7 +161,7 @@
 
 .con-col-title {
   font: 600 11px/1 'JetBrains Mono', monospace;
-  color: #7fe3ff;
+  color: var(--accent-color);
   letter-spacing: 0.22em;
   text-transform: uppercase;
   margin-bottom: 11px;
@@ -201,12 +209,12 @@
   gap: 8px;
   margin-top: 8px;
   padding-top: 8px;
-  border-top: 1px solid rgba(127, 227, 255, 0.12);
+  border-top: 1px solid rgba(var(--accent-color-rgb), 0.12);
 }
 
 .con-total {
   font: 600 11px/1.4 'JetBrains Mono', monospace;
-  color: #ffd79a;
+  color: var(--secondary-accent-color);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   /* A total is one figure; it wrapped as "TOTAL 10H / 20M" in the 3:4 column. */
