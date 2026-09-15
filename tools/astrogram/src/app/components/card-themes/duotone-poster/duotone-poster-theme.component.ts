@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
 import { FitTextDirective } from '../shared/fit-text/fit-text.directive';
 import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfield.component';
@@ -15,7 +16,7 @@ import { keepPlaceNamesTogether } from '../../../utils/keep-together.util';
 @Component({
   selector: 'dba-ag-duotone-poster-theme',
   standalone: true,
-  imports: [ThemeStarfieldComponent, FitTextDirective],
+  imports: [ThemeStarfieldComponent, FitTextDirective, NgTemplateOutlet],
   templateUrl: './duotone-poster-theme.component.html',
   styleUrl: './duotone-poster-theme.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

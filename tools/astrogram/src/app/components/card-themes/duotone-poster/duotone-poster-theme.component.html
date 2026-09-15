@@ -68,18 +68,32 @@
         @for (item of data.software; track $index) {
           <div class="dp-footer-item">{{ item.value }}</div>
         }
-        <!-- The sky and the place wrap as one run that breaks only after a
-             comma; the handle follows as a whole item whose separator is
-             clipped when it starts a line (see .dp-sky-line). -->
-        <div class="dp-footer-item dp-footer-item--dim dp-sky">
-          <div class="dp-sky-line">
-            <span class="dp-sky-part">Bortle&nbsp;{{ data.bortle }}@if (placeName()) {<span>&nbsp;·&nbsp;{{ placeName() }}</span>}</span>
-            @if (data.author) {
-              <span class="dp-sky-part"><span class="dp-sep" aria-hidden="true">·</span>{{ data.author }}</span>
-            }
-          </div>
+        @if (isLandscapeFormat()) {
+          <ng-container [ngTemplateOutlet]="skyLine" />
+        }
+      </div>
+      <!-- Portrait and square give the gear column three fifths of the width,
+           too narrow for a long place and handle beside the software, so the
+           sky line runs across the whole footer under both columns. -->
+      @if (!isLandscapeFormat()) {
+        <div class="dp-footer-sky">
+          <ng-container [ngTemplateOutlet]="skyLine" />
+        </div>
+      }
+    </div>
+
+    <!-- The sky and the place wrap as one run that breaks only after a
+         comma; the handle follows as a whole item whose separator is
+         clipped when it starts a line (see .dp-sky-line). -->
+    <ng-template #skyLine>
+      <div class="dp-footer-item dp-footer-item--dim dp-sky">
+        <div class="dp-sky-line">
+          <span class="dp-sky-part">Bortle&nbsp;{{ data.bortle }}@if (placeName()) {<span>&nbsp;·&nbsp;{{ placeName() }}</span>}</span>
+          @if (data.author) {
+            <span class="dp-sky-part"><span class="dp-sep" aria-hidden="true">·</span>{{ data.author }}</span>
+          }
         </div>
       </div>
-    </div>
+    </ng-template>
   </div>
 </div>

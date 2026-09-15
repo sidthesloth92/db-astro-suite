@@ -221,7 +221,9 @@
   border-top: 2px solid var(--dp-cream);
   padding-top: 18px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  /* Gear names run far longer than software names, so the gear column takes
+     three fifths of the width instead of half. */
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
   gap: 28px;
 }
 
@@ -258,6 +260,12 @@
    now breaks only after a comma, and the handle is its own item that wraps
    whole; the line is pulled left by one separator so the separator of an item
    that starts a line falls outside the clipped box. */
+/* Spans both footer columns. */
+.dp-footer-sky {
+  grid-column: 1 / -1;
+  margin-top: -14px;
+}
+
 .dp-sky {
   --dp-sep-width: 0.7em;
 
