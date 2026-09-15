@@ -1,8 +1,10 @@
-/* Eclipse card theme — faithful port of the design source ThemeEclipse. */
+/* Eclipse card theme — faithful port of the design source ThemeEclipse.
+   The corona colour is the card's accent (Layout panel), so it follows the
+   picker; its default is the design's warm white. */
 
 :host {
   --ec-bg: #020204;
-  --ec-cor: #fff2d9;
+  --ec-cor: var(--accent-color);
   --ec-txt: #f2efe8;
   --ec-dim: #94908a;
   --ec-faint: #54524c;
@@ -85,6 +87,20 @@
   min-height: 0;
 }
 
+/* The corona's gradient, streamers and the moon's rim take the accent through
+   CSS: SVG presentation attributes cannot read a custom property. */
+.ec-corona-stop {
+  stop-color: var(--ec-cor);
+}
+
+.ec-streamer {
+  stroke: var(--ec-cor);
+}
+
+.ec-disc {
+  stroke: rgba(var(--accent-color-rgb), 0.35);
+}
+
 .ec-total-label {
   font: 500 9px var(--ec-mono);
   fill: var(--ec-dim);
@@ -159,7 +175,7 @@
 /* ── Footer ── */
 .ec-footer {
   position: relative;
-  border-top: 1px solid rgba(255, 242, 217, 0.1);
+  border-top: 1px solid rgba(var(--accent-color-rgb), 0.1);
   padding-top: 12px;
 }
 

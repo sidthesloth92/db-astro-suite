@@ -13,10 +13,10 @@
   <svg class="ec-svg" viewBox="0 0 476 380" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
     <defs>
       <radialGradient id="ec-corona" cx="50%" cy="50%" r="50%">
-        <stop offset="52%" stop-color="#FFF2D9" stop-opacity="0" />
-        <stop offset="60%" stop-color="#FFF2D9" stop-opacity="0.35" />
-        <stop offset="72%" stop-color="#FFF2D9" stop-opacity="0.1" />
-        <stop offset="100%" stop-color="#FFF2D9" stop-opacity="0" />
+        <stop class="ec-corona-stop" offset="52%" stop-opacity="0" />
+        <stop class="ec-corona-stop" offset="60%" stop-opacity="0.35" />
+        <stop class="ec-corona-stop" offset="72%" stop-opacity="0.1" />
+        <stop class="ec-corona-stop" offset="100%" stop-opacity="0" />
       </radialGradient>
     </defs>
 
@@ -25,7 +25,7 @@
 
     <!-- corona streamers -->
     @for (s of streamers; track $index) {
-      <line [attr.x1]="s.x1" [attr.y1]="s.y1" [attr.x2]="s.x2" [attr.y2]="s.y2" stroke="#FFF2D9" stroke-width="0.8" opacity="0.4" />
+      <line [attr.x1]="s.x1" [attr.y1]="s.y1" [attr.x2]="s.x2" [attr.y2]="s.y2" class="ec-streamer" stroke-width="0.8" opacity="0.4" />
     }
 
     <!-- band ring segments -->
@@ -35,7 +35,7 @@
     }
 
     <!-- moon disc -->
-    <circle [attr.cx]="cx" [attr.cy]="cy" [attr.r]="discR" fill="#060608" stroke="rgba(255,242,217,0.35)" stroke-width="1" />
+    <circle [attr.cx]="cx" [attr.cy]="cy" [attr.r]="discR" fill="#060608" class="ec-disc" stroke-width="1" />
 
     <!-- total inside the disc -->
     <text [attr.x]="cx" [attr.y]="cy - 12" text-anchor="middle" class="ec-total-label">TOTAL</text>
