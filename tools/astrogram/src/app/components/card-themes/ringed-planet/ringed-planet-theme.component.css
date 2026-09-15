@@ -70,7 +70,7 @@
    canvas to hold it. */
 .rpl-lower {
   position: absolute;
-  top: 54.44%;
+  top: 46%;
   left: 0;
   right: 0;
   /* The bottom margin lives here, not as footer padding, and the column clips:
@@ -86,6 +86,19 @@
 /* ── Object title ── */
 .rpl-title {
   text-align: center;
+}
+
+/* Portrait and square: the spare height is split between the gap above the
+   title and the gap above the footer. Pushed only above the footer, it left a
+   wide empty band between the legend and the footer. Both blocks grow by the
+   same amount and keep their content at their bottom edge, so the legend
+   stays under the title and the footer rule moves up with it. */
+.rpl-root:not(.rpl-root--landscape) .rpl-title,
+.rpl-root:not(.rpl-root--landscape) .rpl-footer {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
 .rpl-object-id {
@@ -133,23 +146,23 @@
 }
 
 .rpl-legend-id {
-  font: 600 10px/1 'JetBrains Mono', monospace;
+  font: 600 12px/1 'JetBrains Mono', monospace;
 }
 
 .rpl-legend-time {
-  font: 500 11px/1 'Outfit', system-ui, sans-serif;
+  font: 500 13px/1 'Outfit', system-ui, sans-serif;
   color: #9c93b5;
 }
 
 .rpl-legend-total {
-  font: 600 11px/1 'Outfit', system-ui, sans-serif;
+  font: 600 13px/1 'Outfit', system-ui, sans-serif;
   color: #ffd79a;
 }
 
 /* Names the total, which on a wrapped legend otherwise sits alone on its
    line and reads as a stray value. */
 .rpl-legend-total-label {
-  font: 600 9px/1 'JetBrains Mono', monospace;
+  font: 600 11px/1 'JetBrains Mono', monospace;
   color: #ffd79a;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -159,35 +172,36 @@
 /* ── Footer ── */
 .rpl-footer {
   margin-top: auto;
-  padding: 14px 26px 0;
+  padding: 14px 24px 0;
 }
 
 .rpl-cols {
   border-top: 1px solid rgba(255, 215, 154, 0.16);
-  padding-top: 14px;
+  padding-top: 16px;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 22px;
+  gap: 20px;
 }
 
 .rpl-col-title {
-  font: 600 9px/1 'JetBrains Mono', monospace;
+  font: 600 11px/1 'JetBrains Mono', monospace;
   color: #ffd79a;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  margin-bottom: 7px;
+  margin-bottom: 11px;
 }
 
 .rpl-row {
   display: flex;
   justify-content: space-between;
   gap: 8px;
-  padding: 1.5px 0;
+  padding: 2.5px 0;
 }
 
 .rpl-row-label {
-  font: 500 9px/1.4 'JetBrains Mono', monospace;
-  color: #564e6f;
+  font: 500 10.5px/1.4 'JetBrains Mono', monospace;
+  /* Lifted from the design's grey, which at this size read as a smudge. */
+  color: #736b91;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   /* May wrap: a nowrap label (e.g. "Guide scope and camera") squeezed its
@@ -198,7 +212,7 @@
 }
 
 .rpl-row-value {
-  font: 400 10px/1.4 'Outfit', system-ui, sans-serif;
+  font: 400 12.5px/1.4 'Outfit', system-ui, sans-serif;
   color: #f1ecf8;
   text-align: right;
   min-width: 0;
@@ -208,22 +222,35 @@
 }
 
 .rpl-sky {
-  font: 500 10px/1.4 'Outfit', system-ui, sans-serif;
+  font: 500 12px/1.4 'Outfit', system-ui, sans-serif;
   color: #9c93b5;
-  margin-top: 6px;
+  margin-top: 8px;
 }
 
 .rpl-legend-frames {
-  font: 500 9px/1 'Outfit', system-ui, sans-serif;
+  font: 500 10.5px/1 'Outfit', system-ui, sans-serif;
   color: #7d769a;
 }
 
 /* ── Art box ──
-   Portrait and square formats: the whole theme, with the planet art covering
-   it exactly as the design draws it. */
+   The planet and its rings only occupy y 180-372 of the 540 x 720 artboard;
+   covering the whole card left the planet in the middle of it with only a
+   date above, and the title, legend and footer squeezed into the lower half
+   at 9-10 px. On portrait and square formats the artboard is enlarged and
+   raised so the planet sits under the date, which also frees height for the
+   text below. (Landscape positions its own box.) */
 .rpl-art {
   position: absolute;
   inset: 0;
+}
+
+.rpl-root:not(.rpl-root--landscape) .rpl-art {
+  inset: auto;
+  /* 702 wide keeps the outermost ring ~40px clear of a 3:4 edge. */
+  top: -164px;
+  left: calc(50% - 351px);
+  width: 702px;
+  height: 936px;
 }
 
 /* ── Landscape (1.91:1) ──
@@ -318,3 +345,41 @@
   margin-top: 7px;
 }
 
+
+/* ── Square (1:1) ──
+   The wider card takes a larger planet; its legend and footer rows need less
+   height here because they rarely wrap. */
+:host-context(.card.aspect-1-1) .rpl-root:not(.rpl-root--landscape) .rpl-art {
+  top: -190px;
+  left: calc(50% - 391px);
+  width: 783px;
+  height: 1044px;
+}
+
+:host-context(.card.aspect-1-1) .rpl-lower {
+  top: 50%;
+}
+
+/* ── Story (9:16) ──
+   No wider than 3:4 but 240px taller: the planet is lowered to take a share
+   of the extra height above it, the title column starts under it, and the
+   footer rows are spaced a little more openly. */
+:host-context(.card.aspect-9-16) .rpl-root:not(.rpl-root--landscape) .rpl-art {
+  top: -90px;
+}
+
+:host-context(.card.aspect-9-16) .rpl-lower {
+  top: 43%;
+}
+
+:host-context(.card.aspect-9-16) .rpl-cols {
+  padding-top: 20px;
+}
+
+:host-context(.card.aspect-9-16) .rpl-col-title {
+  margin-bottom: 13px;
+}
+
+:host-context(.card.aspect-9-16) .rpl-row {
+  padding: 3.5px 0;
+}
