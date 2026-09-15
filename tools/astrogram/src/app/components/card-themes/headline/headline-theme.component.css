@@ -1,10 +1,13 @@
 /* Headline card theme — faithful port of the design source ThemeHeadline.
-   Per-theme palette/typography is the theme's identity, so colours are literal.
+   Per-theme palette/typography is the theme's identity, so colours are literal,
+   bar the pink and gold the Layout panel's colour pickers set.
    "Space Grotesk"/"Manrope" fall back to Outfit when not loaded (design intent). */
 
 :host {
-  --hdl-pink: #ff2d95;
-  --hdl-gold: #ffd79a;
+  /* Pink is the card's accent and gold its secondary (the object name and the
+     gold constellation and spike, drawn in currentColor). */
+  --hdl-pink: var(--accent-color);
+  --hdl-gold: var(--secondary-accent-color);
   --hdl-txt: #fff7fb;
   --hdl-dim: #a89dbe;
   --hdl-faint: #5e5478;
@@ -36,7 +39,7 @@
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background: radial-gradient(ellipse 70% 45% at 78% 8%, rgba(255, 45, 149, 0.16), transparent 60%),
+  background: radial-gradient(ellipse 70% 45% at 78% 8%, rgba(var(--accent-color-rgb), 0.16), transparent 60%),
     radial-gradient(ellipse 60% 40% at 12% 92%, rgba(90, 50, 160, 0.22), transparent 60%), #0b0714;
   opacity: var(--card-opacity, 1);
 }
@@ -66,6 +69,7 @@
 
 .hdl-constellation {
   display: block;
+  color: var(--hdl-gold);
   width: auto;
   height: auto;
   max-height: 100%;
@@ -81,6 +85,7 @@
 
 /* Above the eyebrow, at the left margin. */
 .hdl-spike-1 {
+  color: var(--hdl-gold);
   left: 22px;
   top: -52px;
   opacity: 0.5;
