@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed } from '@angular/core';
 import { CardThemeBaseDirective } from '../card-theme-base.directive';
 import { ThemeGearLineComponent } from '../shared/theme-gear-line/theme-gear-line.component';
 import type { AtlasBandStar } from './atlas-band-star.model';
 import { isLightColor } from '../../../utils/light-color.util';
+import { keepPlaceNamesTogether } from '../../../utils/keep-together.util';
 
 /**
  * Atlas theme — a vintage star-atlas plate printed on cream paper. Ink
@@ -115,6 +116,12 @@ export class AtlasThemeComponent extends CardThemeBaseDirective {
   protected isLightBand(color: string): boolean {
     return isLightColor(color);
   }
+
+  /**
+   * Location for the colophon, wrapping only between its comma-separated parts:
+   * at the larger colophon size a long place split as "San / Diego County".
+   */
+  protected readonly placeName = computed<string>(() => keepPlaceNamesTogether(this.vm().location));
 
   /** Total frame count across the enabled bands (design `lFrames`). */
   protected totalFrames(): number {

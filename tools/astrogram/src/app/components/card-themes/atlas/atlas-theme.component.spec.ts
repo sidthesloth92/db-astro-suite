@@ -49,6 +49,17 @@ describe('AtlasThemeComponent', () => {
     expect(colophon?.textContent).toContain('@astrogram');
   });
 
+  it('should wrap a long colophon location only between its comma-separated parts', () => {
+    TestBed.inject(CardDataService).cardData.update((card) => ({
+      ...card,
+      location: 'Mount Laguna Observatory, San Diego County, California',
+    }));
+    fixture.detectChanges();
+
+    const colophon = host.querySelector('.atl-colophon')?.textContent ?? '';
+    expect(colophon).toContain('San\u00a0Diego\u00a0County, California');
+  });
+
   it('should draw a white luminance band in ink so it shows on the cream paper', () => {
     TestBed.inject(CardDataService).cardData.update((card) => ({
       ...card,

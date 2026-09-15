@@ -85,7 +85,7 @@
 
 /* ── Masthead ── */
 .atl-masthead {
-  font: 600 12px/1 var(--atl-serif);
+  font: 600 13px/1 var(--atl-serif);
   letter-spacing: 0.42em;
   text-transform: uppercase;
   padding-left: 0.42em;
@@ -114,7 +114,7 @@
 }
 
 .atl-chart-id {
-  font: 700 10px var(--atl-mono);
+  font: 700 11px var(--atl-mono);
   letter-spacing: 0.06em;
   /* A hairline of ink under each band colour: pale bands such as OIII's cyan
      all but disappeared on the cream paper. */
@@ -124,7 +124,7 @@
 }
 
 .atl-chart-time {
-  font: 600 12px var(--atl-serif);
+  font: 600 13.5px var(--atl-serif);
 }
 
 /* ── Title ── */
@@ -133,7 +133,7 @@
 }
 
 .atl-designation {
-  font: 600 10.5px/1 var(--atl-mono);
+  font: 600 11.5px/1 var(--atl-mono);
   color: var(--atl-dim);
   letter-spacing: 0.3em;
   text-transform: uppercase;
@@ -150,20 +150,101 @@
 }
 
 .atl-spacer--story {
-  flex: 0;
+  flex: 0.6;
 }
 
-/* ── Story (9:16) ──
-   One spacer between the title and the exposure record left a ~700px empty
-   plate on the story canvas. A second spacer above the chart halves it, so the
-   chart and title sit in the middle of the plate. */
+/* ── Spare height ──
+   One spacer between the title and the exposure record pooled all of the
+   plate's spare height there — a sixth of a 720-tall card, and a ~700px empty
+   plate on the story canvas — while the record and colophon below were set
+   small. The record, instruments and colophon are now set larger, and a second
+   spacer above the chart takes a share of what remains, so the chart and title
+   sit lower on the plate. On the story canvas the two spacers split it evenly. */
 :host-context(.card.aspect-9-16) .atl-spacer--story {
   flex: 1;
 }
 
+/* Square: the wider plate set the record in a narrow column and the gear on
+   short lines, so the record widens and the lower type steps up. */
+:host-context(.card.aspect-1-1) .atl-ledger {
+  width: 460px;
+}
+
+:host-context(.card.aspect-1-1) .atl-ledger-greek,
+:host-context(.card.aspect-1-1) .atl-ledger-time {
+  font-size: 16px;
+}
+
+:host-context(.card.aspect-1-1) .atl-ledger-frame-count {
+  font-size: 11.5px;
+}
+
+:host-context(.card.aspect-1-1) .atl-instruments {
+  font-size: 14px;
+  max-width: 540px;
+}
+
+:host-context(.card.aspect-1-1) .atl-colophon {
+  font-size: 11px;
+}
+
+/* The story canvas has 240px more height than the other portrait cards, so the
+   chart widens into the plate's side margins and the type steps up again. */
+:host-context(.card.aspect-9-16) .atl-chart {
+  width: 500px;
+  max-width: none;
+  height: 268px;
+  margin: 20px -24px 0;
+}
+
+:host-context(.card.aspect-9-16) .atl-chart-time {
+  font-size: 14.5px;
+}
+
+:host-context(.card.aspect-9-16) .atl-title-block {
+  margin-top: 14px;
+}
+
+:host-context(.card.aspect-9-16) .atl-designation {
+  font-size: 12.5px;
+}
+
+:host-context(.card.aspect-9-16) .atl-title {
+  font-size: 44px;
+  margin-top: 10px;
+}
+
+:host-context(.card.aspect-9-16) .atl-ledger {
+  width: 452px;
+}
+
+:host-context(.card.aspect-9-16) .atl-ledger-greek,
+:host-context(.card.aspect-9-16) .atl-ledger-time {
+  font-size: 16.5px;
+}
+
+:host-context(.card.aspect-9-16) .atl-ledger-frame-count {
+  font-size: 12px;
+}
+
+:host-context(.card.aspect-9-16) .atl-ledger-row {
+  padding: 8px 0;
+}
+
+:host-context(.card.aspect-9-16) .atl-instruments {
+  font-size: 14.5px;
+  margin-top: 18px;
+}
+
+:host-context(.card.aspect-9-16) .atl-colophon {
+  font-size: 11.5px;
+  margin-top: 16px;
+  padding-top: 12px;
+}
+
 /* ── Exposure ledger ── */
 .atl-ledger {
-  width: 380px;
+  width: 400px;
   max-width: 100%;
   /* A floor under the spacer above: with a two-line name it collapsed and the
      title's descenders sat on the record's heading. */
@@ -180,7 +261,7 @@
 }
 
 .atl-ledger-label {
-  font: 600 10px/1 var(--atl-mono);
+  font: 600 11px/1 var(--atl-mono);
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--atl-dim);
@@ -218,7 +299,7 @@
 }
 
 .atl-ledger-greek {
-  font: 500 13.5px/1 var(--atl-serif);
+  font: 500 15px/1 var(--atl-serif);
 }
 
 .atl-ledger-lead {
@@ -228,12 +309,12 @@
 }
 
 .atl-ledger-frame-count {
-  font: 500 10px/1 var(--atl-mono);
+  font: 500 11px/1 var(--atl-mono);
   color: var(--atl-dim);
 }
 
 .atl-ledger-time {
-  font: 600 13.5px/1 var(--atl-serif);
+  font: 600 15px/1 var(--atl-serif);
   /* Durations are short derived values, so keep them on one line; `width`
      capped the cell at 52px and wrapped "2h 40m" onto a second line. */
   min-width: 52px;
@@ -243,10 +324,10 @@
 
 /* ── Instruments ── */
 .atl-instruments {
-  font: italic 500 11.5px/1.6 var(--atl-serif);
+  font: italic 500 13px/1.6 var(--atl-serif);
   color: var(--atl-dim);
   margin: 14px auto 0;
-  max-width: 400px;
+  max-width: 440px;
   justify-content: center;
 }
 
@@ -256,10 +337,28 @@
   padding-top: 10px;
   border-top: 1px solid rgba(43, 35, 22, 0.33);
   /* Line height 1 overprinted a wrapped second line onto the first. */
-  font: 600 9px/1.6 var(--atl-mono);
+  font: 600 10.5px/1.6 var(--atl-mono);
   color: var(--atl-dim);
   letter-spacing: 0.2em;
   text-transform: uppercase;
+}
+
+/* Portrait / square: the record's heading grows with its larger type, and the
+   colophon's tracking eases so a long place wraps less at its larger size. */
+.atl-inner:not(.atl-inner--landscape) .atl-ledger-head {
+  padding-bottom: 6px;
+}
+
+.atl-inner:not(.atl-inner--landscape) .atl-ledger-total {
+  font-size: 17px;
+}
+
+.atl-inner:not(.atl-inner--landscape) .atl-ledger-frames {
+  font-size: 12.5px;
+}
+
+.atl-inner:not(.atl-inner--landscape) .atl-colophon {
+  letter-spacing: 0.16em;
 }
 
 /* ── Landscape (1.91:1) ──
