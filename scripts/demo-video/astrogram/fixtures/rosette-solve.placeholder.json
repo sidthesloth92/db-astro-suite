@@ -1,0 +1,753 @@
+{
+  "code": "PLACEHOLDER_SOLVE",
+  "message": "PLACEHOLDER — hand-written stand-in, not a real plate solve. Replace by running capture/record-solve.mjs.",
+  "details": {
+    "metadata": {
+      "ra": 97.95,
+      "dec": 4.95,
+      "scale": 4.6,
+      "wcs": "SIMPLE  = T\nNAXIS   = 2\nIMAGEW  = 1080\nIMAGEH  = 1350\nCTYPE1  = 'RA---TAN'\nCTYPE2  = 'DEC--TAN'\nCRVAL1  = 97.95\nCRVAL2  = 4.95\nCRPIX1  = 540.5\nCRPIX2  = 675.5\nCD1_1   = -0.0012777777777777776\nCD1_2   = 0\nCD2_1   = 0\nCD2_2   = -0.0012777777777777776\nEND",
+      "radius_searched": 1
+    },
+    "objects": [
+      {
+        "source": "local",
+        "magnitude": 9,
+        "sizeArcmin": 78,
+        "distanceLy": 5200,
+        "name": "C 49",
+        "commonName": "Rosette Nebula",
+        "catalog": "C",
+        "entryId": "c49",
+        "type": "HII",
+        "ra": 97.9,
+        "dec": 4.98,
+        "aliases": [
+          {
+            "name": "C 49",
+            "type": "HII",
+            "magnitude": 9,
+            "source": "local",
+            "catalog": "C"
+          },
+          {
+            "name": "Sh2-275",
+            "type": "HII",
+            "magnitude": null,
+            "source": "local",
+            "catalog": "SH2"
+          }
+        ],
+        "categories": [
+          "Nebula"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 4.8,
+        "sizeArcmin": 24,
+        "distanceLy": 5200,
+        "name": "NGC 2244",
+        "catalog": "NGC/IC",
+        "entryId": "ngc2244",
+        "type": "OCl",
+        "ra": 97.979,
+        "dec": 4.942,
+        "categories": [
+          "Open Cluster"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 9,
+        "sizeArcmin": 12,
+        "distanceLy": null,
+        "name": "NGC 2237",
+        "catalog": "NGC/IC",
+        "entryId": "ngc2237",
+        "type": "HII",
+        "ra": 97.725,
+        "dec": 5.05,
+        "categories": [
+          "Nebula"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": null,
+        "sizeArcmin": 6,
+        "distanceLy": null,
+        "name": "NGC 2238",
+        "catalog": "NGC/IC",
+        "entryId": "ngc2238",
+        "type": "HII",
+        "ra": 97.667,
+        "dec": 5.017,
+        "categories": [
+          "Nebula"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": null,
+        "sizeArcmin": 10,
+        "distanceLy": null,
+        "name": "NGC 2246",
+        "catalog": "NGC/IC",
+        "entryId": "ngc2246",
+        "type": "HII",
+        "ra": 98.146,
+        "dec": 5.117,
+        "categories": [
+          "Nebula"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 7.3,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "HD 46223",
+        "catalog": "HD",
+        "entryId": "hd46223",
+        "type": "*",
+        "ra": 98.039,
+        "dec": 4.824,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 8.2,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "HD 46056",
+        "catalog": "HD",
+        "entryId": "hd46056",
+        "type": "*",
+        "ra": 97.837,
+        "dec": 4.834,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 7.6,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "HD 46149",
+        "catalog": "HD",
+        "entryId": "hd46149",
+        "type": "*",
+        "ra": 97.969,
+        "dec": 5.033,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 13.6,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 1",
+        "catalog": "GAIA",
+        "entryId": "field-1",
+        "type": "*",
+        "ra": 97.8288905610438,
+        "dec": 5.0349503573920815,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 13.7,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 2",
+        "catalog": "GAIA",
+        "entryId": "field-2",
+        "type": "*",
+        "ra": 97.46527432631393,
+        "dec": 5.078978408836993,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 11.9,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 3",
+        "catalog": "GAIA",
+        "entryId": "field-3",
+        "type": "*",
+        "ra": 97.34732960255366,
+        "dec": 5.61099117355363,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 13.5,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 4",
+        "catalog": "GAIA",
+        "entryId": "field-4",
+        "type": "*",
+        "ra": 98.10768127575764,
+        "dec": 5.091544614471496,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 11.3,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 5",
+        "catalog": "GAIA",
+        "entryId": "field-5",
+        "type": "*",
+        "ra": 97.47540933359127,
+        "dec": 5.46690405077592,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 11.7,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 6",
+        "catalog": "GAIA",
+        "entryId": "field-6",
+        "type": "*",
+        "ra": 97.62001352827711,
+        "dec": 4.460481386975153,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 9.9,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 7",
+        "catalog": "GAIA",
+        "entryId": "field-7",
+        "type": "*",
+        "ra": 98.24861459629932,
+        "dec": 5.09911092126451,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 12.3,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 8",
+        "catalog": "GAIA",
+        "entryId": "field-8",
+        "type": "*",
+        "ra": 98.2886778487189,
+        "dec": 4.179731782141608,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 10.5,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 9",
+        "catalog": "GAIA",
+        "entryId": "field-9",
+        "type": "*",
+        "ra": 97.65329767763673,
+        "dec": 4.394227859685779,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 9.6,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 10",
+        "catalog": "GAIA",
+        "entryId": "field-10",
+        "type": "*",
+        "ra": 98.05282000567364,
+        "dec": 5.55155359463417,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 11.2,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 11",
+        "catalog": "GAIA",
+        "entryId": "field-11",
+        "type": "*",
+        "ra": 97.6475103903746,
+        "dec": 5.668537601134158,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 12.1,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 12",
+        "catalog": "GAIA",
+        "entryId": "field-12",
+        "type": "*",
+        "ra": 97.72332789564418,
+        "dec": 4.806008031195961,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 9.3,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 13",
+        "catalog": "GAIA",
+        "entryId": "field-13",
+        "type": "*",
+        "ra": 97.86015806396776,
+        "dec": 5.552492767412332,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 12.1,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 14",
+        "catalog": "GAIA",
+        "entryId": "field-14",
+        "type": "*",
+        "ra": 97.84394916788798,
+        "dec": 5.398637203745311,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 9.3,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 15",
+        "catalog": "GAIA",
+        "entryId": "field-15",
+        "type": "*",
+        "ra": 98.09258047233546,
+        "dec": 4.198732162464294,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 9.7,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 16",
+        "catalog": "GAIA",
+        "entryId": "field-16",
+        "type": "*",
+        "ra": 97.90800503563236,
+        "dec": 4.34254595749313,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 10.6,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 17",
+        "catalog": "GAIA",
+        "entryId": "field-17",
+        "type": "*",
+        "ra": 98.03794107911277,
+        "dec": 5.046440642332309,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 13.7,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 18",
+        "catalog": "GAIA",
+        "entryId": "field-18",
+        "type": "*",
+        "ra": 98.35421414713218,
+        "dec": 5.715227084375219,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 12.7,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 19",
+        "catalog": "GAIA",
+        "entryId": "field-19",
+        "type": "*",
+        "ra": 98.33988569817537,
+        "dec": 5.205539803290158,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 9.7,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 20",
+        "catalog": "GAIA",
+        "entryId": "field-20",
+        "type": "*",
+        "ra": 97.90662209108696,
+        "dec": 5.109572975998745,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 11.6,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 21",
+        "catalog": "GAIA",
+        "entryId": "field-21",
+        "type": "*",
+        "ra": 97.44674548979862,
+        "dec": 5.574443313836237,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 13.1,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 22",
+        "catalog": "GAIA",
+        "entryId": "field-22",
+        "type": "*",
+        "ra": 97.91417052238018,
+        "dec": 4.576507492958335,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 10.8,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 23",
+        "catalog": "GAIA",
+        "entryId": "field-23",
+        "type": "*",
+        "ra": 97.67661505628197,
+        "dec": 4.916978392011369,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 12.1,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 24",
+        "catalog": "GAIA",
+        "entryId": "field-24",
+        "type": "*",
+        "ra": 98.53395290760533,
+        "dec": 5.688705518783536,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 10.8,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 25",
+        "catalog": "GAIA",
+        "entryId": "field-25",
+        "type": "*",
+        "ra": 97.73266873961504,
+        "dec": 4.625844949037419,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 12.4,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 26",
+        "catalog": "GAIA",
+        "entryId": "field-26",
+        "type": "*",
+        "ra": 97.45192024021887,
+        "dec": 4.5198505769355695,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 10.3,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 27",
+        "catalog": "GAIA",
+        "entryId": "field-27",
+        "type": "*",
+        "ra": 97.61141277831278,
+        "dec": 4.908687533554039,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 11.8,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 28",
+        "catalog": "GAIA",
+        "entryId": "field-28",
+        "type": "*",
+        "ra": 97.52144138682715,
+        "dec": 5.379469268177636,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 12.4,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 29",
+        "catalog": "GAIA",
+        "entryId": "field-29",
+        "type": "*",
+        "ra": 98.17122721990475,
+        "dec": 4.269273667762173,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 11.3,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 30",
+        "catalog": "GAIA",
+        "entryId": "field-30",
+        "type": "*",
+        "ra": 97.79490366171888,
+        "dec": 4.618481383299223,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 10.1,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 31",
+        "catalog": "GAIA",
+        "entryId": "field-31",
+        "type": "*",
+        "ra": 97.79529906451862,
+        "dec": 4.5274367175641235,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 11.7,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 32",
+        "catalog": "GAIA",
+        "entryId": "field-32",
+        "type": "*",
+        "ra": 98.31945722208351,
+        "dec": 5.085372612581123,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 10.7,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 33",
+        "catalog": "GAIA",
+        "entryId": "field-33",
+        "type": "*",
+        "ra": 97.55916824175101,
+        "dec": 5.150633333321312,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 13.1,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 34",
+        "catalog": "GAIA",
+        "entryId": "field-34",
+        "type": "*",
+        "ra": 98.36565031609102,
+        "dec": 5.031239058544161,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 12.1,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 35",
+        "catalog": "GAIA",
+        "entryId": "field-35",
+        "type": "*",
+        "ra": 98.30853847525263,
+        "dec": 5.55421598613204,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 9.9,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 36",
+        "catalog": "GAIA",
+        "entryId": "field-36",
+        "type": "*",
+        "ra": 98.15574167341569,
+        "dec": 5.381525512430817,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 13,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 37",
+        "catalog": "GAIA",
+        "entryId": "field-37",
+        "type": "*",
+        "ra": 97.5927654848083,
+        "dec": 5.150111456562882,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 13.7,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 38",
+        "catalog": "GAIA",
+        "entryId": "field-38",
+        "type": "*",
+        "ra": 97.3299250580068,
+        "dec": 4.791988927525235,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 13.4,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 39",
+        "catalog": "GAIA",
+        "entryId": "field-39",
+        "type": "*",
+        "ra": 98.32078082246645,
+        "dec": 5.504057558548521,
+        "categories": [
+          "Star"
+        ]
+      },
+      {
+        "source": "local",
+        "magnitude": 9.6,
+        "sizeArcmin": null,
+        "distanceLy": null,
+        "name": "Field star 40",
+        "catalog": "GAIA",
+        "entryId": "field-40",
+        "type": "*",
+        "ra": 97.32707063958041,
+        "dec": 4.45642096382333,
+        "categories": [
+          "Star"
+        ]
+      }
+    ],
+    "warnings": []
+  }
+}

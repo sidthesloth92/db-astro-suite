@@ -1,0 +1,30 @@
+{
+  "name": "db-astro-demo-video",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Remotion edit for the suite's demo videos (Astrogram, AstroSpike). Deliberately outside the pnpm workspace: it is a one-off authoring tool, not part of the suite's dependency graph.",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render:astrogram:vertical": "remotion render src/index.ts AstrogramVertical ../out/astrogram-demo-vertical.mp4 --timeout=120000",
+    "render:astrogram:desktop": "remotion render src/index.ts AstrogramDesktop ../out/astrogram-demo-desktop.mp4 --timeout=120000",
+    "render:astrospike:vertical": "remotion render src/index.ts AstroSpikeVertical ../out/astrospike-demo-vertical.mp4 --timeout=120000",
+    "render:astrospike:desktop": "remotion render src/index.ts AstroSpikeDesktop ../out/astrospike-demo-desktop.mp4 --timeout=120000",
+    "ensure-manifests": "node ensure-manifests.mjs",
+    "prestudio": "node ensure-manifests.mjs",
+    "prerender:astrogram:vertical": "node ensure-manifests.mjs",
+    "prerender:astrogram:desktop": "node ensure-manifests.mjs",
+    "prerender:astrospike:vertical": "node ensure-manifests.mjs",
+    "prerender:astrospike:desktop": "node ensure-manifests.mjs",
+    "compress": "node ../compress.mjs"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.523",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "remotion": "4.0.523"
+  },
+  "devDependencies": {
+    "@types/react": "19.0.0",
+    "typescript": "5.7.3"
+  }
+}

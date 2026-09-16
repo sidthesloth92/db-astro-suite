@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="AstroSpike">
+  <defs><radialGradient id="asGlow"><stop offset="0" stop-color="#ff2d95" stop-opacity=".5"></stop><stop offset="1" stop-color="#ff2d95" stop-opacity="0"></stop></radialGradient></defs>
+  <circle cx="32" cy="32" r="19" fill="url(#asGlow)"></circle>
+  <path d="M32 25.5 L8 8 L25.5 32 L8 56 L32 38.5 Z" fill="#ff2d95"></path>
+  <path d="M32 25.5 L56 8 L38.5 32 L56 56 L32 38.5 Z" fill="#00e5ff"></path>
+  <circle cx="32" cy="32" r="4.6" fill="#fff"></circle>
+</svg>
