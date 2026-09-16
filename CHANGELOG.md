@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.36.0](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.35.0...db-astro-suite-v1.36.0) (2026-09-16)
+
+
+### Features
+
+* **astrogram:** card theme system with 29 themes and Instagram 1.91:1 landscape ([#123](https://github.com/sidthesloth92/db-astro-suite/issues/123)) ([8b7cb15](https://github.com/sidthesloth92/db-astro-suite/commit/8b7cb15c6d24e045f45e85ab398f6a9e48bf8d3f))
+
 ## [1.35.0](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.34.2...db-astro-suite-v1.35.0) (2026-09-11)
 
 
