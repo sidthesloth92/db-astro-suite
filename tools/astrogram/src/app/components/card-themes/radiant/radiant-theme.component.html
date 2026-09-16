@@ -1,0 +1,85 @@
+@let data = vm();
+
+<div
+  class="rd-root"
+  [class.rd-root--landscape]="isLandscapeFormat()"
+  [class.rd-root--dense]="rows().length > 4"
+  [style.--rd-secondary-rgb]="secondaryRgb()"
+>
+  <dba-ag-theme-starfield [density]="130" [opacity]="0.5" [seed]="27" />
+
+  <!-- Flow content, clipped at the padding edge so the content fit sees it -->
+  <div class="rd-body">
+    <!-- Header -->
+    <div class="rd-header">
+      <span class="rd-eyebrow">Radiant</span>
+      <span class="rd-date">{{ data.dateNumeric }}</span>
+    </div>
+
+    <!-- Meteor field -->
+    <svg class="rd-svg" viewBox="0 0 476 300" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <!-- ambient micro-streaks -->
+      @for (s of ambientStreaks; track $index) {
+        <line [attr.x1]="s.x1" [attr.y1]="s.y1" [attr.x2]="s.x2" [attr.y2]="s.y2" stroke="#fff" stroke-width="0.7" opacity="0.16" stroke-linecap="round" />
+      }
+      <!-- band streaks -->
+      @for (s of streaks(); track $index) {
+        <line [attr.x1]="s.x1" [attr.y1]="s.y1" [attr.x2]="s.x2" [attr.y2]="s.y2" [attr.stroke]="s.color" [attr.stroke-width]="s.w" opacity="0.8" stroke-linecap="round" />
+        <circle [attr.cx]="s.x2" [attr.cy]="s.y2" [attr.r]="s.headR" fill="#fff" opacity="0.9" />
+      }
+      <!-- radiant marker -->
+      <line [attr.x1]="rx - 9" [attr.y1]="ry" [attr.x2]="rx + 9" [attr.y2]="ry" stroke="#fff" stroke-width="0.9" opacity="0.9" />
+      <line [attr.x1]="rx" [attr.y1]="ry - 9" [attr.x2]="rx" [attr.y2]="ry + 9" stroke="#fff" stroke-width="0.9" opacity="0.9" />
+      <circle [attr.cx]="rx" [attr.cy]="ry" r="14" fill="none" stroke="#fff" stroke-width="0.6" opacity="0.5" />
+      <text [attr.x]="rx + 22" [attr.y]="ry - 16" class="rd-radiant">RADIANT · {{ data.objectId }}</text>
+    </svg>
+
+    <!-- Band rows -->
+    <div class="rd-rows">
+      @for (row of rows(); track row.id) {
+        <div class="rd-row">
+          <span class="rd-row-id" [style.color]="row.color">{{ row.id }}</span>
+          <span class="rd-row-frames">{{ row.frames }}</span>
+          <div class="rd-row-bar">
+            <div class="rd-row-fill" [style.width]="row.pctWidth" [style.background]="row.color" [style.box-shadow]="'0 0 8px ' + row.color + '66'"></div>
+          </div>
+          <span class="rd-row-time">{{ row.time }}</span>
+        </div>
+      }
+    </div>
+
+    <!-- Title + total -->
+    <div class="rd-title" data-testid="card-hero">
+      <div class="rd-title-main">
+        <div class="rd-kicker">{{ data.objectId }}</div>
+        <div class="rd-name">{{ data.objectName }}</div>
+      </div>
+      <div class="rd-title-spacer"></div>
+      <div class="rd-total">
+        <div class="rd-total-label">Total</div>
+        <div class="rd-total-value">{{ data.total }}</div>
+      </div>
+    </div>
+
+    <!-- Caption chip -->
+    @if (captionParts().length) {
+      <div class="rd-caption">
+        @for (part of captionParts(); track $index) {
+          <span [class.rd-caption-hl]="part.highlight">{{ part.text }}</span>
+        }
+      </div>
+    }
+
+    <div class="rd-spacer"></div>
+
+    <!-- Footer -->
+    <div class="rd-footer">
+      <dba-ag-theme-gear-line class="rd-foot-gear" [values]="equipmentValues()" />
+      <div class="rd-foot-row">
+        <span class="rd-foot-author">{{ data.author }}</span>
+        <span class="rd-foot-spacer"></span>
+        <span class="rd-foot-meta">{{ data.location }} · Bortle {{ data.bortle }}</span>
+      </div>
+    </div>
+  </div>
+</div>

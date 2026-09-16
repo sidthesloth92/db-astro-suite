@@ -1,0 +1,123 @@
+@let data = vm();
+
+<div
+  class="ave-root"
+  [class.ave-root--landscape]="isLandscapeFormat()"
+  [style.--ave-rose-rgb]="secondaryRgb()"
+>
+  <dba-ag-theme-starfield [density]="70" [opacity]="0.35" [seed]="1" />
+
+  <!-- Masthead -->
+  <div class="ave-masthead">
+    <div class="ave-mast-left">
+      <div class="ave-mast-name">Quarterly</div>
+    </div>
+    <div class="ave-mast-issue">Issue 27 · MMXXVI</div>
+  </div>
+
+  <!-- Catalogue eyebrow -->
+  <div class="ave-eyebrow">Deep-sky catalogue · {{ data.objectId }}</div>
+
+  <!-- Headline -->
+  <!-- A long proper name ("Heart and Soul") shrinks to the column width. -->
+  <div
+    class="ave-headline"
+    data-testid="card-hero"
+    [dbaAgFitText]="isLandscapeFormat() ? 62 : 64"
+    [fitTextMin]="30"
+    [fitTextContent]="heroName().primary"
+  >{{ heroName().primary }}<span class="ave-dot">.</span></div>
+  @if (heroName().rest) {
+    <div class="ave-subhead">— {{ heroName().rest }}</div>
+  }
+
+  <!-- Standfirst -->
+  @if (data.caption) {
+    <div class="ave-standfirst">
+      <div class="ave-standbar"></div>
+      <div class="ave-standtext">{{ data.caption }}</div>
+    </div>
+  }
+
+  <!-- Byline -->
+  <div class="ave-byline">
+    <span class="ave-meta">
+      <dba-ag-theme-icon name="calendar" [size]="11" />{{ data.dateShort }}
+    </span>
+    <span class="ave-meta ave-meta--place">
+      <dba-ag-theme-icon name="pin" [size]="11" /><span class="ave-meta-text">{{ data.location }}</span>
+    </span>
+    <span class="ave-meta">
+      <dba-ag-theme-icon name="user" [size]="11" />{{ data.author }}
+    </span>
+  </div>
+
+  <!-- Portrait / square only: shares the spare height with the footer spacer. -->
+  @if (!isLandscapeFormat()) {
+    <div class="ave-flexspacer ave-flexspacer--upper"></div>
+  }
+
+  <!-- Integration as editorial display -->
+  <div class="ave-integration">
+    <div class="ave-int-lead">
+      <div class="ave-int-label">Integration</div>
+      <div class="ave-int-total">{{ data.total }}</div>
+    </div>
+    <div class="ave-int-spacer"></div>
+    <div class="ave-int-bands">
+      @for (band of data.integration; track band.id) {
+        <div class="ave-int-band">
+          <div class="ave-int-id" [style.color]="band.color">{{ band.id }}</div>
+          <div class="ave-int-time">{{ band.time }}</div>
+          <div class="ave-int-frames">{{ band.frames }}</div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="ave-flexspacer"></div>
+
+  <!-- Three-col footer -->
+  <div class="ave-footer">
+    <div class="ave-foot-col">
+      <div class="ave-foot-title">Apparatus</div>
+      @for (item of data.equipment; track $index) {
+        <div class="ave-foot-row">
+          @if ($index < equipmentIconCount) {
+            <dba-ag-theme-icon class="ave-foot-icon" [name]="equipmentIcon($index)" [size]="10" color="#555A6E" />
+          } @else {
+            <span class="ave-foot-icon ave-foot-icon--blank"></span>
+          }
+          <div class="ave-foot-label">{{ item.label }}</div>
+          <div class="ave-foot-value">{{ item.value }}</div>
+        </div>
+      }
+    </div>
+
+    <div class="ave-foot-col">
+      <div class="ave-foot-title">Workflow</div>
+      @for (item of data.software; track $index) {
+        <div class="ave-foot-row">
+          @if ($index < softwareIconCount) {
+            <dba-ag-theme-icon class="ave-foot-icon" [name]="softwareIcon($index)" [size]="10" color="#555A6E" />
+          } @else {
+            <span class="ave-foot-icon ave-foot-icon--blank"></span>
+          }
+          <div class="ave-foot-label">{{ item.label }}</div>
+          <div class="ave-foot-value">{{ item.value }}</div>
+        </div>
+      }
+    </div>
+
+    <div class="ave-foot-col">
+      <div class="ave-foot-title">Sky</div>
+      <div class="ave-sky-big">{{ data.bortle }}</div>
+      <div class="ave-sky-sub">Bortle · {{ data.bortleLabel }}</div>
+      <div class="ave-sky-bar">
+        @for (segment of bortleSegments; track segment) {
+          <div class="ave-sky-seg" [class.is-lit]="isBortleLit(segment)"></div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

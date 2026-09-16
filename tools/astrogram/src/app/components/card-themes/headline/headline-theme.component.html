@@ -1,0 +1,143 @@
+@let data = vm();
+
+<div class="hdl-root" [class.hdl-root--landscape]="isLandscapeFormat()">
+  <dba-ag-theme-starfield [density]="90" [opacity]="0.45" color="#ffffff" [seed]="1" />
+
+  <div class="hdl-inner">
+    <!-- Brand row -->
+    <div class="hdl-brand">
+      <span class="hdl-grow"></span>
+      <span class="hdl-date">{{ data.dateNumeric }}</span>
+    </div>
+
+    <!-- The constellation lives in the space above the stat, scaled to fit
+         it, so a stat pushed up by heavy data never runs into the figure. -->
+    <div class="hdl-sp1">
+      <div class="hdl-constellation-box">
+        <svg class="hdl-constellation" width="220" height="150" viewBox="0 0 220 150" aria-hidden="true">
+          @for (edge of constellationEdges; track $index) {
+            <line
+              [attr.x1]="edge.x1"
+              [attr.y1]="edge.y1"
+              [attr.x2]="edge.x2"
+              [attr.y2]="edge.y2"
+              stroke="currentColor"
+              stroke-width="0.8"
+              opacity="0.275"
+            />
+          }
+          @for (node of constellationNodes; track $index) {
+            <circle
+              [attr.cx]="node.x"
+              [attr.cy]="node.y"
+              [attr.r]="node.r"
+              fill="currentColor"
+              opacity="0.55"
+            />
+            @if (node.halo) {
+              <circle
+                [attr.cx]="node.x"
+                [attr.cy]="node.y"
+                r="5.5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="0.5"
+                opacity="0.2475"
+              />
+            }
+          }
+        </svg>
+      </div>
+    </div>
+
+    <!-- The headline stat -->
+    <div class="hdl-stat" data-testid="card-hero">
+      <!-- Sparkles ride with the stat: above its eyebrow and off the right end
+           of its subline, clear of the type wherever the stat lands. -->
+      <svg class="hdl-spike hdl-spike-1" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+        <line x1="12" y1="0" x2="12" y2="24" stroke="currentColor" stroke-width="0.9" />
+        <line x1="0" y1="12" x2="24" y2="12" stroke="currentColor" stroke-width="0.9" />
+        <line
+          x1="5.5"
+          y1="5.5"
+          x2="18.5"
+          y2="18.5"
+          stroke="currentColor"
+          stroke-width="0.45"
+          opacity="0.6"
+        />
+        <line
+          x1="18.5"
+          y1="5.5"
+          x2="5.5"
+          y2="18.5"
+          stroke="currentColor"
+          stroke-width="0.45"
+          opacity="0.6"
+        />
+        <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+      </svg>
+
+      <svg class="hdl-spike hdl-spike-2" width="30" height="30" viewBox="0 0 24 24" aria-hidden="true">
+        <line x1="12" y1="0" x2="12" y2="24" stroke="#ffffff" stroke-width="0.9" />
+        <line x1="0" y1="12" x2="24" y2="12" stroke="#ffffff" stroke-width="0.9" />
+        <line
+          x1="5.5"
+          y1="5.5"
+          x2="18.5"
+          y2="18.5"
+          stroke="#ffffff"
+          stroke-width="0.45"
+          opacity="0.6"
+        />
+        <line
+          x1="18.5"
+          y1="5.5"
+          x2="5.5"
+          y2="18.5"
+          stroke="#ffffff"
+          stroke-width="0.45"
+          opacity="0.6"
+        />
+        <circle cx="12" cy="12" r="1.5" fill="#ffffff" />
+      </svg>
+
+      <div class="hdl-eyebrow">Total integration</div>
+      <div class="hdl-total">{{ data.total }}</div>
+      <div class="hdl-object">on the {{ data.objectName }}</div>
+      <div class="hdl-subline">{{ subline() }}</div>
+    </div>
+
+    <div class="hdl-sp2"></div>
+
+    <!-- Band chips -->
+    <div class="hdl-chips">
+      @for (band of data.integration; track band.id) {
+        <div class="hdl-chip" [style.border-color]="band.color + '44'">
+          <div class="hdl-chip-head">
+            <span
+              class="hdl-chip-dot"
+              [style.background]="band.color"
+              [style.box-shadow]="'0 0 8px ' + band.color"
+            ></span>
+            <span class="hdl-chip-id" [style.color]="band.color">{{ band.id }}</span>
+          </div>
+          <div class="hdl-chip-time">{{ band.time }}</div>
+          <div class="hdl-chip-frames">{{ band.frames }}</div>
+        </div>
+      }
+    </div>
+
+    <div class="hdl-sp3"></div>
+
+    <!-- Footer ticker -->
+    <div class="hdl-footer">
+      <dba-ag-theme-gear-line class="hdl-ticker" [values]="equipmentValues()" />
+      <div class="hdl-footer-row">
+        <span class="hdl-author">{{ data.author }}</span>
+        <span class="hdl-grow"></span>
+        <span class="hdl-loc">{{ data.location }} · Bortle&nbsp;{{ data.bortle }}</span>
+      </div>
+    </div>
+  </div>
+</div>

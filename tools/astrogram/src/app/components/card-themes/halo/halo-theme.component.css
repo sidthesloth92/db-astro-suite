@@ -1,0 +1,608 @@
+/* Halo card theme — faithful port of the design source ThemeHalo.
+   Per-theme palette/typography is the theme's identity, so colours are literal,
+   bar the accent and secondary the Layout panel's colour pickers set. */
+
+:host {
+  /* Lavender is the card's accent and rose its secondary, so the Layout
+     panel's colour pickers restyle the two lead halos and what they tint;
+     the other pastels (and the band pills) stay the design's own. */
+  --hal-lav: var(--accent-color);
+  --hal-peach: #ffb8a8;
+  --hal-mint: #a8e8d0;
+  --hal-sky: #a8d5ff;
+  --hal-rose: var(--secondary-accent-color);
+  --hal-txt: #f0edfa;
+  --hal-dim: #9f9cb8;
+  --hal-faint: #5e5c75;
+  --hal-sans: 'Plus Jakarta Sans', 'Outfit', sans-serif;
+  --hal-display: 'Plus Jakarta Sans', 'Outfit', sans-serif;
+  --hal-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.hal-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: var(--hal-txt);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.hal-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: #0a0915;
+  opacity: var(--card-opacity, 1);
+}
+
+/* ── Soft pastel halos ── */
+.hal-halos {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.hal-halo {
+  position: absolute;
+  border-radius: 50%;
+}
+
+.hal-halo-lav {
+  width: 360px;
+  height: 360px;
+  top: -100px;
+  left: -80px;
+  background: radial-gradient(circle, rgba(var(--accent-color-rgb), 0.4) 0%, transparent 70%);
+  filter: blur(30px);
+}
+
+.hal-halo-rose {
+  width: 320px;
+  height: 320px;
+  top: 200px;
+  right: -100px;
+  background: radial-gradient(circle, rgba(var(--hal-rose-rgb), 0.3333) 0%, transparent 70%);
+  filter: blur(30px);
+}
+
+.hal-halo-sky {
+  width: 380px;
+  height: 380px;
+  bottom: -150px;
+  left: -50px;
+  background: radial-gradient(circle, #a8d5ff44 0%, transparent 70%);
+  filter: blur(40px);
+}
+
+.hal-halo-mint {
+  width: 240px;
+  height: 240px;
+  bottom: 100px;
+  right: -60px;
+  background: radial-gradient(circle, #a8e8d033 0%, transparent 70%);
+  filter: blur(30px);
+}
+
+.hal-inner {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-height: 0;
+  padding: 30px 28px 26px;
+  display: flex;
+  flex-direction: column;
+  /* Spare height goes between the sections, not inside the bottom panels:
+     stretching the lower grid left bordered boxes up to three-quarters empty
+     on tall formats. */
+  justify-content: space-between;
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+.hal-glass {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 16px;
+  padding: 16px;
+  backdrop-filter: blur(12px);
+}
+
+/* ── Header ── */
+.hal-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hal-spacer {
+  flex: 1;
+}
+
+.hal-date {
+  font: 400 11px/1 var(--hal-mono);
+  color: var(--hal-faint);
+  letter-spacing: 0.1em;
+}
+
+/* ── Hero ── */
+.hal-hero {
+  padding: 22px 22px 20px;
+}
+
+.hal-hero-id {
+  font: 500 10px/1 var(--hal-mono);
+  color: var(--hal-lav);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.hal-hero-name {
+  font: 200 48px/1 var(--hal-display);
+  color: var(--hal-txt);
+  letter-spacing: -0.02em;
+  margin-top: 14px;
+}
+
+.hal-hero-caption {
+  font: 300 13px/1.55 var(--hal-sans);
+  color: var(--hal-dim);
+  margin-top: 12px;
+  max-width: 420px;
+}
+
+.hal-hero-meta {
+  --hal-meta-gap: 14px;
+  /* A separator's width: one mono advance plus its letter-spacing. */
+  --hal-meta-lead: calc(0.68em + var(--hal-meta-gap));
+
+  /* Lines are spaced to read when the row wraps; the negative block margins
+     cancel the extra leading so a single line sits exactly where it did. */
+  margin: calc(16px - 0.175em) 0 -0.175em;
+  font: 500 10px/1.35 var(--hal-mono);
+  color: var(--hal-dim);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  /* Clips the separator that leads a wrapped line (see .hal-meta-line). */
+  overflow: hidden;
+}
+
+/* A long location or handle wraps whole items onto the next line; squeezed
+   onto one line the date broke into "SEP 13, / 2026" and the separators were
+   left floating between stacked fragments. Each item after the first carries
+   its own leading separator, and the line is pulled left by one separator's
+   width so the separator of an item that starts a line falls outside the
+   clipped row. */
+.hal-meta-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px var(--hal-meta-gap);
+  margin-left: calc(-1 * var(--hal-meta-lead));
+}
+
+.hal-meta-item {
+  display: flex;
+  white-space: nowrap;
+}
+
+.hal-meta-item:first-child {
+  margin-left: var(--hal-meta-lead);
+}
+
+/* The location is the one value that can outrun the panel, so it wraps —
+   within its own item, hanging under its first line. */
+.hal-meta-location {
+  min-width: 0;
+}
+
+.hal-meta-text {
+  min-width: 0;
+  white-space: normal;
+}
+
+.hal-sep {
+  flex: none;
+  margin-right: var(--hal-meta-gap);
+  opacity: 0.4;
+}
+
+/* ── Integration ── */
+.hal-int-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.hal-int-label {
+  font: 500 10px/1 var(--hal-mono);
+  color: var(--hal-lav);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.hal-int-total {
+  font: 200 28px/1 var(--hal-display);
+  color: var(--hal-txt);
+  letter-spacing: -0.02em;
+}
+
+.hal-int-total span {
+  font: 500 10px/1 var(--hal-mono);
+  /* --hal-faint all but vanished beside the total over the halo glow. */
+  color: var(--hal-dim);
+  letter-spacing: 0.1em;
+}
+
+.hal-pills {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+}
+
+.hal-pills:has(> .hal-pill:nth-child(7)) {
+  /* Seven or more bands in three columns left the last alone on a third row,
+     and that row's height pushed the lower panels to the card's edge; four
+     columns hold them in two rows. */
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+/* Narrower pills: a tighter inset keeps a duration like "2h 40m" whole. */
+.hal-pills:has(> .hal-pill:nth-child(7)) .hal-pill {
+  min-width: 0;
+  padding: 12px;
+}
+
+.hal-pills:has(> .hal-pill:nth-child(7)) .hal-pill-time {
+  white-space: nowrap;
+}
+
+.hal-pill {
+  padding: 12px 14px;
+  border-radius: 12px;
+}
+
+.hal-pill-id {
+  font: 600 11px/1 var(--hal-mono);
+  letter-spacing: 0.1em;
+}
+
+.hal-pill-time {
+  font: 300 22px/1 var(--hal-display);
+  color: var(--hal-txt);
+  margin-top: 8px;
+  letter-spacing: -0.02em;
+}
+
+.hal-pill-frames {
+  font: 400 9.5px/1 var(--hal-mono);
+  /* --hal-faint vanished on the pastel pill tints, most of all the rose one. */
+  color: var(--hal-dim);
+  margin-top: 6px;
+}
+
+/* ── Lower grid ── */
+.hal-lower {
+  display: grid;
+  /* Gear names run far longer than software names, so the equipment panel
+     takes three fifths of the width instead of half. */
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 12px;
+}
+
+.hal-equipment {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.hal-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.hal-pipeline {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.hal-col-title {
+  font: 500 10px/1 var(--hal-mono);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.hal-title-mint {
+  color: var(--hal-mint);
+}
+
+.hal-title-peach {
+  color: var(--hal-peach);
+}
+
+.hal-gear-label {
+  font: 500 8.5px/1 var(--hal-mono);
+  /* --hal-faint all but vanished on the dark glass panels. */
+  color: var(--hal-dim);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.hal-gear-value {
+  font: 500 11px/1.25 var(--hal-sans);
+  color: var(--hal-txt);
+  margin-top: 2px;
+  /* Wraps rather than ellipsing, so a long piece of kit is never cut short;
+     balanced, so a wrap never leaves a lone "Gen 2" on the second line. */
+  overflow-wrap: break-word;
+  text-wrap: balance;
+}
+
+.hal-bortle {
+  padding: 10px 14px;
+}
+
+.hal-bortle-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hal-bortle-label {
+  font: 500 10px/1 var(--hal-mono);
+  color: var(--hal-sky);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.hal-bortle-val {
+  font: 200 22px/1 var(--hal-display);
+  color: var(--hal-txt);
+  letter-spacing: -0.02em;
+}
+
+.hal-bortle-bar {
+  display: flex;
+  gap: 2px;
+  margin-top: 8px;
+}
+
+.hal-bortle-seg {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.hal-bortle-seg.is-lit {
+  background: linear-gradient(90deg, var(--hal-mint), var(--hal-peach), var(--hal-rose));
+}
+
+/* ── Landscape (1.91:1) ──
+   The portrait stack became full-width strips on a wide card: the caption
+   filled only the left third of the hero, each band pill was 325px wide with
+   its reading in the left fifth, and the 8.5px labels in the faint tone were
+   near-invisible at the export's size. Landscape splits the card into two
+   columns under the header — hero and integration on the left, equipment over
+   pipeline and a Bortle gauge on the right — with the type raised and the
+   faint tone lifted so the labels read. */
+.hal-root--landscape {
+  --hal-faint: #86839c;
+}
+
+.hal-root--landscape .hal-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  /* The hero row may not shrink below its content: squeezed, the hero's
+     centred title and meta ran out past its border, instead of the card
+     growing to hold them. */
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+    'head head'
+    'hero lower'
+    'int lower';
+  gap: 12px 16px;
+  padding: 20px 28px 22px;
+}
+
+.hal-root--landscape .hal-header {
+  grid-area: head;
+}
+
+.hal-root--landscape .hal-hero-id,
+.hal-root--landscape .hal-date {
+  font-size: 11.5px;
+}
+
+/* The hero takes the column's spare height; its content is centred rather
+   than leaving the space under the meta line. */
+.hal-root--landscape .hal-hero {
+  grid-area: hero;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 18px 24px;
+}
+
+.hal-root--landscape .hal-hero-name {
+  font-size: 50px;
+  line-height: 1;
+  margin-top: 0;
+}
+
+.hal-root--landscape .hal-hero-caption {
+  margin-top: 8px;
+  font-size: 14px;
+  max-width: none;
+}
+
+.hal-root--landscape .hal-hero-meta {
+  --hal-meta-gap: 12px;
+
+  margin-top: calc(12px - 0.175em);
+  font-size: 11px;
+}
+
+.hal-root--landscape .hal-integration {
+  grid-area: int;
+  padding: 14px 18px 16px;
+}
+
+/* A longer total drops below the label instead of running into it. */
+.hal-root--landscape .hal-int-head {
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-bottom: 10px;
+}
+
+.hal-root--landscape .hal-int-label,
+.hal-root--landscape .hal-int-total span {
+  font-size: 11px;
+}
+
+.hal-root--landscape .hal-int-total {
+  font-size: 30px;
+}
+
+.hal-root--landscape .hal-pills {
+  gap: 12px;
+}
+
+.hal-root--landscape .hal-pill {
+  min-width: 0;
+  padding: 12px 14px;
+}
+
+.hal-root--landscape .hal-pill-id {
+  font-size: 12px;
+}
+
+.hal-root--landscape .hal-pill-time {
+  font-size: 25px;
+  white-space: nowrap;
+}
+
+.hal-root--landscape .hal-pill-frames {
+  font-size: 10.5px;
+  white-space: nowrap;
+}
+
+/* Two rows of pills (a full LRGB + narrowband set) are set tighter: at the
+   single-row spacing they made the left column a fifth taller than the card,
+   and the fit shrank every label in the export below 10px. */
+.hal-root--landscape .hal-pills:has(> .hal-pill:nth-child(4)) {
+  gap: 10px;
+}
+
+.hal-root--landscape .hal-pills:has(> .hal-pill:nth-child(4)) .hal-pill {
+  padding: 10px 12px;
+}
+
+.hal-root--landscape .hal-pills:has(> .hal-pill:nth-child(4)) .hal-pill-time {
+  margin-top: 6px;
+  font-size: 23px;
+}
+
+.hal-root--landscape .hal-pills:has(> .hal-pill:nth-child(4)) .hal-pill-frames {
+  margin-top: 4px;
+}
+
+/* Equipment runs the full width of the right column, so the longest piece
+   of kit stays on one line; pipeline and the Bortle gauge share the row
+   beneath it. */
+.hal-root--landscape .hal-lower {
+  grid-area: lower;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.hal-root--landscape .hal-equipment {
+  flex: 1;
+  justify-content: center;
+}
+
+.hal-root--landscape .hal-equipment,
+.hal-root--landscape .hal-pipeline {
+  gap: 7px;
+  padding: 14px 18px;
+}
+
+.hal-root--landscape .hal-stack {
+  flex-direction: row;
+}
+
+.hal-root--landscape .hal-pipeline {
+  flex: 2 1 0;
+  min-width: 0;
+}
+
+.hal-root--landscape .hal-col-title,
+.hal-root--landscape .hal-bortle-label {
+  font-size: 11px;
+}
+
+/* Equipment and pipeline read as a spec sheet — label column, value beside
+   it. Stacked label-over-value, a full rig (7 gear, 4 software) made the
+   right column a fifth taller than the card, shrinking every label in the
+   export to ~9px. */
+.hal-root--landscape .hal-gear {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  column-gap: 12px;
+  align-items: baseline;
+}
+
+.hal-root--landscape .hal-gear-label {
+  font-size: 10.5px;
+  line-height: 1.25;
+  letter-spacing: 0.1em;
+}
+
+.hal-root--landscape .hal-gear-value {
+  margin-top: 0;
+  font-size: 13px;
+}
+
+/* Beside the pipeline panel the Bortle panel is as tall as it, so it reads
+   as a gauge: label over a large reading, the meter along the bottom. */
+.hal-root--landscape .hal-bortle {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 14px 16px 16px;
+}
+
+.hal-root--landscape .hal-bortle-head {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.hal-root--landscape .hal-bortle-val {
+  font-size: 44px;
+}
+
+.hal-root--landscape .hal-bortle-seg {
+  height: 5px;
+}

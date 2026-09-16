@@ -1,4 +1,5 @@
 import { Injectable, signal } from '@angular/core';
+import { DEFAULT_DARK_THEME_OPACITY } from '../constants/theme-canvas.constants';
 import {
   DEFAULT_PREVIEW_SIZE_KEY,
   PREVIEW_SIZES,
@@ -12,6 +13,7 @@ import {
   DEFAULT_GLOBAL_ANNOTATION_SETTINGS,
   StellarMapData,
 } from '../models/card-data.model';
+import type { CardThemeAccents, CardThemeId } from '../models/card-theme.model';
 
 @Injectable({
   providedIn: 'root',
@@ -45,9 +47,10 @@ export class CardDataService {
     accentColor: '#ff2d95',
     accentColorRgb: '255, 45, 149',
     secondaryAccentColor: '#00E5FF',
-    cardOpacity: 0.6,
+    cardOpacity: DEFAULT_DARK_THEME_OPACITY,
     backgroundImage: 'assets/img/rosette.jpg',
     aspectRatio: '3:4',
+    cardTheme: 'original',
     hashtags: '#space #astrophotography',
     annotations: [],
   });
@@ -186,6 +189,23 @@ export class CardDataService {
     // its own aspect (defaults to `auto` = uploaded image's natural size)
     // so picking 1080×1080 here doesn't crop the stellar image.
     this.cardData.update((data) => ({ ...data, aspectRatio: meta.ratio }));
+  }
+
+  /**
+   * Selects a card theme and applies its defaults. Accents and the opacity
+   * are passed in by the caller so this service never depends on the theme
+   * registry (which imports theme components). Later manual edits in the
+   * Color section still win.
+   */
+  setCardTheme(id: CardThemeId, accents: CardThemeAccents, cardOpacity: number) {
+    this.cardData.update((data) => ({
+      ...data,
+      cardTheme: id,
+      accentColor: accents.accentColor,
+      accentColorRgb: accents.accentColorRgb,
+      secondaryAccentColor: accents.secondaryAccentColor,
+      cardOpacity,
+    }));
   }
 
   updateData(newData: Partial<CardData>) {

@@ -1,0 +1,520 @@
+/* Comet card theme — faithful port of the design source ThemeComet.
+   Per-theme palette/typography is the theme's identity, so colours are
+   literal hex — except the two the Layout panel's pickers recolour: the
+   accent (the ice-blue tail, catalogue number, column titles and rules) and
+   the secondary (the pale comet head, its dust and the total), read from the
+   card's --accent-color / --secondary-accent-color. */
+
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.com-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Outfit', system-ui, sans-serif;
+  color: #eaf4fb;
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.com-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 50% 40% at 74% 21%, rgba(60, 140, 180, 0.25), transparent 60%),
+    #04060e;
+  opacity: var(--card-opacity, 1);
+}
+
+.com-chart {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* SVG presentation attributes cannot read a CSS variable, so the picker
+   colours reach the gradients and dust through these classes. */
+.com-accent-stop {
+  stop-color: var(--accent-color);
+}
+
+.com-secondary-stop {
+  stop-color: var(--secondary-accent-color);
+}
+
+.com-dust {
+  fill: var(--secondary-accent-color);
+}
+
+/* ── Header ── */
+.com-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  /* Single item since the brand was removed — keep it on the right rather
+     than letting `space-between` drop it to the left edge. */
+  justify-content: flex-end;
+  padding: 20px 24px 0;
+}
+.com-datestamp {
+  font: 500 11px/1 'JetBrains Mono', monospace;
+  letter-spacing: 0.16em;
+  color: #42526a;
+}
+
+/* ── Band legend near the tail ── */
+.com-legend {
+  position: absolute;
+  left: 24px;
+  top: 41.67%;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.com-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.com-legend-swatch {
+  width: 22px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.com-legend-id {
+  font: 600 12px/1 'JetBrains Mono', monospace;
+  width: 38px;
+}
+
+.com-legend-time {
+  font: 500 14px/1 'Outfit', system-ui, sans-serif;
+  color: #eaf4fb;
+}
+
+.com-legend-frames {
+  font: 400 11px/1 'JetBrains Mono', monospace;
+  /* Lighter than the design's #42526a, which disappeared into the comet's
+     bright tail running behind the legend. */
+  color: #8fa3ba;
+}
+
+/* ── Object title near the nucleus ── */
+.com-title {
+  position: absolute;
+  top: 28.47%;
+  right: 24px;
+  z-index: 2;
+  text-align: right;
+  max-width: 250px;
+}
+
+.com-object-id {
+  font: 500 11px/1 'JetBrains Mono', monospace;
+  color: var(--accent-color);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.com-object-name {
+  font: 300 36px/1.02 'Outfit', system-ui, sans-serif;
+  color: #fff;
+  margin-top: 8px;
+}
+
+/* ── Footer ── */
+.com-footer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  padding: 0 24px 22px;
+}
+
+.com-caption {
+  font: 300 14px/1.55 'Outfit', system-ui, sans-serif;
+  color: rgba(234, 244, 251, 0.78);
+  max-width: 420px;
+  margin-bottom: 14px;
+}
+
+.com-cols {
+  border-top: 1px solid rgba(var(--accent-color-rgb), 0.18);
+  padding-top: 14px;
+  display: grid;
+  /* Gear names run far longer than software names, so the apparatus column
+     takes three fifths of the width instead of half. */
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 22px;
+}
+
+.com-col-title {
+  font: 600 10.5px/1 'JetBrains Mono', monospace;
+  color: var(--accent-color);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.com-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 1.5px 0;
+}
+
+.com-row-label {
+  font: 500 10.5px/1.4 'JetBrains Mono', monospace;
+  /* Lifted from the design's #42526a, which all but vanished on the sky. */
+  color: #6a7d94;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  /* May wrap: a nowrap label (e.g. "Guide scope and camera") squeezed its
+     value into a sliver and broke it over three lines with one word left alone. */
+  flex: 1 1 0;
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+.com-row-value {
+  font: 400 12.5px/1.4 'Outfit', system-ui, sans-serif;
+  color: #eaf4fb;
+  text-align: right;
+  min-width: 0;
+  overflow-wrap: break-word;
+  /* A value that wraps splits evenly instead of leaving "Gen 2" alone. */
+  text-wrap: balance;
+  flex: 0 1 auto;
+  max-width: 64%;
+}
+
+.com-total-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(var(--accent-color-rgb), 0.12);
+}
+
+/* The total is one reading: squeezed by a long location it broke into
+   "14h / 30m". */
+.com-total {
+  flex-shrink: 0;
+  font: 600 15px/1 'Outfit', system-ui, sans-serif;
+  color: var(--secondary-accent-color);
+  white-space: nowrap;
+}
+
+/* Right-aligned with the values above it when a long location wraps, with
+   leading to part the lines; the negative margins keep a one-line row as tall
+   as before. */
+.com-sky {
+  min-width: 0;
+  margin-block: -0.2em;
+  font: 500 12px/1.4 'Outfit', system-ui, sans-serif;
+  color: #8398ad;
+  text-align: right;
+}
+
+/* One run of text wrapped "…San / Diego County, California ·" and led the
+   next line with the handle after a dangling separator. The place now breaks
+   only after a comma and the handle wraps as a whole item. The separator
+   before the handle ends the run, and the line is pushed right by one
+   separator so a separator that ends a line falls outside the clipped box.
+   It is drawn rather than typed: clipped text would read as overflow to the
+   card's content-fit check. */
+.com-sky {
+  --com-sep-gap: 0.2em;
+  --com-sep-dot: 2px;
+  --com-sep-width: calc(2 * var(--com-sep-gap) + var(--com-sep-dot));
+
+  overflow: hidden;
+}
+
+.com-sky-line {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin-right: calc(-1 * var(--com-sep-width));
+}
+
+.com-sky-part {
+  display: flex;
+  align-items: flex-end;
+  min-width: 0;
+}
+
+.com-sky-part:last-child {
+  margin-right: var(--com-sep-width);
+}
+
+/* Balanced, so a wrapped place does not leave "California" alone. */
+.com-sky-text {
+  min-width: 0;
+  text-wrap: balance;
+}
+
+/* Sits where a typed "·" would, half an x-height above the last baseline. */
+.com-sep {
+  flex: none;
+  width: var(--com-sep-dot);
+  height: var(--com-sep-dot);
+  margin: 0 var(--com-sep-gap) 0.6em;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* ── Portrait / square layout ──
+   The legend was pinned at 42% of the card and the footer at its bottom edge,
+   so on a 720-tall card a quarter of the card stood empty between them while
+   the apparatus and pipeline were set at 9–10px. With the footer type a step
+   larger, the legend and footer now flow up from the bottom edge: the height
+   left over is shared above and below the legend, the legend never rises
+   into the header, and a tall legend and footer push each other apart rather
+   than overlapping. The title keeps its place under the nucleus, clear of the
+   legend at the left. */
+.com-root:not(.com-root--landscape) {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding: 200px 24px 22px;
+}
+
+.com-spacer {
+  flex: 1;
+}
+
+/* Most of the spare height goes above the legend, into the sky the comet
+   crosses, so the legend reads as the head of the footer block. */
+.com-spacer--lower {
+  flex: 0.4;
+}
+
+.com-root:not(.com-root--landscape) .com-legend,
+.com-root:not(.com-root--landscape) .com-footer {
+  position: relative;
+  inset: auto;
+}
+
+.com-root:not(.com-root--landscape) .com-footer {
+  margin-top: 20px;
+  padding: 0;
+}
+
+.com-root:not(.com-root--landscape) .com-legend {
+  gap: 10px;
+}
+
+/* A closer gutter and tighter label tracking give the larger labels and
+   values their width back, so "Guide scope" still fits one line. */
+.com-root:not(.com-root--landscape) .com-cols {
+  gap: 18px;
+}
+
+.com-root:not(.com-root--landscape) .com-row {
+  gap: 6px;
+  padding: 2px 0;
+}
+
+.com-root:not(.com-root--landscape) .com-row-label {
+  letter-spacing: 0.04em;
+}
+
+/* Software names are short, but "PixInsight + Photoshop" still broke in the
+   narrower pipeline column at the apparatus column's value cap. */
+.com-root:not(.com-root--landscape) .com-col + .com-col .com-row-value {
+  max-width: 74%;
+}
+
+/* The pipeline column is two fifths of the portrait footer: a handle too wide
+   to sit beside the total drops, whole, to its own line under it. The sky is
+   as wide as its widest unbreakable part, so the row wraps rather than
+   clipping it. */
+.com-root:not(.com-root--landscape) .com-total-row {
+  flex-wrap: wrap;
+  row-gap: 2px;
+}
+
+.com-root:not(.com-root--landscape) .com-sky {
+  flex: 1 1 auto;
+  min-width: min-content;
+}
+
+
+/* The title sits lower on the taller story canvas, under the nucleus, so the
+   legend's floor moves with it. */
+:host-context(.card.aspect-9-16) .com-root {
+  padding-top: 270px;
+}
+
+/* ── Landscape (1.91:1) ──
+   The chart is a 540 x 720 artboard sliced to fill the card, so on a wide
+   card only a strip of the tail showed — the nucleus was cut off above the
+   frame — and the tail ran under the description and the band legend, with
+   the labels too small to read. Landscape draws the artboard at its own
+   aspect on the left (the comet whole), keeps the title under the nucleus
+   and the legend in the curve of the tail, and moves the description,
+   apparatus and pipeline into a column on the right. The comet is drawn at
+   0.9 so that column is wide enough for readable type. Positions are in
+   artboard pixels: the landscape canvas is 460 tall. */
+.com-root--landscape .com-chart {
+  inset: auto;
+  top: -70px;
+  left: -44px;
+  width: 486px;
+  height: 648px;
+}
+
+.com-root--landscape .com-header {
+  padding: 22px 30px 0;
+}
+
+.com-root--landscape .com-datestamp {
+  font-size: 11px;
+  color: #6f829a;
+}
+
+/* Title over legend in one right-aligned column under the nucleus. Seven
+   bands used to run the legend's last row down to the card's edge; the
+   column centres the pair in the space below the nucleus instead, and its
+   bottom margin lives on the clipping box so a legend that outgrows it
+   counts for the content fit. */
+.com-root--landscape .com-art-text {
+  position: absolute;
+  top: 116px;
+  bottom: 24px;
+  left: 90px;
+  width: 316px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: safe center;
+  gap: 26px;
+  overflow: clip;
+}
+
+.com-root--landscape .com-title,
+.com-root--landscape .com-legend {
+  position: static;
+}
+
+.com-root--landscape .com-title {
+  max-width: none;
+}
+
+.com-root--landscape .com-object-id {
+  font-size: 11px;
+}
+
+.com-root--landscape .com-object-name {
+  font-size: 36px;
+}
+
+.com-root--landscape .com-legend {
+  gap: 9px;
+}
+
+.com-root--landscape .com-legend-swatch {
+  width: 24px;
+}
+
+.com-root--landscape .com-legend-id {
+  width: 38px;
+  font-size: 12px;
+}
+
+.com-root--landscape .com-legend-time {
+  width: 58px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.com-root--landscape .com-legend-frames {
+  min-width: 70px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+/* Bottom margin on the clipping box, as for the legend column. */
+.com-root--landscape .com-footer {
+  top: 0;
+  bottom: 24px;
+  left: 436px;
+  display: flex;
+  flex-direction: column;
+  justify-content: safe center;
+  padding: 44px 30px 0 0;
+  overflow: clip;
+}
+
+.com-root--landscape .com-caption {
+  font-size: 13.5px;
+  line-height: 1.45;
+  max-width: none;
+  margin-bottom: 12px;
+}
+
+/* Apparatus and pipeline stack in the column rather than sit side by side,
+   so a long gear value keeps a line to itself. */
+.com-root--landscape .com-cols {
+  grid-template-columns: 1fr;
+  gap: 12px;
+  padding-top: 12px;
+}
+
+.com-root--landscape .com-col-title {
+  font-size: 10.5px;
+  margin-bottom: 5px;
+}
+
+.com-root--landscape .com-row {
+  align-items: baseline;
+  padding: 1px 0;
+}
+
+.com-root--landscape .com-row-label {
+  font-size: 10.5px;
+  line-height: 1.3;
+  color: #6a7d94;
+}
+
+.com-root--landscape .com-row-value {
+  font-size: 12.5px;
+  line-height: 1.3;
+}
+
+.com-root--landscape .com-total-row {
+  align-items: baseline;
+  margin-top: 7px;
+  padding-top: 7px;
+}
+
+.com-root--landscape .com-total {
+  font-size: 17px;
+}
+
+.com-root--landscape .com-sky {
+  font-size: 12px;
+}

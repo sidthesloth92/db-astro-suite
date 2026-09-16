@@ -1,0 +1,486 @@
+/* Radiant card theme — faithful port of the design source ThemeRadiant.
+   The gold highlight is the card's accent and the violet sky glow its
+   secondary colour (Layout panel); their defaults are the design's own. The
+   glow reads the secondary as channels the component derives
+   (`--rd-secondary-rgb`): a `color-mix()` there shifted exports by a level. */
+
+:host {
+  --rd-bg: #06060f;
+  --rd-gold: var(--accent-color);
+  --rd-txt: #eff0f8;
+  --rd-dim: #8f94ac;
+  --rd-faint: #4f546c;
+  --rd-sans: 'Outfit', system-ui, sans-serif;
+  --rd-grot: 'Space Grotesk', 'Outfit', sans-serif;
+  --rd-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.rd-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: var(--rd-txt);
+  font-family: var(--rd-sans);
+  padding: 28px 32px 26px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.rd-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 75% 50% at 50% 22%, rgba(var(--rd-secondary-rgb), 0.26), transparent 65%),
+    radial-gradient(ellipse 50% 35% at 80% 80%, rgba(160, 40, 110, 0.14), transparent 65%),
+    var(--rd-bg);
+  opacity: var(--card-opacity, 1);
+}
+
+/* The flow content fills the root's padding box and clips there. The content
+   fit only counts text past the edge of the card or of a clipping box, so
+   without this, content pushed down by the burst's minimum height slid into
+   the bottom padding unnoticed (and sat on the card edge) instead of scaling
+   the card to hold it. Nothing is drawn past this box when the content fits. */
+.rd-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  /* Clip rather than hide, with a margin: descenders and glyph overhang at the
+     box's edges still paint, but a line pushed past it is cut off. */
+  overflow: clip;
+  overflow-clip-margin: 10px;
+}
+
+/* ── Header ── */
+.rd-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.rd-eyebrow {
+  font: 600 10px/1 var(--rd-mono);
+  color: var(--rd-dim);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.rd-date {
+  font: 500 10px/1 var(--rd-mono);
+  color: var(--rd-faint);
+  letter-spacing: 0.14em;
+}
+
+/* ── Meteor field ── */
+.rd-svg {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: 6px;
+  /* The burst is the design, so it keeps a floor. Seven band rows, a
+     two-line name and a long gear list otherwise squeezed it to a ~135px
+     thumbnail while the rows kept their full width; now the rows and footer
+     overflow first and the content fit scales the card to hold them. */
+  min-height: 210px;
+}
+
+.rd-radiant {
+  font: 500 8.5px var(--rd-mono);
+  fill: var(--rd-dim);
+  letter-spacing: 0.16em;
+}
+
+/* Five or more bands: the burst draws smaller beside the extra rows, so its
+   label is set larger to stay readable, with a background-coloured halo under
+   the glyphs where it crosses the extra streaks. */
+.rd-root--dense .rd-radiant {
+  font-size: 10px;
+  paint-order: stroke;
+  stroke: var(--rd-bg);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+
+/* ── Band rows ── */
+.rd-rows {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin-top: 2px;
+}
+
+.rd-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8.5px 0;
+}
+
+.rd-row + .rd-row {
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.rd-row-id {
+  width: 42px;
+  font: 700 13px/1 var(--rd-mono);
+}
+
+.rd-row-frames {
+  width: 78px;
+  font: 500 9.5px/1 var(--rd-mono);
+  color: var(--rd-faint);
+  letter-spacing: 0.06em;
+}
+
+.rd-row-bar {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.06);
+  position: relative;
+}
+
+/* Five or more bands: tighter rows hand the burst back some of the height
+   seven full-size rows took from it. */
+.rd-root--dense .rd-row {
+  padding: 5px 0;
+}
+
+.rd-row-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-radius: 2px;
+}
+
+.rd-row-time {
+  width: 62px;
+  text-align: right;
+  font: 600 14px/1 var(--rd-grot);
+  color: var(--rd-txt);
+}
+
+/* ── Title + total ── */
+.rd-title {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  /* Keeps a long name from running into the total when the spacer between
+     them has no room left. */
+  column-gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.rd-kicker {
+  font: 600 10px/1 var(--rd-mono);
+  color: var(--rd-gold);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.rd-name {
+  font: 600 27px/1.05 var(--rd-sans);
+  margin-top: 8px;
+}
+
+.rd-title-spacer {
+  flex: 1;
+}
+
+.rd-total {
+  text-align: right;
+}
+
+.rd-total-label {
+  font: 500 9px/1 var(--rd-mono);
+  color: var(--rd-faint);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.rd-total-value {
+  font: 300 30px/1 var(--rd-grot);
+  color: var(--rd-gold);
+  letter-spacing: -0.01em;
+  margin-top: 6px;
+  /* One duration, one line: beside a long name it wrapped to "14h" over
+     "30m". The name takes the narrower share instead. */
+  white-space: nowrap;
+}
+
+/* ── Caption chip ── */
+.rd-caption {
+  position: relative;
+  margin-top: 14px;
+  padding: 11px 14px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  font: 600 13px/1.5 var(--rd-sans);
+  color: #fff;
+}
+
+.rd-caption-hl {
+  color: var(--rd-gold);
+}
+
+.rd-spacer {
+  flex: 1;
+  /* Never collapses to nothing, so the caption chip's border or a title's
+     descender can't sit on the footer rule when the content fills the card. */
+  min-height: 14px;
+}
+
+/* 9:16 is 240px taller than 3:4 and all of that height pooled above the
+   footer, leaving a large empty band under the title. The header now takes
+   a third of it, its labels staying at the top, so the chart group sits lower
+   and the card reads balanced top to bottom. (Growing the chart's own box
+   instead left the burst floating well above the band rows.) */
+:host-context(.card.aspect-9-16) .rd-header {
+  flex: 0.5 1 auto;
+  align-items: flex-start;
+}
+
+/* ── Footer ── */
+.rd-footer {
+  position: relative;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 12px;
+}
+
+.rd-foot-gear {
+  font: 500 10px/1.6 var(--rd-mono);
+  color: #8b92a6;
+}
+
+.rd-foot-row {
+  display: flex;
+  align-items: center;
+  margin-top: 7px;
+}
+
+.rd-foot-author {
+  font: 600 12px/1 var(--rd-sans);
+  color: #e7eaf2;
+}
+
+.rd-foot-spacer {
+  flex: 1;
+}
+
+.rd-foot-meta {
+  font: 500 9.5px/1 var(--rd-mono);
+  color: #5a6175;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ── Landscape (1.91:1) ──
+   The portrait column dropped into the wide frame shrank the meteor burst to
+   about 180px wide, with its radiant label near 3 export px, while the band
+   bars stretched ~750px and the footer text sat at 6px. Here the burst fills a
+   left column, the header, band rows, title and total stack beside it, and the
+   caption chip and footer run the full width beneath both. */
+.rd-root--landscape .rd-body {
+  display: grid;
+  grid-template-columns: 400px minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto auto minmax(0, 1fr) auto auto;
+  column-gap: 30px;
+}
+
+.rd-root--landscape .rd-header {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+/* Fills its grid area; the viewBox's `meet` fit scales the burst to whatever
+   height the caption and footer leave. */
+.rd-root--landscape .rd-svg {
+  grid-column: 1;
+  grid-row: 1 / 6;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin-top: 0;
+}
+
+/* At a readable size the label crosses the streaks around the radiant; a
+   background-coloured halo drawn under the glyphs keeps it clean. */
+.rd-root--landscape .rd-radiant {
+  font-size: 11px;
+  paint-order: stroke;
+  stroke: var(--rd-bg);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+
+.rd-root--landscape .rd-rows {
+  grid-column: 2;
+  grid-row: 3;
+  margin-top: 0;
+}
+
+/* Id, frames and time on one line with the bar full width beneath: inline,
+   the bar was left a stub by the narrower column. */
+.rd-root--landscape .rd-row {
+  flex-wrap: wrap;
+  gap: 7px 12px;
+  padding: 8px 0;
+}
+
+.rd-root--landscape .rd-row-id {
+  width: 46px;
+  font-size: 15px;
+}
+
+.rd-root--landscape .rd-row-frames {
+  flex: 1;
+  width: auto;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.rd-root--landscape .rd-row-bar {
+  order: 1;
+  flex: 0 0 100%;
+}
+
+.rd-root--landscape .rd-row-time {
+  width: auto;
+  font-size: 18px;
+  white-space: nowrap;
+}
+
+/* Five or more bands: with each bar on its own line beneath, seven rows
+   overfilled the column and the card grew by a third to hold them, leaving
+   the frame counts ~8 and the footer ~9 export px. The bar returns inline
+   between the frames and the time, so each band takes one line. */
+.rd-root--landscape.rd-root--dense .rd-row {
+  flex-wrap: nowrap;
+  gap: 12px;
+  padding: 4px 0;
+}
+
+.rd-root--landscape.rd-root--dense .rd-row-frames {
+  flex: none;
+  width: auto;
+  /* Beside a one-line row the 18px time sets the height, so the counts can
+     be set larger and brighter without growing the card. */
+  font-size: 12.5px;
+  color: var(--rd-dim);
+  /* Every bar starts in one column for the usual "54 × 180s" counts. */
+  min-width: 6em;
+}
+
+.rd-root--landscape.rd-root--dense .rd-row-bar {
+  order: 0;
+  flex: 1;
+  min-width: 32px;
+}
+
+/* A common width for the times so the bars end in one column. */
+.rd-root--landscape.rd-root--dense .rd-row-time {
+  min-width: 3.6em;
+}
+
+/* The spacer's own gap would push a one-line name onto two lines in the
+   narrower column; space-between does its job without taking width. */
+.rd-root--landscape .rd-title {
+  grid-column: 2;
+  grid-row: 4;
+  justify-content: space-between;
+  column-gap: 16px;
+}
+
+.rd-root--landscape .rd-title-spacer {
+  display: none;
+}
+
+.rd-root--landscape .rd-kicker {
+  font-size: 11px;
+}
+
+.rd-root--landscape .rd-name {
+  font-size: 29px;
+}
+
+.rd-root--landscape .rd-total-label {
+  font-size: 10px;
+}
+
+.rd-root--landscape .rd-total-value {
+  font-size: 32px;
+  white-space: nowrap;
+}
+
+.rd-root--landscape .rd-caption {
+  grid-column: 1 / -1;
+  grid-row: 6;
+  margin-top: 16px;
+  padding: 10px 16px;
+  font-size: 14px;
+}
+
+.rd-root--landscape .rd-spacer {
+  display: none;
+}
+
+.rd-root--landscape .rd-footer {
+  grid-column: 1 / -1;
+  grid-row: 7;
+  margin-top: 16px;
+}
+
+.rd-root--landscape .rd-foot-gear {
+  font-size: 10.5px;
+}
+
+.rd-root--landscape .rd-foot-row {
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 8px;
+}
+
+.rd-root--landscape .rd-foot-author {
+  font-size: 13px;
+}
+
+.rd-root--landscape .rd-foot-meta {
+  font-size: 10.5px;
+  line-height: 1.3;
+}
+
+/* A long handle or location used to run the two ends of this row into each
+   other. The row may wrap. On one line the spacer still pushes the meta to
+   the right edge; once it wraps, the meta starts at the left edge under the
+   handle. Pushed right by an auto margin instead, a wrapped meta sat indented
+   by whatever room was left over and lined up with nothing. */
+.rd-foot-row {
+  flex-wrap: wrap;
+  justify-content: space-between;
+  column-gap: 16px;
+  row-gap: 8px;
+}
+
+.rd-foot-row .rd-foot-meta {
+  min-width: 0;
+}
+
