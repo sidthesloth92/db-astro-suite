@@ -1,5 +1,6 @@
 import React from "react";
 import { AbsoluteFill, OffthreadVideo, Sequence, staticFile } from "remotion";
+import { CAPTION_FOR } from "../../../astrogram/captions";
 import { Caption } from "./Caption";
 import { OutroCard, StellarMapSlide, TitleCard } from "./Cards";
 import { FocusRing } from "../engine/Focus";
@@ -7,6 +8,7 @@ import { PlaceholderStamp } from "./PlaceholderStamp";
 import { Fonts } from "../engine/fonts";
 import { theme } from "../engine/theme";
 import type { Format } from "../engine/format";
+import { mergeCaptions } from "../engine/captions";
 import type { CaptureManifest } from "../engine/manifest";
 
 /** Frames the opening card holds before the app appears. */
@@ -97,7 +99,7 @@ export const DemoVideo: React.FC<{
       {/* The frame never moves: the ring alone marks the active control. */}
       <FocusRing focuses={focuses} />
 
-      {manifest.captions.map((caption, index) => {
+      {mergeCaptions(manifest.captions, CAPTION_FOR).map((caption, index) => {
         const duration = caption.end - caption.start;
         if (duration <= 0) {
           return null;

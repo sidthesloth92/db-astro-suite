@@ -1,6 +1,7 @@
 import React from "react";
 import { interpolate, useCurrentFrame } from "remotion";
 import { CAPTIONS } from "../../../astrogram/captions";
+import { captionHold } from "../engine/caption-hold";
 import { theme } from "../engine/theme";
 import type { Format } from "../engine/format";
 import type { Rect } from "../engine/manifest";
@@ -15,7 +16,7 @@ const SLIDE_PX = 40;
 /**
  * Type sizes per format.
  *
- * A caption is laid over the card's own "@astrogram" header bar — the one solid
+ * A caption sits at the bottom left of the frame, aligned to the card's left
  * strip that is in the same place in both layouts and both modes — so the sizes
  * are chosen to sit inside that bar: about 65 CSS px tall on desktop and 62 on
  * a phone, which the capture's scale factors turn into roughly 81 and 155
@@ -29,6 +30,12 @@ const STYLE = {
 /**
  * Where a caption goes when the manifest has no header rectangle — footage
  * captured before the edit started measuring it.
+ */
+const BOTTOM_INSET = { vertical: 150, desktop: 64 } as const;
+
+/**
+ * Where a caption goes when the manifest has no header rectangle: it still
+ * takes the card's left edge and width from here.
  */
 const FALLBACK_ANCHOR = {
   vertical: { x: 44, y: 280, width: 1000 },
@@ -64,7 +71,7 @@ export const Caption: React.FC<{
   // `interpolate` requires a strictly increasing input range, and a caption can
   // be shorter than the two fades put together — the capture warns about those,
   // but the edit must still render them rather than throw.
-  const span = Math.max(2, durationInFrames);
+  const span = Math.max(2, format === "vertical" ? captionHold(text, durationInFrames) : durationInFrames);
   const fadeIn = Math.max(1, Math.min(FADE_IN, Math.floor(span / 3)));
   const fadeOut = Math.max(1, Math.min(FADE_OUT, Math.floor(span / 3)));
   const holdUntil = Math.max(fadeIn + 1, span - fadeOut);
@@ -93,17 +100,16 @@ export const Caption: React.FC<{
   const shadow = "0 2px 8px rgba(0,0,0,0.9), 0 3px 22px rgba(0,0,0,0.6)";
 
   const bar = header ?? FALLBACK_ANCHOR[format];
-  // Pinned to the bar's top rather than centred on it: the card is a little
-  // taller than the bar on desktop, and hanging the overflow downward puts it
-  // over the photograph rather than over the app's toolbar above.
-  const anchor = { left: bar.x, top: bar.y, width: bar.width };
+  // Bottom left, as in every video in the suite: aligned to the card's left
+  // edge and as wide as the card, sitting above the frame's lower edge.
+  const anchor = { left: bar.x, bottom: BOTTOM_INSET[format], width: bar.width };
 
   return (
     <div
       style={{
         position: "absolute",
         left: anchor.left,
-        top: anchor.top,
+        bottom: anchor.bottom,
         width: anchor.width,
         maxWidth: style.maxWidth,
         opacity,
@@ -125,10 +131,11 @@ export const Caption: React.FC<{
       <div
         style={{
           padding: `${style.body * 0.4}px ${style.body * 0.6}px ${style.body * 0.45}px`,
-          // Opaque, and exactly as wide as the bar it covers: the header holds
-          // the handle and the export button, and a see-through card let them
-          // collide with the words.
-          background: "rgb(8,10,18)",
+          // See-through, so the app behind the words stays visible; the
+          // product owner would rather read through the caption than have it
+          // block the card it describes.
+          background:
+            "linear-gradient(90deg, rgba(5,6,10,0.34) 0%, rgba(5,6,10,0.2) 55%, rgba(5,6,10,0.08) 100%)",
           flex: "1 1 auto",
           border: `1px solid rgba(0,229,255,${0.28 + 0.3 * pulse})`,
           borderLeft: "none",
@@ -162,7 +169,10 @@ export const Caption: React.FC<{
             fontWeight: 600,
             fontSize: style.body,
             lineHeight: 1.2,
-            whiteSpace: "nowrap",
+            // Wraps rather than running past the card: a line long enough to
+            // need two rows hangs the card's extra height downward, over the
+            // photograph, which is what the anchor above is built for.
+            overflowWrap: "break-word",
             color: "#ffffff",
             textShadow: shadow,
           }}

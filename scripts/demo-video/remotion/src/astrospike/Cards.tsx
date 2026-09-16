@@ -262,7 +262,7 @@ export const TitleCard: React.FC = () => {
             textShadow: "0 2px 18px rgba(0,0,0,0.95), 0 0 40px rgba(0,0,0,0.8)",
           }}
         >
-          Give your astrophotos diffraction spikes — in your browser.
+          Give your astrophotos the diffraction spikes of a Newtonian.
         </div>
       </div>
     </AbsoluteFill>
@@ -398,7 +398,9 @@ export const MilkyWaySlide: React.FC = () => {
           style={{
             fontFamily: theme.display,
             fontWeight: 700,
-            fontSize: 104 * scale,
+            // Held to the frame: at 104 the phone cut ran the title off both
+            // edges, because the display face is far wider than 0.6em a glyph.
+            fontSize: Math.min(104 * scale, (width - 140) / 10.5),
             letterSpacing: 5 * scale,
             color: theme.textPrimary,
             whiteSpace: "nowrap",

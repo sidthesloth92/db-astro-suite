@@ -7,20 +7,22 @@
  * words, so editing here and re-rendering is enough — no re-capture, which
  * would otherwise cost half an hour to fix a typo.
  *
- * Format: `KICKER — sentence`. The part before the dash renders as a small cyan
- * heading above the line. Keep the sentence short enough for two lines.
+ * Format: `KICKER` then the separator then the sentence. The part before the
+ * separator renders as a small cyan heading above the line; the separator
+ * itself is never drawn. Keep dashes out of the sentence: the product owner
+ * does not want them on screen.
  */
 export const CAPTIONS = {
   chooseImage:
     "CHOOSE AN IMAGE — Choose your image and watch the spikes appear automatically.",
   adjust:
-    "ADJUST TO YOUR LIKING — Make the look your own—adjust how many stars get spikes, their length, glow and brightness.",
+    "ADJUST TO YOUR LIKING — Make the look your own: adjust how many stars get spikes, their length, glow and brightness.",
   whichStars:
     "CHOOSE WHICH STARS SHINE — Click a star to remove its spikes. Click again to bring them back.",
   customizeStar:
     "CUSTOMIZE EACH STAR — Give individual stars a personal touch with their own settings.",
   shapeSpikes:
-    "SHAPE YOUR SPIKES — Find your favourite look—rotate the spikes or switch between four and six arms.",
+    "SHAPE YOUR SPIKES — Find your favourite look: rotate the spikes or switch between four and six arms.",
   seeDifference: "SEE THE DIFFERENCE — Drag the slider to see your transformation.",
   presets: "EXPLORE THE PRESETS — Explore presets, from bold JWST-inspired spikes to subtle accents.",
   exportImage: "EXPORT YOUR IMAGE — Save as PNG, JPEG or just the spikes.",

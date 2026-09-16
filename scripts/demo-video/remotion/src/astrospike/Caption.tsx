@@ -1,6 +1,7 @@
 import React from "react";
 import { interpolate, useCurrentFrame } from "remotion";
 import { CAPTIONS } from "../../../astrospike/captions";
+import { captionHold } from "../engine/caption-hold";
 import { theme } from "../engine/theme";
 import type { Format } from "../engine/format";
 
@@ -54,7 +55,13 @@ const STYLE = {
   desktop: { body: 44, kicker: 32, bar: 5, maxWidth: 820 },
 } as const;
 
-const VERTICAL_ANCHOR = { left: 60, top: 190 };
+/**
+ * The phone cut's caption sits at the bottom left, where the desktop cut's
+ * does: the product owner wants one place for it in every video. It overlaps
+ * the controls sheet there, so the card is lighter than the desktop one and
+ * leaves once it has been read (see {@link captionHold}).
+ */
+const VERTICAL_ANCHOR = { left: 48, bottom: 150 };
 
 /**
  * One on-screen caption.
@@ -86,7 +93,7 @@ export const Caption: React.FC<{
   // `interpolate` requires a strictly increasing input range, and a caption can
   // be shorter than the two fades put together — the capture warns about those,
   // but the edit must still render them rather than throw.
-  const span = Math.max(2, durationInFrames);
+  const span = Math.max(2, format === "vertical" ? captionHold(text, durationInFrames) : durationInFrames);
   const fadeIn = Math.max(1, Math.min(FADE_IN, Math.floor(span / 3)));
   const fadeOut = Math.max(1, Math.min(FADE_OUT, Math.floor(span / 3)));
   const holdUntil = Math.max(fadeIn + 1, span - fadeOut);
@@ -116,7 +123,7 @@ export const Caption: React.FC<{
 
   const anchor =
     format === "vertical"
-      ? { left: VERTICAL_ANCHOR.left, top: VERTICAL_ANCHOR.top }
+      ? { left: VERTICAL_ANCHOR.left, bottom: VERTICAL_ANCHOR.bottom }
       : {
           left: DESKTOP_PHOTO[photo].left + DESKTOP_TAG_INSET,
           bottom: 1080 - (DESKTOP_PHOTO[photo].bottom - DESKTOP_LIFT),
@@ -148,8 +155,8 @@ export const Caption: React.FC<{
         style={{
           padding: `${style.body * 0.4}px ${style.body * 0.6}px ${style.body * 0.45}px`,
           background:
-            "linear-gradient(90deg, rgba(5,6,10,0.45) 0%, rgba(5,6,10,0.3) 55%, rgba(5,6,10,0.15) 100%)",
-          border: `1px solid rgba(0,229,255,${0.28 + 0.3 * pulse})`,
+            "linear-gradient(90deg, rgba(5,6,10,0.3) 0%, rgba(5,6,10,0.18) 55%, rgba(5,6,10,0.06) 100%)",
+          border: `1px solid rgba(0,229,255,${0.2 + 0.24 * pulse})`,
           borderLeft: "none",
           borderRadius: `0 ${style.body * 0.22}px ${style.body * 0.22}px 0`,
           boxShadow: `0 0 ${24 + 18 * pulse}px rgba(0,229,255,${0.18 + 0.2 * pulse})`,

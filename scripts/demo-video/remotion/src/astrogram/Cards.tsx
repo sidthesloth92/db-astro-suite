@@ -193,7 +193,7 @@ export const TitleCard: React.FC = () => {
             textShadow: "0 2px 18px rgba(0,0,0,0.9)",
           }}
         >
-          Turn your astrophoto into a share-ready post.
+          Turn your astrophotography session into a visual social media story.
         </div>
       </div>
     </AbsoluteFill>
@@ -330,7 +330,9 @@ export const StellarMapSlide: React.FC = () => {
           style={{
             fontFamily: theme.display,
             fontWeight: 700,
-            fontSize: 104 * scale,
+            // Held to the frame: at 104 the phone cut ran the title off both
+            // edges, because the display face is far wider than 0.6em a glyph.
+            fontSize: Math.min(104 * scale, (width - 140) / 10.5),
             letterSpacing: 5 * scale,
             color: theme.textPrimary,
             whiteSpace: "nowrap",
