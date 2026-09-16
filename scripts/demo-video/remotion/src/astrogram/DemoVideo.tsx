@@ -38,18 +38,20 @@ export const layoutFor = (manifest: CaptureManifest, cut: CutId = "full") =>
  *
  * The clip list, caption track and focus spans all come from the capture's own
  * `beats.json`, so nothing here restates a timing the capture already knows.
- * `cut` picks the card half, the stellar-map half or both; `overlay` turns the
- * captions and focus ring off for a version to caption elsewhere.
+ * `cut` picks the card half, the stellar-map half or both; `captions` turns the
+ * caption cards off for a version to caption elsewhere, keeping the focus ring.
  */
 export const DemoVideo: React.FC<{
   format: Format;
   manifest: CaptureManifest;
   cut?: CutId;
-  overlay?: boolean;
-}> = ({ format, manifest, cut = "full", overlay = true }) => {
+  captions?: boolean;
+}> = ({ format, manifest, cut = "full", captions: withCaptions = true }) => {
   const layout = layoutFor(manifest, cut);
   const focuses = placeFocuses(layout, manifest.focuses ?? []);
-  const captions = overlay ? placeCaptions(layout, mergeCaptions(manifest.captions, CAPTION_FOR)) : [];
+  const captions = withCaptions
+    ? placeCaptions(layout, mergeCaptions(manifest.captions, CAPTION_FOR))
+    : [];
 
   return (
     <AbsoluteFill style={{ backgroundColor: theme.spaceBlack }}>
@@ -61,8 +63,10 @@ export const DemoVideo: React.FC<{
         </Sequence>
       ))}
 
-      {/* The frame never moves: the ring alone marks the active control. */}
-      {overlay && <FocusRing focuses={focuses} />}
+      {/* The frame never moves: the ring alone marks the active control. It
+          stays in the caption-free cuts — it points at the control being used,
+          it is not text. */}
+      <FocusRing focuses={focuses} />
 
       {captions.map((caption, index) => {
         const duration = caption.end - caption.start;

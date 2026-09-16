@@ -12,7 +12,8 @@ import type { CaptureManifest } from "./engine/manifest";
 
 /**
  * Registers every video: each app, each half, each shape, with and without the
- * caption overlay.
+ * caption cards. The focus ring is in every cut: it marks the control being
+ * used rather than adding words to the frame.
  *
  * A composition is one recipe over the same footage — the halves are cut from
  * one capture rather than recorded again — so the whole grid costs nothing but
@@ -62,15 +63,15 @@ export const Root: React.FC = () => (
     {APPS.flatMap((app) =>
       SHAPES.flatMap((shape) =>
         app.cuts.flatMap((cut) =>
-          [true, false].map((overlay) => {
+          [true, false].map((captions) => {
             const manifest = app.manifests[shape.format];
-            const id = `${app.name}${shape.suffix}${cut.suffix}${overlay ? "" : "Clean"}`;
+            const id = `${app.name}${shape.suffix}${cut.suffix}${captions ? "" : "Clean"}`;
             return (
               <Composition
                 key={id}
                 id={id}
                 component={app.component}
-                defaultProps={{ format: shape.format, manifest, cut: cut.id, overlay }}
+                defaultProps={{ format: shape.format, manifest, cut: cut.id, captions }}
                 durationInFrames={app.layout(manifest, cut.id).totalFrames}
                 fps={30}
                 width={shape.width}
