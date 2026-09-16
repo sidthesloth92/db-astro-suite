@@ -13,18 +13,15 @@ export const theme = {
   neonPink: "#ff2d95",
   textPrimary: "#e0e0e0",
   textDim: "#8B92A6",
-  display: '"Orbitron", system-ui, sans-serif',
+  // The hub sets its headings in Outfit (`--db-font-display-major`), and the
+  // product owner wants the videos to read as the same site. Orbitron is only
+  // still in the app shells' own logos, which the footage shows as they are.
+  display: '"Outfit", system-ui, sans-serif',
   body: '"Outfit", system-ui, -apple-system, sans-serif',
 } as const;
 
-/** Injected once so both fonts are available to every scene. */
+/** Injected once so every weight is available to every scene. */
 export const FONT_FACES = `
-@font-face {
-  font-family: "Orbitron";
-  src: url("__ORBITRON__") format("truetype");
-  font-weight: 700;
-  font-display: block;
-}
 @font-face {
   font-family: "Outfit";
   src: url("__OUTFIT_500__") format("woff2");
@@ -35,6 +32,18 @@ export const FONT_FACES = `
   font-family: "Outfit";
   src: url("__OUTFIT_600__") format("woff2");
   font-weight: 600;
+  font-display: block;
+}
+@font-face {
+  font-family: "Outfit";
+  src: url("__OUTFIT_700__") format("woff2");
+  font-weight: 700;
+  font-display: block;
+}
+@font-face {
+  font-family: "Outfit";
+  src: url("__OUTFIT_800__") format("woff2");
+  font-weight: 800;
   font-display: block;
 }
 `;

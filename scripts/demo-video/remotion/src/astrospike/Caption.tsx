@@ -51,7 +51,7 @@ const DESKTOP_TAG_INSET = 15;
  * left edge and the app header above.
  */
 const STYLE = {
-  vertical: { body: 52, kicker: 36, bar: 8, maxWidth: 760 },
+  vertical: { body: 44, kicker: 30, bar: 7, maxWidth: 820 },
   desktop: { body: 44, kicker: 32, bar: 5, maxWidth: 820 },
 } as const;
 
@@ -61,7 +61,17 @@ const STYLE = {
  * the controls sheet there, so the card is lighter than the desktop one and
  * leaves once it has been read (see {@link captionHold}).
  */
-const VERTICAL_ANCHOR = { left: 48, bottom: 150 };
+/**
+ * How far the phone cut's caption sits above the frame's bottom edge.
+ *
+ * Instagram lays its own caption, audio line and action buttons over the lower
+ * fifth of a reel, so a caption pinned near the bottom is unreadable exactly
+ * where it matters. 420px clears that band on a 1920-tall frame and still
+ * leaves the caption low enough to stay out of the app's own chrome.
+ */
+const VERTICAL_SAFE_BOTTOM = 420;
+
+const VERTICAL_ANCHOR = { left: 48, bottom: VERTICAL_SAFE_BOTTOM };
 
 /**
  * One on-screen caption.

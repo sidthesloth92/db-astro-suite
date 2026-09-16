@@ -23,7 +23,7 @@ const SLIDE_PX = 40;
  * finished pixels.
  */
 const STYLE = {
-  vertical: { body: 40, kicker: 28, bar: 7, maxWidth: 1000 },
+  vertical: { body: 36, kicker: 26, bar: 6, maxWidth: 800 },
   desktop: { body: 30, kicker: 21, bar: 5, maxWidth: 1400 },
 } as const;
 
@@ -31,7 +31,17 @@ const STYLE = {
  * Where a caption goes when the manifest has no header rectangle — footage
  * captured before the edit started measuring it.
  */
-const BOTTOM_INSET = { vertical: 150, desktop: 64 } as const;
+/**
+ * How far the phone cut's caption sits above the frame's bottom edge.
+ *
+ * Instagram lays its own caption, audio line and action buttons over the lower
+ * fifth of a reel, so a caption pinned near the bottom is unreadable exactly
+ * where it matters. 420px clears that band on a 1920-tall frame and still
+ * leaves the caption low enough to stay out of the app's own chrome.
+ */
+const VERTICAL_SAFE_BOTTOM = 420;
+
+const BOTTOM_INSET = { vertical: VERTICAL_SAFE_BOTTOM, desktop: 64 } as const;
 
 /**
  * Where a caption goes when the manifest has no header rectangle: it still
@@ -102,7 +112,11 @@ export const Caption: React.FC<{
   const bar = header ?? FALLBACK_ANCHOR[format];
   // Bottom left, as in every video in the suite: aligned to the card's left
   // edge and as wide as the card, sitting above the frame's lower edge.
-  const anchor = { left: bar.x, bottom: BOTTOM_INSET[format], width: bar.width };
+  const anchor = {
+    left: bar.x,
+    bottom: BOTTOM_INSET[format],
+    width: Math.min(bar.width, style.maxWidth),
+  };
 
   return (
     <div
