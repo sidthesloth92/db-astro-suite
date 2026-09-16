@@ -1,4 +1,5 @@
 import { HOME_RIG } from "./app.constants";
+import type { CaptionId } from "../captions";
 import type { Director } from "../../engine/capture/director";
 import type { AstrogramDemoPage } from "./pages/astrogram-demo.page";
 
@@ -14,7 +15,7 @@ import type { AstrogramDemoPage } from "./pages/astrogram-demo.page";
  */
 export interface Beat {
   id: string;
-  run(app: AstrogramDemoPage, d: Director): Promise<void>;
+  run(app: AstrogramDemoPage, d: Director<CaptionId>): Promise<void>;
 }
 
 /** Feature photo annotations the style beat prefers to pick up and move. */

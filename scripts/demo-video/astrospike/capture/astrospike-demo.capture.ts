@@ -2,6 +2,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { test } from "@playwright/test";
 import { BEATS } from "./beats";
+import type { CaptionId } from "../captions";
 import { Director } from "../../engine/capture/director";
 import { FORMATS, currentFormat } from "../../engine/capture/formats";
 import { demoRuntimeScript } from "../../engine/capture/page-runtime";
@@ -35,7 +36,7 @@ test(`captures the AstroSpike demo (${FORMAT})`, async ({ page }) => {
   mkdirSync(OUT_DIR, { recursive: true });
   await page.addInitScript({ content: demoRuntimeScript(MOTION_SCALE) });
 
-  const director = new Director(
+  const director = new Director<CaptionId>(
     page,
     OUT_DIR,
     FPS,

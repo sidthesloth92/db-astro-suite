@@ -1,4 +1,5 @@
 import path from "node:path";
+import type { CaptionId } from "../captions";
 import type { Director } from "../../engine/capture/director";
 import { currentFormat } from "../../engine/capture/formats";
 import type { AstroSpikeDemoPage } from "./pages/astrospike-demo.page";
@@ -6,7 +7,7 @@ import type { AstroSpikeDemoPage } from "./pages/astrospike-demo.page";
 /** One captured segment of the demo. Its id names the clip file it produces. */
 export interface Beat {
   id: string;
-  run(app: AstroSpikeDemoPage, d: Director): Promise<void>;
+  run(app: AstroSpikeDemoPage, d: Director<CaptionId>): Promise<void>;
 }
 
 /** Where the demo's own source photographs live. */
@@ -47,7 +48,7 @@ const MW_TARGET_STAR_COUNT = 404;
  */
 async function holdUntilDetected(
   app: AstroSpikeDemoPage,
-  d: Director,
+  d: Director<CaptionId>,
   maxFrames: number,
 ): Promise<void> {
   for (let i = 0; i < maxFrames; i += 1) {
@@ -64,7 +65,7 @@ async function holdUntilDetected(
  */
 async function dropImage(
   app: AstroSpikeDemoPage,
-  d: Director,
+  d: Director<CaptionId>,
   file: string,
 ): Promise<void> {
   await app.stageDrop(file);
