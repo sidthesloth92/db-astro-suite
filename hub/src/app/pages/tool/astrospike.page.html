@@ -2,12 +2,19 @@
   <img mark class="tool-mark" src="assets/img/astrospike.png" alt="AstroSpike logo" />
 
   <div preview>
-    <dba-hub-demo-frame label="astrospike.app" status="Live" [live]="true">
-      <img
+    <dba-hub-demo-frame label="astrospike.app / walkthrough" status="Demo">
+      <video
         class="demo-media"
-        src="assets/img/astrospike-after.jpg"
-        alt="AstroSpike canvas showing detected stars rendered with four-armed Classic diffraction spikes"
-      />
+        width="1920"
+        height="1080"
+        controls
+        playsinline
+        preload="metadata"
+        poster="assets/img/astrospike-demo-poster.jpg"
+        aria-label="AstroSpike walkthrough demo: tuning star magnitude, spike length, glow and brightness, removing and adding stars by hand, switching presets and arm counts, applying the Diffusion glow and Mist haze, and exporting the spiked photo"
+      >
+        <source src="assets/img/astrospike-demo-desktop-compressed.mp4" type="video/mp4" />
+      </video>
     </dba-hub-demo-frame>
   </div>
 
