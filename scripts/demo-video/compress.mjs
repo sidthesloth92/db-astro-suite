@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { existsSync, statSync } from "node:fs";
+import { existsSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -21,17 +21,20 @@ const CRF = process.env.DEMO_COMPRESS_CRF ?? "26";
 
 const mib = (file) => (statSync(file).size / 1048576).toFixed(1);
 
-/** Which videos to compress; pass app names as arguments to narrow it down. */
-const APPS = process.argv.slice(2).length ? process.argv.slice(2) : ["astrogram", "astrospike"];
+/** Which videos to compress; pass app names or cut names to narrow it down. */
+const WANTED = process.argv.slice(2).map((arg) => arg.toLowerCase());
 
-for (const cut of APPS.flatMap((app) => ["desktop", "vertical"].map((format) => ({ app, format })))) {
-  const { app, format } = cut;
-  const master = path.join(OUT, `${app}-demo-${format}.mp4`);
+const masters = readdirSync(OUT)
+  .filter((file) => file.endsWith(".mp4") && !file.endsWith("-compressed.mp4"))
+  .filter((file) => WANTED.length === 0 || WANTED.some((want) => file.includes(want)))
+  .sort();
+
+for (const file of masters) {
+  const master = path.join(OUT, file);
   if (!existsSync(master)) {
-    process.stdout.write(`skipping ${app} ${format}: no master rendered yet\n`);
     continue;
   }
-  const small = path.join(OUT, `${app}-demo-${format}-compressed.mp4`);
+  const small = path.join(OUT, file.replace(/\.mp4$/, "-compressed.mp4"));
   execFileSync("ffmpeg", [
     "-v", "error", "-y",
     "-i", master,
@@ -43,6 +46,6 @@ for (const cut of APPS.flatMap((app) => ["desktop", "vertical"].map((format) => 
     small,
   ]);
   process.stdout.write(
-    `${app} ${format}: ${mib(master)} MiB master -> ${mib(small)} MiB compressed\n`,
+    `${file.replace(/\.mp4$/, "")}: ${mib(master)} MiB master -> ${mib(small)} MiB compressed\n`,
   );
 }
