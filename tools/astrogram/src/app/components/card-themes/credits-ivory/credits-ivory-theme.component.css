@@ -1,0 +1,402 @@
+/* Credits Ivory card theme — faithful port of the design source
+   ThemeCreditsIvory. One-sheet on ivory paper; per-theme palette is literal. */
+
+:host {
+  --cri-paper: #f4efe4;
+  --cri-ink: #1a1622;
+  --cri-dim: #6a6376;
+  --cri-faint: #9c94a4;
+  /* Archivo Black / Space Grotesk are not loaded, so these stacks resolve to
+     the loaded Outfit fallback — matching what the design actually renders. */
+  --cri-display: 'Archivo Black', 'Outfit', sans-serif;
+  --cri-sans: 'Space Grotesk', 'Outfit', sans-serif;
+  --cri-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.cri-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: var(--cri-ink);
+  font-family: var(--cri-sans);
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.cri-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 80% 55% at 50% 0%, rgba(255, 255, 252, 0.7), transparent 65%),
+    var(--cri-paper);
+  opacity: var(--card-opacity, 1);
+}
+
+.cri-specks {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.cri-constellation {
+  position: absolute;
+  top: 84px;
+  left: 50%;
+  margin-left: -130px;
+  width: 260px;
+  height: 170px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.cri-spike {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Both accents live in `.cri-inner`'s 34px side padding, which stays empty
+   at every aspect; fixed `left` coordinates put spike-b over the date. */
+.cri-spike-a {
+  left: 8px;
+  top: 606px;
+  width: 20px;
+  height: 20px;
+  opacity: 0.4;
+}
+
+.cri-spike-b {
+  right: 6px;
+  top: 622px;
+  width: 26px;
+  height: 26px;
+  opacity: 0.32;
+}
+
+.cri-inner {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 36px 34px 30px;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+
+/* ── Title ── */
+.cri-title-block {
+  margin-top: 24px;
+}
+
+.cri-the {
+  font: 400 16px/1 var(--cri-sans);
+  color: var(--cri-dim);
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  padding-left: 0.5em;
+}
+
+/* Size is set by the fit-text directive (64px at most); the spans inherit it. */
+.cri-title {
+  font: 400 64px/1 var(--cri-display);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  margin-top: 10px;
+}
+
+.cri-title-solid {
+  color: var(--cri-ink);
+}
+
+.cri-title-outline {
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--cri-ink);
+}
+
+/* ── Band strip ── */
+.cri-strip {
+  display: flex;
+  width: 220px;
+  max-width: 100%;
+  margin: 22px auto 0;
+  height: 4px;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.cri-strip-seg {
+  height: 100%;
+}
+
+/* A white band (luminance) disappears into the ivory paper; an ink hairline
+   keeps its segment visible without changing its colour. */
+.cri-strip-seg--light {
+  box-shadow: inset 0 0 0 1px rgba(26, 22, 34, 0.5);
+}
+
+/* The sheet's blocks keep their height when a long billing block fills the
+   card: shrinking, the 4px band strip collapsed to nothing and the
+   designation slid under "Captured by". The card grows to fit instead. */
+.cri-title-block,
+.cri-strip,
+.cri-designation,
+.cri-billing,
+.cri-release {
+  flex-shrink: 0;
+}
+
+.cri-designation {
+  font: 500 9.5px/1 var(--cri-mono);
+  color: var(--cri-faint);
+  letter-spacing: 0.26em;
+  margin-top: 12px;
+  text-transform: uppercase;
+  padding-left: 0.26em;
+}
+
+.cri-spacer {
+  flex: 1;
+  /* Room kept between the blocks when the billing block leaves no slack. */
+  min-height: 18px;
+}
+
+.cri-spacer--release {
+  min-height: 28px;
+}
+
+/* ── Billing block ── */
+.cri-billing {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.cri-credit-k {
+  font: 500 8.5px/1 var(--cri-mono);
+  color: var(--cri-faint);
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  padding-left: 0.32em;
+}
+
+.cri-credit-v {
+  font: 600 13px/1.35 var(--cri-sans);
+  color: var(--cri-ink);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-top: 5px;
+}
+
+.cri-faint {
+  color: var(--cri-faint);
+}
+
+.cri-credit-bands {
+  display: block;
+  margin-top: 4px;
+  font: 500 11px/1 var(--cri-mono);
+  letter-spacing: 0.08em;
+}
+
+.cri-band {
+  white-space: nowrap;
+}
+
+/* A white band's label in ink: white type is invisible on the paper. */
+.cri-band--light {
+  color: var(--cri-ink);
+}
+
+/* The separator where a long run of bands splits becomes the row break. */
+.cri-band-break {
+  display: block;
+  height: 5px;
+  font-size: 0;
+}
+
+/* The wider square and landscape cards hold every band on one line. */
+:host-context(.card.aspect-1-1) .cri-band-break,
+.cri-root--landscape .cri-band-break {
+  display: inline;
+  height: auto;
+  font-size: inherit;
+}
+
+/* The footer reaches down through the card's bottom margin inside an
+   invisible border, so the content fit keeps that margin: a long billing
+   block grows the card instead of pushing the footer onto its edge. The
+   margins cancel the border and padding, leaving the layout unchanged. */
+.cri-release {
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+  margin-top: -1px;
+  padding-bottom: 29px;
+  margin-bottom: -30px;
+}
+
+/* ── Release date ── */
+.cri-release-date {
+  font: 400 40px/1 var(--cri-display);
+  color: var(--cri-ink);
+  letter-spacing: 0.04em;
+}
+
+.cri-release-sub {
+  /* Leading for a location that wraps. The 6px it adds (3px above and below,
+     a whole pixel each so the text lands on the same pixel row) is taken back
+     by the margins, keeping a one-line footer exactly where it was. */
+  font: 500 9.5px/15.5px var(--cri-mono);
+  color: var(--cri-faint);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  margin-top: 7px;
+  margin-bottom: -3px;
+  padding-left: 0.26em;
+}
+
+/* Software credit printed as a centred run of whole names. */
+.cri-credit-list {
+  justify-content: center;
+}
+
+/* Band ids keep their own case inside the uppercase credit: "Hα" uppercased
+   becomes a capital Alpha, which reads as "HA". OIII and SII are capitals already. */
+.cri-band-id {
+  text-transform: none;
+}
+
+/* ── Landscape (1.91:1) ──
+   The one-sheet is a single centred column: on a wide card it kept its
+   portrait width, so the billing block sat in a narrow strip with most of the
+   paper empty and every credit printed at a few pixels. Landscape lays the
+   sheet out as Credits does — the one-line title across the top; the band
+   strip, designation and release date on the left beneath it; the billing
+   block in two columns on the right, with the full-width software and
+   exposure credits closing it. */
+.cri-root--landscape .cri-inner {
+  display: grid;
+  grid-template-columns: 330px minmax(0, 1fr);
+  grid-template-rows: auto auto auto 1fr auto;
+  column-gap: 56px;
+  padding: 44px 46px 40px;
+}
+
+.cri-root--landscape .cri-spacer {
+  display: none;
+}
+
+.cri-root--landscape .cri-strip,
+.cri-root--landscape .cri-designation,
+.cri-root--landscape .cri-release {
+  grid-column: 1;
+}
+
+/* The name runs across the whole card on one line, as it does in portrait,
+   with the sheet split into its two columns beneath it. */
+.cri-root--landscape .cri-title-block {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  margin: 0 0 24px;
+}
+
+.cri-root--landscape .cri-title {
+  margin-top: 14px;
+}
+
+.cri-root--landscape .cri-strip {
+  grid-row: 2;
+  justify-self: center;
+  margin: 24px 0 0;
+}
+
+.cri-root--landscape .cri-designation {
+  grid-row: 3;
+  font-size: 11px;
+  margin-top: 14px;
+}
+
+.cri-root--landscape .cri-release {
+  grid-row: 5;
+  padding-bottom: 39px;
+  margin-bottom: -40px;
+}
+
+.cri-root--landscape .cri-release-date {
+  font-size: 46px;
+}
+
+.cri-root--landscape .cri-release-sub {
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: 0.2em;
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+
+/* The constellation fills the open stretch of the title column, between the
+   designation and the date. */
+.cri-root--landscape .cri-constellation {
+  top: 286px;
+  left: 211px;
+}
+
+/* The spikes flank the release date instead of the side padding, which the
+   landscape columns no longer leave empty. */
+.cri-root--landscape .cri-spike-a {
+  left: 62px;
+  top: 452px;
+}
+
+.cri-root--landscape .cri-spike-b {
+  right: auto;
+  left: 336px;
+  top: 470px;
+}
+
+/* Columns sized to their widest credit, so a long guide-scope name keeps its
+   line while the short credits beside it give up the room. */
+.cri-root--landscape .cri-billing {
+  grid-column: 2;
+  grid-row: 2 / -1;
+  align-self: center;
+  display: grid;
+  grid-template-columns: auto auto;
+  justify-content: space-evenly;
+  column-gap: 44px;
+  row-gap: 32px;
+}
+
+/* Software and exposure are the longest credits and close the block across
+   both columns. */
+.cri-root--landscape .cri-billing > .cri-credit:nth-last-child(-n + 2) {
+  grid-column: 1 / -1;
+}
+
+.cri-root--landscape .cri-credit-k {
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  padding-left: 0.28em;
+}
+
+.cri-root--landscape .cri-credit-v {
+  font-size: 14.5px;
+  margin-top: 8px;
+}
+
+.cri-root--landscape .cri-credit-bands {
+  font-size: 12px;
+  margin-top: 6px;
+}

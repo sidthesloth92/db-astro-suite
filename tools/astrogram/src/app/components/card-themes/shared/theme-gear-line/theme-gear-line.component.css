@@ -1,0 +1,16 @@
+:host {
+  display: flex;
+  flex-wrap: wrap;
+  /* Wider than the non-breaking space before each dot: themes letter-space
+     this text, which widens the space before the dot but not the flex gap
+     after it, so an equal gap read as "APO ·ZWO". */
+  column-gap: 0.55em;
+  min-width: 0;
+}
+
+/* One unit per value. The trailing separator lives inside the item so a line
+   ends on "…150i ·" rather than starting on a stray dot. */
+.gear-item {
+  min-width: 0;
+  overflow-wrap: break-word;
+}

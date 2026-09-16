@@ -1,0 +1,136 @@
+@let data = vm();
+
+<div class="com-root" [class.com-root--landscape]="isLandscapeFormat()">
+  <dba-ag-theme-starfield [density]="160" [opacity]="0.6" [seed]="9" />
+
+  <svg class="com-chart" viewBox="0 0 540 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs>
+      <linearGradient id="comet-tail" x1="74%" y1="29%" x2="10%" y2="90%">
+        <stop class="com-secondary-stop" offset="0%" stop-opacity="0.9" />
+        <stop class="com-accent-stop" offset="35%" stop-opacity="0.4" />
+        <stop class="com-accent-stop" offset="100%" stop-opacity="0" />
+      </linearGradient>
+      <radialGradient id="comet-nuc" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#fff" />
+        <stop class="com-secondary-stop" offset="40%" />
+        <stop class="com-accent-stop" offset="100%" stop-opacity="0" />
+      </radialGradient>
+    </defs>
+
+    <!-- broad tail -->
+    <path [attr.d]="tailPath" fill="url(#comet-tail)" opacity="0.55" />
+
+    <!-- fine ion streaks coloured by band -->
+    @for (streak of ionStreaks(); track streak.band.id) {
+      <path
+        [attr.d]="streak.path"
+        fill="none"
+        [attr.stroke]="streak.band.color"
+        stroke-width="2"
+        opacity="0.6"
+        stroke-linecap="round"
+        [attr.stroke-dasharray]="streak.dash"
+      />
+    }
+
+    <!-- particle dust -->
+    @for (particle of dust; track $index) {
+      <circle
+        [attr.cx]="particle.cx"
+        [attr.cy]="particle.cy"
+        [attr.r]="particle.r"
+        class="com-dust"
+        [attr.opacity]="particle.opacity"
+      />
+    }
+
+    <!-- nucleus glow -->
+    <circle [attr.cx]="nx" [attr.cy]="ny" r="46" fill="url(#comet-nuc)" />
+    <circle [attr.cx]="nx" [attr.cy]="ny" r="9" fill="#fff" />
+  </svg>
+
+  <!-- Header -->
+  <div class="com-header">
+    <span class="com-datestamp">{{ data.dateNumeric }}</span>
+  </div>
+
+  <!-- Portrait / square only: the legend and footer flow up from the bottom,
+       and these spacers share the height above the footer between them. -->
+  @if (!isLandscapeFormat()) {
+    <div class="com-spacer"></div>
+  }
+
+  <!-- Title and band legend. A plain block on portrait cards, where each is
+       placed on its own; the landscape card stacks them in one column. -->
+  <div class="com-art-text">
+    <!-- Object title near the nucleus -->
+    <div class="com-title" data-testid="card-hero">
+      @if (data.objectId) {
+        <div class="com-object-id">{{ data.objectId }}</div>
+      }
+      <div class="com-object-name">{{ data.objectName }}</div>
+    </div>
+
+    <!-- Band legend near the tail -->
+    <div class="com-legend">
+      @for (band of data.integration; track band.id) {
+        <div class="com-legend-item">
+          <span class="com-legend-swatch" [style.background]="band.color"></span>
+          <span class="com-legend-id" [style.color]="band.color">{{ band.id }}</span>
+          <span class="com-legend-time">{{ band.time }}</span>
+          <span class="com-legend-frames">{{ band.frames }}</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  @if (!isLandscapeFormat()) {
+    <div class="com-spacer com-spacer--lower"></div>
+  }
+
+  <!-- Footer -->
+  <div class="com-footer">
+    @if (data.caption) {
+      <div class="com-caption">{{ data.caption }}</div>
+    }
+    <div class="com-cols">
+      <div class="com-col">
+        <div class="com-col-title">Apparatus</div>
+        @for (item of data.equipment; track $index) {
+          <div class="com-row">
+            <span class="com-row-label">{{ item.label }}</span>
+            <span class="com-row-value">{{ item.value }}</span>
+          </div>
+        }
+      </div>
+      <div class="com-col">
+        <div class="com-col-title">Pipeline · Total</div>
+        @for (item of data.software; track $index) {
+          <div class="com-row">
+            <span class="com-row-label">{{ item.label }}</span>
+            <span class="com-row-value">{{ item.value }}</span>
+          </div>
+        }
+        <div class="com-total-row">
+          <span class="com-total">{{ data.total }}</span>
+          <!-- The sky and the place wrap as one run that breaks only after a
+               comma; the handle is a whole item, and the separator before it
+               is clipped when it ends a line (see .com-sky-line). -->
+          <span class="com-sky">
+            <span class="com-sky-line">
+              <span class="com-sky-part">
+                <span class="com-sky-text">Bortle&nbsp;{{ data.bortle }}@if (placeName()) {<span>&nbsp;· {{ placeName() }}</span>}</span>
+                @if (data.author) {
+                  <span class="com-sep" aria-hidden="true"></span>
+                }
+              </span>
+              @if (data.author) {
+                <span class="com-sky-part">{{ data.author }}</span>
+              }
+            </span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
