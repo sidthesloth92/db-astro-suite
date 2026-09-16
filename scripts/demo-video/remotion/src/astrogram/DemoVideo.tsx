@@ -91,7 +91,7 @@ export const DemoVideo: React.FC<{
 
       {layout.slideStart !== null && (
         <Sequence from={layout.slideStart} durationInFrames={SLIDE_FRAMES}>
-          <StellarMapSlide />
+          <StellarMapSlide opening={cut === "second"} />
         </Sequence>
       )}
 

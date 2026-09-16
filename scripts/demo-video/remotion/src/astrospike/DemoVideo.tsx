@@ -96,7 +96,7 @@ export const DemoVideo: React.FC<{
 
       {layout.slideStart !== null && (
         <Sequence from={layout.slideStart} durationInFrames={SLIDE_FRAMES}>
-          <MilkyWaySlide />
+          <MilkyWaySlide opening={cut === "second"} />
         </Sequence>
       )}
 

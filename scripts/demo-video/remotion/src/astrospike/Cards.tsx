@@ -352,7 +352,12 @@ export const OutroCard: React.FC = () => {
  * drawing spikes entirely and starts blooming stars, on a different photograph.
  * A hard cut there reads as a mistake; a card reads as a new section.
  */
-export const MilkyWaySlide: React.FC = () => {
+/**
+ * @param opening Whether this slide opens the video rather than sitting between
+ * its halves; the "Next" line is dropped when it does, as there is nothing
+ * before it to be next to.
+ */
+export const MilkyWaySlide: React.FC<{ opening?: boolean }> = ({ opening = false }) => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames, width, height } = useVideoConfig();
   const scale = Math.min(width, height) / 1080;
@@ -382,18 +387,20 @@ export const MilkyWaySlide: React.FC = () => {
           gap: 22 * scale,
         }}
       >
-        <div
-          style={{
-            fontFamily: theme.body,
-            fontWeight: 600,
-            fontSize: 34 * scale,
-            letterSpacing: 9 * scale,
-            textTransform: "uppercase",
-            color: theme.cyan,
-          }}
-        >
-          Next
-        </div>
+        {!opening && (
+          <div
+            style={{
+              fontFamily: theme.body,
+              fontWeight: 600,
+              fontSize: 34 * scale,
+              letterSpacing: 9 * scale,
+              textTransform: "uppercase",
+              color: theme.cyan,
+            }}
+          >
+            Next
+          </div>
+        )}
         <div
           style={{
             fontFamily: theme.display,
