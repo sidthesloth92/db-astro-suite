@@ -1,41 +1,70 @@
 /**
  * Every line that appears on screen, and the only place to change the wording.
  *
- * The beats reference these by id, so the capture records *which* line was
- * showing and when, never the words themselves. Editing the text here and
- * re-rendering is enough — there is no need to re-capture, which would
- * otherwise cost half an hour to fix a typo.
+ * The beats say one id per control they drive; {@link CAPTION_FOR} groups those
+ * into the lines the video shows, and consecutive beats under one line share a
+ * single caption. The capture records which id was showing and when, never the
+ * words, so editing here and re-rendering is enough — no re-capture, which
+ * would otherwise cost half an hour to fix a typo.
  *
- * Format: `KICKER — sentence`. The part before the dash renders as a small
- * cyan heading above the line. Keep the sentence under about 45 characters so
- * it never runs past two lines.
+ * Format: `KICKER — sentence`. The part before the dash renders as a small cyan
+ * heading above the line. Keep the sentence short enough for two lines.
  */
 export const CAPTIONS = {
-  private: "PRIVATE — Your image never leaves the browser.",
-  detected: "DETECTED — Stars found for you, automatically.",
-  magnitude: "MAGNITUDE — How many stars get spikes.",
-  length: "LENGTH — Scales every arm.",
-  glow: "GLOW — A halo on the brightest stars.",
-  brightness: "BRIGHTNESS — How hard they burn.",
-  removeStars: "PER STAR — Click a star to remove it.",
-  addStars: "ADD — Click again to bring one back.",
-  tuneStar: "CUSTOMISE — Tune one star on its own.",
-  arms6: "SIX ARMS — The JWST look, on any preset.",
-  arms4: "FOUR ARMS — The classic spider-vane cross.",
-  jwst: "PRESETS — JWST: the six-armed signature.",
-  subtle: "SUBTLE — A faint accent that stays natural.",
-  rotate: "ROTATE — Turn the whole pattern.",
-  compareSpikes: "BEFORE & AFTER — Drag to see the difference.",
-  wideField: "WIDE FIELD — Spikes are the wrong tool here.",
-  diffusion: "DIFFUSION — No spikes. Just glow.",
-  mwMagnitude: "REACH — How deep into the field it glows.",
-  mwGlow: "GLOW — Halos in each star's own colour.",
-  mwMist: "MIST — A haze through the brightest light.",
-  mwBrightness: "BRIGHTNESS — How hard the halos burn.",
-  compare: "COMPARE — Against the untouched original.",
-  exportOptions: "EXPORT — PNG, JPEG, or the spikes alone.",
-  exportShot: "SAVE — Full resolution, same as the source.",
+  chooseImage:
+    "CHOOSE AN IMAGE — Choose your image and watch the spikes appear automatically.",
+  adjust:
+    "ADJUST TO YOUR LIKING — Make the look your own—adjust how many stars get spikes, their length, glow and brightness.",
+  whichStars:
+    "CHOOSE WHICH STARS SHINE — Click a star to remove its spikes. Click again to bring them back.",
+  customizeStar:
+    "CUSTOMIZE EACH STAR — Give individual stars a personal touch with their own settings.",
+  shapeSpikes:
+    "SHAPE YOUR SPIKES — Find your favourite look—rotate the spikes or switch between four and six arms.",
+  seeDifference: "SEE THE DIFFERENCE — Drag the slider to see your transformation.",
+  presets: "EXPLORE THE PRESETS — Explore presets, from bold JWST-inspired spikes to subtle accents.",
+  exportImage: "EXPORT YOUR IMAGE — Save as PNG, JPEG or just the spikes.",
+  diffusionIntro:
+    "DIFFUSION FILTER EFFECT — Have a Milky Way image? Now you can add the diffusion filter effect.",
+  refineGlow: "REFINE YOUR GLOW — Adjust its reach, colour, mist and brightness to suit your image.",
+  compareOriginal: "COMPARE WITH THE ORIGINAL — See how your edit compares with the original.",
+  saveCreation: "SAVE YOUR CREATION — Full resolution, same as the source.",
 } as const;
 
-/** The id of a line in {@link CAPTIONS}. */
-export type CaptionId = keyof typeof CAPTIONS;
+/**
+ * Which caption each beat's said id belongs to.
+ *
+ * Several beats share a line: the four spike sliders are one "adjust these"
+ * caption, removing and restoring a star is one, and the four Diffusion
+ * sliders are one. The beats still say their own id so the capture keeps a
+ * precise record of what was on screen when.
+ */
+export const CAPTION_FOR = {
+  private: "chooseImage",
+  detected: "chooseImage",
+  magnitude: "adjust",
+  length: "adjust",
+  glow: "adjust",
+  brightness: "adjust",
+  removeStars: "whichStars",
+  addStars: "whichStars",
+  tuneStar: "customizeStar",
+  rotate: "shapeSpikes",
+  arms6: "shapeSpikes",
+  arms4: "shapeSpikes",
+  compareSpikes: "seeDifference",
+  jwst: "presets",
+  subtle: "presets",
+  exportOptions: "exportImage",
+  wideField: "diffusionIntro",
+  diffusion: "diffusionIntro",
+  mwMagnitude: "refineGlow",
+  mwGlow: "refineGlow",
+  mwMist: "refineGlow",
+  mwBrightness: "refineGlow",
+  compare: "compareOriginal",
+  exportShot: "saveCreation",
+} as const satisfies Record<string, keyof typeof CAPTIONS>;
+
+/** The id a beat says; the caption it lands in comes from {@link CAPTION_FOR}. */
+export type CaptionId = keyof typeof CAPTION_FOR;
