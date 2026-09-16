@@ -75,14 +75,14 @@ test.describe("Astrogram Tool Page", () => {
     await expect(hubTool.getStepHeadings()).toHaveCount(4);
   });
 
-  test("exposes the launch CTA and demo preview", async () => {
+  test("exposes the launch CTA and the demo video", async () => {
     await expect(hubTool.getPrimaryCta(/Launch Astrogram/i)).toHaveAttribute(
       "href",
       "/astrogram/",
     );
     await expect(
-      hubTool.getDemoImage(
-        "Astrogram plate-solved Stellar Map with labelled objects and light-year distances",
+      hubTool.getDemoVideo(
+        "Astrogram walkthrough demo: filling in the object, capture and gear panels, switching card themes and sizes, plate-solving a photo into a labelled stellar map, and exporting the card",
       ),
     ).toBeVisible();
   });
