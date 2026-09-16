@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.37.0](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.36.0...db-astro-suite-v1.37.0) (2026-09-16)
+
+
+### Features
+
+* **hub:** play the AstroSpike walkthrough video on the tool page ([#124](https://github.com/sidthesloth92/db-astro-suite/issues/124)) ([779721a](https://github.com/sidthesloth92/db-astro-suite/commit/779721a59a9fb3172db485175992649b15b59c89))
+
 ## [1.36.0](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.35.0...db-astro-suite-v1.36.0) (2026-09-16)
 
 
