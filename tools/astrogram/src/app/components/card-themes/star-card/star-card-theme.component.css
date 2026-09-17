@@ -1,0 +1,444 @@
+/* Star Card theme — faithful port of the design source ThemeStarCard.
+   Per-theme palette/typography is the theme's identity, so colours are literal,
+   except the two golds the Layout panel's pickers recolour: the accent (the
+   bright foil — kicker, title, ornament, constellation, stars and plate) and
+   the secondary (the deeper foil of the hairline frame, rules and the start
+   of the rarity bar).
+   "Space Grotesk" falls back to Outfit when not loaded (design intent). */
+
+:host {
+  --stc-gold: var(--accent-color);
+  --stc-gold-2: var(--secondary-accent-color);
+  --stc-txt: #f4efe2;
+  --stc-dim: #9a8fa8;
+  --stc-faint: #565064;
+  --stc-sans: 'Space Grotesk', 'Outfit', sans-serif;
+  --stc-mono: 'JetBrains Mono', monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.stc-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: 20px;
+  color: var(--stc-txt);
+  font-family: var(--stc-sans);
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.stc-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 60% 45% at 50% 24%, rgba(var(--accent-color-rgb), 0.07), transparent 70%), #05040a;
+  opacity: var(--card-opacity, 1);
+}
+
+/* ── Double gold hairline frame ── */
+.stc-frame {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  box-sizing: border-box;
+  border: 1px solid rgba(var(--stc-secondary-rgb), 0.33);
+  border-radius: 14px;
+  padding: 7px;
+}
+
+.stc-inner {
+  position: relative;
+  height: 100%;
+  box-sizing: border-box;
+  border: 1px solid rgba(var(--stc-secondary-rgb), 0.18);
+  border-radius: 9px;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* SVG presentation attributes cannot read a CSS variable, so the accent
+   reaches the constellation and ornament through these classes. */
+.stc-accent-stroke {
+  stroke: var(--stc-gold);
+}
+
+.stc-accent-fill {
+  fill: var(--stc-gold);
+}
+
+.stc-constellation {
+  position: absolute;
+  top: 108px;
+  left: 50%;
+  margin-left: -110px;
+  pointer-events: none;
+  /* Background texture only: it sits behind the designation and title, and
+     at full strength its node rings read as marks on the letters. */
+  opacity: 0.5;
+}
+
+.stc-grow {
+  flex: 1;
+}
+
+.stc-grow-sm {
+  flex: 0.9;
+}
+
+/* ── Archive strip ── */
+.stc-archive {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stc-archive-name {
+  font: 600 9.5px/1 var(--stc-mono);
+  color: var(--stc-gold);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.stc-archive-no {
+  font: 500 9.5px/1 var(--stc-mono);
+  color: var(--stc-faint);
+  letter-spacing: 0.18em;
+}
+
+/* ── Ornament + title ── */
+.stc-title-block {
+  position: relative;
+  text-align: center;
+}
+
+.stc-ornament {
+  display: block;
+  margin: 0 auto;
+}
+
+.stc-object-id {
+  font: 500 11px/1 var(--stc-mono);
+  color: var(--stc-dim);
+  letter-spacing: 0.36em;
+  text-transform: uppercase;
+  margin-top: 16px;
+  padding-left: 0.36em;
+}
+
+.stc-title {
+  font: 600 44px/1.02 var(--stc-sans);
+  color: var(--stc-txt);
+  letter-spacing: -0.02em;
+  margin-top: 12px;
+}
+
+.stc-title-rest {
+  color: var(--stc-gold);
+  font-weight: 400;
+}
+
+/* ── Total plate ── */
+.stc-plate {
+  border: 1px solid rgba(var(--stc-secondary-rgb), 0.27);
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(var(--accent-color-rgb), 0.07), rgba(var(--accent-color-rgb), 0.02));
+  padding: 14px 18px;
+  text-align: center;
+}
+
+.stc-plate-label {
+  font: 600 9px/1 var(--stc-mono);
+  color: var(--stc-gold);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.stc-plate-total {
+  font: 700 40px/1 var(--stc-sans);
+  color: var(--stc-txt);
+  letter-spacing: -0.02em;
+  margin-top: 10px;
+}
+
+.stc-plate-frames {
+  font: 400 9.5px/1 var(--stc-mono);
+  color: var(--stc-faint);
+  letter-spacing: 0.12em;
+  margin-top: 8px;
+}
+
+/* ── Band gems ── */
+.stc-gems {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.stc-gem {
+  flex: 1;
+  text-align: center;
+  /* Sizes the duration to its column: seven bands leave each gem ~55px, and
+     "2h 42m" at the designed size wrapped onto two lines. */
+  container-type: inline-size;
+}
+
+.stc-gem-icon {
+  display: grid;
+  place-items: center;
+  height: 26px;
+}
+
+.stc-gem-shape {
+  width: 15px;
+  height: 15px;
+  border-radius: 3px;
+  transform: rotate(45deg);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.stc-gem-id {
+  font: 700 12px/1 var(--stc-mono);
+  letter-spacing: 0.06em;
+  margin-top: 8px;
+}
+
+.stc-gem-time {
+  font: 600 17px/1 var(--stc-sans);
+  font-size: min(17px, 26cqi);
+  color: var(--stc-txt);
+  margin-top: 7px;
+  white-space: nowrap;
+}
+
+.stc-gem-frames {
+  font: 400 9px/1 var(--stc-mono);
+  font-size: min(9px, 17cqi);
+  color: var(--stc-faint);
+  margin-top: 5px;
+  white-space: nowrap;
+}
+
+/* ── Compact specs ── */
+.stc-specs {
+  border-top: 1px solid rgba(var(--stc-secondary-rgb), 0.15);
+  padding-top: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px 20px;
+}
+
+.stc-spec-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.stc-spec-label {
+  font: 500 8.5px/1.5 var(--stc-mono);
+  /* A step lighter than the faint ink: at 8.5px the labels all but vanished
+     against the near-black card. */
+  color: #7a7388;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.stc-spec-value {
+  font: 500 10.5px/1.5 var(--stc-sans);
+  color: var(--stc-txt);
+  text-align: right;
+  /* Wraps rather than ellipsing — a truncated value hides the user's gear. */
+  overflow-wrap: break-word;
+  max-width: 140px;
+}
+
+/* ── Rarity bar ── */
+.stc-rarity {
+  margin: 14px -24px -20px;
+  background: linear-gradient(90deg, var(--stc-gold-2), var(--stc-gold));
+  color: #171208;
+  padding: 9px 24px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: 16px;
+  border-radius: 0 0 8px 8px;
+}
+
+.stc-rarity-class {
+  font: 700 9.5px/1 var(--stc-mono);
+  letter-spacing: 0.2em;
+  white-space: nowrap;
+}
+
+/* A long meta wraps into right-aligned, balanced lines with real leading
+   (with line-height 1 the lines ran together). The 6px of leading (3px above
+   and below, whole pixels so a single line keeps its pixel row) is taken
+   back by the margins, so a one-line bar keeps its height. */
+.stc-rarity-meta {
+  font: 600 9.5px/15.5px var(--stc-mono);
+  /* Uppercase like the rest of the bar; a typed place name kept its case. */
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  text-align: right;
+  text-wrap: balance;
+  margin: -3px 0;
+}
+
+/* ── Landscape (1.91:1) ──
+   The portrait card is one centred stack: squeezed to the format's height the
+   title ran into the exposure plate, the gem frame counts sat on the specs
+   rule and the constellation's rings landed on the plate label, while the
+   plate stretched ~970px around its number and the spec labels sat 350-400px
+   from their values at ~6px. Landscape lays the card out in two columns —
+   ornament, title and exposure plate on the left; band gems and the spec
+   list on the right, their tops level with the title and plate — above the
+   full-width rarity bar. */
+.stc-root--landscape .stc-inner {
+  display: grid;
+  /* The right column holds seven gems and the spec values, the left only a
+     one-line title and a plate. At an even split each gem was ~55px wide,
+     shrinking its frame count to ~9 export px, and long gear values wrapped
+     ("Advance / Gen 2"); the taller column then filled the free row under
+     the header and ran the gems into "N° 027". The right column takes the
+     larger share, and the row under the header never closes completely. */
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  grid-template-rows: auto minmax(14px, 1fr) auto auto 1fr auto;
+  column-gap: 40px;
+}
+
+.stc-root--landscape .stc-grow,
+.stc-root--landscape .stc-grow-sm {
+  display: none;
+}
+
+.stc-root--landscape .stc-archive {
+  grid-column: 1 / -1;
+  grid-row: 1;
+}
+
+.stc-root--landscape .stc-archive-name,
+.stc-root--landscape .stc-archive-no {
+  font-size: 11px;
+}
+
+/* Behind the ornament and designation in the left column, clear of the plate. */
+.stc-root--landscape .stc-constellation {
+  top: 66px;
+  left: 196px;
+}
+
+.stc-root--landscape .stc-title-block {
+  grid-column: 1;
+  grid-row: 3;
+}
+
+.stc-root--landscape .stc-object-id {
+  font-size: 12px;
+  margin-top: 14px;
+}
+
+/* The plate matches the spec list's height, its reading centred inside. */
+.stc-root--landscape .stc-plate {
+  grid-column: 1;
+  grid-row: 4;
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.stc-root--landscape .stc-plate-label {
+  font-size: 11px;
+}
+
+.stc-root--landscape .stc-plate-total {
+  font-size: 48px;
+}
+
+.stc-root--landscape .stc-plate-frames {
+  font-size: 11px;
+}
+
+.stc-root--landscape .stc-gems {
+  grid-column: 2;
+  grid-row: 3;
+  align-self: end;
+  margin-top: 0;
+}
+
+.stc-root--landscape .stc-gem-id {
+  font-size: 13px;
+}
+
+.stc-root--landscape .stc-gem-time {
+  font-size: min(20px, 26cqi);
+}
+
+.stc-root--landscape .stc-gem-frames {
+  font-size: min(11px, 17cqi);
+  margin-top: 6px;
+}
+
+/* One spec per line, each value in a column beside its label rather than at
+   the far end of a half-card-wide row. */
+.stc-root--landscape .stc-specs {
+  grid-column: 2;
+  grid-row: 4;
+  margin-top: 24px;
+  padding-top: 14px;
+  grid-template-columns: 1fr;
+  row-gap: 6px;
+}
+
+.stc-root--landscape .stc-spec-row {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  align-items: baseline;
+  gap: 14px;
+}
+
+.stc-root--landscape .stc-spec-label {
+  font-size: 10.5px;
+}
+
+/* The small print a notch brighter on the wide card, where the faint ink at
+   export size read as dim smudges beside its values. */
+.stc-root--landscape .stc-spec-label,
+.stc-root--landscape .stc-gem-frames,
+.stc-root--landscape .stc-plate-frames {
+  color: var(--stc-dim);
+}
+
+.stc-root--landscape .stc-spec-value {
+  font-size: 13.5px;
+  line-height: 1.35;
+  text-align: left;
+  max-width: none;
+}
+
+.stc-root--landscape .stc-rarity {
+  grid-column: 1 / -1;
+  grid-row: 6;
+  padding: 11px 24px;
+}
+
+.stc-root--landscape .stc-rarity-class,
+.stc-root--landscape .stc-rarity-meta {
+  font-size: 11px;
+}
+
+/* Line height for the landscape size: 11px plus whole-pixel leading. */
+.stc-root--landscape .stc-rarity-meta {
+  line-height: 17px;
+}

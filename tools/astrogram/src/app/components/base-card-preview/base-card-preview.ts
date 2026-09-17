@@ -16,12 +16,21 @@ import {
   OnInit,
   signal,
   ViewChild,
+  viewChild,
 } from '@angular/core';
 import { EXPORT_DIMENSIONS_BY_RATIO } from '../../constants/preview-sizes.constants';
+import { THEME_DESIGN_HEIGHT, THEME_DESIGN_WIDTH } from '../../constants/theme-canvas.constants';
 import type { AspectRatio } from '../../models/card-data.model';
 import { CardDataService } from '../../services/card-data.service';
 import { PreviewLayoutService } from '../../services/preview-layout.service';
 import { resizeDataUrlToExactDimensions } from '../../utils/resize-data-url.util';
+import { computeThemeCanvas } from '../../utils/theme-canvas.util';
+import {
+  CONTENT_FIT_MAX_PASSES,
+  CONTENT_FIT_TOLERANCE,
+  MAX_CONTENT_FIT_FACTOR,
+  measureTextOverflow,
+} from '../../utils/theme-fit.util';
 
 /** File extension + MIME info per exportable format. */
 const EXPORT_FORMAT_MAP = {
@@ -88,6 +97,20 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
   accentColorRgb = input<string>('255, 45, 149');
   secondaryAccentColor = input<string>('#00E5FF');
   cardOpacity = input<number>(0.85);
+  /**
+   * When true, the projected content fills the card edge-to-edge (no inner
+   * padding / flex distribution). Card themes draw their own full-bleed
+   * background + padding, so they opt into this; the stellar-map and legacy
+   * layouts keep the default padded flex column.
+   */
+  bleedContent = input<boolean>(false);
+  /**
+   * Width of the design artboard the projected theme was authored against.
+   * Only meaningful in `bleedContent` mode — see `computeThemeCanvas`.
+   */
+  themeBasisWidth = input<number>(THEME_DESIGN_WIDTH);
+  /** Height of the design artboard the projected theme was authored against. */
+  themeBasisHeight = input<number>(THEME_DESIGN_HEIGHT);
 
   @HostBinding('style.--scale-factor') get scale() {
     return this.scaleFactor();
@@ -101,9 +124,15 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
       if (natW > 0) return `${natW}px`;
       return this.backgroundImage() ? 'auto' : '480px';
     }
-    // Both 3:4 and 4:5 render at 480 px so the surrounding context bar +
-    // caption section align flush with the card chrome on either side.
-    return '480px';
+    // Card themes are authored on a 540 px basis (the design source canvas),
+    // so bleed (themed) cards render at 540 px for pixel-faithful proportions;
+    // the preview scales the card to fit and the export still targets 1080 px.
+    // Legacy / stellar consumers keep the historical 480 px chrome width.
+    return this.bleedContent() ? '540px' : '480px';
+  }
+  /** Base card width (px) used for header/post sizing math. */
+  private get baseWidth(): number {
+    return this.bleedContent() ? 540 : 480;
   }
   @HostBinding('style.--img-height') get imgHeight() {
     const natH = this.naturalImageHeight();
@@ -116,7 +145,7 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
       if (natW > 0) return `${natW * scale}px`;
       return `${480 * scale}px`;
     }
-    return `${480 * scale}px`;
+    return `${this.baseWidth * scale}px`;
   }
   @HostBinding('style.--post-width') get postWidth() {
     if (this.aspectRatio() === 'auto') {
@@ -163,6 +192,65 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
   naturalHeightPx = signal(680);
   naturalImageWidth = signal(0);
   naturalImageHeight = signal(0);
+
+  /** Card's measured layout width (pre-transform), published by `calculateScale`. */
+  private readonly cardLayoutWidth = signal(0);
+
+  /**
+   * Card's exact width / height ratio. Taken from the preset's canonical
+   * export dimensions rather than a rounded DOM measurement so the theme
+   * canvas is deterministic; `auto` falls back to the source image.
+   */
+  private readonly cardAspectValue = computed(() => {
+    const ratio = this.aspectRatio();
+    if (ratio === 'auto') {
+      const width = this.naturalImageWidth();
+      const height = this.naturalImageHeight();
+      return width > 0 && height > 0
+        ? width / height
+        : this.themeBasisWidth() / this.themeBasisHeight();
+    }
+    const dimensions = EXPORT_DIMENSIONS_BY_RATIO[ratio];
+    return dimensions.width / dimensions.height;
+  });
+
+  /**
+   * Layout canvas the projected theme renders into, plus the uniform scale
+   * that maps it onto the card. Guarantees the theme always gets at least
+   * its authored artboard room on both axes, so short aspects (1:1) no
+   * longer clip the tail of the content.
+   */
+  readonly themeCanvas = computed(() => {
+    const fit = this.contentFitFactor();
+    return computeThemeCanvas(this.cardLayoutWidth(), this.cardAspectValue(), {
+      width: this.themeBasisWidth() * fit,
+      height: this.themeBasisHeight() * fit,
+    });
+  });
+
+  /**
+   * How much the theme canvas is grown beyond its artboard so the user's text
+   * fits (1 = not at all). Themes are designed around typical data; a long
+   * object name, seven filters or extra gear rows can need more room than the
+   * artboard has, and without this the tail of the card was clipped off. A
+   * larger canvas is scaled down onto the same card, so the whole design
+   * shrinks slightly instead of losing content.
+   */
+  private readonly contentFitFactor = signal(1);
+
+  /** The theme canvas element, measured to fit content. */
+  private readonly themeCanvasRef = viewChild<ElementRef<HTMLElement>>('themeCanvasEl');
+
+  /** Watches the projected theme for re-renders that can change its height. */
+  private contentObserver: MutationObserver | null = null;
+
+  /** Pending animation frame for a coalesced content-fit pass, if any. */
+  private contentFitFrame = 0;
+
+  /** `transform` applied to the theme canvas, or `null` outside bleed mode. */
+  readonly themeCanvasTransform = computed(() =>
+    this.bleedContent() ? `scale(${this.themeCanvas().scale})` : null,
+  );
   private resizeObserver: ResizeObserver | null = null;
   private injector = inject(Injector);
 
@@ -197,11 +285,15 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
 
   ngAfterViewInit() {
     this.setupResizeObserver();
+    this.setupContentFit();
     setTimeout(() => this.calculateScale(), 100);
   }
 
   ngOnDestroy() {
     this.resizeObserver?.disconnect();
+    this.contentObserver?.disconnect();
+    cancelAnimationFrame(this.contentFitFrame);
+    document.fonts.removeEventListener('loadingdone', this.onFontsLoaded);
   }
 
   onImageLoad(evt: Event) {
@@ -209,6 +301,94 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
     this.naturalImageWidth.set(img.naturalWidth);
     this.naturalImageHeight.set(img.naturalHeight);
     setTimeout(() => this.calculateScale(), 50);
+  }
+
+  /** Re-fits the theme whenever its content, the canvas size or the fonts change. */
+  private setupContentFit(): void {
+    const canvas = this.themeCanvasRef()?.nativeElement;
+    if (!canvas || !this.bleedContent()) return;
+
+    this.contentObserver = new MutationObserver((mutations) => {
+      // The fit pass writes the canvas's own size; only changes inside the
+      // theme are a reason to measure again.
+      if (mutations.some((m) => m.target !== canvas)) this.scheduleContentFit();
+    });
+    this.contentObserver.observe(canvas, {
+      subtree: true,
+      childList: true,
+      characterData: true,
+      attributes: true,
+    });
+    document.fonts.addEventListener('loadingdone', this.onFontsLoaded);
+
+    // Format and artboard changes resize the canvas without touching the theme.
+    effect(
+      () => {
+        this.cardLayoutWidth();
+        this.cardAspectValue();
+        this.themeBasisWidth();
+        this.themeBasisHeight();
+        this.scheduleContentFit();
+      },
+      { injector: this.injector },
+    );
+  }
+
+  /** Web fonts landing late reflow text, so the fit is measured again. */
+  private readonly onFontsLoaded = (): void => this.scheduleContentFit();
+
+  /** Coalesces fit requests into one pass on the next animation frame. */
+  private scheduleContentFit(): void {
+    if (this.contentFitFrame) return;
+    this.contentFitFrame = requestAnimationFrame(() => {
+      this.contentFitFrame = 0;
+      this.fitThemeToContent();
+    });
+  }
+
+  /**
+   * Grows the theme canvas just enough that none of the user's text is cut
+   * off, and no further.
+   *
+   * Runs synchronously: the canvas is reset to its artboard, measured, and
+   * enlarged in steps within one task, so the preview never paints an
+   * intermediate size. Each step grows by the measured shortfall; when a step
+   * stops helping (content inside a fixed-height box) the best factor found
+   * is kept rather than shrinking the card for nothing.
+   */
+  private fitThemeToContent(): void {
+    const canvas = this.themeCanvasRef()?.nativeElement;
+    const root = canvas?.firstElementChild?.firstElementChild;
+    if (!canvas || !(root instanceof HTMLElement) || !this.bleedContent()) return;
+
+    // Sized exactly as the `themeCanvas` binding will size it, whole pixels
+    // included, so the measured layout is the one that renders.
+    const applyFactor = (factor: number): void => {
+      const sized = computeThemeCanvas(this.cardLayoutWidth(), this.cardAspectValue(), {
+        width: this.themeBasisWidth() * factor,
+        height: this.themeBasisHeight() * factor,
+      });
+      canvas.style.width = `${sized.width}px`;
+      canvas.style.height = `${sized.height}px`;
+    };
+
+    let factor = 1;
+    applyFactor(factor);
+    let overflow = measureTextOverflow(root);
+    let best = { factor, overflow };
+
+    for (let pass = 0; pass < CONTENT_FIT_MAX_PASSES && overflow > CONTENT_FIT_TOLERANCE; pass++) {
+      const next = Math.min(MAX_CONTENT_FIT_FACTOR, factor * overflow * 1.01);
+      if (next <= factor) break;
+      factor = next;
+      applyFactor(factor);
+      overflow = measureTextOverflow(root);
+      if (overflow < best.overflow - 0.005) best = { factor, overflow };
+      else if (overflow >= best.overflow) break;
+    }
+
+    applyFactor(best.factor);
+    this.contentFitFactor.set(best.factor);
   }
 
   private setupResizeObserver() {
@@ -229,6 +409,10 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
     const wrapperRect = wrapperElement.getBoundingClientRect();
     if (wrapperRect.width === 0) return;
 
+    // Publish the card's own layout width (unaffected by the post-container's
+    // scale transform) so the theme canvas can size itself against it.
+    this.cardLayoutWidth.set(cardElement.offsetWidth);
+
     // Measure the full post-container (header + card) at its natural (pre-transform) size.
     // In auto mode, use the known image natural dimensions for accurate scaling.
     let naturalHeight: number;
@@ -239,7 +423,13 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
       naturalHeight = this.naturalImageHeight(); // Header is outside the scale container, not included
     } else {
       naturalHeight = this.postContainerRef?.nativeElement.offsetHeight ?? 680;
-      naturalWidth = cardElement.offsetWidth;
+      // Measure the box the transform actually scales — the post-container's
+      // border-box — not the card inside it. The card is 2px narrower (the
+      // container's 1px side borders), so dividing by it made `scaleFactor`
+      // 540/538 too large: the scaled container came out ~1.8px wider than
+      // the wrapper while `.post-header` was clamped to it by `max-width`,
+      // leaving the card visibly overhanging the header on both edges.
+      naturalWidth = this.postContainerRef?.nativeElement.offsetWidth ?? cardElement.offsetWidth;
     }
     this.naturalHeightPx.set(naturalHeight);
 
@@ -313,9 +503,15 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
       const tag = this.exportTag() || 'astrogram';
       const filename = `${name}_${tag}_${aspectSlug(targetDim.width, targetDim.height)}_${targetDim.width}_${targetDim.height}.${fmtInfo.ext}`;
 
-      // The card element's natural dimensions (unaffected by CSS transform on parent)
-      const naturalWidth = element.offsetWidth;
-      const naturalHeight = element.offsetHeight;
+      // The card element's natural dimensions (unaffected by CSS transform on
+      // parent), floored to whole CSS pixels. The card's height is usually
+      // fractional (538 wide at 3:4 is 717.33 tall); captured at that size,
+      // the rendered image rounded up to 718 and left its last export row
+      // almost black. Clipping the sub-pixel sliver instead costs nothing
+      // visible, and the resize below stretches the capture to the target.
+      const cardStyle = getComputedStyle(element);
+      const naturalWidth = Math.floor(parseFloat(cardStyle.width)) || element.offsetWidth;
+      const naturalHeight = Math.floor(parseFloat(cardStyle.height)) || element.offsetHeight;
 
       // Calculate scale to reach target resolution (e.g. 1080px wide)
       const captureScale = targetDim.width / naturalWidth;
@@ -336,6 +532,8 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
       let dataUrl: string;
       try {
         const opts = {
+          width: naturalWidth,
+          height: naturalHeight,
           scale: captureScale,
           quality: 0.95,
           backgroundColor: '#000000',

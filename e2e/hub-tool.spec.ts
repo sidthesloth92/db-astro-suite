@@ -75,14 +75,14 @@ test.describe("Astrogram Tool Page", () => {
     await expect(hubTool.getStepHeadings()).toHaveCount(4);
   });
 
-  test("exposes the launch CTA and demo preview", async () => {
+  test("exposes the launch CTA and the demo video", async () => {
     await expect(hubTool.getPrimaryCta(/Launch Astrogram/i)).toHaveAttribute(
       "href",
       "/astrogram/",
     );
     await expect(
-      hubTool.getDemoImage(
-        "Astrogram plate-solved Stellar Map with labelled objects and light-year distances",
+      hubTool.getDemoVideo(
+        "Astrogram walkthrough demo: filling in the object, capture and gear panels, switching card themes and sizes, plate-solving a photo into a labelled stellar map, and exporting the card",
       ),
     ).toBeVisible();
   });
@@ -155,8 +155,8 @@ test.describe("Starwizz Tool Page", () => {
     await expect(hubTool.getSectionHeading(/OUTPUT/i)).toBeVisible();
   });
 
-  test("lists nine capabilities and five steps", async () => {
-    await expect(hubTool.getFeatureHeadings()).toHaveCount(9);
+  test("lists eleven capabilities and five steps", async () => {
+    await expect(hubTool.getFeatureHeadings()).toHaveCount(11);
     await expect(hubTool.getStepHeadings()).toHaveCount(5);
   });
 
@@ -167,6 +167,71 @@ test.describe("Starwizz Tool Page", () => {
     );
     await expect(
       hubTool.getDemoVideo("Starwizz cinematic starfield demo"),
+    ).toBeVisible();
+  });
+});
+
+test.describe("AstroSpike Tool Page", () => {
+  let hubTool: HubToolPage;
+
+  test.beforeEach(async ({ page }) => {
+    hubTool = new HubToolPage(page);
+    await hubTool.navigate("astrospike");
+  });
+
+  test("AstroSpike tool visual test", async ({ page }) => {
+    await expect(page).toHaveScreenshot("astrospike-tool.png", {
+      fullPage: true,
+      timeout: 15000,
+    });
+  });
+
+  test("AstroSpike tool SEO meta tags are correct", async ({ page }) => {
+    await expect(page).toHaveTitle(
+      "AstroSpike - Add Diffraction Spikes to Astrophotos",
+    );
+
+    const ogTitle = await page.getAttribute(
+      'meta[property="og:title"]',
+      "content",
+    );
+    expect(ogTitle).toBe("AstroSpike - Add Diffraction Spikes to Astrophotos");
+
+    const description = await page.getAttribute(
+      'meta[name="description"]',
+      "content",
+    );
+    expect(description).toBeTruthy();
+    expect(description!.toLowerCase()).toContain("diffraction spikes");
+
+    const canonical = await page.getAttribute('link[rel="canonical"]', "href");
+    expect(canonical).toBe("https://dbastrosuite.com/tool/astrospike");
+  });
+
+  test("renders the hero and the shared detail sections", async () => {
+    await expect(hubTool.getHeroHeading()).toContainText("ASTROSPIKE");
+    await expect(hubTool.getSectionHeading(/Why AstroSpike/i)).toBeVisible();
+    await expect(hubTool.getSectionHeading(/How it works/i)).toBeVisible();
+  });
+
+  test("lists every capability and step from the page config", async () => {
+    // One heading per capability tile. The "Before"/"After" output titles share
+    // the heading level but sit outside the tiles, so they are not counted.
+    await expect(hubTool.getFeatureHeadings()).toHaveCount(12);
+    await expect(hubTool.getStepHeadings()).toHaveCount(6);
+  });
+
+  test("exposes the launch CTA and the before/after stills", async ({
+    page,
+  }) => {
+    await expect(hubTool.getPrimaryCta(/Launch AstroSpike/i)).toHaveAttribute(
+      "href",
+      "/astrospike/",
+    );
+    await expect(
+      page.getByRole("img", {
+        name: /original astrophoto before any spikes/i,
+      }),
     ).toBeVisible();
   });
 });

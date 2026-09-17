@@ -1,0 +1,443 @@
+/* Star Trails card theme — faithful port of the design source ThemeStarTrails.
+   The pole-star cream (Polaris and the kicker) is the card's accent (Layout
+   panel), defaulting to the design's own. */
+
+:host {
+  --st-bg: #040810;
+  --st-txt: #eaf1fa;
+  --st-dim: #8a96ac;
+  --st-faint: #4b5669;
+  --st-pole: var(--accent-color);
+  --st-sans: 'Outfit', system-ui, sans-serif;
+  --st-grot: 'Space Grotesk', 'Outfit', sans-serif;
+  --st-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.st-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: var(--st-txt);
+  font-family: var(--st-sans);
+  padding: 28px 32px 26px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.st-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 70% 45% at 50% 24%, rgba(40, 60, 110, 0.25), transparent 66%),
+    var(--st-bg);
+  opacity: var(--card-opacity, 1);
+}
+
+/* ── Header ── */
+.st-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.st-eyebrow {
+  font: 600 10px/1 var(--st-mono);
+  color: var(--st-dim);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.st-date {
+  font: 500 10px/1 var(--st-mono);
+  color: var(--st-faint);
+  letter-spacing: 0.14em;
+}
+
+/* ── Trails ── */
+.st-svg {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: 2px;
+  /* Held to the 476px it was authored at and centred. Its height follows its
+     width, so on the wider 1:1 and 4:5 canvases it grew about a third taller
+     than at 3:4 and shoved the title onto the footer rule, while those formats
+     have no more height than 3:4 does. */
+  max-width: 476px;
+  align-self: center;
+  /* May give way when a heavy card needs the height, rather than pushing the
+     caption onto the footer rule and the footer into the bottom padding. */
+  min-height: 0;
+}
+
+.st-polaris {
+  font: 500 8.5px var(--st-mono);
+  letter-spacing: 0.16em;
+}
+
+/* Polaris takes the accent through CSS: SVG presentation attributes cannot
+   read a custom property. */
+.st-pole-stroke {
+  stroke: var(--st-pole);
+}
+
+.st-pole-fill {
+  fill: var(--st-pole);
+}
+
+/* ── Legend ── */
+.st-legend {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  margin-top: -26px;
+  /* A legend wider than the card wraps onto a second row, centred. */
+  flex-wrap: wrap;
+  row-gap: 14px;
+}
+
+/* Five or more bands: seven columns at the designed spacing ran wider than
+   the card and squeezed each one until "2h 42m" and "54 × 180s" broke over
+   two lines. Tighter columns keep them on one row where the card is wide
+   enough. */
+.st-root--dense .st-legend {
+  column-gap: 16px;
+}
+
+.st-legend-item {
+  text-align: center;
+}
+
+.st-legend-swatch {
+  display: block;
+  width: 22px;
+  height: 4px;
+  border-radius: 2px;
+  margin: 0 auto;
+}
+
+.st-legend-id {
+  font: 700 12px/1 var(--st-mono);
+  margin-top: 8px;
+}
+
+.st-legend-time {
+  font: 600 15px/1 var(--st-grot);
+  color: var(--st-txt);
+  margin-top: 6px;
+  white-space: nowrap;
+}
+
+.st-legend-frames {
+  font: 400 10.5px/1 var(--st-mono);
+  color: var(--st-faint);
+  margin-top: 5px;
+  white-space: nowrap;
+}
+
+/* ── Title + total ── */
+.st-title {
+  position: relative;
+  text-align: center;
+  margin-top: 16px;
+}
+
+.st-kicker {
+  font: 600 11px/1 var(--st-mono);
+  color: var(--st-pole);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.st-name {
+  font: 300 38px/1.05 var(--st-sans);
+  margin-top: 10px;
+}
+
+.st-sub {
+  font: 500 10.5px/1 var(--st-mono);
+  color: var(--st-faint);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-top: 10px;
+}
+
+.st-spacer {
+  flex: 1;
+  /* Never collapses to nothing: the frames caption sat on the footer rule
+     once a heavy card used up the free space. */
+  min-height: 14px;
+}
+
+/* 9:16 is 240px taller than 3:4 and all of that height pooled above the
+   footer, leaving a large empty band under the title. The header now takes
+   under 40% of it (the faint trails start inside the chart's own box), its
+   labels staying at the top, so the chart group sits lower
+   and the card reads balanced top to bottom. (Growing the chart's own box
+   instead left the trails floating well above the legend beneath.) */
+:host-context(.card.aspect-9-16) .st-header {
+  flex: 0.6 1 auto;
+  align-items: flex-start;
+}
+
+/* The story card is no wider than 3:4, so the trails are allowed to run to
+   the card's edges there (the band trails still clear them); the taller chart
+   takes up part of the height that pooled above and below it. */
+:host-context(.card.aspect-9-16) .st-root:not(.st-root--landscape) .st-svg {
+  max-width: none;
+  width: calc(100% + 64px);
+  margin-inline: -32px;
+}
+
+/* ── Footer ── */
+.st-footer {
+  position: relative;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 12px;
+}
+
+.st-foot-gear {
+  font: 500 11.5px/1.6 var(--st-mono);
+  color: #8b92a6;
+}
+
+.st-foot-row {
+  display: flex;
+  align-items: center;
+  margin-top: 7px;
+}
+
+.st-foot-author {
+  font: 600 13.5px/1 var(--st-sans);
+  color: #e7eaf2;
+}
+
+.st-foot-spacer {
+  flex: 1;
+}
+
+.st-foot-meta {
+  font: 500 11px/1 var(--st-mono);
+  color: #5a6175;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ── Portrait and square: the text block ──
+   The trails took 400px of a 720px card and pushed the legend, title and
+   footer into the lower third, where they sat close together at 9-10 px.
+   The trails are held a little smaller, which moves the text block up and
+   gives it room to be set larger and spaced more openly. */
+.st-root:not(.st-root--landscape) .st-svg {
+  max-width: 440px;
+}
+
+.st-root:not(.st-root--landscape) .st-legend {
+  margin-top: -22px;
+}
+
+.st-root:not(.st-root--landscape) .st-title {
+  margin-top: 22px;
+}
+
+.st-root:not(.st-root--landscape) .st-sub {
+  /* Lifted from the faint grey, which at this size read as a smudge. */
+  color: #6a7488;
+  margin-top: 12px;
+}
+
+.st-root:not(.st-root--landscape) .st-footer {
+  padding-top: 16px;
+}
+
+.st-root:not(.st-root--landscape) .st-foot-row {
+  margin-top: 10px;
+}
+
+.st-root:not(.st-root--landscape) .st-foot-meta {
+  color: #6f778b;
+  line-height: 1.3;
+  /* A long place wraps in two even lines rather than leaving "Bortle 9" alone. */
+  text-wrap: balance;
+}
+
+/* Seven bands at the larger frame counts ran wider than a 3:4 card and left
+   the last band alone on a second row; the dense legend keeps them a step
+   smaller and closer so they stay on one row. */
+.st-root--dense:not(.st-root--landscape) .st-legend {
+  column-gap: 12px;
+}
+
+.st-root--dense:not(.st-root--landscape) .st-legend-frames {
+  font-size: 9.5px;
+}
+
+/* ── Landscape (1.91:1) ──
+   The portrait column dropped into the wide frame left ~350px empty either
+   side of a narrow centre stack that was still over-packed vertically: the
+   trails shrank to about 300px with POLARIS near 5 export px, and the frames
+   caption sat on the footer rule. Here the trails fill a left column, the
+   header, title and legend stack beside them, and the footer runs the full
+   width beneath both. */
+.st-root--landscape {
+  display: grid;
+  grid-template-columns: 400px minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto auto minmax(0, 1fr) auto;
+  column-gap: 40px;
+}
+
+.st-root--landscape .st-header {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+/* Fills its grid area; the viewBox's `meet` fit keeps the trails round and
+   centred at whatever height the footer leaves. */
+.st-root--landscape .st-svg {
+  grid-column: 1;
+  grid-row: 1 / 6;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-width: none;
+  margin-top: 0;
+  align-self: stretch;
+}
+
+.st-root--landscape .st-polaris {
+  font-size: 11px;
+}
+
+/* Title first, then the legend it explains, reading down the column. */
+.st-root--landscape .st-title {
+  grid-column: 2;
+  grid-row: 3;
+  margin-top: 0;
+  text-align: left;
+}
+
+.st-root--landscape .st-kicker {
+  font-size: 11px;
+}
+
+.st-root--landscape .st-name {
+  font-size: 42px;
+  margin-top: 12px;
+}
+
+.st-root--landscape .st-sub {
+  font-size: 10.5px;
+  line-height: 1.3;
+  margin-top: 12px;
+}
+
+.st-root--landscape .st-legend {
+  grid-column: 2;
+  grid-row: 4;
+  justify-content: flex-start;
+  gap: 34px;
+  margin-top: 30px;
+}
+
+/* Five or more bands: in one row the legend ran past the right margin and
+   grew the card by a quarter, shrinking the counts and footer to ~9 export
+   px. The bands set in rows of four instead. */
+.st-root--landscape.st-root--dense .st-legend {
+  display: grid;
+  grid-template-columns: repeat(4, max-content);
+  gap: 14px 34px;
+  margin-top: 22px;
+}
+
+/* The second legend row used up the free rows around the title, which then
+   sat directly under the header; this keeps them apart. */
+.st-root--landscape.st-root--dense .st-title {
+  margin-top: 16px;
+}
+
+.st-root--landscape .st-legend-item {
+  text-align: left;
+}
+
+.st-root--landscape .st-legend-swatch {
+  width: 26px;
+  margin: 0;
+}
+
+.st-root--landscape .st-legend-id {
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+.st-root--landscape .st-legend-time {
+  font-size: 18px;
+  margin-top: 7px;
+  white-space: nowrap;
+}
+
+.st-root--landscape .st-legend-frames {
+  font-size: 11px;
+  margin-top: 6px;
+  white-space: nowrap;
+}
+
+.st-root--landscape .st-spacer {
+  display: none;
+}
+
+.st-root--landscape .st-footer {
+  grid-column: 1 / -1;
+  grid-row: 6;
+  margin-top: 14px;
+}
+
+.st-root--landscape .st-foot-gear {
+  font-size: 10.5px;
+}
+
+.st-root--landscape .st-foot-row {
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 8px;
+}
+
+.st-root--landscape .st-foot-author {
+  font-size: 13px;
+}
+
+.st-root--landscape .st-foot-meta {
+  font-size: 10.5px;
+  line-height: 1.3;
+}
+
+/* A long handle or location used to run the two ends of this row into each
+   other. The row may wrap. On one line the spacer still pushes the meta to
+   the right edge; once it wraps, the meta starts at the left edge under the
+   handle. Pushed right by an auto margin instead, a wrapped meta sat indented
+   by whatever room was left over and lined up with nothing. */
+.st-foot-row {
+  flex-wrap: wrap;
+  justify-content: space-between;
+  column-gap: 16px;
+  row-gap: 8px;
+}
+
+.st-foot-row .st-foot-meta {
+  min-width: 0;
+}
+

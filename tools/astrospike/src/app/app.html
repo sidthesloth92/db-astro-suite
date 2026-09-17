@@ -1,0 +1,77 @@
+<dba-ui-header
+  title="ASTROSPIKE"
+  titleAccent="SPIKE"
+  [version]="version"
+  tagline="Diffraction spike studio"
+  logoSrc="assets/img/astrospike-mark.svg"
+  logoLink="/tool/astrospike"
+  githubLink="https://github.com/sidthesloth92/db-astro-suite"
+></dba-ui-header>
+
+@if (breakpoints.isMobile()) {
+  <main class="as-container as-container--mobile">
+    <dba-as-spike-stage></dba-as-spike-stage>
+
+    <dba-ui-icon-button
+      class="as-mobile-howto"
+      accent="cyan"
+      [size]="44"
+      title="How to use"
+      (clicked)="onOpenHowTo()"
+    >
+      <dba-ui-icon [def]="circleHelpIcon" [size]="18" />
+    </dba-ui-icon-button>
+
+    @if (!sheetExpanded()) {
+      <dba-ui-icon-button
+        class="as-mobile-fab"
+        accent="cyan"
+        [size]="52"
+        title="Open controls"
+        (clicked)="toggleSheet()"
+      >
+        <dba-ui-icon [def]="slidersIcon" [size]="24" />
+      </dba-ui-icon-button>
+    }
+
+    <dba-ui-floating-sheet
+      class="as-mobile-sheet"
+      [class.as-mobile-sheet--ghosted]="isAdjusting()"
+      [(expanded)]="sheetExpanded"
+      [title]="sheetStar() !== null ? 'Star' : 'Controls'"
+      [maxHeightPercent]="62"
+      (pointerdown)="onAdjustStart($event)"
+      (pointerup)="onAdjustEnd()"
+      (pointercancel)="onAdjustEnd()"
+    >
+      <!-- The sheet hosts whichever controls the user is working with: one
+           star's own, or the globals. The star panel names its star at the
+           top, and its deselect hands the sheet back to the globals. -->
+      @if (sheetStar(); as star) {
+        <dba-as-star-controls
+          class="in-sheet"
+          [starId]="star.id"
+          (closed)="onSheetStarClosed()"
+        ></dba-as-star-controls>
+      } @else {
+        <dba-as-control-panel
+          class="in-sheet"
+          (howToRequested)="onOpenHowTo()"
+        ></dba-as-control-panel>
+      }
+    </dba-ui-floating-sheet>
+  </main>
+} @else {
+  <main class="as-container">
+    <dba-as-spike-stage></dba-as-spike-stage>
+    <!-- No image, no inspector: the stage takes the whole width rather than
+         sitting beside a pane whose every control would act on nothing. -->
+    @if (hasInspector()) {
+      <dba-as-control-panel (howToRequested)="onOpenHowTo()"></dba-as-control-panel>
+    }
+  </main>
+}
+
+@if (isHowToOpen()) {
+  <dba-as-how-to-overlay (closed)="onCloseHowTo()" />
+}

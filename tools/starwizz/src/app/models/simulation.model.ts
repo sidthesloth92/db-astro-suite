@@ -6,7 +6,11 @@ export type ControlKey =
   | 'shootingStarSpeed'
   | 'starSpeed'
   | 'baseStarSize'
-  | 'starCount';
+  | 'starCount'
+  | 'starColorIntensity'
+  | 'colorfulStarRatio'
+  | 'twinkleStrength'
+  | 'spikeAmount';
 
 /**
  * Direction the camera travels through the starfield. Depth directions

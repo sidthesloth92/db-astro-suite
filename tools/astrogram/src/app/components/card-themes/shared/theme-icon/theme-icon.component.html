@@ -1,0 +1,65 @@
+<svg
+  [attr.width]="size()"
+  [attr.height]="size()"
+  viewBox="0 0 24 24"
+  fill="none"
+  [attr.stroke]="color()"
+  [attr.stroke-width]="strokeWidth()"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+>
+  @switch (name()) {
+    @case ('calendar') {
+      <rect x="3" y="4" width="18" height="18" rx="2" />
+      <line x1="16" x2="16" y1="2" y2="6" />
+      <line x1="8" x2="8" y1="2" y2="6" />
+      <line x1="3" x2="21" y1="10" y2="10" />
+    }
+    @case ('pin') {
+      <path d="M20 10c0 7-8 13-8 13s-8-6-8-13a8 8 0 0 1 16 0z" />
+      <circle cx="12" cy="10" r="3" />
+    }
+    @case ('user') {
+      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    }
+    @case ('telescope') {
+      <path d="m10 22 4-9" />
+      <path d="m12.5 13 4.5 9" />
+      <path d="M3 15h18" />
+      <path d="M5 11h14l-2-7H7z" />
+    }
+    @case ('camera') {
+      <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z" />
+      <circle cx="12" cy="13" r="3" />
+    }
+    @case ('mount') {
+      <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+    }
+    @case ('target') {
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="12" cy="12" r="6" />
+      <circle cx="12" cy="12" r="2" />
+    }
+    @case ('filter') {
+      <path d="M22 17a10 10 0 0 0-20 0" />
+      <path d="M18 17a6 6 0 0 0-12 0" />
+      <path d="M14 17a2 2 0 0 0-4 0" />
+    }
+    @case ('chip') {
+      <rect x="4" y="4" width="16" height="16" rx="2" />
+      <rect x="9" y="9" width="6" height="6" />
+    }
+    @case ('settings') {
+      <circle cx="12" cy="12" r="3" />
+      <path d="M12 1v3M12 20v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M1 12h3M20 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12" />
+    }
+    @case ('sparkles') {
+      <path d="m12 3-1.9 5.4L5 10l5.1 1.6L12 17l1.9-5.4L19 10l-5.1-1.6z" />
+    }
+    @case ('mountain') {
+      <path d="m8 3 4 8 5-5 5 15H2L8 3z" />
+    }
+  }
+</svg>

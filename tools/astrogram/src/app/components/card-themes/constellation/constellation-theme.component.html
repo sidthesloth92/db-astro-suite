@@ -1,0 +1,170 @@
+@let data = vm();
+
+<div class="con-root" [class.con-root--landscape]="isLandscapeFormat()">
+  <dba-ag-theme-starfield [density]="150" [opacity]="0.55" [color]="'#F2F7FF'" [seed]="9" />
+
+  <!-- Art box: the chart and the band labels pinned to its stars share one
+       540 x 720 box, so every label stays beside its star in every format. -->
+  <div class="con-art" [class.con-art--landscape]="isLandscapeFormat()">
+    <svg class="con-chart" viewBox="0 0 540 720" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <g [attr.transform]="'translate(0 ' + chartTop + ')'">
+        <!-- RA/Dec faint graticule -->
+        @for (x of graticuleX; track $index) {
+          <line
+            [attr.x1]="x"
+            y1="20"
+            [attr.x2]="x"
+            [attr.y2]="graticuleBottom"
+            class="con-chart-line"
+            stroke-width="0.4"
+            opacity="0.1"
+          />
+        }
+        @for (y of graticuleY; track $index) {
+          <line
+            x1="20"
+            [attr.y1]="y"
+            [attr.x2]="graticuleRight"
+            [attr.y2]="y"
+            class="con-chart-line"
+            stroke-width="0.4"
+            opacity="0.1"
+          />
+        }
+
+        <!-- edges -->
+        @for (edge of edgeLines; track $index) {
+          <line
+            [attr.x1]="edge.x1"
+            [attr.y1]="edge.y1"
+            [attr.x2]="edge.x2"
+            [attr.y2]="edge.y2"
+            class="con-chart-line"
+            stroke-width="1"
+            opacity="0.5"
+          />
+        }
+
+        <!-- normal stars -->
+        @for (node of starNodes; track $index) {
+          <circle [attr.cx]="node.x" [attr.cy]="node.y" r="2.4" fill="#F2F7FF" opacity="0.9" />
+        }
+
+        <!-- bright band stars -->
+        @for (star of brightStars(); track star.band.id) {
+          <g>
+            <circle [attr.cx]="star.x" [attr.cy]="star.y" r="11" [attr.fill]="star.band.color" opacity="0.18" />
+            <circle [attr.cx]="star.x" [attr.cy]="star.y" r="4.4" [attr.fill]="star.band.color" />
+            <circle
+              [attr.cx]="star.x"
+              [attr.cy]="star.y"
+              r="4.4"
+              fill="none"
+              stroke="#fff"
+              stroke-width="0.8"
+              opacity="0.7"
+            />
+          </g>
+        }
+      </g>
+    </svg>
+
+    <!-- Band labels -->
+    <div class="con-label-frame">
+      @for (star of brightStars(); track star.band.id) {
+        <div class="con-band-label" [style.top.%]="star.labelTopPct" [style.left.%]="star.labelLeftPct">
+          <div class="con-band-id" [style.color]="star.band.color">{{ star.band.id }}</div>
+          <div class="con-band-time">{{ star.band.time }}</div>
+          <div class="con-band-frames">{{ star.band.frames }}</div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Chart header -->
+  <div class="con-header">
+    <span class="con-datestamp">Star Chart · {{ data.dateNumeric }}</span>
+  </div>
+
+  <!-- Name plate and legend share one column from the name plate's position to
+       the bottom edge, so a tall legend can never slide up over the name. -->
+  <div class="con-lower">
+    <!-- Object name plate -->
+    <div class="con-nameplate" data-testid="card-hero">
+      @if (data.objectId) {
+        <div class="con-object-id">{{ data.objectId }}</div>
+      }
+      <div class="con-object-name">{{ data.objectName }}</div>
+    </div>
+
+    <!-- Lower legend panel -->
+    <div class="con-legend">
+      @if (data.caption && !isLandscapeFormat()) {
+        <div class="con-caption">{{ data.caption }}</div>
+      }
+      <div class="con-cols">
+        <div class="con-col">
+          <div class="con-col-title">Apparatus</div>
+          @for (item of data.equipment; track $index) {
+            <div class="con-row">
+              <span class="con-row-label">{{ item.label }}</span>
+              <span class="con-row-value">{{ item.value }}</span>
+            </div>
+          }
+        </div>
+        <div class="con-col">
+          <div class="con-col-title">Pipeline</div>
+          @for (item of data.software; track $index) {
+            <div class="con-row">
+              <span class="con-row-label">{{ item.label }}</span>
+              <span class="con-row-value">{{ item.value }}</span>
+            </div>
+          }
+          @if (!isLandscapeFormat()) {
+            <ng-container [ngTemplateOutlet]="totalRow" />
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Landscape chart note: the caption and total set under the chart, which
+       leaves the right-hand column to the name plate and the two lists. -->
+  @if (isLandscapeFormat()) {
+    <div class="con-note">
+      @if (data.caption) {
+        <div class="con-caption">{{ data.caption }}</div>
+      }
+      <ng-container [ngTemplateOutlet]="totalRow" />
+    </div>
+  }
+</div>
+
+<ng-template #totalRow>
+  <div class="con-total-row">
+    <span class="con-total">Total {{ data.total }}</span>
+    @if (isLandscapeFormat()) {
+      <!-- Centred under the chart, with room to spare: every separator is
+           glued to both neighbours, so no line starts or ends on a "·", and
+           the place breaks only after a comma. -->
+      <span class="con-sky">Bortle&nbsp;{{ data.bortle }}@if (placeName()) {<span>&nbsp;·&nbsp;{{ placeName() }}</span>}@if (data.author) {<span>&nbsp;·&nbsp;{{ data.author }}</span>}</span>
+    } @else {
+      <!-- The sky and the place wrap as one run that breaks only after a
+           comma; the handle is a whole item, and the separator before it is
+           clipped when it ends a line (see .con-sky-line). -->
+      <span class="con-sky">
+        <span class="con-sky-line">
+          <span class="con-sky-part">
+            <span class="con-sky-text">Bortle&nbsp;{{ data.bortle }}@if (placeName()) {<span>&nbsp;·&nbsp;{{ placeName() }}</span>}</span>
+            @if (data.author) {
+              <span class="con-sep" aria-hidden="true"></span>
+            }
+          </span>
+          @if (data.author) {
+            <span class="con-sky-part">{{ data.author }}</span>
+          }
+        </span>
+      </span>
+    }
+  </div>
+</ng-template>

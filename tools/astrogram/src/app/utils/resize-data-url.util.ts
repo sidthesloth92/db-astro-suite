@@ -28,6 +28,18 @@ export async function resizeDataUrlToExactDimensions(
   }
   ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, width, height);
-  ctx.drawImage(img, 0, 0, width, height);
+
+  // A capture of a fractionally sized card rounds up to one extra pixel row
+  // or column that is almost all background. Scaling that down into the
+  // target smeared it into a dark line along the bottom or right edge, so a
+  // source up to 2px too large is cropped at 1:1 instead — which also keeps
+  // the image free of resampling blur.
+  const overshootW = img.naturalWidth - width;
+  const overshootH = img.naturalHeight - height;
+  if (overshootW >= 0 && overshootH >= 0 && overshootW <= 2 && overshootH <= 2) {
+    ctx.drawImage(img, 0, 0, width, height, 0, 0, width, height);
+  } else {
+    ctx.drawImage(img, 0, 0, width, height);
+  }
   return canvas.toDataURL(mime, quality);
 }

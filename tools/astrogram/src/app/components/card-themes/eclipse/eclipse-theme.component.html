@@ -1,0 +1,78 @@
+@let data = vm();
+
+<div class="ec-root" [class.ec-root--landscape]="isLandscapeFormat()" [class.ec-root--dense]="segments().length > 4">
+  <dba-ag-theme-starfield [density]="80" [opacity]="0.35" [seed]="24" />
+
+  <!-- Header -->
+  <div class="ec-header">
+    <span class="ec-eyebrow">Totality</span>
+    <span class="ec-date">{{ data.dateNumeric }}</span>
+  </div>
+
+  <!-- Eclipse -->
+  <svg class="ec-svg" viewBox="0 0 476 380" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+    <defs>
+      <radialGradient id="ec-corona" cx="50%" cy="50%" r="50%">
+        <stop class="ec-corona-stop" offset="52%" stop-opacity="0" />
+        <stop class="ec-corona-stop" offset="60%" stop-opacity="0.35" />
+        <stop class="ec-corona-stop" offset="72%" stop-opacity="0.1" />
+        <stop class="ec-corona-stop" offset="100%" stop-opacity="0" />
+      </radialGradient>
+    </defs>
+
+    <!-- corona glow -->
+    <circle [attr.cx]="cx" [attr.cy]="cy" [attr.r]="glowR" fill="url(#ec-corona)" />
+
+    <!-- corona streamers -->
+    @for (s of streamers; track $index) {
+      <line [attr.x1]="s.x1" [attr.y1]="s.y1" [attr.x2]="s.x2" [attr.y2]="s.y2" class="ec-streamer" stroke-width="0.8" opacity="0.4" />
+    }
+
+    <!-- band ring segments -->
+    @for (s of segments(); track s.id) {
+      <path [attr.d]="s.d" fill="none" [attr.stroke]="s.color" stroke-width="9" stroke-linecap="round" opacity="0.95" />
+      <path [attr.d]="s.d" fill="none" [attr.stroke]="s.color" stroke-width="20" stroke-linecap="round" opacity="0.15" />
+    }
+
+    <!-- moon disc -->
+    <circle [attr.cx]="cx" [attr.cy]="cy" [attr.r]="discR" fill="#060608" class="ec-disc" stroke-width="1" />
+
+    <!-- total inside the disc -->
+    <text [attr.x]="cx" [attr.y]="cy - 12" text-anchor="middle" class="ec-total-label">TOTAL</text>
+    <text [attr.x]="cx" [attr.y]="cy + 22" text-anchor="middle" class="ec-total-value">{{ data.total }}</text>
+
+    <!-- diamond-ring glint -->
+    <circle [attr.cx]="glint.x" [attr.cy]="glint.y" r="3.4" fill="#fff" />
+    <circle [attr.cx]="glint.x" [attr.cy]="glint.y" r="9" fill="#fff" opacity="0.25" />
+  </svg>
+
+  <!-- Legend -->
+  <div class="ec-legend">
+    @for (b of segments(); track b.id) {
+      <div class="ec-legend-item">
+        <span class="ec-legend-swatch" [style.background]="b.color"></span>
+        <div class="ec-legend-id" [style.color]="b.color">{{ b.id }}</div>
+        <div class="ec-legend-time">{{ b.time }}</div>
+        <div class="ec-legend-frames">{{ b.frames }}</div>
+      </div>
+    }
+  </div>
+
+  <!-- Title -->
+  <div class="ec-title" data-testid="card-hero">
+    <div class="ec-kicker">{{ data.objectId }}</div>
+    <div class="ec-name">{{ data.objectName }}</div>
+  </div>
+
+  <div class="ec-spacer"></div>
+
+  <!-- Footer -->
+  <div class="ec-footer">
+    <dba-ag-theme-gear-line class="ec-foot-gear" [values]="equipmentValues()" />
+    <div class="ec-foot-row">
+      <span class="ec-foot-author">{{ data.author }}</span>
+      <span class="ec-foot-spacer"></span>
+      <span class="ec-foot-meta">{{ data.location }} · Bortle {{ data.bortle }}</span>
+    </div>
+  </div>
+</div>

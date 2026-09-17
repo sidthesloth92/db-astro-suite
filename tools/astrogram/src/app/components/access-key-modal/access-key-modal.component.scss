@@ -1,161 +1,339 @@
-.modal-backdrop {
+// Astro Solve access-key modal — faithful port of the design source.
+// Ad-hoc mock tokens mapped to the shared @db-astro-suite/theme tokens where
+// they exist; JetBrains Mono / Major Mono Display are loaded in index.html.
+
+$font-mono: 'JetBrains Mono', ui-monospace, monospace;
+$font-word: 'Major Mono Display', 'JetBrains Mono', monospace;
+
+.astro-overlay {
   position: fixed;
   inset: 0;
-  background: var(--db-glass-bg);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(3, 4, 8, 0.66);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: astro-fade 0.22s ease both;
 }
 
-.modal-dialog {
-  background: var(--db-glass-bg);
-  border: 1px solid var(--db-glass-border);
-  box-shadow: 0 0 40px var(--db-glass-border);
-  border-radius: var(--db-radius-lg, 0.5rem);
+.astro-stars {
+  position: absolute;
+  inset: 0;
   width: 100%;
-  max-width: 420px;
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  font-family: var(--db-form-font-mono, monospace);
+  height: 100%;
+  pointer-events: none;
 }
 
-.modal-header {
+.astro-modal {
+  position: relative;
+  width: min(430px, 100%);
+  padding: 34px 30px 28px;
+  text-align: center;
+  border: 1px solid var(--db-color-border);
+  border-radius: 20px;
+  background:
+    radial-gradient(120% 90% at 50% -10%, rgba(120, 40, 110, 0.16), transparent 60%),
+    linear-gradient(180deg, #0d111b 0%, var(--db-color-surface) 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 40px 100px -24px rgba(0, 0, 0, 0.85),
+    0 0 70px -16px rgba(255, 45, 149, 0.22);
+  animation: astro-pop 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+// Premium gradient hairline border
+.astro-modal::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    150deg,
+    rgba(255, 45, 149, 0.55),
+    rgba(0, 229, 255, 0.14) 34%,
+    rgba(255, 255, 255, 0.05) 60%,
+    transparent 82%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.astro-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: 1px solid var(--db-color-border);
+  border-radius: 9px;
+  color: var(--db-color-text-faint);
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover {
+    color: #fff;
+    border-color: var(--db-color-border-strong);
+    background: var(--db-color-surface-hi);
+  }
+}
+
+.astro-logo {
   display: flex;
   align-items: center;
-}
-
-.modal-title {
-  font-size: 1rem;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--db-color-neon-pink);
-  margin: 0;
-}
-
-.modal-body {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.modal-description {
-  font-size: 0.75rem;
-  color: var(--db-color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin: 0;
-}
-
-.modal-error {
-  font-size: 0.75rem;
-  color: var(--db-color-neon-pink);
-  background: var(--db-glass-bg);
-  border: 1px solid var(--db-glass-border);
-  border-radius: var(--db-radius-md, 0.375rem);
-  padding: 0.5rem 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin: 0;
-}
-
-.modal-footer {
-  display: flex;
-  gap: 0.75rem;
-  justify-content: flex-end;
-}
-
-.modal-btn {
-  font-family: var(--db-form-font-mono, monospace);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-size: 0.7rem;
-  padding: 0.6rem 1.25rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border-radius: var(--db-radius-md, 0.375rem);
-}
-
-.modal-btn--cancel {
-  background: transparent;
-  border: 1px solid var(--db-color-text-muted);
-  color: var(--db-color-text-muted);
-}
-
-.modal-btn--cancel:hover {
-  border-color: var(--db-color-text-primary);
-  color: var(--db-color-text-primary);
-}
-
-.modal-btn--submit {
-  background: var(--db-glass-bg);
-  border: 1px solid var(--db-glass-border);
-  color: var(--db-color-neon-pink);
-}
-
-.modal-btn--submit:hover:not(:disabled) {
-  background: var(--db-glass-border);
-  border-color: var(--db-color-neon-pink);
-  box-shadow: 0 0 15px var(--db-glass-border);
-}
-
-.modal-btn--submit:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.modal-btn--instagram {
-  background: var(--db-glass-bg);
-  border: 1px solid var(--db-color-neon-pink);
-  color: var(--db-color-neon-pink);
-  width: 100%;
-  padding: 0.85rem 1.25rem;
-  font-size: 0.8rem;
-  margin-top: 0.25rem;
-}
-
-.modal-btn--instagram:hover {
-  background: var(--db-glass-border);
-  box-shadow: 0 0 20px var(--db-color-neon-pink);
-}
-
-.modal-link {
-  background: transparent;
-  border: none;
-  color: var(--db-color-text-muted);
-  font-family: var(--db-form-font-mono, monospace);
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  padding: 0.25rem;
-  cursor: pointer;
-  align-self: center;
-  transition: color 0.2s ease;
-}
-
-.modal-link:hover {
-  color: var(--db-color-neon-pink);
-}
-
-.modal-footer--single {
   justify-content: center;
+  gap: 11px;
+  margin: 2px 0 22px;
 }
 
-.modal-field {
+.astro-logo-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--db-gradient-astrogram-avatar);
+  box-shadow:
+    0 0 0 1px rgba(255, 45, 149, 0.35),
+    0 0 22px -2px rgba(255, 45, 149, 0.55);
+}
+
+.astro-logo-word {
+  font: 400 23px/1 #{$font-word};
+  letter-spacing: 0.04em;
+  color: #fff;
+}
+
+.astro-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font: 600 10px/1 #{$font-mono};
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--db-color-neon-pink);
+  margin-bottom: 12px;
+
+  .dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--db-color-neon-pink);
+    box-shadow: 0 0 8px var(--db-color-neon-pink);
+  }
+}
+
+.astro-title {
+  margin: 0 0 10px;
+  font: 700 23px/1.12 var(--db-font-ui);
+  letter-spacing: -0.015em;
+  text-transform: none;
+  color: #fff;
+}
+
+.astro-body {
+  margin: 0 auto;
+  max-width: 34ch;
+  font: 400 14.5px/1.55 var(--db-font-ui);
+  color: var(--db-color-text-dim);
+
+  b {
+    color: var(--db-color-text-primary);
+    font-weight: 600;
+  }
+}
+
+// ── Buttons ──
+.astro-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  font: 600 14px/1 var(--db-font-ui);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition:
+    filter 0.15s,
+    background 0.15s,
+    border-color 0.15s,
+    transform 0.05s;
+
+  &:active {
+    transform: translateY(1px);
+  }
+}
+
+.astro-btn--primary {
+  background: linear-gradient(180deg, #ff4fa6, var(--db-color-neon-pink));
+  color: #fff;
+  box-shadow:
+    0 0 0 1px var(--db-color-neon-pink),
+    0 10px 26px -8px rgba(255, 45, 149, 0.6),
+    0 0 0 3px rgba(255, 45, 149, 0.1);
+
+  &:hover:not([disabled]) {
+    filter: brightness(1.07);
+  }
+
+  &[disabled] {
+    opacity: 0.4;
+    cursor: not-allowed;
+    filter: none;
+    box-shadow: 0 0 0 1px var(--db-color-neon-pink);
+  }
+}
+
+.astro-btn--ghost {
+  background: var(--db-color-surface-hi);
+  border-color: var(--db-color-border-strong);
+  color: var(--db-color-text-primary);
+
+  &:hover {
+    background: #1c2230;
+    border-color: rgba(255, 255, 255, 0.16);
+  }
+}
+
+.astro-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  padding: 8px;
+  margin: 0 auto;
+  font: 500 13px/1 var(--db-font-ui);
+  color: var(--db-color-text-dim);
+  cursor: pointer;
+  transition: color 0.15s;
+
+  svg {
+    transition: transform 0.15s;
+  }
+
+  &:hover {
+    color: var(--db-color-neon-pink);
+
+    svg {
+      transform: translateX(2px);
+    }
+  }
+}
+
+// ── Input ──
+.astro-field {
+  text-align: left;
+}
+
+.astro-field--spaced {
+  margin-top: 22px;
+}
+
+.astro-field-label {
+  display: block;
+  font: 600 10px/1 #{$font-mono};
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--db-color-text-faint);
+  margin-bottom: 9px;
+}
+
+.astro-input-wrap {
+  position: relative;
+
+  > svg {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--db-color-text-faint);
+    pointer-events: none;
+    transition: color 0.15s;
+  }
+
+  &:focus-within > svg {
+    color: var(--db-color-neon-pink);
+  }
+}
+
+.astro-input {
+  width: 100%;
+  padding: 14px 14px 14px 42px;
+  background: var(--db-color-surface-bg);
+  border: 1px solid var(--db-color-border);
+  border-radius: 12px;
+  color: var(--db-color-text-primary);
+  font: 500 14px/1.2 #{$font-mono};
+  letter-spacing: 0.04em;
+  outline: none;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+
+  &::placeholder {
+    color: var(--db-color-text-faint);
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
+  &:focus {
+    border-color: var(--db-color-pink-dim);
+    box-shadow: 0 0 0 3px rgba(255, 45, 149, 0.14);
+  }
+}
+
+.astro-err {
+  color: var(--db-color-neon-pink);
+  font: 500 12.5px/1.4 var(--db-font-ui);
+  margin-top: 10px;
+  text-align: left;
+}
+
+.astro-actions {
+  margin-top: 24px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 12px;
 }
 
-.modal-field-label {
-  font-family: var(--db-font-mono-code);
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--db-color-text-dim);
+.astro-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+
+  .astro-btn {
+    width: auto;
+    flex: 1;
+  }
+}
+
+@keyframes astro-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes astro-pop {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.984);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }

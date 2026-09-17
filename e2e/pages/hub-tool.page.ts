@@ -1,7 +1,12 @@
 import { Locator, Page, expect } from "@playwright/test";
 
 /** Hub tool slugs — map 1:1 to `/tool/<slug>` URLs. */
-export type HubToolSlug = "astrogram" | "starwizz" | "sortronomy" | "celestory";
+export type HubToolSlug =
+  | "astrogram"
+  | "starwizz"
+  | "astrospike"
+  | "sortronomy"
+  | "celestory";
 
 /**
  * Page Object for the hub tool detail pages (`/tool/<slug>`). They share

@@ -245,6 +245,9 @@
   position: relative;
   z-index: 5;
   height: 100%;
+  /* Inherited by every theme: avoid leaving a lone word or emoji on the last
+     line of a description ("Day 🌹" orphaned under a full line of text). */
+  text-wrap: pretty;
   display: flex;
   flex-direction: column;
   /* Distribute the projected sections with `space-between` plus a small floor
@@ -288,6 +291,36 @@
 .card.aspect-9-16 .card-content {
   justify-content: center;
   gap: 2.25rem;
+}
+
+/* Full-bleed content mode: card themes render their own background + padding
+   and manage their own internal layout, so the content host becomes a plain
+   full-size block. Placed after the aspect-specific `.card-content` rules so
+   it wins on equal specificity via source order. */
+.card.bleed .card-content {
+  display: block;
+  padding: 0;
+  gap: 0;
+  justify-content: flex-start;
+}
+
+/* Theme canvas. Transparent to layout by default so the legacy / stellar
+   consumers keep projecting their sections straight into `.card-content`'s
+   flex column. */
+.theme-canvas {
+  display: contents;
+}
+
+/* Bleed (themed) mode: the canvas becomes a real box sized to the theme's
+   design artboard, grown to the card's aspect, then uniformly scaled to
+   cover the card. Absolutely positioned so its own size can never feed back
+   into the card's aspect-derived box. */
+.theme-canvas.is-fitted {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: top left;
 }
 
 .card-overlay {

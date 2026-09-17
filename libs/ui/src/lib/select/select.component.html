@@ -12,13 +12,13 @@
         @if (isGroup(item)) {
           <optgroup [label]="item.label">
             @for (opt of item.options; track opt.value) {
-              <option [value]="opt.value">
+              <option [value]="opt.value" [selected]="opt.value === value()">
                 {{ opt.label }}
               </option>
             }
           </optgroup>
         } @else {
-          <option [value]="item.value">
+          <option [value]="item.value" [selected]="item.value === value()">
             {{ item.label }}
           </option>
         }

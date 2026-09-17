@@ -325,13 +325,13 @@ describe('SimulationService', () => {
       finalizePanPath();
 
       // pathSpeed / ASSUMED_FPS * PATH_STAR_SPEED_FACTOR * (slider / default)
-      // = 150 / 60 * 0.6 * (5 / 5) = 1.5
+      // = 150 / 60 * 0.6 * (4 / 4) = 1.5
       expect(service.getStarMotionSpeed()).toBeCloseTo(1.5, 5);
     });
 
     it('treats the Star Speed slider as a relative multiplier in a Custom Path', () => {
       finalizePanPath();
-      service.updateControl('starSpeed', 10); // 2× the default slider
+      service.updateControl('starSpeed', 8); // 2× the default slider
 
       expect(service.getStarMotionSpeed()).toBeCloseTo(3.0, 5);
     });

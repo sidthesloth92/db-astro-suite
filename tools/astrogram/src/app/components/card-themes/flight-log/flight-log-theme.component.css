@@ -1,0 +1,517 @@
+/* Flight Log card theme — faithful port of the design source ThemeFlightLog.
+   Per-theme palette/typography is the theme's identity, so colours are literal,
+   bar the mint the Layout panel's accent picker sets.
+   The prototype's `sans` stack leads with "DM Sans" (not loaded), so it renders
+   in the app body font Outfit — declared directly here. Exposure segment ids /
+   fills use each band's own filter colour. */
+
+:host {
+  --fl-bg: #0e1117;
+  --fl-card: #141925;
+  /* Mint is the card's one accent (the header band, figures, route star and
+     stars); the theme has no second decorative colour. */
+  --fl-mint: var(--accent-color);
+  --fl-txt: #eaf2f0;
+  --fl-dim: #7c8a93;
+  --fl-faint: #49555e;
+  --fl-sans: 'Outfit', -apple-system, system-ui, sans-serif;
+  --fl-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.fl-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: var(--fl-txt);
+  font-family: var(--fl-sans);
+  padding: 22px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.fl-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--fl-bg);
+  opacity: var(--card-opacity, 1);
+}
+
+.fl-spacer {
+  flex: 1;
+}
+
+/* ── Ticket shell ── */
+.fl-ticket {
+  position: relative;
+  z-index: 1;
+  background: var(--fl-card);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+/* ── Header ── */
+.fl-header {
+  background: var(--fl-mint);
+  color: #06231b;
+  padding: 14px 22px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.fl-pass {
+  font: 700 10px/1 var(--fl-mono);
+  letter-spacing: 0.14em;
+}
+
+/* ── Route ── */
+.fl-route {
+  padding: 22px 22px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.fl-route-end--to {
+  text-align: right;
+}
+
+.fl-route-end {
+  /* Each end takes its text's width but never more than its share, so a long
+     name wraps onto a second line instead of shoving the route line out. */
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 44%;
+}
+
+.fl-route-code {
+  font: 800 26px/1.05 var(--fl-sans);
+  color: var(--fl-txt);
+  letter-spacing: 0.02em;
+  overflow-wrap: break-word;
+  text-wrap: balance;
+}
+
+.fl-route-code--mint {
+  color: var(--fl-mint);
+  letter-spacing: -0.01em;
+}
+
+.fl-route-label {
+  font: 500 9px/1 var(--fl-mono);
+  color: var(--fl-dim);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-top: 5px;
+}
+
+.fl-route-mid {
+  flex: 1;
+  min-width: 36px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fl-route-line {
+  flex: 1;
+  height: 1px;
+  background: rgba(var(--accent-color-rgb), 0.33);
+}
+
+.fl-route-star {
+  margin: 0 4px;
+  fill: var(--fl-mint);
+}
+
+/* ── Detail grid ── */
+.fl-fields {
+  padding: 0 22px 8px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+}
+
+/* Keys use the dim ink: the faint grey all but vanished on the navy ticket. */
+.fl-field-key {
+  font: 500 8.5px/1 var(--fl-mono);
+  color: var(--fl-dim);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.fl-field-value {
+  font: 600 13px/1.2 var(--fl-sans);
+  color: var(--fl-txt);
+  margin-top: 5px;
+  /* Wraps rather than ellipsing, so a long value is never cut short. */
+  overflow-wrap: break-word;
+}
+
+.fl-field-value--mint {
+  color: var(--fl-mint);
+}
+
+/* ── Perforation divider ── */
+.fl-perf-wrap {
+  padding: 0 22px;
+}
+
+.fl-perf {
+  position: relative;
+  height: 22px;
+  display: flex;
+  align-items: center;
+}
+
+.fl-perf::before,
+.fl-perf::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--fl-bg);
+}
+
+.fl-perf::before {
+  left: -28px;
+}
+
+.fl-perf::after {
+  right: -28px;
+}
+
+.fl-perf-line {
+  flex: 1;
+  border-top: 2px dashed var(--fl-faint);
+}
+
+/* ── Exposure segments ── */
+.fl-segments {
+  padding: 8px 22px 4px;
+}
+
+.fl-segments-title {
+  font: 500 8.5px/1 var(--fl-mono);
+  color: var(--fl-dim);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.fl-seg-row {
+  display: grid;
+  grid-template-columns: 54px 1fr 70px 58px;
+  gap: 10px;
+  align-items: center;
+  padding: 5px 0;
+}
+
+.fl-seg-id {
+  font: 700 12px/1 var(--fl-sans);
+}
+
+.fl-seg-bar {
+  position: relative;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.fl-seg-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  border-radius: 3px;
+}
+
+.fl-seg-frames {
+  font: 500 10px/1 var(--fl-mono);
+  color: var(--fl-dim);
+  text-align: right;
+}
+
+.fl-seg-time {
+  font: 600 11px/1 var(--fl-sans);
+  color: var(--fl-txt);
+  text-align: right;
+}
+
+/* ── Gear strip ── */
+.fl-gear {
+  padding: 8px 22px 4px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* An odd last item spans both columns rather than wrapping ("…Advance /
+   Gen 2") beside an empty cell. */
+.fl-gear .fl-field:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+
+/* ── Barcode stub ── */
+.fl-stub {
+  padding: 12px 22px 18px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.fl-barcode {
+  flex: 1;
+  display: flex;
+  gap: 1.5px;
+  height: 38px;
+  align-items: stretch;
+}
+
+.fl-bar {
+  background: transparent;
+  opacity: 0.9;
+}
+
+.fl-bar.is-ink {
+  background: var(--fl-txt);
+}
+
+.fl-stub-meta {
+  text-align: right;
+}
+
+.fl-stub-total {
+  font: 700 16px/1 var(--fl-sans);
+  color: var(--fl-txt);
+}
+
+.fl-stub-sub {
+  font: 500 8px/1 var(--fl-mono);
+  color: var(--fl-dim);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+/* ── Landscape (1.91:1) ──
+   The portrait ticket squashed into a wide frame: the segment bars stretched
+   ~760px with their figures pushed to the far edge, the gear strip spread
+   thin, and the labels shrank to ~7 export px. Landscape lays the pass out
+   like a real boarding pass — the route, details and exposure segments on
+   the main body, and a stub behind a vertical tear line carrying the gear
+   and the barcode with the total. */
+.fl-root--landscape .fl-ticket {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1.75fr) 22px minmax(0, 1fr);
+  grid-template-rows: auto auto auto auto 1fr auto;
+}
+
+.fl-root--landscape .fl-header {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  padding: 13px 26px;
+}
+
+.fl-root--landscape .fl-pass {
+  font-size: 11px;
+}
+
+.fl-root--landscape .fl-route {
+  grid-column: 1;
+  grid-row: 2;
+  padding: 24px 26px 18px;
+}
+
+.fl-root--landscape .fl-route-end {
+  max-width: 46%;
+}
+
+.fl-root--landscape .fl-route-code {
+  font-size: 30px;
+}
+
+.fl-root--landscape .fl-route-label {
+  font-size: 11px;
+  margin-top: 6px;
+}
+
+/* The site takes what the date and handle leave, not an equal third that
+   stacked a long site four lines deep. */
+.fl-root--landscape .fl-fields {
+  grid-column: 1;
+  grid-row: 3;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 22px;
+  padding: 0 26px 10px;
+}
+
+.fl-root--landscape .fl-field-key,
+.fl-root--landscape .fl-segments-title {
+  font-size: 11px;
+}
+
+.fl-root--landscape .fl-field-value {
+  font-size: 14.5px;
+  margin-top: 5px;
+}
+
+/* The body's tear line runs into the stub's, so it loses its right notch. */
+.fl-root--landscape .fl-fields + .fl-perf-wrap {
+  grid-column: 1;
+  grid-row: 4;
+  padding: 0 0 0 26px;
+}
+
+.fl-root--landscape .fl-fields + .fl-perf-wrap .fl-perf::after {
+  display: none;
+}
+
+/* The segment rows take the body's remaining height, each up to its full
+   39px pitch: seven bands at that fixed pitch ran the body 50% past the
+   ticket, so the whole card shrank to ~7 export px labels. They now close up
+   (to 20px) only as far as the bands need. */
+.fl-root--landscape .fl-segments {
+  grid-column: 1;
+  grid-row: 5 / 7;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 10px 26px 16px;
+}
+
+.fl-root--landscape .fl-segments-title {
+  margin-bottom: 12px;
+}
+
+.fl-root--landscape .fl-seg-row {
+  grid-template-columns: 44px minmax(0, 1fr) auto 64px;
+  gap: 14px;
+  flex: 1 1 auto;
+  min-height: 20px;
+  max-height: 39px;
+  padding: 0;
+}
+
+.fl-root--landscape .fl-seg-id {
+  font-size: 15px;
+}
+
+.fl-root--landscape .fl-seg-bar {
+  height: 8px;
+  border-radius: 4px;
+}
+
+.fl-root--landscape .fl-seg-frames {
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.fl-root--landscape .fl-seg-time {
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+/* The vertical tear line between body and stub, notched top and bottom where
+   it meets the ticket's edges. */
+.fl-root--landscape .fl-gear + .fl-perf-wrap {
+  position: relative;
+  z-index: 1;
+  grid-column: 2;
+  grid-row: 1 / -1;
+  padding: 0;
+}
+
+.fl-root--landscape .fl-gear + .fl-perf-wrap .fl-perf {
+  width: 22px;
+  height: 100%;
+  flex-direction: column;
+}
+
+.fl-root--landscape .fl-gear + .fl-perf-wrap .fl-perf-line {
+  width: 0;
+  border-top: 0;
+  border-left: 2px dashed var(--fl-faint);
+}
+
+.fl-root--landscape .fl-gear + .fl-perf-wrap .fl-perf::before,
+.fl-root--landscape .fl-gear + .fl-perf-wrap .fl-perf::after {
+  left: 1px;
+  right: auto;
+  transform: none;
+}
+
+.fl-root--landscape .fl-gear + .fl-perf-wrap .fl-perf::before {
+  top: -11px;
+}
+
+.fl-root--landscape .fl-gear + .fl-perf-wrap .fl-perf::after {
+  top: auto;
+  bottom: -11px;
+}
+
+/* Gear heads the stub and the barcode closes it in its own last row, so a
+   long gear list can never run under the barcode and the total: it pushes
+   the barcode down past the ticket's edge, where the content fit sees it. */
+.fl-root--landscape .fl-gear {
+  grid-column: 3;
+  grid-row: 2 / 6;
+  align-self: start;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  padding: 24px 24px 14px 18px;
+}
+
+.fl-root--landscape .fl-gear .fl-field-value {
+  font-size: 14px;
+  margin-top: 4px;
+  /* Two-line names split evenly rather than stranding "Gen 2". */
+  text-wrap: balance;
+}
+
+.fl-root--landscape .fl-stub {
+  grid-column: 3;
+  grid-row: 6;
+  align-self: end;
+  padding: 0 24px 22px 18px;
+}
+
+/* The bars are fixed widths, so a narrow stub clips them rather than letting
+   them push the total out. */
+.fl-root--landscape .fl-barcode {
+  min-width: 0;
+  overflow: hidden;
+  height: 40px;
+}
+
+.fl-root--landscape .fl-stub-total {
+  font-size: 24px;
+  white-space: nowrap;
+}
+
+.fl-root--landscape .fl-stub-sub {
+  font-size: 11px;
+  margin-top: 6px;
+  white-space: nowrap;
+}

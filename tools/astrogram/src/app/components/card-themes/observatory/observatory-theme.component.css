@@ -1,0 +1,735 @@
+/* Observatory card theme — faithful port of the design source ThemeObservatory.
+   Per-theme palette/typography is the theme's identity, so colours are literal,
+   bar the accent and secondary the Layout panel's colour pickers set. */
+
+:host {
+  /* Copper is the card's accent and amber (the readouts) its secondary, so
+     the Layout panel's colour pickers restyle both; sage stays the status
+     lamp's own. */
+  --obv-copper: var(--accent-color);
+  --obv-amber: var(--secondary-accent-color);
+  --obv-sage: #7aa59a;
+  --obv-txt: #e8dcc4;
+  --obv-dim: #9a8b73;
+  /* Lifted from the design source's #5a4f40, which all but vanished in the
+     exported labels. */
+  --obv-faint: #857760;
+  --obv-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --obv-sans: 'Outfit', -apple-system, system-ui, sans-serif;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.obv-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: var(--obv-txt);
+  font: 400 10.5px/1.4 var(--obv-mono);
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.obv-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 0%, rgba(var(--accent-color-rgb), 0.08), transparent 70%),
+    linear-gradient(180deg, #100b07 0%, #0a0805 100%);
+  opacity: var(--card-opacity, 1);
+}
+
+.obv-hatch {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: repeating-linear-gradient(45deg, rgba(var(--accent-color-rgb), 0.02) 0 1px, transparent 1px 8px);
+}
+
+.obv-inner {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  /* The sections sit at one fixed gap and the target panel takes the spare
+     height (see .obv-target), so space-between no longer has any to spread:
+     before, the spare opened as three equal empty bands between the panels
+     — two-fifths of a 9:16 card; stretching the lower grid instead left its
+     bordered boxes up to three-quarters empty. */
+  justify-content: space-between;
+  gap: 12px;
+  box-sizing: border-box;
+}
+
+.obv-panel {
+  border: 1px solid rgba(var(--accent-color-rgb), 0.2);
+  background: linear-gradient(180deg, rgba(var(--accent-color-rgb), 0.04), rgba(0, 0, 0, 0.3));
+  border-radius: 4px;
+  padding: 14px;
+}
+
+.obv-tick {
+  font: 500 10.5px/1 var(--obv-mono);
+  color: var(--obv-copper);
+  letter-spacing: 0.18em;
+}
+
+/* ── Header ── */
+.obv-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  border: 1px solid rgba(var(--accent-color-rgb), 0.333);
+  border-radius: 4px;
+  background: linear-gradient(180deg, rgba(var(--accent-color-rgb), 0.1), rgba(var(--accent-color-rgb), 0.02));
+}
+
+.obv-logo {
+  color: var(--obv-copper);
+  flex-shrink: 0;
+}
+
+.obv-brand {
+  font: 700 13px/1 var(--obv-mono);
+  letter-spacing: 0.2em;
+  color: var(--obv-copper);
+}
+
+.obv-session {
+  flex: 1;
+  font-size: 12px;
+  text-align: center;
+  color: var(--obv-dim);
+  letter-spacing: 0.16em;
+}
+
+.obv-status {
+  display: flex;
+  font-size: 12px;
+  align-items: center;
+  gap: 5px;
+  color: var(--obv-sage);
+}
+
+.obv-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--obv-sage);
+  box-shadow: 0 0 6px var(--obv-sage);
+}
+
+/* ── Target panel ── */
+/* The target panel takes whatever height the stack leaves, its content
+   centred, so the spare reads as the panel's margin rather than as gaps. */
+.obv-target {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 16px 18px;
+}
+
+.obv-target-name {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.obv-target-id {
+  font: 300 38px/1 var(--obv-sans);
+  color: var(--obv-amber);
+  letter-spacing: 0.06em;
+  /* The exporter clones each element at its computed size and lays the text
+     out again inside it. This designation only just fits on one line live, so
+     in the exported file it wrapped and its second line printed over the
+     epoch/site row below. A catalogue designation is short by nature, so it
+     stays on one line — nothing is truncated, the line simply cannot break. */
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.obv-target-common {
+  font: 500 19px/1 var(--obv-sans);
+  color: var(--obv-txt);
+  letter-spacing: 0.02em;
+}
+
+.obv-target-meta {
+  display: flex;
+  /* A long site or handle wraps whole items onto the next line; squeezed
+     onto one line they each broke mid-value ("EPOCH SEP / 13, 2026", "OP"
+     over its handle). */
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin-top: 12px;
+  color: var(--obv-dim);
+  letter-spacing: 0.06em;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+/* The epoch and operator are short label + value pairs that stay whole. */
+.obv-target-meta span {
+  white-space: nowrap;
+}
+
+/* The site is the one value that can outrun the panel, so it may wrap —
+   within its own item, which moves to a row of its own first. */
+.obv-target-meta .obv-target-site {
+  min-width: 0;
+  white-space: normal;
+}
+
+.obv-target-caption {
+  margin-top: 12px;
+  padding-left: 10px;
+  border-left: 2px solid var(--obv-copper);
+  font: 400 13px/1.5 var(--obv-sans);
+  color: var(--obv-txt);
+  font-style: italic;
+}
+
+/* ── Integration telemetry ── */
+.obv-tel-head {
+  display: flex;
+  /* A longer total drops below the heading instead of running into it. */
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+}
+
+.obv-tel-total {
+  font: 300 26px/1 var(--obv-sans);
+  color: var(--obv-amber);
+  letter-spacing: 0.02em;
+}
+
+.obv-tel-total span {
+  font: 500 10.5px/1 var(--obv-mono);
+  color: var(--obv-dim);
+  letter-spacing: 0.16em;
+}
+
+.obv-tel-cols {
+  display: grid;
+  grid-template-columns: 60px 1fr 90px 70px;
+  gap: 4px;
+  font-size: 10px;
+  color: var(--obv-faint);
+  letter-spacing: 0.14em;
+  padding: 0 0 4px;
+  border-bottom: 1px solid rgba(var(--accent-color-rgb), 0.133);
+}
+
+.obv-r {
+  text-align: right;
+}
+
+.obv-tel-row {
+  display: grid;
+  grid-template-columns: 60px 1fr 90px 70px;
+  gap: 6px;
+  align-items: center;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(var(--accent-color-rgb), 0.063);
+  font-size: 12px;
+}
+
+/* Seven bands close their rows up, so a full filter set still leaves the
+   card near its artboard instead of shrinking the whole design to hold it. */
+.obv-root:not(.obv-root--landscape) .obv-panel:has(> .obv-tel-row:nth-child(9)) .obv-tel-row {
+  padding: 2px 0;
+}
+
+.obv-tel-band {
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.obv-tel-bar {
+  position: relative;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 1px;
+}
+
+.obv-tel-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: 1px;
+}
+
+.obv-tel-frames {
+  text-align: right;
+  color: var(--obv-txt);
+  font-feature-settings: 'tnum';
+}
+
+.obv-tel-time {
+  text-align: right;
+  color: var(--obv-amber);
+  font-weight: 600;
+}
+
+/* ── Lower split panels ── */
+.obv-lower {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* Hardware carries the longer names, so it takes a little more width. */
+.obv-root:not(.obv-root--landscape) .obv-lower {
+  grid-template-columns: 1.2fr 1fr;
+}
+
+.obv-pipeline {
+  display: flex;
+  flex-direction: column;
+}
+
+.obv-gear-list {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* A full rig closes its rows up, for the same reason as the bands above. */
+.obv-root:not(.obv-root--landscape) .obv-gear-list:has(> .obv-gear-row:nth-child(6)) {
+  gap: 5px;
+}
+
+.obv-gear-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.obv-gear-icon {
+  flex-shrink: 0;
+  color: var(--obv-copper);
+}
+
+.obv-gear-text {
+  min-width: 0;
+  flex: 1;
+}
+
+.obv-gear-label {
+  font-size: 10.5px;
+  line-height: 1.2;
+  color: var(--obv-faint);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.obv-gear-value {
+  font: 500 12.5px/1.2 var(--obv-sans);
+  color: var(--obv-txt);
+  margin-top: 3px;
+  /* Wraps rather than ellipsing, so a long piece of kit is never cut short;
+     balanced, so a wrap never leaves a lone "Gen 2" on the second line. */
+  overflow-wrap: break-word;
+  text-wrap: balance;
+}
+
+.obv-spacer {
+  flex: 1;
+}
+
+.obv-sky {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(var(--accent-color-rgb), 0.149);
+}
+
+.obv-sky-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.obv-sky-val {
+  font: 300 20px/1 var(--obv-sans);
+  color: var(--obv-amber);
+}
+
+.obv-sky-val span {
+  font-size: 11px;
+  color: var(--obv-faint);
+}
+
+.obv-bortle-bar {
+  display: flex;
+  gap: 2px;
+  margin-top: 6px;
+}
+
+.obv-bortle-seg {
+  flex: 1;
+  height: 8px;
+  background: transparent;
+  border: 1px solid rgba(var(--accent-color-rgb), 0.149);
+}
+
+.obv-bortle-seg.is-lit {
+  background: var(--obv-copper);
+  border-color: var(--obv-copper);
+}
+
+/* The square card is a third wider, so its caption and gear rarely wrap and
+   the target panel is left more of the height: its type steps up to hold
+   it, and the telemetry and gear rows open up a little. */
+:host-context(.card.aspect-1-1) .obv-target-id {
+  font-size: 44px;
+}
+
+:host-context(.card.aspect-1-1) .obv-target-common {
+  font-size: 22px;
+}
+
+:host-context(.card.aspect-1-1) .obv-target-meta {
+  font-size: 12px;
+}
+
+:host-context(.card.aspect-1-1) .obv-target-caption {
+  font-size: 14px;
+}
+
+:host-context(.card.aspect-1-1) .obv-tel-row {
+  padding: 6px 0;
+}
+
+:host-context(.card.aspect-1-1) .obv-gear-list {
+  gap: 10px;
+}
+
+/* ── Tall format (9:16) ──
+   The story card is 240px taller than the artboard. Carried at the portrait
+   sizes, all of that became empty target panel; instead every panel sets its
+   type and spacing a step larger, so the target keeps only a modest margin. */
+:host-context(.card.aspect-9-16) .obv-inner {
+  gap: 18px;
+}
+
+:host-context(.card.aspect-9-16) .obv-panel {
+  padding: 18px;
+}
+
+:host-context(.card.aspect-9-16) .obv-tick {
+  font-size: 12px;
+}
+
+:host-context(.card.aspect-9-16) .obv-header {
+  padding: 12px 16px;
+}
+
+:host-context(.card.aspect-9-16) .obv-brand {
+  font-size: 14px;
+}
+
+:host-context(.card.aspect-9-16) .obv-session,
+:host-context(.card.aspect-9-16) .obv-status {
+  font-size: 13px;
+}
+
+:host-context(.card.aspect-9-16) .obv-target {
+  padding: 24px 22px;
+}
+
+:host-context(.card.aspect-9-16) .obv-target-name {
+  margin-top: 12px;
+}
+
+:host-context(.card.aspect-9-16) .obv-target-id {
+  font-size: 48px;
+}
+
+:host-context(.card.aspect-9-16) .obv-target-common {
+  font-size: 23px;
+}
+
+:host-context(.card.aspect-9-16) .obv-target-meta {
+  gap: 6px 18px;
+  margin-top: 16px;
+  font-size: 12.5px;
+}
+
+:host-context(.card.aspect-9-16) .obv-target-caption {
+  margin-top: 16px;
+  padding-left: 12px;
+  font-size: 15px;
+}
+
+:host-context(.card.aspect-9-16) .obv-tel-head {
+  margin-bottom: 14px;
+}
+
+:host-context(.card.aspect-9-16) .obv-tel-total {
+  font-size: 32px;
+}
+
+:host-context(.card.aspect-9-16) .obv-tel-total span {
+  font-size: 12px;
+}
+
+:host-context(.card.aspect-9-16) .obv-tel-cols {
+  padding-bottom: 6px;
+  font-size: 11.5px;
+}
+
+:host-context(.card.aspect-9-16) .obv-tel-row {
+  padding: 8px 0;
+  font-size: 14px;
+}
+
+:host-context(.card.aspect-9-16) .obv-panel:has(> .obv-tel-row:nth-child(9)) .obv-tel-row {
+  padding: 5px 0;
+}
+
+:host-context(.card.aspect-9-16) .obv-tel-bar {
+  height: 6px;
+}
+
+:host-context(.card.aspect-9-16) .obv-gear-list {
+  margin-top: 14px;
+  gap: 14px;
+}
+
+:host-context(.card.aspect-9-16) .obv-gear-list:has(> .obv-gear-row:nth-child(6)) {
+  gap: 10px;
+}
+
+:host-context(.card.aspect-9-16) .obv-gear-label {
+  font-size: 12px;
+}
+
+:host-context(.card.aspect-9-16) .obv-gear-value {
+  margin-top: 4px;
+  font-size: 15px;
+}
+
+:host-context(.card.aspect-9-16) .obv-sky {
+  padding-top: 12px;
+}
+
+:host-context(.card.aspect-9-16) .obv-sky-val {
+  font-size: 26px;
+}
+
+:host-context(.card.aspect-9-16) .obv-sky-val span {
+  font-size: 13px;
+}
+
+:host-context(.card.aspect-9-16) .obv-bortle-bar {
+  margin-top: 10px;
+}
+
+:host-context(.card.aspect-9-16) .obv-bortle-seg {
+  height: 10px;
+}
+
+/* ── Landscape (1.91:1) ──
+   The portrait panels stretched across a wide card: the fill bars ran
+   ~800px with the frames and times pushed to the far edge, the hardware
+   panel sat 60% empty, and the 8.5px labels in the faint tone all but
+   vanished at the export's size. Landscape sets two columns under the full-
+   width observatory bar — target and telemetry on the left, hardware over
+   pipeline on the right, the Bortle meter beside the pipeline list — with
+   the type raised and the faint tone lifted so the labels read. */
+.obv-root--landscape {
+  --obv-faint: #9a8b73;
+}
+
+.obv-root--landscape .obv-inner {
+  display: grid;
+  /* The left column is the taller stack (target over telemetry), so it takes
+     the width: a long name, site and caption then need fewer lines. */
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  /* The target row may not shrink below its content: squeezed, the centred
+     designation rose into the observatory bar and the caption spilled onto
+     the telemetry panel, instead of the card growing to hold it. */
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+    'head head'
+    'target lower'
+    'tel lower';
+  gap: 10px 14px;
+  padding: 16px 24px 18px;
+}
+
+.obv-root--landscape .obv-panel {
+  padding: 14px 16px;
+}
+
+.obv-root--landscape .obv-tick {
+  font-size: 10.5px;
+}
+
+.obv-root--landscape .obv-header {
+  grid-area: head;
+  padding: 9px 14px;
+}
+
+.obv-root--landscape .obv-brand {
+  font-size: 13px;
+}
+
+.obv-root--landscape .obv-session,
+.obv-root--landscape .obv-status {
+  font-size: 12px;
+}
+
+/* The target panel takes the column's spare height; its content is centred
+   rather than leaving the space under the caption. */
+.obv-root--landscape .obv-target {
+  grid-area: target;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.obv-root--landscape .obv-target-name {
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin-top: 8px;
+}
+
+.obv-root--landscape .obv-target-id {
+  font-size: 40px;
+}
+
+.obv-root--landscape .obv-target-common {
+  font-size: 20px;
+}
+
+.obv-root--landscape .obv-target-meta {
+  flex-wrap: wrap;
+  gap: 2px 16px;
+  margin-top: 8px;
+  font-size: 11px;
+}
+
+.obv-root--landscape .obv-target-caption {
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+.obv-root--landscape .obv-inner > .obv-panel:not(.obv-target) {
+  grid-area: tel;
+}
+
+/* A longer total drops below the heading instead of running into it. */
+.obv-root--landscape .obv-tel-head {
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-bottom: 6px;
+}
+
+.obv-root--landscape .obv-tel-total {
+  font-size: 26px;
+}
+
+.obv-root--landscape .obv-tel-total span {
+  font-size: 10.5px;
+}
+
+/* Fill bars sized to the column, so frames and time sit next to the bar
+   they belong to. */
+.obv-root--landscape .obv-tel-cols,
+.obv-root--landscape .obv-tel-row {
+  grid-template-columns: 52px minmax(0, 1fr) 92px 64px;
+  gap: 10px;
+}
+
+.obv-root--landscape .obv-tel-cols {
+  font-size: 10.5px;
+}
+
+.obv-root--landscape .obv-tel-row {
+  padding: 2px 0;
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.obv-root--landscape .obv-tel-frames,
+.obv-root--landscape .obv-tel-time {
+  white-space: nowrap;
+}
+
+.obv-root--landscape .obv-lower {
+  grid-area: lower;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.obv-root--landscape .obv-lower > .obv-panel:first-child {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.obv-root--landscape .obv-gear-list {
+  margin-top: 10px;
+  gap: 5px;
+}
+
+/* Hardware and pipeline read as a spec sheet — label column, value beside
+   it — without the row icons. Stacked label-over-value with icons, a full
+   rig (7 gear, 4 software, 7 bands) needed a third more height than the
+   card has, and the fit shrank every label to ~9px in the export. */
+.obv-root--landscape .obv-gear-icon {
+  display: none;
+}
+
+.obv-root--landscape .obv-gear-text {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  column-gap: 12px;
+  align-items: baseline;
+}
+
+.obv-root--landscape .obv-gear-label {
+  font-size: 10.5px;
+  line-height: 1.25;
+  letter-spacing: 0.12em;
+}
+
+.obv-root--landscape .obv-gear-value {
+  margin-top: 0;
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+/* The sky meter closes the pipeline panel under its dashed rule, as in the
+   portrait. Set as a column beside the list it left the software names
+   ~120px, so "PixInsight + Photoshop" broke onto three lines. */
+.obv-root--landscape .obv-sky-val {
+  font-size: 24px;
+}
+
+.obv-root--landscape .obv-sky-val span {
+  font-size: 12px;
+}
+
+.obv-root--landscape .obv-bortle-seg {
+  height: 9px;
+}

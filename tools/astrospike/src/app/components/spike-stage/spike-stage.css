@@ -1,0 +1,300 @@
+:host {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  /* Cyan reads as "interactive" against warm star colours; the pink accent
+     marks the star the user actually selected. */
+  --as-marker-hover-color: var(--db-color-cyan);
+  --as-marker-selected-color: var(--db-color-neon-pink);
+  /* Half the compare grip plus a little breathing room. */
+  --as-stage-inset: 26px;
+}
+
+/* A column: the canvas area takes what is left, the per-star bar sits under it.
+   Square corners, matching the design's own "square panels and stages" rule. */
+.stage {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--db-color-space-black);
+  border: 1px solid var(--db-color-border);
+  box-shadow: var(--db-shadow-stage);
+}
+
+/* The canvas area is the container-query box the frame sizes itself against.
+   It keeps the stage's full height: the per-star bar is an overlay, so
+   selecting a star never rescales the image. */
+.stage-canvas-area {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  /* Horizontal room for the compare grip to sit centred on the divider line
+     even at the extremes, without the clip cutting it in half. */
+  padding-inline: var(--as-stage-inset);
+  container-type: size;
+}
+
+/* Mobile: the stage bleeds to the screen edges — no frame border, and the
+   grip inset shrinks to a sliver. Not zero: with the frame flush against the
+   glass the compare grip is nearly impossible to grab at the extremes of its
+   travel, so a few pixels stay as a finger-hold. */
+@media (max-width: 1079px) {
+  :host {
+    --as-stage-inset: 8px;
+  }
+
+  .stage {
+    border: 0;
+  }
+}
+
+/* One box shared by the before, after, and marker canvases plus the compare
+   divider, so all four are pixel-aligned and a `left: X%` on the divider lines
+   up exactly with an `inset(0 0 0 X%)` clip on the after canvas.
+
+   The width is stated explicitly and the height derived from the aspect ratio:
+   deriving the width from a percentage height collapses to 0 in WebKit — see
+   the width-derivation caveat in starwizz simulator.css. */
+.stage-frame {
+  position: relative;
+  width: min(100cqw, calc(100cqh * var(--as-frame-aspect, 1)));
+  aspect-ratio: var(--as-frame-aspect, 1);
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.stage-frame.is-hidden {
+  visibility: hidden;
+}
+
+.stage-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.before-canvas {
+  z-index: 1;
+}
+
+.after-canvas {
+  z-index: 2;
+}
+
+/* Topmost and fully transparent: it carries the hover / disabled rings and
+   receives every stage pointer event. */
+.marker-canvas {
+  z-index: 3;
+  cursor: default;
+}
+
+.marker-canvas.is-over-star {
+  cursor: pointer;
+}
+
+/* While panning a zoomed view or dragging a star, the stage is a grab surface. */
+/* Placing a star is aiming, so the pointer becomes a crosshair and outranks
+   the hover cursor. */
+.marker-canvas.is-adding-star {
+  cursor: crosshair;
+}
+
+.marker-canvas.is-panning,
+.marker-canvas.is-moving-star {
+  cursor: grabbing;
+}
+
+.stage-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--db-color-scrim);
+  backdrop-filter: blur(4px);
+  color: var(--db-color-cyan);
+}
+
+.stage-loader {
+  width: 180px;
+  height: 180px;
+  margin-bottom: 1.25rem;
+}
+
+.stage-status {
+  margin: 0;
+  font-family: var(--db-font-mono-code);
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  animation: as-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes as-pulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.stage-error {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  padding: 1.5rem;
+  text-align: center;
+  background: var(--db-color-sheet-bg);
+  backdrop-filter: blur(4px);
+}
+
+.stage-error__message {
+  margin: 0;
+  max-width: 28rem;
+  font-family: var(--db-font-ui);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--db-color-text-error);
+}
+
+
+/* Canvas tool rail: zoom in / out / reset plus remove, stacked on the right
+   below the star count — the same shape astrogram uses on its stellar map. */
+.stage-tools {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  z-index: 26;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stage-tools dba-ui-icon-button {
+  --db-icon-button-background: var(--db-color-sheet-bg);
+  --db-icon-button-border-color: var(--db-color-border);
+  --db-icon-button-color: var(--db-color-text-primary);
+  backdrop-filter: blur(6px);
+}
+
+/* The place-a-star tool is a mode, not an action, so it stays lit while armed. */
+.stage-tools .tool-add-star.is-active {
+  --db-icon-button-background: color-mix(in srgb, var(--db-color-cyan) 22%, var(--db-color-sheet-bg));
+  --db-icon-button-border-color: var(--db-color-cyan);
+  --db-icon-button-color: var(--db-color-cyan);
+}
+
+.stage-tools .tool-remove {
+  margin-top: 6px;
+  --db-icon-button-color: var(--db-color-red);
+  --db-icon-button-border-color: color-mix(in srgb, var(--db-color-red) 45%, transparent);
+}
+
+/* Names each half of the wipe, so the comparison needs no explanation. */
+.stage-tag {
+  position: absolute;
+  bottom: 12px;
+  transition: opacity var(--db-transition-fast);
+  z-index: 2;
+  padding: 4px 9px;
+  border-radius: 4px;
+  background: var(--db-color-sheet-bg);
+  font-family: var(--db-font-mono-code);
+  font-weight: 500;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+/* The floating bar lands on top of them, so they retire while it is open. */
+.stage-tag.is-hidden {
+  opacity: 0;
+}
+
+.stage-tag--before {
+  left: 12px;
+  color: var(--db-color-text-dim);
+}
+
+.stage-tag--after {
+  right: 12px;
+  color: var(--db-color-cyan);
+}
+
+/* Top-centre of the canvas area, over the photo: detection is about the frame,
+   so its report belongs on the frame. */
+.stage-badge {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 28;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.stage-badge__pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 11px;
+  border-radius: 4px;
+  border: 1px solid var(--db-color-cyan);
+  background: var(--db-color-sheet-bg);
+  font-family: var(--db-font-mono-code);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--db-color-cyan);
+}
+
+.stage-badge__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--db-color-cyan);
+  box-shadow: 0 0 8px var(--db-color-cyan);
+  animation: as-pulse 1.8s ease-in-out infinite;
+}
+
+/* Indeterminate on purpose: the detection worker reports completion, not
+   progress, so a filling bar would be inventing a number. */
+.stage-badge__track {
+  width: 220px;
+  height: 2px;
+  overflow: hidden;
+  background: var(--db-color-border-strong);
+}
+
+.stage-badge__sweep {
+  display: block;
+  width: 33%;
+  height: 100%;
+  background: var(--db-color-cyan);
+  box-shadow: 0 0 8px var(--db-color-cyan);
+  animation: as-sweep 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}

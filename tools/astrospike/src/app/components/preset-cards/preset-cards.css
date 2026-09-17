@@ -1,0 +1,126 @@
+:host {
+  display: block;
+}
+
+/* The menu is absolutely positioned against this, so it can overlap the
+   sliders below instead of pushing them down. */
+.preset-picker {
+  position: relative;
+}
+
+.preset-trigger,
+.preset-option {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 11px;
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--db-font-ui);
+}
+
+.preset-trigger {
+  padding: 9px 11px;
+  border: 1px solid var(--db-color-border);
+  border-radius: 8px;
+  background: var(--db-color-surface-bg);
+  transition:
+    border-color 150ms ease,
+    box-shadow 180ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.preset-trigger:hover,
+.preset-trigger.is-open {
+  border-color: var(--db-color-neon-pink);
+  box-shadow: 0 0 15px var(--db-color-pink-soft);
+}
+
+.preset-trigger:focus-visible,
+.preset-option:focus-visible {
+  outline: 2px solid var(--db-color-cyan);
+  outline-offset: 2px;
+}
+
+.preset-glyph {
+  display: flex;
+  flex: 0 0 auto;
+  color: var(--db-color-neon-pink);
+  filter: drop-shadow(0 0 4px currentColor);
+}
+
+.preset-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.preset-label {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--db-color-text-primary);
+}
+
+.preset-description {
+  font-family: var(--db-font-mono-code);
+  font-size: 10px;
+  line-height: 1.4;
+  color: var(--db-color-text-dim);
+  text-wrap: pretty;
+}
+
+.preset-chevron {
+  display: flex;
+  flex: 0 0 auto;
+  color: var(--db-color-text-dim);
+  transition: transform 180ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.preset-trigger.is-open .preset-chevron {
+  transform: rotate(180deg);
+}
+
+.preset-menu {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  margin-top: 4px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 6px;
+  border: 1px solid var(--db-color-border-strong);
+  border-radius: 8px;
+  background: var(--db-color-surface-raised);
+  box-shadow: 0 8px 32px rgb(0 0 0 / 80%);
+}
+
+.preset-option {
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: var(--db-color-surface-hi);
+}
+
+.preset-option:hover {
+  border-color: var(--db-color-pink-dim);
+}
+
+.preset-option.is-selected {
+  border-color: var(--db-color-pink-dim);
+  background: var(--db-color-pink-soft);
+}
+
+.preset-option .preset-label {
+  font-size: 12.5px;
+}
+
+.preset-check {
+  display: flex;
+  flex: 0 0 auto;
+  color: var(--db-color-neon-pink);
+}

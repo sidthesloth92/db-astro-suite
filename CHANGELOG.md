@@ -1,5 +1,73 @@
 # Changelog
 
+## [1.38.0](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.37.0...db-astro-suite-v1.38.0) (2026-09-16)
+
+
+### Features
+
+* **hub:** refresh the Astrogram and AstroSpike walkthrough videos ([#127](https://github.com/sidthesloth92/db-astro-suite/issues/127)) ([ad299a3](https://github.com/sidthesloth92/db-astro-suite/commit/ad299a336685c844e284dfe1f4dc9884bc3de3ee))
+
+## [1.37.0](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.36.0...db-astro-suite-v1.37.0) (2026-09-16)
+
+
+### Features
+
+* **hub:** play the AstroSpike walkthrough video on the tool page ([#124](https://github.com/sidthesloth92/db-astro-suite/issues/124)) ([779721a](https://github.com/sidthesloth92/db-astro-suite/commit/779721a59a9fb3172db485175992649b15b59c89))
+
+## [1.36.0](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.35.0...db-astro-suite-v1.36.0) (2026-09-16)
+
+
+### Features
+
+* **astrogram:** card theme system with 29 themes and Instagram 1.91:1 landscape ([#123](https://github.com/sidthesloth92/db-astro-suite/issues/123)) ([8b7cb15](https://github.com/sidthesloth92/db-astro-suite/commit/8b7cb15c6d24e045f45e85ab398f6a9e48bf8d3f))
+
+## [1.35.0](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.34.2...db-astro-suite-v1.35.0) (2026-09-11)
+
+
+### Features
+
+* **astrospike:** mist-filter Glow halos and a Mist haze in a renamed Diffusion mode ([#121](https://github.com/sidthesloth92/db-astro-suite/issues/121)) ([f9ff271](https://github.com/sidthesloth92/db-astro-suite/commit/f9ff271d4ce9f09496075eda2139f8b1ff8addd4))
+
+## [1.34.2](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.34.1...db-astro-suite-v1.34.2) (2026-08-16)
+
+
+### Bug Fixes
+
+* **seo:** refresh AstroSpike metadata, structured data, and LLM context files ([#119](https://github.com/sidthesloth92/db-astro-suite/issues/119)) ([0e0b6ae](https://github.com/sidthesloth92/db-astro-suite/commit/0e0b6aeab6ba544443e4ac767bb8815e7c0c2128))
+
+## [1.34.1](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.34.0...db-astro-suite-v1.34.1) (2026-08-09)
+
+
+### Bug Fixes
+
+* **astrospike:** stop bright neighbours inflating faint seed stars on low-res frames ([#117](https://github.com/sidthesloth92/db-astro-suite/issues/117)) ([f084216](https://github.com/sidthesloth92/db-astro-suite/commit/f0842163a693f0186bb724d5e120b7b4e13eceab))
+
+## [1.34.0](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.33.1...db-astro-suite-v1.34.0) (2026-08-01)
+
+
+### Features
+
+* **astrospike:** add AstroSpike, a client-side diffraction spike studio ([#112](https://github.com/sidthesloth92/db-astro-suite/issues/112)) ([c51f946](https://github.com/sidthesloth92/db-astro-suite/commit/c51f946a50741f8cfa49fa3517b4b87a5c0d5264))
+
+## [1.33.1](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.33.0...db-astro-suite-v1.33.1) (2026-07-29)
+
+
+### Bug Fixes
+
+* **hub:** move the starwizz spikes clip from the hero demo to the output slot ([#113](https://github.com/sidthesloth92/db-astro-suite/issues/113)) ([b56ef7e](https://github.com/sidthesloth92/db-astro-suite/commit/b56ef7e482f49ce8f79f2bae10f9bdc9bda4345f))
+
+## [1.33.0](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.32.0...db-astro-suite-v1.33.0) (2026-07-26)
+
+
+### Features
+
+* **starwizz:** natural star colors with user-adjustable appearance controls ([#110](https://github.com/sidthesloth92/db-astro-suite/issues/110)) ([26a9309](https://github.com/sidthesloth92/db-astro-suite/commit/26a9309a4d7b18dd333fdef0c30c2a77d2e08d88))
+
+
+### Bug Fixes
+
+* **ci:** release sortronomy via native cross-compile and a reliable release gate ([#107](https://github.com/sidthesloth92/db-astro-suite/issues/107)) ([da3bbaf](https://github.com/sidthesloth92/db-astro-suite/commit/da3bbaf23d6b8e185f1de1679f8247db9e088838))
+
 ## [1.32.0](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.31.4...db-astro-suite-v1.32.0) (2026-07-20)
 
 

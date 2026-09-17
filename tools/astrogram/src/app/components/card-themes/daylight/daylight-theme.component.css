@@ -1,0 +1,428 @@
+/* Daylight card theme — faithful port of the design source ThemeDaylight.
+   Light ink share card on near-white paper; per-theme palette is literal,
+   except the magenta highlight, which follows the Layout panel's accent
+   picker. The ink stays fixed: it is the body text, not a decoration. */
+
+:host {
+  --day-bg: #fafaf7;
+  --day-ink: #10141f;
+  --day-pink: var(--accent-color);
+  --day-dim: #5d6472;
+  --day-faint: #9aa0ac;
+  --day-rule: rgba(16, 20, 31, 0.12);
+  /* Space Grotesk is not loaded, so this stack resolves to the loaded Outfit
+     fallback — matching what the design actually renders. */
+  --day-sans: 'Space Grotesk', 'Outfit', sans-serif;
+  --day-body: 'Outfit', system-ui, sans-serif;
+  --day-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.day-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: var(--day-ink);
+  font-family: var(--day-body);
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.day-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 70% 40% at 88% 0%, rgba(var(--accent-color-rgb), 0.06), transparent 60%),
+    var(--day-bg);
+  opacity: var(--card-opacity, 1);
+}
+
+.day-graticule {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 280px;
+  height: 280px;
+  pointer-events: none;
+  z-index: 0;
+  /* Inherited by the arcs and rays: an SVG stroke attribute cannot read the
+     accent variable. */
+  stroke: var(--day-pink);
+}
+
+.day-constellation {
+  position: absolute;
+  top: 142px;
+  right: 22px;
+  width: 160px;
+  height: 110px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.day-spike {
+  position: absolute;
+  /* Anchored into the right-hand padding gutter, which `.day-inner` keeps
+     empty at every aspect. A fixed `left` put it on top of the filter
+     legend, drawing a cross through the "Ha" label. */
+  right: 8px;
+  top: 520px;
+  width: 20px;
+  height: 20px;
+  opacity: 0.25;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.day-inner {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 28px 32px 26px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Brand row ── */
+.day-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.day-brand-spacer {
+  flex: 1;
+}
+
+.day-date {
+  font: 500 10.5px/1 var(--day-mono);
+  color: var(--day-faint);
+  letter-spacing: 0.1em;
+}
+
+/* ── Object ── */
+.day-object {
+  margin-top: 26px;
+}
+
+.day-kicker {
+  font: 600 10.5px/1 var(--day-mono);
+  color: var(--day-pink);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+}
+
+.day-name {
+  font: 700 46px/1.02 var(--day-sans);
+  letter-spacing: -0.03em;
+  margin-top: 12px;
+}
+
+.day-caption {
+  font: 400 13px/1.5 var(--day-body);
+  color: var(--day-dim);
+  margin-top: 12px;
+  max-width: 400px;
+}
+
+.day-spacer {
+  flex: 1;
+}
+
+/* ── 2×2 stats ── */
+.day-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 28px;
+  border-top: 1px solid rgba(16, 20, 31, 0.25);
+}
+
+.day-stat-cell--br {
+  border-bottom: 1px solid var(--day-rule);
+}
+
+.day-stat-cell--bl {
+  border-left: 1px solid var(--day-rule);
+  padding-left: 28px;
+}
+
+.day-stat {
+  padding: 16px 0 14px;
+}
+
+.day-stat-k {
+  font: 500 9.5px/1 var(--day-mono);
+  color: var(--day-faint);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.day-stat-v {
+  font: 700 42px/1 var(--day-sans);
+  color: var(--day-ink);
+  letter-spacing: -0.03em;
+  margin-top: 10px;
+}
+
+.day-stat-v--accent {
+  color: var(--day-pink);
+}
+
+.day-stat-sub {
+  font: 500 10px/1.4 var(--day-mono);
+  color: var(--day-dim);
+  margin-top: 7px;
+  letter-spacing: 0.04em;
+}
+
+/* ── Band bar ── */
+.day-bands {
+  margin-top: 18px;
+}
+
+.day-band-bar {
+  display: flex;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: rgba(16, 20, 31, 0.06);
+}
+
+.day-band-seg {
+  height: 100%;
+}
+
+/* Seven bands do not fit one row: items flow onto a second row whole,
+   rather than squeezing each duration onto two lines ("2h / 42m") and
+   pushing the last one past the margin. */
+.day-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  margin-top: 10px;
+}
+
+/* Zero-height full-width item that starts the second row; with the row gap
+   on either side it leaves 8px between the rows. */
+.day-legend-break {
+  flex-basis: 100%;
+  height: 0;
+}
+
+/* The square card holds every band on one row. */
+:host-context(.card.aspect-1-1) .day-legend-break {
+  display: none;
+}
+
+.day-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.day-legend-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.day-legend-id {
+  font: 600 11px/1 var(--day-mono);
+}
+
+.day-legend-time {
+  font: 500 12px/1 var(--day-body);
+  color: var(--day-ink);
+}
+
+/* A white band (luminance) disappears into the paper: its bar segment and
+   dot get an ink hairline and its id is set in ink, other bands unchanged. */
+.day-light-swatch {
+  box-shadow: inset 0 0 0 1px rgba(16, 20, 31, 0.5);
+}
+
+.day-legend-id--light {
+  color: var(--day-ink);
+}
+
+/* ── Gear chips ── */
+.day-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.day-chip {
+  padding: 6px 11px;
+  border-radius: 999px;
+  border: 1px solid rgba(16, 20, 31, 0.16);
+  background: rgba(16, 20, 31, 0.025);
+  font: 500 10.5px/1 var(--day-body);
+  color: var(--day-dim);
+}
+
+/* ── Footer ── */
+.day-footer {
+  display: flex;
+  align-items: center;
+  margin-top: 14px;
+}
+
+.day-author {
+  font: 600 12.5px/1 var(--day-body);
+  color: var(--day-ink);
+}
+
+.day-footer-spacer {
+  flex: 1;
+}
+
+/* Leading for a location that wraps; the 6px it adds (whole pixels, so the
+   text keeps its pixel row) is taken back by the margins on one line. */
+.day-location {
+  font: 500 10px/16px var(--day-mono);
+  margin: -3px 0;
+  color: var(--day-faint);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ── Landscape (1.91:1) ──
+   The portrait 2×2 stats stretched across the wide card left each cell mostly
+   empty, while the labels, chips and footer exported at 9-10px, the legend's
+   mono ids sat higher than their Outfit durations, and the spike landed on
+   the location. Landscape runs the four stats as one row under the title, so
+   the saved height goes into larger type throughout, and moves the
+   constellation and spike into the open space beside the title. */
+.day-root--landscape .day-inner {
+  padding: 30px 36px 28px;
+}
+
+.day-root--landscape .day-kicker,
+.day-root--landscape .day-date {
+  font-size: 11px;
+}
+
+.day-root--landscape .day-object {
+  margin-top: 22px;
+}
+
+.day-root--landscape .day-name {
+  font-size: 56px;
+  margin-top: 0;
+}
+
+.day-root--landscape .day-caption {
+  font-size: 14px;
+  max-width: 600px;
+  margin-top: 10px;
+}
+
+.day-root--landscape .day-stats {
+  grid-template-columns: 1.3fr 1fr 1fr 1fr;
+  column-gap: 26px;
+}
+
+.day-root--landscape .day-stat-cell--br {
+  border-bottom: none;
+}
+
+.day-root--landscape .day-stat-cell:nth-child(n + 2) {
+  border-left: 1px solid var(--day-rule);
+  padding-left: 26px;
+}
+
+.day-root--landscape .day-stat-k {
+  font-size: 10.5px;
+}
+
+.day-root--landscape .day-stat-v {
+  font-size: 50px;
+  white-space: nowrap;
+}
+
+.day-root--landscape .day-stat-sub {
+  font-size: 11px;
+}
+
+.day-root--landscape .day-legend {
+  gap: 4px 22px;
+}
+
+/* The full-width landscape legend holds every band on one row. */
+.day-root--landscape .day-legend-break {
+  display: none;
+}
+
+/* Baseline-aligned so the mono band id and the Outfit duration share a line;
+   centring their boxes put the id a few pixels high. */
+.day-root--landscape .day-legend-item {
+  align-items: baseline;
+}
+
+.day-root--landscape .day-legend-dot {
+  align-self: center;
+}
+
+.day-root--landscape .day-legend-id {
+  font-size: 12px;
+}
+
+.day-root--landscape .day-legend-time {
+  font-size: 13px;
+}
+
+.day-root--landscape .day-chip {
+  font-size: 12px;
+  padding: 7px 12px;
+}
+
+.day-root--landscape .day-author {
+  font-size: 14px;
+}
+
+.day-root--landscape .day-location {
+  font-size: 11px;
+  line-height: 17px;
+}
+
+.day-root--landscape .day-constellation {
+  top: 44px;
+  right: 64px;
+  width: 190px;
+  height: 130px;
+}
+
+/* The spike keeps to the right gutter, in the gap between legend and chips. */
+.day-root--landscape .day-spike {
+  top: auto;
+  bottom: 112px;
+  right: 40px;
+}
+
+/* A long handle or location used to run the two ends of this row into each
+   other. The row may wrap: the location then starts its own line at the left
+   edge, under the handle, instead of hanging right-aligned from nowhere. When
+   both fit, the spacer takes the free space and the location stays at the
+   right. */
+.day-footer {
+  justify-content: space-between;
+  flex-wrap: wrap;
+  column-gap: 16px;
+  row-gap: 8px;
+}
+
+.day-footer .day-location {
+  min-width: 0;
+}
+

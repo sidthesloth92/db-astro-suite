@@ -1,0 +1,15 @@
+<svg
+  [attr.viewBox]="viewBox()"
+  preserveAspectRatio="xMidYMid slice"
+  aria-hidden="true"
+>
+  @for (star of stars(); track $index) {
+    <circle
+      [attr.cx]="star.cx"
+      [attr.cy]="star.cy"
+      [attr.r]="star.r"
+      [attr.fill]="color()"
+      [attr.opacity]="star.opacity"
+    />
+  }
+</svg>

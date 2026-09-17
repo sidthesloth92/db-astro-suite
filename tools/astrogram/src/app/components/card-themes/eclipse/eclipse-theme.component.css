@@ -1,0 +1,369 @@
+/* Eclipse card theme — faithful port of the design source ThemeEclipse.
+   The corona colour is the card's accent (Layout panel), so it follows the
+   picker; its default is the design's warm white. */
+
+:host {
+  --ec-bg: #020204;
+  --ec-cor: var(--accent-color);
+  --ec-txt: #f2efe8;
+  --ec-dim: #94908a;
+  --ec-faint: #54524c;
+  --ec-sans: 'Outfit', system-ui, sans-serif;
+  --ec-grot: 'Space Grotesk', 'Outfit', sans-serif;
+  --ec-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.ec-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: var(--ec-txt);
+  font-family: var(--ec-sans);
+  padding: 28px 32px 26px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.ec-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--ec-bg);
+  opacity: var(--card-opacity, 1);
+}
+
+/* ── Header ── */
+.ec-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ec-eyebrow {
+  font: 600 10px/1 var(--ec-mono);
+  color: var(--ec-dim);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.ec-date {
+  font: 500 10px/1 var(--ec-mono);
+  color: var(--ec-faint);
+  letter-spacing: 0.14em;
+}
+
+/* ── Eclipse ── */
+.ec-svg {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: 12px;
+  /* Held to the 476px it was authored at and centred. Its height follows its
+     width, so on the wider 1:1 and 4:5 canvases it grew about a third taller
+     than at 3:4 and shoved the title onto the footer rule, while those formats
+     have no more height than 3:4 does. */
+  max-width: 476px;
+  align-self: center;
+  /* The corona glow's radius (218) exceeds the 380-tall viewBox; clipping it
+     left a faint hard-edged box above the ring and over the legend. */
+  overflow: visible;
+  /* A flex item with visible overflow may not shrink below its intrinsic
+     height; without this the art could no longer give way on short canvases
+     and pushed the title and footer off the card. */
+  min-height: 0;
+}
+
+/* The corona's gradient, streamers and the moon's rim take the accent through
+   CSS: SVG presentation attributes cannot read a custom property. */
+.ec-corona-stop {
+  stop-color: var(--ec-cor);
+}
+
+.ec-streamer {
+  stroke: var(--ec-cor);
+}
+
+.ec-disc {
+  stroke: rgba(var(--accent-color-rgb), 0.35);
+}
+
+.ec-total-label {
+  font: 500 9px var(--ec-mono);
+  fill: var(--ec-dim);
+  letter-spacing: 0.3em;
+}
+
+.ec-total-value {
+  font: 300 40px var(--ec-grot);
+  fill: #fff;
+  letter-spacing: -0.02em;
+}
+
+/* ── Legend ── */
+.ec-legend {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  gap: 26px;
+  margin-top: 2px;
+}
+
+.ec-legend-item {
+  text-align: center;
+}
+
+.ec-legend-swatch {
+  display: block;
+  width: 22px;
+  height: 4px;
+  border-radius: 2px;
+  margin: 0 auto;
+}
+
+.ec-legend-id {
+  font: 700 11px/1 var(--ec-mono);
+  margin-top: 8px;
+}
+
+.ec-legend-time {
+  font: 600 14px/1 var(--ec-grot);
+  color: var(--ec-txt);
+  margin-top: 6px;
+}
+
+/* ── Title ── */
+.ec-title {
+  position: relative;
+  text-align: center;
+  margin-top: 22px;
+}
+
+.ec-kicker {
+  font: 600 10.5px/1 var(--ec-mono);
+  color: var(--ec-cor);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.ec-name {
+  font: 300 36px/1.05 var(--ec-sans);
+  margin-top: 8px;
+}
+
+.ec-spacer {
+  flex: 1;
+  /* Never collapses to nothing: with a two-line name and a full footer the
+     free space ran out, and the descender of the name's last line (drawn below
+     its 1.05 line box) crossed the footer rule. The art gives way instead. */
+  min-height: 14px;
+}
+
+/* ── Footer ── */
+.ec-footer {
+  position: relative;
+  border-top: 1px solid rgba(var(--accent-color-rgb), 0.1);
+  padding-top: 12px;
+}
+
+.ec-foot-gear {
+  font: 500 10px/1.6 var(--ec-mono);
+  color: #8b92a6;
+}
+
+.ec-foot-row {
+  display: flex;
+  align-items: center;
+  margin-top: 7px;
+}
+
+.ec-foot-author {
+  font: 600 12px/1 var(--ec-sans);
+  color: #e7eaf2;
+}
+
+.ec-foot-spacer {
+  flex: 1;
+}
+
+.ec-foot-meta {
+  font: 500 9.5px/1 var(--ec-mono);
+  color: #5a6175;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.ec-legend-frames {
+  font: 500 9.5px/1 var(--ec-grot);
+  color: var(--ec-txt);
+  opacity: 0.6;
+  margin-top: 3px;
+}
+
+/* ── Landscape (1.91:1) ──
+   The portrait column dropped into the wide frame left the eclipse small in
+   the middle, the outer thirds empty and the title pressed onto the footer
+   rule, with the label inside the ring at about 4 export px. Here the eclipse
+   takes the full height of a left column and the header, title, legend and
+   footer stack in a column beside it, at sizes that read in a 566px image. */
+.ec-root--landscape {
+  display: grid;
+  grid-template-columns: 420px minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto auto minmax(0, 1fr) auto;
+  column-gap: 36px;
+}
+
+.ec-root--landscape .ec-header {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+/* Wider than its column: the viewBox has ~60px of empty margin either side of
+   the streamers, so the art bleeds into the card padding instead of wasting
+   it. An explicit margin rather than auto, which the exporter drops. */
+.ec-root--landscape .ec-svg {
+  grid-column: 1;
+  grid-row: 1 / -1;
+  width: 500px;
+  max-width: none;
+  margin: 0 0 0 -40px;
+  align-self: center;
+}
+
+.ec-root--landscape .ec-total-label {
+  font-size: 10px;
+}
+
+.ec-root--landscape .ec-title {
+  grid-column: 2;
+  grid-row: 3;
+  margin-top: 0;
+  text-align: left;
+}
+
+.ec-root--landscape .ec-kicker {
+  font-size: 11.5px;
+}
+
+.ec-root--landscape .ec-name {
+  font-size: 42px;
+  margin-top: 10px;
+}
+
+.ec-root--landscape .ec-legend {
+  grid-column: 2;
+  grid-row: 4;
+  justify-content: flex-start;
+  gap: 34px;
+  margin-top: 28px;
+}
+
+/* ── Landscape with five or more bands ──
+   In one row the legend ran past the column's right edge, and the card grew
+   to hold it, shrinking every label and the footer to about 9 export px. The
+   bands set in rows of four instead, and the footer runs the full width under
+   both columns so the taller legend still fits: the gear list takes fewer
+   lines there and the handle and place share one. */
+.ec-root--landscape.ec-root--dense .ec-legend {
+  display: grid;
+  grid-template-columns: repeat(4, max-content);
+  gap: 16px 34px;
+}
+
+/* Stops above the footer; the viewBox's `meet` fit keeps the eclipse round at
+   the height left over, still bleeding into the left padding. */
+.ec-root--landscape.ec-root--dense .ec-svg {
+  grid-row: 1 / 6;
+  height: 100%;
+}
+
+.ec-root--landscape.ec-root--dense .ec-footer {
+  grid-column: 1 / -1;
+  margin-top: 18px;
+}
+
+.ec-root--landscape .ec-legend-item {
+  text-align: left;
+}
+
+.ec-root--landscape .ec-legend-swatch {
+  width: 26px;
+  margin: 0;
+}
+
+.ec-root--landscape .ec-legend-id {
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+.ec-root--landscape .ec-legend-time {
+  font-size: 18px;
+  margin-top: 7px;
+  white-space: nowrap;
+}
+
+.ec-root--landscape .ec-legend-frames {
+  font-size: 11px;
+  margin-top: 5px;
+  white-space: nowrap;
+}
+
+.ec-root--landscape .ec-spacer {
+  display: none;
+}
+
+.ec-root--landscape .ec-footer {
+  grid-column: 2;
+  grid-row: 6;
+}
+
+.ec-root--landscape .ec-foot-gear {
+  font-size: 10.5px;
+}
+
+/* Author and place drop onto separate lines rather than squeezing when a long
+   location fills the narrower column. */
+.ec-root--landscape .ec-foot-row {
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 9px;
+}
+
+.ec-root--landscape .ec-foot-author {
+  font-size: 13px;
+}
+
+.ec-root--landscape .ec-foot-meta {
+  font-size: 10px;
+  line-height: 1.3;
+}
+
+/* A long handle or location used to run the two ends of this row into each
+   other. The row may wrap. On one line the spacer still pushes the meta to
+   the right edge; once it wraps, the meta starts at the left edge under the
+   handle. Pushed right by an auto margin instead, a wrapped meta sat indented
+   by whatever room was left over and lined up with nothing. */
+.ec-foot-row {
+  flex-wrap: wrap;
+  justify-content: space-between;
+  column-gap: 16px;
+  row-gap: 8px;
+}
+
+.ec-foot-row .ec-foot-meta {
+  min-width: 0;
+}
+

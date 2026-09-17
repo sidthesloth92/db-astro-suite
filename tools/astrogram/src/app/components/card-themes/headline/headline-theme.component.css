@@ -1,0 +1,413 @@
+/* Headline card theme — faithful port of the design source ThemeHeadline.
+   Per-theme palette/typography is the theme's identity, so colours are literal,
+   bar the pink and gold the Layout panel's colour pickers set.
+   "Space Grotesk"/"Manrope" fall back to Outfit when not loaded (design intent). */
+
+:host {
+  /* Pink is the card's accent and gold its secondary (the object name and the
+     gold constellation and spike, drawn in currentColor). */
+  --hdl-pink: var(--accent-color);
+  --hdl-gold: var(--secondary-accent-color);
+  --hdl-txt: #fff7fb;
+  --hdl-dim: #a89dbe;
+  --hdl-faint: #5e5478;
+  --hdl-display: 'Manrope', 'Outfit', sans-serif;
+  --hdl-sans: 'Outfit', system-ui, sans-serif;
+  --hdl-mono: 'JetBrains Mono', monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.hdl-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: var(--hdl-txt);
+  font-family: var(--hdl-sans);
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.hdl-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 70% 45% at 78% 8%, rgba(var(--accent-color-rgb), 0.16), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 12% 92%, rgba(90, 50, 160, 0.22), transparent 60%), #0b0714;
+  opacity: var(--card-opacity, 1);
+}
+
+/* Ornaments. They used to sit at fixed card positions, so when heavy data
+   pushed the stat up the constellation ran through "30m" and the sparkles
+   landed on the numeral and the object name. Each now rides with the block
+   it decorates, painted behind the type (z-index -1 in the inner layer). */
+
+/* The constellation fills the space between the date and the numeral,
+   right-aligned and anchored to the stat: its box ends 30px into the stat,
+   where the figure's own lower margin keeps its stars above the eyebrow line.
+   When the stat rises the box gets shorter and the figure scales down with it
+   instead of overlapping the numeral. */
+.hdl-constellation-box {
+  position: absolute;
+  top: 6px;
+  right: -4px;
+  bottom: -30px;
+  width: 220px;
+  z-index: -1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  pointer-events: none;
+}
+
+.hdl-constellation {
+  display: block;
+  color: var(--hdl-gold);
+  width: auto;
+  height: auto;
+  max-height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+.hdl-spike {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Above the eyebrow, at the left margin. */
+.hdl-spike-1 {
+  color: var(--hdl-gold);
+  left: 22px;
+  top: -52px;
+  opacity: 0.5;
+}
+
+/* Off the right end of the subline, straddling the gap above the chips. */
+.hdl-spike-2 {
+  right: 22px;
+  bottom: -15px;
+  opacity: 0.35;
+}
+
+.hdl-inner {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  padding: 30px 32px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Brand row ── */
+.hdl-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.hdl-grow {
+  flex: 1;
+}
+
+.hdl-date {
+  font: 500 10.5px/1 var(--hdl-mono);
+  color: var(--hdl-faint);
+  letter-spacing: 0.12em;
+}
+
+.hdl-sp1 {
+  position: relative;
+  flex: 1.2;
+}
+
+.hdl-sp2 {
+  flex: 0.8;
+}
+
+.hdl-sp3 {
+  flex: 1;
+}
+
+/* ── Headline stat ── */
+.hdl-stat {
+  position: relative;
+}
+
+.hdl-eyebrow {
+  font: 600 11px/1 var(--hdl-mono);
+  color: var(--hdl-pink);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.hdl-total {
+  font: 800 98px/0.92 var(--hdl-display);
+  color: var(--hdl-txt);
+  letter-spacing: -0.05em;
+  margin-top: 16px;
+}
+
+.hdl-object {
+  font: 500 24px/1.25 var(--hdl-display);
+  color: var(--hdl-gold);
+  letter-spacing: -0.01em;
+  margin-top: 14px;
+}
+
+.hdl-subline {
+  font: 500 11px/1 var(--hdl-mono);
+  color: var(--hdl-faint);
+  letter-spacing: 0.2em;
+  margin-top: 10px;
+  text-transform: uppercase;
+}
+
+/* ── Band chips ── */
+.hdl-chips {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+
+.hdl-chip {
+  padding: 13px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hdl-chip-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.hdl-chip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.hdl-chip-id {
+  font: 700 12px/1 var(--hdl-mono);
+  letter-spacing: 0.06em;
+}
+
+.hdl-chip-time {
+  font: 700 19px/1 var(--hdl-display);
+  color: var(--hdl-txt);
+  margin-top: 10px;
+  letter-spacing: -0.02em;
+}
+
+.hdl-chip-frames {
+  font: 400 9.5px/1 var(--hdl-mono);
+  color: var(--hdl-faint);
+  margin-top: 6px;
+}
+
+/* ── Footer ticker ── */
+.hdl-footer {
+  position: relative;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 14px;
+}
+
+.hdl-ticker {
+  font: 500 10px/1.6 var(--hdl-mono);
+  color: var(--hdl-dim);
+  letter-spacing: 0.04em;
+}
+
+.hdl-footer-row {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.hdl-author {
+  font: 600 12.5px/1 var(--hdl-sans);
+  color: var(--hdl-txt);
+}
+
+.hdl-loc {
+  font: 500 10px/1 var(--hdl-mono);
+  color: var(--hdl-faint);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ── Landscape (1.91:1) ──
+   The portrait stack dropped into a wide card left the three band chips as
+   broad tiles with their text in the left quarter, the sparkles over the
+   object name and a chip border, and the gear and location lines too small
+   and faint to read. Here the stat takes the left of the card, the bands
+   stack as one-line readouts on the right under the constellation, and the
+   footer runs across the full width. The constellation takes whatever
+   height the bands leave above them, so seven bands hide it rather than
+   draw it across the top readouts. */
+.hdl-root--landscape .hdl-inner {
+  display: grid;
+  grid-template-columns: 1fr 316px;
+  grid-template-rows: auto 1fr auto auto;
+  grid-template-areas:
+    'brand brand'
+    'stat orn'
+    'stat chips'
+    'footer footer';
+  column-gap: 40px;
+  /* The bottom margin is the box's distance from the card edge, not padding,
+     and the box clips: heavy data that outgrows it then counts as overflow
+     for the content fit instead of settling flush on the card's edge. */
+  height: calc(100% - 26px);
+  padding: 28px 36px 0;
+  overflow: clip;
+}
+
+.hdl-root--landscape .hdl-sp2,
+.hdl-root--landscape .hdl-sp3 {
+  display: none;
+}
+
+.hdl-root--landscape .hdl-brand {
+  grid-area: brand;
+}
+
+.hdl-root--landscape .hdl-date {
+  font-size: 11px;
+  color: var(--hdl-dim);
+}
+
+.hdl-root--landscape .hdl-sp1 {
+  grid-area: orn;
+  min-height: 0;
+}
+
+/* Static here so the sparkles inside it place against the whole card. */
+.hdl-root--landscape .hdl-stat {
+  position: static;
+  grid-area: stat;
+  align-self: center;
+}
+
+.hdl-root--landscape .hdl-eyebrow {
+  font-size: 12px;
+}
+
+.hdl-root--landscape .hdl-total {
+  font-size: 108px;
+}
+
+.hdl-root--landscape .hdl-object {
+  font-size: 28px;
+}
+
+.hdl-root--landscape .hdl-subline {
+  font-size: 12px;
+  color: var(--hdl-dim);
+}
+
+/* Bands: one-line readouts — band, time, frames — at the foot of the right
+   column, leaving its top to the constellation. */
+.hdl-root--landscape .hdl-chips {
+  grid-area: chips;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  margin: 12px 0 14px;
+}
+
+.hdl-root--landscape .hdl-chip {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 6px 16px;
+  border-radius: 12px;
+}
+
+.hdl-root--landscape .hdl-chip-head {
+  flex: 0 0 64px;
+}
+
+.hdl-root--landscape .hdl-chip-id {
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.hdl-root--landscape .hdl-chip-time {
+  flex: 1;
+  margin-top: 0;
+  font-size: 21px;
+  white-space: nowrap;
+}
+
+.hdl-root--landscape .hdl-chip-frames {
+  margin-top: 0;
+  font-size: 11px;
+  color: var(--hdl-dim);
+  white-space: nowrap;
+}
+
+.hdl-root--landscape .hdl-footer {
+  grid-area: footer;
+}
+
+.hdl-root--landscape .hdl-ticker {
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+.hdl-root--landscape .hdl-author {
+  font-size: 13px;
+}
+
+.hdl-root--landscape .hdl-loc {
+  font-size: 11.5px;
+  color: var(--hdl-dim);
+}
+
+/* Ornaments move off the type: the constellation crowns the band column and
+   the sparkles sit in the open space above the stat and between the columns. */
+.hdl-root--landscape .hdl-constellation-box {
+  top: 4px;
+  right: 28px;
+  bottom: 4px;
+  left: 0;
+  width: auto;
+  align-items: flex-start;
+}
+
+.hdl-root--landscape .hdl-spike-1 {
+  left: 380px;
+  top: 58px;
+}
+
+.hdl-root--landscape .hdl-spike-2 {
+  right: 380px;
+  bottom: 118px;
+}
+
+/* A long handle or location used to run the two ends of this row into each
+   other. The row may wrap: the meta then starts its own line at the left
+   margin under the handle (pushing it right left it indented against
+   nothing). When both fit, the spacer holds the meta at the right. */
+.hdl-footer-row {
+  flex-wrap: wrap;
+  justify-content: space-between;
+  column-gap: 16px;
+  row-gap: 8px;
+}
+
+.hdl-footer-row .hdl-loc {
+  min-width: 0;
+}
+

@@ -1,0 +1,490 @@
+/* Spectrum card theme — faithful port of the design source ThemeSpectrum.
+   Per-theme palette/typography is the theme's identity, so colours are literal,
+   bar the accent and secondary the Layout panel's colour pickers set. */
+
+:host {
+  /* Pink opens the spectrum and cyan closes it: they are the card's accent
+     and secondary, so the Layout panel's colour pickers restyle both ends
+     (the hero, the column titles, the Bortle dots) around the fixed middle. */
+  --spc-pink: var(--accent-color);
+  --spc-magenta: #b83bff;
+  --spc-cyan: var(--secondary-accent-color);
+  --spc-violet: #7b5cff;
+  --spc-txt: #ffffff;
+  --spc-dim: #b0b5c8;
+  --spc-faint: #5f6580;
+  --spc-display: 'Manrope', 'Outfit', sans-serif;
+  --spc-sans: 'Inter', 'Outfit', sans-serif;
+  --spc-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.spc-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: var(--spc-txt);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.spc-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: #070611;
+  opacity: var(--card-opacity, 1);
+}
+
+/* ── Hero gradient block ── */
+.spc-hero {
+  position: relative;
+  /* Hero and body share the height the content leaves spare, so a tall card
+     is balanced rather than ending in a quarter (on 9:16 nearly half) of
+     empty black: the gradient grows with its headline set at its foot, and
+     the body spreads its sections apart. The hero takes the larger share so
+     the body's gaps stay proportionate. */
+  flex: 3 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 30px 30px 26px;
+  background: linear-gradient(135deg, var(--spc-pink) 0%, var(--spc-magenta) 35%, var(--spc-violet) 65%, var(--spc-cyan) 100%);
+}
+
+.spc-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.4;
+  pointer-events: none;
+  background: radial-gradient(ellipse 80% 60% at 20% 20%, rgba(0, 0, 0, 0.25), transparent 60%);
+}
+
+.spc-hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.spc-kicker {
+  font: 700 10.5px/1 var(--spc-mono);
+  letter-spacing: 0.3em;
+  color: rgba(255, 255, 255, 0.85);
+  text-transform: uppercase;
+}
+
+.spc-headline {
+  font: 800 60px/0.92 var(--spc-display);
+  color: #fff;
+  letter-spacing: -0.03em;
+  margin-top: 14px;
+}
+
+.spc-subhead {
+  font: 500 18px/1.1 var(--spc-display);
+  color: rgba(255, 255, 255, 0.85);
+  margin-top: 4px;
+  letter-spacing: -0.01em;
+}
+
+.spc-hero-meta {
+  --spc-meta-gap: 12px;
+  /* A separator's width: one mono advance plus its letter-spacing. */
+  --spc-meta-lead: calc(0.64em + var(--spc-meta-gap));
+
+  /* Lines are spaced to read when the row wraps; the negative block margins
+     cancel the extra leading so a single line sits exactly where it did. */
+  margin: calc(18px - 0.175em) 0 -0.175em;
+  font: 500 10.5px/1.35 var(--spc-mono);
+  color: rgba(255, 255, 255, 0.95);
+  letter-spacing: 0.04em;
+  /* Clips the separator that leads a wrapped line (see .spc-meta-line). */
+  overflow: hidden;
+}
+
+/* A long location or handle wraps whole items onto the next line; squeezed
+   onto one line the date broke into "SEP / 13, / 2026" and the location into
+   three touching lines. Each item after the first carries its own leading
+   separator, and the line is pulled left by one separator's width so the
+   separator of an item that starts a line falls outside the clipped row. */
+.spc-meta-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px var(--spc-meta-gap);
+  margin-left: calc(-1 * var(--spc-meta-lead));
+}
+
+.spc-meta-item {
+  display: flex;
+  white-space: nowrap;
+}
+
+.spc-meta-item:first-child {
+  margin-left: var(--spc-meta-lead);
+}
+
+/* The location is the one value that can outrun the hero, so it wraps —
+   within its own item, hanging under its first line. */
+.spc-meta-location {
+  min-width: 0;
+}
+
+.spc-meta-text {
+  min-width: 0;
+  white-space: normal;
+}
+
+.spc-sep {
+  flex: none;
+  margin-right: var(--spc-meta-gap);
+  opacity: 0.4;
+}
+
+.spc-up {
+  text-transform: uppercase;
+}
+
+/* ── Body ── */
+.spc-body {
+  padding: 20px 30px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 18px;
+  flex: 2 1 auto;
+  min-height: 0;
+}
+
+.spc-caption {
+  font: 400 13.5px/1.55 var(--spc-sans);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* ── Integration — hero stat ── */
+.spc-integration {
+  display: flex;
+  align-items: flex-end;
+  gap: 20px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.spc-int-label {
+  font: 600 10px/1 var(--spc-mono);
+  letter-spacing: 0.22em;
+  color: var(--spc-dim);
+  text-transform: uppercase;
+}
+
+.spc-int-total {
+  font: 800 52px/0.9 var(--spc-display);
+  color: var(--spc-txt);
+  letter-spacing: -0.04em;
+  margin-top: 10px;
+}
+
+.spc-int-bands {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-bottom: 4px;
+}
+
+.spc-int-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.spc-int-id {
+  width: 28px;
+  font: 700 11px/1 var(--spc-mono);
+  letter-spacing: 0.06em;
+}
+
+.spc-int-bar {
+  flex: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 2px;
+  position: relative;
+}
+
+.spc-int-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: 2px;
+}
+
+.spc-int-time {
+  width: 60px;
+  text-align: right;
+  font: 500 12px/1 var(--spc-sans);
+  color: var(--spc-txt);
+}
+
+.spc-int-frames {
+  width: 70px;
+  text-align: right;
+  font: 400 10px/1 var(--spc-mono);
+  color: var(--spc-faint);
+}
+
+/* ── Lower grid ── */
+.spc-lower {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 22px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.spc-col-title {
+  font: 600 10px/1 var(--spc-mono);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.spc-title-pink {
+  color: var(--spc-pink);
+}
+
+.spc-title-cyan {
+  color: var(--spc-cyan);
+}
+
+.spc-eq-row {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  /* A label wrapping to two lines ("GUIDE SCOPE / AND CAMERA") ran right up
+     against its value. */
+  column-gap: 10px;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.spc-eq-label {
+  font: 500 10px/1.2 var(--spc-mono);
+  color: var(--spc-faint);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.spc-eq-value {
+  font: 500 11.5px/1.2 var(--spc-sans);
+  color: var(--spc-txt);
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+.spc-sw-row {
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.spc-sw-label {
+  font: 500 10px/1 var(--spc-mono);
+  color: var(--spc-faint);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.spc-sw-value {
+  font: 500 11.5px/1.2 var(--spc-sans);
+  color: var(--spc-txt);
+  margin-top: 2px;
+}
+
+.spc-bortle {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.spc-bortle-label {
+  font: 500 10px/1 var(--spc-mono);
+  color: var(--spc-faint);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.spc-bortle-dots {
+  display: flex;
+  gap: 2px;
+}
+
+.spc-bortle-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.spc-bortle-dot.is-lit {
+  background: linear-gradient(135deg, var(--spc-pink), var(--spc-cyan));
+}
+
+.spc-bortle-val {
+  font: 700 14px/1 var(--spc-display);
+  color: var(--spc-txt);
+}
+
+/* ── Landscape (1.91:1) ──
+   The gradient hero ran as a full-width band with its right half empty, which
+   left the body so little height that the Bortle row finished ~35px off the
+   bottom edge, and the faint mono labels exported at ~7px. Landscape turns
+   the hero into a full-height gradient panel on the left and sets the body
+   beside it — caption, integration, then equipment and pipeline — with the
+   equipment rows stacked label-over-value so no piece of kit splits, the type
+   raised and the faint tone lifted so the labels read. */
+.spc-root--landscape {
+  --spc-faint: #8a90a8;
+
+  flex-direction: row;
+}
+
+.spc-root--landscape .spc-hero {
+  flex: 0 0 38%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 28px 28px 30px;
+}
+
+.spc-root--landscape .spc-kicker {
+  font-size: 11.5px;
+}
+
+.spc-root--landscape .spc-headline {
+  font-size: 56px;
+  margin-top: 16px;
+}
+
+.spc-root--landscape .spc-subhead {
+  font-size: 20px;
+  margin-top: 6px;
+}
+
+/* One item per line: side by side the three wrapped at the panel's width
+   and left a separator dangling at a line end. */
+.spc-root--landscape .spc-hero-meta {
+  margin: calc(22px - 0.175em) 0 -0.175em;
+  font-size: 11.5px;
+}
+
+.spc-root--landscape .spc-meta-line {
+  flex-direction: column;
+  gap: 4px;
+  margin-left: 0;
+}
+
+.spc-root--landscape .spc-meta-item:first-child {
+  margin-left: 0;
+}
+
+.spc-root--landscape .spc-sep {
+  display: none;
+}
+
+.spc-root--landscape .spc-body {
+  flex: 1 1 0;
+  /* Safe: heavy data overflowed a centred column at both ends, cutting the
+     caption's first line off the top edge; it now runs downward only, where
+     the card grows to hold it. */
+  justify-content: safe center;
+  gap: 16px;
+  padding: 24px 28px;
+  min-width: 0;
+}
+
+.spc-root--landscape .spc-caption {
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+
+.spc-root--landscape .spc-integration {
+  gap: 22px;
+}
+
+.spc-root--landscape .spc-int-label,
+.spc-root--landscape .spc-col-title {
+  font-size: 10.5px;
+}
+
+.spc-root--landscape .spc-int-total {
+  font-size: 50px;
+  white-space: nowrap;
+}
+
+.spc-root--landscape .spc-int-bands {
+  min-width: 0;
+  gap: 8px;
+}
+
+.spc-root--landscape .spc-int-id {
+  width: 34px;
+  font-size: 12px;
+}
+
+.spc-root--landscape .spc-int-time {
+  width: 58px;
+  font-size: 13.5px;
+  white-space: nowrap;
+}
+
+.spc-root--landscape .spc-int-frames {
+  width: 74px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.spc-root--landscape .spc-lower {
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+}
+
+.spc-root--landscape .spc-col-title {
+  margin-bottom: 8px;
+}
+
+.spc-root--landscape .spc-eq-row {
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: 2px;
+}
+
+.spc-root--landscape .spc-eq-label,
+.spc-root--landscape .spc-sw-label,
+.spc-root--landscape .spc-bortle-label {
+  font-size: 10px;
+  line-height: 1.2;
+}
+
+.spc-root--landscape .spc-eq-value,
+.spc-root--landscape .spc-sw-value {
+  font-size: 13px;
+}
+
+.spc-root--landscape .spc-bortle {
+  gap: 10px;
+}
+
+.spc-root--landscape .spc-bortle-dot {
+  width: 10px;
+  height: 10px;
+}
+
+.spc-root--landscape .spc-bortle-val {
+  font-size: 16px;
+}

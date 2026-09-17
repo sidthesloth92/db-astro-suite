@@ -1,0 +1,501 @@
+/* Constellation card theme — faithful port of the design source
+   ThemeConstellation. Per-theme palette/typography is the theme's identity,
+   so colours are literal hex, except the chart cyan (lines, rules, column
+   titles) and the gold of the object id and total: those are the card's
+   accent and secondary colour (Layout panel), defaulting to the design's own. */
+
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.con-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Outfit', system-ui, sans-serif;
+  color: #f2f7ff;
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.con-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 80% 60% at 50% 20%, rgba(40, 70, 130, 0.3), transparent 70%),
+    #060a18;
+  opacity: var(--card-opacity, 1);
+}
+
+.con-chart {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* The chart lines take the accent through CSS: SVG presentation attributes
+   cannot read a custom property. */
+.con-chart-line {
+  stroke: var(--accent-color);
+}
+
+/* ── Header ── */
+.con-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  /* Single item since the brand was removed — keep it on the right rather
+     than letting `space-between` drop it to the left edge. */
+  justify-content: flex-end;
+  padding: 20px 24px 0;
+}.con-datestamp {
+  font: 500 10px/1 'JetBrains Mono', monospace;
+  letter-spacing: 0.18em;
+  color: #46506b;
+  text-transform: uppercase;
+}
+
+/* ── Band labels ── */
+.con-band-label {
+  position: absolute;
+  z-index: 2;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+.con-band-id {
+  font: 600 12px/1 'JetBrains Mono', monospace;
+  letter-spacing: 0.08em;
+}
+
+.con-band-time {
+  font: 500 11.5px/1 'Outfit', system-ui, sans-serif;
+  color: #8a97b5;
+  margin-top: 3px;
+}
+
+/* ── Name plate + legend column ──
+   The name plate used to sit at 46% of the card and the legend grew up from
+   the bottom edge, which left a wide empty band between them on sample data
+   and only room for 9 px legend type — while a heavy legend could still slide
+   up over the name. They now share one column from just under the lowest band
+   label to the bottom edge, with the legend set larger; content that outgrows
+   the column overflows downward, where the card's content fit enlarges the
+   canvas to hold it. */
+.con-lower {
+  position: absolute;
+  /* Clear of the lowest band label (its frames line ends near y 318). */
+  top: 46.5%;
+  left: 0;
+  right: 0;
+  /* The bottom margin lives here, not as legend padding, and the column clips:
+     text that outgrows it then counts as overflow for the content fit, which
+     would otherwise stop once the text merely touched the card's edge. */
+  bottom: 22px;
+  overflow: clip;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  /* Keeps a heavy legend from closing up under the name. */
+  gap: 18px;
+}
+
+/* ── Object name plate ── */
+.con-nameplate {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+}
+
+.con-object-id {
+  font: 500 10px/1 'JetBrains Mono', monospace;
+  color: var(--secondary-accent-color);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.con-object-name {
+  font: 300 34px/1 'Outfit', system-ui, sans-serif;
+  color: #f2f7ff;
+  letter-spacing: 0.01em;
+  margin-top: 8px;
+}
+
+/* ── Lower legend panel ── */
+.con-legend {
+  position: relative;
+  z-index: 2;
+  margin-top: auto;
+  padding: 0 24px;
+}
+
+.con-caption {
+  font: 300 13.5px/1.55 'Outfit', system-ui, sans-serif;
+  color: rgba(242, 247, 255, 0.78);
+  text-align: center;
+  max-width: 420px;
+  margin: 0 auto 18px;
+}
+
+.con-cols {
+  border-top: 1px solid rgba(var(--accent-color-rgb), 0.18);
+  padding-top: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.con-col-title {
+  font: 600 11px/1 'JetBrains Mono', monospace;
+  color: var(--accent-color);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  margin-bottom: 11px;
+}
+
+.con-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 2.5px 0;
+}
+
+.con-row-label {
+  font: 500 10.5px/1.45 'JetBrains Mono', monospace;
+  /* Lifted from the design's grey, which at this size read as a smudge. */
+  color: #6b7794;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  /* May wrap: a nowrap label (e.g. "Guide scope and camera") squeezed its
+     value into a sliver and broke it over three lines with one word left alone. */
+  flex: 1 1 0;
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+/* Tracked a touch tighter than the landscape table, so "Guide scope" still
+   fits one line beside its value in a 3:4 column at this size. */
+.con-root:not(.con-root--landscape) .con-row-label {
+  letter-spacing: 0.06em;
+}
+
+.con-row-value {
+  font: 400 12.5px/1.35 'Outfit', system-ui, sans-serif;
+  color: #f2f7ff;
+  text-align: right;
+  min-width: 0;
+  overflow-wrap: break-word;
+  flex: 0 1 auto;
+  max-width: 64%;
+}
+
+.con-total-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(var(--accent-color-rgb), 0.12);
+}
+
+.con-total {
+  font: 600 11px/1.4 'JetBrains Mono', monospace;
+  color: var(--secondary-accent-color);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  /* A total is one figure; it wrapped as "TOTAL 10H / 20M" in the 3:4 column. */
+  white-space: nowrap;
+}
+
+.con-sky {
+  font: 500 12px/1.4 'Outfit', system-ui, sans-serif;
+  color: #8a97b5;
+  text-align: right;
+}
+
+/* One run of text wrapped into four ragged lines, splitting "San / Diego"
+   and leading a line with "· @handle". The place now breaks only after a
+   comma and the handle wraps as a whole item. When the run cannot sit beside
+   the total it takes the row below at the column's full width. The separator
+   before the handle ends the run, and the line is pushed right by one
+   separator so a separator that ends a line falls outside the clipped box.
+   It is drawn rather than typed: clipped text would read as overflow to the
+   card's content-fit check. */
+.con-legend .con-total-row {
+  flex-wrap: wrap;
+}
+
+.con-legend .con-sky {
+  --con-sep-gap: 0.2em;
+  --con-sep-dot: 2px;
+  --con-sep-width: calc(2 * var(--con-sep-gap) + var(--con-sep-dot));
+
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+.con-sky-line {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin-right: calc(-1 * var(--con-sep-width));
+}
+
+.con-sky-part {
+  display: flex;
+  align-items: flex-end;
+  min-width: 0;
+}
+
+.con-sky-part:last-child {
+  margin-right: var(--con-sep-width);
+}
+
+/* Balanced, so a wrapped place does not leave "California" alone. */
+.con-sky-text {
+  min-width: 0;
+  text-wrap: balance;
+}
+
+/* Sits where a typed "·" would, half an x-height above the last baseline. */
+.con-sep {
+  flex: none;
+  width: var(--con-sep-dot);
+  height: var(--con-sep-dot);
+  margin: 0 var(--con-sep-gap) 0.6em;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.con-band-frames {
+  font: 500 10px/1 'Outfit', system-ui, sans-serif;
+  color: #6b7794;
+  margin-top: 2px;
+}
+
+/* ── Art box ──
+   The chart is authored on a 540 x 720 artboard and its band labels are placed
+   at percentages of that artboard. It used to cover whatever canvas the format
+   produced, cropping the artboard on 1:1 and 9:16 while the labels were placed
+   against the whole canvas — so they landed up to 160px away from their stars
+   and the top star was cut off. Every portrait and square canvas is at least
+   540 wide and 720 tall, so the artboard now sits there at its own size, pinned
+   to the top and centred, with the labels inside it. */
+.con-art {
+  position: absolute;
+  top: 0;
+  left: calc(50% - 270px);
+  width: 540px;
+  height: 720px;
+}
+
+/* Landscape is shorter than the artboard. The chart only uses the artboard's
+   top band (y 50-330, the rest is room for portrait text), so the box is
+   scaled until that band fills the upper left of the card — above the chart
+   note — and the empty lower artboard runs off the bottom of the card. */
+.con-art--landscape {
+  top: 0;
+  left: 25.5%;
+  width: auto;
+  height: 128%;
+  aspect-ratio: 540 / 720;
+  transform: translateX(-50%);
+}
+
+.con-label-frame {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* ── Landscape (1.91:1) ──
+   The portrait stack (chart, name plate, caption, two-column legend) squeezed
+   into the wide card put the name plate against the lowest band label and the
+   legend into a full-width strip of 7-10 export px type. Landscape is a chart
+   spread: the star chart on the left with the caption and total set beneath
+   it as its note, and the name plate, apparatus and pipeline on the right.
+   (With the total on the right too, a heavy card needed 25% more height than
+   the card has and shrank to 7-8 export px labels.) */
+.con-root--landscape {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  grid-template-rows: 1fr auto auto 1fr;
+  column-gap: 36px;
+  box-sizing: border-box;
+  padding: 26px 34px 26px 30px;
+}
+
+.con-root--landscape .con-datestamp {
+  font-size: 10.5px;
+  color: #6b7794;
+}
+
+.con-root--landscape .con-header {
+  padding: 22px 34px 0;
+}
+
+.con-root--landscape .con-band-id {
+  font-size: 12.5px;
+}
+
+.con-root--landscape .con-band-time {
+  font-size: 12.5px;
+  margin-top: 4px;
+  white-space: nowrap;
+}
+
+.con-root--landscape .con-band-frames {
+  font-size: 10.5px;
+  color: #8a97b5;
+  margin-top: 3px;
+  white-space: nowrap;
+}
+
+.con-root--landscape .con-nameplate {
+  position: relative;
+  top: auto;
+  grid-column: 2;
+  grid-row: 2;
+  text-align: left;
+}
+
+.con-root--landscape .con-object-id {
+  font-size: 12px;
+}
+
+.con-root--landscape .con-object-name {
+  font-size: 38px;
+  line-height: 1.05;
+  margin-top: 10px;
+}
+
+.con-root--landscape .con-lower,
+.con-root--landscape .con-legend {
+  display: contents;
+}
+
+/* Set under the chart, centred on it, as the chart's note. */
+.con-note {
+  position: relative;
+  z-index: 2;
+  grid-column: 1;
+  grid-row: 1 / -1;
+  align-self: end;
+  justify-self: center;
+  max-width: 400px;
+  text-align: center;
+}
+
+.con-note .con-caption {
+  margin: 0 0 12px;
+  font-size: 14px;
+}
+
+.con-note .con-total-row {
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 2px 14px;
+  margin-top: 0;
+  padding-top: 10px;
+}
+
+.con-note .con-total {
+  font-size: 11.5px;
+}
+
+.con-note .con-sky {
+  font-size: 12.5px;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.con-root--landscape .con-cols {
+  position: relative;
+  z-index: 2;
+  grid-column: 2;
+  grid-row: 3;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  margin-top: 18px;
+  padding-top: 14px;
+}
+
+.con-root--landscape .con-col-title {
+  font-size: 10.5px;
+  margin-bottom: 10px;
+}
+
+/* Labels and values read as a two-column table rather than two ends of a
+   400px row. */
+.con-root--landscape .con-row {
+  justify-content: flex-start;
+  gap: 14px;
+  padding: 1.5px 0;
+}
+
+.con-root--landscape .con-row-label {
+  flex: 0 0 164px;
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: #6b7794;
+}
+
+.con-root--landscape .con-row-value {
+  flex: 1 1 auto;
+  max-width: none;
+  font-size: 13px;
+  line-height: 1.3;
+  text-align: left;
+  /* Two-line values split evenly rather than stranding "Gen 2". */
+  text-wrap: balance;
+}
+
+/* ── Square (1:1) and story (9:16) ──
+   The artboard at its own size, pinned to the top, left the chart small in
+   the upper part of these cards and a wide band between the name and the
+   legend (on 1:1 the rows rarely wrap, on 9:16 the card is 240px taller). The
+   art box is enlarged, and the name plate is centred in the height between
+   the chart and the legend, so the chart, name and legend are evenly spaced. */
+:host-context(.card.aspect-1-1) .con-art {
+  left: calc(50% - 295px);
+  width: 590px;
+  height: 787px;
+}
+
+:host-context(.card.aspect-1-1) .con-lower {
+  top: 49%;
+}
+
+:host-context(.card.aspect-9-16) .con-art {
+  top: 44px;
+  left: calc(50% - 300px);
+  width: 600px;
+  height: 800px;
+}
+
+:host-context(.card.aspect-9-16) .con-lower {
+  top: 41.5%;
+}
+
+:host-context(.card.aspect-1-1) .con-nameplate,
+:host-context(.card.aspect-9-16) .con-nameplate {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}

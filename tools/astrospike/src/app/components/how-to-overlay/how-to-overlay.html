@@ -1,0 +1,31 @@
+<div class="how-to-scrim" (click)="onClose()">
+  <!-- Clicks inside the card must not reach the scrim's dismiss. -->
+  <section
+    class="how-to-card"
+    role="dialog"
+    aria-modal="true"
+    aria-label="How to use AstroSpike"
+    (click)="$event.stopPropagation()"
+  >
+    <header class="how-to-head">
+      <dba-ui-icon [def]="circleHelpIcon" [size]="18" />
+      <h2 class="how-to-title">How to use</h2>
+      <dba-ui-icon-button title="Close" [size]="30" accent="cyan" (clicked)="onClose()">
+        <dba-ui-icon [def]="closeIcon" [size]="14" />
+      </dba-ui-icon-button>
+    </header>
+
+    <ol class="how-to-steps">
+      @for (step of steps; track step) {
+        <li class="how-to-step">
+          <span class="how-to-num" aria-hidden="true">{{ $index + 1 }}</span>
+          <span class="how-to-text">{{ step }}</span>
+        </li>
+      }
+    </ol>
+
+    <footer class="how-to-foot">
+      <dba-ui-text-button label="Got it" size="md" (clicked)="onClose()" />
+    </footer>
+  </section>
+</div>

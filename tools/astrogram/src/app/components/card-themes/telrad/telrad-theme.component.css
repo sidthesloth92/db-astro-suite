@@ -1,0 +1,484 @@
+/* Telrad card theme — faithful port of the design source ThemeTelrad.
+   The reticle red is the card's accent and the lighter red of the band marks
+   its secondary colour (Layout panel), both defaulting to the design's own;
+   the red-tinted text tones stay literal. */
+
+:host {
+  --tr-bg: #0a0202;
+  --tr-red: var(--accent-color);
+  --tr-red2: var(--secondary-accent-color);
+  --tr-txt: #ffd9d2;
+  --tr-dim: #c4685c;
+  --tr-faint: #7a3b33;
+  --tr-sans: 'Outfit', system-ui, sans-serif;
+  --tr-grot: 'Space Grotesk', 'Outfit', sans-serif;
+  --tr-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.tr-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: var(--tr-txt);
+  font-family: var(--tr-sans);
+  padding: 28px 32px 26px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.tr-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 70% 50% at 50% 30%, rgba(var(--accent-color-rgb), 0.06), transparent 65%),
+    var(--tr-bg);
+  opacity: var(--card-opacity, 1);
+}
+
+/* ── Header ── */
+.tr-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tr-eyebrow {
+  font: 600 10px/1 var(--tr-mono);
+  color: var(--tr-red);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.tr-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 500 9px/1 var(--tr-mono);
+  color: var(--tr-dim);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.tr-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--tr-red);
+  box-shadow: 0 0 8px var(--tr-red);
+}
+
+/* ── Reticle ── */
+.tr-svg {
+  position: relative;
+  display: block;
+  width: 88%;
+  height: auto;
+  margin-top: 4px;
+  /* Held to the 476px it was authored at and centred. Its height follows its
+     width, so on the wider 1:1 and 4:5 canvases it grew about a third taller
+     than at 3:4 and shoved the title onto the footer rule, while those formats
+     have no more height than 3:4 does. */
+  max-width: 476px;
+  align-self: center;
+  overflow: visible;
+  /* A flex item with visible overflow may not shrink below its intrinsic
+     height; without this the art could no longer give way on short canvases
+     and pushed the title and footer off the card. */
+  min-height: 0;
+}
+
+/* The reticle and band dots take the accent and secondary through CSS: SVG
+   presentation attributes cannot read a custom property. */
+.tr-reticle-stroke {
+  stroke: var(--tr-red);
+}
+
+.tr-reticle-fill {
+  fill: var(--tr-red);
+}
+
+.tr-mark-stroke {
+  stroke: var(--tr-red2);
+}
+
+.tr-mark-fill {
+  fill: var(--tr-red2);
+}
+
+.tr-ring-label {
+  font: 500 8.5px var(--tr-mono);
+  fill: var(--tr-faint);
+}
+
+/* ── Band readout ── */
+.tr-readout {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  /* Clear of the reticle. The design tucked the rows 34px up into it, so the
+     outer ring and the bottom crosshair tick ran straight through the first
+     band's bar and the divider below it. */
+  margin-top: 10px;
+}
+
+.tr-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8.5px 0;
+}
+
+.tr-row + .tr-row {
+  border-top: 1px solid rgba(var(--accent-color-rgb), 0.14);
+}
+
+.tr-row-id {
+  width: 42px;
+  font: 700 13px/1 var(--tr-mono);
+  color: var(--tr-red2);
+}
+
+.tr-row-ring {
+  width: 78px;
+  font: 500 9.5px/1 var(--tr-mono);
+  color: var(--tr-faint);
+  letter-spacing: 0.1em;
+}
+
+.tr-row-bar {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(var(--accent-color-rgb), 0.1);
+  position: relative;
+}
+
+.tr-row-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  background: var(--tr-red2);
+  border-radius: 2px;
+}
+
+.tr-row-time {
+  width: 62px;
+  text-align: right;
+  font: 600 14px/1 var(--tr-grot);
+  color: var(--tr-txt);
+}
+
+/* ── Title + total ── */
+.tr-title {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(var(--accent-color-rgb), 0.22);
+}
+
+.tr-kicker {
+  font: 600 10px/1 var(--tr-mono);
+  color: var(--tr-red);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.tr-name {
+  font: 600 27px/1.05 var(--tr-sans);
+  color: var(--tr-txt);
+  margin-top: 8px;
+}
+
+.tr-title-spacer {
+  flex: 1;
+}
+
+.tr-total {
+  text-align: right;
+}
+
+.tr-total-label {
+  font: 500 9px/1 var(--tr-mono);
+  color: var(--tr-faint);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.tr-total-value {
+  font: 300 30px/1 var(--tr-grot);
+  color: var(--tr-red2);
+  letter-spacing: -0.01em;
+  margin-top: 6px;
+  /* One duration, one line: beside a long name it wrapped to "14h" over
+     "30m". The name takes the narrower share instead. */
+  white-space: nowrap;
+}
+
+.tr-spacer {
+  flex: 1;
+  /* Never collapses to nothing: with a two-line name and a full footer the
+     free space ran out, and the descender of the name's last line (drawn below
+     its 1.05 line box) crossed the footer rule. The reticle gives way instead. */
+  min-height: 14px;
+}
+
+/* ── Footer ── */
+.tr-footer {
+  position: relative;
+  border-top: 1px solid rgba(var(--accent-color-rgb), 0.16);
+  padding-top: 12px;
+}
+
+.tr-foot-gear {
+  font: 500 10px/1.6 var(--tr-mono);
+  color: var(--tr-dim);
+}
+
+.tr-foot-row {
+  display: flex;
+  align-items: center;
+  margin-top: 7px;
+}
+
+.tr-foot-author {
+  font: 600 12px/1 var(--tr-sans);
+  color: var(--tr-txt);
+}
+
+.tr-foot-spacer {
+  flex: 1;
+}
+
+.tr-foot-meta {
+  /* Room between lines once the meta wraps; no taller than the 12px handle
+     beside it, so a one-line row keeps its height. */
+  font: 500 9.5px/1.25 var(--tr-mono);
+  /* The faint red of the ring labels read as barely there at footer size,
+     dark red on near-black; a step toward the dim red keeps it secondary to
+     the gear line above but legible. */
+  color: #a8554b;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Five or more bands: tighter rows hand the reticle back the height seven
+   full-size rows took from it. */
+.tr-root--dense .tr-row {
+  padding: 6px 0;
+}
+
+.tr-row-frames {
+  width: 56px;
+  text-align: right;
+  font: 500 10px/1 var(--tr-grot);
+  color: var(--tr-txt);
+  opacity: 0.6;
+}
+
+/* ── Landscape (1.91:1) ──
+   The portrait column dropped into the wide frame shrank the reticle to a
+   small circle in the middle while the band rows ran the full width, left the
+   ring labels at about 4 export px and sat the title and total on the footer
+   rule. Here the reticle fills a left column, the header, band readout, title
+   and total stack beside it, and the footer runs the full width beneath both
+   so the gear list stays on as few lines as possible. */
+.tr-root--landscape {
+  display: grid;
+  grid-template-columns: 394px minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto auto minmax(0, 1fr) auto;
+  column-gap: 36px;
+}
+
+.tr-root--landscape .tr-header {
+  grid-column: 2;
+  grid-row: 1;
+  /* The free rows around the readout collapse once seven bands fill the
+     column, which left the header sitting on the first band row. */
+  margin-bottom: 12px;
+}
+
+.tr-root--landscape .tr-status {
+  font-size: 10px;
+}
+
+/* Fills its grid area; the viewBox's `meet` fit keeps the reticle round and
+   centred at whatever height the footer leaves. */
+.tr-root--landscape .tr-svg {
+  grid-column: 1;
+  grid-row: 1 / 6;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  margin-top: 0;
+  align-self: stretch;
+}
+
+.tr-root--landscape .tr-ring-label {
+  font-size: 11px;
+  /* The faint red all but vanished against the reticle's glow in a 566px-tall
+     image; the dim red still reads as secondary to the rings. */
+  fill: var(--tr-dim);
+}
+
+.tr-root--landscape .tr-readout {
+  grid-column: 2;
+  grid-row: 3;
+  margin-top: 0;
+}
+
+/* Id, ring and times on one line with the bar full width beneath: inline, the
+   bar was left under 70px wide by the narrower column. */
+.tr-root--landscape .tr-row {
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  padding: 9px 0;
+}
+
+.tr-root--landscape .tr-row-id {
+  width: 46px;
+  font-size: 15px;
+}
+
+.tr-root--landscape .tr-row-ring {
+  flex: 1;
+  width: auto;
+  font-size: 10.5px;
+  white-space: nowrap;
+}
+
+.tr-root--landscape .tr-row-bar {
+  order: 1;
+  flex: 0 0 100%;
+}
+
+.tr-root--landscape .tr-row-time {
+  width: auto;
+  font-size: 18px;
+  white-space: nowrap;
+}
+
+.tr-root--landscape .tr-row-frames {
+  width: 64px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* Five or more bands: with each bar on its own line beneath, seven rows
+   overfilled the column and the card grew by a third to hold them, leaving
+   the ring labels at ~7 and the footer at ~8 export px. The bar returns
+   inline between the ring and the times, so each band takes one line. */
+.tr-root--landscape.tr-root--dense .tr-row {
+  flex-wrap: nowrap;
+  gap: 12px;
+  /* 5px rather than 6px pays back most of the header's gap above. */
+  padding: 5px 0;
+}
+
+.tr-root--landscape.tr-root--dense .tr-row-ring {
+  flex: none;
+  /* Wide enough for "RING 0.5°", so every bar starts in one column. */
+  width: 6.6em;
+}
+
+.tr-root--landscape.tr-root--dense .tr-row-bar {
+  order: 0;
+  flex: 1;
+  min-width: 32px;
+}
+
+/* A common width for the times so the bars end in one column. */
+.tr-root--landscape.tr-root--dense .tr-row-time {
+  min-width: 3.6em;
+}
+
+/* The spacer's own gap pushed a one-line name onto two lines in the narrower
+   column; space-between does its job without taking width. */
+.tr-root--landscape .tr-title {
+  grid-column: 2;
+  grid-row: 4;
+  justify-content: space-between;
+  column-gap: 16px;
+}
+
+.tr-root--landscape .tr-title-spacer {
+  display: none;
+}
+
+.tr-root--landscape .tr-kicker {
+  font-size: 11px;
+}
+
+.tr-root--landscape .tr-name {
+  font-size: 31px;
+}
+
+.tr-root--landscape .tr-total-label {
+  font-size: 10px;
+}
+
+.tr-root--landscape .tr-total-value {
+  font-size: 34px;
+  white-space: nowrap;
+}
+
+.tr-root--landscape .tr-spacer {
+  display: none;
+}
+
+.tr-root--landscape .tr-footer {
+  grid-column: 1 / -1;
+  grid-row: 6;
+  margin-top: 22px;
+}
+
+.tr-root--landscape .tr-foot-gear {
+  font-size: 10.5px;
+}
+
+.tr-root--landscape .tr-foot-row {
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 8px;
+}
+
+.tr-root--landscape .tr-foot-author {
+  font-size: 13px;
+}
+
+.tr-root--landscape .tr-foot-meta {
+  font-size: 10.5px;
+  line-height: 1.3;
+}
+
+/* A long handle or location used to run the two ends of this row into each
+   other. The row may wrap. On one line the spacer still pushes the meta to
+   the right edge; once it wraps, the meta starts at the left edge under the
+   handle. Pushed right by an auto margin instead, a wrapped meta sat indented
+   by whatever room was left over and lined up with nothing. */
+.tr-foot-row {
+  flex-wrap: wrap;
+  justify-content: space-between;
+  column-gap: 16px;
+  row-gap: 8px;
+}
+
+.tr-foot-row .tr-foot-meta {
+  min-width: 0;
+}
+

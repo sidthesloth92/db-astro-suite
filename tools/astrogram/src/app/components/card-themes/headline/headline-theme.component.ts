@@ -1,0 +1,56 @@
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { CardThemeBaseDirective } from '../card-theme-base.directive';
+import { ThemeGearLineComponent } from '../shared/theme-gear-line/theme-gear-line.component';
+import { ThemeStarfieldComponent } from '../shared/theme-starfield/theme-starfield.component';
+
+/**
+ * Headline theme — the wow-stat IS the design. A brand row over a giant
+ * total-integration numeral, the object name in gold, three tappable band
+ * chips, and a gear + author footer ticker. Decorated with the shared astro
+ * kit's constellation figure and diffraction spikes.
+ */
+@Component({
+  selector: 'dba-ag-headline-theme',
+  standalone: true,
+  imports: [ThemeStarfieldComponent, ThemeGearLineComponent],
+  templateUrl: './headline-theme.component.html',
+  styleUrl: './headline-theme.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class HeadlineThemeComponent extends CardThemeBaseDirective {
+  /** Shared constellation figure edges (astro kit, 220×150 design space). */
+  protected readonly constellationEdges = [
+    { x1: 8, y1: 82, x2: 48, y2: 30 },
+    { x1: 48, y1: 30, x2: 88, y2: 60 },
+    { x1: 88, y1: 60, x2: 128, y2: 18 },
+    { x1: 128, y1: 18, x2: 162, y2: 48 },
+    { x1: 162, y1: 48, x2: 205, y2: 26 },
+    { x1: 162, y1: 48, x2: 150, y2: 92 },
+    { x1: 150, y1: 92, x2: 70, y2: 108 },
+    { x1: 70, y1: 108, x2: 8, y2: 82 },
+  ];
+
+  /** Shared constellation figure nodes; `halo` marks the ringed bright stars. */
+  protected readonly constellationNodes = [
+    { x: 8, y: 82, r: 2.3, halo: true },
+    { x: 48, y: 30, r: 1.4, halo: false },
+    { x: 88, y: 60, r: 1.4, halo: false },
+    { x: 128, y: 18, r: 2.3, halo: true },
+    { x: 162, y: 48, r: 1.4, halo: false },
+    { x: 205, y: 26, r: 1.4, halo: false },
+    { x: 150, y: 92, r: 2.3, halo: true },
+    { x: 70, y: 108, r: 1.4, halo: false },
+  ];
+
+  /** Total light frames across the enabled bands (design `sFrames`). */
+  protected totalFrames(): number {
+    return this.vm().integration.reduce((sum, band) => sum + (parseInt(band.frames, 10) || 0), 0);
+  }
+
+  /** Mono subline beneath the object name: designation · frames · sub length. */
+  protected subline(): string {
+    const objectId = this.vm().objectId;
+    const prefix = objectId ? `${objectId} · ` : '';
+    return `${prefix}${this.totalFrames()} frames`;
+  }
+}
