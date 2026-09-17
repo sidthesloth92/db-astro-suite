@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.38.0](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.37.0...db-astro-suite-v1.38.0) (2026-09-16)
+
+
+### Features
+
+* **hub:** refresh the Astrogram and AstroSpike walkthrough videos ([#127](https://github.com/sidthesloth92/db-astro-suite/issues/127)) ([ad299a3](https://github.com/sidthesloth92/db-astro-suite/commit/ad299a336685c844e284dfe1f4dc9884bc3de3ee))
+
 ## [1.37.0](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.36.0...db-astro-suite-v1.37.0) (2026-09-16)
 
 
