@@ -1,5 +1,10 @@
 import { discardPeriodicTasks, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { AnalyticsService } from '@db-astro-suite/ui';
+import {
+  RECORDING_ERROR_SHARE,
+  RECORDING_REQUEST_DATA_NUDGE_MS,
+  RECORDING_WATCHDOG_MS,
+} from '../constants/recording.constant';
 
 import { ShootingStar } from '../models/shooting-star.model';
 import { Star } from '../models/star.model';
@@ -660,7 +665,7 @@ describe('SimulationService', () => {
       it('should fall back via the watchdog when no data ever arrives', fakeAsync(() => {
         startRecordingAsApp();
 
-        tick(2500);
+        tick(RECORDING_WATCHDOG_MS);
 
         expect(recorders.length).toBe(2);
         expect(service.recordingState()).toBe('recording');
@@ -672,7 +677,7 @@ describe('SimulationService', () => {
         startRecordingAsApp();
         recorders[0].emitChunk(64);
 
-        tick(2500);
+        tick(RECORDING_WATCHDOG_MS);
 
         expect(recorders.length).toBe(1);
         service.stopRecording();
@@ -682,12 +687,42 @@ describe('SimulationService', () => {
       it('should nudge the recorder with requestData before the watchdog fires', fakeAsync(() => {
         startRecordingAsApp();
 
-        tick(1200);
+        tick(RECORDING_REQUEST_DATA_NUDGE_MS);
 
         expect(recorders[0].requestDataCalls).toBe(1);
         service.stopRecording(); // cancel the watchdog + auto-stop before leaving fakeAsync
         discardPeriodicTasks();
       }));
+
+      it('should keep nudging a slow-starting encoder and keep it once its first chunk arrives', fakeAsync(() => {
+        startRecordingAsApp();
+
+        // Slower than the old 2.5 s deadline, as measured on Android Chrome.
+        tick(RECORDING_REQUEST_DATA_NUDGE_MS * 3);
+        expect(recorders[0].requestDataCalls).toBe(3);
+        recorders[0].emitChunk(64);
+
+        tick(RECORDING_WATCHDOG_MS);
+
+        expect(recorders.length).toBe(1);
+        expect(recorders[0].requestDataCalls).toBe(3); // nudging stops at proof of life
+        service.stopRecording();
+        discardPeriodicTasks();
+      }));
+
+      it('should walk the whole ladder again on the next attempt after every rung failed', () => {
+        spyOn(console, 'error');
+        startRecordingAsApp();
+        for (let i = 0; i < 6; i++) {
+          recorders[i].emitError();
+        }
+
+        startRecordingAsApp();
+
+        expect(recorders.length).toBe(7);
+        expect(recorders[6].options?.mimeType).toBe('video/mp4;codecs=avc1.64002A');
+        expect(service.recordingError()).toBeNull();
+      });
 
       it('should give up visibly when every rung fails', () => {
         spyOn(console, 'error');
@@ -707,7 +742,7 @@ describe('SimulationService', () => {
         service.recordingState.set('idle');
         service.stopRecording();
 
-        tick(2500);
+        tick(RECORDING_WATCHDOG_MS);
 
         expect(recorders.length).toBe(1);
       }));
@@ -787,6 +822,59 @@ describe('SimulationService', () => {
         expect(last).not.toBeNull();
         expect(last?.filename).toBe('starfield_starwizz_9_16_1080_1920.mp4');
         expect(last?.sizeMb).toBe(2);
+      });
+
+      it('should type the saved file with the bare container type, not the recorder codec string', () => {
+        recordOnce(2_000_000);
+
+        expect(recorders[0].options?.mimeType).toBe('video/mp4;codecs=avc1.64002A');
+        expect(service.lastRecording()?.mimeType).toBe('video/mp4');
+        expect(service.lastRecording()?.blob.type).toBe('video/mp4');
+      });
+
+      describe('sharing', () => {
+        let share: jasmine.Spy<(data?: ShareData) => Promise<void>>;
+
+        beforeEach(() => {
+          // Web Share is absent in headless Chrome — install it for the test.
+          share = jasmine.createSpy('share').and.resolveTo();
+          Object.defineProperty(navigator, 'canShare', { configurable: true, value: () => true });
+          Object.defineProperty(navigator, 'share', { configurable: true, value: share });
+        });
+
+        afterEach(() => {
+          Reflect.deleteProperty(navigator, 'canShare');
+          Reflect.deleteProperty(navigator, 'share');
+        });
+
+        it('should share the recording as a plain video/mp4 file', async () => {
+          recordOnce(2_000_000);
+
+          await service.shareLastRecording();
+
+          const file = share.calls.mostRecent().args[0]?.files?.[0];
+          expect(file?.name).toBe('starfield_starwizz_9_16_1080_1920.mp4');
+          expect(file?.type).toBe('video/mp4');
+        });
+
+        it('should stay quiet when the user dismisses the share sheet', async () => {
+          share.and.rejectWith(new DOMException('dismissed', 'AbortError'));
+          recordOnce(2_000_000);
+
+          await service.shareLastRecording();
+
+          expect(service.recordingError()).toBeNull();
+        });
+
+        it('should surface an error when sharing fails', async () => {
+          spyOn(console, 'error');
+          share.and.rejectWith(new DOMException('denied', 'NotAllowedError'));
+          recordOnce(2_000_000);
+
+          await service.shareLastRecording();
+
+          expect(service.recordingError()).toBe(RECORDING_ERROR_SHARE);
+        });
       });
 
       it('should surface an error and skip the download for an empty recording', () => {

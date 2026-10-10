@@ -7,11 +7,11 @@ import {
   IconComponent,
   VideoLightboxComponent,
   checkIcon,
-  downloadIcon,
   slidersIcon,
 } from '@db-astro-suite/ui';
 import packageJson from '../../../../package.json';
 import { ControlPanel } from './components/control-panel/control-panel';
+import { InAppBrowserAlert } from './components/in-app-browser-alert/in-app-browser-alert';
 import { Simulator } from './components/simulator/simulator';
 import {
   DEFAULT_RECORDING_PRESET,
@@ -21,6 +21,7 @@ import {
 } from './constants/recording.constant';
 import { QualityPickerItem } from './models/quality-picker-item.model';
 import { RecordingPreset } from './models/recording.model';
+import { InAppBrowserService } from './services/in-app-browser.service';
 import { SimulationService } from './services/simulation.service';
 import {
   computeRecordingBitsPerSecond,
@@ -43,6 +44,7 @@ const SLIDER_TARGET_SELECTOR = 'dba-ui-micro-slider';
   standalone: true,
   imports: [
     ControlPanel,
+    InAppBrowserAlert,
     Simulator,
     HeaderComponent,
     FloatingSheetComponent,
@@ -64,6 +66,10 @@ export class App {
   protected readonly breakpoints = inject(BreakpointService);
   /** Recording state machine — used to auto-collapse the sheet on record start. */
   protected readonly simService = inject(SimulationService);
+  /** In-app browser detection — drives the blocking "open in your browser" alert. */
+  protected readonly inAppBrowser = inject(InAppBrowserService);
+  /** True inside an in-app browser: the alert blocks the page and the shell behind it is inert. */
+  protected readonly isBlockedByInAppBrowser = this.inAppBrowser.browser !== null;
 
   /** Whether the mobile floating sheet is currently expanded. */
   protected readonly sheetExpanded = signal(false);
@@ -76,10 +82,8 @@ export class App {
 
   /** Sliders glyph rendered inside the mobile "Controls" launcher button. */
   protected readonly slidersIcon = slidersIcon;
-  /** Check glyph confirming the recording saved in the "Video ready" chip. */
+  /** Check glyph marking a finished recording in the "Video ready" chip. */
   protected readonly checkIcon = checkIcon;
-  /** Download glyph for the chip's re-download (failed-download recovery) action. */
-  protected readonly downloadIcon = downloadIcon;
 
   /** Maximum recording length (seconds), shown in the quality popup title. */
   protected readonly maxRecordingSeconds = MAX_RECORDING_SECONDS;
@@ -185,7 +189,7 @@ export class App {
     this.isResultChipDismissed.set(true);
   }
 
-  /** Re-downloads the retained last recording (recovery for failed downloads). */
+  /** Saves the retained last recording from an explicit tap (the automatic download can be dropped silently). */
   protected saveLastRecording(): void {
     this.simService.saveLastRecording();
   }
