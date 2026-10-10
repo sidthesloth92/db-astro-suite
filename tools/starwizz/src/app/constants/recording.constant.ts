@@ -74,9 +74,12 @@ export const MAX_VIDEO_BITS_PER_SECOND = 80_000_000;
 export const RECORDING_TIMESLICE_MS = 1000;
 
 /**
- * Delay (ms) before nudging the recorder with `requestData()` — a backstop
- * for browsers that ignore the timeslice, so the watchdog still sees a chunk
- * from a healthy encoder before it fires.
+ * Interval (ms) between `requestData()` nudges while an attempt has not yet
+ * delivered a chunk. Chrome's MP4 muxer ignores the timeslice until its
+ * first fragment closes on the second keyframe (~1.7 s at 60 fps, ~3.4 s at
+ * 30 fps); a nudge flushes the header it writes as soon as the first frame
+ * is encoded. Repeating the nudge lets a slow-starting encoder prove itself
+ * the moment it produces a frame, instead of only at one fixed instant.
  */
 export const RECORDING_REQUEST_DATA_NUDGE_MS = 1200;
 
@@ -84,9 +87,11 @@ export const RECORDING_REQUEST_DATA_NUDGE_MS = 1200;
  * Watchdog deadline (ms): if no data chunk has arrived this long after
  * `start()`, the active codec is treated as dead (permissive
  * `isTypeSupported()` accepted a profile/level the device encoder rejects)
- * and recording falls back to the next MIME-ladder rung.
+ * and recording falls back to the next MIME-ladder rung. Generous on
+ * purpose — a working 1080×1920 encoder can take well over 2.5 s to emit
+ * its first chunk on a phone, and killing it costs the user the recording.
  */
-export const RECORDING_WATCHDOG_MS = 2500;
+export const RECORDING_WATCHDOG_MS = 6000;
 
 /** User-facing error when every MIME-ladder rung failed to produce video. */
 export const RECORDING_ERROR_UNSUPPORTED =
