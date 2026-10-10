@@ -68,3 +68,20 @@
     margin: 0;
   }
 }
+
+/* Clip timer chip — elapsed vs. planned clip length, bottom-centre of the stage. */
+.clip-timer {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  padding: 4px 12px;
+  border: 1px solid var(--db-color-border);
+  border-radius: 999px;
+  background: var(--db-color-surface-hi);
+  color: var(--db-color-text-primary);
+  font: 600 12px/1.4 var(--db-font-mono-code);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}

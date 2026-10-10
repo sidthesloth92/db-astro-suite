@@ -1,7 +1,34 @@
 import { RecordingPreset, RecordingPresetMetadata } from '../models/recording.model';
 
-/** Maximum allowed recording duration in seconds before auto-stop. */
+/** Recording length cap (seconds) applied when no custom duration is set. */
 export const MAX_RECORDING_SECONDS = 30;
+
+/** Smallest custom recording duration the Duration input accepts. */
+export const MIN_RECORDING_DURATION_SECONDS = 1;
+
+/** Largest custom recording duration the Duration input accepts. */
+export const MAX_RECORDING_DURATION_SECONDS = 300;
+
+/** Custom duration pre-filled when the Duration option is switched on. */
+export const DEFAULT_RECORDING_DURATION_SECONDS = 30;
+
+/**
+ * Clip length (seconds) above which the panel shows the long-clip hint —
+ * social platforms recompress long uploads harder, so quality may suffer.
+ */
+export const RECORDING_QUALITY_WARNING_SECONDS = 60;
+
+/** Default freeze point (seconds into the clip) for the Freeze frame option. */
+export const DEFAULT_FREEZE_AT_SECONDS = 15;
+
+/** Default number of seconds the frozen frame is held. */
+export const DEFAULT_FREEZE_HOLD_SECONDS = 5;
+
+/**
+ * Runaway safety cap (seconds) for Custom Path recordings, which normally end
+ * when the A→B pass completes rather than on a fixed timer.
+ */
+export const PATH_RECORDING_SAFETY_CAP_SECONDS = 300;
 
 /** Preset applied on first load and restored on a full reset (image clear). */
 export const DEFAULT_RECORDING_PRESET: RecordingPreset = 'social';

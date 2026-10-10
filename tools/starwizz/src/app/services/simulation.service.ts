@@ -16,12 +16,17 @@ import {
   PATH_STAR_SPEED_FACTOR,
 } from '../constants/simulation.constant';
 import {
+  DEFAULT_FREEZE_AT_SECONDS,
+  DEFAULT_FREEZE_HOLD_SECONDS,
+  DEFAULT_RECORDING_DURATION_SECONDS,
   DEFAULT_RECORDING_PRESET,
   MAX_RECORDING_SECONDS,
+  PATH_RECORDING_SAFETY_CAP_SECONDS,
   RECORDING_ERROR_EMPTY,
   RECORDING_ERROR_SHARE,
   RECORDING_ERROR_UNSUPPORTED,
   RECORDING_PRESETS,
+  RECORDING_QUALITY_WARNING_SECONDS,
   RECORDING_REQUEST_DATA_NUDGE_MS,
   RECORDING_TIMESLICE_MS,
   RECORDING_WATCHDOG_MS,
@@ -32,6 +37,7 @@ import { RecordingResult } from '../models/recording-result.model';
 import {
   CameraKeyframe,
   ControlKey,
+  PanelSection,
   RecordingState,
   StarDepth,
   TravelDirection,
@@ -232,10 +238,98 @@ export class SimulationService implements OnDestroy {
   recordingDuration = signal<number>(0);
 
   /**
+   * Active control-panel tab, shared between the desktop panel's segmented
+   * tabs and the mobile sheet's bottom navigation.
+   */
+  activePanelSection = signal<PanelSection>('scene');
+
+  /**
    * Whether to reset animation to the beginning before recording.
    * Controlled by the 'From Beginning' checkbox in the control panel.
    */
   recordFromBeginning = signal<boolean>(false);
+
+  /**
+   * Whether the animation restarts from its starting state when the clip ends
+   * (seamlessly loopable video). When off, the animation stops on the final
+   * frame instead and the scene stays held until restarted.
+   */
+  loopEnabled = signal<boolean>(true);
+
+  /** Whether a custom total recording duration is active (regular modes only). */
+  durationEnabled = signal<boolean>(false);
+
+  /** Custom total recording duration in seconds (regular modes only). */
+  recordingDurationSeconds = signal<number>(DEFAULT_RECORDING_DURATION_SECONDS);
+
+  /**
+   * Whether the Freeze frame option is active: a mid-clip pause in regular
+   * modes, or an end-of-pass hold in Custom Path mode.
+   */
+  freezeFrameEnabled = signal<boolean>(false);
+
+  /** Seconds into the clip at which the animation freezes (regular modes only). */
+  freezeAtSeconds = signal<number>(DEFAULT_FREEZE_AT_SECONDS);
+
+  /**
+   * Seconds the frozen frame is held: mid-clip in regular modes (the
+   * animation resumes afterwards), or at the end of the pass in path mode.
+   */
+  freezeHoldSeconds = signal<number>(DEFAULT_FREEZE_HOLD_SECONDS);
+
+  /**
+   * Whether the scene is currently frozen: the simulator keeps rendering (so
+   * an active recording keeps capturing) but skips all motion updates.
+   */
+  sceneFrozen = signal<boolean>(false);
+
+  /**
+   * Whether a preview clip timeline is running: after a restart the animation
+   * plays exactly as a recording would (freeze, hold, duration end, loop),
+   * so the user can visualise the clip without recording it.
+   */
+  previewActive = signal<boolean>(false);
+
+  /** Elapsed seconds of the active preview timeline. */
+  previewElapsedSeconds = signal<number>(0);
+
+  /** Whether the on-canvas clip timer should be shown. */
+  isClipTimerVisible = computed<boolean>(
+    () => this.recordingState() === 'recording' || this.previewActive(),
+  );
+
+  /**
+   * On-canvas clip timer text: elapsed vs. the clip's planned length. Path
+   * clips show the derived pass length (plus any end hold) as an estimate.
+   */
+  clipTimerLabel = computed<string>(() => {
+    const elapsed =
+      this.recordingState() === 'recording'
+        ? this.recordingDuration()
+        : this.previewElapsedSeconds();
+    if (this.isPathMode() && this.pathFinalized()) {
+      const hold = this.freezeFrameEnabled() ? this.freezeHoldSeconds() : 0;
+      const total = Math.round(this.pathDurationSeconds() + hold);
+      return `${elapsed}s / ~${total}s`;
+    }
+    return `${elapsed}s / ${this.recordingTargetSeconds()}s`;
+  });
+
+  /**
+   * Effective total clip length in seconds for regular (non-path) modes: the
+   * custom duration when enabled, otherwise the default recording cap.
+   */
+  recordingTargetSeconds = computed<number>(() =>
+    this.durationEnabled() ? this.recordingDurationSeconds() : MAX_RECORDING_SECONDS,
+  );
+
+  /**
+   * Whether the configured clip length is long enough that social platforms
+   * are likely to recompress it noticeably (drives the panel hint).
+   */
+  isLongClipWarning = computed<boolean>(
+    () => !this.isPathMode() && this.recordingTargetSeconds() > RECORDING_QUALITY_WARNING_SECONDS,
+  );
 
   /**
    * Signal to request animation reset before recording.
@@ -374,6 +468,21 @@ export class SimulationService implements OnDestroy {
 
   /** Interval handle for updating recording duration counter */
   private timerInterval: ReturnType<typeof setInterval> | null = null;
+
+  /** Timeout handle that freezes the scene mid-clip (regular modes). */
+  private freezeTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  /** Timeout handle that resumes motion after a mid-clip hold (regular modes). */
+  private freezeResumeTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  /** Timeout handle that ends the clip after a path-end hold (path mode). */
+  private pathHoldTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  /** Timeout handles driving the preview clip timeline (freeze/resume/end). */
+  private previewTimeouts: ReturnType<typeof setTimeout>[] = [];
+
+  /** Interval handle ticking the preview elapsed-seconds counter. */
+  private previewInterval: ReturnType<typeof setInterval> | null = null;
 
   /** Canvas being recorded — retained so a codec fallback can re-capture it. */
   private recordingCanvas: HTMLCanvasElement | null = null;
@@ -1036,10 +1145,12 @@ export class SimulationService implements OnDestroy {
       // so the counter always matches actually-captured footage.
       this.recordingDuration.set(0);
       this.clearRecordingTimers();
+      this.stopClipPreview();
+      this.sceneFrozen.set(false);
       this.timerInterval = setInterval(() => {
         this.recordingDuration.update((d) => d + 1);
       }, 1000);
-      this.recordingTimeout = setTimeout(() => this.stopRecording(), MAX_RECORDING_SECONDS * 1000);
+      this.armClipEndTimers();
       this.armEncoderWatchdog(this.mediaRecorder);
     } catch (e) {
       console.error('Error starting recording attempt:', e);
@@ -1144,7 +1255,163 @@ export class SimulationService implements OnDestroy {
     this.recordingState.set('idle');
   }
 
-  /** Clears the duration interval, auto-stop, watchdog, and nudge timers. */
+  /**
+   * Arms the timers that end the clip at its planned boundary for one
+   * recording attempt.
+   *
+   * Regular modes: the clip always ends at {@link recordingTargetSeconds};
+   * when Freeze frame is on (and the freeze point falls inside the clip) the
+   * scene freezes at F seconds and resumes at F + hold — unless the hold
+   * runs past the clip end, in which case it stays frozen until the finish.
+   *
+   * Custom Path mode: the clip ends when the A→B pass completes (the
+   * simulator calls {@link onPathPassComplete}); the timeout armed here is
+   * only a runaway safety net.
+   */
+  private armClipEndTimers(): void {
+    if (this.isPathMode() && this.pathFinalized()) {
+      this.recordingTimeout = setTimeout(
+        () => this.finishClip(),
+        PATH_RECORDING_SAFETY_CAP_SECONDS * 1000,
+      );
+      return;
+    }
+
+    const target = this.recordingTargetSeconds();
+    this.recordingTimeout = setTimeout(() => this.finishClip(), target * 1000);
+
+    const freezeAt = this.freezeAtSeconds();
+    if (this.freezeFrameEnabled() && freezeAt < target) {
+      this.freezeTimeout = setTimeout(() => this.sceneFrozen.set(true), freezeAt * 1000);
+      const resumeAt = freezeAt + this.freezeHoldSeconds();
+      if (resumeAt < target) {
+        this.freezeResumeTimeout = setTimeout(
+          () => this.sceneFrozen.set(false),
+          resumeAt * 1000,
+        );
+      }
+    }
+  }
+
+  /**
+   * Ends the clip at its planned boundary: stops the recorder, then applies
+   * the Loop setting — on, the animation restarts from its starting state at
+   * this exact moment so the exported video loops seamlessly; off, the scene
+   * holds its final frame until the user restarts or records again.
+   */
+  private finishClip(): void {
+    this.stopRecording();
+    if (this.loopEnabled()) {
+      this.sceneFrozen.set(false);
+      this.restartAnimationRequested.set(true);
+    } else {
+      this.sceneFrozen.set(true);
+    }
+  }
+
+  /**
+   * Called by the simulator when a Custom Path A→B pass completes while a
+   * recording or a preview timeline is active: optionally holds the final
+   * frame for the configured seconds, then ends the clip (or its preview).
+   */
+  onPathPassComplete(): void {
+    const holdSeconds = this.freezeFrameEnabled() ? this.freezeHoldSeconds() : 0;
+    if (this.isRecording()) {
+      if (holdSeconds > 0) {
+        this.sceneFrozen.set(true);
+        this.pathHoldTimeout = setTimeout(() => this.finishClip(), holdSeconds * 1000);
+      } else {
+        this.finishClip();
+      }
+      return;
+    }
+    if (this.previewActive()) {
+      if (holdSeconds > 0) {
+        this.sceneFrozen.set(true);
+        this.previewTimeouts.push(setTimeout(() => this.finishPreview(), holdSeconds * 1000));
+      } else {
+        this.finishPreview();
+      }
+    }
+  }
+
+  /**
+   * Plays the animation exactly as a recording would — same freeze, hold,
+   * duration end and Loop behaviour — so the user can visualise the clip
+   * without recording. Started on every animation restart; a real recording
+   * supersedes it.
+   */
+  startClipPreview(): void {
+    if (this.isRecording()) {
+      return;
+    }
+    this.stopClipPreview();
+    this.sceneFrozen.set(false);
+    this.previewActive.set(true);
+    this.previewElapsedSeconds.set(0);
+    this.previewInterval = setInterval(() => {
+      this.previewElapsedSeconds.update((s) => s + 1);
+    }, 1000);
+
+    // Path clips end when the pass completes (onPathPassComplete drives it).
+    if (this.isPathMode() && this.pathFinalized()) {
+      return;
+    }
+
+    const target = this.recordingTargetSeconds();
+    const freezeAt = this.freezeAtSeconds();
+    if (this.freezeFrameEnabled() && freezeAt < target) {
+      this.previewTimeouts.push(setTimeout(() => this.sceneFrozen.set(true), freezeAt * 1000));
+      const resumeAt = freezeAt + this.freezeHoldSeconds();
+      if (resumeAt < target) {
+        this.previewTimeouts.push(
+          setTimeout(() => this.sceneFrozen.set(false), resumeAt * 1000),
+        );
+      }
+    }
+    this.previewTimeouts.push(setTimeout(() => this.finishPreview(), target * 1000));
+  }
+
+  /**
+   * Ends the preview at the clip boundary, applying the Loop setting the way
+   * a real clip end would: on → restart (which begins the next preview run);
+   * off → hold the final frame.
+   */
+  private finishPreview(): void {
+    this.stopClipPreview();
+    if (this.loopEnabled()) {
+      this.sceneFrozen.set(false);
+      this.restartAnimationRequested.set(true);
+    } else {
+      this.sceneFrozen.set(true);
+    }
+  }
+
+  /** Cancels the preview timeline and its timers (a recording supersedes it). */
+  stopClipPreview(): void {
+    this.previewActive.set(false);
+    for (const timeout of this.previewTimeouts) {
+      clearTimeout(timeout);
+    }
+    this.previewTimeouts = [];
+    if (this.previewInterval) {
+      clearInterval(this.previewInterval);
+      this.previewInterval = null;
+    }
+  }
+
+  /**
+   * Updates the Loop option; switching it on releases a clip-end hold so the
+   * scene visibly resumes.
+   */
+  setLoopEnabled(on: boolean): void {
+    this.loopEnabled.set(on);
+    if (on) {
+      this.sceneFrozen.set(false);
+    }
+  }
+
+  /** Clears the duration interval, auto-stop, freeze, watchdog, and nudge timers. */
   private clearRecordingTimers(): void {
     if (this.recordingTimeout) {
       clearTimeout(this.recordingTimeout);
@@ -1153,6 +1420,18 @@ export class SimulationService implements OnDestroy {
     if (this.timerInterval) {
       clearInterval(this.timerInterval);
       this.timerInterval = null;
+    }
+    if (this.freezeTimeout) {
+      clearTimeout(this.freezeTimeout);
+      this.freezeTimeout = null;
+    }
+    if (this.freezeResumeTimeout) {
+      clearTimeout(this.freezeResumeTimeout);
+      this.freezeResumeTimeout = null;
+    }
+    if (this.pathHoldTimeout) {
+      clearTimeout(this.pathHoldTimeout);
+      this.pathHoldTimeout = null;
     }
     if (this.watchdogTimeout) {
       clearTimeout(this.watchdogTimeout);
@@ -1221,6 +1500,7 @@ export class SimulationService implements OnDestroy {
       this.pendingObjectUrl = null;
     }
     this.clearRecordingTimers();
+    this.stopClipPreview();
   }
 
   /**

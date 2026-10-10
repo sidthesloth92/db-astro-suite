@@ -57,6 +57,16 @@
   display: none;
 }
 
+/* In-sheet, the sheet's bottom navigation drives the tab switching. */
+:host(.in-sheet) .panel-tabs {
+  display: none;
+}
+
+/* The panel is a stretch-aligned flex column — pull the tab pills to the middle. */
+.panel-tabs {
+  align-self: center;
+}
+
 :host(.in-sheet) .record-row {
   padding-top: 4px;
   border-top: none;
@@ -247,6 +257,22 @@
   color: var(--db-color-text-dim);
 }
 
+.record-seconds-input {
+  width: 104px;
+}
+
+.record-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.record-warning {
+  margin: 0;
+  font: 500 11px/1.4 var(--db-font-ui);
+  color: var(--db-color-text-muted);
+}
+
 .path-section,
 .stars-section {
   display: flex;
@@ -263,6 +289,20 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+}
+
+/* Section headers read stronger than the slider labels beneath them. */
+.stars-section-header .row-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--db-color-text-primary);
+}
+
+/* Sub-headers (e.g. Shooting Stars) separate their group from the sliders above. */
+.stars-subheader {
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid var(--db-color-border);
 }
 
 .path-hint {
