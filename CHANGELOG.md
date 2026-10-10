@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.38.1](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.38.0...db-astro-suite-v1.38.1) (2026-10-10)
+
+
+### Bug Fixes
+
+* **starwizz:** send in-app browser users to a real browser and harden Android recording ([#129](https://github.com/sidthesloth92/db-astro-suite/issues/129)) ([1c5d8be](https://github.com/sidthesloth92/db-astro-suite/commit/1c5d8bedd4d21571b0ab9038e7a64cb24da3e09f))
+
 ## [1.38.0](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.37.0...db-astro-suite-v1.38.0) (2026-09-16)
 
 
