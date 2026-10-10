@@ -201,6 +201,17 @@ jobs:
       contents: write
     uses: ./.github/workflows/sortronomy-release.yml
 
+  release-celestory:
+    name: Release celestory
+    needs: release-please
+    # Same paths_released gate as sortronomy — the slash-named per-path outputs
+    # evaluate empty at the job boundary. Manual re-runs go through
+    # celestory-release.yml's workflow_dispatch, not this pipeline.
+    if: contains(needs.release-please.outputs.paths_released, '"tools/celestory"')
+    permissions:
+      contents: write
+    uses: ./.github/workflows/celestory-release.yml
+
   deploy:
     name: Deploy to GitHub Pages
     # Run ONLY on main pushes THAT ARE release merges

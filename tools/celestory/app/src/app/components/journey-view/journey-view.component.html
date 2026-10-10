@@ -1,0 +1,164 @@
+<dba-ui-constellation-field [maxPoints]="150" [linkDistance]="130" [taggedCount]="5" [lineOpacity]="0.28">
+  <div class="neb" aria-hidden="true"></div>
+
+  <main class="journey">
+    <header class="bar">
+      <a class="brand" routerLink="/">
+        <dba-celestory-wordmark [markSize]="30" [fontSize]="21" />
+      </a>
+    </header>
+
+    <!-- State banner -->
+    @switch (state()) {
+      @case ('demo') {
+        <section class="banner banner--demo">
+          <span class="banner-ico"><dba-cel-icon name="eye" [size]="18" /></span>
+          <div class="banner-txt">
+            <strong>Viewing Demo Journey</strong>
+            <span>Like what you see? Create your own Celestory in minutes.</span>
+          </div>
+          <dba-ui-text-button variant="primary" label="Create Your Journey" (clicked)="goToInstall()">
+            <dba-cel-icon slot="leading" name="rocket" [size]="14" />
+          </dba-ui-text-button>
+        </section>
+      }
+      @case ('preview') {
+        <section class="banner banner--preview">
+          <span class="banner-ico"><dba-cel-icon name="lock" [size]="17" /></span>
+          <div class="banner-txt">
+            <strong>Private Preview</strong>
+            <span>This journey is only visible on this device. Publish it to get a permanent URL.</span>
+          </div>
+          <dba-ui-text-button variant="primary" label="Publish Journey" (clicked)="openPublish()">
+            <dba-cel-icon slot="leading" name="globe" [size]="14" />
+          </dba-ui-text-button>
+        </section>
+      }
+      @case ('published') {
+        @if (session.isOwnerOf(handle())) {
+          <section class="banner banner--published">
+            <div class="banner-main">
+              <span class="banner-ico"><dba-cel-icon name="globe" [size]="17" /></span>
+              <div class="banner-txt">
+                <strong>Journey Published</strong>
+                <span>Your profile is live at
+                  <a class="banner-url" [href]="profileUrl()" target="_blank" rel="noopener">{{ profileDisplay() }}</a>
+                </span>
+              </div>
+              <div class="banner-share">
+                <dba-cel-social-share-row [url]="profileUrl()" />
+                <dba-ui-text-button variant="primary" label="Share" (clicked)="openShare()">
+                  <dba-cel-icon slot="leading" name="share" [size]="14" />
+                </dba-ui-text-button>
+              </div>
+            </div>
+            <div class="banner-owner">
+              <span class="banner-owner-label"><dba-cel-icon name="lock" [size]="13" /> Only you see these controls — visitors just see your story.</span>
+              <button class="banner-owner-act" type="button" [disabled]="editBusy()" (click)="editInput.click()">
+                <dba-cel-icon name="upload" [size]="13" /> {{ editBusy() ? 'Updating…' : 'Update with a new file' }}
+              </button>
+              <button class="banner-owner-del" type="button" (click)="openPublishDelete()">
+                <dba-cel-icon name="trash" [size]="13" /> Delete profile
+              </button>
+              <button class="banner-owner-out" type="button" (click)="logout()">
+                <dba-cel-icon name="back" [size]="13" /> Log out
+              </button>
+              @if (editError()) {
+                <span class="banner-owner-err" role="alert">{{ editError() }}</span>
+              }
+            </div>
+            <input #editInput type="file" accept="application/json,.json" hidden (change)="onEditFile($event)" />
+          </section>
+        } @else {
+          <!-- Visitors / logged-out owners: no owner banner, just a quiet login entry. -->
+          <button class="banner-manage banner-manage--solo" type="button" (click)="openLogin()">
+            <dba-cel-icon name="lock" [size]="13" /> Manage this profile
+          </button>
+        }
+      }
+    }
+
+    @if (detailTarget(); as o) {
+      <dba-target-detail
+        [target]="o"
+        [story]="story()"
+        [handle]="handle()"
+        [published]="isPublished()"
+        (back)="closeDetail()"
+        (openEquipment)="openEquipment($event)"
+      />
+    } @else if (detailEquip(); as e) {
+      <dba-equipment-detail
+        [equip]="e"
+        [story]="story()"
+        [handle]="handle()"
+        [published]="isPublished()"
+        (back)="closeDetail()"
+        (openTarget)="openTarget($event)"
+      />
+    } @else {
+      <!-- Single flowing page: hero → Targets → Equipment -->
+      <dba-journey-hero
+        [story]="story()"
+        [handle]="handle()"
+        [state]="state()"
+        (share)="openShare()"
+        (publish)="openPublish()"
+        (openTarget)="openTarget($event)"
+        (enterSky)="openSky()"
+      />
+
+      <dba-section-banner num="02" eyebrow="The Catalogue" title="Targets" glyph="galaxy" [seed]="4" [sub]="targetsSub()" />
+      <dba-target-section [story]="story()" (open)="openTarget($event)" (share)="openTargetShare($event)" />
+
+      <dba-section-banner num="03" eyebrow="The Rig" title="Equipment" glyph="camera" [seed]="9" [sub]="equipmentSub()" />
+      <dba-equipment-section [story]="story()" (open)="openEquipment($event)" />
+    }
+  </main>
+
+  <!-- Modals -->
+  @if (showPublish()) {
+    <dba-publish-modal
+      [story]="story()"
+      [currentHandle]="handle()"
+      [initialPhase]="publishPhase()"
+      (published)="onPublished($event)"
+      (unpublished)="onUnpublished()"
+      (closed)="showPublish.set(false)"
+    />
+  }
+  @if (showLogin()) {
+    <dba-owner-login-modal
+      [handle]="handle()"
+      (authenticated)="onAuthenticated()"
+      (closed)="showLogin.set(false)"
+    />
+  }
+  @if (showStudio()) {
+    <dba-share-studio-modal
+      [story]="story()"
+      [handle]="handle()"
+      [state]="state()"
+      (openPublish)="openPublish()"
+      (closed)="showStudio.set(false)"
+    />
+  }
+  @if (shareTarget(); as o) {
+    <dba-target-share-modal
+      [target]="o"
+      [story]="story()"
+      [handle]="handle()"
+      [shareUrl]="targetShareUrl()"
+      (closed)="shareTarget.set(null)"
+    />
+  }
+
+  <!-- Full-screen planetarium ("View My Universe") -->
+  @if (showSky()) {
+    <dba-planetarium
+      [story]="story()"
+      (closed)="closeSky()"
+      (openEquipment)="skyToEquipment($event)"
+    />
+  }
+</dba-ui-constellation-field>

@@ -1,0 +1,15 @@
+<div class="proc" [class.out]="out()">
+  <canvas #canvas class="proc-canvas" aria-hidden="true"></canvas>
+  <div class="proc-inner">
+    <div class="proc-eyebrow">Building your Celestory</div>
+    <div class="proc-hours">{{ fmt(hours()) }}<span class="proc-hu">h</span></div>
+    <div class="proc-hlabel">of light, collected</div>
+    <div class="proc-steps">
+      @for (ln of lines; track ln; let i = $index) {
+        <div class="proc-step" [class.on]="step() >= i">
+          <span class="proc-tick">{{ step() > i ? '✓' : '·' }}</span> {{ ln }}
+        </div>
+      }
+    </div>
+  </div>
+</div>

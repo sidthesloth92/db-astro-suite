@@ -1,0 +1,97 @@
+@if (view().nights.length) {
+  <div class="hs-scroll" #scroller>
+    <div
+      class="hs-track"
+      [style.height.px]="trackHeight"
+      [style.width]="trackWidth()"
+      (mouseleave)="onLeave()"
+    >
+      <div class="hs-base" [style.top.px]="baseline"></div>
+
+      @for (mt of view().months; track mt.label + mt.leftPct) {
+        <div class="hs-month" [style.left.%]="mt.leftPct" [style.top.px]="baseline">
+          <span class="hs-month-lbl">{{ mt.label }}</span>
+        </div>
+      }
+
+      @for (n of nodes(); track n.date) {
+        <div class="hs-node" [style.left.%]="n.leftPct" (mouseenter)="onEnter(n, $event)">
+          <span
+            class="hs-stem"
+            [class.on]="hovered()?.date === n.date"
+            [class.ms]="n.isMilestone"
+            [style.top.px]="n.stemTop"
+            [style.height.px]="n.stemHeight"
+          ></span>
+          <span
+            class="hs-dot"
+            [class.on]="hovered()?.date === n.date"
+            [style.top.px]="n.dotTop"
+            [style.width.px]="n.dotSize"
+            [style.height.px]="n.dotSize"
+          ></span>
+        </div>
+      }
+
+      <svg class="hs-leaders" [attr.viewBox]="leadersViewBox" preserveAspectRatio="none" aria-hidden="true">
+        @for (m of placed(); track m.id) {
+          <path
+            [attr.d]="m.path"
+            [attr.stroke]="m.color"
+            fill="none"
+            stroke-width="1.5"
+            stroke-linejoin="miter"
+            stroke-linecap="butt"
+            opacity="0.55"
+            vector-effect="non-scaling-stroke"
+          />
+        }
+      </svg>
+
+      @for (m of placed(); track m.id) {
+        <span class="hs-ms-node" [style.--ms]="m.color" [style.left.%]="m.truePct" [style.top.px]="m.nodeTop"></span>
+        <span class="hs-ms-pill" [style.--ms]="m.color" [style.left.%]="m.slotPct" [style.top.px]="m.pillTop">
+          <span class="hs-ms-v">{{ m.big }}</span>
+          <span class="hs-ms-d">{{ m.small }}</span>
+        </span>
+      }
+    </div>
+  </div>
+
+  @if (hovered(); as h) {
+    @if (tipPos(); as p) {
+      <div class="hs-tip" [style.left.px]="p.x" [style.top.px]="p.y">
+        <div class="t-date">{{ date(h.date) }}</div>
+        <div class="t-int">
+          {{ dur(h.integrationSeconds) }} <span class="t-sub">{{ count(h.lightFrameCount) }} frames</span>
+        </div>
+        @if (h.filters.length) {
+          <div class="t-filters">
+            @for (f of h.filters; track f.name) {
+              <span class="t-filter"><span class="t-fdot" [style.background]="f.color"></span>{{ f.label }}</span>
+            }
+          </div>
+        }
+        @if (h.targets.length) {
+          <div class="t-objlist">
+            @for (o of h.targets; track o.name; let i = $index) {
+              @if (i < 4) {
+                <div class="t-objrow">
+                  <span class="t-objname">{{ o.name }}</span>
+                  <span class="t-objmeta">{{ o.type }} · {{ dur(o.seconds) }}</span>
+                </div>
+              }
+            }
+            @if (h.targets.length > 4) {
+              <div class="t-tgtmore">+{{ h.targets.length - 4 }} more</div>
+            }
+          </div>
+        }
+      </div>
+    }
+  }
+
+  <div class="hs-cap">{{ view().caption }}</div>
+} @else {
+  <div class="hs-empty">{{ view().caption }}</div>
+}

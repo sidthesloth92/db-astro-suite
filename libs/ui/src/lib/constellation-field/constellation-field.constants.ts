@@ -24,5 +24,7 @@ export const CF_MAX_POINTS = 86;
 export const CF_LINK_DISTANCE = 120;
 /** Number of tagged anchor stars. */
 export const CF_TAGGED_COUNT = 4;
+/** Base opacity multiplier for the connecting lines. */
+export const CF_LINE_OPACITY = 0.32;
 /** Device-pixel-ratio cap (keeps the backing store sane on hi-dpi). */
 export const CF_MAX_DPR = 2;

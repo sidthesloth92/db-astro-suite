@@ -1,0 +1,128 @@
+<section class="hero">
+  <div class="hero-center">
+    <div class="hero-id">
+      @if (editing()) {
+        <div class="id-edit">
+          <input
+            #nameI
+            class="id-input id-input-name"
+            [value]="editName()"
+            (input)="onEditName(nameI.value)"
+            placeholder="Your name"
+            aria-label="Your name"
+          />
+          <div class="id-handle-row">
+            <span class="id-at">&#64;</span>
+            <input
+              #usernameI
+              class="id-input"
+              [value]="editUsername()"
+              (input)="onEditUsername(usernameI.value)"
+              placeholder="username"
+              aria-label="Your username"
+            />
+          </div>
+          <div class="id-edit-actions">
+            <button class="id-save" type="button" (click)="saveEdit()">
+              <dba-cel-icon name="check" [size]="14" /> Save
+            </button>
+            <button class="id-cancel" type="button" (click)="cancelEdit()">Cancel</button>
+          </div>
+        </div>
+      } @else {
+        <dba-celestory-wordmark class="hero-lockup" [prefix]="lockupPrefix()" [markSize]="36" [fontSize]="32" />
+        <div class="hero-id-meta">
+          @if (displayUsername()) {
+            <span class="hero-handle">&#64;{{ displayUsername() }}</span>
+          }
+          <dba-ui-icon-button class="id-edit-btn" accent="cyan" [size]="30" title="Edit name and username" (clicked)="startEdit()">
+            <dba-cel-icon name="edit" [size]="14" />
+          </dba-ui-icon-button>
+        </div>
+      }
+    </div>
+    <div class="hero-tagline eyebrow">{{ tagline() }}</div>
+
+    @if (span(); as sp) {
+      <div class="hero-span">
+        <span class="hero-yr cy">{{ sp.from }}</span>
+        <dba-moon-phase-timeline class="hero-tl" />
+        <span class="hero-yr pk">{{ sp.to }}</span>
+      </div>
+    }
+
+    <div class="hero-rule"></div>
+    <div class="hero-time-label eyebrow">Total integration</div>
+    <div class="hero-time">{{ heroTime() }}</div>
+    <div class="hero-sub">
+      @if (seasons(); as n) {
+        <b>{{ n }} season{{ n === 1 ? '' : 's' }}</b> under the sky <span class="dot-sep">·</span>
+      }
+      chasing ancient light, one sub at a time
+    </div>
+
+    <div class="hero-actions">
+      <dba-ui-text-button variant="primary" size="lg" label="Share Journey" (clicked)="share.emit()">
+        <svg slot="leading" class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.4" /><circle cx="17" cy="6" r="2.4" /><circle cx="17" cy="18" r="2.4" /><path d="M8.1 10.9l6.8-3.8M8.1 13.1l6.8 3.8" /></svg>
+      </dba-ui-text-button>
+      @if (state() === 'preview') {
+        <dba-ui-text-button variant="secondary" size="lg" label="Publish Journey" (clicked)="publish.emit()">
+          <svg slot="leading" class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5" /><path d="M3.5 12h17M12 3.5c2.5 2.4 2.5 14.6 0 17M12 3.5c-2.5 2.4-2.5 14.6 0 17" /></svg>
+        </dba-ui-text-button>
+      }
+    </div>
+  </div>
+
+  <div class="metrics">
+    <div class="mtile"><div class="mv">{{ count(story().summary.targetCount) }}</div><div class="mk">Targets</div></div>
+    <div class="mdiv"></div>
+    <div class="mtile"><div class="mv">{{ count(story().summary.nightCount) }}</div><div class="mk">Nights imaged</div></div>
+    <div class="mdiv"></div>
+    <div class="mtile"><div class="mv">{{ count(story().summary.lightFrameCount) }}</div><div class="mk">Light frames</div></div>
+    <div class="mdiv"></div>
+    <div class="mtile"><div class="mv">{{ count(story().equipment.length) }}</div><div class="mk">Equipment</div></div>
+  </div>
+
+  <div class="hl-head">
+    <span class="hl-rule"></span><span class="eyebrow">Highlights of the journey</span><span class="hl-rule"></span>
+  </div>
+  <div class="highlights">
+    @for (h of highlights(); track h.key) {
+      @if (h.targetId; as oid) {
+        <button class="hl hl-link" type="button" (click)="openTarget.emit(oid)">
+          <div class="hl-k eyebrow">{{ h.key }}</div>
+          <div class="hl-v">{{ h.value }}</div>
+          <div class="hl-s">{{ h.sub }}</div>
+        </button>
+      } @else {
+        <div class="hl">
+          <div class="hl-k eyebrow">{{ h.key }}</div>
+          <div class="hl-v" [style.color]="h.color || null">{{ h.value }}</div>
+          <div class="hl-s">{{ h.sub }}</div>
+        </div>
+      }
+    }
+  </div>
+
+  @if (hasSky()) {
+    <dba-universe-globe [targets]="story().targets" (enter)="enterSky.emit()" />
+  }
+
+  <dba-section-banner num="01" eyebrow="The Record" title="Activity" glyph="chart" [seed]="2" [sub]="activitySub()" />
+
+  <div class="panel">
+    <div class="panel-top">
+      <span class="eyebrow">Filter distribution</span>
+      <span class="panel-sub">by integration time</span>
+    </div>
+    <dba-filter-distribution [filters]="story().summary.filters" />
+  </div>
+
+  <div class="panel">
+    <div class="panel-top">
+      <span class="eyebrow">Nightly activity</span>
+      <span class="panel-sub">hover a night for detail</span>
+    </div>
+    <dba-heat-strip [view]="heat()" />
+  </div>
+</section>

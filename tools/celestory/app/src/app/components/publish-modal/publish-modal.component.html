@@ -1,0 +1,154 @@
+<div class="ob-overlay" (mousedown)="onBackdrop($event)">
+  <div class="ob-modal" role="dialog" aria-modal="true">
+    <dba-ui-icon-button class="ob-close" accent="cyan" [size]="34" title="Close" (clicked)="closed.emit()">
+      <dba-cel-icon name="close" [size]="18" />
+    </dba-ui-icon-button>
+
+    @switch (phase()) {
+      @case ('claim') {
+        <div class="ob-head">
+          <span class="eyebrow">Publish</span>
+          <h2>Publish Your Journey</h2>
+          <p>Claim your handle and set a password. Re-uploading later with the same handle updates your page.</p>
+        </div>
+        <ul class="ob-benefits">
+          <li><dba-cel-icon name="check" [size]="15" /> Permanent URL</li>
+          <li><dba-cel-icon name="check" [size]="15" /> View from any device</li>
+          <li><dba-cel-icon name="check" [size]="15" /> Share with fellow astrophotographers</li>
+          <li><dba-cel-icon name="check" [size]="15" /> Update your profile anytime</li>
+        </ul>
+        <label class="ob-field-label">Handle</label>
+        <div class="ob-handle">
+          <span class="ob-handle-pfx">{{ host }}/user/</span>
+          <input
+            #h
+            [value]="handle()"
+            (input)="onHandle(h.value)"
+            placeholder="username"
+            autocomplete="off"
+            spellcheck="false"
+            (keydown.enter)="submit()"
+          />
+        </div>
+        @if (exists()) {
+          <div class="ob-exists" role="alert">
+            <dba-cel-icon name="globe" [size]="14" />
+            <span><b>&#64;{{ clean() }}</b> already exists — publishing will <b>replace its data</b>. Enter that profile’s password to update it.</span>
+          </div>
+        }
+        <label class="ob-field-label">{{ exists() ? 'Password' : 'Set a password' }}</label>
+        <div class="ob-handle ob-pass">
+          <span class="ob-handle-pfx"><dba-cel-icon name="lock" [size]="15" /></span>
+          <input
+            #p
+            type="password"
+            [value]="password()"
+            (input)="onPassword(p.value)"
+            [placeholder]="exists() ? 'Profile password' : 'Create a password'"
+            [attr.autocomplete]="exists() ? 'current-password' : 'new-password'"
+            (keydown.enter)="submit()"
+          />
+        </div>
+        @if (shrinkWarning()) {
+          <p class="ob-error" role="alert">{{ shrinkWarning() }}</p>
+          <dba-ui-text-button class="ob-full" variant="primary" size="lg" label="Publish anyway" [disabled]="busy()" (clicked)="publishAnyway()">
+            <dba-cel-icon slot="leading" name="globe" [size]="15" />
+          </dba-ui-text-button>
+          <button class="ob-back-link" type="button" (click)="cancelShrink()">
+            <dba-cel-icon name="back" [size]="14" /> Cancel
+          </button>
+        } @else {
+          @if (error()) {
+            <p class="ob-error" role="alert">{{ error() }}</p>
+          }
+          <dba-ui-text-button
+            class="ob-full"
+            variant="primary"
+            size="lg"
+            [label]="busy() ? (exists() ? 'Updating…' : 'Claiming…') : (exists() ? 'Update Profile' : 'Claim Username')"
+            [disabled]="busy() || !clean()"
+            (clicked)="submit()"
+          >
+            @if (!busy()) {
+              <dba-cel-icon slot="leading" [name]="exists() ? 'globe' : 'rocket'" [size]="15" />
+            }
+          </dba-ui-text-button>
+        }
+      }
+
+      @case ('delete') {
+        <div class="ob-danger-badge"><dba-cel-icon name="trash" [size]="24" /></div>
+        <div class="ob-head ob-head-center">
+          <span class="eyebrow">Delete profile</span>
+          <h2>Delete Your Online Profile</h2>
+          <p>
+            This permanently removes
+            <span class="mono">{{ host }}/user/{{ targetHandle() }}</span>
+            from the web. Your local journey stays on this device.
+          </p>
+        </div>
+        <label class="ob-field-label">Enter your password to confirm</label>
+        <div class="ob-handle ob-pass">
+          <span class="ob-handle-pfx"><dba-cel-icon name="lock" [size]="15" /></span>
+          <input
+            #d
+            type="password"
+            [value]="deletePassword()"
+            (input)="onDeletePassword(d.value)"
+            placeholder="Profile password"
+            autocomplete="current-password"
+            (keydown.enter)="confirmDelete()"
+          />
+        </div>
+        @if (deleteError()) {
+          <p class="ob-error" role="alert">{{ deleteError() }}</p>
+        }
+        <button class="btn-danger ob-full" type="button" (click)="confirmDelete()" [disabled]="busy() || !canDelete()">
+          <dba-cel-icon name="trash" [size]="15" /> Delete Profile Permanently
+        </button>
+        <button class="ob-back-link" type="button" (click)="closed.emit()">
+          <dba-cel-icon name="back" [size]="14" /> Keep my profile
+        </button>
+      }
+
+      @case ('publishing') {
+        <div class="ob-publishing">
+          <div class="ob-orbit" aria-hidden="true">
+            <span class="ob-orbit-ring"></span>
+            <span class="ob-orbit-ring ob-orbit-ring-2"></span>
+            <span class="ob-planet"></span>
+            <span class="ob-rocket"><dba-cel-icon name="rocket" [size]="22" /></span>
+          </div>
+          <div class="ob-head ob-head-center">
+            <span class="eyebrow">Publishing</span>
+            <h2>{{ intent() === 'update' ? 'Updating Your Journey' : 'Launching Your Journey' }}</h2>
+            <p>Charting your sky onto the web…</p>
+          </div>
+          <div class="ob-progress"><span class="ob-progress-fill"></span></div>
+        </div>
+      }
+
+      @default {
+        <!-- live -->
+        <div class="ob-live-badge"><dba-cel-icon name="rocket" [size]="26" /></div>
+        <div class="ob-head ob-head-center">
+          <span class="eyebrow">Published</span>
+          <h2>Your Journey Is Live</h2>
+          <p>Share it anywhere — anyone with the link can explore your sky.</p>
+        </div>
+        <div class="ob-livelink">
+          <span class="mono">{{ urlPreview() }}</span>
+          <button class="ob-copy" type="button" (click)="copyLink()">
+            {{ copied() ? 'Copied' : 'Copy' }}
+          </button>
+        </div>
+        <p class="ob-token-note ob-live-note">
+          You’re logged in as the owner on this tab — open your profile to edit or delete it anytime.
+        </p>
+        <dba-ui-text-button class="ob-full" variant="primary" size="lg" label="See Your Celestory" (clicked)="openProfile()">
+          <dba-cel-icon slot="leading" name="arrow" [size]="15" />
+        </dba-ui-text-button>
+      }
+    }
+  </div>
+</div>

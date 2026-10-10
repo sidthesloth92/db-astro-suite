@@ -2,4 +2,5 @@ packages:
   - "hub"
   - "tools/*"
   - "tools/astrosolve/*"
+  - "tools/celestory/*"
   - "libs/*"

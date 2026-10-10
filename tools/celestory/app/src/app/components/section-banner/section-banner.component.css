@@ -1,0 +1,70 @@
+:host {
+  display: block;
+}
+.sb {
+  position: relative;
+  margin: 86px 0 30px;
+  padding-top: 30px;
+  border-top: 1px solid var(--db-color-border);
+  overflow: hidden;
+  /* Section banners are always left-aligned, even the "01 Activity" one nested
+     inside the centered hero (its sub line is a block that would otherwise
+     inherit the hero's text-align: center). */
+  text-align: left;
+}
+.sb-deco {
+  position: absolute;
+  top: 14px;
+  right: -10px;
+  max-width: 46%;
+  height: auto;
+  color: var(--db-color-neon-pink);
+  opacity: 0.42;
+  pointer-events: none;
+}
+.sb-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--db-font-mono-code);
+  font-size: 11px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--db-color-text-faint);
+}
+.sb-num {
+  color: var(--db-color-neon-pink);
+  font-weight: 600;
+}
+.sb-line {
+  width: 34px;
+  height: 1px;
+  background: color-mix(in srgb, var(--db-color-text-faint) 35%, transparent);
+}
+.sb-titlerow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 12px;
+}
+.sb-glyph {
+  color: var(--db-color-neon-pink);
+  line-height: 0;
+  opacity: 0.9;
+}
+.sb-title {
+  font-family: var(--db-font-display);
+  font-weight: 800;
+  font-size: clamp(30px, 5.4vw, 58px);
+  letter-spacing: 0.012em;
+  line-height: 0.98;
+  text-transform: uppercase;
+  color: var(--db-color-text-primary);
+  margin: 0;
+}
+.sb-sub {
+  font-family: var(--db-font-mono-code);
+  font-size: 13px;
+  color: var(--db-color-text-dim);
+  margin-top: 14px;
+}

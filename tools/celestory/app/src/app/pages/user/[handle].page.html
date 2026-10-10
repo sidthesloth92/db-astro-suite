@@ -1,0 +1,31 @@
+@if (profile(); as st) {
+  <dba-journey-view state="published" [story]="st.story" [handle]="st.handle" (updated)="refresh()" />
+} @else if (state().status === 'error') {
+  <dba-ui-constellation-field>
+    <div class="neb" aria-hidden="true"></div>
+    <main class="portfolio">
+      <header class="bar">
+        <a class="brand" routerLink="/">
+          <dba-celestory-wordmark />
+        </a>
+      </header>
+      <p class="missing">
+        No Celestory at this handle. <a routerLink="/">Make your own →</a>
+      </p>
+    </main>
+  </dba-ui-constellation-field>
+} @else {
+  <dba-ui-constellation-field>
+    <main class="portfolio">
+      <p class="loading">Loading…</p>
+    </main>
+  </dba-ui-constellation-field>
+}
+
+<!-- Branded reveal as the loading/intro screen (browser only, on top of the -->
+<!-- content). Shown from page mount so the URL always opens with the animation; -->
+<!-- the hours count-up fills in once the story loads, then it removes itself to -->
+<!-- reveal the profile rendered beneath it. Hidden on a missing handle. -->
+@if (introActive() && state().status !== 'error') {
+  <dba-processing-reveal [seconds]="introSeconds()" (done)="onIntroDone()" />
+}

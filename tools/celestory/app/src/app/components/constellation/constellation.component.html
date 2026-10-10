@@ -1,0 +1,6 @@
+<svg [attr.viewBox]="viewBox" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+  <polyline [attr.points]="poly()" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="round" opacity="0.5" />
+  @for (p of nodes(); track $index) {
+    <circle [attr.cx]="p.x" [attr.cy]="p.y" [attr.r]="p.big ? 3 : 1.7" fill="currentColor" [attr.opacity]="p.big ? 1 : 0.8" />
+  }
+</svg>

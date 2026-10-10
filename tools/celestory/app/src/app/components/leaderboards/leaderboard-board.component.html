@@ -1,0 +1,98 @@
+<div class="lb-board" [style.--acc]="view().accent" [style.--acc-rgb]="view().accentRgb">
+  <div class="lb-head">
+    <div class="lb-head-ic" [innerHTML]="headIcon()"></div>
+    <div class="lb-head-tx">
+      <h2 class="lb-h2">{{ view().title }}</h2>
+      <p class="lb-blurb">{{ view().blurb }}</p>
+    </div>
+  </div>
+
+  @if (hasError()) {
+    <p class="lb-state" role="alert">Couldn’t load this leaderboard. Please try again.</p>
+  } @else if (loading()) {
+    <p class="lb-state" aria-live="polite">Loading…</p>
+  } @else if (entries().length === 0) {
+    <p class="lb-state">No ranked entries yet.</p>
+  } @else {
+    <div class="lb-podium">
+      @for (e of podium(); track e.rank) {
+        <div
+          class="podi"
+          [class.r1]="e.rank === 1"
+          [class.r2]="e.rank === 2"
+          [class.r3]="e.rank === 3"
+        >
+          <span class="podi-rk">{{ e.rank }}</span>
+          <div class="podi-body">
+            <div class="podi-name">
+              @if (showSwatch()) {
+                <span class="lb-sw" [style.background]="swatch(e.label)"></span>
+              }
+              <span>{{ e.label }}</span>
+            </div>
+            @if (e.sub) {
+              <div class="podi-sub">{{ e.sub }}</div>
+            }
+          </div>
+          <div class="podi-val">
+            <span class="lb-val"><b>{{ fmt(e.value) }}</b><i>{{ e.unit }}</i></span>
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="lb-list">
+      @for (e of list(); track e.rank) {
+        <div class="lrow">
+          <span class="lrk">{{ e.rank }}</span>
+          <div class="lrow-main">
+            <span class="lrow-name">
+              @if (showSwatch()) {
+                <span class="lb-sw" [style.background]="swatch(e.label)"></span>
+              }
+              {{ e.label }}
+              @if (e.tag) {
+                <span class="lb-tag">{{ e.tag }}</span>
+              }
+            </span>
+            @if (e.sub) {
+              <span class="lrow-sub">{{ e.sub }}</span>
+            }
+          </div>
+          <span class="lrow-val">
+            <span class="lb-val"><b>{{ fmt(e.value) }}</b><i>{{ e.unit }}</i></span>
+          </span>
+        </div>
+      }
+    </div>
+
+    @if (myRow(); as me) {
+      <div class="lb-you">
+        <span class="you-badge">YOU</span>
+        <div class="you-main">
+          <span class="you-name">{{ me.label }}</span>
+          @if (me.sub) {
+            <span class="you-sub">{{ me.sub }}</span>
+          }
+        </div>
+        <div class="you-right">
+          @if (me.kind === 'user') {
+            <span class="you-rank">#{{ fmt(me.rank) }}</span>
+            <span class="lb-val"><b>{{ fmt(me.value) }}</b><i>{{ me.unit }}</i></span>
+          } @else {
+            <span class="you-rank">community #{{ fmt(me.rank) }}</span>
+          }
+        </div>
+      </div>
+    } @else {
+      <a class="lb-you lb-cta" routerLink="/" [fragment]="'how'">
+        <span class="you-badge">JOIN</span>
+        <div class="you-main">
+          <span class="you-name">Publish your Celestory to join the rankings</span>
+          <span class="you-sub">Your data stays on your machine — publish to claim your place.</span>
+        </div>
+        <div class="you-right"><span class="you-rank">Make yours →</span></div>
+      </a>
+    }
+  }
+</div>

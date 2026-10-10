@@ -1,0 +1,59 @@
+version: 2
+
+project_name: celestory
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: celestory
+    main: .
+    binary: celestory
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+      - -buildvcs=false
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+
+archives:
+  - id: default
+    name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+    formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+
+checksum:
+  name_template: "checksums.txt"
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-snapshot-{{.ShortCommit}}"
+
+# ── Package-manager publishing (Homebrew / Scoop / winget) ────────────────────
+# Intentionally NOT handled by GoReleaser. OSS GoReleaser can't derive a clean
+# semver from the component-prefixed release tag (`celestory-v0.0.1`) — its
+# brew/scoop/winget manifests would carry the raw tag as the version, which
+# winget rejects (`monorepo.tag_prefix`, which would fix this, is Pro-only).
+# These are published in a follow-up via free, purpose-built tools that take the
+# stripped version explicitly (winget-releaser action; a rendered cask/bucket
+# committed to the tap repos), built against the real release assets so the
+# download URLs + checksums are verifiable. The binary archives, checksums, and
+# GitHub release below are unaffected and version correctly via `trimprefix`.
+
+release:
+  github:
+    owner: sidthesloth92
+    name: db-astro-suite
+  name_template: 'celestory {{ trimprefix .Tag "celestory-v" }}'
+  prerelease: auto

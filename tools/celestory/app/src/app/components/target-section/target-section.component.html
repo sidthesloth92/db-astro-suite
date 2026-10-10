@@ -1,0 +1,60 @@
+<section class="tgtsec">
+  <div class="filters-row">
+    <label class="filter-sel">
+      <span class="fs-label">Targets</span>
+      <select [value]="cat()" (change)="onCat($event)">
+        <option value="All">All targets</option>
+        @for (c of categories(); track c.category) {
+          <option [value]="c.category">{{ c.category }} ({{ c.targetCount }})</option>
+        }
+      </select>
+    </label>
+    <label class="filter-sel">
+      <span class="fs-label">Equipment</span>
+      <select [value]="gear()" (change)="onGear($event)">
+        <option value="All">All equipment</option>
+        @if (cameras().length) {
+          <optgroup label="Cameras">
+            @for (e of cameras(); track e.id) {
+              <option [value]="e.id">{{ e.displayName }}</option>
+            }
+          </optgroup>
+        }
+        @if (telescopes().length) {
+          <optgroup label="Telescopes">
+            @for (e of telescopes(); track e.id) {
+              <option [value]="e.id">{{ e.displayName }}</option>
+            }
+          </optgroup>
+        }
+        @if (mounts().length) {
+          <optgroup label="Mounts">
+            @for (e of mounts(); track e.id) {
+              <option [value]="e.id">{{ e.displayName }}</option>
+            }
+          </optgroup>
+        }
+      </select>
+    </label>
+    <label class="filter-sel">
+      <span class="fs-label">Year</span>
+      <select [value]="year()" (change)="onYear($event)">
+        <option value="All">All years</option>
+        @for (y of years(); track y) {
+          <option [value]="y">{{ y }}</option>
+        }
+      </select>
+    </label>
+    <span class="filter-count">{{ filtered().length }} of {{ story().targets.length }}</span>
+  </div>
+
+  @if (filtered().length === 0) {
+    <div class="empty-note">No targets match this filter.</div>
+  } @else {
+    <div class="tgtgrid">
+      @for (o of filtered(); track o.id) {
+        <dba-target-card [target]="o" [filterColors]="filterColors()" (open)="open.emit($event)" (share)="share.emit($event)" />
+      }
+    </div>
+  }
+</section>
