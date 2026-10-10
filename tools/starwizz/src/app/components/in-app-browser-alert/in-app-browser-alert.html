@@ -1,0 +1,27 @@
+<div class="sw-inapp-backdrop">
+  <section
+    class="sw-inapp-alert"
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="sw-inapp-alert-title"
+    aria-describedby="sw-inapp-alert-text"
+  >
+    <span class="sw-inapp-alert__badge" aria-hidden="true">
+      <dba-ui-icon [def]="globeIcon" [size]="26" />
+    </span>
+    <h2 id="sw-inapp-alert-title" class="sw-inapp-alert__title">Open in your browser</h2>
+    <p id="sw-inapp-alert-text" class="sw-inapp-alert__text">
+      {{ appName() }}’s built-in browser can’t save the videos you record. Open Starwizz in your
+      browser to create and download your starfield.
+    </p>
+    @if (externalBrowserUrl(); as url) {
+      <a class="sw-inapp-alert__action" [href]="url">Open in browser</a>
+    }
+    <p class="sw-inapp-alert__hint">
+      @if (externalBrowserUrl()) {
+        Nothing happened?
+      }
+      Tap the menu at the top right of this screen and choose the option to open in your browser.
+    </p>
+  </section>
+</div>

@@ -37,7 +37,7 @@ import {
   TravelDirection,
 } from '../models/simulation.model';
 import { Star } from '../models/star.model';
-import { buildRecordingMimeLadder } from '../utils/recording-mime.util';
+import { buildRecordingMimeLadder, toContainerMimeType } from '../utils/recording-mime.util';
 import { computeRecordingBitsPerSecond } from '../utils/recording-size.util';
 import { AnalyticsService } from '@db-astro-suite/ui';
 
@@ -391,8 +391,8 @@ export class SimulationService implements OnDestroy {
   /** Watchdog handle — fires when no data chunk arrived in time. */
   private watchdogTimeout: ReturnType<typeof setTimeout> | null = null;
 
-  /** Handle for the `requestData()` nudge backstopping timeslice delivery. */
-  private requestDataTimeout: ReturnType<typeof setTimeout> | null = null;
+  /** Handle for the repeating `requestData()` nudge backstopping timeslice delivery. */
+  private requestDataInterval: ReturnType<typeof setInterval> | null = null;
 
   /**
    * Object URL of the last downloaded recording. Deliberately NOT revoked at
@@ -1066,15 +1066,17 @@ export class SimulationService implements OnDestroy {
   }
 
   /**
-   * Arms the proof-of-life timers for a recording attempt: a `requestData()`
-   * nudge (backstop for browsers that ignore the timeslice) and the watchdog
+   * Arms the proof-of-life timers for a recording attempt: a repeating
+   * `requestData()` nudge (backstop for browsers that ignore the timeslice —
+   * it flushes whatever the encoder has produced so far) and the watchdog
    * that declares the encoder dead when no chunk has arrived in time.
    *
    * @param recorder - The recorder this watchdog belongs to (identity-checked
    *   on fire so a stale timer can never touch a newer attempt)
    */
   private armEncoderWatchdog(recorder: MediaRecorder): void {
-    this.requestDataTimeout = setTimeout(() => {
+    this.disarmEncoderWatchdog();
+    this.requestDataInterval = setInterval(() => {
       if (recorder === this.mediaRecorder && recorder.state === 'recording') {
         recorder.requestData();
       }
@@ -1092,6 +1094,18 @@ export class SimulationService implements OnDestroy {
       }
       this.handleEncoderFailure(recorder);
     }, RECORDING_WATCHDOG_MS);
+  }
+
+  /** Stands the proof-of-life timers down (first chunk arrived, or the attempt ended). */
+  private disarmEncoderWatchdog(): void {
+    if (this.watchdogTimeout) {
+      clearTimeout(this.watchdogTimeout);
+      this.watchdogTimeout = null;
+    }
+    if (this.requestDataInterval) {
+      clearInterval(this.requestDataInterval);
+      this.requestDataInterval = null;
+    }
   }
 
   /**
@@ -1133,9 +1147,14 @@ export class SimulationService implements OnDestroy {
     this.attemptRecording();
   }
 
-  /** Terminal failure: every codec rung is dead. Surface it — never silent. */
+  /**
+   * Terminal failure: every codec rung is dead. Surface it — never silent.
+   * The blacklist is reset so the user's next attempt walks the whole ladder
+   * again: a transient stall must not leave recording dead until a reload.
+   */
   private failAllMimeTypes(): void {
     console.error('Recording failed: no supported video codec produced data.');
+    this.failedMimeTypes.clear();
     this.recordingError.set(RECORDING_ERROR_UNSUPPORTED);
     this.clearRecordingTimers();
     this.mediaRecorder = null;
@@ -1154,14 +1173,7 @@ export class SimulationService implements OnDestroy {
       clearInterval(this.timerInterval);
       this.timerInterval = null;
     }
-    if (this.watchdogTimeout) {
-      clearTimeout(this.watchdogTimeout);
-      this.watchdogTimeout = null;
-    }
-    if (this.requestDataTimeout) {
-      clearTimeout(this.requestDataTimeout);
-      this.requestDataTimeout = null;
-    }
+    this.disarmEncoderWatchdog();
   }
 
   /**
@@ -1236,14 +1248,7 @@ export class SimulationService implements OnDestroy {
       if (e.data.size > 0) {
         this.videoChunks.push(e.data);
         // Proof of life — the encoder works; stand the watchdog down.
-        if (this.watchdogTimeout) {
-          clearTimeout(this.watchdogTimeout);
-          this.watchdogTimeout = null;
-        }
-        if (this.requestDataTimeout) {
-          clearTimeout(this.requestDataTimeout);
-          this.requestDataTimeout = null;
-        }
+        this.disarmEncoderWatchdog();
       }
     };
 
@@ -1273,8 +1278,11 @@ export class SimulationService implements OnDestroy {
    */
   private handleRecordingStop(mimeType: string): void {
     // Combine all chunks into a single video blob, then drop the chunk
-    // array immediately to halve peak memory.
-    const blob = new Blob(this.videoChunks, { type: mimeType });
+    // array immediately to halve peak memory. The file carries the bare
+    // container type — the recorder's `codecs` parameter makes Android
+    // Chrome's share sheet reject it.
+    const containerMimeType = toContainerMimeType(mimeType);
+    const blob = new Blob(this.videoChunks, { type: containerMimeType });
     this.videoChunks = [];
     this.recordingState.set('idle');
     this.mediaRecorder = null;
@@ -1305,7 +1313,7 @@ export class SimulationService implements OnDestroy {
     this.lastRecording.set({
       blob,
       filename,
-      mimeType,
+      mimeType: containerMimeType,
       sizeMb: Math.round(blob.size / 1_000_000),
     });
 

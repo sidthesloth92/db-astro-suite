@@ -81,3 +81,16 @@ export function buildRecordingMimeLadder(
         ];
   return [...avcRungs, 'video/mp4', 'video/webm;codecs=vp9', 'video/webm'];
 }
+
+/**
+ * Reduces a MediaRecorder MIME type to its bare container type
+ * (`video/mp4` / `video/webm`) by dropping the `codecs` parameter. Saved and
+ * shared files must carry the plain type — Android Chrome's share sheet
+ * matches file types exactly and rejects parameterised ones.
+ *
+ * @param mimeType - MIME type the recorder was created with
+ * @returns The container MIME type without parameters
+ */
+export function toContainerMimeType(mimeType: string): string {
+  return mimeType.split(';')[0].trim().toLowerCase();
+}

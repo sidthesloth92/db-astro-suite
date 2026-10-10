@@ -9,7 +9,7 @@ export interface RecordingResult {
   blob: Blob;
   /** Download filename (carries aspect ratio + resolution + extension). */
   filename: string;
-  /** Container/codec MIME type the recording was encoded with. */
+  /** Bare container MIME type of the file (`video/mp4` / `video/webm`), no codecs parameter. */
   mimeType: string;
   /** File size in megabytes (10^6 bytes), rounded for display. */
   sizeMb: number;

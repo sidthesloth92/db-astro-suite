@@ -8,10 +8,11 @@
     logoLink="/tool/starwizz"
     githubLink="https://github.com/sidthesloth92/db-astro-suite"
     aboutLink="https://dineshbalajiv.com"
+    [inert]="isBlockedByInAppBrowser"
   ></dba-ui-header>
 
   @if (breakpoints.isMobile()) {
-    <main class="sw-container sw-container--mobile">
+    <main class="sw-container sw-container--mobile" [inert]="isBlockedByInAppBrowser">
       <dba-sw-simulator></dba-sw-simulator>
 
       @if (isQualityPickerOpen()) {
@@ -47,22 +48,16 @@
           <div class="sw-result-chip" role="status">
             <span class="sw-result-chip__label">
               <dba-ui-icon class="sw-result-chip__check" [def]="checkIcon" [size]="14" />
-              Saved · ~{{ lastRecording.sizeMb }} MB
+              Video ready · ~{{ lastRecording.sizeMb }} MB
             </span>
+            <button type="button" class="sw-result-chip__action" (click)="saveLastRecording()">
+              Save
+            </button>
             @if (simService.canShareLastRecording()) {
               <button type="button" class="sw-result-chip__action" (click)="shareLastRecording()">
                 Share
               </button>
             }
-            <button
-              type="button"
-              class="sw-result-chip__icon"
-              aria-label="Download again"
-              title="Didn't download? Tap to save again"
-              (click)="saveLastRecording()"
-            >
-              <dba-ui-icon [def]="downloadIcon" [size]="16" />
-            </button>
             <button
               type="button"
               class="sw-result-chip__dismiss"
@@ -118,7 +113,7 @@
       </dba-ui-floating-sheet>
     </main>
   } @else {
-    <main class="sw-container">
+    <main class="sw-container" [inert]="isBlockedByInAppBrowser">
       <dba-sw-simulator></dba-sw-simulator>
       <dba-sw-control-panel
         (demoRequested)="isDemoOpen.set(true)"
@@ -133,4 +128,11 @@
     poster="assets/img/sw-demo-poster.jpg"
     label="Starwizz demo"
   />
+
+  @if (inAppBrowser.browser; as hostBrowser) {
+    <dba-sw-in-app-browser-alert
+      [appName]="hostBrowser.appName"
+      [externalBrowserUrl]="inAppBrowser.externalBrowserUrl"
+    ></dba-sw-in-app-browser-alert>
+  }
 </div>
