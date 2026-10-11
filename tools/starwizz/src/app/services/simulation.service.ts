@@ -23,7 +23,6 @@ import {
   RECORDING_ERROR_UNSUPPORTED,
   RECORDING_PRESETS,
   RECORDING_REQUEST_DATA_NUDGE_MS,
-  RECORDING_TIMESLICE_MS,
   RECORDING_WATCHDOG_MS,
 } from '../constants/recording.constant';
 import { ShootingStar } from '../models/shooting-star.model';
@@ -37,6 +36,7 @@ import {
   TravelDirection,
 } from '../models/simulation.model';
 import { Star } from '../models/star.model';
+import { repairMp4BlobDuration } from '../utils/mp4-duration.util';
 import { buildRecordingMimeLadder, toContainerMimeType } from '../utils/recording-mime.util';
 import { computeRecordingBitsPerSecond } from '../utils/recording-size.util';
 import { AnalyticsService } from '@db-astro-suite/ui';
@@ -391,7 +391,7 @@ export class SimulationService implements OnDestroy {
   /** Watchdog handle — fires when no data chunk arrived in time. */
   private watchdogTimeout: ReturnType<typeof setTimeout> | null = null;
 
-  /** Handle for the repeating `requestData()` nudge backstopping timeslice delivery. */
+  /** Handle for the repeating `requestData()` nudge that proves the encoder is alive. */
   private requestDataInterval: ReturnType<typeof setInterval> | null = null;
 
   /**
@@ -1028,9 +1028,13 @@ export class SimulationService implements OnDestroy {
       });
       this.setupRecorderListeners(this.mediaRecorder, mimeType);
 
-      // Timeslice delivery: the first chunk's arrival is the encoder's
-      // proof-of-life signal, and chunks concatenate into a valid file.
-      this.mediaRecorder.start(RECORDING_TIMESLICE_MS);
+      // No timeslice, deliberately. With one, Chrome's MP4 muxer writes the
+      // file header before it knows the length, so the saved file declares
+      // a duration of zero: it plays in full, but Google Photos shows
+      // "0:01" and Instagram imports only the first second or two. Without
+      // one the muxer holds the file until stop() and writes the real
+      // duration. Proof of life comes from the requestData() nudges instead.
+      this.mediaRecorder.start();
 
       // (Re)start the visible duration timer and the auto-stop per attempt,
       // so the counter always matches actually-captured footage.
@@ -1067,8 +1071,8 @@ export class SimulationService implements OnDestroy {
 
   /**
    * Arms the proof-of-life timers for a recording attempt: a repeating
-   * `requestData()` nudge (backstop for browsers that ignore the timeslice —
-   * it flushes whatever the encoder has produced so far) and the watchdog
+   * `requestData()` nudge (the recorder volunteers no data before stop, so
+   * this flushes whatever the encoder has produced so far) and the watchdog
    * that declares the encoder dead when no chunk has arrived in time.
    *
    * @param recorder - The recorder this watchdog belongs to (identity-checked
@@ -1259,9 +1263,7 @@ export class SimulationService implements OnDestroy {
     };
 
     // Handle recording completion
-    recorder.onstop = () => {
-      this.handleRecordingStop(mimeType);
-    };
+    recorder.onstop = () => this.handleRecordingStop(mimeType);
   }
 
   /**
@@ -1272,29 +1274,32 @@ export class SimulationService implements OnDestroy {
    *
    * @description
    * - Guards against empty recordings (surfaces an error instead of a dead download)
+   * - Corrects the MP4's track duration, which Chrome writes in the wrong unit
    * - Retains the result in {@link lastRecording} for user-driven re-save/share
    * - Downloads via a DOM-attached anchor; the object URL is deliberately NOT
    *   revoked here — deferred to the next recording (see {@link pendingObjectUrl})
    */
-  private handleRecordingStop(mimeType: string): void {
+  private async handleRecordingStop(mimeType: string): Promise<void> {
     // Combine all chunks into a single video blob, then drop the chunk
     // array immediately to halve peak memory. The file carries the bare
     // container type — the recorder's `codecs` parameter makes Android
     // Chrome's share sheet reject it.
     const containerMimeType = toContainerMimeType(mimeType);
-    const blob = new Blob(this.videoChunks, { type: containerMimeType });
+    const recordedBlob = new Blob(this.videoChunks, { type: containerMimeType });
     this.videoChunks = [];
     this.recordingState.set('idle');
     this.mediaRecorder = null;
     this.recordingCanvas = null;
     this.activeMimeType = null;
 
-    if (blob.size === 0) {
+    if (recordedBlob.size === 0) {
       // Nothing was captured — a dead download would just confuse the user.
       console.error('Recording finished with no data.');
       this.recordingError.set(RECORDING_ERROR_EMPTY);
       return;
     }
+
+    const blob = await this.withRepairedDuration(recordedBlob, containerMimeType);
 
     // Determine file extension based on format
     const extension = mimeType.includes('mp4') ? '.mp4' : '.webm';
@@ -1323,6 +1328,27 @@ export class SimulationService implements OnDestroy {
     // Track video generation event
     const videoFormat = extension.substring(1); // Remove leading dot
     this.analyticsService.trackVideoGeneration('starwizz-user', videoFormat);
+  }
+
+  /**
+   * Corrects the duration headers of an MP4 recording so Android galleries
+   * and Instagram see its real length. A failed repair must never cost the
+   * user their recording, so the untouched blob is used instead.
+   *
+   * @param blob - The assembled recording
+   * @param containerMimeType - The recording's bare container type
+   * @returns The repaired blob, or the original when no repair applied
+   */
+  private async withRepairedDuration(blob: Blob, containerMimeType: string): Promise<Blob> {
+    if (containerMimeType !== 'video/mp4') {
+      return blob;
+    }
+    try {
+      return await repairMp4BlobDuration(blob);
+    } catch (e) {
+      console.error('Could not repair the recording duration; saving it unmodified:', e);
+      return blob;
+    }
   }
 
   /**
