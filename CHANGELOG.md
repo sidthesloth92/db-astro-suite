@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.38.2](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.38.1...db-astro-suite-v1.38.2) (2026-10-11)
+
+
+### Bug Fixes
+
+* **starwizz:** write the real duration into recorded MP4s so Instagram imports the whole clip ([#131](https://github.com/sidthesloth92/db-astro-suite/issues/131)) ([42db276](https://github.com/sidthesloth92/db-astro-suite/commit/42db27674722bf041524ef5a56b0aab5591fae61))
+
 ## [1.38.1](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.38.0...db-astro-suite-v1.38.1) (2026-10-10)
 
 
