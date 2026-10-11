@@ -66,20 +66,13 @@ export const MIN_VIDEO_BITS_PER_SECOND = 4_000_000;
 export const MAX_VIDEO_BITS_PER_SECOND = 80_000_000;
 
 /**
- * MediaRecorder timeslice (ms). Chunked delivery serves two purposes: the
- * first chunk's arrival proves the encoder is actually producing data (see
- * the watchdog), and Chrome's MP4 muxer emits self-contained fragments that
- * concatenate into a valid file.
- */
-export const RECORDING_TIMESLICE_MS = 1000;
-
-/**
  * Interval (ms) between `requestData()` nudges while an attempt has not yet
- * delivered a chunk. Chrome's MP4 muxer ignores the timeslice until its
- * first fragment closes on the second keyframe (~1.7 s at 60 fps, ~3.4 s at
- * 30 fps); a nudge flushes the header it writes as soon as the first frame
- * is encoded. Repeating the nudge lets a slow-starting encoder prove itself
- * the moment it produces a frame, instead of only at one fixed instant.
+ * delivered a chunk. Recording runs without a timeslice (see
+ * `attemptRecording`), so the recorder volunteers nothing until it stops;
+ * a nudge flushes whatever the encoder has produced so far — on Chrome's
+ * MP4 muxer the file header it writes once the first frame is encoded.
+ * Repeating the nudge lets a slow-starting encoder prove itself the moment
+ * it produces a frame, instead of only at one fixed instant.
  */
 export const RECORDING_REQUEST_DATA_NUDGE_MS = 1200;
 
@@ -92,6 +85,13 @@ export const RECORDING_REQUEST_DATA_NUDGE_MS = 1200;
  * its first chunk on a phone, and killing it costs the user the recording.
  */
 export const RECORDING_WATCHDOG_MS = 6000;
+
+/**
+ * How much of a recorded MP4's head is read when checking its duration
+ * headers. The `moov` box sits right after `ftyp` and is under 1 kB for a
+ * single video track, so this is generous.
+ */
+export const MP4_HEADER_PROBE_BYTES = 64 * 1024;
 
 /** User-facing error when every MIME-ladder rung failed to produce video. */
 export const RECORDING_ERROR_UNSUPPORTED =
