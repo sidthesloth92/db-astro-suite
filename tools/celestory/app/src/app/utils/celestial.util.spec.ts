@@ -3,7 +3,6 @@ import {
   altAzToVec,
   catColor,
   galToRaDec,
-  generateSky,
   targetRaDec,
   raDecToAltAz,
 } from './celestial.util';
@@ -48,14 +47,6 @@ describe('celestial.util', () => {
     expect(targetRaDec({ designation: 'NOT-A-REAL-TARGET' })).toBeNull();
   });
 
-  it('generates a deterministic, well-formed sky', () => {
-    const a = generateSky();
-    const b = generateSky();
-    expect(a.field.length).toBe(b.field.length);
-    expect(a.field.length).toBeGreaterThan(0);
-    expect(a.milky.length).toBeGreaterThan(0);
-    expect(a.ha.length).toBeGreaterThan(0);
-  });
 
   it('returns a category accent colour, defaulting for unknown categories', () => {
     expect(catColor('Galaxy')).toMatch(/^#/);

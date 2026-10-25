@@ -1,4 +1,5 @@
 <div class="sky-root" #wrap>
+  <canvas class="sky-gl" #gl aria-hidden="true"></canvas>
   <canvas class="sky-canvas" #cv></canvas>
 
   <!-- targets overlay -->
@@ -12,11 +13,7 @@
         [title]="t.target.displayName"
         (click)="select(t.target.id)"
       >
-        <span class="sky-mk-thumb">
-          <span class="sky-mk-art">
-            <dba-target-image [targetId]="t.target.id" [category]="t.target.category" />
-          </span>
-        </span>
+        <span class="sky-mk-ring"><span class="sky-mk-thumb"></span></span>
         <span class="sky-mk-label">{{ t.target.designation || t.target.displayName }}</span>
       </button>
     }
@@ -68,33 +65,102 @@
     </div>
   </div>
 
-  <!-- controls -->
+  <!-- status pills -->
+  <div class="sky-status" aria-live="polite">
+    @if (assets.isLoading()) {
+      <span class="sky-pill">Loading the sky…</span>
+    }
+    @if (assetError(); as err) {
+      <span class="sky-pill error">Sky data failed to load: {{ err }}</span>
+    }
+    @if (glError(); as err) {
+      <span class="sky-pill warn">Simplified sky (WebGL unavailable: {{ err }})</span>
+    }
+    @if (jumpedToNight()) {
+      <span class="sky-pill fade">
+        @switch (nightReason()) {
+          @case ('moonset') { Showing tonight's darkest sky, after moonset }
+          @case ('midnight') { Showing the darkest moment of a bright night }
+          @default { Showing tonight's sky once it is fully dark }
+        }
+        · <b>Now</b> returns to the current time
+      </span>
+    }
+  </div>
+
+  <!-- view controls -->
   <div class="sky-ctrls">
     <button type="button" (click)="zoom(1)" aria-label="Zoom out">−</button>
     <button type="button" (click)="zoom(-1)" aria-label="Zoom in">+</button>
-    <button class="sky-reset" type="button" (click)="resetView()" aria-label="Reset view">
+    <button class="sky-reset" type="button" (click)="resetView()" aria-label="Reset view" title="Reset view">
       <dba-cel-icon name="globe" [size]="13" />
     </button>
+    @if (canAr()) {
+      <button class="sky-toggle" [class.on]="arMode()" type="button" (click)="toggleAr()" aria-label="Point your phone at the sky" title="Point at the sky">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <rect x="7" y="2.5" width="10" height="19" rx="2" />
+          <path d="M12 6l3 5h-6z" fill="currentColor" stroke="none" />
+        </svg>
+      </button>
+    }
     <button
-      class="sky-grid-toggle"
-      [class.on]="showGrid()"
+      class="sky-toggle"
+      [class.on]="toggles().constellations"
       type="button"
-      (click)="toggleGrid()"
-      aria-label="Toggle coordinate grid"
-      title="Coordinate grid"
+      (click)="toggle('constellations')"
+      aria-label="Toggle constellations"
+      title="Constellations"
     >
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+        <path d="M4 18l6-9 5 4 5-9" />
+        <circle cx="4" cy="18" r="1.6" fill="currentColor" stroke="none" />
+        <circle cx="10" cy="9" r="1.6" fill="currentColor" stroke="none" />
+        <circle cx="15" cy="13" r="1.6" fill="currentColor" stroke="none" />
+        <circle cx="20" cy="4" r="1.6" fill="currentColor" stroke="none" />
+      </svg>
+    </button>
+    <button class="sky-toggle" [class.on]="toggles().labels" type="button" (click)="toggle('labels')" aria-label="Toggle star names" title="Star names">
+      <span class="sky-toggle-text">Aa</span>
+    </button>
+    <button class="sky-toggle" [class.on]="toggles().survey" type="button" (click)="toggle('survey')" aria-label="Toggle deep-sky imagery" title="Deep-sky imagery (zoom in)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+        <circle cx="12" cy="12" r="3.2" />
+        <path d="M12 3.5v2.5M12 18v2.5M3.5 12H6M18 12h2.5M6 6l1.8 1.8M16.2 16.2L18 18M6 18l1.8-1.8M16.2 7.8L18 6" />
+      </svg>
+    </button>
+    <button class="sky-toggle" [class.on]="toggles().grid" type="button" (click)="toggle('grid')" aria-label="Toggle coordinate grid" title="Coordinate grid">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
         <path d="M3 9h18M3 15h18M9 3v18M15 3v18" />
       </svg>
     </button>
+    <button class="sky-toggle sky-pollution" type="button" (click)="cyclePollution()" aria-label="Cycle light pollution" [title]="'Sky: ' + pollutionLabel()">
+      <span class="sky-toggle-text small">{{ pollutionLabel() }}</span>
+    </button>
   </div>
 
-  <!-- legend -->
-  <div class="sky-legend">
-    <span><i class="lg horiz"></i> Horizon</span>
-    <span><i class="lg card"></i> Coordinate grid</span>
-    <span><i class="lg eq"></i> Celestial equator</span>
-    <span><i class="lg mer"></i> Meridian</span>
+  <!-- time controls -->
+  <div class="sky-time">
+    <button type="button" (click)="shiftHours(-1)" aria-label="One hour earlier" title="−1 h">‹</button>
+    <button type="button" (click)="togglePause()" [attr.aria-label]="rate() === 0 ? 'Resume time' : 'Pause time'" [title]="rate() === 0 ? 'Resume' : 'Pause'">
+      @if (rate() === 0) {
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M2 1l9 5-9 5z" /></svg>
+      } @else {
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M2 1h3v10H2zM7 1h3v10H7z" /></svg>
+      }
+    </button>
+    <button class="sky-time-rate" type="button" (click)="faster()" aria-label="Change playback speed" title="Speed">{{ rateLabel() }}</button>
+    <button type="button" (click)="shiftHours(1)" aria-label="One hour later" title="+1 h">›</button>
+    @if (!isLive()) {
+      <button class="sky-time-now" type="button" (click)="resetTime()">Now</button>
+    }
+  </div>
+
+  <!-- credits -->
+  <div class="sky-credits">
+    Milky Way: NASA SVS · Stars: Hipparcos / Tycho-2 (ESA)
+    @if (toggles().survey) {
+      <span class="sky-credits-sep">·</span>{{ surveyCredit }}
+    }
   </div>
 
   @if (hint()) {
@@ -116,6 +182,7 @@
           <dba-target-detail
             [target]="t.target"
             [story]="story()"
+            [handle]="handle()"
             [embedded]="true"
             [altaz]="selectedAltAz()"
             (openEquipment)="onOpenEquipment($event)"

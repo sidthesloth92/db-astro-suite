@@ -7,8 +7,8 @@ export const SKY_LOC_KEY = 'celestory.sky.loc.v1';
 export const DEFAULT_SKY_LOCATION: SkyLocation = { lat: 40, lon: -74, label: null, status: 'default' };
 
 /** Field-of-view bounds (degrees). */
-export const FOV_MIN = 22;
-export const FOV_MAX = 105;
+export const FOV_MIN = 1;
+export const FOV_MAX = 120;
 
 /** Initial camera state — facing north, fully zoomed out. */
 export function initialCamera(): CameraState {

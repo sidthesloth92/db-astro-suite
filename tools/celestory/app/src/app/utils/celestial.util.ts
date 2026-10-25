@@ -2,21 +2,10 @@
  * Dependency-free positional-astronomy + projection engine for the planetarium.
  * Turns equatorial coords (RA/Dec) into the observer's local Alt/Az and an
  * East-North-Up unit vector, builds a camera basis for the look-around
- * projection, and procedurally generates the deep-sky backdrop. Ported from the
- * Celestory sky atlas (sky-data.js / planetarium.jsx).
+ * projection. Ported from the Celestory sky atlas.
  */
 import { CAT_COLOR, TARGET_COORDS } from '../models/sky-catalog.constants';
-import type {
-  AltAz,
-  CamPoint,
-  CameraBasis,
-  EnuVector,
-  GeneratedSky,
-  RaDec,
-  RgbColor,
-  ScreenPoint,
-  Vec3,
-} from '../models/sky.types';
+import type { AltAz, CamPoint, CameraBasis, EnuVector, RaDec, ScreenPoint, Vec3 } from '../models/sky.types';
 
 /** Degrees → radians. */
 export const D2R = Math.PI / 180;
@@ -138,125 +127,6 @@ export function galToRaDec(lDeg: number, bDeg: number): RaDec {
   let ra = Math.atan2(e[1], e[0]) * R2D;
   if (ra < 0) ra += 360;
   return { ra, dec: Math.asin(Math.max(-1, Math.min(1, e[2]))) * R2D };
-}
-
-// ---- procedural sky --------------------------------------------------------
-
-/** Seeded PRNG (mulberry32). */
-function mulberry32(seed: number): () => number {
-  let s = seed;
-  return () => {
-    s |= 0;
-    s = (s + 0x6d2b79f5) | 0;
-    let t = Math.imul(s ^ (s >>> 15), 1 | s);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-/** Box-Muller standard normal sample. */
-function gauss(rng: () => number): number {
-  let u = 0;
-  let v = 0;
-  while (u === 0) u = rng();
-  while (v === 0) v = rng();
-  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
-}
-
-/** Star colour from temperature t (0 = cool amber .. 1 = hot blue). */
-function starColor(t: number): RgbColor {
-  const cool: RgbColor = [255, 200, 150];
-  const mid: RgbColor = [255, 246, 237];
-  const hot: RgbColor = [188, 210, 255];
-  let a: RgbColor;
-  let b: RgbColor;
-  let k: number;
-  if (t < 0.5) {
-    a = cool;
-    b = mid;
-    k = t / 0.5;
-  } else {
-    a = mid;
-    b = hot;
-    k = (t - 0.5) / 0.5;
-  }
-  return [
-    Math.round(a[0] + (b[0] - a[0]) * k),
-    Math.round(a[1] + (b[1] - a[1]) * k),
-    Math.round(a[2] + (b[2] - a[2]) * k),
-  ];
-}
-
-/** Generate the deterministic deep-sky backdrop (field, milky, clouds, dust, ha, galaxies). */
-export function generateSky(): GeneratedSky {
-  const rng = mulberry32(20240617);
-  const field: GeneratedSky['field'] = [];
-  const milky: GeneratedSky['milky'] = [];
-  const clouds: GeneratedSky['clouds'] = [];
-  const galaxies: GeneratedSky['galaxies'] = [];
-
-  // uniform faint field
-  for (let i = 0; i < 1300; i++) {
-    const u = rng() * 2 - 1;
-    const th = rng() * 2 * Math.PI;
-    const dec = Math.asin(u) * R2D;
-    const ra = th * R2D;
-    const mag = 4.2 + rng() * 3.0;
-    field.push({ ra, dec, mag, c: starColor(0.35 + rng() * 0.5) });
-  }
-  // Milky Way: stars concentrated on the galactic plane, denser toward the bulge (l~0)
-  for (let i = 0; i < 900; i++) {
-    const l = rng() * 360;
-    const bulge = Math.cos(l * D2R) * 0.5 + 0.5;
-    const sigma = 5 + 5 * (1 - bulge);
-    const b = gauss(rng) * sigma;
-    const rd = galToRaDec(l, b);
-    const mag = 5.0 + rng() * 3.2 - bulge * 0.8;
-    milky.push({ ra: rd.ra, dec: rd.dec, mag, c: starColor(0.3 + rng() * 0.55) });
-  }
-  // Milky Way diffuse star clouds (warm, dense — a continuous band, not puffs)
-  for (let i = 0; i < 320; i++) {
-    const l = rng() * 360;
-    const bulge = Math.pow(Math.cos(l * D2R) * 0.5 + 0.5, 1.6);
-    const b = gauss(rng) * (2.4 + 3.6 * (1 - bulge));
-    const rd = galToRaDec(l, b);
-    const col: RgbColor = [241, Math.round(223 - 13 * (1 - bulge)), Math.round(186 - 56 * (1 - bulge))];
-    clouds.push({ ra: rd.ra, dec: rd.dec, ang: 0.06 + rng() * 0.06 + bulge * 0.14, a: 0.085 + 0.24 * bulge + rng() * 0.035, c: col });
-  }
-  // Dark dust lanes that carve the band (the Great Rift)
-  const dust: GeneratedSky['dust'] = [];
-  for (let i = 0; i < 70; i++) {
-    const l = rng() * 360;
-    const bulge = Math.cos(l * D2R) * 0.5 + 0.5;
-    const b = gauss(rng) * 1.9 - 0.7;
-    const rd = galToRaDec(l, b);
-    dust.push({ ra: rd.ra, dec: rd.dec, ang: 0.035 + rng() * 0.06 + bulge * 0.05, a: 0.05 + 0.09 * bulge + rng() * 0.03 });
-  }
-  // Hydrogen-alpha emission regions: famous nebulae + scattered HII along the plane
-  const haFamous: number[][] = [
-    [83.8, -5.4, 0.045, 1.0], [85.0, -2.0, 0.11, 0.4], [314.7, 44.5, 0.055, 0.95], [313.2, 44.4, 0.04, 0.7],
-    [38.2, 61.4, 0.05, 0.85], [44.5, 60.4, 0.045, 0.7], [60.0, 36.4, 0.06, 0.7], [98.0, 5.0, 0.04, 0.8],
-    [270.9, -24.4, 0.05, 0.95], [270.6, -23.0, 0.03, 0.7], [274.7, -13.8, 0.035, 0.8], [275.2, -16.2, 0.03, 0.7],
-    [161.3, -59.9, 0.07, 0.95], [305.6, 40.3, 0.06, 0.7], [311.4, 30.7, 0.04, 0.6], [350.1, 61.2, 0.03, 0.6],
-    [13.2, 56.6, 0.04, 0.55], [228.0, -59.0, 0.05, 0.45],
-  ];
-  const ha: GeneratedSky['ha'] = haFamous.map((h) => ({ ra: h[0], dec: h[1], ang: h[2] * 1.2, a: 0.32 * h[3] }));
-  for (let i = 0; i < 44; i++) {
-    const l = rng() * 360;
-    const bulge = Math.cos(l * D2R) * 0.5 + 0.5;
-    const b = gauss(rng) * (2.0 + 2.4 * (1 - bulge));
-    const rd = galToRaDec(l, b);
-    ha.push({ ra: rd.ra, dec: rd.dec, ang: 0.025 + rng() * 0.04 + bulge * 0.04, a: 0.08 + 0.13 * bulge });
-  }
-  // a few galaxy / Magellanic-cloud smudges
-  const gx: number[][] = [
-    [10.68, 41.27, 0.05], [80.0, -69.8, 0.07], [13.2, -72.8, 0.05],
-    [148.97, 69.68, 0.035], [201.36, -43.02, 0.035], [23.46, 30.66, 0.04],
-  ];
-  gx.forEach((g) => {
-    galaxies.push({ ra: g[0], dec: g[1], ang: g[2], a: 0.16, ang2: g[2] * 0.5, rot: Math.random() * Math.PI });
-  });
-  return { field, milky, clouds, galaxies, dust, ha };
 }
 
 // ---- target coordinate lookup ----------------------------------------------
