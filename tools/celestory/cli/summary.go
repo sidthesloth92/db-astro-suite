@@ -45,7 +45,7 @@ var (
 func printRunSummary(story model.Story, jsonPath string, outsideDupSets int) {
 	s := story.Summary
 	fmt.Println()
-	fmt.Printf("Done — %d target(s) · %s total · %d night(s) · %d light frame(s)\n",
+	fmt.Printf("Done: %d target(s) · %s total · %d night(s) · %d light frame(s)\n",
 		s.TargetCount, formatDuration(s.TotalIntegrationSeconds), s.NightCount, s.LightFrameCount)
 
 	printSkipped(story)
@@ -76,7 +76,7 @@ func printSkipped(story model.Story) {
 		return
 	}
 	fmt.Println()
-	fmt.Println("  " + dupHeader.Render(fmt.Sprintf("⚠ Skipped %s — couldn't be parsed",
+	fmt.Println("  " + dupHeader.Render(fmt.Sprintf("⚠ Skipped %s: couldn't be parsed",
 		countNoun(len(skipped), "file", "files"))))
 
 	limit := len(skipped)
@@ -106,10 +106,10 @@ func printDuplicates(story model.Story, outsideDupSets int) {
 	s := story.Summary
 
 	fmt.Println()
-	fmt.Println("  " + dupHeader.Render(fmt.Sprintf("⚠ Duplicates — %d set(s), %s (~%s reclaimable)",
+	fmt.Println("  " + dupHeader.Render(fmt.Sprintf("⚠ Duplicates: %d set(s), %s (~%s reclaimable)",
 		len(dups), countNoun(s.DuplicateFileCount, "redundant copy", "redundant copies"),
 		formatBytes(s.DuplicateWastedBytes))))
-	fmt.Println("    " + dupDim.Render("The same exposure was found at more than one path — it's counted once; the extra copies only use disk."))
+	fmt.Println("    " + dupDim.Render("The same exposure was found at more than one path. It's counted once; the extra copies only use disk."))
 
 	limit := len(dups)
 	if limit > maxDuplicateSetsPrinted {
@@ -127,11 +127,11 @@ func printDuplicates(story model.Story, outsideDupSets int) {
 		}
 	}
 	if len(dups) > limit {
-		fmt.Println("\n    " + dupDim.Render(fmt.Sprintf("(+%d more — see celestory.json → duplicates)", len(dups)-limit)))
+		fmt.Println("\n    " + dupDim.Render(fmt.Sprintf("(+%d more; see celestory.json → duplicates)", len(dups)-limit)))
 	}
 
 	fmt.Println()
-	fmt.Println("    " + dupDim.Render("Tip: delete the ✗ copies, then re-run celestory — these clear automatically."))
+	fmt.Println("    " + dupDim.Render("Tip: delete the ✗ copies, then re-run celestory. These clear automatically."))
 
 	printOutsideDuplicatesHint(outsideDupSets)
 }
@@ -146,7 +146,7 @@ func printOutsideDuplicatesHint(sets int) {
 	fmt.Println("  " + dupHeader.Render(fmt.Sprintf("⚠ %s elsewhere in your library",
 		countNoun(sets, "more duplicate set", "more duplicate sets"))))
 	fmt.Printf("    %s %s %s\n",
-		dupDim.Render("Not in the folder you scanned — re-run with"),
+		dupDim.Render("Not in the folder you scanned. Re-run with"),
 		dupKeep.Render("-all-duplicates"),
 		dupDim.Render("to see them."))
 }

@@ -18,7 +18,7 @@ export interface ContactMessage {
 export function buildMailtoUrl(recipient: string, msg: ContactMessage): string {
   const subject = msg.subject.trim() || 'Hello from Celestory';
   const fromLine = msg.name.trim() ? `${msg.name.trim()} <${msg.email.trim()}>` : msg.email.trim();
-  const body = `${msg.message.trim()}\n\n— ${fromLine}`;
+  const body = `${msg.message.trim()}\n\nFrom: ${fromLine}`;
   // encodeURIComponent (not URLSearchParams) so spaces become %20, not '+':
   // mailto (RFC 6068) does not treat '+' as a space, and strict clients render
   // it literally in the subject/body.

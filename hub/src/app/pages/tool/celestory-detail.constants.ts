@@ -24,7 +24,7 @@ export const CELESTORY_DETAIL: ToolDetailConfig = {
   status: 'wip',
   statusLabel: 'Beta',
   description:
-    'A command-line scanner and a web app, working as a pair. The CLI reads the FITS headers in your capture library — never the pixel data — and writes one celestory.json holding every target, filter, and piece of equipment you have ever imaged with. Drop that file on the web app to chart your whole imaging journey, and publish it only if you choose to.',
+    'A command-line scanner and a web app, working as a pair. The CLI reads the FITS headers in your capture library (never the pixel data) and writes one celestory.json holding every target, filter, and piece of equipment you have ever imaged with. Drop that file on the web app to chart your whole imaging journey, and publish it only if you choose to.',
 
   primaryLabel: 'Launch Celestory',
   primaryUrl: CELESTORY_APP_URL,
@@ -46,7 +46,7 @@ export const CELESTORY_DETAIL: ToolDetailConfig = {
   aboutTitle: 'What Celestory is',
   aboutMeta: 'The longer story',
   about: [
-    'Every capture you have ever taken already carries its own history — the target, the filter, the camera, the night — written into its FITS headers. Celestory reads that history straight from your files: point the CLI at your library and it builds a per-target integration timeline and an equipment ledger, deduplicated across every folder and disk you have ever scanned, then writes it all into a single celestory.json. The scan is read-only and fully offline, and the file carries no local paths. From there the web app takes over: drop the file on it for a private, in-browser chart of your journey — and if you want the world to see it, claim a handle, publish a public profile, and take your place on the community leaderboards.',
+    'Every capture you have ever taken already carries its own history (the target, the filter, the camera, the night) written into its FITS headers. Celestory reads that history straight from your files: point the CLI at your library and it builds a per-target integration timeline and an equipment ledger, deduplicated across every folder and disk you have ever scanned, then writes it all into a single celestory.json. The scan is read-only and fully offline, and the file carries no local paths. From there the web app takes over: drop the file on it for a private, in-browser chart of your journey, and if you want the world to see it, claim a handle, publish a public profile, and take your place on the community leaderboards.',
   ],
   aboutPull:
     '“Your captures never leave your machine. Your story goes online only when you choose to publish it.”',
@@ -55,12 +55,12 @@ export const CELESTORY_DETAIL: ToolDetailConfig = {
     {
       icon: telescopeIcon,
       name: 'Reads your files, not your pixels',
-      body: 'Recursively scans FITS headers from N.I.N.A., ASIAIR, SharpCap, Ekos, SGP, Voyager, APT and more — read-only, and never touches image data.',
+      body: 'Recursively scans FITS headers from N.I.N.A., ASIAIR, SharpCap, Ekos, SGP, Voyager, APT and more. It’s read-only and never touches image data.',
     },
     {
       icon: clockIcon,
       name: 'Per-target integration timeline',
-      body: 'Every object you have ever imaged, with integration hours accumulated night by night — from your very first light to your latest session.',
+      body: 'Every object you have ever imaged, with integration hours accumulated night by night, from your very first light to your latest session.',
     },
     {
       icon: cameraIcon,
@@ -70,7 +70,7 @@ export const CELESTORY_DETAIL: ToolDetailConfig = {
     {
       icon: copyStackIcon,
       name: 'Duplicate-aware totals',
-      body: 'Copies and backups are counted once and reported, and moved files heal automatically — your integration numbers stay honest.',
+      body: 'Copies and backups are counted once and reported, and moved files heal automatically, so your integration numbers stay honest.',
     },
     {
       icon: shareIcon,
@@ -80,14 +80,14 @@ export const CELESTORY_DETAIL: ToolDetailConfig = {
     {
       icon: cpuIcon,
       name: 'Single static binary',
-      body: 'One small executable for macOS, Windows, and Linux. No runtime, no account, no telemetry — the scan runs entirely on your machine.',
+      body: 'One small executable for macOS, Windows, and Linux. No runtime, no account, no telemetry. The scan runs entirely on your machine.',
     },
   ],
 
   steps: [
     {
       title: 'Install',
-      body: 'One command on macOS, Windows, or Linux — tap to get the command for your system.',
+      body: 'One command on macOS, Windows, or Linux. Tap to get the command for your system.',
       actionId: 'install',
     },
     {
@@ -96,7 +96,7 @@ export const CELESTORY_DETAIL: ToolDetailConfig = {
     },
     {
       title: 'Chart & share',
-      body: 'Drop the file on the web app for a private in-browser preview — then publish a profile and climb the leaderboards if you like.',
+      body: 'Drop the file on the web app for a private in-browser preview, then publish a profile and climb the leaderboards if you like.',
     },
   ],
 
@@ -104,7 +104,7 @@ export const CELESTORY_DETAIL: ToolDetailConfig = {
   outputTitle: 'One scan, one story',
   outputMeta: 'Terminal → celestory.json',
   outputCaption:
-    'A scan on the left; the file it produces on the right — a per-target integration timeline plus an equipment ledger, with no local file paths inside.',
+    'A scan on the left; the file it produces on the right: a per-target integration timeline plus an equipment ledger, with no local file paths inside.',
 
   ctaTitle: {
     before: 'Chart your ',

@@ -38,6 +38,7 @@ import type {
 } from '../models/leaderboard-board.model';
 import type { LeaderboardEntry, Scope } from '../models/leaderboards.model';
 import type { MeRow } from '../models/me-row.model';
+import { EMPTY_VALUE } from '../models/display.constants';
 
 /**
  * Community leaderboards console at /leaderboards. Renders nine boards (tabs) ×
@@ -139,11 +140,11 @@ export default class LeaderboardsPageComponent implements OnInit {
   });
   protected readonly statImagers = computed(() => {
     const s = this.stats();
-    return s ? formatCount(s.liveCount) : '—';
+    return s ? formatCount(s.liveCount) : EMPTY_VALUE;
   });
   protected readonly statHours = computed(() => {
     const s = this.stats();
-    return s ? formatCompact(Math.round(s.totalIntegrationSeconds / 3600)) : '—';
+    return s ? formatCompact(Math.round(s.totalIntegrationSeconds / 3600)) : EMPTY_VALUE;
   });
 
   /** Themed backdrop gradient + motif for the active board. */
@@ -172,9 +173,9 @@ export default class LeaderboardsPageComponent implements OnInit {
 
   /** Set the document title + full social unfurl tags (SSR-rendered for crawlers). */
   ngOnInit(): void {
-    const title = 'Celestory — Community Leaderboards';
+    const title = 'Celestory · Community Leaderboards';
     const description =
-      'How the Celestory community stacks up under the sky — ranked by photons, not popularity.';
+      'How the Celestory community stacks up under the sky, ranked by photons, not popularity.';
     const origin = resolveOrigin(this.baseUrl);
     const url = origin ? `${origin}/leaderboards` : null;
     this.title.setTitle(title);

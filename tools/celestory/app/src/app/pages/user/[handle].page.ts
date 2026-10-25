@@ -33,12 +33,12 @@ import { setSsrStatus } from '../../utils/ssr-status.util';
 /** SSR baseline for the dynamic profile route — overwritten per-handle once the
  * story resolves; covers the loading state before the API responds. */
 export const routeMeta: RouteMeta = {
-  title: "Celestory — A stargazer's journey",
+  title: "Celestory · A stargazer's journey",
   meta: [
     {
       name: 'description',
       content:
-        'A public astrophotography journey on Celestory — every target, every filter, every photon.',
+        'A public astrophotography journey on Celestory: every target, every filter, every photon.',
     },
   ],
 };
@@ -174,7 +174,7 @@ export default class PortfolioPageComponent {
 
   /** Marks an unknown handle noindex with a clear title and no structured data. */
   private applyNotFoundMeta(): void {
-    this.title.setTitle('Celestory — Profile not found');
+    this.title.setTitle('Celestory · Profile not found');
     this.meta.updateTag({ name: 'robots', content: 'noindex' });
     setStructuredData(this.doc, null);
   }

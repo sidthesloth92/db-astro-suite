@@ -74,12 +74,12 @@ export default class ContactPageComponent {
 }
 
 export const routeMeta: RouteMeta = {
-  title: 'Celestory — Contact',
+  title: 'Celestory · Contact',
   meta: [
     {
       name: 'description',
       content:
-        'Questions, feedback, or a bug in the charts? Send a note — it opens your mail app, pre-filled. Nothing is stored or sent without you.',
+        'Questions, feedback, or a bug in the charts? Send a note. It opens your mail app, pre-filled. Nothing is stored or sent without you.',
     },
   ],
 };

@@ -26,7 +26,7 @@ function detailNumber(details: unknown, field: string): number | null {
 export function publishErrorMessage(code: unknown, details?: unknown): string {
   switch (code) {
     case 'HANDLE_TAKEN':
-      return 'That handle is taken — try another.';
+      return 'That handle is taken. Try another.';
     case 'HANDLE_INVALID':
       return 'Handles are 3–30 chars: lowercase letters, numbers and hyphens.';
     case 'PASSWORD_INVALID':
@@ -42,7 +42,7 @@ export function publishErrorMessage(code: unknown, details?: unknown): string {
     case 'STORY_NOT_FOUND':
       return 'No profile found for that handle.';
     case 'SESSION_INVALID':
-      return 'Your session expired — please log in again.';
+      return 'Your session expired. Please log in again.';
     case 'STORY_TOO_LARGE': {
       const maxBytes = detailNumber(details, 'maxBytes');
       return maxBytes === null

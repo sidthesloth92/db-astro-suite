@@ -27,6 +27,6 @@ describe('buildMailtoUrl', () => {
     });
     expect(url).toContain('subject=Hello%20from%20Celestory');
     // With no name, the signature is just the email.
-    expect(decodeURIComponent(url)).toContain('— jane@sky.io');
+    expect(decodeURIComponent(url)).toContain('From: jane@sky.io');
   });
 });

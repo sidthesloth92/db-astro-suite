@@ -52,7 +52,7 @@
         @if (exists()) {
           <div class="ob-exists" role="alert">
             <dba-cel-icon name="globe" [size]="14" />
-            <span><b>&#64;{{ clean() }}</b> already exists — publishing will <b>replace its data</b>. Enter that profile’s password to update it.</span>
+            <span><b>&#64;{{ clean() }}</b> already exists. Publishing will <b>replace its data</b>. Enter that profile’s password to update it.</span>
           </div>
         }
         <label class="ob-field-label">{{ exists() ? 'Password' : 'Set a password' }}</label>
@@ -278,7 +278,7 @@
           } @else {
             <span class="eyebrow">Published</span>
             <h2>Your Journey Is Live</h2>
-            <p>Share it anywhere — anyone with the link can explore your sky.</p>
+            <p>Share it anywhere. Anyone with the link can explore your sky.</p>
           }
         </div>
         <div class="ob-livelink">
@@ -297,7 +297,7 @@
           </p>
         } @else {
           <p class="ob-token-note ob-live-note">
-            You’re logged in as the owner on this tab — open your profile to edit or delete it anytime.
+            You’re logged in as the owner on this tab. Open your profile to edit or delete it anytime.
           </p>
         }
         <dba-ui-text-button class="ob-full" variant="primary" size="lg" label="See Your Celestory" (clicked)="openProfile()">

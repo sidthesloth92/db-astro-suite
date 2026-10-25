@@ -11,7 +11,7 @@ import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/c
 
 /** Dev tool — never index it. SSR-rendered noindex via routeMeta. */
 export const routeMeta: RouteMeta = {
-  title: 'OG card preview — Celestory (dev)',
+  title: 'OG card preview · Celestory (dev)',
   meta: [{ name: 'robots', content: 'noindex, nofollow' }],
 };
 

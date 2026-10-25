@@ -6,7 +6,7 @@ import type { StoryDetails } from '../models/api.model';
 
 /** Shared site description used by the WebSite/Organization graph. */
 const SITE_DESCRIPTION =
-  'A privacy-first astrophotography journey — chart every target, every filter, every photon, rendered entirely in your browser.';
+  'A privacy-first astrophotography journey: chart every target, every filter, every photon, rendered entirely in your browser.';
 
 /** `WebSite` + `Organization` graph for the site root (landing page). */
 export function websiteJsonLd(origin: string): object {

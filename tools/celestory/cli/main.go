@@ -200,7 +200,7 @@ func showConfig(w io.Writer, f cliFlags) {
 	out := f.out
 	if out == "" {
 		cwd, _ := os.Getwd()
-		out = cwd + "  (current directory — override with -out)"
+		out = cwd + "  (current directory; override with -out)"
 	}
 	fmt.Fprintln(w, "Output location:", out)
 	fmt.Fprintln(w, "Cache directory:", resolveCacheDir())

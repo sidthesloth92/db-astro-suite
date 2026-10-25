@@ -7,6 +7,7 @@ import { getDb } from '../utils/db';
 import { communityStats } from '../utils/uploads';
 import { topTargets } from '../utils/leaderboards';
 import type { OgLandingModel, OgLeaderboardsModel } from './og-card.model';
+import { EMPTY_VALUE } from '../../app/models/display.constants';
 
 /** Rounded integration hours as a bare number string (the card adds "h"). */
 function hoursNum(seconds: number): string {
@@ -49,7 +50,7 @@ export async function loadLeaderboardsOgModel(): Promise<OgLeaderboardsModel> {
     astronomers: countLabel(stats.chartedCount),
     targets: countLabel(targets),
     frames: countLabel(stats.lightFrameCount),
-    topTarget: top[0]?.label || '—',
-    mostImaged: imaged[0]?.label || '—',
+    topTarget: top[0]?.label || EMPTY_VALUE,
+    mostImaged: imaged[0]?.label || EMPTY_VALUE,
   };
 }

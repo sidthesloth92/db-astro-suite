@@ -5,6 +5,7 @@
  */
 import { NIGHT_SECONDS } from '../models/share-render.constants';
 import type { ShareFilterKey } from '../models/share-model.model';
+import { EMPTY_VALUE } from '../models/display.constants';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -49,7 +50,7 @@ export function parseDate(d: string | Date | null | undefined): Date | null {
 export function fmtDate(d: string | Date | null | undefined, opts?: 'short'): string {
   const dt = parseDate(d);
   if (!dt) {
-    return '—';
+    return EMPTY_VALUE;
   }
   const day = dt.getUTCDate();
   const mon = MONTHS[dt.getUTCMonth()];
@@ -62,7 +63,7 @@ export function fmtRange(a: string | Date | null | undefined, b: string | Date |
   const da = parseDate(a);
   const db = parseDate(b);
   if (!da && !db) {
-    return '—';
+    return EMPTY_VALUE;
   }
   if (!db) {
     return fmtDate(da);

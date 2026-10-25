@@ -14,7 +14,7 @@ const noFocus = { target: null, equipment: null };
 describe('profileShareMeta', () => {
   it('builds a brand-first whole-journey title + absolute share URLs', () => {
     const meta = profileShareMeta(profile, noFocus, ORIGIN);
-    expect(meta.title.startsWith("Celestory — @vera's journey ·")).toBe(true);
+    expect(meta.title.startsWith("Celestory · @vera's journey ·")).toBe(true);
     expect(meta.title).toContain(' h under the stars');
     expect(meta.type).toBe('profile');
     expect(meta.url).toBe(`${ORIGIN}/user/vera`);
@@ -24,7 +24,7 @@ describe('profileShareMeta', () => {
   it('builds a brand-first, target-focused title + ?target= URLs', () => {
     const target = SAMPLE_STORY.targets[0];
     const meta = profileShareMeta(profile, { target: target.id, equipment: null }, ORIGIN);
-    expect(meta.title.startsWith('Celestory — ')).toBe(true);
+    expect(meta.title.startsWith('Celestory · ')).toBe(true);
     expect(meta.title).toContain('by @vera');
     expect(meta.title).toContain(target.displayName);
     expect(meta.type).toBe('article');
@@ -35,7 +35,7 @@ describe('profileShareMeta', () => {
   it('builds a brand-first, equipment-focused title + ?equipment= URLs', () => {
     const equipment = SAMPLE_STORY.equipment[0];
     const meta = profileShareMeta(profile, { target: null, equipment: equipment.id }, ORIGIN);
-    expect(meta.title.startsWith('Celestory — ')).toBe(true);
+    expect(meta.title.startsWith('Celestory · ')).toBe(true);
     expect(meta.title).toContain('by @vera');
     expect(meta.title).toContain(equipment.displayName);
     expect(meta.type).toBe('article');
@@ -51,7 +51,7 @@ describe('profileShareMeta', () => {
       profileShareMeta(profile, { target: null, equipment: equipment.id }, ORIGIN).title,
     ];
     for (const title of titles) {
-      expect(title.startsWith('Celestory — ')).toBe(true);
+      expect(title.startsWith('Celestory · ')).toBe(true);
     }
   });
 

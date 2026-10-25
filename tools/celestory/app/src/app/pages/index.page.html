@@ -38,7 +38,7 @@
         <span class="beta-chip">Public beta</span>
         <h1 class="hero-headline">Your journey under the <em>stars</em>, charted.</h1>
         <p class="lead">
-          Point Celestory at your light frames. It reads every sub, every filter, every year — and
+          Point Celestory at your light frames. It reads every sub, every filter, every year, and
           renders a gallery-grade imaging journey, entirely in your browser.
         </p>
         <div class="cta-row">
@@ -97,8 +97,8 @@
         <h2 class="sec">You earned every photon.</h2>
         <p class="sub">Clear nights are rare and hard-won. The hours you spend chasing a target deserve more than a folder full of forgotten subs.</p>
         <div class="story-prose">
-          <p>Every session you battle light pollution, dew, drift and your own sleep to add a few more hours onto a target. That work scatters across drives and years — <b>thousands of frames almost no one ever sees.</b></p>
-          <p>Celestory reads it all back and gives it shape: every target you’ve pointed at, every filter you’ve stacked, every hour of integration — drawn into <span class="accent">one continuous account of your time under the sky.</span></p>
+          <p>Every session you battle light pollution, dew, drift and your own sleep to add a few more hours onto a target. That work scatters across drives and years: <b>thousands of frames almost no one ever sees.</b></p>
+          <p>Celestory reads it all back and gives it shape: every target you’ve pointed at, every filter you’ve stacked, every hour of integration, drawn into <span class="accent">one continuous account of your time under the sky.</span></p>
         </div>
       </section>
 
@@ -116,13 +116,13 @@
           </dba-ui-feature-card>
           <dba-ui-feature-card
             heading="Made to share"
-            body="Gallery-grade cards and carousels in Observatory, Starfield and Nebula — sized for Instagram, Stories and X."
+            body="Gallery-grade cards and carousels in Observatory, Starfield and Nebula, sized for Instagram, Stories and X."
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.4" /><circle cx="17" cy="6" r="2.4" /><circle cx="17" cy="18" r="2.4" /><path d="M8.1 10.9l6.8-3.8M8.1 13.1l6.8 3.8" /></svg>
           </dba-ui-feature-card>
           <dba-ui-feature-card
             heading="Every photon counted"
-            body="Per-filter integration, nightly heat strips, multi-year target timelines and gear cross-links — the full account of your journey."
+            body="Per-filter integration, nightly heat strips, multi-year target timelines and gear cross-links: the full account of your journey."
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3" /><circle cx="12" cy="12" r="4.2" /></svg>
           </dba-ui-feature-card>
@@ -141,7 +141,7 @@
             <div class="step-inner">
               <div class="step-text">
                 <div class="sh"><span class="sn">01</span><span class="st">Install &amp; scan your captures</span></div>
-                <div class="sd">Install the CLI, then point it at your captures — it reads your FITS headers and writes one <span class="mono">celestory.json</span>. Or just run <span class="mono">celestory</span> for a guided wizard.</div>
+                <div class="sd">Install the CLI, then point it at your captures. It reads your FITS headers and writes one <span class="mono">celestory.json</span>. Or just run <span class="mono">celestory</span> for a guided wizard.</div>
                 <div class="tabs" role="tablist">
                   @for (tool of installTools; track tool) {
                     <button type="button" class="tab" [class.on]="installTool() === tool" (click)="selectInstall(tool)">{{ installLabels[tool] }}</button>
@@ -198,7 +198,7 @@
             <div class="step-inner">
               <div class="step-text">
                 <div class="sh"><span class="sn">03</span><span class="st">Preview &amp; share your journey</span></div>
-                <div class="sd">Your imaging journey renders instantly — share one season or your whole lifetime. Export gallery-grade cards and carousels for Instagram, Stories and X.</div>
+                <div class="sd">Your imaging journey renders instantly. Share one season or your whole lifetime. Export gallery-grade cards and carousels for Instagram, Stories and X.</div>
                 <dba-ui-text-button class="step-btn" variant="primary" size="lg" label="Visualize your Celestory" (clicked)="exploreSample()">
                   <svg slot="leading" class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" /><circle cx="12" cy="12" r="2.6" /></svg>
                 </dba-ui-text-button>
@@ -230,7 +230,7 @@
       <div class="foot-inner">
         <div class="foot-brand">
           <div class="brand"><dba-celestory-wordmark /></div>
-          <p>Turn your astrophotography history into a gallery-grade imaging journey — charted entirely in your browser.</p>
+          <p>Turn your astrophotography history into a gallery-grade imaging journey, charted entirely in your browser.</p>
           <p class="privacy">
             <span class="d"></span> Your frames never leave your machine
           </p>

@@ -15,7 +15,7 @@ import { PreviewStore } from '../services/preview-store.service';
 
 /** Private, transient page: never index it (the staged story isn't persisted). */
 export const routeMeta: RouteMeta = {
-  title: 'Celestory — Preview',
+  title: 'Celestory · Preview',
   meta: [{ name: 'robots', content: 'noindex, nofollow' }],
 };
 

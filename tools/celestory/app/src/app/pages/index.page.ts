@@ -200,9 +200,9 @@ export default class LandingPageComponent implements OnInit {
   /** Set the full social unfurl tags (with an absolute og:image) — SSR-rendered
    * for crawlers; routeMeta keeps the static title/description baseline. */
   ngOnInit(): void {
-    const title = "Celestory — Chart your journey under the stars";
+    const title = "Celestory · Chart your journey under the stars";
     const description =
-      "A privacy-first astrophotography journey. Your light frames never leave your machine — everything renders in your browser.";
+      "A privacy-first astrophotography journey. Your light frames never leave your machine. Everything renders in your browser.";
     const origin = resolveOrigin(this.baseUrl);
     applySocialMeta(this.meta, {
       title,
@@ -456,7 +456,7 @@ export default class LandingPageComponent implements OnInit {
 }
 
 export const routeMeta: RouteMeta = {
-  title: "Celestory — Chart your journey under the stars",
+  title: "Celestory · Chart your journey under the stars",
   // Baseline description; the full OG/Twitter unfurl set (with an absolute
   // og:image) is applied in the component's ngOnInit so it can use the request
   // origin. See applySocialMeta.
