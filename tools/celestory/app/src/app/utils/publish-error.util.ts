@@ -9,17 +9,17 @@ function waitLabel(retryAfterSeconds: number): string {
   return `${Math.ceil(minutes / 60)} hours`;
 }
 
-/** Reads `retryAfterSeconds` from an API error's details, or null when absent. */
-function retryAfter(details: unknown): number | null {
+/** Reads a positive finite number from an API error's details, or null when absent. */
+function detailNumber(details: unknown, field: string): number | null {
   if (details === null || typeof details !== 'object') {
     return null;
   }
-  const value = (details as Record<string, unknown>)['retryAfterSeconds'];
+  const value = (details as Record<string, unknown>)[field];
   return typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : null;
 }
 
 /**
- * Maps a Celestory API error code (and its details, for rate limits) to a
+ * Maps a Celestory API error code (and its details, for rate and size limits) to a
  * user-facing publish/update/delete/login message.
  */
 export function publishErrorMessage(code: unknown, details?: unknown): string {
@@ -38,8 +38,14 @@ export function publishErrorMessage(code: unknown, details?: unknown): string {
       return 'No profile found for that handle.';
     case 'SESSION_INVALID':
       return 'Your session expired — please log in again.';
+    case 'STORY_TOO_LARGE': {
+      const maxBytes = detailNumber(details, 'maxBytes');
+      return maxBytes === null
+        ? 'This journey is too large to publish.'
+        : `This journey is too large to publish (over ${Math.round(maxBytes / (1024 * 1024))} MB).`;
+    }
     case 'RATE_LIMITED': {
-      const seconds = retryAfter(details);
+      const seconds = detailNumber(details, 'retryAfterSeconds');
       return seconds === null
         ? 'Too many attempts — please wait a while and try again.'
         : `Too many attempts — try again in ${waitLabel(seconds)}.`;

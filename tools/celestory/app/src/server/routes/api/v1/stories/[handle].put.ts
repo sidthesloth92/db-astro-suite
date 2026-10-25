@@ -10,6 +10,8 @@ import { recordUpload, claimUploads } from '../../../../utils/uploads';
 import { success, toErrorResponse } from '../../../../utils/respond';
 import { BadPasswordError, StoryNotFoundError } from '../../../../utils/celestory.error';
 import { consumeRateLimit, handleSubject } from '../../../../utils/rate-limit';
+import { assertDeclaredStorySize, assertStorySize } from '../../../../utils/story-size.util';
+import { toStoredStory } from '../../../../utils/stored-story.util';
 import { LOGIN_FAILURE_LIMIT, UPDATE_LIMIT } from '../../../../utils/rate-limit.constants';
 import type { Story } from '../../../../utils/story.types';
 import type { StoryTotals } from '../../../../utils/story.model';
@@ -28,6 +30,8 @@ export default defineEventHandler(async (event) => {
   try {
     const handle = normalizeHandle(getRouterParam(event, 'handle'));
     const subject = handleSubject(handle);
+    // Refuse oversized uploads from their declared size before any DB work.
+    assertDeclaredStorySize(event);
     const updateHit = await consumeRateLimit(UPDATE_LIMIT, subject);
 
     let story: Story;
@@ -37,9 +41,11 @@ export default defineEventHandler(async (event) => {
       const body = await readBody<{ story?: unknown; password?: unknown }>(event);
       const password = typeof body?.password === 'string' ? body.password : '';
       const token = extractBearer(getHeader(event, 'authorization'));
+      assertStorySize(body?.story);
       story = validateStory(body?.story);
       const rows = extractRows(story);
-      const storyJson = JSON.stringify(body?.story);
+      // Stored (and served publicly) without the per-install identity fields.
+      const storyJson = JSON.stringify(toStoredStory(body?.story));
 
       const sql = getDb();
       const found = await sql`

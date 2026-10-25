@@ -35,6 +35,13 @@ export class StoryValidationError extends CelestoryError {
   }
 }
 
+/** The uploaded story is larger than the publish limit. */
+export class PayloadTooLargeError extends CelestoryError {
+  constructor(maxBytes: number) {
+    super('STORY_TOO_LARGE', 'This story is too large to publish.', 413, { maxBytes });
+  }
+}
+
 /** An anonymous attempt ping was missing its upload identity. */
 export class PingIdentityError extends CelestoryError {
   constructor() {

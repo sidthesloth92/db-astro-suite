@@ -23,6 +23,13 @@ describe('publishErrorMessage', () => {
     );
   });
 
+  it('explains when a journey is too large to publish', () => {
+    expect(publishErrorMessage('STORY_TOO_LARGE', { maxBytes: 3 * 1024 * 1024 })).toBe(
+      'This journey is too large to publish (over 3 MB).',
+    );
+    expect(publishErrorMessage('STORY_TOO_LARGE')).toBe('This journey is too large to publish.');
+  });
+
   it('states the current minimum password length', () => {
     expect(publishErrorMessage('PASSWORD_INVALID')).toBe(
       'Choose a password of at least 8 characters.',

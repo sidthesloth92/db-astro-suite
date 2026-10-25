@@ -14,6 +14,8 @@ import { HandleTakenError, InvalidPasswordError } from '../../../utils/celestory
 import { consumeRateLimit } from '../../../utils/rate-limit';
 import { PUBLISH_LIMIT } from '../../../utils/rate-limit.constants';
 import { clientIpSubject } from '../../../utils/client-ip.util';
+import { assertDeclaredStorySize, assertStorySize } from '../../../utils/story-size.util';
+import { toStoredStory } from '../../../utils/stored-story.util';
 import type { ExtractedRows } from '../../../utils/story.model';
 import type { Story } from '../../../utils/story.types';
 
@@ -112,6 +114,8 @@ async function persistStory(
  */
 export default defineEventHandler(async (event) => {
   try {
+    // Refuse oversized uploads from their declared size before any DB work.
+    assertDeclaredStorySize(event);
     const publishHit = await consumeRateLimit(PUBLISH_LIMIT, clientIpSubject(event));
 
     let handle: string;
@@ -125,11 +129,13 @@ export default defineEventHandler(async (event) => {
       if (password.length < MIN_PASSWORD_LENGTH) {
         throw new InvalidPasswordError();
       }
+      assertStorySize(body?.story);
       story = validateStory(body?.story);
       rows = extractRows(story);
 
       const passwordHash = await hashPassword(password);
-      const storyJson = JSON.stringify(body?.story);
+      // Stored (and served publicly) without the per-install identity fields.
+      const storyJson = JSON.stringify(toStoredStory(body?.story));
 
       try {
         storyId = await persistStory(handle, passwordHash, storyJson, rows);
