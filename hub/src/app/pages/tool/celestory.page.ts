@@ -94,7 +94,7 @@ export const routeMeta: RouteMeta = {
     {
       name: 'description',
       content:
-        'Celestory scans your astrophotography FITS captures locally into a per-target integration timeline and equipment ledger, then charts your whole imaging journey in the browser. Publish a profile and join the leaderboards — only if you choose to.',
+        'Celestory scans your astrophotography FITS captures locally into a per-target integration timeline and equipment ledger, then charts your whole imaging journey in the browser. Publish a profile and join the leaderboards, only if you choose to.',
     },
     {
       property: 'og:title',
@@ -120,7 +120,7 @@ export const routeMeta: RouteMeta = {
     {
       name: 'twitter:description',
       content:
-        'Scan your FITS captures locally into a per-target integration timeline and equipment ledger — then chart and share your whole imaging journey.',
+        'Scan your FITS captures locally into a per-target integration timeline and equipment ledger, then chart and share your whole imaging journey.',
     },
   ],
 };

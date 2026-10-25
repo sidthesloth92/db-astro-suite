@@ -1,0 +1,81 @@
+<dba-ui-constellation-field>
+  <main class="pv">
+    <header class="pv-bar">
+      <a routerLink="/" aria-label="Celestory home"><dba-celestory-wordmark /></a>
+    </header>
+
+    <article class="pv-body">
+      <h1>Privacy</h1>
+      <p class="pv-updated">Last updated: 25 October 2026</p>
+      <p>
+        Celestory is a free, open-source part of DB Astro Suite. This page explains what it collects, why, and what
+        you can do about it. Questions? Write to <a [href]="'mailto:' + contactEmail">{{ contactEmail }}</a>.
+      </p>
+
+      <h2>The Celestory CLI</h2>
+      <p>
+        The CLI runs on your computer. It reads only the headers of your FITS files (never the image data), writes
+        one <code>celestory.json</code> summary, and makes no network connections. Your FITS files and folder paths
+        never leave your machine.
+      </p>
+
+      <h2>Opening your file on this site</h2>
+      <p>
+        Your journey is drawn in your browser; the file itself isn't uploaded. To count the community, the site
+        records three totals (hours, frames and number of targets) together with a random install ID and a
+        fingerprint of those totals. None of this includes your name or your files.
+      </p>
+
+      <h2>Publishing a profile</h2>
+      <p>
+        Publishing is optional. If you publish, we store your summary and show it publicly at your profile link:
+        your handle, display name, targets, equipment, filters, imaging dates and totals. Your password and
+        recovery code are stored only as one-way hashes, so nobody can read them back.
+      </p>
+
+      <h2>Protecting against abuse</h2>
+      <p>
+        To stop things like password guessing, we keep a scrambled (hashed) form of your IP address with a request
+        count for up to two days. We never store the address itself.
+      </p>
+
+      <h2>Analytics</h2>
+      <p>
+        With your permission, we use Google Analytics to see which pages and features people use. It doesn't load
+        until you accept, and you can change your mind at any time.
+        Google’s own policy is at <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">policies.google.com/privacy</a>.
+      </p>
+      <p>
+        <button type="button" class="pv-btn" (click)="openAnalyticsSettings()">Analytics settings</button>
+      </p>
+
+      <h2>What’s stored in your browser</h2>
+      <p>
+        Your login for managing a profile (until you close the tab), the display name and username you set in a
+        preview, the planetarium location if you choose one, and your analytics choice. Google Analytics cookies
+        are only set if you accept.
+      </p>
+
+      <h2>Who runs the site</h2>
+      <p>
+        The website is hosted on Vercel and the database on Neon. These providers may process data outside your
+        country.
+      </p>
+
+      <h2>Your choices</h2>
+      <ul>
+        <li>Delete your profile at any time: log in on your profile and choose <b>Delete profile</b>.</li>
+        <li>Change your handle or display name with <b>Edit profile</b>.</li>
+        <li>Decline or withdraw analytics with <b>Analytics settings</b>.</li>
+        <li>
+          Ask us to remove anything, or report a profile that impersonates someone, through the
+          <a routerLink="/contact">contact page</a> or at <a [href]="'mailto:' + contactEmail">{{ contactEmail }}</a>.
+        </li>
+      </ul>
+
+      <h2>Changes</h2>
+      <p>If this changes, we’ll update this page and the date at the top.</p>
+    </article>
+  </main>
+  <dba-site-footer />
+</dba-ui-constellation-field>

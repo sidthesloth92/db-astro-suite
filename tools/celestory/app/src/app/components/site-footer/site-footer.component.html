@@ -1,0 +1,108 @@
+@if (variant() === 'full') {
+  <footer class="sf">
+    <div class="sf-inner">
+      <div class="sf-brand">
+        <a class="sf-wordmark" routerLink="/" aria-label="Celestory home"><dba-celestory-wordmark /></a>
+        <p class="sf-tagline">Turn your astrophotography history into a gallery-grade imaging journey.</p>
+        <p class="sf-privacy">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>
+          Your frames never leave your machine.
+        </p>
+        <span class="sf-beta"><span class="sf-beta-dot" aria-hidden="true"></span>Public beta</span>
+      </div>
+
+      <nav class="sf-col" aria-labelledby="sf-h-celestory">
+        <h2 class="sf-h" id="sf-h-celestory">Celestory</h2>
+        <a routerLink="/" fragment="how">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="m7 9 3 3-3 3M12 15h5" /></svg>
+          Get the CLI
+        </a>
+        <a routerLink="/demo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" /><circle cx="12" cy="12" r="3" /></svg>
+          See the demo
+        </a>
+        <a routerLink="/leaderboards">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16M7 16v-5M12 16V8M17 16v-3" /></svg>
+          Leaderboards
+        </a>
+        <a routerLink="/">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V4M7 9l5-5 5 5M5 20h14" /></svg>
+          Upload your Celestory
+        </a>
+      </nav>
+
+      <nav class="sf-col" aria-labelledby="sf-h-suite">
+        <h2 class="sf-h" id="sf-h-suite">DB Astro Suite</h2>
+        <a [href]="astrogramUrl" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4" /><circle cx="12" cy="12" r="3.4" /><circle cx="17" cy="7" r="1.1" fill="currentColor" /></svg>
+          Astrogram<span class="sf-ext" aria-hidden="true">↗</span><span class="sf-sr">(opens in a new tab)</span>
+        </a>
+        <a [href]="starwizzUrl" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.1 5.1L19.5 9l-3.9 3.6 1 5.4L12 15.3 7.4 18l1-5.4L4.5 9l5.4-.9z" /></svg>
+          Starwizz<span class="sf-ext" aria-hidden="true">↗</span><span class="sf-sr">(opens in a new tab)</span>
+        </a>
+        <a [href]="astrospikeUrl" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v20M2 12h20M5 5l14 14M19 5 5 19" /><circle cx="12" cy="12" r="2" fill="currentColor" /></svg>
+          AstroSpike<span class="sf-ext" aria-hidden="true">↗</span><span class="sf-sr">(opens in a new tab)</span>
+        </a>
+        <a [href]="sortronomyUrl" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h10M4 12h7M4 18h4M17 5v14M14 16l3 3 3-3" /></svg>
+          Sortronomy<span class="sf-ext" aria-hidden="true">↗</span><span class="sf-sr">(opens in a new tab)</span>
+        </a>
+        <a [href]="hubUrl" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" /></svg>
+          All tools<span class="sf-ext" aria-hidden="true">↗</span><span class="sf-sr">(opens in a new tab)</span>
+        </a>
+      </nav>
+
+      <nav class="sf-col" aria-labelledby="sf-h-help">
+        <h2 class="sf-h" id="sf-h-help">Help &amp; legal</h2>
+        <a routerLink="/contact">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>
+          Contact
+        </a>
+        <a [href]="docsUrl" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h10l4 4v12H5z" /><path d="M14 4v5h5M8 13h8M8 17h5" /></svg>
+          Docs &amp; source<span class="sf-ext" aria-hidden="true">↗</span><span class="sf-sr">(opens in a new tab)</span>
+        </a>
+        <a routerLink="/privacy">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 5 6v6c0 4.4 3 7.6 7 9 4-1.4 7-4.6 7-9V6z" /></svg>
+          Privacy
+        </a>
+        <button type="button" class="sf-linkbtn" (click)="openAnalyticsSettings()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8" /><circle cx="16" cy="7" r="2" /><circle cx="10" cy="17" r="2" /></svg>
+          Analytics settings
+        </button>
+      </nav>
+    </div>
+
+    <div class="sf-bottom">
+      <span class="sf-copy">© {{ year }} Celestory · MIT License · Part of DB Astro Suite</span>
+      <div class="sf-social">
+        <a [href]="instagramUrl" target="_blank" rel="noopener" aria-label="Celestory on Instagram (opens in a new tab)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none" /></svg>
+        </a>
+        <a [href]="githubUrl" target="_blank" rel="noopener" aria-label="DB Astro Suite on GitHub (opens in a new tab)">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-.87-.01-1.71-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.5-1.11-1.5-.91-.64.07-.62.07-.62 1 .07 1.53 1.06 1.53 1.06.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.36-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.34 9.34 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.81-4.57 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.6.69.49A10.03 10.03 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z" /></svg>
+        </a>
+      </div>
+    </div>
+  </footer>
+} @else {
+  <footer class="sf sf--compact">
+    <div class="sf-row">
+      <a class="sf-wordmark sf-wordmark--small" routerLink="/" aria-label="Celestory home"><dba-celestory-wordmark /></a>
+      <nav class="sf-mini" aria-label="Site">
+        <a routerLink="/privacy">Privacy</a>
+        <span class="sf-dot" aria-hidden="true">·</span>
+        <button type="button" class="sf-linkbtn" (click)="openAnalyticsSettings()">Analytics settings</button>
+        <span class="sf-dot" aria-hidden="true">·</span>
+        <a routerLink="/contact">Contact</a>
+      </nav>
+      @if (reportHandle()) {
+        <a class="sf-report" routerLink="/contact" [queryParams]="reportQuery()">Report this profile</a>
+      }
+    </div>
+    <p class="sf-copy sf-copy--compact">© {{ year }} Celestory · Part of DB Astro Suite</p>
+  </footer>
+}

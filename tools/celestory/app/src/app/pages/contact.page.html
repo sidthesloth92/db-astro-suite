@@ -21,7 +21,10 @@
         <h1>Say <em>hello</em>.</h1>
         <p>
           Questions, feedback, a bug in the charts, or just want to share your journey? Drop a note
-          below — it opens your mail app with everything filled in, addressed straight to me.
+          below. It opens your mail app with everything filled in, addressed straight to me.
+        </p>
+        <p class="intro-email">
+          No mail app? Write to <a [href]="'mailto:' + contactEmail">{{ contactEmail }}</a>.
         </p>
       </section>
 
@@ -61,16 +64,11 @@
               <span>Your mail app should have opened with the message ready to send.</span>
             </div>
           }
-          <div class="formnote">Opens in your email app — nothing is stored or sent without you.</div>
+          <div class="formnote">Opens in your email app. Nothing is stored or sent without you.</div>
         </form>
       </section>
     </main>
 
-    <footer>
-      <div class="foot-inner">
-        <span>© {{ year }} Celestory · Open-source</span>
-        <a routerLink="/">Back to Celestory →</a>
-      </div>
-    </footer>
+    <dba-site-footer />
   </div>
 </dba-ui-constellation-field>

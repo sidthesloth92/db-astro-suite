@@ -2,12 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Celestory — Chart your journey under the stars</title>
+    <title>Celestory · Chart your journey under the stars</title>
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Point Celestory at your astrophotography light frames and get a gallery-grade chronicle of your imaging journey — every target, every filter, every photon, across every year — rendered entirely in your browser. Nothing is uploaded."
+      content="Point Celestory at your astrophotography light frames and get a gallery-grade chronicle of your imaging journey: every target, every filter, every photon, across every year. It's drawn right in your browser from a small summary file, and your light frames never leave your machine."
     />
     <meta name="theme-color" content="#05060A" />
     <!-- Static crawler-fallback social tags; per-page SSR overrides title/desc/image. -->
@@ -32,14 +32,18 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
 
-    <!-- Google tag (gtag.js) — skipped on localhost so dev traffic never reaches the prod GA4 property.
-         Re-enable locally with ?analytics=on (one session) or localStorage 'ga-debug'='on' (persistent). -->
+    <!-- Google tag (gtag.js): loads ONLY after the visitor accepts analytics
+         (choice saved under 'celestory.analytics-consent', the same key as
+         ANALYTICS_CONSENT_KEY in the app). Skipped on localhost so dev traffic
+         never reaches the prod GA4 property; re-enable locally with
+         ?analytics=on (one session) or localStorage 'ga-debug'='on' (persistent). -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag() {
         dataLayer.push(arguments);
       }
       (function () {
+        var GA_ID = 'G-SBXMGWP56E';
         var host = location.hostname;
         var isLocal =
           host === 'localhost' || host === '127.0.0.1' || host.endsWith('.local');
@@ -48,6 +52,7 @@
         // remembers the choice; ?analytics=off clears it. A persisted 'ga-debug'
         // flag keeps GA on across reloads until explicitly turned off.
         var override = null;
+        var consent = null;
         try {
           var qp = new URLSearchParams(location.search).get('analytics');
           if (qp === 'on') {
@@ -59,22 +64,32 @@
           } else if (localStorage.getItem('ga-debug') === 'on') {
             override = true;
           }
+          consent = localStorage.getItem('celestory.analytics-consent');
         } catch (e) {
-          /* storage unavailable (private mode) — fall back to host check */
+          /* storage unavailable (private mode): no saved consent, GA stays off */
         }
 
-        var enabled = override === null ? !isLocal : override;
-        if (!enabled) {
-          return; // analytics disabled
-        }
+        var loaded = false;
+        // Called on a later visit (saved consent) or by the app when the
+        // visitor clicks Accept. Never runs before consent.
+        window.celestoryLoadAnalytics = function () {
+          var enabled = override === null ? !isLocal : override;
+          if (loaded || !enabled) {
+            return;
+          }
+          loaded = true;
+          var s = document.createElement('script');
+          s.async = true;
+          s.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
+          document.head.appendChild(s);
+          gtag('js', new Date());
+          // page_view is fired manually by RouteAnalyticsTracker on every router NavigationEnd
+          gtag('config', GA_ID, { send_page_view: false });
+        };
 
-        var s = document.createElement('script');
-        s.async = true;
-        s.src = 'https://www.googletagmanager.com/gtag/js?id=G-SBXMGWP56E';
-        document.head.appendChild(s);
-        gtag('js', new Date());
-        // page_view is fired manually by RouteAnalyticsTracker on every router NavigationEnd
-        gtag('config', 'G-SBXMGWP56E', { send_page_view: false });
+        if (consent === 'granted') {
+          window.celestoryLoadAnalytics();
+        }
       })();
     </script>
   </head>

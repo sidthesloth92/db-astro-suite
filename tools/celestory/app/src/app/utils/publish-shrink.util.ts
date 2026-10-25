@@ -16,7 +16,7 @@ export function publishShrinkWarning(
     return '';
   }
   return (
-    'This update has less integration than your live profile — you may be on a ' +
+    'This update has less integration than your live profile. You may be on a ' +
     'device that doesn’t have your full library. Publishing will replace it.'
   );
 }

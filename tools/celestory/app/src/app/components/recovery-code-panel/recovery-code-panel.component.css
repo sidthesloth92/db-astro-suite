@@ -1,0 +1,56 @@
+.rc {
+  margin-top: 1rem;
+  padding: 0.85rem 0.95rem;
+  border-radius: 10px;
+  border: 1px dashed color-mix(in srgb, var(--db-color-orange) 55%, transparent);
+  background: color-mix(in srgb, var(--db-color-orange) 6%, var(--db-color-surface-bg));
+  text-align: left;
+}
+
+.rc-eyebrow {
+  display: block;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--db-color-orange);
+}
+
+.rc-code {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.55rem;
+}
+
+.rc-value {
+  font-family: var(--db-font-mono-code);
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  color: var(--db-color-text-primary);
+  word-break: break-all;
+  user-select: all;
+}
+
+.rc-copy {
+  flex: none;
+  font-size: 0.78rem;
+  color: var(--db-color-text-primary);
+  background: transparent;
+  border: 1px solid var(--db-color-border-strong);
+  border-radius: 7px;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+.rc-copy:focus-visible {
+  outline: 2px solid var(--db-color-cyan);
+  outline-offset: 2px;
+}
+
+.rc-note {
+  margin: 0.55rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--db-color-text-muted);
+}

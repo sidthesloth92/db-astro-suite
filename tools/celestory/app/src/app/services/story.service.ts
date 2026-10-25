@@ -6,8 +6,12 @@ import type {
   AttemptPing,
   CreateStoryResult,
   LoginResult,
+  RecoverResult,
   StoryAuth,
   StoryDetails,
+  ChangePasswordResult,
+  ProfileChanges,
+  UpdateProfileResult,
   UpdateStoryResult,
 } from '../models/api.model';
 import type { CommunityStats } from '../models/community-stats.model';
@@ -51,6 +55,43 @@ export class StoryService {
       .post<ApiResponse<LoginResult>>(
         `/api/v1/stories/${encodeURIComponent(handle)}/session`,
         { password },
+      )
+      .pipe(map((response) => response.details));
+  }
+
+  /** Edit profile — change the display name and/or handle (owner session token required). */
+  updateProfile(handle: string, changes: ProfileChanges, token: string): Observable<UpdateProfileResult> {
+    return this.http
+      .patch<ApiResponse<UpdateProfileResult>>(
+        `/api/v1/stories/${encodeURIComponent(handle)}`,
+        changes,
+        this.authOptions(token),
+      )
+      .pipe(map((response) => response.details));
+  }
+
+  /** Change password — confirm the current one; returns a fresh owner session token. */
+  changePassword(
+    handle: string,
+    currentPassword: string,
+    newPassword: string,
+    token: string,
+  ): Observable<ChangePasswordResult> {
+    return this.http
+      .post<ApiResponse<ChangePasswordResult>>(
+        `/api/v1/stories/${encodeURIComponent(handle)}/password`,
+        { currentPassword, newPassword },
+        this.authOptions(token),
+      )
+      .pipe(map((response) => response.details));
+  }
+
+  /** Forgot password — reset it with the profile's recovery code; returns an owner token + the new code. */
+  recover(handle: string, code: string, newPassword: string): Observable<RecoverResult> {
+    return this.http
+      .post<ApiResponse<RecoverResult>>(
+        `/api/v1/stories/${encodeURIComponent(handle)}/recover`,
+        { code, newPassword },
       )
       .pipe(map((response) => response.details));
   }

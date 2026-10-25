@@ -3,7 +3,7 @@
 import analog from '@analogjs/platform';
 import { defineConfig, loadEnv } from 'vite';
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode, command }) => {
   // Bridge .env.local into process.env so the Nitro server routes (which read
   // process.env.DATABASE_URL) can see it in local dev. On Vercel, process.env
   // is populated by the platform and .env.local is absent — this is a no-op
@@ -22,6 +22,13 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [
       analog({
+        // Production builds compile through Angular's Compilation API. Without
+        // it the SSR bundle ships uncompiled (decorator-only) components — the
+        // client and SSR builds run in parallel through one shared compiler
+        // instance — and every server-rendered page fails at runtime. Dev and
+        // Vitest keep the default compiler (Vitest type-checks with
+        // tsconfig.spec.json, which this mode rejects as configured).
+        vite: { experimental: { useAngularCompilationAPI: command === 'build' } },
         ssr: true,
         prerender: {
           routes: [],

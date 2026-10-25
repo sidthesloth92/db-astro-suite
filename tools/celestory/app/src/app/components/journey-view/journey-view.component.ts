@@ -16,6 +16,7 @@ import { map } from 'rxjs';
 import { ConstellationFieldComponent, TextButtonComponent } from '@db-astro-suite/ui';
 import { profileDisplayUrl, profileUrl as buildProfileUrl } from '../../models/app.constants';
 import type { DetailRef, JourneyState } from '../../models/journey.types';
+import type { PublishPhaseRequest } from '../../models/publish-phase.types';
 import type { CelestoryStory, StoryEquipment, StoryTarget } from '../../models/story.model';
 import { formatCount, formatHours } from '../../utils/format.util';
 import { publishErrorMessage } from '../../utils/publish-error.util';
@@ -37,6 +38,7 @@ import { PublishModalComponent } from '../publish-modal/publish-modal.component'
 import { SectionBannerComponent } from '../section-banner/section-banner.component';
 import { ShareStudioModalComponent } from '../share-studio-modal/share-studio-modal.component';
 import { SocialShareRowComponent } from '../social-share-row/social-share-row.component';
+import { SiteFooterComponent } from '../site-footer/site-footer.component';
 
 /**
  * Shared journey shell rendered by /preview (Private Preview), /demo (Demo)
@@ -65,6 +67,7 @@ import { SocialShareRowComponent } from '../social-share-row/social-share-row.co
     ShareStudioModalComponent,
     TargetShareModalComponent,
     SocialShareRowComponent,
+    SiteFooterComponent,
     PlanetariumComponent,
   ],
   templateUrl: './journey-view.component.html',
@@ -114,7 +117,7 @@ export class JourneyViewComponent {
   /** User-facing error from an owner edit, or empty. */
   protected readonly editError = signal('');
   /** Which phase to open the publish modal in ('' = full flow, 'delete' = delete confirm). */
-  protected readonly publishPhase = signal<'' | 'delete'>('');
+  protected readonly publishPhase = signal<PublishPhaseRequest>('');
 
   /**
    * Open detail, driven by URL query params (`?target=` / `?equipment=`) so the
@@ -268,6 +271,16 @@ export class JourneyViewComponent {
     this.publishPhase.set('delete');
     this.showPublish.set(true);
   }
+  /** Owner: open "Edit profile" (display name + handle) in the publish dialog. */
+  openEditProfile(): void {
+    this.publishPhase.set('edit');
+    this.showPublish.set(true);
+  }
+  /** Owner: open "Change password" in the publish dialog. */
+  openChangePassword(): void {
+    this.publishPhase.set('password');
+    this.showPublish.set(true);
+  }
   /** Opens the owner-login modal (verify password to unlock Edit/Delete). */
   openLogin(): void {
     this.showLogin.set(true);
@@ -312,7 +325,7 @@ export class JourneyViewComponent {
           },
           error: (err: HttpErrorResponse) => {
             this.editBusy.set(false);
-            this.editError.set(publishErrorMessage(err.error?.code));
+            this.editError.set(publishErrorMessage(err.error?.code, err.error?.details));
           },
         });
     });
@@ -326,6 +339,19 @@ export class JourneyViewComponent {
   onPublished(handle: string): void {
     this.showPublish.set(false);
     void this.router.navigate(['/user', handle]);
+  }
+
+  /**
+   * Profile edited: close the dialog, then follow a handle change to the new
+   * URL, or re-fetch the same profile when only the name changed.
+   */
+  onProfileEdited(handle: string): void {
+    this.showPublish.set(false);
+    if (handle === this.handle()) {
+      this.updated.emit();
+    } else {
+      void this.router.navigate(['/user', handle]);
+    }
   }
 
   /** Profile deleted: close the modal and leave the (now-gone) profile page. */

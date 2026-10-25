@@ -12,7 +12,7 @@ export const BOARD_VIEWS: readonly BoardView[] = [
     short: 'Hours',
     title: 'Integration Hours',
     blurb:
-      'Total light gathered across every target — the truest measure of time under the sky.',
+      'Total light gathered across every target: the truest measure of time under the sky.',
     accent: '#ff2a7b',
     accentRgb: '255,42,123',
     icon: 'clock',
@@ -22,7 +22,7 @@ export const BOARD_VIEWS: readonly BoardView[] = [
     id: 'frames',
     short: 'Frames',
     title: 'Most Light Frames',
-    blurb: 'Sheer photon-stacking volume — every sub counted, never uploaded.',
+    blurb: 'Sheer photon-stacking volume: every sub counted, never uploaded.',
     accent: '#ff4d6d',
     accentRgb: '255,77,109',
     icon: 'frames',
@@ -32,7 +32,7 @@ export const BOARD_VIEWS: readonly BoardView[] = [
     id: 'project',
     short: 'Projects',
     title: 'Longest Single-Target Projects',
-    blurb: 'Obsession, measured — the most hours ever poured into one target.',
+    blurb: 'Obsession, measured: the most hours ever poured into one target.',
     accent: '#9b8cff',
     accentRgb: '155,140,255',
     icon: 'project',
@@ -53,7 +53,7 @@ export const BOARD_VIEWS: readonly BoardView[] = [
     short: 'Cameras',
     title: 'Most-Used Cameras',
     blurb:
-      'The sensors capturing the most light across the community — mono, colour and modded DSLRs alike.',
+      'The sensors capturing the most light across the community: mono, colour and modded DSLRs alike.',
     accent: '#4d8df0',
     accentRgb: '77,141,240',
     icon: 'camera',
@@ -64,7 +64,7 @@ export const BOARD_VIEWS: readonly BoardView[] = [
     short: 'Mounts',
     title: 'Most-Used Mounts',
     blurb:
-      'What the community tracks the sky on — equatorial workhorses and the new strain-wave wave.',
+      'What the community tracks the sky on: equatorial workhorses and the new strain-wave wave.',
     accent: '#f0a93a',
     accentRgb: '240,169,58',
     icon: 'mount',
@@ -75,7 +75,7 @@ export const BOARD_VIEWS: readonly BoardView[] = [
     short: 'Telescopes',
     title: 'Most-Used Telescopes',
     blurb:
-      'The optics doing the heavy lifting — fast astrographs, apo refractors and long-focus SCTs.',
+      'The optics doing the heavy lifting: fast astrographs, apo refractors and long-focus SCTs.',
     accent: '#6fd3c0',
     accentRgb: '111,211,192',
     icon: 'telescope',
@@ -86,7 +86,7 @@ export const BOARD_VIEWS: readonly BoardView[] = [
     short: 'Months',
     title: 'Best Imaging Months',
     blurb:
-      'When the community logs the most hours — long nights and new-moon windows win.',
+      'When the community logs the most hours: long nights and new-moon windows win.',
     accent: '#46cf7c',
     accentRgb: '70,207,124',
     icon: 'calendar',
@@ -97,7 +97,7 @@ export const BOARD_VIEWS: readonly BoardView[] = [
     short: 'Filters',
     title: 'Most-Used Filters',
     blurb:
-      'The wavelengths the community chases — narrowband still rules the dark.',
+      'The wavelengths the community chases. Narrowband still rules the dark.',
     accent: '#22d3c5',
     accentRgb: '34,211,197',
     icon: 'filter',

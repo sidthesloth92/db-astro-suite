@@ -31,6 +31,8 @@ import {
 import { DOWNLOAD_FORMAT_MENU } from '../../models/share.constants';
 import { buildShareModel } from '../../utils/share-model.util';
 import { SessionStore } from '../../services/session-store.service';
+import type { ViewerIdentity } from '../../models/session.types';
+import { shareCardIdentity } from '../../utils/display-identity.util';
 import { canShareFiles, copyCanvasToClipboard, shareCanvas } from '../../utils/share-export.util';
 import { SocialShareRowComponent } from '../social-share-row/social-share-row.component';
 
@@ -64,9 +66,23 @@ export class TargetShareModalComponent {
 
   private readonly canvasRef = viewChild<ElementRef<HTMLCanvasElement>>('cv');
 
-  /** Shared session identity (name / handle) printed on the card. */
-  protected readonly session = inject(SessionStore);
+  /** Edits persist only in Private Preview — the one view with no published handle. */
+  private readonly persistsIdentity = computed(() => !this.handle());
+  /** The viewer's browser-saved identity — used and edited only in Private Preview. */
+  private readonly session = inject(SessionStore);
   private readonly analytics = inject(AnalyticsService);
+  /** Card-only name/username edits made here on a published or demo profile; never saved. */
+  private readonly cardEdits = signal<Partial<ViewerIdentity>>({});
+  /** Name and username shown in the inputs and printed on the card (see shareCardIdentity). */
+  protected readonly cardIdentity = computed<ViewerIdentity>(() =>
+    shareCardIdentity(
+      this.persistsIdentity(),
+      this.session.identity(),
+      this.story(),
+      this.handle(),
+      this.cardEdits(),
+    ),
+  );
 
   /** Picker options. */
   protected readonly themes = SHARE_THEME_LIST;
@@ -94,18 +110,26 @@ export class TargetShareModalComponent {
     return `${f.w} × ${f.h}px`;
   });
 
-  /** Update the shared identity name from the studio input. */
+  /** Update the card's name from the dialog input. */
   setIdentityName(value: string): void {
-    this.session.setIdentity({ ...this.session.identity(), name: value });
+    this.updateIdentity({ name: value });
   }
-  /** Update the shared identity username from the studio input (stored verbatim). */
+  /** Update the card's username from the dialog input (stored verbatim). */
   setIdentityUsername(value: string): void {
-    this.session.setIdentity({ ...this.session.identity(), username: value.replace(/^@+/, '') });
+    this.updateIdentity({ username: value.replace(/^@+/, '') });
+  }
+  /** In preview, save the edit to the viewer's identity; elsewhere keep it on this card only. */
+  private updateIdentity(edit: Partial<ViewerIdentity>): void {
+    if (this.persistsIdentity()) {
+      this.session.setIdentity({ ...this.session.identity(), ...edit });
+    } else {
+      this.cardEdits.update((current) => ({ ...current, ...edit }));
+    }
   }
 
-  /** Render-ready model, with the edited identity (username falls back to the handle). */
+  /** Render-ready model with the card identity (username falls back to the handle). */
   private readonly model = computed(() => {
-    const ident = this.session.identity();
+    const ident = this.cardIdentity();
     return buildShareModel(this.story(), { name: ident.name, username: ident.username || this.handle() });
   });
   /** The matching render target for the input target. */

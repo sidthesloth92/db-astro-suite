@@ -26,6 +26,8 @@ import type {
 import type { ShareCardData, ShareCarouselData, ShareDomeTarget } from '../models/share.types';
 import { filterColor, filterColorMap, filterLabel } from './filter-color.util';
 import { formatCompact, formatCount, formatDuration, formatHours } from './format.util';
+import { EMPTY_VALUE } from '../models/display.constants';
+import { OBSERVER_PLACE_SEPARATOR } from '../models/observer.constants';
 
 const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const MONTHS_LONG = [
@@ -55,13 +57,13 @@ function daysBetween(a: string, b: string): number {
 /** Short date, e.g. "Aug 1". */
 export function fmtDateShort(value: string): string {
   const p = ymd(value);
-  return p ? `${MONTHS_SHORT[p.m]} ${p.d}` : '—';
+  return p ? `${MONTHS_SHORT[p.m]} ${p.d}` : EMPTY_VALUE;
 }
 
 /** Long date, e.g. "Aug 1, 2025". */
 export function fmtDate(value: string): string {
   const p = ymd(value);
-  return p ? `${MONTHS_SHORT[p.m]} ${p.d}, ${p.y}` : '—';
+  return p ? `${MONTHS_SHORT[p.m]} ${p.d}, ${p.y}` : EMPTY_VALUE;
 }
 
 /** Human-readable byte size, e.g. "6.9 GB". */
@@ -78,7 +80,7 @@ export function fmtBytes(bytes: number): string {
 /** A date range, e.g. "Feb 1, 2025 → May 6, 2026". */
 export function fmtRange(a: string, b: string): string {
   if (!a && !b) {
-    return '—';
+    return EMPTY_VALUE;
   }
   if (!a) {
     return fmtDate(b);
@@ -145,7 +147,7 @@ export function seasonCount(story: CelestoryStory): number | null {
  * published handle, then a friendly fallback.
  */
 export function heroIdentity(story: CelestoryStory, handle: string): HeroIdentity {
-  const observerParts = (story.observer || '').split('—').map((s) => s.trim());
+  const observerParts = (story.observer || '').split(OBSERVER_PLACE_SEPARATOR).map((s) => s.trim());
   const name = observerParts[0] || story.observer || (handle ? handle : 'Astrophotographer');
   const place = observerParts[1] || story.site || '';
   const firstName = name.split(' ')[0];

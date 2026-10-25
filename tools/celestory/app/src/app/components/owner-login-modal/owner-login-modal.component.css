@@ -97,3 +97,41 @@
   width: 100%;
   margin-top: 1.4rem;
 }
+
+/* ---- recovery: field labels, secondary links ---- */
+.ol-label {
+  display: block;
+  margin: 0.9rem 0 0.35rem;
+  font-size: 0.75rem;
+  color: var(--db-color-text-muted);
+}
+.ol-label:first-of-type {
+  margin-top: 0;
+}
+.ol-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.35rem 0.6rem;
+  margin-top: 0.9rem;
+}
+.ol-links-sep {
+  color: var(--db-color-text-faint);
+}
+.ol-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-size: 0.8rem;
+  color: var(--db-color-text-link);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.ol-link:focus-visible {
+  outline: 2px solid var(--db-color-cyan);
+  outline-offset: 2px;
+  border-radius: 3px;
+}

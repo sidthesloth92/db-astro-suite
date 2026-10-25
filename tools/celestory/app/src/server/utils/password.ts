@@ -6,8 +6,8 @@ const scryptAsync = promisify(scrypt);
 /** scrypt key length (bytes). */
 const KEY_LEN = 32;
 
-/** Minimum acceptable password length. */
-export const MIN_PASSWORD_LENGTH = 6;
+/** Minimum acceptable password length (mirrored client-side in models/password.constants.ts). */
+export const MIN_PASSWORD_LENGTH = 8;
 
 /**
  * Hash a low-entropy user password for at-rest storage using scrypt (a memory-

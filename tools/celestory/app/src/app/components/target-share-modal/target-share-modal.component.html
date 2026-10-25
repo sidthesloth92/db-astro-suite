@@ -20,17 +20,17 @@
         <div class="ctrl-head">
           <p class="ctrl-eyebrow">Target card</p>
           <h2 id="tgt-share-title" class="ctrl-title">{{ target().displayName }}</h2>
-          <p class="ctrl-desc">A shareable snapshot of this target — integration, frames, filters, gear &amp; first light.</p>
+          <p class="ctrl-desc">A shareable snapshot of this target: integration, frames, filters, gear &amp; first light.</p>
         </div>
 
-        <!-- Your name & username — updates the shared identity live -->
+        <!-- Your name & username: saved in preview, card-only on a published profile -->
         <div class="grp grp-row">
           <label class="grp-col">
             <span class="grp-label">Your name</span>
             <input
               #idn
               class="sel ss-id-input"
-              [value]="session.identity().name"
+              [value]="cardIdentity().name"
               (input)="setIdentityName(idn.value)"
               placeholder="Your name"
               aria-label="Your name"
@@ -41,7 +41,7 @@
             <input
               #idh
               class="sel ss-id-input"
-              [value]="session.identity().username"
+              [value]="cardIdentity().username"
               (input)="setIdentityUsername(idh.value)"
               placeholder="username"
               aria-label="Your username"

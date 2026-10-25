@@ -59,7 +59,7 @@ existing=$(command -v "$COMPONENT" 2>/dev/null || true)
 if [ -n "$existing" ]; then
   cur=$("$existing" --version 2>/dev/null | awk '{print $NF}' || true)
   if [ -n "$cur" ] && [ "$cur" = "$version" ]; then
-    info "celestory $version is already installed ($existing) — nothing to do."
+    info "celestory $version is already installed ($existing). Nothing to do."
     exit 0
   fi
 fi

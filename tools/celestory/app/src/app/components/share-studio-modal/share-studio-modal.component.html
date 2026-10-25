@@ -96,7 +96,7 @@
             <input
               #idn
               class="sel ss-id-input"
-              [value]="session.identity().name"
+              [value]="cardIdentity().name"
               (input)="setIdentityName(idn.value)"
               placeholder="Your name"
               aria-label="Your name"
@@ -107,7 +107,7 @@
             <input
               #idh
               class="sel ss-id-input"
-              [value]="session.identity().username"
+              [value]="cardIdentity().username"
               (input)="setIdentityUsername(idh.value)"
               placeholder="username"
               aria-label="Your username"

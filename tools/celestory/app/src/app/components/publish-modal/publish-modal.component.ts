@@ -20,9 +20,18 @@ import { StoryService } from '../../services/story.service';
 import { slugifyHandle } from '../../utils/handle.util';
 import { publishErrorMessage } from '../../utils/publish-error.util';
 import { publishShrinkWarning } from '../../utils/publish-shrink.util';
+import { MIN_PASSWORD_LENGTH } from '../../models/password.constants';
+import { publishName } from '../../utils/display-identity.util';
+import { observerName, observerWithName } from '../../utils/observer-name.util';
+import { MAX_DISPLAY_NAME_LENGTH } from '../../models/observer.constants';
+import { canSaveProfile as profileIsSaveable, displayNameError } from '../../utils/profile-form.util';
+import { loadFailure } from '../../utils/load-failure.util';
+import type { PublishPhaseRequest } from '../../models/publish-phase.types';
+import type { ProfileChanges } from '../../models/api.model';
 import { IconButtonComponent, TextButtonComponent } from '@db-astro-suite/ui';
 import { copyToClipboard } from '../../utils/clipboard.util';
 import { CelIconComponent } from '../cel-icon/cel-icon.component';
+import { RecoveryCodePanelComponent } from '../recovery-code-panel/recovery-code-panel.component';
 
 /**
  * Publish flow — claim (handle + password) → publishing → live (permanent URL) →
@@ -34,7 +43,7 @@ import { CelIconComponent } from '../cel-icon/cel-icon.component';
 @Component({
   selector: 'dba-publish-modal',
   standalone: true,
-  imports: [TextButtonComponent, IconButtonComponent, CelIconComponent],
+  imports: [TextButtonComponent, IconButtonComponent, CelIconComponent, RecoveryCodePanelComponent],
   templateUrl: './publish-modal.component.html',
   styleUrl: './publish-modal.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -49,20 +58,24 @@ export class PublishModalComponent implements OnInit {
   readonly story = input.required<CelestoryStory>();
   /** The current handle (set when already published), prefilled in the form. */
   readonly currentHandle = input<string>('');
-  /** Open straight to a phase ('delete'); '' starts the normal flow. */
-  readonly initialPhase = input<'' | 'delete'>('');
+  /** Open straight to an owner screen ('delete' | 'edit' | 'password'); '' starts the publish flow. */
+  readonly initialPhase = input<PublishPhaseRequest>('');
 
   /** Emits the handle once published/updated, so the parent opens the profile. */
   readonly published = output<string>();
   /** Emits after a successful delete (returns to Private Preview). */
   readonly unpublished = output<void>();
+  /** Emits the (possibly new) handle after "Edit profile" saves, so the parent refreshes or navigates. */
+  readonly profileEdited = output<string>();
   /** Emits when the modal should close. */
   readonly closed = output<void>();
 
   /** Current phase. Opens straight on the single claim form (no create/update chooser). */
-  protected readonly phase = signal<'claim' | 'publishing' | 'live' | 'delete'>(
-    this.initialPhase() === 'delete' ? 'delete' : 'claim',
+  protected readonly phase = signal<'claim' | 'publishing' | 'live' | 'delete' | 'edit' | 'password'>(
+    'claim',
   );
+  /** Which success screen 'live' shows: a fresh publish, or an edited profile's new link. */
+  protected readonly liveVariant = signal<'published' | 'edited'>('published');
 
   protected readonly handle = signal(this.currentHandle());
   protected readonly password = signal('');
@@ -73,12 +86,51 @@ export class PublishModalComponent implements OnInit {
   /** True once the user has accepted a shrink warning, so the update proceeds. */
   private shrinkConfirmed = false;
   protected readonly copied = signal(false);
+  /** The new profile's one-time recovery code, shown once on the live screen ('' for updates). */
+  protected readonly recoveryCode = signal('');
+  /** Display name field (publish and edit screens). */
+  protected readonly displayName = signal('');
+  /** The profile's saved name when "Edit profile" opened (to detect a change). */
+  private readonly editInitialName = signal('');
+  /** Longest display name accepted (matches the server). */
+  protected readonly maxNameLength = MAX_DISPLAY_NAME_LENGTH;
+  /** Minimum new-password length, for the field hint. */
+  protected readonly MIN_PASSWORD = MIN_PASSWORD_LENGTH;
+  /** Change-password fields and outcome. */
+  protected readonly currentPassword = signal('');
+  protected readonly newPassword = signal('');
+  protected readonly passwordChanged = signal(false);
   /** Password entered to confirm deletion in the delete phase. */
   protected readonly deletePassword = signal('');
   protected readonly deleteError = signal('');
 
   /** Cleaned handle for the URL preview. */
   protected readonly clean = computed(() => slugifyHandle(this.handle()));
+  /** The story as sent: carries the Display name field (keeping any "— place") when set. */
+  private readonly storyToPublish = computed<CelestoryStory>(() => {
+    const story = this.story();
+    const name = this.displayName().trim();
+    return name ? { ...story, observer: observerWithName(story.observer, name) } : story;
+  });
+  /** Problem with the Display name field, or ''. */
+  protected readonly nameError = computed(() =>
+    displayNameError(this.displayName(), this.phase() === 'edit' && !!this.editInitialName()),
+  );
+  /** Edit profile: the typed handle differs from the profile's current one. */
+  protected readonly handleChanged = computed(() => this.clean() !== this.targetHandle());
+  /** Edit profile: the new handle already belongs to another profile. */
+  protected readonly handleTaken = computed(() => this.handleChanged() && this.exists());
+  /** Edit profile: something changed, is valid, and a changed handle is confirmed free. */
+  protected readonly canSaveProfile = computed(() =>
+    profileIsSaveable({
+      name: this.displayName(),
+      initialName: this.editInitialName(),
+      handle: this.clean(),
+      currentHandle: this.targetHandle(),
+      handleExists: this.serverExists(),
+      busy: this.busy(),
+    }),
+  );
   /**
    * The handle this device has already published (own profile), if any — from the
    * current route, the persisted session, or a profileId baked into the story.
@@ -97,6 +149,8 @@ export class PublishModalComponent implements OnInit {
    * or deleted shows as free again.
    */
   private readonly serverExists = signal<boolean | null>(null);
+  /** Set when the availability check couldn't reach the server (shown under the handle). */
+  protected readonly availabilityError = signal('');
   /** Debounce handle for the availability check. */
   private availabilityTimer: ReturnType<typeof setTimeout> | null = null;
   /**
@@ -131,13 +185,24 @@ export class PublishModalComponent implements OnInit {
    * required `story` input is only available once inputs are bound.
    */
   ngOnInit(): void {
-    if (this.initialPhase() === 'delete') {
-      // The `phase` field initialiser runs before inputs are bound, so it always
-      // defaults to 'claim'. Now that inputs are available, switch to delete.
-      this.phase.set('delete');
+    // The `phase` field initialiser runs before inputs are bound, so it always
+    // defaults to 'claim'. Now that inputs are available, open the right screen.
+    const requested = this.initialPhase();
+    if (requested === 'delete' || requested === 'password') {
+      this.phase.set(requested);
       return;
     }
-    const known = this.knownHandle();
+    if (requested === 'edit') {
+      const saved = observerName(this.story().observer);
+      this.displayName.set(saved);
+      this.editInitialName.set(saved);
+      this.handle.set(this.targetHandle());
+      this.phase.set('edit');
+      return;
+    }
+    this.displayName.set(publishName(this.story(), this.session.identity()));
+    // Prefill: a handle this device already owns, else the username edited in preview.
+    const known = this.knownHandle() || slugifyHandle(this.session.identity().username);
     if (known) {
       this.handle.set(known);
     }
@@ -156,9 +221,10 @@ export class PublishModalComponent implements OnInit {
 
   /**
    * Debounced live check of whether the typed handle is already published, so
-   * "already exists" reflects the server — not stale client ownership. A 404
-   * (or any error) means free; a 200 means taken. Out-of-order responses are
-   * ignored by re-checking the current handle before applying the result.
+   * "already exists" reflects the server — not stale client ownership. A 200
+   * means taken and only a 404 means free; any other failure leaves it unknown
+   * and says so, so an outage can't make a taken handle look available.
+   * Out-of-order responses are ignored by re-checking the current handle.
    */
   private checkAvailability(): void {
     if (this.availabilityTimer) {
@@ -166,6 +232,7 @@ export class PublishModalComponent implements OnInit {
     }
     const handle = this.clean();
     this.serverExists.set(null);
+    this.availabilityError.set('');
     if (!handle) {
       return;
     }
@@ -179,9 +246,14 @@ export class PublishModalComponent implements OnInit {
               this.serverExists.set(true);
             }
           },
-          error: () => {
-            if (this.clean() === handle) {
+          error: (error: unknown) => {
+            if (this.clean() !== handle) {
+              return;
+            }
+            if (loadFailure(error) === 'not-found') {
               this.serverExists.set(false);
+            } else {
+              this.availabilityError.set('Couldn’t check that handle. Try again in a moment.');
             }
           },
         });
@@ -190,6 +262,100 @@ export class PublishModalComponent implements OnInit {
   /** Track the password input. */
   onPassword(value: string): void {
     this.password.set(value);
+  }
+  /** Track the Display name input. */
+  onDisplayName(value: string): void {
+    this.displayName.set(value);
+    this.error.set('');
+  }
+  /** Track the change-password inputs. */
+  onCurrentPassword(value: string): void {
+    this.currentPassword.set(value);
+    this.error.set('');
+  }
+  onNewPassword(value: string): void {
+    this.newPassword.set(value);
+    this.error.set('');
+  }
+
+  /**
+   * Edit profile: save the changed name and/or handle with the owner session.
+   * A handle change shows the "updated" link screen (the old URL is released);
+   * a name-only change closes and lets the parent re-fetch the profile.
+   */
+  saveProfile(): void {
+    if (!this.canSaveProfile()) {
+      return;
+    }
+    const token = this.session.token();
+    if (!token) {
+      this.error.set(publishErrorMessage('SESSION_INVALID'));
+      return;
+    }
+    const name = this.displayName().trim();
+    const changes: ProfileChanges = {
+      ...(name && name !== this.editInitialName() ? { name } : {}),
+      ...(this.handleChanged() ? { newHandle: this.clean() } : {}),
+    };
+    const fromHandle = this.targetHandle();
+    this.busy.set(true);
+    this.error.set('');
+    this.storyService
+      .updateProfile(fromHandle, changes, token)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (result) => {
+          this.busy.set(false);
+          this.session.setOwner({ handle: result.handle, token: result.token });
+          if (result.handle === fromHandle) {
+            this.profileEdited.emit(result.handle);
+            return;
+          }
+          this.handle.set(result.handle);
+          this.liveVariant.set('edited');
+          this.phase.set('live');
+        },
+        error: (err: HttpErrorResponse) => {
+          this.busy.set(false);
+          this.error.set(publishErrorMessage(err.error?.code, err.error?.details));
+        },
+      });
+  }
+
+  /** Change password: confirm the current one, set the new one, keep the owner logged in. */
+  changePassword(): void {
+    const current = this.currentPassword();
+    const next = this.newPassword();
+    if (!current) {
+      this.error.set('Enter your current password.');
+      return;
+    }
+    if (next.length < MIN_PASSWORD_LENGTH) {
+      this.error.set(`Choose a new password of at least ${MIN_PASSWORD_LENGTH} characters.`);
+      return;
+    }
+    const token = this.session.token();
+    if (!token) {
+      this.error.set(publishErrorMessage('SESSION_INVALID'));
+      return;
+    }
+    const handle = this.targetHandle();
+    this.busy.set(true);
+    this.error.set('');
+    this.storyService
+      .changePassword(handle, current, next, token)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (result) => {
+          this.busy.set(false);
+          this.session.setOwner({ handle, token: result.token });
+          this.passwordChanged.set(true);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.busy.set(false);
+          this.error.set(publishErrorMessage(err.error?.code, err.error?.details));
+        },
+      });
   }
 
   /** Submit the claim/update form. Updates first check for an accidental shrink. */
@@ -208,8 +374,8 @@ export class PublishModalComponent implements OnInit {
       );
       return;
     }
-    if (!this.exists() && password.length < 6) {
-      this.error.set('Choose a password of at least 6 characters.');
+    if (!this.exists() && password.length < MIN_PASSWORD_LENGTH) {
+      this.error.set(`Choose a password of at least ${MIN_PASSWORD_LENGTH} characters.`);
       return;
     }
     this.error.set('');
@@ -226,11 +392,6 @@ export class PublishModalComponent implements OnInit {
     this.shrinkConfirmed = true;
     this.shrinkWarning.set('');
     this.publish(this.clean(), this.password());
-  }
-
-  /** Dismiss the shrink warning without publishing. */
-  cancelShrink(): void {
-    this.shrinkWarning.set('');
   }
 
   /**
@@ -272,13 +433,15 @@ export class PublishModalComponent implements OnInit {
     const mode = forceMode ?? this.intent();
     const request$: Observable<CreateStoryResult | UpdateStoryResult> =
       mode === 'update'
-        ? this.storyService.updateStory(handle, this.story(), { password })
-        : this.storyService.createStory(handle, password, this.story());
+        ? this.storyService.updateStory(handle, this.storyToPublish(), { password })
+        : this.storyService.createStory(handle, password, this.storyToPublish());
     request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (result) => {
         // Both create and update return a management session token: the
         // publisher lands directly in owner mode for this tab.
         this.session.setOwner({ handle, token: result.token });
+        // Only a create issues a recovery code; an update keeps the existing one.
+        this.recoveryCode.set('recoveryCode' in result ? result.recoveryCode : '');
         const wait = Math.max(0, 1600 - (Date.now() - startedAt));
         setTimeout(() => {
           this.busy.set(false);
@@ -305,7 +468,7 @@ export class PublishModalComponent implements OnInit {
           this.error.set('');
           this.publish(handle, password, 'create');
         } else {
-          this.error.set(publishErrorMessage(code));
+          this.error.set(publishErrorMessage(code, err.error?.details));
           this.phase.set('claim');
         }
       },
@@ -333,13 +496,17 @@ export class PublishModalComponent implements OnInit {
         },
         error: (err: HttpErrorResponse) => {
           this.busy.set(false);
-          this.deleteError.set(publishErrorMessage(err.error?.code));
+          this.deleteError.set(publishErrorMessage(err.error?.code, err.error?.details));
         },
       });
   }
 
-  /** Open the published profile — the user page plays the branded reveal on load. */
+  /** Open the published (or just re-addressed) profile — the user page plays the branded reveal on load. */
   openProfile(): void {
+    if (this.liveVariant() === 'edited') {
+      this.profileEdited.emit(this.clean());
+      return;
+    }
     this.published.emit(this.clean());
   }
 

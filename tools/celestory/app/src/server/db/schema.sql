@@ -12,11 +12,14 @@
 -- ── Published profiles ────────────────────────────────────────────────────────
 -- One row per claimed handle. The full story blob is stored verbatim for
 -- rendering; headline totals are denormalized for cheap listing/sorting. The
--- password gates updates/deletes and mints the owner session token.
+-- password gates updates/deletes and mints the owner session token; the
+-- recovery code resets a forgotten password.
 CREATE TABLE stories (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   handle TEXT UNIQUE NOT NULL,
   password_hash TEXT,
+  -- scrypt hash of the one-time recovery code (normalized form); rotated on use.
+  recovery_hash TEXT,
   story_json TEXT NOT NULL,
   total_integration_seconds BIGINT,
   target_count INT,
@@ -121,6 +124,18 @@ CREATE TABLE story_uploads (
   uploaded_at TIMESTAMP DEFAULT NOW()
 );
 
+-- ── Rate limits ───────────────────────────────────────────────────────────────
+-- Fixed-window abuse counters for the write endpoints (publish, login, update,
+-- delete, pings). `key` names the bucket, window size and subject, e.g.
+-- `login-fail:900:handle:vera` or `ping:3600:ip:<hmac>` — client IPs are stored
+-- only as a keyed hash, never raw. Rows older than two days are swept.
+CREATE TABLE rate_limits (
+  key TEXT NOT NULL,
+  window_start TIMESTAMPTZ NOT NULL,
+  count INT NOT NULL DEFAULT 0,
+  PRIMARY KEY (key, window_start)
+);
+
 -- ── Indexes ───────────────────────────────────────────────────────────────────
 -- (stories.handle is already indexed by its UNIQUE constraint.)
 CREATE INDEX idx_story_targets_story_id        ON story_targets(story_id);
@@ -138,3 +153,4 @@ CREATE INDEX idx_story_equipment_months_month    ON story_equipment_months(month
 CREATE INDEX idx_story_equipment_months_equip_id ON story_equipment_months(equipment_id);
 CREATE INDEX idx_story_uploads_install         ON story_uploads(install_id);
 CREATE INDEX idx_story_uploads_profile         ON story_uploads(profile_id);
+CREATE INDEX idx_rate_limits_window_start      ON rate_limits(window_start);

@@ -1,16 +1,17 @@
 import { RouteMeta } from '@analogjs/router';
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import {
   FormControl,
   FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ConstellationFieldComponent, TextButtonComponent } from '@db-astro-suite/ui';
 import { CelestoryWordmarkComponent } from '../components/celestory-wordmark/celestory-wordmark.component';
 import { CONTACT_EMAIL } from '../models/contact.constants';
 import { buildMailtoUrl } from '../utils/contact.util';
+import { SiteFooterComponent } from '../components/site-footer/site-footer.component';
 
 /**
  * Contact page — a privacy-first "say hello" form. Submitting composes a
@@ -27,12 +28,18 @@ import { buildMailtoUrl } from '../utils/contact.util';
     ConstellationFieldComponent,
     TextButtonComponent,
     CelestoryWordmarkComponent,
+    SiteFooterComponent,
   ],
   templateUrl: './contact.page.html',
   styleUrl: './contact.page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export default class ContactPageComponent {
+export default class ContactPageComponent implements OnInit {
+  private readonly route = inject(ActivatedRoute);
+
+  /** Shown as text for visitors without a mail app. */
+  protected readonly contactEmail = CONTACT_EMAIL;
+
   /** Typed contact form; email + message are required. */
   protected readonly form = new FormGroup({
     name: new FormControl('', { nonNullable: true }),
@@ -69,17 +76,22 @@ export default class ContactPageComponent {
     this.sent.set(true);
   }
 
-  /** Current year, shown in the footer. */
-  protected readonly year = new Date().getFullYear();
+  /** Prefill the subject from `?subject=` (the "Report this profile" link sets it). */
+  ngOnInit(): void {
+    const subject = this.route.snapshot.queryParamMap.get('subject');
+    if (subject) {
+      this.form.controls.subject.setValue(subject.slice(0, 120));
+    }
+  }
 }
 
 export const routeMeta: RouteMeta = {
-  title: 'Celestory — Contact',
+  title: 'Celestory · Contact',
   meta: [
     {
       name: 'description',
       content:
-        'Questions, feedback, or a bug in the charts? Send a note — it opens your mail app, pre-filled. Nothing is stored or sent without you.',
+        'Questions, feedback, or a bug in the charts? Send a note. It opens your mail app, pre-filled. Nothing is stored or sent without you.',
     },
   ],
 };

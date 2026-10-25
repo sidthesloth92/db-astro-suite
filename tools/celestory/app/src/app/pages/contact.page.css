@@ -286,3 +286,13 @@ footer {
 .foot-inner a:hover {
   color: var(--ink);
 }
+
+/* Email shown as text for visitors without a mail app. */
+.intro-email {
+  margin-top: 0.6rem;
+  font-size: 0.9rem;
+}
+.intro-email a {
+  color: var(--db-color-cyan);
+  text-underline-offset: 3px;
+}

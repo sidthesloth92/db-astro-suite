@@ -45,7 +45,7 @@ export default class DemoPageComponent implements OnInit {
   private applyMeta(): void {
     const summary = SAMPLE_STORY.summary;
     const hours = formatHours(summary.totalIntegrationSeconds);
-    const title = `Celestory — @${SAMPLE_HANDLE}'s journey (demo)`;
+    const title = `Celestory · @${SAMPLE_HANDLE}'s journey (demo)`;
     const description = `${summary.targetCount} targets · ${hours}h integration · ${summary.nightCount} nights imaged.`;
     const origin = resolveOrigin(this.baseUrl);
     const url = origin ? `${origin}/demo` : null;

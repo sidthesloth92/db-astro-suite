@@ -34,7 +34,7 @@ func Run(defaults Choices) (Choices, bool, error) {
 				Validate(validateExistingDir),
 			huh.NewInput().
 				Title("Where should I save celestory.json?").
-				Description("celestory.json is written here — upload it to the Celestory web app to visualise.").
+				Description("celestory.json is written here. Upload it to the Celestory web app to visualise.").
 				Value(&c.OutputDir).
 				SuggestionsFunc(func() []string { return dirSuggestions(c.OutputDir) }, &c.OutputDir).
 				Validate(validateExistingDir),

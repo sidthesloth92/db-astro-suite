@@ -1,7 +1,7 @@
 {
   "name": "Celestory",
   "short_name": "Celestory",
-  "description": "Chart your astrophotography journey under the stars — privacy-first, rendered entirely in your browser.",
+  "description": "Chart your astrophotography journey under the stars. Privacy-first, rendered entirely in your browser.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#05060A",

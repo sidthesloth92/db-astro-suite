@@ -16,6 +16,8 @@ import { provideFileRouter, requestContextInterceptor } from '@analogjs/router';
 import {
   AnalyticsService,
   GoogleAnalyticsService,
+  LocalStorageService,
+  STORAGE_SERVICE_TOKEN,
   provideRouteAnalytics,
 } from '@db-astro-suite/ui';
 
@@ -32,6 +34,7 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withFetch(), withInterceptors([requestContextInterceptor])),
     provideClientHydration(withEventReplay()),
     { provide: AnalyticsService, useClass: GoogleAnalyticsService },
+    { provide: STORAGE_SERVICE_TOKEN, useClass: LocalStorageService },
     provideRouteAnalytics(),
   ],
 };

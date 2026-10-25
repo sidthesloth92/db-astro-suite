@@ -6,7 +6,14 @@
  * client payload — it is assigned only by the password-gated publish claim.
  */
 import { getDb } from './db';
-import { PingIdentityError } from './celestory.error';
+import { PingIdentityError, PingInvalidError } from './celestory.error';
+import { MAX_TARGETS } from './story.constants';
+import {
+  DATA_FINGERPRINT_PATTERN,
+  INSTALL_ID_PATTERN,
+  MAX_PING_INTEGRATION_SECONDS,
+  MAX_PING_LIGHT_FRAMES,
+} from './uploads.constants';
 import type { CommunityStats, StoryUpload } from './story.model';
 
 /** Read a finite, non-negative integer from a record field, defaulting to 0. */
@@ -25,8 +32,10 @@ function strField(record: Record<string, unknown>, field: string): string {
 
 /**
  * Validate an unknown request body into a StoryUpload. Throws PingIdentityError
- * when the upload identity (installId + dataFingerprint) is absent. Any
- * client-supplied profile id is deliberately ignored.
+ * when the upload identity (installId + dataFingerprint) is absent, and
+ * PingInvalidError when it isn't in the CLI's format or a total is beyond any
+ * real library (so scripted pings can't push the community counters around).
+ * Any client-supplied profile id is deliberately ignored.
  */
 export function parseUpload(raw: unknown): StoryUpload {
   const record =
@@ -38,13 +47,24 @@ export function parseUpload(raw: unknown): StoryUpload {
   if (!installId || !dataFingerprint) {
     throw new PingIdentityError();
   }
-  return {
+  if (!INSTALL_ID_PATTERN.test(installId) || !DATA_FINGERPRINT_PATTERN.test(dataFingerprint)) {
+    throw new PingInvalidError('Upload identity is not in the Celestory CLI format.');
+  }
+  const upload: StoryUpload = {
     installId,
     dataFingerprint,
     totalIntegrationSeconds: intField(record, 'totalIntegrationSeconds'),
     lightFrameCount: intField(record, 'lightFrameCount'),
     targetCount: intField(record, 'targetCount'),
   };
+  if (
+    upload.totalIntegrationSeconds > MAX_PING_INTEGRATION_SECONDS ||
+    upload.lightFrameCount > MAX_PING_LIGHT_FRAMES ||
+    upload.targetCount > MAX_TARGETS
+  ) {
+    throw new PingInvalidError('Upload totals are out of range.');
+  }
+  return upload;
 }
 
 /**

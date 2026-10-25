@@ -5,6 +5,8 @@ import { verifyPassword } from '../../../../utils/password';
 import { authorizeSession, extractBearer } from '../../../../utils/session-token';
 import { success, toErrorResponse } from '../../../../utils/respond';
 import { BadPasswordError, SessionInvalidError, StoryNotFoundError } from '../../../../utils/celestory.error';
+import { consumeRateLimit, handleSubject } from '../../../../utils/rate-limit';
+import { LOGIN_FAILURE_LIMIT } from '../../../../utils/rate-limit.constants';
 
 /**
  * Delete — a destructive action confirmed with the profile password. A profile
@@ -32,9 +34,13 @@ export default defineEventHandler(async (event) => {
     if (row.password_hash) {
       // Profiles with a password must re-confirm it to delete — the owner
       // session token alone is not sufficient for this destructive action.
+      // Wrong passwords share the handle's login-failure limit; the counted
+      // hit is refunded when the password is right.
+      const attempt = await consumeRateLimit(LOGIN_FAILURE_LIMIT, handleSubject(handle));
       if (!(await verifyPassword(password, row.password_hash))) {
         throw new BadPasswordError();
       }
+      await attempt.refund();
     } else if (!authorizeSession(token, handle, row.id)) {
       // Legacy profiles without a password fall back to the session token.
       throw new SessionInvalidError();

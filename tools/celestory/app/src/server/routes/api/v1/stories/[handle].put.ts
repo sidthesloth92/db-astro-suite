@@ -9,118 +9,151 @@ import { authorizeSession, extractBearer, signSession } from '../../../../utils/
 import { recordUpload, claimUploads } from '../../../../utils/uploads';
 import { success, toErrorResponse } from '../../../../utils/respond';
 import { BadPasswordError, StoryNotFoundError } from '../../../../utils/celestory.error';
+import { consumeRateLimit, handleSubject } from '../../../../utils/rate-limit';
+import { assertDeclaredStorySize, assertStorySize } from '../../../../utils/story-size.util';
+import { toStoredStory, withStoredObserver } from '../../../../utils/stored-story.util';
+import { LOGIN_FAILURE_LIMIT, UPDATE_LIMIT } from '../../../../utils/rate-limit.constants';
+import type { Story } from '../../../../utils/story.types';
+import type { StoryTotals } from '../../../../utils/story.model';
 
 /**
  * ③ Update — re-publish an existing handle with a fresh story. Authorized by a
  * management session token (logged-in owner) OR the profile password (landing
  * re-upload flow); then replaces the story + recomputed totals and rebuilds
  * the child rows, all in a single transaction. The handle is unchanged; a fresh
- * session token is returned so the owner stays logged in.
+ * session token is returned so the owner stays logged in. Rate-limited per
+ * handle: the hit is counted up front (so parallel requests can't slip under
+ * the limit) and refunded if the update fails. A wrong password counts against
+ * the same login-failure limit as owner login, so this route can't bypass it.
  */
 export default defineEventHandler(async (event) => {
   try {
     const handle = normalizeHandle(getRouterParam(event, 'handle'));
-    const body = await readBody<{ story?: unknown; password?: unknown }>(event);
-    const password = typeof body?.password === 'string' ? body.password : '';
-    const token = extractBearer(getHeader(event, 'authorization'));
-    const story = validateStory(body?.story);
-    const rows = extractRows(story);
-    const storyJson = JSON.stringify(body?.story);
+    const subject = handleSubject(handle);
+    // Refuse oversized uploads from their declared size before any DB work.
+    assertDeclaredStorySize(event);
+    const updateHit = await consumeRateLimit(UPDATE_LIMIT, subject);
 
-    const sql = getDb();
-    const found = await sql`
-      SELECT id, password_hash FROM stories WHERE handle = ${handle} LIMIT 1
-    `;
-    if (found.length === 0) {
-      throw new StoryNotFoundError(handle);
+    let story: Story;
+    let totals: StoryTotals;
+    let storyId: string;
+    try {
+      const body = await readBody<{ story?: unknown; password?: unknown }>(event);
+      const password = typeof body?.password === 'string' ? body.password : '';
+      const token = extractBearer(getHeader(event, 'authorization'));
+      assertStorySize(body?.story);
+      story = validateStory(body?.story);
+      const rows = extractRows(story);
+
+      const sql = getDb();
+      const found = await sql`
+        SELECT id, password_hash, story_json::jsonb->>'observer' AS observer
+        FROM stories WHERE handle = ${handle} LIMIT 1
+      `;
+      if (found.length === 0) {
+        throw new StoryNotFoundError(handle);
+      }
+      const row = found[0] as { id: string; password_hash: string | null; observer: string | null };
+      // Stored (and served publicly) without the per-install identity fields,
+      // keeping the profile's saved name when the new file carries none.
+      const storyJson = JSON.stringify(
+        withStoredObserver(toStoredStory(body?.story), row.observer),
+      );
+      // A valid owner session token authorizes the edit; otherwise fall back to
+      // the profile password (used by the landing re-upload flow).
+      const viaSession = authorizeSession(token, handle, row.id);
+      if (!viaSession) {
+        const attempt = await consumeRateLimit(LOGIN_FAILURE_LIMIT, subject);
+        if (!row.password_hash || !(await verifyPassword(password, row.password_hash))) {
+          throw new BadPasswordError();
+        }
+        await attempt.refund();
+      }
+
+      storyId = row.id;
+      totals = rows.totals;
+
+      // Replace the story row and rebuild its child rows in one transaction, so
+      // a failure can never leave the profile and its leaderboard rows out of sync.
+      const rebuild = [
+        sql`
+          UPDATE stories SET
+            story_json = ${storyJson},
+            total_integration_seconds = ${totals.totalIntegrationSeconds},
+            target_count = ${totals.targetCount},
+            night_count = ${totals.nightCount},
+            light_frame_count = ${totals.lightFrameCount},
+            first_light = ${totals.firstLight},
+            latest_session = ${totals.latestSession}
+          WHERE id = ${storyId}
+        `,
+        sql`DELETE FROM story_targets WHERE story_id = ${storyId}`,
+        sql`DELETE FROM story_equipment WHERE story_id = ${storyId}`,
+        sql`DELETE FROM story_filters WHERE story_id = ${storyId}`,
+        sql`DELETE FROM story_target_months WHERE story_id = ${storyId}`,
+        sql`DELETE FROM story_filter_months WHERE story_id = ${storyId}`,
+        sql`DELETE FROM story_equipment_months WHERE story_id = ${storyId}`,
+        ...rows.targets.map(
+          (o) => sql`
+            INSERT INTO story_targets (
+              story_id, target_id, designation, category,
+              integration_seconds, light_frame_count, night_count
+            ) VALUES (
+              ${storyId}, ${o.targetId}, ${o.designation}, ${o.category},
+              ${o.integrationSeconds}, ${o.lightFrameCount}, ${o.nightCount}
+            )`,
+        ),
+        ...rows.equipment.map(
+          (e) => sql`
+            INSERT INTO story_equipment (
+              story_id, equipment_id, kind, subtype, display_name, normalized_key,
+              integration_seconds, light_frame_count, focal_length_mm, f_ratio
+            ) VALUES (
+              ${storyId}, ${e.equipmentId}, ${e.kind}, ${e.subtype}, ${e.displayName}, ${e.normalizedKey},
+              ${e.integrationSeconds}, ${e.lightFrameCount}, ${e.focalLengthMm}, ${e.fRatio}
+            )`,
+        ),
+        ...rows.filters.map(
+          (f) => sql`
+            INSERT INTO story_filters (
+              story_id, name, seconds, frames
+            ) VALUES (
+              ${storyId}, ${f.name}, ${f.seconds}, ${f.frames}
+            )`,
+        ),
+        ...rows.targetMonths.map(
+          (m) => sql`
+            INSERT INTO story_target_months (
+              story_id, target_id, designation, category,
+              month, integration_seconds, light_frame_count
+            ) VALUES (
+              ${storyId}, ${m.targetId}, ${m.designation}, ${m.category},
+              ${m.month}, ${m.integrationSeconds}, ${m.lightFrameCount}
+            )`,
+        ),
+        ...rows.filterMonths.map(
+          (m) => sql`
+            INSERT INTO story_filter_months (
+              story_id, name, month, seconds, frames
+            ) VALUES (
+              ${storyId}, ${m.name}, ${m.month}, ${m.seconds}, ${m.frames}
+            )`,
+        ),
+        ...rows.equipmentMonths.map(
+          (m) => sql`
+            INSERT INTO story_equipment_months (
+              story_id, equipment_id, month, integration_seconds, light_frame_count
+            ) VALUES (
+              ${storyId}, ${m.equipmentId}, ${m.month}, ${m.integrationSeconds}, ${m.lightFrameCount}
+            )`,
+        ),
+      ];
+      await sql.transaction(rebuild);
+    } catch (error) {
+      // The update didn't happen, so it doesn't count against the limit.
+      await updateHit.refund();
+      throw error;
     }
-    const row = found[0] as { id: string; password_hash: string | null };
-    // A valid owner session token authorizes the edit; otherwise fall back to
-    // the profile password (used by the landing re-upload flow).
-    const viaSession = authorizeSession(token, handle, row.id);
-    if (!viaSession && (!row.password_hash || !(await verifyPassword(password, row.password_hash)))) {
-      throw new BadPasswordError();
-    }
-
-    const storyId = row.id;
-    const { totals } = rows;
-
-    // Replace the story row and rebuild its child rows in one transaction, so
-    // a failure can never leave the profile and its leaderboard rows out of sync.
-    const rebuild = [
-      sql`
-        UPDATE stories SET
-          story_json = ${storyJson},
-          total_integration_seconds = ${totals.totalIntegrationSeconds},
-          target_count = ${totals.targetCount},
-          night_count = ${totals.nightCount},
-          light_frame_count = ${totals.lightFrameCount},
-          first_light = ${totals.firstLight},
-          latest_session = ${totals.latestSession}
-        WHERE id = ${storyId}
-      `,
-      sql`DELETE FROM story_targets WHERE story_id = ${storyId}`,
-      sql`DELETE FROM story_equipment WHERE story_id = ${storyId}`,
-      sql`DELETE FROM story_filters WHERE story_id = ${storyId}`,
-      sql`DELETE FROM story_target_months WHERE story_id = ${storyId}`,
-      sql`DELETE FROM story_filter_months WHERE story_id = ${storyId}`,
-      sql`DELETE FROM story_equipment_months WHERE story_id = ${storyId}`,
-      ...rows.targets.map(
-        (o) => sql`
-          INSERT INTO story_targets (
-            story_id, target_id, designation, category,
-            integration_seconds, light_frame_count, night_count
-          ) VALUES (
-            ${storyId}, ${o.targetId}, ${o.designation}, ${o.category},
-            ${o.integrationSeconds}, ${o.lightFrameCount}, ${o.nightCount}
-          )`,
-      ),
-      ...rows.equipment.map(
-        (e) => sql`
-          INSERT INTO story_equipment (
-            story_id, equipment_id, kind, subtype, display_name, normalized_key,
-            integration_seconds, light_frame_count, focal_length_mm, f_ratio
-          ) VALUES (
-            ${storyId}, ${e.equipmentId}, ${e.kind}, ${e.subtype}, ${e.displayName}, ${e.normalizedKey},
-            ${e.integrationSeconds}, ${e.lightFrameCount}, ${e.focalLengthMm}, ${e.fRatio}
-          )`,
-      ),
-      ...rows.filters.map(
-        (f) => sql`
-          INSERT INTO story_filters (
-            story_id, name, seconds, frames
-          ) VALUES (
-            ${storyId}, ${f.name}, ${f.seconds}, ${f.frames}
-          )`,
-      ),
-      ...rows.targetMonths.map(
-        (m) => sql`
-          INSERT INTO story_target_months (
-            story_id, target_id, designation, category,
-            month, integration_seconds, light_frame_count
-          ) VALUES (
-            ${storyId}, ${m.targetId}, ${m.designation}, ${m.category},
-            ${m.month}, ${m.integrationSeconds}, ${m.lightFrameCount}
-          )`,
-      ),
-      ...rows.filterMonths.map(
-        (m) => sql`
-          INSERT INTO story_filter_months (
-            story_id, name, month, seconds, frames
-          ) VALUES (
-            ${storyId}, ${m.name}, ${m.month}, ${m.seconds}, ${m.frames}
-          )`,
-      ),
-      ...rows.equipmentMonths.map(
-        (m) => sql`
-          INSERT INTO story_equipment_months (
-            story_id, equipment_id, month, integration_seconds, light_frame_count
-          ) VALUES (
-            ${storyId}, ${m.equipmentId}, ${m.month}, ${m.integrationSeconds}, ${m.lightFrameCount}
-          )`,
-      ),
-    ];
-    await sql.transaction(rebuild);
 
     // Log the re-publish as an upload event and (re)claim this install's
     // anonymous events under the handle, so a re-publish from a new install

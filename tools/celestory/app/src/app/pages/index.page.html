@@ -38,7 +38,7 @@
         <span class="beta-chip">Public beta</span>
         <h1 class="hero-headline">Your journey under the <em>stars</em>, charted.</h1>
         <p class="lead">
-          Point Celestory at your light frames. It reads every sub, every filter, every year — and
+          Point Celestory at your light frames. It reads every sub, every filter, every year, and
           renders a gallery-grade imaging journey, entirely in your browser.
         </p>
         <div class="cta-row">
@@ -72,7 +72,7 @@
         }
         <p class="privacy">
           <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>
-          Nothing is uploaded — your frames never leave this device
+          Your frames never leave this device. Your journey is drawn right in your browser.
         </p>
       </header>
 
@@ -87,7 +87,7 @@
             <div class="cell"><div class="cv">{{ targets() }}</div><div class="ck">Targets charted</div></div>
             <div class="cell"><div class="cv">{{ frames() }}</div><div class="ck">Light frames</div></div>
           </div>
-          <div class="foot">Updated nightly · counts are aggregate, never your data</div>
+          <div class="foot">Live · anonymous community totals</div>
         </div>
       </section>
 
@@ -97,8 +97,8 @@
         <h2 class="sec">You earned every photon.</h2>
         <p class="sub">Clear nights are rare and hard-won. The hours you spend chasing a target deserve more than a folder full of forgotten subs.</p>
         <div class="story-prose">
-          <p>Every session you battle light pollution, dew, drift and your own sleep to add a few more hours onto a target. That work scatters across drives and years — <b>thousands of frames almost no one ever sees.</b></p>
-          <p>Celestory reads it all back and gives it shape: every target you’ve pointed at, every filter you’ve stacked, every hour of integration — drawn into <span class="accent">one continuous account of your time under the sky.</span></p>
+          <p>Every session you battle light pollution, dew, drift and your own sleep to add a few more hours onto a target. That work scatters across drives and years: <b>thousands of frames almost no one ever sees.</b></p>
+          <p>Celestory reads it all back and gives it shape: every target you’ve pointed at, every filter you’ve stacked, every hour of integration, drawn into <span class="accent">one continuous account of your time under the sky.</span></p>
         </div>
       </section>
 
@@ -106,23 +106,23 @@
       <section class="block" id="features">
         <div class="chap"><span class="num">02</span><span class="rule"></span><span class="lbl">What’s inside</span></div>
         <h2 class="sec">Features</h2>
-        <p class="sub">Built for the photons, not the cloud — every number is computed in your browser.</p>
+        <p class="sub">Built for the photons. Every number is computed from your own files, right in your browser.</p>
         <div class="feat">
           <dba-ui-feature-card
             heading="Yours, privately"
-            body="Everything runs client-side. Your light frames, gear and skies never touch a server — the JSON stays on your machine."
+            body="Your light frames never leave your machine. Your journey is drawn in your browser from a small summary file, and only anonymous totals are counted until you choose to publish."
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>
           </dba-ui-feature-card>
           <dba-ui-feature-card
             heading="Made to share"
-            body="Gallery-grade cards and carousels in Observatory, Starfield and Nebula — sized for Instagram, Stories and X."
+            body="Gallery-grade cards and carousels in Observatory, Starfield and Nebula, sized for Instagram, Stories and X."
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="2.4" /><circle cx="17" cy="6" r="2.4" /><circle cx="17" cy="18" r="2.4" /><path d="M8.1 10.9l6.8-3.8M8.1 13.1l6.8 3.8" /></svg>
           </dba-ui-feature-card>
           <dba-ui-feature-card
             heading="Every photon counted"
-            body="Per-filter integration, nightly heat strips, multi-year target timelines and gear cross-links — the full account of your journey."
+            body="Per-filter integration, nightly heat strips, multi-year target timelines and gear cross-links: the full account of your journey."
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3" /><circle cx="12" cy="12" r="4.2" /></svg>
           </dba-ui-feature-card>
@@ -133,7 +133,7 @@
       <section class="block" id="how">
         <div class="chap"><span class="num">03</span><span class="rule"></span><span class="lbl">Get started</span></div>
         <h2 class="sec">INSTALLATION</h2>
-        <p class="sub">From your captures to a shareable journey — a tiny local CLI plus this browser app. No account, no cloud.</p>
+        <p class="sub">From your captures to a shareable journey: a tiny local CLI plus this browser app. No account needed. Publish only if you want a public page.</p>
 
         <div class="walk">
           <!-- Step 1 -->
@@ -141,7 +141,7 @@
             <div class="step-inner">
               <div class="step-text">
                 <div class="sh"><span class="sn">01</span><span class="st">Install &amp; scan your captures</span></div>
-                <div class="sd">Install the CLI, then point it at your captures — it reads your FITS headers and writes one <span class="mono">celestory.json</span>. Or just run <span class="mono">celestory</span> for a guided wizard.</div>
+                <div class="sd">Install the CLI, then point it at your captures. It reads your FITS headers and writes one <span class="mono">celestory.json</span>. Or just run <span class="mono">celestory</span> for a guided wizard.</div>
                 <div class="tabs" role="tablist">
                   @for (tool of installTools; track tool) {
                     <button type="button" class="tab" [class.on]="installTool() === tool" (click)="selectInstall(tool)">{{ installLabels[tool] }}</button>
@@ -173,7 +173,7 @@
             <div class="step-inner">
               <div class="step-text">
                 <div class="sh"><span class="sn">02</span><span class="st">Drop it into Celestory</span></div>
-                <div class="sd">Open the app and drag <span class="mono">celestory.json</span> onto the page. It's parsed right in your browser — nothing is uploaded.</div>
+                <div class="sd">Open the app and drag <span class="mono">celestory.json</span> onto the page. It's drawn right in your browser; the file itself isn't uploaded.</div>
                 <dba-ui-text-button class="step-btn" variant="secondary" size="lg" label="Upload your Celestory" (clicked)="fileInput.click()">
                   <svg slot="leading" class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M8 8l4-4 4 4" /><path d="M4 14v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" /></svg>
                 </dba-ui-text-button>
@@ -198,7 +198,7 @@
             <div class="step-inner">
               <div class="step-text">
                 <div class="sh"><span class="sn">03</span><span class="st">Preview &amp; share your journey</span></div>
-                <div class="sd">Your imaging journey renders instantly — share one season or your whole lifetime. Export gallery-grade cards and carousels for Instagram, Stories and X.</div>
+                <div class="sd">Your imaging journey renders instantly. Share one season or your whole lifetime. Export gallery-grade cards and carousels for Instagram, Stories and X.</div>
                 <dba-ui-text-button class="step-btn" variant="primary" size="lg" label="Visualize your Celestory" (clicked)="exploreSample()">
                   <svg slot="leading" class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" /><circle cx="12" cy="12" r="2.6" /></svg>
                 </dba-ui-text-button>
@@ -226,55 +226,7 @@
       </section>
     </div>
 
-    <footer>
-      <div class="foot-inner">
-        <div class="foot-brand">
-          <div class="brand"><dba-celestory-wordmark /></div>
-          <p>Turn your astrophotography history into a gallery-grade imaging journey — charted entirely in your browser.</p>
-          <p class="privacy">
-            <span class="d"></span> Your data never leaves your machine
-          </p>
-        </div>
-        <div class="foot-col">
-          <h4>DB Astro Suite</h4>
-          <a [href]="astrogramUrl" target="_blank" rel="noopener">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4" /><circle cx="12" cy="12" r="3.4" /><circle cx="17" cy="7" r="1.1" fill="currentColor" /></svg>
-            Astrogram
-          </a>
-          <a [href]="starwizzUrl" target="_blank" rel="noopener">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.1 5.1L19.5 9l-3.9 3.6 1 5.4L12 15.3 7.4 18l1-5.4L4.5 9l5.4-.9z" /></svg>
-            Starwizz
-          </a>
-          <a [href]="hubUrl" target="_blank" rel="noopener">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h13M13 6l6 6-6 6" /></svg>
-            All tools
-          </a>
-        </div>
-        <div class="foot-col">
-          <h4>Connect</h4>
-          <a [href]="aboutUrl" target="_blank" rel="noopener">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6" /><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6" /></svg>
-            About me
-          </a>
-          <a routerLink="/contact">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>
-            Contact
-          </a>
-          <a [href]="instagramUrl" target="_blank" rel="noopener">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none" /></svg>
-            Instagram
-          </a>
-          <a [href]="githubUrl" target="_blank" rel="noopener">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-.87-.01-1.71-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.5-1.11-1.5-.91-.64.07-.62.07-.62 1 .07 1.53 1.06 1.53 1.06.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.36-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.34 9.34 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.81-4.57 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.6.69.49A10.03 10.03 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z" /></svg>
-            GitHub
-          </a>
-        </div>
-      </div>
-      <div class="foot-bot">
-        <span>© {{ year }} Celestory · <a [href]="githubUrl" target="_blank" rel="noopener" class="foot-license">MIT License</a> · part of <a [href]="hubUrl" target="_blank" rel="noopener" class="foot-license">DB Astro Suite</a></span>
-        <span class="made">Charted under the <b>stars</b></span>
-      </div>
-    </footer>
+    <dba-site-footer />
 
     <!-- sticky mobile CTA -->
     <div class="sticky">

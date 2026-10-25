@@ -6,6 +6,7 @@
  */
 import type { EquipmentItem, Story } from '../utils/story.types';
 import type { OgEquipmentModel, OgProfileModel, OgTargetModel } from './og-card.model';
+import { EMPTY_VALUE } from '../../app/models/display.constants';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -39,7 +40,7 @@ function parseIso(iso: string): Date | null {
 /** "Nov 2023" from an ISO date, or "—". */
 function monthYear(iso: string): string {
   const d = parseIso(iso);
-  return d ? `${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}` : '—';
+  return d ? `${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}` : EMPTY_VALUE;
 }
 
 /** Four-digit year from an ISO date, or "". */
@@ -68,7 +69,7 @@ function mostUsedOn(story: Story, gear: EquipmentItem): string {
     const first = story.targets?.find((x) => x.id === (gear.targetIds ?? [])[0]);
     bestName = first ? first.designation || first.displayName : '';
   }
-  return bestName || '—';
+  return bestName || EMPTY_VALUE;
 }
 
 /** Map a story to the per-profile OG card model (headline stats + highlights). */
@@ -86,8 +87,8 @@ export function toProfileOgModel(story: Story, handle: string): OgProfileModel {
     targets: countLabel(s.targetCount),
     nights: countLabel(s.nightCount),
     frames: countLabel(s.lightFrameCount),
-    topTarget: topTarget ? topTarget.designation || topTarget.displayName : '—',
-    mostImaged: mostImaged ? mostImaged.designation || mostImaged.displayName : '—',
+    topTarget: topTarget ? topTarget.designation || topTarget.displayName : EMPTY_VALUE,
+    mostImaged: mostImaged ? mostImaged.designation || mostImaged.displayName : EMPTY_VALUE,
     longestNight: durationLabel(longestNight),
   };
 }
@@ -129,6 +130,6 @@ export function toEquipmentOgModel(
     targets: countLabel(e.targetCount),
     frames: countLabel(e.lightFrameCount),
     mostUsedOn: mostUsedOn(story, e),
-    inServiceYear: year ? `Since ${year}` : '—',
+    inServiceYear: year ? `Since ${year}` : EMPTY_VALUE,
   };
 }

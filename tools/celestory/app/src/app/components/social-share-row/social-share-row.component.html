@@ -9,7 +9,7 @@
   <div class="share-or"><span>or share to</span></div>
 }
 
-<div class="share-row">
+<div class="share-row" [class.share-row--stretch]="stretch()">
   @if (!showUrl()) {
     <button class="share-btn" type="button" [title]="copied() ? 'Copied' : 'Copy link'" (click)="copyLink()">
       <dba-cel-icon [name]="copied() ? 'check' : 'link'" [size]="15" />

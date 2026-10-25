@@ -1,0 +1,12 @@
+@if (consent.promptOpen()) {
+  <section class="cc" role="region" aria-label="Analytics consent">
+    <p class="cc-text">
+      Celestory uses Google Analytics to learn which features people use. Nothing loads unless you accept.
+      <a routerLink="/privacy">Privacy</a>
+    </p>
+    <div class="cc-actions">
+      <dba-ui-text-button variant="secondary" label="Decline" (clicked)="consent.decline()" />
+      <dba-ui-text-button variant="primary" label="Accept" (clicked)="consent.accept()" />
+    </div>
+  </section>
+}

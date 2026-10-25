@@ -11,7 +11,14 @@ import { isUniqueViolation } from '../../../utils/pg-error';
 import { recordUpload, claimUploads } from '../../../utils/uploads';
 import { success, toErrorResponse } from '../../../utils/respond';
 import { HandleTakenError, InvalidPasswordError } from '../../../utils/celestory.error';
+import { consumeRateLimit } from '../../../utils/rate-limit';
+import { PUBLISH_LIMIT } from '../../../utils/rate-limit.constants';
+import { clientIpSubject } from '../../../utils/client-ip.util';
+import { assertDeclaredStorySize, assertStorySize } from '../../../utils/story-size.util';
+import { toStoredStory } from '../../../utils/stored-story.util';
+import { formatRecoveryCode, generateRecoveryCode } from '../../../utils/recovery-code.util';
 import type { ExtractedRows } from '../../../utils/story.model';
+import type { Story } from '../../../utils/story.types';
 
 /**
  * Persist the story row plus its child rows in a single transaction. The id is
@@ -22,6 +29,7 @@ import type { ExtractedRows } from '../../../utils/story.model';
 async function persistStory(
   handle: string,
   passwordHash: string,
+  recoveryHash: string,
   storyJson: string,
   rows: ExtractedRows,
 ): Promise<string> {
@@ -32,11 +40,11 @@ async function persistStory(
   await sql.transaction([
     sql`
       INSERT INTO stories (
-        id, handle, password_hash, story_json,
+        id, handle, password_hash, recovery_hash, story_json,
         total_integration_seconds, target_count, night_count,
         light_frame_count, first_light, latest_session
       ) VALUES (
-        ${storyId}, ${handle}, ${passwordHash}, ${storyJson},
+        ${storyId}, ${handle}, ${passwordHash}, ${recoveryHash}, ${storyJson},
         ${totals.totalIntegrationSeconds}, ${totals.targetCount}, ${totals.nightCount},
         ${totals.lightFrameCount}, ${totals.firstLight}, ${totals.latestSession}
       )`,
@@ -101,31 +109,56 @@ async function persistStory(
 
 /**
  * ② Create — validate the uploaded story, claim the handle (password-protected),
- * persist the story and its child rows, and return the shareable URL plus a
- * management session token so the publisher lands directly in owner mode.
+ * persist the story and its child rows, and return the shareable URL, a
+ * management session token so the publisher lands directly in owner mode, and
+ * the profile's one-time recovery code (shown to the user once, never again).
+ * Rate-limited per client IP: the hit is counted up front (so parallel
+ * requests can't slip under the limit) and refunded if the publish fails.
  */
 export default defineEventHandler(async (event) => {
   try {
-    const body = await readBody<{ story?: unknown; handle?: unknown; password?: unknown }>(event);
-    const handle = normalizeHandle(body?.handle);
-    const password = typeof body?.password === 'string' ? body.password : '';
-    if (password.length < MIN_PASSWORD_LENGTH) {
-      throw new InvalidPasswordError();
-    }
-    const story = validateStory(body?.story);
-    const rows = extractRows(story);
+    // Refuse oversized uploads from their declared size before any DB work.
+    assertDeclaredStorySize(event);
+    const publishHit = await consumeRateLimit(PUBLISH_LIMIT, clientIpSubject(event));
 
-    const passwordHash = await hashPassword(password);
-    const storyJson = JSON.stringify(body?.story);
-
+    let handle: string;
+    let story: Story;
+    let rows: ExtractedRows;
     let storyId: string;
+    let recoveryCode: string;
     try {
-      storyId = await persistStory(handle, passwordHash, storyJson, rows);
-    } catch (dbError) {
-      if (isUniqueViolation(dbError)) {
-        throw new HandleTakenError(handle);
+      const body = await readBody<{ story?: unknown; handle?: unknown; password?: unknown }>(event);
+      handle = normalizeHandle(body?.handle);
+      const password = typeof body?.password === 'string' ? body.password : '';
+      if (password.length < MIN_PASSWORD_LENGTH) {
+        throw new InvalidPasswordError();
       }
-      throw dbError;
+      assertStorySize(body?.story);
+      story = validateStory(body?.story);
+      rows = extractRows(story);
+
+      // A one-time recovery code (stored only as a hash) resets a forgotten
+      // password; the plain code is returned once, in this response.
+      recoveryCode = generateRecoveryCode();
+      const [passwordHash, recoveryHash] = await Promise.all([
+        hashPassword(password),
+        hashPassword(recoveryCode),
+      ]);
+      // Stored (and served publicly) without the per-install identity fields.
+      const storyJson = JSON.stringify(toStoredStory(body?.story));
+
+      try {
+        storyId = await persistStory(handle, passwordHash, recoveryHash, storyJson, rows);
+      } catch (dbError) {
+        if (isUniqueViolation(dbError)) {
+          throw new HandleTakenError(handle);
+        }
+        throw dbError;
+      }
+    } catch (error) {
+      // Nothing was published, so it doesn't count against the limit.
+      await publishHit.refund();
+      throw error;
     }
 
     // Append the publish as an upload event (the log is append-only), then
@@ -155,6 +188,7 @@ export default defineEventHandler(async (event) => {
       url,
       handle,
       token: signSession(handle, storyId),
+      recoveryCode: formatRecoveryCode(recoveryCode),
     });
   } catch (error) {
     return toErrorResponse(event, error);

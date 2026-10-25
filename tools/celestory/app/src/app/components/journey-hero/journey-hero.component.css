@@ -70,62 +70,6 @@
   font-size: 13px;
   color: var(--db-color-text-dim);
 }
-.id-edit {
-  display: grid;
-  gap: 0.6rem;
-  width: min(320px, 100%);
-}
-.id-handle-row {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-.id-at {
-  font-family: var(--db-font-mono-code);
-  color: var(--db-color-text-faint);
-}
-.id-input {
-  flex: 1;
-  min-width: 0;
-  background: var(--db-color-surface-bg);
-  border: 1px solid var(--db-color-border-strong);
-  border-radius: 8px;
-  padding: 0.5rem 0.7rem;
-  color: var(--db-color-text-primary);
-  font-size: 0.95rem;
-  outline: none;
-}
-.id-input-name {
-  width: 100%;
-  font-family: var(--db-font-display-major);
-  font-weight: 700;
-  text-align: center;
-}
-.id-edit-actions {
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
-}
-.id-save,
-.id-cancel {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border-radius: 8px;
-  padding: 0.45rem 0.9rem;
-  font-size: 0.82rem;
-  cursor: pointer;
-}
-.id-save {
-  color: var(--db-color-text-primary);
-  background: var(--db-color-neon-pink);
-  border: 1px solid transparent;
-}
-.id-cancel {
-  color: var(--db-color-text-dim);
-  background: transparent;
-  border: 1px solid var(--db-color-border);
-}
 .hero-tagline {
   margin-top: 24px;
 }

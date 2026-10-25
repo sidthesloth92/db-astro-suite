@@ -1,6 +1,6 @@
 @if (profile(); as st) {
   <dba-journey-view state="published" [story]="st.story" [handle]="st.handle" (updated)="refresh()" />
-} @else if (state().status === 'error') {
+} @else if (failed()) {
   <dba-ui-constellation-field>
     <div class="neb" aria-hidden="true"></div>
     <main class="portfolio">
@@ -9,10 +9,18 @@
           <dba-celestory-wordmark />
         </a>
       </header>
-      <p class="missing">
-        No Celestory at this handle. <a routerLink="/">Make your own →</a>
-      </p>
+      @if (state().status === 'not-found') {
+        <p class="missing">
+          No Celestory at this handle. <a routerLink="/">Make your own →</a>
+        </p>
+      } @else {
+        <div class="missing" role="alert">
+          <p>This profile is temporarily unavailable. Please try again in a minute.</p>
+          <dba-ui-text-button variant="secondary" label="Try again" (clicked)="refresh()" />
+        </div>
+      }
     </main>
+    <dba-site-footer />
   </dba-ui-constellation-field>
 } @else {
   <dba-ui-constellation-field>
@@ -25,7 +33,7 @@
 <!-- Branded reveal as the loading/intro screen (browser only, on top of the -->
 <!-- content). Shown from page mount so the URL always opens with the animation; -->
 <!-- the hours count-up fills in once the story loads, then it removes itself to -->
-<!-- reveal the profile rendered beneath it. Hidden on a missing handle. -->
-@if (introActive() && state().status !== 'error') {
+<!-- reveal the profile rendered beneath it. Hidden when the profile can't be shown. -->
+@if (introActive() && !failed()) {
   <dba-processing-reveal [seconds]="introSeconds()" (done)="onIntroDone()" />
 }

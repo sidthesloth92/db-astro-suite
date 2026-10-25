@@ -34,19 +34,15 @@ import { CelestoryMarkComponent } from "../components/celestory-mark/celestory-m
 import { CelestoryWordmarkComponent } from "../components/celestory-wordmark/celestory-wordmark.component";
 import { UploadChoiceModalComponent } from "../components/upload-choice-modal/upload-choice-modal.component";
 import { PublishModalComponent } from "../components/publish-modal/publish-modal.component";
+import { SiteFooterComponent } from "../components/site-footer/site-footer.component";
 import type { CommunityStats } from "../models/community-stats.model";
 import {
-  ABOUT_URL,
-  ASTROGRAM_URL,
   GITHUB_URL,
-  HUB_URL,
-  INSTAGRAM_URL,
   INSTALL_COMMANDS,
   INSTALL_LABELS,
   INSTALL_TOOLS,
   RELEASES_URL,
   SCAN_COMMAND,
-  STARWIZZ_URL,
 } from "../models/landing.constants";
 import type { InstallTool } from "../models/landing.types";
 import type { CelestoryStory } from "../models/story.model";
@@ -79,6 +75,7 @@ const COUNT_UP_MS = 1600;
     CelestoryWordmarkComponent,
     UploadChoiceModalComponent,
     PublishModalComponent,
+    SiteFooterComponent,
   ],
   templateUrl: "./index.page.html",
   styleUrl: "./index.page.css",
@@ -124,18 +121,8 @@ export default class LandingPageComponent implements OnInit {
   protected readonly releasesUrl = RELEASES_URL;
   /** Scan command shown beneath the install command. */
   protected readonly scanCommand = SCAN_COMMAND;
-  /** DB Astro Suite hub URL the footer "All tools" link points back to. */
-  protected readonly hubUrl = HUB_URL;
   /** Public source repository, linked from the nav + footer GitHub icons. */
   protected readonly githubUrl = GITHUB_URL;
-  /** Astrogram tool page, linked from the footer "DB Astro Suite" column. */
-  protected readonly astrogramUrl = ASTROGRAM_URL;
-  /** Starwizz tool page, linked from the footer "DB Astro Suite" column. */
-  protected readonly starwizzUrl = STARWIZZ_URL;
-  /** Author's personal site, linked from the footer "Connect" column. */
-  protected readonly aboutUrl = ABOUT_URL;
-  /** DB Astro Suite Instagram, linked from the footer "Connect" column. */
-  protected readonly instagramUrl = INSTAGRAM_URL;
   /** Current year, shown in the footer copyright line. */
   protected readonly year = new Date().getFullYear();
 
@@ -200,9 +187,9 @@ export default class LandingPageComponent implements OnInit {
   /** Set the full social unfurl tags (with an absolute og:image) — SSR-rendered
    * for crawlers; routeMeta keeps the static title/description baseline. */
   ngOnInit(): void {
-    const title = "Celestory — Chart your journey under the stars";
+    const title = "Celestory · Chart your journey under the stars";
     const description =
-      "A privacy-first astrophotography journey. Your light frames never leave your machine — everything renders in your browser.";
+      "A privacy-first astrophotography journey. Your light frames never leave your machine. Everything renders in your browser.";
     const origin = resolveOrigin(this.baseUrl);
     applySocialMeta(this.meta, {
       title,
@@ -456,7 +443,7 @@ export default class LandingPageComponent implements OnInit {
 }
 
 export const routeMeta: RouteMeta = {
-  title: "Celestory — Chart your journey under the stars",
+  title: "Celestory · Chart your journey under the stars",
   // Baseline description; the full OG/Twitter unfurl set (with an absolute
   // og:image) is applied in the component's ngOnInit so it can use the request
   // origin. See applySocialMeta.
@@ -464,7 +451,7 @@ export const routeMeta: RouteMeta = {
     {
       name: "description",
       content:
-        "Point Celestory at your astrophotography light frames and get a gallery-grade chronicle of your imaging journey — every target, every filter, every photon, across every year — rendered entirely in your browser. Nothing is uploaded.",
+        "Point Celestory at your astrophotography light frames and get a gallery-grade chronicle of your imaging journey: every target, every filter, every photon, across every year. It's drawn right in your browser from a small summary file, and your light frames never leave your machine.",
     },
   ],
 };

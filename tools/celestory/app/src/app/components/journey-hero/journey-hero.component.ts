@@ -1,19 +1,14 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { BRAND_CYAN, BRAND_PINK } from '../../models/brand.constants';
 import type { JourneyState } from '../../models/journey.types';
 import type { CelestoryStory } from '../../models/story.model';
-import type { HeatStripView, HeroIdentity, Highlight, YearSpan } from '../../models/portfolio-view.types';
+import type { HeatStripView, Highlight, YearSpan } from '../../models/portfolio-view.types';
 import { SessionStore } from '../../services/session-store.service';
 import { targetRaDec } from '../../utils/celestial.util';
 import { formatCount, formatDuration } from '../../utils/format.util';
-import {
-  heatStrip,
-  heroIdentity,
-  highlights,
-  seasonCount,
-  yearSpan,
-} from '../../utils/portfolio.util';
-import { IconButtonComponent, TextButtonComponent } from '@db-astro-suite/ui';
+import { heatStrip, highlights, seasonCount, yearSpan } from '../../utils/portfolio.util';
+import { displayIdentity } from '../../utils/display-identity.util';
+import { TextButtonComponent } from '@db-astro-suite/ui';
 import { CelIconComponent } from '../cel-icon/cel-icon.component';
 import { CelestoryWordmarkComponent } from '../celestory-wordmark/celestory-wordmark.component';
 import { FilterDistributionComponent } from '../filter-distribution/filter-distribution.component';
@@ -29,13 +24,15 @@ let heroUid = 0;
  * background: identity → year-span moon-phase timeline → giant total integration
  * → key metrics → "Highlights of the journey" → filter distribution → nightly
  * activity heat strip. Emits share/publish/open-target intents to the shell.
+ * The name follows displayIdentity(): the viewer's own in preview, the
+ * profile's saved one elsewhere. Owners edit it via "Edit profile" (publish
+ * dialog); in preview it's set in the publish dialog or Share Studio.
  */
 @Component({
   selector: 'dba-journey-hero',
   standalone: true,
   imports: [
     TextButtonComponent,
-    IconButtonComponent,
     CelIconComponent,
     CelestoryWordmarkComponent,
     MoonPhaseTimelineComponent,
@@ -49,13 +46,13 @@ let heroUid = 0;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class JourneyHeroComponent {
-  /** Editable identity, persisted + shared with the Share Studio. */
-  protected readonly session = inject(SessionStore);
+  /** The viewer's browser-saved identity (used only in Private Preview). */
+  private readonly session = inject(SessionStore);
   /** The story to render. */
   readonly story = input.required<CelestoryStory>();
   /** The public handle (empty in Private Preview). */
   readonly handle = input<string>('');
-  /** Current journey state — gates the Publish action. */
+  /** Current journey state — gates the Publish action and picks whose name is shown. */
   readonly state = input.required<JourneyState>();
 
   /** Open the unified Share modal. */
@@ -73,15 +70,14 @@ export class JourneyHeroComponent {
   protected readonly cyan = BRAND_CYAN;
   protected readonly pink = BRAND_PINK;
 
-  /** Resolved identity (from the story). */
-  protected readonly identity = computed<HeroIdentity>(() => heroIdentity(this.story(), this.handle()));
-  /** Display name/username — the user's edited identity overrides the story's. */
-  protected readonly displayName = computed(() => this.session.identity().name || this.identity().name);
-  /** Bare username (no leading "@"); the template renders the "@" so we never double it.
-   * Falls back to the story-derived published handle when the user hasn't set one. */
-  protected readonly displayUsername = computed(() =>
-    (this.session.identity().username || this.identity().handle).replace(/^@+/, ''),
+  /** Name and username shown for this page type (see displayIdentity). */
+  private readonly shown = computed(() =>
+    displayIdentity(this.state(), this.story(), this.handle(), this.session.identity()),
   );
+  /** Display name for the "[Name]'s Celestory" lockup. */
+  protected readonly displayName = computed(() => this.shown().name);
+  /** Bare username (no leading "@"); the template renders the "@" so we never double it. */
+  protected readonly displayUsername = computed(() => this.shown().username.replace(/^@+/, ''));
   /** Possessive prefix for the "[Name]'s Celestory" lockup. */
   protected readonly lockupPrefix = computed(() => `${this.displayName()}'s`);
   /** Tagline that follows the effective (possibly edited) author name, not the static story name. */
@@ -90,36 +86,6 @@ export class JourneyHeroComponent {
     return first ? `${first}’s journey under the stars` : 'A journey under the stars';
   });
 
-  /** Inline identity editor. */
-  protected readonly editing = signal(false);
-  protected readonly editName = signal('');
-  protected readonly editUsername = signal('');
-
-  /** Open the identity editor, prefilled with the current values. */
-  startEdit(): void {
-    this.editName.set(this.displayName());
-    this.editUsername.set(this.displayUsername().replace(/^@/, ''));
-    this.editing.set(true);
-  }
-  /** Persist the edited identity (shared with the Share Studio) and close. */
-  saveEdit(): void {
-    this.session.setIdentity({
-      name: this.editName().trim(),
-      username: this.editUsername().trim().replace(/^@+/, ''),
-    });
-    this.editing.set(false);
-  }
-  /** Discard edits. */
-  cancelEdit(): void {
-    this.editing.set(false);
-  }
-  /** Track editor inputs. */
-  onEditName(value: string): void {
-    this.editName.set(value);
-  }
-  onEditUsername(value: string): void {
-    this.editUsername.set(value);
-  }
   /** First→latest year span. */
   protected readonly span = computed<YearSpan | null>(() => yearSpan(this.story()));
   /** Inclusive season count. */

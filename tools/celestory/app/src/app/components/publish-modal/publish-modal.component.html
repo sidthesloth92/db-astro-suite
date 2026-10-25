@@ -17,6 +17,22 @@
           <li><dba-cel-icon name="check" [size]="15" /> Share with fellow astrophotographers</li>
           <li><dba-cel-icon name="check" [size]="15" /> Update your profile anytime</li>
         </ul>
+        <label class="ob-field-label" for="ob-display-name">Display name</label>
+        <div class="ob-handle ob-name">
+          <input
+            #dn
+            id="ob-display-name"
+            [value]="displayName()"
+            (input)="onDisplayName(dn.value)"
+            [placeholder]="'Shown on your profile (optional)'"
+            [attr.maxlength]="maxNameLength"
+            autocomplete="name"
+            spellcheck="false"
+          />
+        </div>
+        @if (nameError()) {
+          <p class="ob-error" role="alert">{{ nameError() }}</p>
+        }
         <label class="ob-field-label">Handle</label>
         <div class="ob-handle">
           <span class="ob-handle-pfx">{{ host }}/user/</span>
@@ -30,10 +46,13 @@
             (keydown.enter)="submit()"
           />
         </div>
+        @if (availabilityError()) {
+          <p class="ob-error" role="alert">{{ availabilityError() }}</p>
+        }
         @if (exists()) {
           <div class="ob-exists" role="alert">
             <dba-cel-icon name="globe" [size]="14" />
-            <span><b>&#64;{{ clean() }}</b> already exists — publishing will <b>replace its data</b>. Enter that profile’s password to update it.</span>
+            <span><b>&#64;{{ clean() }}</b> already exists. Publishing will <b>replace its data</b>. Enter that profile’s password to update it.</span>
           </div>
         }
         <label class="ob-field-label">{{ exists() ? 'Password' : 'Set a password' }}</label>
@@ -49,14 +68,15 @@
             (keydown.enter)="submit()"
           />
         </div>
+        <p class="ob-public-note">
+          <b>What becomes public:</b> your handle, display name, targets, equipment, filters, imaging dates and totals.
+          Your FITS files and folder paths are never uploaded.
+        </p>
         @if (shrinkWarning()) {
           <p class="ob-error" role="alert">{{ shrinkWarning() }}</p>
           <dba-ui-text-button class="ob-full" variant="primary" size="lg" label="Publish anyway" [disabled]="busy()" (clicked)="publishAnyway()">
             <dba-cel-icon slot="leading" name="globe" [size]="15" />
           </dba-ui-text-button>
-          <button class="ob-back-link" type="button" (click)="cancelShrink()">
-            <dba-cel-icon name="back" [size]="14" /> Cancel
-          </button>
         } @else {
           @if (error()) {
             <p class="ob-error" role="alert">{{ error() }}</p>
@@ -106,9 +126,128 @@
         <button class="btn-danger ob-full" type="button" (click)="confirmDelete()" [disabled]="busy() || !canDelete()">
           <dba-cel-icon name="trash" [size]="15" /> Delete Profile Permanently
         </button>
-        <button class="ob-back-link" type="button" (click)="closed.emit()">
-          <dba-cel-icon name="back" [size]="14" /> Keep my profile
-        </button>
+      }
+
+      @case ('edit') {
+        <div class="ob-head">
+          <span class="eyebrow">Edit profile</span>
+          <h2>Edit Your Profile</h2>
+          <p>Change the name shown on your profile and the link it lives at.</p>
+        </div>
+        <label class="ob-field-label" for="ob-display-name">Display name</label>
+        <div class="ob-handle ob-name">
+          <input
+            #dn
+            id="ob-display-name"
+            [value]="displayName()"
+            (input)="onDisplayName(dn.value)"
+            [placeholder]="targetHandle()"
+            [attr.maxlength]="maxNameLength"
+            autocomplete="name"
+            spellcheck="false"
+          />
+        </div>
+        @if (nameError()) {
+          <p class="ob-error" role="alert">{{ nameError() }}</p>
+        }
+        <label class="ob-field-label" for="ob-edit-handle">Handle</label>
+        <div class="ob-handle">
+          <span class="ob-handle-pfx">{{ host }}/user/</span>
+          <input
+            #eh
+            id="ob-edit-handle"
+            [value]="handle()"
+            (input)="onHandle(eh.value)"
+            placeholder="username"
+            autocomplete="off"
+            spellcheck="false"
+            (keydown.enter)="saveProfile()"
+          />
+        </div>
+        @if (handleChanged() && availabilityError()) {
+          <p class="ob-error" role="alert">{{ availabilityError() }}</p>
+        } @else if (handleTaken()) {
+          <p class="ob-error" role="alert"><b>&#64;{{ clean() }}</b> is taken. Try another.</p>
+        } @else if (handleChanged() && clean()) {
+          <div class="ob-exists" role="note">
+            <dba-cel-icon name="globe" [size]="14" />
+            <span>Your link becomes <b>{{ urlPreview() }}</b>. Links to <b>/user/{{ targetHandle() }}</b> will stop working, and the old handle becomes free for anyone to claim.</span>
+          </div>
+        }
+        @if (error()) {
+          <p class="ob-error" role="alert">{{ error() }}</p>
+        }
+        <dba-ui-text-button
+          class="ob-full"
+          variant="primary"
+          size="lg"
+          [label]="busy() ? 'Saving…' : 'Save Changes'"
+          [disabled]="!canSaveProfile()"
+          (clicked)="saveProfile()"
+        >
+          @if (!busy()) {
+            <dba-cel-icon slot="leading" name="check" [size]="15" />
+          }
+        </dba-ui-text-button>
+      }
+
+      @case ('password') {
+        <div class="ob-head">
+          <span class="eyebrow">Security</span>
+          <h2>Change Your Password</h2>
+          <p>Enter your current password, then choose a new one for <b>&#64;{{ targetHandle() }}</b>.</p>
+        </div>
+        @if (passwordChanged()) {
+          <div class="ob-done" role="status">
+            <dba-cel-icon name="check" [size]="16" />
+            <span>Your password was changed. Use the new one next time you log in.</span>
+          </div>
+          <dba-ui-text-button class="ob-full" variant="primary" size="lg" label="Done" (clicked)="closed.emit()">
+            <dba-cel-icon slot="leading" name="check" [size]="15" />
+          </dba-ui-text-button>
+        } @else {
+          <label class="ob-field-label" for="ob-current-password">Current password</label>
+          <div class="ob-handle ob-pass">
+            <span class="ob-handle-pfx"><dba-cel-icon name="lock" [size]="15" /></span>
+            <input
+              #cp
+              id="ob-current-password"
+              type="password"
+              [value]="currentPassword()"
+              (input)="onCurrentPassword(cp.value)"
+              autocomplete="current-password"
+            />
+          </div>
+          <label class="ob-field-label" for="ob-new-password">New password</label>
+          <div class="ob-handle ob-pass">
+            <span class="ob-handle-pfx"><dba-cel-icon name="lock" [size]="15" /></span>
+            <input
+              #np
+              id="ob-new-password"
+              type="password"
+              [value]="newPassword()"
+              (input)="onNewPassword(np.value)"
+              [placeholder]="'At least ' + MIN_PASSWORD + ' characters'"
+              autocomplete="new-password"
+              (keydown.enter)="changePassword()"
+            />
+          </div>
+          @if (error()) {
+            <p class="ob-error" role="alert">{{ error() }}</p>
+          }
+          <dba-ui-text-button
+            class="ob-full"
+            variant="primary"
+            size="lg"
+            [label]="busy() ? 'Changing…' : 'Change Password'"
+            [disabled]="busy() || !currentPassword() || !newPassword()"
+            (clicked)="changePassword()"
+          >
+            @if (!busy()) {
+              <dba-cel-icon slot="leading" name="lock" [size]="15" />
+            }
+          </dba-ui-text-button>
+        }
       }
 
       @case ('publishing') {
@@ -132,9 +271,15 @@
         <!-- live -->
         <div class="ob-live-badge"><dba-cel-icon name="rocket" [size]="26" /></div>
         <div class="ob-head ob-head-center">
-          <span class="eyebrow">Published</span>
-          <h2>Your Journey Is Live</h2>
-          <p>Share it anywhere — anyone with the link can explore your sky.</p>
+          @if (liveVariant() === 'edited') {
+            <span class="eyebrow">Profile updated</span>
+            <h2>Your New Link Is Live</h2>
+            <p>Share your new link. The old one no longer works.</p>
+          } @else {
+            <span class="eyebrow">Published</span>
+            <h2>Your Journey Is Live</h2>
+            <p>Share it anywhere. Anyone with the link can explore your sky.</p>
+          }
         </div>
         <div class="ob-livelink">
           <span class="mono">{{ urlPreview() }}</span>
@@ -142,9 +287,19 @@
             {{ copied() ? 'Copied' : 'Copy' }}
           </button>
         </div>
-        <p class="ob-token-note ob-live-note">
-          You’re logged in as the owner on this tab — open your profile to edit or delete it anytime.
-        </p>
+        @if (recoveryCode()) {
+          <dba-recovery-code-panel [code]="recoveryCode()" />
+        }
+        @if (liveVariant() === 'edited') {
+          <p class="ob-token-note ob-live-note">
+            Set your handle in the Celestory CLI? Update it so re-uploads go to this profile:
+            <span class="mono">celestory --profile {{ clean() }}</span>
+          </p>
+        } @else {
+          <p class="ob-token-note ob-live-note">
+            You’re logged in as the owner on this tab. Open your profile to edit or delete it anytime.
+          </p>
+        }
         <dba-ui-text-button class="ob-full" variant="primary" size="lg" label="See Your Celestory" (clicked)="openProfile()">
           <dba-cel-icon slot="leading" name="arrow" [size]="15" />
         </dba-ui-text-button>

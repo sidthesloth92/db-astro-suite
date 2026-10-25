@@ -3,10 +3,13 @@ import { getDb } from '../../../../utils/db';
 import { normalizeHandle } from '../../../../utils/handle';
 import { success, toErrorResponse } from '../../../../utils/respond';
 import { StoryNotFoundError } from '../../../../utils/celestory.error';
+import { toStoredStory } from '../../../../utils/stored-story.util';
 
 /**
  * Return the stored story blob for a handle so the portfolio page can render
  * it. The blob is the source of truth; denormalized columns are for stats.
+ * Private fields are stripped on the way out too, so rows saved before
+ * stripping existed never expose them.
  */
 export default defineEventHandler(async (event) => {
   try {
@@ -33,7 +36,7 @@ export default defineEventHandler(async (event) => {
     return success('STORY_FOUND', 'Story found.', {
       handle: row.handle,
       createdAt: row.created_at,
-      story: JSON.parse(row.story_json) as unknown,
+      story: toStoredStory(JSON.parse(row.story_json) as unknown),
     });
   } catch (error) {
     return toErrorResponse(event, error);

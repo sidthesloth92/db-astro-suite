@@ -3,6 +3,7 @@
  * them to the standard { code, message, details } response shape with the
  * right HTTP status — no fragile string-matching on plain Error messages.
  */
+import { MIN_PASSWORD_LENGTH } from './password';
 
 /** Base class so a single catch can detect any domain error. */
 export class CelestoryError extends Error {
@@ -34,6 +35,13 @@ export class StoryValidationError extends CelestoryError {
   }
 }
 
+/** The uploaded story is larger than the publish limit. */
+export class PayloadTooLargeError extends CelestoryError {
+  constructor(maxBytes: number) {
+    super('STORY_TOO_LARGE', 'This story is too large to publish.', 413, { maxBytes });
+  }
+}
+
 /** An anonymous attempt ping was missing its upload identity. */
 export class PingIdentityError extends CelestoryError {
   constructor() {
@@ -42,6 +50,26 @@ export class PingIdentityError extends CelestoryError {
       'An attempt ping requires both installId and dataFingerprint.',
       400,
     );
+  }
+}
+
+/** An upload ping carried a malformed identity or out-of-range totals. */
+export class PingInvalidError extends CelestoryError {
+  constructor(message: string) {
+    super('PING_INVALID', message, 422);
+  }
+}
+
+/** Too many requests for this endpoint and subject within a rate-limit window. */
+export class RateLimitedError extends CelestoryError {
+  /** Seconds until the breached window resets (also sent as `Retry-After`). */
+  readonly retryAfterSeconds: number;
+
+  constructor(retryAfterSeconds: number) {
+    super('RATE_LIMITED', 'Too many attempts. Please try again later.', 429, {
+      retryAfterSeconds,
+    });
+    this.retryAfterSeconds = retryAfterSeconds;
   }
 }
 
@@ -86,7 +114,7 @@ export class SessionInvalidError extends CelestoryError {
 
 /** A password was required (create/update) but missing or too short. */
 export class InvalidPasswordError extends CelestoryError {
-  constructor(message = 'A password of at least 6 characters is required.') {
+  constructor(message = `A password of at least ${MIN_PASSWORD_LENGTH} characters is required.`) {
     super('PASSWORD_INVALID', message, 400);
   }
 }
@@ -95,6 +123,20 @@ export class InvalidPasswordError extends CelestoryError {
 export class BadPasswordError extends CelestoryError {
   constructor() {
     super('PASSWORD_INCORRECT', 'That password doesn’t match this profile.', 403);
+  }
+}
+
+/** A profile display name was empty, too long, or used the reserved separator. */
+export class NameInvalidError extends CelestoryError {
+  constructor(message: string) {
+    super('NAME_INVALID', message, 400);
+  }
+}
+
+/** The supplied recovery code did not match this profile (or was already used). */
+export class RecoveryCodeIncorrectError extends CelestoryError {
+  constructor() {
+    super('RECOVERY_CODE_INCORRECT', 'That recovery code doesn’t match this profile.', 403);
   }
 }
 

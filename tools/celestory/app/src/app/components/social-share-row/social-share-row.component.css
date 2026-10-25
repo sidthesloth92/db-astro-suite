@@ -4,6 +4,17 @@
   align-items: center;
   gap: 0.4rem;
 }
+/* Phones: one evenly spaced row across the full width (opt-in via [stretch]). */
+@media (max-width: 640px) {
+  .share-row--stretch {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+  }
+  .share-row--stretch .share-btn {
+    width: 100%;
+  }
+}
 
 /* URL + Copy row (shown when [showUrl] is set, e.g. in the share modals) */
 .share-url-row {

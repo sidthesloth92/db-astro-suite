@@ -40,6 +40,8 @@ import {
   parseDate,
   yearLabel,
 } from './share-format.util';
+import { EMPTY_VALUE } from '../models/display.constants';
+import { OBSERVER_PLACE_SEPARATOR } from '../models/observer.constants';
 
 void NIGHT_SECONDS;
 
@@ -1716,7 +1718,7 @@ function filterStacked(ctx: Ctx, x: number, y: number, w: number, hh: number, di
 
 /** Resolves the printed identity from the edited identity, else the observer line. */
 function objIdentity(model: ShareModel): { name: string; username: string } {
-  const op = (model.observer || '').split('—').map((x) => x.trim());
+  const op = (model.observer || '').split(OBSERVER_PLACE_SEPARATOR).map((x) => x.trim());
   return {
     name: model.identity.name || op[0] || model.observer || '',
     username: model.identity.username || op[1] || '',
@@ -2094,7 +2096,7 @@ function drawYearCard(ctx: Ctx, dims: Dims, model: ShareModel, t: ResolvedTheme)
   const wide = w > h * 1.15;
   const isStory = h > w * 1.3;
   const pad = w * (wide ? 0.06 : 0.085);
-  const yl = yearLabel(s.firstLight, s.latestSession) || '—';
+  const yl = yearLabel(s.firstLight, s.latestSession) || EMPTY_VALUE;
   const nm = cardName(model);
   const first = (nm || '').trim().split(' ')[0];
   const nF = presentFilters(s.filterDistribution).length;
@@ -3268,7 +3270,7 @@ function cardListBig(ctx: Ctx, rows: SlideRow[], x: number, w: number, y0: numbe
 
 /** Slide-index prefix ("02   —   ") for non-cover slides. */
 function slideIdx(dims: SlideDims): string {
-  return dims.index != null && dims.index > 0 ? `${String(dims.index + 1).padStart(2, '0')}   —   ` : '';
+  return dims.index != null && dims.index > 0 ? `${String(dims.index + 1).padStart(2, '0')}   ·   ` : '';
 }
 
 /** Big-headline slide hero (eyebrow + giant number + sub). */

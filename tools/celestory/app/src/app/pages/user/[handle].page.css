@@ -143,3 +143,6 @@
 .missing a {
   color: var(--db-color-neon-pink);
 }
+.missing p {
+  margin: 0 0 1rem;
+}

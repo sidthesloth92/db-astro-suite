@@ -46,23 +46,31 @@
                 </span>
               </div>
               <div class="banner-share">
-                <dba-cel-social-share-row [url]="profileUrl()" />
+                <dba-cel-social-share-row [url]="profileUrl()" [stretch]="true" />
                 <dba-ui-text-button variant="primary" label="Share" (clicked)="openShare()">
                   <dba-cel-icon slot="leading" name="share" [size]="14" />
                 </dba-ui-text-button>
               </div>
             </div>
             <div class="banner-owner">
-              <span class="banner-owner-label"><dba-cel-icon name="lock" [size]="13" /> Only you see these controls — visitors just see your story.</span>
-              <button class="banner-owner-act" type="button" [disabled]="editBusy()" (click)="editInput.click()">
-                <dba-cel-icon name="upload" [size]="13" /> {{ editBusy() ? 'Updating…' : 'Update with a new file' }}
-              </button>
-              <button class="banner-owner-del" type="button" (click)="openPublishDelete()">
-                <dba-cel-icon name="trash" [size]="13" /> Delete profile
-              </button>
-              <button class="banner-owner-out" type="button" (click)="logout()">
-                <dba-cel-icon name="back" [size]="13" /> Log out
-              </button>
+              <span class="banner-owner-label"><dba-cel-icon name="lock" [size]="13" /> Only you see these controls. Visitors just see your story.</span>
+              <div class="banner-owner-actions">
+                <button class="banner-owner-act" type="button" (click)="openEditProfile()">
+                  <dba-cel-icon name="edit" [size]="13" /> Edit profile
+                </button>
+                <button class="banner-owner-act" type="button" (click)="openChangePassword()">
+                  <dba-cel-icon name="lock" [size]="13" /> Change password
+                </button>
+                <button class="banner-owner-act" type="button" [disabled]="editBusy()" (click)="editInput.click()">
+                  <dba-cel-icon name="upload" [size]="13" /> {{ editBusy() ? 'Updating…' : 'Update with a new file' }}
+                </button>
+                <button class="banner-owner-del" type="button" (click)="openPublishDelete()">
+                  <dba-cel-icon name="trash" [size]="13" /> Delete profile
+                </button>
+                <button class="banner-owner-out" type="button" (click)="logout()">
+                  <dba-cel-icon name="back" [size]="13" /> Log out
+                </button>
+              </div>
               @if (editError()) {
                 <span class="banner-owner-err" role="alert">{{ editError() }}</span>
               }
@@ -115,6 +123,10 @@
       <dba-equipment-section [story]="story()" (open)="openEquipment($event)" />
     }
   </main>
+  <dba-site-footer
+    [variant]="state() === 'demo' ? 'full' : 'compact'"
+    [reportHandle]="state() === 'published' ? handle() : ''"
+  />
 
   <!-- Modals -->
   @if (showPublish()) {
@@ -123,6 +135,7 @@
       [currentHandle]="handle()"
       [initialPhase]="publishPhase()"
       (published)="onPublished($event)"
+      (profileEdited)="onProfileEdited($event)"
       (unpublished)="onUnpublished()"
       (closed)="showPublish.set(false)"
     />
@@ -157,6 +170,7 @@
   @if (showSky()) {
     <dba-planetarium
       [story]="story()"
+      [handle]="handle()"
       (closed)="closeSky()"
       (openEquipment)="skyToEquipment($event)"
     />

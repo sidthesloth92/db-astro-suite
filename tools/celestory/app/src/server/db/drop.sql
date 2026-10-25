@@ -14,6 +14,7 @@ DROP TABLE IF EXISTS story_targets CASCADE;
 DROP TABLE IF EXISTS story_equipment CASCADE;
 DROP TABLE IF EXISTS story_filters CASCADE;
 DROP TABLE IF EXISTS story_uploads CASCADE;
+DROP TABLE IF EXISTS rate_limits CASCADE;
 -- Legacy pre-rename names (object→target), in case an old DB is being wiped.
 DROP TABLE IF EXISTS story_object_months CASCADE;
 DROP TABLE IF EXISTS story_objects CASCADE;
