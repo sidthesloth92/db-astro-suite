@@ -29,6 +29,7 @@ import { applySocialMeta } from '../../utils/social-meta.util';
 import { profileShareMeta, type ProfileShareFocus } from '../../utils/profile-share-meta.util';
 import { loadFailure } from '../../utils/load-failure.util';
 import { setSsrStatus } from '../../utils/ssr-status.util';
+import { SiteFooterComponent } from '../../components/site-footer/site-footer.component';
 
 /** SSR baseline for the dynamic profile route — overwritten per-handle once the
  * story resolves; covers the loading state before the API responds. */
@@ -61,6 +62,7 @@ export const routeMeta: RouteMeta = {
     CelestoryWordmarkComponent,
     ProcessingRevealComponent,
     TextButtonComponent,
+    SiteFooterComponent,
   ],
   templateUrl: './[handle].page.html',
   styleUrl: './[handle].page.css',

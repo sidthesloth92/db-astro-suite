@@ -123,6 +123,10 @@
       <dba-equipment-section [story]="story()" (open)="openEquipment($event)" />
     }
   </main>
+  <dba-site-footer
+    [variant]="state() === 'demo' ? 'full' : 'compact'"
+    [reportHandle]="state() === 'published' ? handle() : ''"
+  />
 
   <!-- Modals -->
   @if (showPublish()) {

@@ -38,6 +38,7 @@ import { PublishModalComponent } from '../publish-modal/publish-modal.component'
 import { SectionBannerComponent } from '../section-banner/section-banner.component';
 import { ShareStudioModalComponent } from '../share-studio-modal/share-studio-modal.component';
 import { SocialShareRowComponent } from '../social-share-row/social-share-row.component';
+import { SiteFooterComponent } from '../site-footer/site-footer.component';
 
 /**
  * Shared journey shell rendered by /preview (Private Preview), /demo (Demo)
@@ -66,6 +67,7 @@ import { SocialShareRowComponent } from '../social-share-row/social-share-row.co
     ShareStudioModalComponent,
     TargetShareModalComponent,
     SocialShareRowComponent,
+    SiteFooterComponent,
     PlanetariumComponent,
   ],
   templateUrl: './journey-view.component.html',

@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { ConstellationFieldComponent } from '@db-astro-suite/ui';
 import { CelestoryWordmarkComponent } from '../components/celestory-wordmark/celestory-wordmark.component';
 import { setSsrStatus } from '../utils/ssr-status.util';
+import { SiteFooterComponent } from '../components/site-footer/site-footer.component';
 
 /** Any unmatched URL: a clear "not found" page, never indexed. */
 export const routeMeta: RouteMeta = {
@@ -20,7 +21,7 @@ export const routeMeta: RouteMeta = {
 @Component({
   selector: 'dba-celestory-not-found',
   standalone: true,
-  imports: [RouterLink, ConstellationFieldComponent, CelestoryWordmarkComponent],
+  imports: [RouterLink, ConstellationFieldComponent, CelestoryWordmarkComponent, SiteFooterComponent],
   templateUrl: './[...not-found].page.html',
   styleUrl: './user/[handle].page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

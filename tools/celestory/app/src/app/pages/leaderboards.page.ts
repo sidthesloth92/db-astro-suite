@@ -16,6 +16,7 @@ import { AnalyticsService, ConstellationFieldComponent } from '@db-astro-suite/u
 import { catchError, combineLatest, map, of, startWith, switchMap } from 'rxjs';
 import { CelestoryWordmarkComponent } from '../components/celestory-wordmark/celestory-wordmark.component';
 import { LeaderboardBoardComponent } from '../components/leaderboards/leaderboard-board.component';
+import { SiteFooterComponent } from '../components/site-footer/site-footer.component';
 import {
   BOARD_VIEWS,
   SCOPE_OPTIONS,
@@ -54,6 +55,7 @@ import { EMPTY_VALUE } from '../models/display.constants';
     ConstellationFieldComponent,
     CelestoryWordmarkComponent,
     LeaderboardBoardComponent,
+    SiteFooterComponent,
   ],
   templateUrl: './leaderboards.page.html',
   styleUrl: './leaderboards.page.scss',

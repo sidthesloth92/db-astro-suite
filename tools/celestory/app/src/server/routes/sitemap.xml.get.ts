@@ -20,6 +20,7 @@ export default defineEventHandler(async (event) => {
     { loc: `${origin}/leaderboards` },
     { loc: `${origin}/demo` },
     { loc: `${origin}/contact` },
+    { loc: `${origin}/privacy` },
   ];
 
   try {

@@ -35,6 +35,15 @@ export const ASTROGRAM_URL = `${HUB_URL}/tool/astrogram`;
 /** Starwizz tool page, linked from the footer "DB Astro Suite" column. */
 export const STARWIZZ_URL = `${HUB_URL}/tool/starwizz`;
 
+/** AstroSpike's page on the DB Astro Suite hub. */
+export const ASTROSPIKE_URL = `${HUB_URL}/tool/astrospike`;
+
+/** Sortronomy's page on the DB Astro Suite hub. */
+export const SORTRONOMY_URL = `${HUB_URL}/tool/sortronomy`;
+
+/** Celestory's docs (CLI README) on GitHub. */
+export const CELESTORY_DOCS_URL = `${GITHUB_URL}/tree/main/tools/celestory#readme`;
+
 /** Author's personal site, linked from the footer "Connect" column. */
 export const ABOUT_URL = 'https://dineshbalajiv.com';
 
