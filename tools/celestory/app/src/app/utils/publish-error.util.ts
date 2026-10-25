@@ -52,8 +52,8 @@ export function publishErrorMessage(code: unknown, details?: unknown): string {
     case 'RATE_LIMITED': {
       const seconds = detailNumber(details, 'retryAfterSeconds');
       return seconds === null
-        ? 'Too many attempts — please wait a while and try again.'
-        : `Too many attempts — try again in ${waitLabel(seconds)}.`;
+        ? 'Too many attempts. Please wait a while and try again.'
+        : `Too many attempts. Try again in ${waitLabel(seconds)}.`;
     }
     default:
       return 'Something went wrong. Please try again.';

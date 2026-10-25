@@ -253,7 +253,7 @@ export class PublishModalComponent implements OnInit {
             if (loadFailure(error) === 'not-found') {
               this.serverExists.set(false);
             } else {
-              this.availabilityError.set('Couldn’t check that handle — try again in a moment.');
+              this.availabilityError.set('Couldn’t check that handle. Try again in a moment.');
             }
           },
         });

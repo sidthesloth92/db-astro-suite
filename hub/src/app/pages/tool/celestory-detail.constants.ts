@@ -49,7 +49,7 @@ export const CELESTORY_DETAIL: ToolDetailConfig = {
     'Every capture you have ever taken already carries its own history — the target, the filter, the camera, the night — written into its FITS headers. Celestory reads that history straight from your files: point the CLI at your library and it builds a per-target integration timeline and an equipment ledger, deduplicated across every folder and disk you have ever scanned, then writes it all into a single celestory.json. The scan is read-only and fully offline, and the file carries no local paths. From there the web app takes over: drop the file on it for a private, in-browser chart of your journey — and if you want the world to see it, claim a handle, publish a public profile, and take your place on the community leaderboards.',
   ],
   aboutPull:
-    '“Your captures never leave your machine — only the story you choose to share does.”',
+    '“Your captures never leave your machine. Your story goes online only when you choose to publish it.”',
 
   features: [
     {

@@ -8,7 +8,7 @@ import { setSsrStatus } from '../utils/ssr-status.util';
 
 /** Any unmatched URL: a clear "not found" page, never indexed. */
 export const routeMeta: RouteMeta = {
-  title: 'Celestory — Page not found',
+  title: 'Celestory · Page not found',
   meta: [{ name: 'robots', content: 'noindex' }],
 };
 

@@ -464,7 +464,7 @@ export const routeMeta: RouteMeta = {
     {
       name: "description",
       content:
-        "Point Celestory at your astrophotography light frames and get a gallery-grade chronicle of your imaging journey — every target, every filter, every photon, across every year — rendered entirely in your browser. Nothing is uploaded.",
+        "Point Celestory at your astrophotography light frames and get a gallery-grade chronicle of your imaging journey: every target, every filter, every photon, across every year. It's drawn right in your browser from a small summary file, and your light frames never leave your machine.",
     },
   ],
 };

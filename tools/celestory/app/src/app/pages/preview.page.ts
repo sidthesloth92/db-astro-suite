@@ -13,7 +13,7 @@ import { PreviewStore } from '../services/preview-store.service';
  * the in-memory store and shows the empty state.
  */
 
-/** Private, transient page — never index it (nothing is uploaded/persisted). */
+/** Private, transient page: never index it (the staged story isn't persisted). */
 export const routeMeta: RouteMeta = {
   title: 'Celestory — Preview',
   meta: [{ name: 'robots', content: 'noindex, nofollow' }],

@@ -4,22 +4,22 @@ import { publishErrorMessage } from './publish-error.util';
 describe('publishErrorMessage', () => {
   it('tells the user how long to wait when rate-limited', () => {
     expect(publishErrorMessage('RATE_LIMITED', { retryAfterSeconds: 30 })).toBe(
-      'Too many attempts — try again in 1 minute.',
+      'Too many attempts. Try again in 1 minute.',
     );
     expect(publishErrorMessage('RATE_LIMITED', { retryAfterSeconds: 14 * 60 })).toBe(
-      'Too many attempts — try again in 14 minutes.',
+      'Too many attempts. Try again in 14 minutes.',
     );
     expect(publishErrorMessage('RATE_LIMITED', { retryAfterSeconds: 3 * 3600 })).toBe(
-      'Too many attempts — try again in 3 hours.',
+      'Too many attempts. Try again in 3 hours.',
     );
   });
 
   it('falls back to a generic wait when the retry time is missing', () => {
     expect(publishErrorMessage('RATE_LIMITED')).toBe(
-      'Too many attempts — please wait a while and try again.',
+      'Too many attempts. Please wait a while and try again.',
     );
     expect(publishErrorMessage('RATE_LIMITED', { retryAfterSeconds: 'soon' })).toBe(
-      'Too many attempts — please wait a while and try again.',
+      'Too many attempts. Please wait a while and try again.',
     );
   });
 

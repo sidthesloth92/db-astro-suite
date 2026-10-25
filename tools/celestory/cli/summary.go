@@ -17,7 +17,7 @@ const maxDuplicateSetsPrinted = 20
 const maxSkippedFilesPrinted = 20
 
 // webAppURL is the Celestory web app users drop their celestory.json onto to
-// visualise their journey — everything renders client-side, nothing is uploaded.
+// visualise their journey. It's drawn in the browser; FITS files never leave the machine.
 const webAppURL = "https://celestory.dbastrosuite.com"
 
 // Styles for the "Next steps" call-to-action, from the shared cliui theme.
@@ -64,7 +64,7 @@ func printNextSteps() {
 	fmt.Printf("    %s  Open  %s\n", stepNum.Render("1."), stepURL.Render(webAppURL))
 	fmt.Printf("    %s  Drop your  %s  onto the page\n", stepNum.Render("2."), stepFile.Render("celestory.json"))
 	fmt.Printf("    %s  Explore your journey\n", stepNum.Render("3."))
-	fmt.Println("       " + stepDim.Render("It renders entirely in your browser — nothing is uploaded."))
+	fmt.Println("       " + stepDim.Render("It's drawn in your browser. Your FITS files never leave this machine."))
 }
 
 // printSkipped lists files that could not be parsed (path + reason) on the

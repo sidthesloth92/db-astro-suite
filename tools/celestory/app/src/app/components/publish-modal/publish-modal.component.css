@@ -400,3 +400,15 @@
   font-size: 12.5px;
   line-height: 1.5;
 }
+
+/* "What becomes public" note above the claim button. */
+.ob-public-note {
+  margin: 0.9rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--db-color-text-faint);
+}
+.ob-public-note b {
+  color: var(--db-color-text-dim);
+  font-weight: 600;
+}

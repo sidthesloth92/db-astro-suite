@@ -68,6 +68,10 @@
             (keydown.enter)="submit()"
           />
         </div>
+        <p class="ob-public-note">
+          <b>What becomes public:</b> your handle, display name, targets, equipment, filters, imaging dates and totals.
+          Your FITS files and folder paths are never uploaded.
+        </p>
         @if (shrinkWarning()) {
           <p class="ob-error" role="alert">{{ shrinkWarning() }}</p>
           <dba-ui-text-button class="ob-full" variant="primary" size="lg" label="Publish anyway" [disabled]="busy()" (clicked)="publishAnyway()">
@@ -163,7 +167,7 @@
         @if (handleChanged() && availabilityError()) {
           <p class="ob-error" role="alert">{{ availabilityError() }}</p>
         } @else if (handleTaken()) {
-          <p class="ob-error" role="alert"><b>&#64;{{ clean() }}</b> is taken — try another.</p>
+          <p class="ob-error" role="alert"><b>&#64;{{ clean() }}</b> is taken. Try another.</p>
         } @else if (handleChanged() && clean()) {
           <div class="ob-exists" role="note">
             <dba-cel-icon name="globe" [size]="14" />
@@ -270,7 +274,7 @@
           @if (liveVariant() === 'edited') {
             <span class="eyebrow">Profile updated</span>
             <h2>Your New Link Is Live</h2>
-            <p>Share your new link — the old one no longer works.</p>
+            <p>Share your new link. The old one no longer works.</p>
           } @else {
             <span class="eyebrow">Published</span>
             <h2>Your Journey Is Live</h2>

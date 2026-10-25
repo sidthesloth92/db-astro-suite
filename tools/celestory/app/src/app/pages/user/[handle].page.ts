@@ -181,7 +181,7 @@ export default class PortfolioPageComponent {
 
   /** A temporary failure: clear title, no structured data, and deliberately NOT noindex. */
   private applyUnavailableMeta(): void {
-    this.title.setTitle('Celestory — Temporarily unavailable');
+    this.title.setTitle('Celestory · Temporarily unavailable');
     this.meta.removeTag('name="robots"');
     setStructuredData(this.doc, null);
   }

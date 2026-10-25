@@ -77,14 +77,17 @@ celestory -input /path/to/captures -out /path/to/output
 ## See your stats
 
 Open the [Celestory web app](https://celestory.dbastrosuite.com) and drop your
-`celestory.json` onto the page. It renders **100% in your browser** — nothing is
-uploaded, and your data never leaves your machine. From there you can explore your
-whole imaging journey and export gallery-grade cards to share.
+`celestory.json` onto the page. Your journey is drawn **in your browser**; the
+file itself isn't uploaded. To count the community, the site records anonymous
+totals (hours, frames and number of targets) under a random install ID, never your
+name or your files. From there you can explore your whole imaging journey and
+export gallery-grade cards to share.
 
 ## Publish & leaderboards
 
 Dropping `celestory.json` on the web app gives you a **private, in-browser
-preview** — nothing is uploaded. From there, publishing is **opt-in**:
+preview** (only the anonymous totals above are recorded). From there, publishing
+is **opt-in**:
 
 - **Claim a handle** to publish your story to a public profile at
   `celestory.dbastrosuite.com/user/<your-handle>`, protected by a password you
@@ -96,8 +99,8 @@ preview** — nothing is uploaded. From there, publishing is **opt-in**:
   pre-filled, and gives your stories a stable owner anchor when you generate
   from more than one machine.
 
-Remember: `celestory.json` carries no local file paths, and nothing leaves your
-machine unless you choose to publish.
+Remember: `celestory.json` carries no local file paths, and your story goes
+online only if you publish.
 
 ## Where your files are saved
 
@@ -221,10 +224,19 @@ filter. Scope is FITS (`.fit`/`.fits`); a bad file is skipped, never fatal.
 
 ## Privacy
 
-100% local. Nothing is uploaded automatically. Read-only — your captures are never
-modified. And `celestory.json` carries **no local file paths**: the duplicate and
-skipped-file lists that reference paths are shown only on the terminal, so your
-folder layout never leaves your machine even when you upload the file.
+- **Stays on your machine:** your FITS files and their folder paths. The CLI is
+  read-only (your captures are never modified) and makes no network connections.
+  `celestory.json` carries **no local file paths**: the duplicate and skipped-file
+  lists that reference paths are shown only on the terminal.
+- **Counted anonymously:** when you open `celestory.json` in the web app, the site
+  records three totals (hours, frames and number of targets) under a random
+  install ID to count the community. Never your name or your files.
+- **Public only if you publish:** your handle, display name, targets, equipment,
+  filters, imaging dates and totals, at `celestory.dbastrosuite.com/user/<handle>`.
+- **Stored safely:** your profile password and recovery code are kept only as
+  hashes; nobody, including the site owner, can read them back.
+- **Your choice to remove:** log in on your profile and use **Delete profile** to
+  remove it from the web.
 
 ## Troubleshooting & sharing logs
 
