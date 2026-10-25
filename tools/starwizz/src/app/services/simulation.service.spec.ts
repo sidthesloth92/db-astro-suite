@@ -511,7 +511,7 @@ describe('SimulationService', () => {
       }
       state: RecordingStateNative = 'inactive';
       ondataavailable: ((e: BlobEvent) => void) | null = null;
-      onstop: (() => void) | null = null;
+      onstop: (() => unknown) | null = null;
       onerror: ((e: Event) => void) | null = null;
       timeslice: number | undefined;
       requestDataCalls = 0;
@@ -540,9 +540,12 @@ describe('SimulationService', () => {
       emitError(): void {
         this.onerror?.(new Event('error'));
       }
-      /** Fires the finalization event (as the browser does after stop()). */
-      emitStop(): void {
-        this.onstop?.();
+      /**
+       * Fires the finalization event (as the browser does after stop()).
+       * Resolves once the service has finished processing the recording.
+       */
+      async emitStop(): Promise<void> {
+        await this.onstop?.();
       }
     }
 
@@ -604,12 +607,19 @@ describe('SimulationService', () => {
       expect(service.recordingError()).not.toBeNull();
     });
 
-    it('should pass the preset bitrate and timeslice to the recorder', () => {
+    it('should pass the preset bitrate to the recorder', () => {
       service.startRecording(canvas);
 
       expect(recorders[0].options?.videoBitsPerSecond).toBe(service.recordingBitsPerSecond());
       expect(recorders[0].options?.videoBitsPerSecond).toBe(12_441_600);
-      expect(recorders[0].timeslice).toBe(1000);
+    });
+
+    it('should record without a timeslice so the saved file carries its full duration', () => {
+      // A timeslice makes Chrome write the MP4 header before the length is
+      // known; the file then reports ~1 s and Instagram imports only that.
+      service.startRecording(canvas);
+
+      expect(recorders[0].timeslice).toBeUndefined();
     });
 
     it('should capture the canvas at the preset frame rate', () => {
@@ -648,14 +658,14 @@ describe('SimulationService', () => {
         expect(service.recordingState()).toBe('recording');
       });
 
-      it('should blacklist a failed codec for subsequent recordings', () => {
+      it('should blacklist a failed codec for subsequent recordings', async () => {
         startRecordingAsApp();
         recorders[0].emitError();
 
         // Finish the fallback recording cleanly.
         recorders[1].emitChunk(64);
         service.stopRecording();
-        recorders[1].emitStop();
+        await recorders[1].emitStop();
 
         // The next recording skips the blacklisted High-profile rung entirely.
         startRecordingAsApp();
@@ -780,18 +790,18 @@ describe('SimulationService', () => {
         });
       });
 
-      function recordOnce(bytes: number): void {
+      async function recordOnce(bytes: number): Promise<void> {
         startRecordingAsApp();
         const recorder = recorders[recorders.length - 1];
         if (bytes > 0) {
           recorder.emitChunk(bytes);
         }
         service.stopRecording();
-        recorder.emitStop();
+        await recorder.emitStop();
       }
 
-      it('should download via a DOM-attached anchor without revoking the URL', () => {
-        recordOnce(2_000_000);
+      it('should download via a DOM-attached anchor without revoking the URL', async () => {
+        await recordOnce(2_000_000);
 
         expect(createdUrls.length).toBe(1);
         expect(clickedAnchors.length).toBe(1);
@@ -799,24 +809,24 @@ describe('SimulationService', () => {
         expect(service.recordingState()).toBe('idle');
       });
 
-      it('should revoke the previous download URL when the next recording starts', () => {
-        recordOnce(2_000_000);
+      it('should revoke the previous download URL when the next recording starts', async () => {
+        await recordOnce(2_000_000);
 
         startRecordingAsApp();
 
         expect(revokedUrls).toEqual(['blob:fake-0']);
       });
 
-      it('should revoke the pending URL on service destroy', () => {
-        recordOnce(2_000_000);
+      it('should revoke the pending URL on service destroy', async () => {
+        await recordOnce(2_000_000);
 
         service.ngOnDestroy();
 
         expect(revokedUrls).toEqual(['blob:fake-0']);
       });
 
-      it('should retain the finished recording for re-saving', () => {
-        recordOnce(2_000_000);
+      it('should retain the finished recording for re-saving', async () => {
+        await recordOnce(2_000_000);
 
         const last = service.lastRecording();
         expect(last).not.toBeNull();
@@ -824,8 +834,8 @@ describe('SimulationService', () => {
         expect(last?.sizeMb).toBe(2);
       });
 
-      it('should type the saved file with the bare container type, not the recorder codec string', () => {
-        recordOnce(2_000_000);
+      it('should type the saved file with the bare container type, not the recorder codec string', async () => {
+        await recordOnce(2_000_000);
 
         expect(recorders[0].options?.mimeType).toBe('video/mp4;codecs=avc1.64002A');
         expect(service.lastRecording()?.mimeType).toBe('video/mp4');
@@ -848,7 +858,7 @@ describe('SimulationService', () => {
         });
 
         it('should share the recording as a plain video/mp4 file', async () => {
-          recordOnce(2_000_000);
+          await recordOnce(2_000_000);
 
           await service.shareLastRecording();
 
@@ -859,7 +869,7 @@ describe('SimulationService', () => {
 
         it('should stay quiet when the user dismisses the share sheet', async () => {
           share.and.rejectWith(new DOMException('dismissed', 'AbortError'));
-          recordOnce(2_000_000);
+          await recordOnce(2_000_000);
 
           await service.shareLastRecording();
 
@@ -869,7 +879,7 @@ describe('SimulationService', () => {
         it('should surface an error when sharing fails', async () => {
           spyOn(console, 'error');
           share.and.rejectWith(new DOMException('denied', 'NotAllowedError'));
-          recordOnce(2_000_000);
+          await recordOnce(2_000_000);
 
           await service.shareLastRecording();
 
@@ -877,10 +887,10 @@ describe('SimulationService', () => {
         });
       });
 
-      it('should surface an error and skip the download for an empty recording', () => {
+      it('should surface an error and skip the download for an empty recording', async () => {
         spyOn(console, 'error');
 
-        recordOnce(0);
+        await recordOnce(0);
 
         expect(createdUrls.length).toBe(0);
         expect(clickedAnchors.length).toBe(0);
@@ -889,14 +899,14 @@ describe('SimulationService', () => {
         expect(trackVideoGeneration).not.toHaveBeenCalled();
       });
 
-      it('should track the video generation exactly as before on success', () => {
-        recordOnce(2_000_000);
+      it('should track the video generation exactly as before on success', async () => {
+        await recordOnce(2_000_000);
 
         expect(trackVideoGeneration).toHaveBeenCalledWith('starwizz-user', 'mp4');
       });
 
-      it('should re-download the retained recording on saveLastRecording', () => {
-        recordOnce(2_000_000);
+      it('should re-download the retained recording on saveLastRecording', async () => {
+        await recordOnce(2_000_000);
 
         service.saveLastRecording();
 
@@ -906,8 +916,8 @@ describe('SimulationService', () => {
         expect(revokedUrls).toEqual(['blob:fake-0']);
       });
 
-      it('should clear the retained recording on clearImage', () => {
-        recordOnce(2_000_000);
+      it('should clear the retained recording on clearImage', async () => {
+        await recordOnce(2_000_000);
 
         service.clearImage();
 
