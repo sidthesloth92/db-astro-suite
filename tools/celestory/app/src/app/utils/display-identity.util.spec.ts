@@ -1,7 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import {
-  canEditDisplayName,
-  canEditUsername,
   displayIdentity,
   publishName,
   shareCardIdentity,
@@ -33,24 +31,6 @@ describe('displayIdentity', () => {
   it('lets the viewer’s own edits win in preview', () => {
     expect(displayIdentity('preview', story, '', visitor)).toEqual({ name: 'Someone Else', username: 'someone' });
     expect(displayIdentity('preview', story, '', none).name).toBe('Vera C.');
-  });
-});
-
-describe('who may edit', () => {
-  it('lets anyone edit their own preview, including the username', () => {
-    expect(canEditDisplayName('preview', false)).toBe(true);
-    expect(canEditUsername('preview')).toBe(true);
-  });
-
-  it('lets only the owner edit a published name, and never its username', () => {
-    expect(canEditDisplayName('published', true)).toBe(true);
-    expect(canEditDisplayName('published', false)).toBe(false);
-    expect(canEditUsername('published')).toBe(false);
-  });
-
-  it('hides editing on the demo, even for an owner of something else', () => {
-    expect(canEditDisplayName('demo', true)).toBe(false);
-    expect(canEditUsername('demo')).toBe(false);
   });
 });
 

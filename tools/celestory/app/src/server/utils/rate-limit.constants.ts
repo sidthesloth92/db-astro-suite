@@ -67,6 +67,12 @@ export const NAME_EDIT_LIMIT: RateBucket = {
   ],
 };
 
+/** Handle changes, per profile (keyed by story id, so renaming can't reset the count). */
+export const HANDLE_CHANGE_LIMIT: RateBucket = {
+  name: 'handle-change',
+  rules: [{ limit: 2, windowSeconds: DAY }],
+};
+
 /** Counter rows older than this are deleted (longest window is one day). */
 export const RATE_LIMIT_RETENTION_SECONDS = 2 * DAY;
 

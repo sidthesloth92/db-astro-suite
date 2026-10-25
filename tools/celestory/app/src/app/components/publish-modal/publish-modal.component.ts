@@ -22,7 +22,11 @@ import { publishErrorMessage } from '../../utils/publish-error.util';
 import { publishShrinkWarning } from '../../utils/publish-shrink.util';
 import { MIN_PASSWORD_LENGTH } from '../../models/password.constants';
 import { publishName } from '../../utils/display-identity.util';
-import { observerWithName } from '../../utils/observer-name.util';
+import { observerName, observerWithName } from '../../utils/observer-name.util';
+import { MAX_DISPLAY_NAME_LENGTH } from '../../models/observer.constants';
+import { canSaveProfile as profileIsSaveable, displayNameError } from '../../utils/profile-form.util';
+import type { PublishPhaseRequest } from '../../models/publish-phase.types';
+import type { ProfileChanges } from '../../models/api.model';
 import { IconButtonComponent, TextButtonComponent } from '@db-astro-suite/ui';
 import { copyToClipboard } from '../../utils/clipboard.util';
 import { CelIconComponent } from '../cel-icon/cel-icon.component';
@@ -53,20 +57,24 @@ export class PublishModalComponent implements OnInit {
   readonly story = input.required<CelestoryStory>();
   /** The current handle (set when already published), prefilled in the form. */
   readonly currentHandle = input<string>('');
-  /** Open straight to a phase ('delete'); '' starts the normal flow. */
-  readonly initialPhase = input<'' | 'delete'>('');
+  /** Open straight to an owner screen ('delete' | 'edit' | 'password'); '' starts the publish flow. */
+  readonly initialPhase = input<PublishPhaseRequest>('');
 
   /** Emits the handle once published/updated, so the parent opens the profile. */
   readonly published = output<string>();
   /** Emits after a successful delete (returns to Private Preview). */
   readonly unpublished = output<void>();
+  /** Emits the (possibly new) handle after "Edit profile" saves, so the parent refreshes or navigates. */
+  readonly profileEdited = output<string>();
   /** Emits when the modal should close. */
   readonly closed = output<void>();
 
   /** Current phase. Opens straight on the single claim form (no create/update chooser). */
-  protected readonly phase = signal<'claim' | 'publishing' | 'live' | 'delete'>(
-    this.initialPhase() === 'delete' ? 'delete' : 'claim',
+  protected readonly phase = signal<'claim' | 'publishing' | 'live' | 'delete' | 'edit' | 'password'>(
+    'claim',
   );
+  /** Which success screen 'live' shows: a fresh publish, or an edited profile's new link. */
+  protected readonly liveVariant = signal<'published' | 'edited'>('published');
 
   protected readonly handle = signal(this.currentHandle());
   protected readonly password = signal('');
@@ -79,20 +87,49 @@ export class PublishModalComponent implements OnInit {
   protected readonly copied = signal(false);
   /** The new profile's one-time recovery code, shown once on the live screen ('' for updates). */
   protected readonly recoveryCode = signal('');
+  /** Display name field (publish and edit screens). */
+  protected readonly displayName = signal('');
+  /** The profile's saved name when "Edit profile" opened (to detect a change). */
+  private readonly editInitialName = signal('');
+  /** Longest display name accepted (matches the server). */
+  protected readonly maxNameLength = MAX_DISPLAY_NAME_LENGTH;
+  /** Minimum new-password length, for the field hint. */
+  protected readonly MIN_PASSWORD = MIN_PASSWORD_LENGTH;
+  /** Change-password fields and outcome. */
+  protected readonly currentPassword = signal('');
+  protected readonly newPassword = signal('');
+  protected readonly passwordChanged = signal(false);
   /** Password entered to confirm deletion in the delete phase. */
   protected readonly deletePassword = signal('');
   protected readonly deleteError = signal('');
 
   /** Cleaned handle for the URL preview. */
   protected readonly clean = computed(() => slugifyHandle(this.handle()));
-  /** The name this publish will carry (the viewer's edited name, else the file's), or ''. */
-  protected readonly publishAs = computed(() => publishName(this.story(), this.session.identity()));
-  /** The story as sent: carries the viewer's edited name (keeping any "— place") when set. */
+  /** The story as sent: carries the Display name field (keeping any "— place") when set. */
   private readonly storyToPublish = computed<CelestoryStory>(() => {
     const story = this.story();
-    const name = this.session.identity().name.trim();
+    const name = this.displayName().trim();
     return name ? { ...story, observer: observerWithName(story.observer, name) } : story;
   });
+  /** Problem with the Display name field, or ''. */
+  protected readonly nameError = computed(() =>
+    displayNameError(this.displayName(), this.phase() === 'edit' && !!this.editInitialName()),
+  );
+  /** Edit profile: the typed handle differs from the profile's current one. */
+  protected readonly handleChanged = computed(() => this.clean() !== this.targetHandle());
+  /** Edit profile: the new handle already belongs to another profile. */
+  protected readonly handleTaken = computed(() => this.handleChanged() && this.exists());
+  /** Edit profile: something changed, is valid, and a changed handle is confirmed free. */
+  protected readonly canSaveProfile = computed(() =>
+    profileIsSaveable({
+      name: this.displayName(),
+      initialName: this.editInitialName(),
+      handle: this.clean(),
+      currentHandle: this.targetHandle(),
+      handleExists: this.serverExists(),
+      busy: this.busy(),
+    }),
+  );
   /**
    * The handle this device has already published (own profile), if any — from the
    * current route, the persisted session, or a profileId baked into the story.
@@ -145,12 +182,22 @@ export class PublishModalComponent implements OnInit {
    * required `story` input is only available once inputs are bound.
    */
   ngOnInit(): void {
-    if (this.initialPhase() === 'delete') {
-      // The `phase` field initialiser runs before inputs are bound, so it always
-      // defaults to 'claim'. Now that inputs are available, switch to delete.
-      this.phase.set('delete');
+    // The `phase` field initialiser runs before inputs are bound, so it always
+    // defaults to 'claim'. Now that inputs are available, open the right screen.
+    const requested = this.initialPhase();
+    if (requested === 'delete' || requested === 'password') {
+      this.phase.set(requested);
       return;
     }
+    if (requested === 'edit') {
+      const saved = observerName(this.story().observer);
+      this.displayName.set(saved);
+      this.editInitialName.set(saved);
+      this.handle.set(this.targetHandle());
+      this.phase.set('edit');
+      return;
+    }
+    this.displayName.set(publishName(this.story(), this.session.identity()));
     // Prefill: a handle this device already owns, else the username edited in preview.
     const known = this.knownHandle() || slugifyHandle(this.session.identity().username);
     if (known) {
@@ -205,6 +252,100 @@ export class PublishModalComponent implements OnInit {
   /** Track the password input. */
   onPassword(value: string): void {
     this.password.set(value);
+  }
+  /** Track the Display name input. */
+  onDisplayName(value: string): void {
+    this.displayName.set(value);
+    this.error.set('');
+  }
+  /** Track the change-password inputs. */
+  onCurrentPassword(value: string): void {
+    this.currentPassword.set(value);
+    this.error.set('');
+  }
+  onNewPassword(value: string): void {
+    this.newPassword.set(value);
+    this.error.set('');
+  }
+
+  /**
+   * Edit profile: save the changed name and/or handle with the owner session.
+   * A handle change shows the "updated" link screen (the old URL is released);
+   * a name-only change closes and lets the parent re-fetch the profile.
+   */
+  saveProfile(): void {
+    if (!this.canSaveProfile()) {
+      return;
+    }
+    const token = this.session.token();
+    if (!token) {
+      this.error.set(publishErrorMessage('SESSION_INVALID'));
+      return;
+    }
+    const name = this.displayName().trim();
+    const changes: ProfileChanges = {
+      ...(name && name !== this.editInitialName() ? { name } : {}),
+      ...(this.handleChanged() ? { newHandle: this.clean() } : {}),
+    };
+    const fromHandle = this.targetHandle();
+    this.busy.set(true);
+    this.error.set('');
+    this.storyService
+      .updateProfile(fromHandle, changes, token)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (result) => {
+          this.busy.set(false);
+          this.session.setOwner({ handle: result.handle, token: result.token });
+          if (result.handle === fromHandle) {
+            this.profileEdited.emit(result.handle);
+            return;
+          }
+          this.handle.set(result.handle);
+          this.liveVariant.set('edited');
+          this.phase.set('live');
+        },
+        error: (err: HttpErrorResponse) => {
+          this.busy.set(false);
+          this.error.set(publishErrorMessage(err.error?.code, err.error?.details));
+        },
+      });
+  }
+
+  /** Change password: confirm the current one, set the new one, keep the owner logged in. */
+  changePassword(): void {
+    const current = this.currentPassword();
+    const next = this.newPassword();
+    if (!current) {
+      this.error.set('Enter your current password.');
+      return;
+    }
+    if (next.length < MIN_PASSWORD_LENGTH) {
+      this.error.set(`Choose a new password of at least ${MIN_PASSWORD_LENGTH} characters.`);
+      return;
+    }
+    const token = this.session.token();
+    if (!token) {
+      this.error.set(publishErrorMessage('SESSION_INVALID'));
+      return;
+    }
+    const handle = this.targetHandle();
+    this.busy.set(true);
+    this.error.set('');
+    this.storyService
+      .changePassword(handle, current, next, token)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (result) => {
+          this.busy.set(false);
+          this.session.setOwner({ handle, token: result.token });
+          this.passwordChanged.set(true);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.busy.set(false);
+          this.error.set(publishErrorMessage(err.error?.code, err.error?.details));
+        },
+      });
   }
 
   /** Submit the claim/update form. Updates first check for an accidental shrink. */
@@ -355,8 +496,12 @@ export class PublishModalComponent implements OnInit {
       });
   }
 
-  /** Open the published profile — the user page plays the branded reveal on load. */
+  /** Open the published (or just re-addressed) profile — the user page plays the branded reveal on load. */
   openProfile(): void {
+    if (this.liveVariant() === 'edited') {
+      this.profileEdited.emit(this.clean());
+      return;
+    }
     this.published.emit(this.clean());
   }
 

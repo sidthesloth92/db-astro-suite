@@ -24,6 +24,8 @@ export class SocialShareRowComponent {
   readonly url = input.required<string>();
   /** When true, shows the URL + a labelled Copy button + "or share to" above the icons. */
   readonly showUrl = input<boolean>(false);
+  /** On phones, spread the buttons evenly across the full width in one row (e.g. the profile banner). */
+  readonly stretch = input<boolean>(false);
 
   /** Per-platform share-intent links for the current URL. */
   protected readonly links = computed<SocialShareLink[]>(() => socialShareLinks(this.url()));

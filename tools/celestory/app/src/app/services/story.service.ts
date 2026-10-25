@@ -9,7 +9,9 @@ import type {
   RecoverResult,
   StoryAuth,
   StoryDetails,
-  UpdateNameResult,
+  ChangePasswordResult,
+  ProfileChanges,
+  UpdateProfileResult,
   UpdateStoryResult,
 } from '../models/api.model';
 import type { CommunityStats } from '../models/community-stats.model';
@@ -57,12 +59,28 @@ export class StoryService {
       .pipe(map((response) => response.details));
   }
 
-  /** Owner rename — set the display name on a published profile (owner session token required). */
-  updateName(handle: string, name: string, token: string): Observable<UpdateNameResult> {
+  /** Edit profile — change the display name and/or handle (owner session token required). */
+  updateProfile(handle: string, changes: ProfileChanges, token: string): Observable<UpdateProfileResult> {
     return this.http
-      .patch<ApiResponse<UpdateNameResult>>(
+      .patch<ApiResponse<UpdateProfileResult>>(
         `/api/v1/stories/${encodeURIComponent(handle)}`,
-        { name },
+        changes,
+        this.authOptions(token),
+      )
+      .pipe(map((response) => response.details));
+  }
+
+  /** Change password — confirm the current one; returns a fresh owner session token. */
+  changePassword(
+    handle: string,
+    currentPassword: string,
+    newPassword: string,
+    token: string,
+  ): Observable<ChangePasswordResult> {
+    return this.http
+      .post<ApiResponse<ChangePasswordResult>>(
+        `/api/v1/stories/${encodeURIComponent(handle)}/password`,
+        { currentPassword, newPassword },
         this.authOptions(token),
       )
       .pipe(map((response) => response.details));

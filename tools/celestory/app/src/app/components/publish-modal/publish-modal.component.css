@@ -393,13 +393,22 @@
   }
 }
 
-/* "Publishing as <name>" line under the claim header. */
-.ob-as {
-  margin-top: 0.5rem;
-  font-size: 0.82rem;
-  color: var(--db-color-text-muted);
+/* Display name field: no prefix chip, so the input needs its own left padding. */
+.ob-name input {
+  padding-left: 0.85rem;
 }
-.ob-as b {
-  color: var(--db-color-text-primary);
-  font-weight: 600;
+
+/* Success notice (e.g. password changed). */
+.ob-done {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin: 0.4rem 0 0;
+  padding: 11px 13px;
+  border-radius: 11px;
+  border: 1px solid color-mix(in srgb, var(--db-color-green) 35%, transparent);
+  background: color-mix(in srgb, var(--db-color-green) 9%, transparent);
+  color: var(--db-color-text-dim);
+  font-size: 12.5px;
+  line-height: 1.5;
 }

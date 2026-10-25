@@ -40,6 +40,11 @@ export function handleSubject(handle: string): string {
   return `handle:${handle}`;
 }
 
+/** Rate-limit subject for a profile by its stable id (survives handle changes). */
+export function storySubject(storyId: string): string {
+  return `story:${storyId}`;
+}
+
 /**
  * Seconds to wait when any rule's count exceeds its limit, else null. When
  * several rules are breached, the longest wait wins. `counts` line up with

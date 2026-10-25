@@ -28,10 +28,26 @@ export interface LoginResult {
   token: string;
 }
 
-/** Result of an owner rename — the saved name and the full observer line it produced. */
-export interface UpdateNameResult {
+/** What an owner's "Edit profile" changes; omitted fields stay as they are. */
+export interface ProfileChanges {
+  /** New display name (1–60 chars). */
+  name?: string;
+  /** New handle; the old one is released. */
+  newHandle?: string;
+}
+
+/** Result of "Edit profile" — the (possibly new) handle, the saved name, and an owner token for that handle. */
+export interface UpdateProfileResult {
+  handle: string;
   name: string;
   observer: string;
+  url: string;
+  token: string;
+}
+
+/** Result of a password change — a fresh owner session token. */
+export interface ChangePasswordResult {
+  token: string;
 }
 
 /** Result of a recovery-code password reset — an owner session token and the replacement recovery code. */

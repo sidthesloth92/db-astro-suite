@@ -117,6 +117,14 @@
   padding-top: 0.85rem;
   border-top: 1px solid color-mix(in srgb, var(--db-color-text-faint) 22%, transparent);
 }
+/* The owner's actions stay together as one group, pushed to the right. */
+.banner-owner-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-left: auto;
+}
 .banner-owner-label {
   display: inline-flex;
   align-items: center;
@@ -137,7 +145,6 @@
   cursor: pointer;
 }
 .banner-owner-act {
-  margin-left: auto;
   color: var(--db-color-text-primary);
   border: 1px solid color-mix(in srgb, var(--db-color-cyan) 40%, transparent);
 }
@@ -227,6 +234,8 @@
   font-family: var(--db-font-mono-code);
   color: var(--db-color-cyan);
   text-decoration: none;
+  /* A long handle has no natural break points — let it wrap inside the card. */
+  overflow-wrap: anywhere;
 }
 .banner-url:hover {
   text-decoration: underline;
@@ -247,3 +256,46 @@
   margin-bottom: 1.6rem;
 }
 
+/*
+ * Phones: the published banner is tall, so it scrolls away with the page
+ * instead of pinning over the journey. Share icons fill one row, the Share
+ * button goes full width, and the owner actions become an even 2-column grid.
+ */
+@media (max-width: 640px) {
+  .journey {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .banner {
+    position: static;
+    padding: 14px;
+  }
+  .banner-share {
+    width: 100%;
+    display: grid;
+    gap: 0.6rem;
+  }
+  .banner-share dba-ui-text-button {
+    display: flex;
+    width: 100%;
+  }
+  .banner-owner {
+    display: grid;
+    gap: 0.7rem;
+  }
+  .banner-owner-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    margin-left: 0;
+  }
+  .banner-owner-act,
+  .banner-owner-del,
+  .banner-owner-out {
+    justify-content: center;
+    padding: 9px 10px;
+    font-size: 0.8rem;
+  }
+  .banner-owner-out {
+    grid-column: 1 / -1;
+  }
+}

@@ -1,10 +1,10 @@
 /**
  * Which name and username a journey shows, and who may edit them:
  * - Private Preview (the viewer's own unpublished file): the viewer's
- *   browser-saved name/username win; both are editable, saved in the browser.
+ *   browser-saved name/username win.
  * - Published profile: always the profile's own saved name and its handle —
- *   never the viewer's — and only its logged-in owner may edit the name.
- * - Demo: the sample profile's own identity; not editable.
+ *   never the viewer's. Only its owner changes it, via "Edit profile".
+ * - Demo: the sample profile's own identity.
  */
 import type { JourneyState } from '../models/journey.types';
 import type { ViewerIdentity } from '../models/session.types';
@@ -31,16 +31,6 @@ export function displayIdentity(
     };
   }
   return profileIdentity(story, handle);
-}
-
-/** Whether the display name can be edited here: in preview, or by the owner of a published profile. */
-export function canEditDisplayName(state: JourneyState, isOwner: boolean): boolean {
-  return state === 'preview' || (state === 'published' && isOwner);
-}
-
-/** Whether the username can be edited here: only in preview (a published username is its URL). */
-export function canEditUsername(state: JourneyState): boolean {
-  return state === 'preview';
 }
 
 /** The name a publish will carry: the viewer's edited name, else the file's own, else '' (none). */

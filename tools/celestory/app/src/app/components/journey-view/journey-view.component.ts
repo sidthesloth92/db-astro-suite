@@ -16,6 +16,7 @@ import { map } from 'rxjs';
 import { ConstellationFieldComponent, TextButtonComponent } from '@db-astro-suite/ui';
 import { profileDisplayUrl, profileUrl as buildProfileUrl } from '../../models/app.constants';
 import type { DetailRef, JourneyState } from '../../models/journey.types';
+import type { PublishPhaseRequest } from '../../models/publish-phase.types';
 import type { CelestoryStory, StoryEquipment, StoryTarget } from '../../models/story.model';
 import { formatCount, formatHours } from '../../utils/format.util';
 import { publishErrorMessage } from '../../utils/publish-error.util';
@@ -113,12 +114,8 @@ export class JourneyViewComponent {
   protected readonly editBusy = signal(false);
   /** User-facing error from an owner edit, or empty. */
   protected readonly editError = signal('');
-  /** True while the owner's new display name is being saved. */
-  protected readonly renaming = signal(false);
-  /** User-facing error from the owner's last rename, or empty. */
-  protected readonly renameError = signal('');
   /** Which phase to open the publish modal in ('' = full flow, 'delete' = delete confirm). */
-  protected readonly publishPhase = signal<'' | 'delete'>('');
+  protected readonly publishPhase = signal<PublishPhaseRequest>('');
 
   /**
    * Open detail, driven by URL query params (`?target=` / `?equipment=`) so the
@@ -188,10 +185,6 @@ export class JourneyViewComponent {
   protected readonly profileDisplay = computed(() => profileDisplayUrl(this.handle()));
   /** True once the journey is published — gates the per-item share links. */
   protected readonly isPublished = computed(() => this.state() === 'published');
-  /** True when the viewer is the logged-in owner of this published profile (gates the name edit). */
-  protected readonly isOwner = computed(
-    () => this.isPublished() && this.session.isOwnerOf(this.handle()),
-  );
   /** Public deep-link to the open per-target share card, or '' when unpublished. */
   protected readonly targetShareUrl = computed(() => {
     const o = this.shareTarget();
@@ -276,6 +269,16 @@ export class JourneyViewComponent {
     this.publishPhase.set('delete');
     this.showPublish.set(true);
   }
+  /** Owner: open "Edit profile" (display name + handle) in the publish dialog. */
+  openEditProfile(): void {
+    this.publishPhase.set('edit');
+    this.showPublish.set(true);
+  }
+  /** Owner: open "Change password" in the publish dialog. */
+  openChangePassword(): void {
+    this.publishPhase.set('password');
+    this.showPublish.set(true);
+  }
   /** Opens the owner-login modal (verify password to unlock Edit/Delete). */
   openLogin(): void {
     this.showLogin.set(true);
@@ -325,32 +328,6 @@ export class JourneyViewComponent {
         });
     });
   }
-  /**
-   * Owner rename: save the new display name to the published profile with the
-   * management session token, then ask the host to re-fetch the profile.
-   */
-  onRename(name: string): void {
-    const token = this.session.token();
-    if (!token) {
-      this.renameError.set(publishErrorMessage('SESSION_INVALID'));
-      return;
-    }
-    this.renameError.set('');
-    this.renaming.set(true);
-    this.storyService
-      .updateName(this.handle(), name, token)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: () => {
-          this.renaming.set(false);
-          this.updated.emit();
-        },
-        error: (err: HttpErrorResponse) => {
-          this.renaming.set(false);
-          this.renameError.set(publishErrorMessage(err.error?.code, err.error?.details));
-        },
-      });
-  }
   /** Demo CTA: sends viewers to the landing page's installation section. */
   goToInstall(): void {
     void this.router.navigate(['/'], { fragment: 'how' });
@@ -360,6 +337,19 @@ export class JourneyViewComponent {
   onPublished(handle: string): void {
     this.showPublish.set(false);
     void this.router.navigate(['/user', handle]);
+  }
+
+  /**
+   * Profile edited: close the dialog, then follow a handle change to the new
+   * URL, or re-fetch the same profile when only the name changed.
+   */
+  onProfileEdited(handle: string): void {
+    this.showPublish.set(false);
+    if (handle === this.handle()) {
+      this.updated.emit();
+    } else {
+      void this.router.navigate(['/user', handle]);
+    }
   }
 
   /** Profile deleted: close the modal and leave the (now-gone) profile page. */
