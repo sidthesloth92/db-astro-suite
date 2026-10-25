@@ -1,12 +1,35 @@
-/** Maps a Celestory API error code to a user-facing publish/update/delete message. */
-export function publishErrorMessage(code: unknown): string {
+import { MIN_PASSWORD_LENGTH } from '../models/password.constants';
+
+/** Human wait time for a rate-limit retry-after, e.g. "1 minute", "14 minutes", "3 hours". */
+function waitLabel(retryAfterSeconds: number): string {
+  const minutes = Math.max(1, Math.ceil(retryAfterSeconds / 60));
+  if (minutes < 120) {
+    return minutes === 1 ? '1 minute' : `${minutes} minutes`;
+  }
+  return `${Math.ceil(minutes / 60)} hours`;
+}
+
+/** Reads `retryAfterSeconds` from an API error's details, or null when absent. */
+function retryAfter(details: unknown): number | null {
+  if (details === null || typeof details !== 'object') {
+    return null;
+  }
+  const value = (details as Record<string, unknown>)['retryAfterSeconds'];
+  return typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : null;
+}
+
+/**
+ * Maps a Celestory API error code (and its details, for rate limits) to a
+ * user-facing publish/update/delete/login message.
+ */
+export function publishErrorMessage(code: unknown, details?: unknown): string {
   switch (code) {
     case 'HANDLE_TAKEN':
       return 'That handle is taken — try another.';
     case 'HANDLE_INVALID':
       return 'Handles are 3–30 chars: lowercase letters, numbers and hyphens.';
     case 'PASSWORD_INVALID':
-      return 'Choose a password of at least 6 characters.';
+      return `Choose a password of at least ${MIN_PASSWORD_LENGTH} characters.`;
     case 'PASSWORD_INCORRECT':
       return 'That password doesn’t match this profile.';
     case 'STORY_INVALID':
@@ -15,6 +38,12 @@ export function publishErrorMessage(code: unknown): string {
       return 'No profile found for that handle.';
     case 'SESSION_INVALID':
       return 'Your session expired — please log in again.';
+    case 'RATE_LIMITED': {
+      const seconds = retryAfter(details);
+      return seconds === null
+        ? 'Too many attempts — please wait a while and try again.'
+        : `Too many attempts — try again in ${waitLabel(seconds)}.`;
+    }
     default:
       return 'Something went wrong. Please try again.';
   }

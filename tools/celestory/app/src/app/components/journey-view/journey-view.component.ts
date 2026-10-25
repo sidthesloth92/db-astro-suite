@@ -312,7 +312,7 @@ export class JourneyViewComponent {
           },
           error: (err: HttpErrorResponse) => {
             this.editBusy.set(false);
-            this.editError.set(publishErrorMessage(err.error?.code));
+            this.editError.set(publishErrorMessage(err.error?.code, err.error?.details));
           },
         });
     });

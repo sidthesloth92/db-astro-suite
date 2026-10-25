@@ -1,5 +1,5 @@
-import { setResponseStatus, type H3Event } from 'h3';
-import { CelestoryError } from './celestory.error';
+import { setHeader, setResponseStatus, type H3Event } from 'h3';
+import { CelestoryError, RateLimitedError } from './celestory.error';
 import type { ApiResponse } from './api.types';
 
 /** Build a success envelope with an explicit code and details. */
@@ -19,6 +19,9 @@ export function success<TDetails extends Record<string, unknown>>(
 export function toErrorResponse(event: H3Event, error: unknown): ApiResponse {
   if (error instanceof CelestoryError) {
     setResponseStatus(event, error.statusCode);
+    if (error instanceof RateLimitedError) {
+      setHeader(event, 'retry-after', error.retryAfterSeconds);
+    }
     return { code: error.code, message: error.message, details: error.details };
   }
 

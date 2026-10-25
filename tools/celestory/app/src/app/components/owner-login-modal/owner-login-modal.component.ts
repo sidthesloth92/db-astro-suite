@@ -75,7 +75,7 @@ export class OwnerLoginModalComponent {
         },
         error: (err: HttpErrorResponse) => {
           this.busy.set(false);
-          this.error.set(publishErrorMessage(err.error?.code));
+          this.error.set(publishErrorMessage(err.error?.code, err.error?.details));
         },
       });
   }

@@ -20,6 +20,7 @@ import { StoryService } from '../../services/story.service';
 import { slugifyHandle } from '../../utils/handle.util';
 import { publishErrorMessage } from '../../utils/publish-error.util';
 import { publishShrinkWarning } from '../../utils/publish-shrink.util';
+import { MIN_PASSWORD_LENGTH } from '../../models/password.constants';
 import { IconButtonComponent, TextButtonComponent } from '@db-astro-suite/ui';
 import { copyToClipboard } from '../../utils/clipboard.util';
 import { CelIconComponent } from '../cel-icon/cel-icon.component';
@@ -208,8 +209,8 @@ export class PublishModalComponent implements OnInit {
       );
       return;
     }
-    if (!this.exists() && password.length < 6) {
-      this.error.set('Choose a password of at least 6 characters.');
+    if (!this.exists() && password.length < MIN_PASSWORD_LENGTH) {
+      this.error.set(`Choose a password of at least ${MIN_PASSWORD_LENGTH} characters.`);
       return;
     }
     this.error.set('');
@@ -305,7 +306,7 @@ export class PublishModalComponent implements OnInit {
           this.error.set('');
           this.publish(handle, password, 'create');
         } else {
-          this.error.set(publishErrorMessage(code));
+          this.error.set(publishErrorMessage(code, err.error?.details));
           this.phase.set('claim');
         }
       },
@@ -333,7 +334,7 @@ export class PublishModalComponent implements OnInit {
         },
         error: (err: HttpErrorResponse) => {
           this.busy.set(false);
-          this.deleteError.set(publishErrorMessage(err.error?.code));
+          this.deleteError.set(publishErrorMessage(err.error?.code, err.error?.details));
         },
       });
   }

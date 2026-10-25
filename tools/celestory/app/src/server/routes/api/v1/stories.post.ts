@@ -11,7 +11,11 @@ import { isUniqueViolation } from '../../../utils/pg-error';
 import { recordUpload, claimUploads } from '../../../utils/uploads';
 import { success, toErrorResponse } from '../../../utils/respond';
 import { HandleTakenError, InvalidPasswordError } from '../../../utils/celestory.error';
+import { consumeRateLimit } from '../../../utils/rate-limit';
+import { PUBLISH_LIMIT } from '../../../utils/rate-limit.constants';
+import { clientIpSubject } from '../../../utils/client-ip.util';
 import type { ExtractedRows } from '../../../utils/story.model';
+import type { Story } from '../../../utils/story.types';
 
 /**
  * Persist the story row plus its child rows in a single transaction. The id is
@@ -103,29 +107,42 @@ async function persistStory(
  * ② Create — validate the uploaded story, claim the handle (password-protected),
  * persist the story and its child rows, and return the shareable URL plus a
  * management session token so the publisher lands directly in owner mode.
+ * Rate-limited per client IP: the hit is counted up front (so parallel
+ * requests can't slip under the limit) and refunded if the publish fails.
  */
 export default defineEventHandler(async (event) => {
   try {
-    const body = await readBody<{ story?: unknown; handle?: unknown; password?: unknown }>(event);
-    const handle = normalizeHandle(body?.handle);
-    const password = typeof body?.password === 'string' ? body.password : '';
-    if (password.length < MIN_PASSWORD_LENGTH) {
-      throw new InvalidPasswordError();
-    }
-    const story = validateStory(body?.story);
-    const rows = extractRows(story);
+    const publishHit = await consumeRateLimit(PUBLISH_LIMIT, clientIpSubject(event));
 
-    const passwordHash = await hashPassword(password);
-    const storyJson = JSON.stringify(body?.story);
-
+    let handle: string;
+    let story: Story;
+    let rows: ExtractedRows;
     let storyId: string;
     try {
-      storyId = await persistStory(handle, passwordHash, storyJson, rows);
-    } catch (dbError) {
-      if (isUniqueViolation(dbError)) {
-        throw new HandleTakenError(handle);
+      const body = await readBody<{ story?: unknown; handle?: unknown; password?: unknown }>(event);
+      handle = normalizeHandle(body?.handle);
+      const password = typeof body?.password === 'string' ? body.password : '';
+      if (password.length < MIN_PASSWORD_LENGTH) {
+        throw new InvalidPasswordError();
       }
-      throw dbError;
+      story = validateStory(body?.story);
+      rows = extractRows(story);
+
+      const passwordHash = await hashPassword(password);
+      const storyJson = JSON.stringify(body?.story);
+
+      try {
+        storyId = await persistStory(handle, passwordHash, storyJson, rows);
+      } catch (dbError) {
+        if (isUniqueViolation(dbError)) {
+          throw new HandleTakenError(handle);
+        }
+        throw dbError;
+      }
+    } catch (error) {
+      // Nothing was published, so it doesn't count against the limit.
+      await publishHit.refund();
+      throw error;
     }
 
     // Append the publish as an upload event (the log is append-only), then
