@@ -1,7 +1,6 @@
 /**
- * Domain models for the community leaderboards API. Every per-board endpoint
- * returns the same uniform `Leaderboard` shape so the (future) UI can render any
- * board with one component.
+ * Domain model for one ranked leaderboard row, shared by the board queries and
+ * the leaderboards Open Graph card.
  */
 
 /** One ranked row in a leaderboard — uniform across all boards. */
@@ -20,14 +19,4 @@ export interface LeaderboardEntry {
   unit: string;
   /** Optional board-specific context (designation, category, kind, handle, …). */
   meta?: Record<string, string | number>;
-}
-
-/** A single leaderboard: which board, the metric applied, and the ranked rows. */
-export interface Leaderboard {
-  /** Board identifier, e.g. `users`, `targets`, `equipment`, `months`. */
-  board: string;
-  /** The ranking metric (or view) that produced these rows. */
-  metric: string;
-  /** Ranked entries, best first. */
-  entries: LeaderboardEntry[];
 }

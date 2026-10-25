@@ -1,16 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_LIMIT, MAX_LIMIT } from './leaderboards.constants';
-import {
-  classifyPalette,
-  parseEquipmentKind,
-  parseLimit,
-  parseMonth,
-  parseMonthView,
-  parseTargetMetric,
-  parseScope,
-  parseUserMetric,
-  parseYear,
-} from './leaderboards.util';
+import { classifyPalette, parseLimit, parseScope } from './leaderboards.util';
 
 describe('parseLimit', () => {
   it('returns the default when absent or non-numeric', () => {
@@ -30,20 +20,6 @@ describe('parseLimit', () => {
   });
 });
 
-describe('metric/view/kind parsing', () => {
-  it('accepts allowed values and falls back to the default otherwise', () => {
-    expect(parseUserMetric('longevity')).toBe('longevity');
-    expect(parseUserMetric('bogus')).toBe('integration');
-    expect(parseTargetMetric('rarest')).toBe('rarest');
-    expect(parseTargetMetric(undefined)).toBe('integration');
-    expect(parseEquipmentKind('telescope')).toBe('telescope');
-    expect(parseEquipmentKind('mount')).toBe('mount');
-    expect(parseEquipmentKind('optic')).toBe('camera');
-    expect(parseMonthView('seasonality')).toBe('seasonality');
-    expect(parseMonthView('')).toBe('absolute');
-  });
-});
-
 describe('parseScope', () => {
   it('accepts the allowed scopes and defaults to all-time otherwise', () => {
     expect(parseScope('year')).toBe('year');
@@ -51,28 +27,6 @@ describe('parseScope', () => {
     expect(parseScope('all')).toBe('all');
     expect(parseScope(undefined)).toBe('all');
     expect(parseScope('decade')).toBe('all');
-  });
-});
-
-describe('parseYear', () => {
-  it('accepts a 4-digit year and rejects out-of-range / invalid input', () => {
-    expect(parseYear('2025')).toBe(2025);
-    expect(parseYear(undefined)).toBeNull();
-    expect(parseYear('25')).toBeNull();
-    expect(parseYear('abcd')).toBeNull();
-  });
-});
-
-describe('parseMonth', () => {
-  it('normalizes YYYY-MM to a first-of-month date', () => {
-    expect(parseMonth('2025-10')).toBe('2025-10-01');
-  });
-
-  it('rejects malformed or impossible months', () => {
-    expect(parseMonth(undefined)).toBeNull();
-    expect(parseMonth('2025-13')).toBeNull();
-    expect(parseMonth('2025-00')).toBeNull();
-    expect(parseMonth('2025/10')).toBeNull();
   });
 });
 
