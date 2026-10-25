@@ -126,6 +126,13 @@ export class BadPasswordError extends CelestoryError {
   }
 }
 
+/** The supplied recovery code did not match this profile (or was already used). */
+export class RecoveryCodeIncorrectError extends CelestoryError {
+  constructor() {
+    super('RECOVERY_CODE_INCORRECT', 'That recovery code doesn’t match this profile.', 403);
+  }
+}
+
 /** The database connection string is missing at startup. */
 export class DatabaseConfigError extends CelestoryError {
   constructor() {

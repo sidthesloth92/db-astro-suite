@@ -24,6 +24,7 @@ import { MIN_PASSWORD_LENGTH } from '../../models/password.constants';
 import { IconButtonComponent, TextButtonComponent } from '@db-astro-suite/ui';
 import { copyToClipboard } from '../../utils/clipboard.util';
 import { CelIconComponent } from '../cel-icon/cel-icon.component';
+import { RecoveryCodePanelComponent } from '../recovery-code-panel/recovery-code-panel.component';
 
 /**
  * Publish flow — claim (handle + password) → publishing → live (permanent URL) →
@@ -35,7 +36,7 @@ import { CelIconComponent } from '../cel-icon/cel-icon.component';
 @Component({
   selector: 'dba-publish-modal',
   standalone: true,
-  imports: [TextButtonComponent, IconButtonComponent, CelIconComponent],
+  imports: [TextButtonComponent, IconButtonComponent, CelIconComponent, RecoveryCodePanelComponent],
   templateUrl: './publish-modal.component.html',
   styleUrl: './publish-modal.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -74,6 +75,8 @@ export class PublishModalComponent implements OnInit {
   /** True once the user has accepted a shrink warning, so the update proceeds. */
   private shrinkConfirmed = false;
   protected readonly copied = signal(false);
+  /** The new profile's one-time recovery code, shown once on the live screen ('' for updates). */
+  protected readonly recoveryCode = signal('');
   /** Password entered to confirm deletion in the delete phase. */
   protected readonly deletePassword = signal('');
   protected readonly deleteError = signal('');
@@ -280,6 +283,8 @@ export class PublishModalComponent implements OnInit {
         // Both create and update return a management session token: the
         // publisher lands directly in owner mode for this tab.
         this.session.setOwner({ handle, token: result.token });
+        // Only a create issues a recovery code; an update keeps the existing one.
+        this.recoveryCode.set('recoveryCode' in result ? result.recoveryCode : '');
         const wait = Math.max(0, 1600 - (Date.now() - startedAt));
         setTimeout(() => {
           this.busy.set(false);

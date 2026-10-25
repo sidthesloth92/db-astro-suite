@@ -7,11 +7,13 @@ export interface ApiResponse<T> {
   details: T;
 }
 
-/** Result of ② Create — the public URL + a management session token (owner mode). */
+/** Result of ② Create — the public URL, a management session token (owner mode) and the one-time recovery code. */
 export interface CreateStoryResult {
   handle: string;
   url: string;
   token: string;
+  /** Shown to the publisher once; the only way to reset a forgotten password. */
+  recoveryCode: string;
 }
 
 /** Result of ③ Update — the public URL + a refreshed management session token. */
@@ -24,6 +26,13 @@ export interface UpdateStoryResult {
 /** Result of owner login — a management session token for the handle. */
 export interface LoginResult {
   token: string;
+}
+
+/** Result of a recovery-code password reset — an owner session token and the replacement recovery code. */
+export interface RecoverResult {
+  token: string;
+  /** The new one-time code; the one just used no longer works. */
+  recoveryCode: string;
 }
 
 /**

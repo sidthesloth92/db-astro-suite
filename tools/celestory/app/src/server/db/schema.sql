@@ -12,11 +12,14 @@
 -- ── Published profiles ────────────────────────────────────────────────────────
 -- One row per claimed handle. The full story blob is stored verbatim for
 -- rendering; headline totals are denormalized for cheap listing/sorting. The
--- password gates updates/deletes and mints the owner session token.
+-- password gates updates/deletes and mints the owner session token; the
+-- recovery code resets a forgotten password.
 CREATE TABLE stories (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   handle TEXT UNIQUE NOT NULL,
   password_hash TEXT,
+  -- scrypt hash of the one-time recovery code (normalized form); rotated on use.
+  recovery_hash TEXT,
   story_json TEXT NOT NULL,
   total_integration_seconds BIGINT,
   target_count INT,

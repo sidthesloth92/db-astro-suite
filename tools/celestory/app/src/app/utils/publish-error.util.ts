@@ -32,6 +32,8 @@ export function publishErrorMessage(code: unknown, details?: unknown): string {
       return `Choose a password of at least ${MIN_PASSWORD_LENGTH} characters.`;
     case 'PASSWORD_INCORRECT':
       return 'That password doesn’t match this profile.';
+    case 'RECOVERY_CODE_INCORRECT':
+      return 'That recovery code doesn’t match this profile.';
     case 'STORY_INVALID':
       return 'That file isn’t a valid celestory.json export.';
     case 'STORY_NOT_FOUND':

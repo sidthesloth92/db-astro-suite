@@ -6,6 +6,7 @@ import type {
   AttemptPing,
   CreateStoryResult,
   LoginResult,
+  RecoverResult,
   StoryAuth,
   StoryDetails,
   UpdateStoryResult,
@@ -51,6 +52,16 @@ export class StoryService {
       .post<ApiResponse<LoginResult>>(
         `/api/v1/stories/${encodeURIComponent(handle)}/session`,
         { password },
+      )
+      .pipe(map((response) => response.details));
+  }
+
+  /** Forgot password — reset it with the profile's recovery code; returns an owner token + the new code. */
+  recover(handle: string, code: string, newPassword: string): Observable<RecoverResult> {
+    return this.http
+      .post<ApiResponse<RecoverResult>>(
+        `/api/v1/stories/${encodeURIComponent(handle)}/recover`,
+        { code, newPassword },
       )
       .pipe(map((response) => response.details));
   }

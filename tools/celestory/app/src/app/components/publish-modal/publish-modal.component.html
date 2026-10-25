@@ -142,6 +142,9 @@
             {{ copied() ? 'Copied' : 'Copy' }}
           </button>
         </div>
+        @if (recoveryCode()) {
+          <dba-recovery-code-panel [code]="recoveryCode()" />
+        }
         <p class="ob-token-note ob-live-note">
           You’re logged in as the owner on this tab — open your profile to edit or delete it anytime.
         </p>

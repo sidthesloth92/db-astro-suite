@@ -1,0 +1,12 @@
+<section class="rc" aria-labelledby="rc-title">
+  <span class="rc-eyebrow" id="rc-title">Save your recovery code</span>
+  <div class="rc-code">
+    <span class="rc-value" aria-label="Recovery code">{{ code() }}</span>
+    <button class="rc-copy" type="button" (click)="copy()">
+      {{ copied() ? 'Copied' : 'Copy' }}
+    </button>
+  </div>
+  <p class="rc-note">
+    It’s the only way back in if you forget your password. We can’t show it again.
+  </p>
+</section>

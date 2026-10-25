@@ -30,6 +30,12 @@ describe('publishErrorMessage', () => {
     expect(publishErrorMessage('STORY_TOO_LARGE')).toBe('This journey is too large to publish.');
   });
 
+  it('explains a wrong recovery code', () => {
+    expect(publishErrorMessage('RECOVERY_CODE_INCORRECT')).toBe(
+      'That recovery code doesn’t match this profile.',
+    );
+  });
+
   it('states the current minimum password length', () => {
     expect(publishErrorMessage('PASSWORD_INVALID')).toBe(
       'Choose a password of at least 8 characters.',

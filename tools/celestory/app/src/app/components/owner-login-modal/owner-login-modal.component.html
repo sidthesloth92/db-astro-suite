@@ -1,44 +1,131 @@
 <div class="ol-overlay" (mousedown)="onBackdrop($event)">
   <div class="ol-modal" role="dialog" aria-modal="true">
-    <dba-ui-icon-button class="ol-close" accent="cyan" [size]="34" title="Close" (clicked)="closed.emit()">
+    <dba-ui-icon-button class="ol-close" accent="cyan" [size]="34" title="Close" (clicked)="close()">
       <dba-cel-icon name="close" [size]="18" />
     </dba-ui-icon-button>
 
     <div class="ol-badge"><dba-cel-icon name="lock" [size]="24" /></div>
-    <div class="ol-head">
-      <span class="eyebrow">Manage profile</span>
-      <h2>Log In to Manage</h2>
-      <p>Enter the password you set for <b>&#64;{{ handle() }}</b> to edit or delete it.</p>
-    </div>
 
-    <div class="ol-field">
-      <span class="ol-field-pfx"><dba-cel-icon name="lock" [size]="15" /></span>
-      <input
-        #p
-        type="password"
-        [value]="password()"
-        (input)="onPassword(p.value)"
-        autocomplete="current-password"
-        autofocus
-        (keydown.enter)="submit()"
-      />
-    </div>
+    @switch (mode()) {
+      @case ('recover') {
+        <div class="ol-head">
+          <span class="eyebrow">Recover profile</span>
+          <h2>Reset Your Password</h2>
+          <p>Enter the recovery code you saved for <b>&#64;{{ handle() }}</b> and choose a new password.</p>
+        </div>
 
-    @if (error()) {
-      <p class="ol-error" role="alert">{{ error() }}</p>
-    }
+        <label class="ol-label" for="ol-code">Recovery code</label>
+        <div class="ol-field">
+          <span class="ol-field-pfx"><dba-cel-icon name="lock" [size]="15" /></span>
+          <input
+            #c
+            id="ol-code"
+            type="text"
+            [value]="code()"
+            (input)="onCode(c.value)"
+            autocomplete="off"
+            autocapitalize="characters"
+            spellcheck="false"
+            placeholder="XXXXX-XXXXX-XXXXX-XXXXX"
+            autofocus
+          />
+        </div>
 
-    <dba-ui-text-button
-      class="ol-full"
-      variant="primary"
-      size="lg"
-      [label]="busy() ? 'Logging in…' : 'Log In'"
-      [disabled]="busy() || !password()"
-      (clicked)="submit()"
-    >
-      @if (!busy()) {
-        <dba-cel-icon slot="leading" name="arrow" [size]="15" />
+        <label class="ol-label" for="ol-new-password">New password</label>
+        <div class="ol-field">
+          <span class="ol-field-pfx"><dba-cel-icon name="lock" [size]="15" /></span>
+          <input
+            #n
+            id="ol-new-password"
+            type="password"
+            [value]="newPassword()"
+            (input)="onNewPassword(n.value)"
+            autocomplete="new-password"
+            [placeholder]="'At least ' + minPasswordLength + ' characters'"
+            (keydown.enter)="submitRecover()"
+          />
+        </div>
+
+        @if (error()) {
+          <p class="ol-error" role="alert">{{ error() }}</p>
+        }
+
+        <dba-ui-text-button
+          class="ol-full"
+          variant="primary"
+          size="lg"
+          [label]="busy() ? 'Resetting…' : 'Reset Password'"
+          [disabled]="busy() || !code() || !newPassword()"
+          (clicked)="submitRecover()"
+        >
+          @if (!busy()) {
+            <dba-cel-icon slot="leading" name="arrow" [size]="15" />
+          }
+        </dba-ui-text-button>
+
+        <div class="ol-links">
+          <button class="ol-link" type="button" (click)="showLogin()">Back to log in</button>
+          <span class="ol-links-sep" aria-hidden="true">·</span>
+          <a class="ol-link" routerLink="/contact">Lost your recovery code too? Contact us</a>
+        </div>
       }
-    </dba-ui-text-button>
+
+      @case ('recovered') {
+        <div class="ol-head">
+          <span class="eyebrow">Password reset</span>
+          <h2>You’re Back In</h2>
+          <p>Your password for <b>&#64;{{ handle() }}</b> was changed. Your old recovery code no longer works — here’s your new one.</p>
+        </div>
+
+        <dba-recovery-code-panel [code]="newRecoveryCode()" />
+
+        <dba-ui-text-button class="ol-full" variant="primary" size="lg" label="Continue" (clicked)="close()">
+          <dba-cel-icon slot="leading" name="arrow" [size]="15" />
+        </dba-ui-text-button>
+      }
+
+      @default {
+        <div class="ol-head">
+          <span class="eyebrow">Manage profile</span>
+          <h2>Log In to Manage</h2>
+          <p>Enter the password you set for <b>&#64;{{ handle() }}</b> to edit or delete it.</p>
+        </div>
+
+        <div class="ol-field">
+          <span class="ol-field-pfx"><dba-cel-icon name="lock" [size]="15" /></span>
+          <input
+            #p
+            type="password"
+            aria-label="Profile password"
+            [value]="password()"
+            (input)="onPassword(p.value)"
+            autocomplete="current-password"
+            autofocus
+            (keydown.enter)="submit()"
+          />
+        </div>
+
+        @if (error()) {
+          <p class="ol-error" role="alert">{{ error() }}</p>
+        }
+
+        <dba-ui-text-button
+          class="ol-full"
+          variant="primary"
+          size="lg"
+          [label]="busy() ? 'Logging in…' : 'Log In'"
+          [disabled]="busy() || !password()"
+          (clicked)="submit()"
+        >
+          @if (!busy()) {
+            <dba-cel-icon slot="leading" name="arrow" [size]="15" />
+          }
+        </dba-ui-text-button>
+
+        <div class="ol-links">
+          <button class="ol-link" type="button" (click)="showRecover()">Forgot password?</button>
+        </div>
+      }
+    }
   </div>
 </div>
