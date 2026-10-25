@@ -1,4 +1,5 @@
-import { defineEventHandler, getQuery, getRouterParam } from 'h3';
+import { defineEventHandler, getQuery, getRouterParam, setHeader } from 'h3';
+import { PUBLIC_AGGREGATE_CACHE_CONTROL } from '../../../../../utils/cache.constants';
 import { getBoardConfig, isBoardId } from '../../../../../utils/leaderboards-boards';
 import { presentBoard } from '../../../../../utils/leaderboards-present';
 import { parseLimit, parseScope } from '../../../../../utils/leaderboards.util';
@@ -9,6 +10,7 @@ import { UnknownBoardError } from '../../../../../utils/celestory.error';
  * Board facade — `GET /api/v1/leaderboards/boards/:id?scope=&limit=`. Resolves
  * the board id to its server-side query + display config, runs the scope-aware
  * query, and returns render-ready entries the frontend paints verbatim.
+ * Successful responses are CDN-cached briefly (the per-user `/me` row is not).
  */
 export default defineEventHandler(async (event) => {
   try {
@@ -21,6 +23,7 @@ export default defineEventHandler(async (event) => {
     const scope = parseScope(query['scope']);
     const limit = parseLimit(query['limit']);
     const entries = await config.query(scope, limit);
+    setHeader(event, 'cache-control', PUBLIC_AGGREGATE_CACHE_CONTROL);
     return success('LEADERBOARD', `${id} leaderboard.`, {
       board: id,
       scope,

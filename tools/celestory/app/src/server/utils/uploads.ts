@@ -112,23 +112,25 @@ export async function communityStats(): Promise<CommunityStats> {
     SELECT
       COUNT(*)::int AS charted_count,
       COALESCE(SUM(total_integration_seconds), 0)::bigint AS total_integration_seconds,
-      COALESCE(SUM(target_count), 0)::int AS target_count,
-      COALESCE(SUM(light_frame_count), 0)::int AS light_frame_count
+      COALESCE(SUM(target_count), 0)::bigint AS target_count,
+      COALESCE(SUM(light_frame_count), 0)::bigint AS light_frame_count
     FROM counted
   `;
   const live = await sql`SELECT COUNT(*)::int AS live_count FROM stories`;
+  // Sums are bigint (an ::int cast would overflow and fail the whole query on
+  // large community totals); the driver returns bigint as a string.
   const row = rows[0] as {
     charted_count: number;
     total_integration_seconds: string | number;
-    target_count: number;
-    light_frame_count: number;
+    target_count: string | number;
+    light_frame_count: string | number;
   };
   const liveRow = live[0] as { live_count: number };
   return {
     chartedCount: row.charted_count,
     liveCount: liveRow.live_count,
     totalIntegrationSeconds: Number(row.total_integration_seconds),
-    targetCount: row.target_count,
-    lightFrameCount: row.light_frame_count,
+    targetCount: Number(row.target_count),
+    lightFrameCount: Number(row.light_frame_count),
   };
 }

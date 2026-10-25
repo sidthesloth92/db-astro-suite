@@ -14,7 +14,7 @@ import { BadPasswordError, StoryNotFoundError } from '../../../../utils/celestor
  * ③ Update — re-publish an existing handle with a fresh story. Authorized by a
  * management session token (logged-in owner) OR the profile password (landing
  * re-upload flow); then replaces the story + recomputed totals and rebuilds
- * the child rows in a single transaction. The handle is unchanged; a fresh
+ * the child rows, all in a single transaction. The handle is unchanged; a fresh
  * session token is returned so the owner stays logged in.
  */
 export default defineEventHandler(async (event) => {
@@ -44,20 +44,21 @@ export default defineEventHandler(async (event) => {
 
     const storyId = row.id;
     const { totals } = rows;
-    await sql`
-      UPDATE stories SET
-        story_json = ${storyJson},
-        total_integration_seconds = ${totals.totalIntegrationSeconds},
-        target_count = ${totals.targetCount},
-        night_count = ${totals.nightCount},
-        light_frame_count = ${totals.lightFrameCount},
-        first_light = ${totals.firstLight},
-        latest_session = ${totals.latestSession}
-      WHERE id = ${storyId}
-    `;
 
-    // Rebuild child rows: clear the old, insert the new, atomically.
+    // Replace the story row and rebuild its child rows in one transaction, so
+    // a failure can never leave the profile and its leaderboard rows out of sync.
     const rebuild = [
+      sql`
+        UPDATE stories SET
+          story_json = ${storyJson},
+          total_integration_seconds = ${totals.totalIntegrationSeconds},
+          target_count = ${totals.targetCount},
+          night_count = ${totals.nightCount},
+          light_frame_count = ${totals.lightFrameCount},
+          first_light = ${totals.firstLight},
+          latest_session = ${totals.latestSession}
+        WHERE id = ${storyId}
+      `,
       sql`DELETE FROM story_targets WHERE story_id = ${storyId}`,
       sql`DELETE FROM story_equipment WHERE story_id = ${storyId}`,
       sql`DELETE FROM story_filters WHERE story_id = ${storyId}`,
