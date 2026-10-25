@@ -1,5 +1,5 @@
 import { RouteMeta } from '@analogjs/router';
-import { injectBaseURL } from '@analogjs/router/tokens';
+import { injectBaseURL, injectResponse } from '@analogjs/router/tokens';
 import { DOCUMENT } from '@angular/common';
 import {
   afterNextRender,
@@ -13,7 +13,7 @@ import {
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Meta, Title } from '@angular/platform-browser';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { ConstellationFieldComponent } from '@db-astro-suite/ui';
+import { ConstellationFieldComponent, TextButtonComponent } from '@db-astro-suite/ui';
 import { catchError, combineLatest, map, of, startWith, switchMap } from 'rxjs';
 import { CelestoryWordmarkComponent } from '../../components/celestory-wordmark/celestory-wordmark.component';
 import { JourneyViewComponent } from '../../components/journey-view/journey-view.component';
@@ -27,6 +27,8 @@ import { resolveOrigin } from '../../utils/origin.util';
 import { setStructuredData } from '../../utils/structured-data.util';
 import { applySocialMeta } from '../../utils/social-meta.util';
 import { profileShareMeta, type ProfileShareFocus } from '../../utils/profile-share-meta.util';
+import { loadFailure } from '../../utils/load-failure.util';
+import { setSsrStatus } from '../../utils/ssr-status.util';
 
 /** SSR baseline for the dynamic profile route — overwritten per-handle once the
  * story resolves; covers the loading state before the API responds. */
@@ -43,8 +45,10 @@ export const routeMeta: RouteMeta = {
 
 /**
  * Public profile at /user/<handle>. Renders the shared journey shell in the
- * Published state for the handle's story loaded from the API (SSR-friendly); an
- * unknown handle shows the missing state. Sets per-handle OpenGraph meta (from the
+ * Published state for the handle's story loaded from the API (SSR-friendly). An
+ * unknown handle shows "not found" with HTTP 404 (noindex); a server failure
+ * shows "temporarily unavailable" with HTTP 503 (not noindexed, so crawlers
+ * retry instead of dropping a real profile). Sets per-handle OpenGraph meta (from the
  * story summary) so shared links unfurl well. (The bundled demo lives at /demo.)
  */
 @Component({
@@ -56,6 +60,7 @@ export const routeMeta: RouteMeta = {
     JourneyViewComponent,
     CelestoryWordmarkComponent,
     ProcessingRevealComponent,
+    TextButtonComponent,
   ],
   templateUrl: './[handle].page.html',
   styleUrl: './[handle].page.css',
@@ -69,6 +74,8 @@ export default class PortfolioPageComponent {
   private readonly doc = inject(DOCUMENT);
   /** SSR base URL (origin), null in the browser — used to build absolute share URLs. */
   private readonly baseUrl = injectBaseURL();
+  /** The server response during SSR (null in the browser) — carries the 404/503 status. */
+  private readonly response = injectResponse();
 
   /** Bumped to re-fetch the profile after an owner edit (re-upload). */
   private readonly reloadTick = signal(0);
@@ -87,7 +94,7 @@ export default class PortfolioPageComponent {
       switchMap((handle) =>
         this.storyService.getStory(handle).pipe(
           map((profile): PortfolioState => ({ status: 'loaded', profile })),
-          catchError(() => of<PortfolioState>({ status: 'error' })),
+          catchError((error: unknown) => of<PortfolioState>({ status: loadFailure(error) })),
           startWith<PortfolioState>({ status: 'loading' }),
         ),
       ),
@@ -99,6 +106,12 @@ export default class PortfolioPageComponent {
   protected refresh(): void {
     this.reloadTick.update((n) => n + 1);
   }
+
+  /** True when the profile couldn't be shown (missing or unavailable) — hides the intro reveal. */
+  protected readonly failed = computed(() => {
+    const status = this.state().status;
+    return status === 'not-found' || status === 'unavailable';
+  });
 
   /** The loaded profile, or null while loading / on error. */
   protected readonly profile = computed<StoryDetails | null>(() => {
@@ -132,8 +145,12 @@ export default class PortfolioPageComponent {
       const state = this.state();
       if (state.status === 'loaded') {
         this.applyMeta(state.profile, this.focus());
-      } else if (state.status === 'error') {
+      } else if (state.status === 'not-found') {
+        setSsrStatus(this.response, 404);
         this.applyNotFoundMeta();
+      } else if (state.status === 'unavailable') {
+        setSsrStatus(this.response, 503);
+        this.applyUnavailableMeta();
       }
     });
   }
@@ -159,6 +176,13 @@ export default class PortfolioPageComponent {
   private applyNotFoundMeta(): void {
     this.title.setTitle('Celestory — Profile not found');
     this.meta.updateTag({ name: 'robots', content: 'noindex' });
+    setStructuredData(this.doc, null);
+  }
+
+  /** A temporary failure: clear title, no structured data, and deliberately NOT noindex. */
+  private applyUnavailableMeta(): void {
+    this.title.setTitle('Celestory — Temporarily unavailable');
+    this.meta.removeTag('name="robots"');
     setStructuredData(this.doc, null);
   }
 }

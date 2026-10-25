@@ -4,4 +4,7 @@ import type { StoryDetails } from './api.model';
 export type PortfolioState =
   | { status: 'loading' }
   | { status: 'loaded'; profile: StoryDetails }
-  | { status: 'error' };
+  /** No profile at this handle (HTTP 404). */
+  | { status: 'not-found' }
+  /** The server couldn't answer right now (database down, 5xx, offline). */
+  | { status: 'unavailable' };

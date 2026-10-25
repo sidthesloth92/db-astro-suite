@@ -74,8 +74,11 @@ export class CelestoryMarkComponent {
     });
   }
 
-  /** Restart the launch animation from the beginning. */
+  /** Restart the launch animation from the beginning (browser only — no-op during SSR). */
   play(): void {
+    if (typeof requestAnimationFrame === 'undefined') {
+      return;
+    }
     cancelAnimationFrame(this.rafId);
     this.startedAt = performance.now();
     this.rafId = requestAnimationFrame(this.frame);

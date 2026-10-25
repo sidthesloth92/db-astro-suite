@@ -25,6 +25,7 @@ import { publishName } from '../../utils/display-identity.util';
 import { observerName, observerWithName } from '../../utils/observer-name.util';
 import { MAX_DISPLAY_NAME_LENGTH } from '../../models/observer.constants';
 import { canSaveProfile as profileIsSaveable, displayNameError } from '../../utils/profile-form.util';
+import { loadFailure } from '../../utils/load-failure.util';
 import type { PublishPhaseRequest } from '../../models/publish-phase.types';
 import type { ProfileChanges } from '../../models/api.model';
 import { IconButtonComponent, TextButtonComponent } from '@db-astro-suite/ui';
@@ -148,6 +149,8 @@ export class PublishModalComponent implements OnInit {
    * or deleted shows as free again.
    */
   private readonly serverExists = signal<boolean | null>(null);
+  /** Set when the availability check couldn't reach the server (shown under the handle). */
+  protected readonly availabilityError = signal('');
   /** Debounce handle for the availability check. */
   private availabilityTimer: ReturnType<typeof setTimeout> | null = null;
   /**
@@ -218,9 +221,10 @@ export class PublishModalComponent implements OnInit {
 
   /**
    * Debounced live check of whether the typed handle is already published, so
-   * "already exists" reflects the server — not stale client ownership. A 404
-   * (or any error) means free; a 200 means taken. Out-of-order responses are
-   * ignored by re-checking the current handle before applying the result.
+   * "already exists" reflects the server — not stale client ownership. A 200
+   * means taken and only a 404 means free; any other failure leaves it unknown
+   * and says so, so an outage can't make a taken handle look available.
+   * Out-of-order responses are ignored by re-checking the current handle.
    */
   private checkAvailability(): void {
     if (this.availabilityTimer) {
@@ -228,6 +232,7 @@ export class PublishModalComponent implements OnInit {
     }
     const handle = this.clean();
     this.serverExists.set(null);
+    this.availabilityError.set('');
     if (!handle) {
       return;
     }
@@ -241,9 +246,14 @@ export class PublishModalComponent implements OnInit {
               this.serverExists.set(true);
             }
           },
-          error: () => {
-            if (this.clean() === handle) {
+          error: (error: unknown) => {
+            if (this.clean() !== handle) {
+              return;
+            }
+            if (loadFailure(error) === 'not-found') {
               this.serverExists.set(false);
+            } else {
+              this.availabilityError.set('Couldn’t check that handle — try again in a moment.');
             }
           },
         });

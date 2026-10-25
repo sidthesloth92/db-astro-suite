@@ -1,6 +1,7 @@
 import { defineEventHandler, setHeader } from 'h3';
 import { getDb } from '../utils/db';
 import { requestOrigin } from '../utils/request-origin.util';
+import { config } from '../utils/config';
 import { buildSitemapXml, toLastmod, type SitemapUrl } from '../utils/sitemap.util';
 
 /**
@@ -12,7 +13,7 @@ import { buildSitemapXml, toLastmod, type SitemapUrl } from '../utils/sitemap.ut
 export default defineEventHandler(async (event) => {
   setHeader(event, 'content-type', 'application/xml; charset=utf-8');
   setHeader(event, 'cache-control', 'public, max-age=3600, s-maxage=86400');
-  const origin = requestOrigin(event);
+  const origin = config.canonicalOrigin || requestOrigin(event);
 
   const urls: SitemapUrl[] = [
     { loc: `${origin}/` },

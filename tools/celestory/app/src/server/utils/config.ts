@@ -9,6 +9,12 @@ interface ServerConfig {
   /** Public origin used when minting shareable story URLs. */
   readonly publicBaseUrl: string;
   /**
+   * The public origin when `CELESTORY_PUBLIC_BASE_URL` is explicitly set (no
+   * trailing slash), else ''. robots.txt and the sitemap use it so crawlers are
+   * always pointed at the real domain, never a preview or *.vercel.app host.
+   */
+  readonly canonicalOrigin: string;
+  /**
    * HMAC secret used to sign owner management session tokens. Set
    * `CELESTORY_SESSION_SECRET` in production (Vercel); the dev fallback only
    * keeps local tokens self-consistent and must not be relied on for security.
@@ -35,6 +41,7 @@ if (process.env['NODE_ENV'] === 'production' && sessionSecret === DEV_SESSION_SE
 export const config: ServerConfig = Object.freeze({
   databaseUrl: process.env['DATABASE_URL'] ?? '',
   publicBaseUrl:
-    process.env['CELESTORY_PUBLIC_BASE_URL'] ?? 'http://localhost:5173',
+    process.env['CELESTORY_PUBLIC_BASE_URL'] || 'http://localhost:5173',
+  canonicalOrigin: (process.env['CELESTORY_PUBLIC_BASE_URL'] ?? '').trim().replace(/\/+$/, ''),
   sessionSecret,
 });

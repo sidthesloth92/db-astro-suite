@@ -46,6 +46,9 @@
             (keydown.enter)="submit()"
           />
         </div>
+        @if (availabilityError()) {
+          <p class="ob-error" role="alert">{{ availabilityError() }}</p>
+        }
         @if (exists()) {
           <div class="ob-exists" role="alert">
             <dba-cel-icon name="globe" [size]="14" />
@@ -157,7 +160,9 @@
             (keydown.enter)="saveProfile()"
           />
         </div>
-        @if (handleTaken()) {
+        @if (handleChanged() && availabilityError()) {
+          <p class="ob-error" role="alert">{{ availabilityError() }}</p>
+        } @else if (handleTaken()) {
           <p class="ob-error" role="alert"><b>&#64;{{ clean() }}</b> is taken — try another.</p>
         } @else if (handleChanged() && clean()) {
           <div class="ob-exists" role="note">
