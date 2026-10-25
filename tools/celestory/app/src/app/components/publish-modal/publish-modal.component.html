@@ -70,9 +70,6 @@
           <dba-ui-text-button class="ob-full" variant="primary" size="lg" label="Publish anyway" [disabled]="busy()" (clicked)="publishAnyway()">
             <dba-cel-icon slot="leading" name="globe" [size]="15" />
           </dba-ui-text-button>
-          <button class="ob-back-link" type="button" (click)="cancelShrink()">
-            <dba-cel-icon name="back" [size]="14" /> Cancel
-          </button>
         } @else {
           @if (error()) {
             <p class="ob-error" role="alert">{{ error() }}</p>
@@ -121,9 +118,6 @@
         }
         <button class="btn-danger ob-full" type="button" (click)="confirmDelete()" [disabled]="busy() || !canDelete()">
           <dba-cel-icon name="trash" [size]="15" /> Delete Profile Permanently
-        </button>
-        <button class="ob-back-link" type="button" (click)="closed.emit()">
-          <dba-cel-icon name="back" [size]="14" /> Keep my profile
         </button>
       }
 

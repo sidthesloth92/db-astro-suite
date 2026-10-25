@@ -384,11 +384,6 @@ export class PublishModalComponent implements OnInit {
     this.publish(this.clean(), this.password());
   }
 
-  /** Dismiss the shrink warning without publishing. */
-  cancelShrink(): void {
-    this.shrinkWarning.set('');
-  }
-
   /**
    * Before an update, fetch the live profile's totals and warn if this story has
    * less integration/frames (likely a partial-library device). On any fetch error

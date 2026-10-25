@@ -202,18 +202,6 @@
   width: 100%;
   margin-top: 1.1rem;
 }
-.ob-back-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin: 0.7rem auto 0;
-  background: transparent;
-  border: none;
-  color: var(--db-color-text-dim);
-  font-size: 0.85rem;
-  cursor: pointer;
-}
-
 .ob-live-badge,
 .ob-danger-badge {
   display: grid;
