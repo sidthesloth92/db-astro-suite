@@ -39,3 +39,6 @@ tools/astrosolve/server/data/access-keys.sqlite
 .claude/settings.json
 
 astrogram_design
+.vercel
+.env*.local
+.env*
