@@ -52,6 +52,8 @@ export class ToolDetailComponent {
   readonly primaryClicked = output<void>();
   /** Emitted when the user activates the secondary "GitHub" CTA. */
   readonly secondaryClicked = output<void>();
+  /** Emitted with a step's `actionId` when an interactive step is activated. */
+  readonly stepAction = output<string>();
 
   /** Chevron-left glyph for the "RETURN TO HUB" back link. */
   protected readonly chevronLeftIcon = chevronLeftIcon;

@@ -24,6 +24,7 @@ export default defineConfig(({ mode }) => ({
           '/tool/astrogram',
           '/tool/astrospike',
           '/tool/sortronomy',
+          '/tool/celestory',
         ],
       },
       nitro: {
