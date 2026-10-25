@@ -102,6 +102,10 @@
         [story]="story()"
         [handle]="handle()"
         [state]="state()"
+        [isOwner]="isOwner()"
+        [renaming]="renaming()"
+        [renameError]="renameError()"
+        (rename)="onRename($event)"
         (share)="openShare()"
         (publish)="openPublish()"
         (openTarget)="openTarget($event)"
@@ -157,6 +161,7 @@
   @if (showSky()) {
     <dba-planetarium
       [story]="story()"
+      [handle]="handle()"
       (closed)="closeSky()"
       (openEquipment)="skyToEquipment($event)"
     />

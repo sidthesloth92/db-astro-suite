@@ -30,6 +30,10 @@ describe('publishErrorMessage', () => {
     expect(publishErrorMessage('STORY_TOO_LARGE')).toBe('This journey is too large to publish.');
   });
 
+  it('explains an invalid display name', () => {
+    expect(publishErrorMessage('NAME_INVALID')).toBe('Names are 1–60 characters, without “—”.');
+  });
+
   it('explains a wrong recovery code', () => {
     expect(publishErrorMessage('RECOVERY_CODE_INCORRECT')).toBe(
       'That recovery code doesn’t match this profile.',

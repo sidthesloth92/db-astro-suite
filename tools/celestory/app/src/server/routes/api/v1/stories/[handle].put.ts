@@ -11,7 +11,7 @@ import { success, toErrorResponse } from '../../../../utils/respond';
 import { BadPasswordError, StoryNotFoundError } from '../../../../utils/celestory.error';
 import { consumeRateLimit, handleSubject } from '../../../../utils/rate-limit';
 import { assertDeclaredStorySize, assertStorySize } from '../../../../utils/story-size.util';
-import { toStoredStory } from '../../../../utils/stored-story.util';
+import { toStoredStory, withStoredObserver } from '../../../../utils/stored-story.util';
 import { LOGIN_FAILURE_LIMIT, UPDATE_LIMIT } from '../../../../utils/rate-limit.constants';
 import type { Story } from '../../../../utils/story.types';
 import type { StoryTotals } from '../../../../utils/story.model';
@@ -44,17 +44,21 @@ export default defineEventHandler(async (event) => {
       assertStorySize(body?.story);
       story = validateStory(body?.story);
       const rows = extractRows(story);
-      // Stored (and served publicly) without the per-install identity fields.
-      const storyJson = JSON.stringify(toStoredStory(body?.story));
 
       const sql = getDb();
       const found = await sql`
-        SELECT id, password_hash FROM stories WHERE handle = ${handle} LIMIT 1
+        SELECT id, password_hash, story_json::jsonb->>'observer' AS observer
+        FROM stories WHERE handle = ${handle} LIMIT 1
       `;
       if (found.length === 0) {
         throw new StoryNotFoundError(handle);
       }
-      const row = found[0] as { id: string; password_hash: string | null };
+      const row = found[0] as { id: string; password_hash: string | null; observer: string | null };
+      // Stored (and served publicly) without the per-install identity fields,
+      // keeping the profile's saved name when the new file carries none.
+      const storyJson = JSON.stringify(
+        withStoredObserver(toStoredStory(body?.story), row.observer),
+      );
       // A valid owner session token authorizes the edit; otherwise fall back to
       // the profile password (used by the landing re-upload flow).
       const viaSession = authorizeSession(token, handle, row.id);

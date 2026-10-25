@@ -353,3 +353,13 @@
     flex-basis: 44%;
   }
 }
+
+/* Owner rename progress / error under the name. */
+.id-status {
+  margin: 0.35rem 0 0;
+  font-size: 0.78rem;
+  color: var(--db-color-text-muted);
+}
+.id-status--error {
+  color: var(--db-color-text-error);
+}

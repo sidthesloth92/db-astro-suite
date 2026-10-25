@@ -28,6 +28,12 @@ export interface LoginResult {
   token: string;
 }
 
+/** Result of an owner rename — the saved name and the full observer line it produced. */
+export interface UpdateNameResult {
+  name: string;
+  observer: string;
+}
+
 /** Result of a recovery-code password reset — an owner session token and the replacement recovery code. */
 export interface RecoverResult {
   token: string;

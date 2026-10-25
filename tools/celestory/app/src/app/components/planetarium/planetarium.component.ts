@@ -47,6 +47,8 @@ export class PlanetariumComponent {
 
   /** The full story (targets with RA/Dec are plotted; equipment for the popup). */
   readonly story = input.required<CelestoryStory>();
+  /** The published profile's handle ('' in Private Preview), passed to the target popup's share card. */
+  readonly handle = input<string>('');
 
   /** Close the planetarium and return to the journey. */
   readonly closed = output<void>();

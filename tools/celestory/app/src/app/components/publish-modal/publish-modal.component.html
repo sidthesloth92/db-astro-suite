@@ -10,6 +10,9 @@
           <span class="eyebrow">Publish</span>
           <h2>Publish Your Journey</h2>
           <p>Claim your handle and set a password. Re-uploading later with the same handle updates your page.</p>
+          @if (publishAs()) {
+            <p class="ob-as">Publishing as <b>{{ publishAs() }}</b></p>
+          }
         </div>
         <ul class="ob-benefits">
           <li><dba-cel-icon name="check" [size]="15" /> Permanent URL</li>

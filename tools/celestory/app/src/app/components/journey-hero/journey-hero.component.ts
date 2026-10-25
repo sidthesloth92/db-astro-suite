@@ -1,18 +1,18 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { BRAND_CYAN, BRAND_PINK } from '../../models/brand.constants';
+import { MAX_DISPLAY_NAME_LENGTH, OBSERVER_PLACE_SEPARATOR } from '../../models/observer.constants';
 import type { JourneyState } from '../../models/journey.types';
 import type { CelestoryStory } from '../../models/story.model';
-import type { HeatStripView, HeroIdentity, Highlight, YearSpan } from '../../models/portfolio-view.types';
+import type { HeatStripView, Highlight, YearSpan } from '../../models/portfolio-view.types';
 import { SessionStore } from '../../services/session-store.service';
 import { targetRaDec } from '../../utils/celestial.util';
 import { formatCount, formatDuration } from '../../utils/format.util';
+import { heatStrip, highlights, seasonCount, yearSpan } from '../../utils/portfolio.util';
 import {
-  heatStrip,
-  heroIdentity,
-  highlights,
-  seasonCount,
-  yearSpan,
-} from '../../utils/portfolio.util';
+  canEditDisplayName,
+  canEditUsername,
+  displayIdentity,
+} from '../../utils/display-identity.util';
 import { IconButtonComponent, TextButtonComponent } from '@db-astro-suite/ui';
 import { CelIconComponent } from '../cel-icon/cel-icon.component';
 import { CelestoryWordmarkComponent } from '../celestory-wordmark/celestory-wordmark.component';
@@ -29,6 +29,8 @@ let heroUid = 0;
  * background: identity → year-span moon-phase timeline → giant total integration
  * → key metrics → "Highlights of the journey" → filter distribution → nightly
  * activity heat strip. Emits share/publish/open-target intents to the shell.
+ * The name follows displayIdentity(): the viewer's own in preview, the
+ * profile's saved one elsewhere; only preview and the profile's owner can edit.
  */
 @Component({
   selector: 'dba-journey-hero',
@@ -49,14 +51,20 @@ let heroUid = 0;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class JourneyHeroComponent {
-  /** Editable identity, persisted + shared with the Share Studio. */
-  protected readonly session = inject(SessionStore);
+  /** The viewer's browser-saved identity (used only in Private Preview). */
+  private readonly session = inject(SessionStore);
   /** The story to render. */
   readonly story = input.required<CelestoryStory>();
   /** The public handle (empty in Private Preview). */
   readonly handle = input<string>('');
-  /** Current journey state — gates the Publish action. */
+  /** Current journey state — gates the Publish action and who may edit the name. */
   readonly state = input.required<JourneyState>();
+  /** True when the viewer is the logged-in owner of this published profile. */
+  readonly isOwner = input(false);
+  /** True while an owner rename is being saved. */
+  readonly renaming = input(false);
+  /** Error from the last owner rename, or ''. */
+  readonly renameError = input('');
 
   /** Open the unified Share modal. */
   readonly share = output<void>();
@@ -66,6 +74,8 @@ export class JourneyHeroComponent {
   readonly openTarget = output<string>();
   /** Enter the full-screen planetarium ("View My Universe"). */
   readonly enterSky = output<void>();
+  /** Owner saved a new display name for the published profile (the parent persists it). */
+  readonly rename = output<string>();
 
   /** Avatar gradient/mask ids. */
   protected readonly avG = `hav-g-${heroUid}`;
@@ -73,15 +83,18 @@ export class JourneyHeroComponent {
   protected readonly cyan = BRAND_CYAN;
   protected readonly pink = BRAND_PINK;
 
-  /** Resolved identity (from the story). */
-  protected readonly identity = computed<HeroIdentity>(() => heroIdentity(this.story(), this.handle()));
-  /** Display name/username — the user's edited identity overrides the story's. */
-  protected readonly displayName = computed(() => this.session.identity().name || this.identity().name);
-  /** Bare username (no leading "@"); the template renders the "@" so we never double it.
-   * Falls back to the story-derived published handle when the user hasn't set one. */
-  protected readonly displayUsername = computed(() =>
-    (this.session.identity().username || this.identity().handle).replace(/^@+/, ''),
+  /** Name and username shown for this page type (see displayIdentity). */
+  private readonly shown = computed(() =>
+    displayIdentity(this.state(), this.story(), this.handle(), this.session.identity()),
   );
+  /** Display name for the "[Name]'s Celestory" lockup. */
+  protected readonly displayName = computed(() => this.shown().name);
+  /** Bare username (no leading "@"); the template renders the "@" so we never double it. */
+  protected readonly displayUsername = computed(() => this.shown().username.replace(/^@+/, ''));
+  /** Whether the pencil shows: in preview, or for the profile's owner. */
+  protected readonly canEditName = computed(() => canEditDisplayName(this.state(), this.isOwner()));
+  /** Whether the editor offers the username too (preview only; a published username is its URL). */
+  protected readonly canEditUsername = computed(() => canEditUsername(this.state()));
   /** Possessive prefix for the "[Name]'s Celestory" lockup. */
   protected readonly lockupPrefix = computed(() => `${this.displayName()}'s`);
   /** Tagline that follows the effective (possibly edited) author name, not the static story name. */
@@ -90,6 +103,8 @@ export class JourneyHeroComponent {
     return first ? `${first}’s journey under the stars` : 'A journey under the stars';
   });
 
+  /** Longest name the editor accepts (matches the server's limit). */
+  protected readonly maxNameLength = MAX_DISPLAY_NAME_LENGTH;
   /** Inline identity editor. */
   protected readonly editing = signal(false);
   protected readonly editName = signal('');
@@ -101,12 +116,22 @@ export class JourneyHeroComponent {
     this.editUsername.set(this.displayUsername().replace(/^@/, ''));
     this.editing.set(true);
   }
-  /** Persist the edited identity (shared with the Share Studio) and close. */
+  /**
+   * Save and close: in preview the edit is kept in this browser (shared with the
+   * Share Studio); on a published profile the owner's new name goes to the
+   * parent, which saves it to the server.
+   */
   saveEdit(): void {
-    this.session.setIdentity({
-      name: this.editName().trim(),
-      username: this.editUsername().trim().replace(/^@+/, ''),
-    });
+    // "—" separates name from place in the stored observer line, so keep it out of names.
+    const name = this.editName().split(OBSERVER_PLACE_SEPARATOR).join('-').trim();
+    if (this.state() === 'preview') {
+      this.session.setIdentity({
+        name,
+        username: this.editUsername().trim().replace(/^@+/, ''),
+      });
+    } else if (name && name !== this.displayName()) {
+      this.rename.emit(name);
+    }
     this.editing.set(false);
   }
   /** Discard edits. */

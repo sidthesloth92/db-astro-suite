@@ -9,6 +9,7 @@ import type {
   RecoverResult,
   StoryAuth,
   StoryDetails,
+  UpdateNameResult,
   UpdateStoryResult,
 } from '../models/api.model';
 import type { CommunityStats } from '../models/community-stats.model';
@@ -52,6 +53,17 @@ export class StoryService {
       .post<ApiResponse<LoginResult>>(
         `/api/v1/stories/${encodeURIComponent(handle)}/session`,
         { password },
+      )
+      .pipe(map((response) => response.details));
+  }
+
+  /** Owner rename — set the display name on a published profile (owner session token required). */
+  updateName(handle: string, name: string, token: string): Observable<UpdateNameResult> {
+    return this.http
+      .patch<ApiResponse<UpdateNameResult>>(
+        `/api/v1/stories/${encodeURIComponent(handle)}`,
+        { name },
+        this.authOptions(token),
       )
       .pipe(map((response) => response.details));
   }

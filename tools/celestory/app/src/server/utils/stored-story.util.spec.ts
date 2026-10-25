@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { toStoredStory } from './stored-story.util';
+import { toStoredStory, withStoredObserver } from './stored-story.util';
 
 /** An uploaded story carrying private fields alongside public ones. */
 function uploaded(): Record<string, unknown> {
@@ -49,5 +49,21 @@ describe('toStoredStory', () => {
   it('passes non-objects through unchanged', () => {
     expect(toStoredStory(null)).toBeNull();
     expect(toStoredStory('x')).toBe('x');
+  });
+});
+
+describe('withStoredObserver', () => {
+  it('keeps the saved name when the re-uploaded file has none (CLI files never do)', () => {
+    expect(withStoredObserver({ targets: [] }, 'Vera C.')).toEqual({ targets: [], observer: 'Vera C.' });
+    expect(withStoredObserver({ observer: '  ' }, 'Vera C.')).toEqual({ observer: 'Vera C.' });
+  });
+
+  it('lets a name in the new file win', () => {
+    expect(withStoredObserver({ observer: 'Vera R.' }, 'Vera C.')).toEqual({ observer: 'Vera R.' });
+  });
+
+  it('leaves the story alone when nothing was saved', () => {
+    const story = { targets: [] };
+    expect(withStoredObserver(story, null)).toBe(story);
   });
 });

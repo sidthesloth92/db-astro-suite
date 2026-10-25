@@ -23,3 +23,17 @@ export function toStoredStory(raw: unknown): unknown {
   } = raw as Record<string, unknown>;
   return { ...publicFields, duplicates: [], skipped: [] };
 }
+
+/**
+ * Keep a profile's saved name across a re-upload. The CLI never writes an
+ * `observer` line (the name is set on the website), so an incoming story
+ * without one inherits the stored line; an incoming non-empty one wins.
+ */
+export function withStoredObserver(incoming: unknown, storedObserver: string | null): unknown {
+  if (incoming === null || typeof incoming !== 'object' || Array.isArray(incoming)) {
+    return incoming;
+  }
+  const story = incoming as Record<string, unknown>;
+  const current = typeof story['observer'] === 'string' ? story['observer'].trim() : '';
+  return current || !storedObserver ? story : { ...story, observer: storedObserver };
+}

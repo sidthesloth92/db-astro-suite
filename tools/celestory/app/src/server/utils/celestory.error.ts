@@ -126,6 +126,13 @@ export class BadPasswordError extends CelestoryError {
   }
 }
 
+/** A profile display name was empty, too long, or used the reserved separator. */
+export class NameInvalidError extends CelestoryError {
+  constructor(message: string) {
+    super('NAME_INVALID', message, 400);
+  }
+}
+
 /** The supplied recovery code did not match this profile (or was already used). */
 export class RecoveryCodeIncorrectError extends CelestoryError {
   constructor() {

@@ -19,6 +19,8 @@ import {
 } from '@db-astro-suite/ui';
 import { profileDisplayUrl } from '../../models/app.constants';
 import { SessionStore } from '../../services/session-store.service';
+import type { ViewerIdentity } from '../../models/session.types';
+import { shareCardIdentity } from '../../utils/display-identity.util';
 import { slugifyHandle } from '../../utils/handle.util';
 import type { CelestoryStory } from '../../models/story.model';
 import { CelIconComponent, type CelIconName } from '../cel-icon/cel-icon.component';
@@ -139,14 +141,28 @@ export class ShareStudioModalComponent {
     return `${fmt.w} × ${fmt.h}px`;
   });
 
-  /** Editable identity (name/username), shared live with the portfolio hero. */
-  protected readonly session = inject(SessionStore);
+  /** Edits persist only in Private Preview (the viewer's own journey). */
+  private readonly persistsIdentity = computed(() => this.state() === 'preview');
+  /** The viewer's browser-saved identity — used and edited only in Private Preview. */
+  private readonly session = inject(SessionStore);
   private readonly analytics = inject(AnalyticsService);
-  /** Username printed on the card: the edited identity wins, else the published handle. */
-  private readonly effectiveUsername = computed(() => this.session.identity().username || this.handle());
+  /** Card-only name/username edits made here on a published or demo profile; never saved. */
+  private readonly cardEdits = signal<Partial<ViewerIdentity>>({});
+  /** Name and username shown in the inputs and printed on the card (see shareCardIdentity). */
+  protected readonly cardIdentity = computed<ViewerIdentity>(() =>
+    shareCardIdentity(
+      this.persistsIdentity(),
+      this.session.identity(),
+      this.story(),
+      this.handle(),
+      this.cardEdits(),
+    ),
+  );
+  /** Username printed on the card: the card identity's, else the published handle. */
+  private readonly effectiveUsername = computed(() => this.cardIdentity().username || this.handle());
   /** URL slug for the claim bar: derived from the username, else the published handle. */
   private readonly urlSlug = computed(
-    () => slugifyHandle(this.session.identity().username) || this.handle(),
+    () => slugifyHandle(this.cardIdentity().username) || this.handle(),
   );
   /** Canonical profile URL shown in the left-panel claim bar (with a placeholder). */
   protected readonly claimUrl = computed(() => profileDisplayUrl(this.urlSlug() || 'yourhandle'));
@@ -155,20 +171,28 @@ export class ShareStudioModalComponent {
     const y = this.yearFilter();
     return y === 'all-time' ? 'all' : Number(y);
   });
-  /** Render-ready model, scoped to the chosen timeframe, with the edited identity. */
+  /** Render-ready model, scoped to the chosen timeframe, with the card identity. */
   protected readonly model = computed(() => {
-    const ident = this.session.identity();
+    const ident = this.cardIdentity();
     const base = buildShareModel(this.story(), { name: ident.name, username: this.effectiveUsername() });
     return scopeModelByYear(base, this.yearScope());
   });
 
-  /** Update the shared identity from the studio's name input. */
+  /** Update the card's name from the dialog input. */
   setIdentityName(value: string): void {
-    this.session.setIdentity({ ...this.session.identity(), name: value });
+    this.updateIdentity({ name: value });
   }
-  /** Update the shared identity from the studio's username input (stored verbatim). */
+  /** Update the card's username from the dialog input (stored verbatim). */
   setIdentityUsername(value: string): void {
-    this.session.setIdentity({ ...this.session.identity(), username: value.replace(/^@+/, '') });
+    this.updateIdentity({ username: value.replace(/^@+/, '') });
+  }
+  /** In preview, save the edit to the viewer's identity; elsewhere keep it on this card only. */
+  private updateIdentity(edit: Partial<ViewerIdentity>): void {
+    if (this.persistsIdentity()) {
+      this.session.setIdentity({ ...this.session.identity(), ...edit });
+    } else {
+      this.cardEdits.update((current) => ({ ...current, ...edit }));
+    }
   }
 
   /** Cached font-readiness so we only await once. */

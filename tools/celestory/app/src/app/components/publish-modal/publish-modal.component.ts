@@ -21,6 +21,8 @@ import { slugifyHandle } from '../../utils/handle.util';
 import { publishErrorMessage } from '../../utils/publish-error.util';
 import { publishShrinkWarning } from '../../utils/publish-shrink.util';
 import { MIN_PASSWORD_LENGTH } from '../../models/password.constants';
+import { publishName } from '../../utils/display-identity.util';
+import { observerWithName } from '../../utils/observer-name.util';
 import { IconButtonComponent, TextButtonComponent } from '@db-astro-suite/ui';
 import { copyToClipboard } from '../../utils/clipboard.util';
 import { CelIconComponent } from '../cel-icon/cel-icon.component';
@@ -83,6 +85,14 @@ export class PublishModalComponent implements OnInit {
 
   /** Cleaned handle for the URL preview. */
   protected readonly clean = computed(() => slugifyHandle(this.handle()));
+  /** The name this publish will carry (the viewer's edited name, else the file's), or ''. */
+  protected readonly publishAs = computed(() => publishName(this.story(), this.session.identity()));
+  /** The story as sent: carries the viewer's edited name (keeping any "— place") when set. */
+  private readonly storyToPublish = computed<CelestoryStory>(() => {
+    const story = this.story();
+    const name = this.session.identity().name.trim();
+    return name ? { ...story, observer: observerWithName(story.observer, name) } : story;
+  });
   /**
    * The handle this device has already published (own profile), if any — from the
    * current route, the persisted session, or a profileId baked into the story.
@@ -141,7 +151,8 @@ export class PublishModalComponent implements OnInit {
       this.phase.set('delete');
       return;
     }
-    const known = this.knownHandle();
+    // Prefill: a handle this device already owns, else the username edited in preview.
+    const known = this.knownHandle() || slugifyHandle(this.session.identity().username);
     if (known) {
       this.handle.set(known);
     }
@@ -276,8 +287,8 @@ export class PublishModalComponent implements OnInit {
     const mode = forceMode ?? this.intent();
     const request$: Observable<CreateStoryResult | UpdateStoryResult> =
       mode === 'update'
-        ? this.storyService.updateStory(handle, this.story(), { password })
-        : this.storyService.createStory(handle, password, this.story());
+        ? this.storyService.updateStory(handle, this.storyToPublish(), { password })
+        : this.storyService.createStory(handle, password, this.storyToPublish());
     request$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (result) => {
         // Both create and update return a management session token: the

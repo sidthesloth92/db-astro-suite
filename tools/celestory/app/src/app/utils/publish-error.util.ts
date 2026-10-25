@@ -1,4 +1,5 @@
 import { MIN_PASSWORD_LENGTH } from '../models/password.constants';
+import { MAX_DISPLAY_NAME_LENGTH, OBSERVER_PLACE_SEPARATOR } from '../models/observer.constants';
 
 /** Human wait time for a rate-limit retry-after, e.g. "1 minute", "14 minutes", "3 hours". */
 function waitLabel(retryAfterSeconds: number): string {
@@ -32,6 +33,8 @@ export function publishErrorMessage(code: unknown, details?: unknown): string {
       return `Choose a password of at least ${MIN_PASSWORD_LENGTH} characters.`;
     case 'PASSWORD_INCORRECT':
       return 'That password doesn’t match this profile.';
+    case 'NAME_INVALID':
+      return `Names are 1–${MAX_DISPLAY_NAME_LENGTH} characters, without “${OBSERVER_PLACE_SEPARATOR}”.`;
     case 'RECOVERY_CODE_INCORRECT':
       return 'That recovery code doesn’t match this profile.';
     case 'STORY_INVALID':

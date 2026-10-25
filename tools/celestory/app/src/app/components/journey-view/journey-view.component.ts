@@ -113,6 +113,10 @@ export class JourneyViewComponent {
   protected readonly editBusy = signal(false);
   /** User-facing error from an owner edit, or empty. */
   protected readonly editError = signal('');
+  /** True while the owner's new display name is being saved. */
+  protected readonly renaming = signal(false);
+  /** User-facing error from the owner's last rename, or empty. */
+  protected readonly renameError = signal('');
   /** Which phase to open the publish modal in ('' = full flow, 'delete' = delete confirm). */
   protected readonly publishPhase = signal<'' | 'delete'>('');
 
@@ -184,6 +188,10 @@ export class JourneyViewComponent {
   protected readonly profileDisplay = computed(() => profileDisplayUrl(this.handle()));
   /** True once the journey is published — gates the per-item share links. */
   protected readonly isPublished = computed(() => this.state() === 'published');
+  /** True when the viewer is the logged-in owner of this published profile (gates the name edit). */
+  protected readonly isOwner = computed(
+    () => this.isPublished() && this.session.isOwnerOf(this.handle()),
+  );
   /** Public deep-link to the open per-target share card, or '' when unpublished. */
   protected readonly targetShareUrl = computed(() => {
     const o = this.shareTarget();
@@ -316,6 +324,32 @@ export class JourneyViewComponent {
           },
         });
     });
+  }
+  /**
+   * Owner rename: save the new display name to the published profile with the
+   * management session token, then ask the host to re-fetch the profile.
+   */
+  onRename(name: string): void {
+    const token = this.session.token();
+    if (!token) {
+      this.renameError.set(publishErrorMessage('SESSION_INVALID'));
+      return;
+    }
+    this.renameError.set('');
+    this.renaming.set(true);
+    this.storyService
+      .updateName(this.handle(), name, token)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.renaming.set(false);
+          this.updated.emit();
+        },
+        error: (err: HttpErrorResponse) => {
+          this.renaming.set(false);
+          this.renameError.set(publishErrorMessage(err.error?.code, err.error?.details));
+        },
+      });
   }
   /** Demo CTA: sends viewers to the landing page's installation section. */
   goToInstall(): void {

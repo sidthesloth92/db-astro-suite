@@ -392,3 +392,14 @@
     width: 60%;
   }
 }
+
+/* "Publishing as <name>" line under the claim header. */
+.ob-as {
+  margin-top: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--db-color-text-muted);
+}
+.ob-as b {
+  color: var(--db-color-text-primary);
+  font-weight: 600;
+}

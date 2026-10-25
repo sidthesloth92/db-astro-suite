@@ -10,18 +10,21 @@
             (input)="onEditName(nameI.value)"
             placeholder="Your name"
             aria-label="Your name"
+            [attr.maxlength]="maxNameLength"
           />
-          <div class="id-handle-row">
-            <span class="id-at">&#64;</span>
-            <input
-              #usernameI
-              class="id-input"
-              [value]="editUsername()"
-              (input)="onEditUsername(usernameI.value)"
-              placeholder="username"
-              aria-label="Your username"
-            />
-          </div>
+          @if (canEditUsername()) {
+            <div class="id-handle-row">
+              <span class="id-at">&#64;</span>
+              <input
+                #usernameI
+                class="id-input"
+                [value]="editUsername()"
+                (input)="onEditUsername(usernameI.value)"
+                placeholder="username"
+                aria-label="Your username"
+              />
+            </div>
+          }
           <div class="id-edit-actions">
             <button class="id-save" type="button" (click)="saveEdit()">
               <dba-cel-icon name="check" [size]="14" /> Save
@@ -35,10 +38,24 @@
           @if (displayUsername()) {
             <span class="hero-handle">&#64;{{ displayUsername() }}</span>
           }
-          <dba-ui-icon-button class="id-edit-btn" accent="cyan" [size]="30" title="Edit name and username" (clicked)="startEdit()">
-            <dba-cel-icon name="edit" [size]="14" />
-          </dba-ui-icon-button>
+          @if (canEditName()) {
+            <dba-ui-icon-button
+              class="id-edit-btn"
+              accent="cyan"
+              [size]="30"
+              [title]="canEditUsername() ? 'Edit name and username' : 'Edit your name'"
+              [disabled]="renaming()"
+              (clicked)="startEdit()"
+            >
+              <dba-cel-icon name="edit" [size]="14" />
+            </dba-ui-icon-button>
+          }
         </div>
+        @if (renaming()) {
+          <p class="id-status" role="status">Saving your name…</p>
+        } @else if (renameError()) {
+          <p class="id-status id-status--error" role="alert">{{ renameError() }}</p>
+        }
       }
     </div>
     <div class="hero-tagline eyebrow">{{ tagline() }}</div>
