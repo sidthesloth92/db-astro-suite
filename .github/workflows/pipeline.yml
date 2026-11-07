@@ -37,7 +37,10 @@ jobs:
     if: |
       (github.event_name == 'pull_request' && !startsWith(github.head_ref, 'release-please--')) ||
       (github.event_name == 'push' && github.ref == 'refs/heads/main' && !startsWith(github.event.head_commit.message, 'chore(main): release') && !startsWith(github.event.head_commit.message, 'feat(main): release'))
-    runs-on: ubuntu-latest
+    # Pinned: ubuntu-latest moved to 26.04, which Playwright 1.58 can't install
+    # Chromium on (pnpm install's postinstall fails). Visual baselines are
+    # 24.04 renders too. Unpin together with a Playwright upgrade.
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -209,7 +212,10 @@ jobs:
       github.event_name == 'push' &&
       github.ref == 'refs/heads/main' &&
       (startsWith(github.event.head_commit.message, 'chore(main): release') || startsWith(github.event.head_commit.message, 'feat(main): release'))
-    runs-on: ubuntu-latest
+    # Pinned: ubuntu-latest moved to 26.04, which Playwright 1.58 can't install
+    # Chromium on (pnpm install's postinstall fails). Visual baselines are
+    # 24.04 renders too. Unpin together with a Playwright upgrade.
+    runs-on: ubuntu-24.04
     # Serialise GitHub Pages deployments across refs without cancelling an
     # in-progress deploy (the per-ref workflow concurrency only dedupes CI).
     concurrency:
