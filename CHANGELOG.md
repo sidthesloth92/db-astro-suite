@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.38.3](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.38.2...db-astro-suite-v1.38.3) (2026-11-07)
+
+
+### Bug Fixes
+
+* **starwizz:** keep the control panel reachable on short desktops and the mobile preview at its true aspect ratio ([#134](https://github.com/sidthesloth92/db-astro-suite/issues/134)) ([98091a3](https://github.com/sidthesloth92/db-astro-suite/commit/98091a3e7f762f7f7d4e5557e04f717facdb5ff9))
+
 ## [1.38.2](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.38.1...db-astro-suite-v1.38.2) (2026-10-11)
 
 
