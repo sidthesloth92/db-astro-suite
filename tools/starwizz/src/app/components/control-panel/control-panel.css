@@ -1,6 +1,5 @@
 :host {
   display: flex;
-  align-items: center;
   flex: 0 0 360px;
   width: 360px;
   max-height: calc(100vh - 80px);
@@ -20,8 +19,14 @@
   }
 }
 
+/*
+ * Vertically centred via auto margins rather than align-items: center. Auto
+ * margins collapse to 0 when the panel is taller than the viewport, so the
+ * top stays reachable by scrolling instead of overflowing above the host.
+ */
 .control-panel {
   width: 100%;
+  margin-block: auto;
   background: var(--db-color-surface);
   border: 1px solid var(--db-color-border);
   border-radius: 12px;

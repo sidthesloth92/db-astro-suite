@@ -1,4 +1,4 @@
-import { Component, output } from '@angular/core';
+import { Component, output, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AnalyticsService, BreakpointService } from '@db-astro-suite/ui';
 import { App } from './app';
@@ -78,10 +78,15 @@ describe('App', () => {
     let fixture: ComponentFixture<App>;
     let simService: SimulationService;
 
-    /** Renders the mobile shell with an image loaded so the record button is live. */
+    /**
+     * Renders the mobile shell with an image loaded so the record button is live.
+     * The breakpoint is stubbed rather than set on the real service: its
+     * afterNextRender listener re-reads window.innerWidth after the first render
+     * and flips back to desktop whenever the test browser is wider than 1080px.
+     */
     function renderMobile(): void {
+      TestBed.overrideProvider(BreakpointService, { useValue: { isMobile: signal(true) } });
       simService = TestBed.inject(SimulationService);
-      TestBed.inject(BreakpointService).isMobile.set(true);
       simService.isImageLoaded.set(true);
       simService.recordFromBeginning.set(false);
       fixture = TestBed.createComponent(App);
