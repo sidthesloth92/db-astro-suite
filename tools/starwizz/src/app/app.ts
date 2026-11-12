@@ -5,6 +5,8 @@ import {
   HeaderComponent,
   IconButtonComponent,
   IconComponent,
+  SharePromptComponent,
+  SharePromptService,
   VideoLightboxComponent,
   checkIcon,
   slidersIcon,
@@ -50,6 +52,7 @@ const SLIDER_TARGET_SELECTOR = 'dba-ui-micro-slider';
     FloatingSheetComponent,
     IconButtonComponent,
     IconComponent,
+    SharePromptComponent,
     VideoLightboxComponent,
   ],
   templateUrl: './app.html',
@@ -70,6 +73,8 @@ export class App {
   protected readonly inAppBrowser = inject(InAppBrowserService);
   /** True inside an in-app browser: the alert blocks the page and the shell behind it is inert. */
   protected readonly isBlockedByInAppBrowser = this.inAppBrowser.browser !== null;
+  /** Post-recording share prompt state, bound to `dba-ui-share-prompt`. */
+  protected readonly sharePrompt = inject(SharePromptService);
 
   /** Whether the mobile floating sheet is currently expanded. */
   protected readonly sheetExpanded = signal(false);

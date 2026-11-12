@@ -75,3 +75,17 @@
 @if (isHowToOpen()) {
   <dba-as-how-to-overlay (closed)="onCloseHowTo()" />
 }
+
+<dba-ui-share-prompt
+  [open]="sharePrompt.isOpen()"
+  [appName]="sharePrompt.appName"
+  [itemNoun]="sharePrompt.itemNoun"
+  [tags]="sharePrompt.tags"
+  [copyStatus]="sharePrompt.copyStatus()"
+  [copiedTags]="sharePrompt.copiedTags()"
+  (copyTag)="sharePrompt.copyTag($event)"
+  (copyTags)="sharePrompt.copyTags()"
+  (dismiss)="sharePrompt.dismiss()"
+  (snooze)="sharePrompt.snooze()"
+  (optOut)="sharePrompt.optOut()"
+/>

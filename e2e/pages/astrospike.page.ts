@@ -204,6 +204,28 @@ export class AstroSpikePage {
     return download.suggestedFilename();
   }
 
+  /** The post-export dialog asking the user to tag their post (titled "Thank you, truly" once every tag is copied). */
+  getSharePrompt(): Locator {
+    return this.page.getByRole("dialog", { name: /Posting your image\?|Thank you, truly/ });
+  }
+
+  /** Copies every suggested tag from the share prompt. */
+  async copyShareTags(): Promise<void> {
+    await this.getSharePrompt().getByRole("button", { name: "Copy all tags" }).click();
+  }
+
+  /** Turns the share prompt off for good. */
+  async optOutOfSharePrompt(): Promise<void> {
+    await this.getSharePrompt()
+      .getByRole("button", { name: "Don't show again" })
+      .click();
+  }
+
+  /** Reads the clipboard; the context must have clipboard permissions granted. */
+  async readClipboard(): Promise<string> {
+    return this.page.evaluate(() => navigator.clipboard.readText());
+  }
+
   /** Locator for the visible spiked-result canvas. */
   getResultCanvas(): Locator {
     // Canvases expose no ARIA role; the component's `after-canvas` class is the

@@ -1,0 +1,145 @@
+@if (open()) {
+  <div class="sp-backdrop" (click)="dismiss.emit()">
+    <div
+      class="sp-frame"
+      [class.is-thanked]="isThanked()"
+      [class.is-all-copied]="isAllCopied()"
+      (click)="$event.stopPropagation()">
+      <section
+        #dialog
+        class="sp-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="sp-title"
+        aria-describedby="sp-text"
+        tabindex="-1"
+        (keydown.escape)="dismiss.emit()"
+      >
+        <dba-ui-icon-button
+          class="sp-close"
+          title="Close"
+          [size]="30"
+          accent="cyan"
+          (clicked)="dismiss.emit()"
+        >
+          <dba-ui-icon [def]="closeIcon" [size]="14" />
+        </dba-ui-icon-button>
+
+        <div class="sp-kicker">
+          @if (isThanked()) {
+            {{ hasCopiedSeveral() ? 'Tags copied' : 'Tag copied' }}
+          } @else {
+            Support {{ appName() }}
+          }
+        </div>
+        <h2 id="sp-title" class="sp-title">
+          {{ isThanked() ? 'Thank you, truly' : 'Posting your ' + itemNoun() + '?' }}
+        </h2>
+        <p id="sp-text" class="sp-text">
+          @if (isThanked()) {
+            Copied to your clipboard. Paste it into your caption. The moon is officially over it.
+          } @else {
+            A little tag goes a long way. It's how {{ appName() }} stays free and finds new
+            night-sky shooters. Only if you feel like it, and thanks either way.
+          }
+        </p>
+
+        <ul class="sp-chips" aria-label="Tags to add">
+          @for (tag of tags(); track tag) {
+            <li>
+              <button
+                type="button"
+                class="sp-chip"
+                [class.is-copied]="copiedTags().includes(tag)"
+                [attr.aria-label]="'Copy ' + tag"
+                (click)="copyTag.emit(tag)"
+              >
+                <span>{{ tag }}</span>
+                <dba-ui-icon
+                  class="sp-chip__icon"
+                  [def]="copiedTags().includes(tag) ? checkIcon : copyIcon"
+                  [size]="11"
+                />
+              </button>
+            </li>
+          }
+        </ul>
+
+        <button type="button" class="sp-primary" (click)="copyTags.emit()">
+          @if (isAllCopied()) {
+            <dba-ui-icon [def]="checkIcon" [size]="16" />
+            <span>All tags copied</span>
+          } @else {
+            <dba-ui-icon [def]="copyIcon" [size]="16" />
+            <span>Copy all tags</span>
+          }
+        </button>
+
+        @if (copyStatus() === 'failed') {
+          <p class="sp-error" role="alert">
+            Couldn't copy automatically. Add them by hand:
+            <span class="sp-error__tags">{{ tags().join(' ') }}</span>
+          </p>
+        }
+
+        @if (!isThanked()) {
+          <div class="sp-actions">
+            <button type="button" class="sp-link sp-link--strong" (click)="snooze.emit()">
+              Maybe later
+            </button>
+            <button type="button" class="sp-link" (click)="optOut.emit()">Don't show again</button>
+          </div>
+        }
+      </section>
+
+      <svg class="sp-moon" viewBox="0 0 150 96" aria-hidden="true">
+        <defs>
+          <clipPath id="dba-sp-moon-clip"><rect x="0" y="-40" width="150" height="126" /></clipPath>
+          <radialGradient id="dba-sp-moon-fill" cx=".4" cy=".35" r=".8">
+            <stop class="sp-moon__stop-light" offset="0" />
+            <stop class="sp-moon__stop-shade" offset="1" />
+          </radialGradient>
+        </defs>
+        <g clip-path="url(#dba-sp-moon-clip)">
+          <g class="sp-moon__head">
+            <circle cx="75" cy="78" r="48" fill="url(#dba-sp-moon-fill)" />
+            <circle class="sp-moon__crater" cx="42" cy="54" r="6" opacity=".5" />
+            <circle class="sp-moon__crater" cx="106" cy="48" r="4.5" opacity=".5" />
+            <circle class="sp-moon__crater" cx="110" cy="70" r="3" opacity=".45" />
+            <ellipse class="sp-moon__blush" cx="50" cy="77" rx="6" ry="3.5" />
+            <ellipse class="sp-moon__blush" cx="100" cy="77" rx="6" ry="3.5" />
+
+            <g class="sp-moon__sad">
+              <circle class="sp-moon__eye" cx="62" cy="64" r="10.5" />
+              <circle class="sp-moon__eye" cx="88" cy="64" r="10.5" />
+              <path class="sp-moon__pool" d="M52 66 Q62 77 72 66 Q62 71 52 66Z" />
+              <path class="sp-moon__pool" d="M78 66 Q88 77 98 66 Q88 71 78 66Z" />
+              <circle class="sp-moon__glint" cx="58.5" cy="59.5" r="4" />
+              <circle class="sp-moon__glint" cx="84.5" cy="59.5" r="4" />
+              <circle class="sp-moon__glint" cx="65.5" cy="63" r="1.8" />
+              <circle class="sp-moon__glint" cx="91.5" cy="63" r="1.8" />
+              <circle class="sp-moon__glint" cx="61" cy="68.5" r="1" opacity=".9" />
+              <circle class="sp-moon__glint" cx="87" cy="68.5" r="1" opacity=".9" />
+              <path class="sp-moon__streak" d="M55 72 Q53 78 54 86" />
+              <path class="sp-moon__streak" d="M95 72 Q97 78 96 86" />
+              <path class="sp-moon__tear" d="M55 72 q-3.4 5.5 0 7.6 q3.4 -2.1 0 -7.6Z" />
+              <path class="sp-moon__tear sp-moon__tear--2" d="M95 72 q-3.4 5.5 0 7.6 q3.4 -2.1 0 -7.6Z" />
+              <path class="sp-moon__tear sp-moon__tear--3" d="M57 73 q-2.6 4.2 0 5.8 q2.6 -1.6 0 -5.8Z" />
+              <path class="sp-moon__tear sp-moon__tear--4" d="M93 73 q-2.6 4.2 0 5.8 q2.6 -1.6 0 -5.8Z" />
+              <path class="sp-moon__pout" d="M69 84 Q72 80.5 75 82.5 Q78 80.5 81 84" />
+            </g>
+
+            <g class="sp-moon__happy">
+              <path d="M55 66 Q62 58 69 66" />
+              <path d="M81 66 Q88 58 95 66" />
+              <path class="sp-moon__mouth" d="M67 78 Q75 87 83 78" />
+            </g>
+          </g>
+        </g>
+        <ellipse class="sp-moon__paw" cx="40" cy="90" rx="10" ry="6" />
+        <ellipse class="sp-moon__paw" cx="110" cy="90" rx="10" ry="6" />
+        <path class="sp-moon__toes" d="M36 88 v4 M41 87 v5 M106 88 v4 M111 87 v5" />
+      </svg>
+    </div>
+  </div>
+}

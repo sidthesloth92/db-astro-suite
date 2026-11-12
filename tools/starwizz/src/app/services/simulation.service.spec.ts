@@ -1,5 +1,5 @@
 import { discardPeriodicTasks, fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { AnalyticsService } from '@db-astro-suite/ui';
+import { AnalyticsService, SharePromptService } from '@db-astro-suite/ui';
 import {
   RECORDING_ERROR_SHARE,
   RECORDING_REQUEST_DATA_NUDGE_MS,
@@ -885,6 +885,23 @@ describe('SimulationService', () => {
 
           expect(service.recordingError()).toBe(RECORDING_ERROR_SHARE);
         });
+      });
+
+      it('should invite the user to share once a recording is saved', async () => {
+        const notify = spyOn(TestBed.inject(SharePromptService), 'notifyExportSucceeded');
+
+        await recordOnce(2_000_000);
+
+        expect(notify).toHaveBeenCalledTimes(1);
+      });
+
+      it('should not invite the user to share after an empty recording', async () => {
+        spyOn(console, 'error');
+        const notify = spyOn(TestBed.inject(SharePromptService), 'notifyExportSucceeded');
+
+        await recordOnce(0);
+
+        expect(notify).not.toHaveBeenCalled();
       });
 
       it('should surface an error and skip the download for an empty recording', async () => {

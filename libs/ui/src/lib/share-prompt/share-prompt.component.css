@@ -1,0 +1,426 @@
+:host {
+  display: contents;
+}
+
+/* Backdrop leaves headroom above the card for the peeking moon. */
+.sp-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  place-items: center;
+  padding: 104px 16px 24px;
+  background: color-mix(in srgb, var(--db-color-surface-bg) 72%, transparent);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
+  backdrop-filter: blur(8px) saturate(140%);
+  animation: sp-fade 200ms ease;
+}
+
+.sp-frame {
+  position: relative;
+  width: min(100%, 360px);
+  animation: sp-rise 300ms ease;
+}
+
+/* ---------- card ---------- */
+
+.sp-card {
+  position: relative;
+  max-height: calc(100dvh - 128px);
+  overflow-y: auto;
+  padding: 28px 26px 20px;
+  border: 1px solid var(--db-color-border-strong);
+  border-radius: 0;
+  background: var(--db-color-surface);
+  box-shadow: 0 24px 70px color-mix(in srgb, var(--db-color-space-black) 80%, transparent);
+  text-align: left;
+  outline: none;
+}
+
+/* Top-right close, matching the suite's other dialogs; sits just right of the moon's paw. */
+.sp-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+.sp-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font: 500 11px/1.2 var(--db-font-ui);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--db-color-text-dim);
+}
+
+.sp-kicker::before {
+  content: '';
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--db-color-neon-pink);
+}
+
+.sp-title {
+  margin: 14px 0 12px;
+  font: 600 24px/1.1 var(--db-font-display-major);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--db-color-text-primary);
+}
+
+.sp-text {
+  margin: 0 0 20px;
+  font: 400 14px/1.65 var(--db-font-ui);
+  color: var(--db-color-text-dim);
+}
+
+/* ---------- tag chips ---------- */
+
+/* One row on every phone width; wraps rather than clipping if a tag runs long. */
+.sp-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 0 0 20px;
+  padding: 0;
+  list-style: none;
+}
+
+.sp-chips li {
+  display: flex;
+  flex: 1 1 auto;
+}
+
+.sp-chip {
+  flex: 1 1 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 7px 6px;
+  border: 1px solid var(--db-color-border-strong);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--db-color-space-black) 30%, transparent);
+  color: var(--db-color-text-primary);
+  font: 500 11.5px/1.2 var(--db-font-ui);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    border-color 200ms ease,
+    color 200ms ease;
+}
+
+.sp-chip:hover {
+  border-color: color-mix(in srgb, var(--db-color-text-primary) 30%, transparent);
+}
+
+.sp-chip__icon {
+  flex: none;
+  color: var(--db-color-text-dim);
+}
+
+.sp-chip.is-copied .sp-chip__icon {
+  color: var(--db-color-cyan);
+}
+
+.sp-chip.is-copied {
+  border-color: color-mix(in srgb, var(--db-color-cyan) 55%, transparent);
+  color: var(--db-color-cyan);
+}
+
+
+/* ---------- actions ---------- */
+
+.sp-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 24px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--db-color-neon-pink);
+  color: var(--db-color-surface-bg);
+  font: 700 12px/1 var(--db-font-ui);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    filter 150ms ease,
+    background 200ms ease;
+}
+
+.sp-primary:hover {
+  filter: brightness(1.08);
+}
+
+.is-all-copied .sp-primary {
+  background: var(--db-color-cyan);
+}
+
+.sp-error {
+  margin: 12px 0 0;
+  font: 400 12px/1.5 var(--db-font-ui);
+  color: var(--db-color-text-error);
+}
+
+.sp-error__tags {
+  color: var(--db-color-text-primary);
+  user-select: all;
+  -webkit-user-select: all;
+}
+
+.sp-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.sp-link {
+  padding: 4px 0;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  background: none;
+  color: var(--db-color-text-dim);
+  font: 500 11px/1.2 var(--db-font-ui);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    color 150ms ease,
+    border-color 150ms ease;
+}
+
+.sp-link:hover {
+  color: var(--db-color-text-primary);
+}
+
+.sp-link--strong {
+  color: var(--db-color-text-primary);
+  border-bottom-color: var(--db-color-border-strong);
+}
+
+.sp-link--strong:hover {
+  border-bottom-color: var(--db-color-neon-pink);
+}
+
+.sp-primary:focus-visible,
+.sp-chip:focus-visible,
+.sp-link:focus-visible {
+  outline: 2px solid var(--db-color-cyan);
+  outline-offset: 2px;
+}
+
+/* ---------- peeking moon ---------- */
+
+.sp-moon {
+  position: absolute;
+  z-index: 1;
+  top: -86px;
+  right: 18px;
+  width: 150px;
+  height: 96px;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.sp-moon__stop-light {
+  stop-color: var(--db-color-moon-light);
+}
+
+.sp-moon__stop-shade {
+  stop-color: var(--db-color-moon-shade);
+}
+
+.sp-moon__head {
+  transform-box: view-box;
+  transform-origin: 75px 90px;
+  transition: transform 400ms cubic-bezier(0.3, 1.6, 0.5, 1);
+  animation: sp-peek 4.5s ease-in-out infinite;
+}
+
+.is-thanked .sp-moon__head {
+  animation: none;
+  transform: translateY(-8px);
+}
+
+.sp-moon__crater {
+  fill: var(--db-color-moon-crater);
+}
+
+.sp-moon__blush {
+  fill: var(--db-color-moon-blush);
+  opacity: 0.65;
+}
+
+.sp-moon__eye {
+  fill: var(--db-color-moon-eye);
+}
+
+.sp-moon__glint {
+  fill: var(--db-color-moon-glint);
+}
+
+.sp-moon__pool {
+  fill: var(--db-color-moon-tear);
+  animation: sp-shimmer 2.2s ease-in-out infinite;
+}
+
+.sp-moon__streak {
+  fill: none;
+  stroke: var(--db-color-moon-tear);
+  stroke-width: 2;
+  stroke-linecap: round;
+  opacity: 0.45;
+}
+
+.sp-moon__tear {
+  fill: var(--db-color-moon-tear);
+  animation: sp-tear 2.6s ease-in infinite;
+}
+
+.sp-moon__tear--2 {
+  animation-delay: 1.3s;
+}
+
+.sp-moon__tear--3 {
+  animation-delay: 0.6s;
+}
+
+.sp-moon__tear--4 {
+  animation-delay: 1.9s;
+}
+
+.sp-moon__pout {
+  fill: none;
+  stroke: var(--db-color-moon-pout);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: sp-quiver 350ms ease-in-out infinite;
+}
+
+.sp-moon__sad,
+.sp-moon__happy {
+  transition: opacity 250ms ease;
+}
+
+.sp-moon__happy {
+  opacity: 0;
+  fill: none;
+  stroke: var(--db-color-moon-smile);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+}
+
+.sp-moon__mouth {
+  fill: var(--db-color-moon-mouth);
+}
+
+.is-thanked .sp-moon__sad {
+  opacity: 0;
+}
+
+.is-thanked .sp-moon__happy {
+  opacity: 1;
+}
+
+.sp-moon__paw {
+  fill: var(--db-color-moon-paw);
+  stroke: var(--db-color-moon-crater);
+  stroke-width: 1.2;
+}
+
+.sp-moon__toes {
+  stroke: var(--db-color-moon-crater);
+  stroke-width: 1;
+  stroke-linecap: round;
+}
+
+/* ---------- motion ---------- */
+
+@keyframes sp-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes sp-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+
+@keyframes sp-peek {
+  0%,
+  100% {
+    transform: translateY(6px);
+  }
+  40%,
+  70% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes sp-shimmer {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+@keyframes sp-tear {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  80% {
+    transform: translateY(16px);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+}
+
+@keyframes sp-quiver {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(0.6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sp-backdrop,
+  .sp-frame,
+  .sp-moon__head,
+  .sp-moon__pool,
+  .sp-moon__tear,
+  .sp-moon__pout {
+    animation: none;
+  }
+
+  .sp-moon__head,
+  .sp-moon__sad,
+  .sp-moon__happy {
+    transition: none;
+  }
+}

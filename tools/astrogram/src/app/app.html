@@ -5,3 +5,16 @@
     <dba-ag-desktop-shell />
   }
 </dba-ui-constellation-field>
+<dba-ui-share-prompt
+  [open]="sharePrompt.isOpen()"
+  [appName]="sharePrompt.appName"
+  [itemNoun]="sharePrompt.itemNoun"
+  [tags]="sharePrompt.tags"
+  [copyStatus]="sharePrompt.copyStatus()"
+  [copiedTags]="sharePrompt.copiedTags()"
+  (copyTag)="sharePrompt.copyTag($event)"
+  (copyTags)="sharePrompt.copyTags()"
+  (dismiss)="sharePrompt.dismiss()"
+  (snooze)="sharePrompt.snooze()"
+  (optOut)="sharePrompt.optOut()"
+/>
