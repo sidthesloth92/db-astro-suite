@@ -254,6 +254,19 @@
     var(--db-color-avatar-deep)
   );
 
+  /** Share-prompt moon mascot illustration colours (face, craters, paws, tears). */
+  --db-color-moon-light: #f4f1ff;
+  --db-color-moon-shade: #bdb8d6;
+  --db-color-moon-crater: #a9a3c8;
+  --db-color-moon-paw: #d9d5ee;
+  --db-color-moon-eye: #1a1a28;
+  --db-color-moon-glint: #ffffff;
+  --db-color-moon-tear: #6df1ec;
+  --db-color-moon-blush: #ff77b4;
+  --db-color-moon-pout: #4a4560;
+  --db-color-moon-smile: #3a3550;
+  --db-color-moon-mouth: #7a2a44;
+
   /** Default colour for a freshly-added custom filter (data, not brand). */
   --db-color-filter-default: #ff00ff;
 

@@ -39,7 +39,7 @@ import { Star } from '../models/star.model';
 import { repairMp4BlobDuration } from '../utils/mp4-duration.util';
 import { buildRecordingMimeLadder, toContainerMimeType } from '../utils/recording-mime.util';
 import { computeRecordingBitsPerSecond } from '../utils/recording-size.util';
-import { AnalyticsService } from '@db-astro-suite/ui';
+import { AnalyticsService, SharePromptService } from '@db-astro-suite/ui';
 
 /** Size of the shooting star object pool for reuse */
 const NUM_SHOOTING_STARS = 10;
@@ -81,6 +81,7 @@ const NUM_SHOOTING_STARS = 10;
 })
 export class SimulationService implements OnDestroy {
   private analyticsService = inject(AnalyticsService);
+  private readonly sharePrompt = inject(SharePromptService);
 
   // ==================== Control Signals ====================
 
@@ -1328,6 +1329,7 @@ export class SimulationService implements OnDestroy {
     // Track video generation event
     const videoFormat = extension.substring(1); // Remove leading dot
     this.analyticsService.trackVideoGeneration('starwizz-user', videoFormat);
+    this.sharePrompt.notifyExportSucceeded();
   }
 
   /**

@@ -1,4 +1,10 @@
-import { AnalyticsService, IconButtonComponent, IconComponent, downloadIcon } from '@db-astro-suite/ui';
+import {
+  AnalyticsService,
+  IconButtonComponent,
+  IconComponent,
+  SharePromptService,
+  downloadIcon,
+} from '@db-astro-suite/ui';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -70,6 +76,7 @@ function nameSlug(raw: string, fallback: string): string {
 })
 export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestroy {
   private analyticsService = inject(AnalyticsService);
+  private readonly sharePrompt = inject(SharePromptService);
   private readonly cardDataService = inject(CardDataService);
   private readonly previewLayout = inject(PreviewLayoutService);
 
@@ -584,6 +591,7 @@ export class BaseCardPreviewComponent implements OnInit, AfterViewInit, OnDestro
       // Track successful export
       const dataUrlSize = Math.ceil(dataUrl.length / 1024); // Convert to KB
       this.analyticsService.trackCardExportSuccess(fmtInfo.ext, dataUrlSize, 0);
+      this.sharePrompt.notifyExportSucceeded();
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';
       this.analyticsService.trackCardExportFailed(errorMsg);

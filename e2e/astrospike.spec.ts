@@ -231,6 +231,53 @@ test.describe("AstroSpike", () => {
     expect(await astroSpike.getControlReadout("Chroma")).toBe("0");
   });
 
+  test("should invite the user to tag their post after an export and copy the tags", async ({
+    page,
+    context,
+  }) => {
+    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+    const astroSpike = new AstroSpikePage(page);
+    await astroSpike.navigate();
+    await astroSpike.loadImage(STARFIELD_FIXTURE);
+    await astroSpike.waitForDetectedStars();
+
+    await astroSpike.exportImage();
+
+    const prompt = astroSpike.getSharePrompt();
+    await expect(prompt).toBeVisible();
+    await expect(prompt).toContainText("#dbastrosuite");
+    await expect(prompt).toContainText("#astrospike");
+    await expect(prompt).toContainText("@astrowithdb");
+
+    await astroSpike.copyShareTags();
+    await expect(prompt.getByRole("heading", { name: "Thank you, truly" })).toBeVisible();
+    await expect(prompt.getByRole("button", { name: "All tags copied" })).toBeVisible();
+    expect(await astroSpike.readClipboard()).toBe(
+      "#dbastrosuite #astrospike @astrowithdb",
+    );
+  });
+
+  test("should not invite the user again after they choose not to see it", async ({
+    page,
+  }) => {
+    const astroSpike = new AstroSpikePage(page);
+    await astroSpike.navigate();
+    await astroSpike.loadImage(STARFIELD_FIXTURE);
+    await astroSpike.waitForDetectedStars();
+
+    await astroSpike.exportImage();
+    await astroSpike.optOutOfSharePrompt();
+    await expect(astroSpike.getSharePrompt()).toHaveCount(0);
+
+    await page.reload();
+    await astroSpike.loadImage(STARFIELD_FIXTURE);
+    await astroSpike.waitForDetectedStars();
+    await astroSpike.exportImage();
+    // The prompt opens a second after a download; give it longer than that.
+    await page.waitForTimeout(2_000);
+    await expect(astroSpike.getSharePrompt()).toHaveCount(0);
+  });
+
   test("should export the spikes alone as a transparent layer", async ({
     page,
   }) => {

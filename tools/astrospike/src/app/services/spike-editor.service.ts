@@ -1,6 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import { computed, inject, Injectable, OnDestroy, signal, WritableSignal } from '@angular/core';
-import { AnalyticsService, MOBILE_BREAKPOINT_PX } from '@db-astro-suite/ui';
+import { AnalyticsService, MOBILE_BREAKPOINT_PX, SharePromptService } from '@db-astro-suite/ui';
 import { CONTROLS } from '../constants/controls.constants';
 import {
   DETECTION_FAILED,
@@ -70,6 +70,7 @@ export class SpikeEditorService implements OnDestroy {
   private readonly starDetectionService = inject(StarDetectionService);
   private readonly spikeExportService = inject(SpikeExportService);
   private readonly analyticsService = inject(AnalyticsService);
+  private readonly sharePrompt = inject(SharePromptService);
   private readonly document = inject(DOCUMENT);
 
   // ==================== Image State ====================
@@ -758,6 +759,7 @@ export class SpikeEditorService implements OnDestroy {
       );
       this.lastExport.set(result);
       this.analyticsService.trackEvent('astrospike_export', { format: this.exportFormat() });
+      this.sharePrompt.notifyExportSucceeded();
     } catch (error) {
       console.error('Export failed:', error);
       this.exportError.set(EXPORT_FAILED);

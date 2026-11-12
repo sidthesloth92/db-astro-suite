@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { AnalyticsService } from '@db-astro-suite/ui';
+import { AnalyticsService, SharePromptService } from '@db-astro-suite/ui';
 import { CONTROLS } from '../constants/controls.constants';
 import {
   DETECTION_FAILED,
@@ -687,12 +687,27 @@ describe('SpikeEditorService', () => {
       service.imageMeta.set({ fileName: 'm31.png', width: 8, height: 8 });
       service.allStars.set(STARS);
       exportSpy.exportImage.and.rejectWith(new Error('encode failed'));
+      const notify = spyOn(TestBed.inject(SharePromptService), 'notifyExportSucceeded');
 
       await service.exportCurrent();
 
       expect(service.exportError()).toBe(EXPORT_FAILED);
       expect(service.lastExport()).toBeNull();
       expect(service.isExporting()).toBeFalse();
+      expect(notify).not.toHaveBeenCalled();
+    });
+
+    it('should invite the user to share once an export succeeds', async () => {
+      const bitmap = await buildBitmap(8, 8);
+      service.sourceImage.set(bitmap);
+      service.imageMeta.set({ fileName: 'm31.png', width: 8, height: 8 });
+      service.allStars.set(STARS);
+      exportSpy.exportImage.and.resolveTo({ blob: new Blob(['x']), filename: 'm31.png', sizeBytes: 1 });
+      const notify = spyOn(TestBed.inject(SharePromptService), 'notifyExportSucceeded');
+
+      await service.exportCurrent();
+
+      expect(notify).toHaveBeenCalledTimes(1);
     });
   });
 

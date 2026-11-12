@@ -12,6 +12,8 @@ import {
   HeaderComponent,
   IconButtonComponent,
   IconComponent,
+  SharePromptComponent,
+  SharePromptService,
   circleHelpIcon,
   slidersIcon,
 } from '@db-astro-suite/ui';
@@ -41,6 +43,7 @@ import { SpikeEditorService } from './services/spike-editor.service';
     HowToOverlay,
     IconButtonComponent,
     IconComponent,
+    SharePromptComponent,
     SpikeStage,
     StarControls,
   ],
@@ -57,6 +60,9 @@ export class App {
 
   /** Shared editor state — drives the title-bar actions and pane visibility. */
   protected readonly editor = inject(SpikeEditorService);
+
+  /** Post-export share prompt state, bound to `dba-ui-share-prompt`. */
+  protected readonly sharePrompt = inject(SharePromptService);
 
   /** Whether the mobile controls sheet is open. */
   protected readonly sheetExpanded = signal(false);
