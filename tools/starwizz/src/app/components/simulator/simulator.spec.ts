@@ -1,7 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AnalyticsService } from '@db-astro-suite/ui';
 
+import { GALAXY_PAN_FACTOR, LATERAL_TRAVEL_FRACTION } from '../../constants/simulation.constant';
 import { ShootingStar } from '../../models/shooting-star.model';
+import { TravelDirection } from '../../models/simulation.model';
 import { Star } from '../../models/star.model';
 import { SimulationService } from '../../services/simulation.service';
 import { Simulator } from './simulator';
@@ -128,5 +130,130 @@ describe('Simulator', () => {
 
     expect(star.draw).toHaveBeenCalled();
     expect(shootingStar.draw).toHaveBeenCalled();
+  });
+
+  describe('sideways travel background', () => {
+    /** Loads a real 16:9 backdrop so the 9:16 frame is height-fitted (no spare image vertically). */
+    async function loadLandscapeBackdrop(): Promise<void> {
+      const source = document.createElement('canvas');
+      source.width = 160;
+      source.height = 90;
+      const image = new Image();
+      image.src = source.toDataURL();
+      await image.decode();
+
+      simService.galaxyImage.set(image);
+      simService.isImageLoaded.set(true);
+    }
+
+    /** Selects a travel direction and lets the simulator react to it. */
+    function selectDirection(direction: TravelDirection): void {
+      simService.updateDirection(direction);
+      fixture.detectChanges();
+    }
+
+    /** Advances the simulation by a number of animation frames. */
+    function runFrames(count: number): void {
+      for (let i = 0; i < count; i++) {
+        component['updateGlobalState']();
+      }
+    }
+
+    beforeEach(async () => {
+      await loadLandscapeBackdrop();
+    });
+
+    it('should zoom the background in when the image has no room to move in the chosen direction', () => {
+      selectDirection('up');
+
+      expect(component['currentScale']).toBeCloseTo(1 + LATERAL_TRAVEL_FRACTION, 6);
+    });
+
+    it('should not zoom the background when the image already has room to move', () => {
+      selectDirection('left');
+
+      expect(component['currentScale']).toBe(1);
+    });
+
+    it('should move the background in the chosen direction on every frame', () => {
+      const axisOf = { left: 'panX', right: 'panX', up: 'panY', down: 'panY' } as const;
+      const signOf = { left: -1, right: 1, up: -1, down: 1 } as const;
+
+      for (const direction of ['left', 'right', 'up', 'down'] as const) {
+        selectDirection(direction);
+        const before = component[axisOf[direction]];
+        runFrames(10);
+        const moved = component[axisOf[direction]] - before;
+
+        expect(Math.sign(moved)).withContext(direction).toBe(signOf[direction]);
+      }
+    });
+
+    it('should move the background faster when Star Speed is raised', () => {
+      selectDirection('down');
+      const start = component['panY'];
+      runFrames(10);
+      const slow = component['panY'] - start;
+
+      selectDirection('up');
+      simService.updateControl('starSpeed', simService.controls.starSpeed() * 2);
+      selectDirection('down');
+      runFrames(10);
+      const fast = component['panY'] - start;
+
+      expect(fast).toBeCloseTo(slow * 2, 6);
+    });
+
+    it('should loop back to the starting frame once the background reaches the far edge', () => {
+      selectDirection('down');
+      const start = component['panY'];
+
+      // Run past one full loop: the background must be back near its start, not stuck at the end.
+      const stepPerFrame = simService.getInternalValue('starSpeed') * GALAXY_PAN_FACTOR;
+      const framesPerLoop = Math.ceil((component['height'] * LATERAL_TRAVEL_FRACTION) / stepPerFrame);
+      runFrames(framesPerLoop - 1);
+      const nearEnd = component['panY'];
+      runFrames(3);
+
+      expect(nearEnd).toBeGreaterThan(start);
+      expect(component['panY']).toBeLessThan(0);
+      expect(component['panY'] - start).toBeLessThan(nearEnd - start);
+    });
+
+    it('should return to the starting frame when the animation is restarted', () => {
+      selectDirection('right');
+      const start = component['panX'];
+      runFrames(50);
+      expect(component['panX']).not.toBeCloseTo(start, 3);
+
+      simService.restartAnimationRequested.set(true);
+      fixture.detectChanges();
+
+      expect(component['panX']).toBeCloseTo(start, 6);
+    });
+
+    it('should recentre the background when switching back to Forward', () => {
+      selectDirection('left');
+      runFrames(5);
+      expect(component['panX']).not.toBe(0);
+
+      selectDirection('forward');
+
+      expect(component['panX']).toBe(0);
+      expect(component['panY']).toBe(0);
+      expect(component['currentScale']).toBe(1);
+    });
+
+    it('should keep the background still and flat while it glides sideways', () => {
+      selectDirection('forward');
+      runFrames(20);
+      expect(component['currentRotation']).not.toBe(0);
+
+      selectDirection('up');
+      runFrames(20);
+
+      expect(component['currentRotation']).toBe(0);
+      expect(component['panX']).toBeCloseTo(0, 6);
+    });
   });
 });

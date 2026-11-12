@@ -218,12 +218,22 @@ export const STAR_LATERAL_FACTOR = 1;
 export const STAR_DEPTH_FACTOR = 1;
 
 /**
- * Galaxy (DSO) lateral pan factor, applied to `starSpeed`. Kept far below
- * {@link STAR_LATERAL_FACTOR} so the backdrop is by far the slowest-moving
- * layer — a deep, distant object that only creeps while the stars stream past
- * it, giving a strong parallax depth cue without racing to the overscan edge.
+ * Galaxy (DSO) lateral glide speed for the Left/Right/Up/Down presets, in
+ * on-screen px per frame per unit of internal `starSpeed`. Kept below 1 so the
+ * backdrop always moves slower than even the most distant star (which drifts at
+ * {@link STAR_LATERAL_FACTOR}), preserving the parallax depth cue, while still
+ * being fast enough to read clearly as motion.
  */
-export const GALAXY_PAN_FACTOR = 0.15;
+export const GALAXY_PAN_FACTOR = 0.35;
+
+/**
+ * Distance the backdrop glides during one Left/Right/Up/Down loop, as a
+ * fraction of the frame's length along the travel axis. The glide is centred
+ * on the image, so the subject stays in view for the whole loop. When the
+ * image has no spare room on that axis the backdrop is zoomed in just enough
+ * to allow this travel (at most `1 + LATERAL_TRAVEL_FRACTION`).
+ */
+export const LATERAL_TRAVEL_FRACTION = 0.3;
 
 /** Travel-direction options for the control-panel select. */
 export const DIRECTION_OPTIONS: readonly SelectItem[] = [
