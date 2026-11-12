@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.39.1](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.39.0...db-astro-suite-v1.39.1) (2026-11-12)
+
+
+### Bug Fixes
+
+* **starwizz:** move the background when travelling left, right, up or down ([#138](https://github.com/sidthesloth92/db-astro-suite/issues/138)) ([0063d7b](https://github.com/sidthesloth92/db-astro-suite/commit/0063d7bac721fafc3b4224bcd9aa03b8cc957423))
+
 ## [1.39.0](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.38.3...db-astro-suite-v1.39.0) (2026-11-12)
 
 
