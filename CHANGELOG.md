@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.39.0](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.38.3...db-astro-suite-v1.39.0) (2026-11-12)
+
+
+### Features
+
+* ask users to tag their posts after exporting in Astrogram, Starwizz and AstroSpike ([#136](https://github.com/sidthesloth92/db-astro-suite/issues/136)) ([f1a17db](https://github.com/sidthesloth92/db-astro-suite/commit/f1a17dbbe21131c1d8f3c4c4f8bf3f8eecab0d9b))
+
 ## [1.38.3](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.38.2...db-astro-suite-v1.38.3) (2026-11-07)
 
 
