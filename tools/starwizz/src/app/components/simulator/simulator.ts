@@ -22,8 +22,10 @@ import {
   STAR_SPRITE_SIZE,
   WHITE_STAR_INDEX,
 } from '../../constants/star-appearance.constant';
+import { LateralGlide } from '../../models/lateral-glide.model';
 import { RgbColor, StarSprites } from '../../models/star-appearance.model';
 import { SimulationService } from '../../services/simulation.service';
+import { computeLateralGlide, lateralGlideFrame } from '../../utils/lateral-glide.util';
 import { colorMixForIntensity, mixRgb, tintForIntensity } from '../../utils/star-appearance.util';
 import { ClearImageButton } from './clear-image-button/clear-image-button';
 import { HudOverlay } from './hud-overlay/hud-overlay';
@@ -101,6 +103,8 @@ export class Simulator implements AfterViewInit {
   private currentRotation = 0;
   private panX = 0;
   private panY = 0;
+  /** On-screen px the backdrop has glided in the current lateral (Left/Right/Up/Down) loop. */
+  private lateralTravelled = 0;
   private starSprites: StarSprites | null = null;
   private lastShootingStarSpawn = 0;
   private animationFrameId: number | null = null;
@@ -142,10 +146,8 @@ export class Simulator implements AfterViewInit {
   private readonly _resetAndRecordEffect = effect(() => {
     const shouldResetAndRecord = this.simService.resetAndRecordRequested();
     if (shouldResetAndRecord) {
-      this.currentScale = this.depthStartScale();
       this.currentRotation = 0;
-      this.panX = 0;
-      this.panY = 0;
+      this.resetCameraFraming();
       // In path mode, restart the glide from A so the recording captures a clean A→B.
       if (this.simService.isPathMode() && this.simService.canPlayPath()) {
         this.pathReversed = false;
@@ -170,10 +172,8 @@ export class Simulator implements AfterViewInit {
         this.pathLegStart = performance.now();
         this.simService.playPath();
       } else {
-        this.currentScale = this.depthStartScale();
         this.currentRotation = 0;
-        this.panX = 0;
-        this.panY = 0;
+        this.resetCameraFraming();
       }
       this.simService.restartAnimationRequested.set(false);
     }
@@ -220,15 +220,17 @@ export class Simulator implements AfterViewInit {
   });
 
   /**
-   * Effect: when the travel direction changes to a depth preset, initialise the
-   * zoom to that leg's starting scale so Backward begins zoomed (and zooms out)
-   * rather than snapping to max zoom on the first frame. Lateral presets and
-   * Custom Path manage their own zoom, so they're left untouched.
+   * Effect: when the travel direction changes to a preset, jump to the first
+   * frame of that preset's animation. Backward begins zoomed (and zooms out)
+   * rather than snapping to max zoom on the first frame, and the lateral
+   * presets begin their backdrop glide from its starting edge. Custom Path
+   * manages its own framing, so it's left untouched. The framing is applied
+   * untracked so swapping the image doesn't restart the animation.
    */
   private readonly _directionEffect = effect(() => {
     const dir = this.simService.travelDirection();
-    if (dir === 'forward' || dir === 'backward') {
-      this.currentScale = dir === 'backward' ? TARGET_SCALE : MIN_SCALE;
+    if (dir !== 'path') {
+      untracked(() => this.resetCameraFraming());
     }
   });
 
@@ -295,10 +297,8 @@ export class Simulator implements AfterViewInit {
   };
 
   private resetSimulation() {
-    this.currentScale = this.depthStartScale();
     this.currentRotation = 0;
-    this.panX = 0;
-    this.panY = 0;
+    this.resetCameraFraming();
     this.simService.resetStars();
     this.simService.loadingProgress.set('Re-initializing...');
 
@@ -414,6 +414,65 @@ export class Simulator implements AfterViewInit {
     return this.simService.travelDirection() === 'backward' ? TARGET_SCALE : MIN_SCALE;
   }
 
+  /**
+   * Puts the backdrop on the first frame of the active preset's animation:
+   * centred at the depth preset's starting zoom, or at the starting edge of the
+   * glide for a lateral preset.
+   */
+  private resetCameraFraming() {
+    this.currentScale = this.depthStartScale();
+    this.panX = 0;
+    this.panY = 0;
+    this.lateralTravelled = 0;
+    this.applyLateralGlide();
+  }
+
+  /**
+   * Plans the backdrop glide for the active lateral preset, or null when the
+   * preset isn't lateral or there's no backdrop image to glide.
+   */
+  private lateralGlide(): LateralGlide | null {
+    const dir = DIRECTION_VECTORS[this.simService.travelDirection()];
+    const galaxyImage = this.simService.galaxyImage();
+    if ((dir.x === 0 && dir.y === 0) || !galaxyImage || galaxyImage.naturalWidth === 0) {
+      return null;
+    }
+    return computeLateralGlide(
+      dir,
+      { width: this.width, height: this.height },
+      { width: galaxyImage.naturalWidth, height: galaxyImage.naturalHeight },
+    );
+  }
+
+  /** Applies the lateral glide's zoom and pan for the current loop progress. */
+  private applyLateralGlide(glide: LateralGlide | null = this.lateralGlide()) {
+    if (!glide) {
+      return;
+    }
+    const dir = DIRECTION_VECTORS[this.simService.travelDirection()];
+    const frame = lateralGlideFrame(dir, glide, this.lateralTravelled);
+    this.currentScale = frame.scale;
+    this.panX = frame.panX;
+    this.panY = frame.panY;
+  }
+
+  /**
+   * Moves the lateral glide on by one frame, tied to starSpeed so the backdrop
+   * and stars stay proportional, and loops back to the first frame once the
+   * backdrop has travelled its full distance.
+   */
+  private advanceLateralGlide() {
+    const glide = this.lateralGlide();
+    if (!glide) {
+      return;
+    }
+    this.lateralTravelled += this.simService.getInternalValue('starSpeed') * GALAXY_PAN_FACTOR;
+    if (this.lateralTravelled > glide.travel) {
+      this.lateralTravelled = 0;
+    }
+    this.applyLateralGlide(glide);
+  }
+
   private updateGlobalState() {
     if (this.simService.isPathMode()) {
       this.updatePathState();
@@ -441,16 +500,13 @@ export class Simulator implements AfterViewInit {
       }
     } else {
       // Lateral travel — the vortex rotation no longer makes sense, so flatten
-      // it to 0 for a straight sideways glide. Zoom is held at its current value.
+      // it to 0 and glide the backdrop (the slowest parallax layer) sideways,
+      // zoomed in just enough to have room to travel.
       this.currentRotation = 0;
+      this.advanceLateralGlide();
     }
 
-    // Pan the galaxy backdrop (the slowest parallax layer) with the lateral
-    // component, tied to starSpeed so the DSO and stars stay proportional, then
-    // clamp to the overscan so no uncovered edge is exposed.
-    const lateralSpeed = this.simService.getInternalValue('starSpeed');
-    this.panX += dir.x * lateralSpeed * GALAXY_PAN_FACTOR;
-    this.panY += dir.y * lateralSpeed * GALAXY_PAN_FACTOR;
+    // Clamp to the overscan so no uncovered edge is ever exposed.
     this.clampGalaxyPan();
   }
 
