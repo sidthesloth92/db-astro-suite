@@ -51,7 +51,6 @@ import {
   SCENE3D_CONTROLS,
   SCENE3D_DIRECTION_OPTIONS,
   SCENE3D_STYLE_OPTIONS,
-  STAR_STYLE_OPTIONS,
 } from '../../constants/scene3d.constant';
 import { RecordingPreset } from '../../models/recording.model';
 import { RenderMode } from '../../models/render-mode.model';
@@ -59,7 +58,6 @@ import {
   Scene3dControlKey,
   Scene3dDirection,
   Scene3dStyle,
-  StarStyle,
 } from '../../models/scene3d-settings.model';
 import { ControlKey, ControlMetadata, TravelDirection } from '../../models/simulation.model';
 import { Scene3dService } from '../../services/scene3d.service';
@@ -138,7 +136,10 @@ export class ControlPanel {
     'After the camera settles, fade the stars of your photo back in so the clip ends on your finished image. Off ends on the clean object.';
   /** Tooltip for the 3D Stars section. */
   protected readonly sceneStarsHelp =
-    'The moving stars are the stars of your own photo. Original uses them exactly as they are; Sharp redraws each one crisp and can add spikes.';
+    'The moving stars are the stars of your own photo, lifted off it and spread through depth.';
+  /** Tooltip for the 3D "Sharp Stars" switch. */
+  protected readonly sharpStarsHelp =
+    'Redraws each star as a crisp point, and lets you add spikes. Off keeps the stars exactly as they are in your photo.';
   /** Tooltip text shown on the help icon next to the direction selector. */
   protected readonly directionHelp =
     'How the camera moves. Forward/Backward fly into or away from the scene; Left/Right/Up/Down drift sideways with parallax; Custom Path (A→B) glides between two framings you set.';
@@ -195,8 +196,6 @@ export class ControlPanel {
   readonly sceneStyleOptions: readonly SelectItem[] = SCENE3D_STYLE_OPTIONS;
   /** 3D Direction options. */
   readonly sceneDirectionOptions: readonly SelectItem[] = SCENE3D_DIRECTION_OPTIONS;
-  /** 3D Star Style options. */
-  readonly starStyleOptions: readonly SegmentedTabOption[] = STAR_STYLE_OPTIONS;
 
   // Custom Path slider bounds (exposed for template binding).
   /** Zoom slider lower bound (image just covers the frame). */
@@ -251,15 +250,13 @@ export class ControlPanel {
 
   /**
    * 3D Stars sliders to render, in order. Star Depth only applies to Travel (Arrive sets the
-   * depth of its star cloud itself) and Spikes only to the Sharp star style.
+   * depth of its star cloud itself). Spikes is not listed: it sits under the Sharp Stars switch.
    */
-  readonly sceneStarControls = computed<Scene3dControlKey[]>(() => {
-    const keys: Scene3dControlKey[] = ['starAmount', 'starSize'];
-    if (this.scene3d.style() === 'travel') keys.push('starDepth');
-    if (this.scene3d.starStyle() === 'sharp') keys.push('spikes');
-    keys.push('twinkle');
-    return keys;
-  });
+  readonly sceneStarControls = computed<Scene3dControlKey[]>(() =>
+    this.scene3d.style() === 'travel'
+      ? ['starAmount', 'starSize', 'starDepth', 'twinkle']
+      : ['starAmount', 'starSize', 'twinkle'],
+  );
 
   /** Label rendered inside the record button — varies with recording state. */
   readonly buttonText = computed<string>(() => {
@@ -365,14 +362,6 @@ export class ControlPanel {
     if (option !== undefined) {
       // Narrowing is safe: the value was just matched against the direction options.
       this.scene3d.direction.set(value as Scene3dDirection);
-    }
-  }
-
-  /** Applies a Star Style chosen from the segmented control. */
-  updateStarStyle(value: string): void {
-    if (value === 'original' || value === 'sharp') {
-      const style: StarStyle = value;
-      this.scene3d.starStyle.set(style);
     }
   }
 

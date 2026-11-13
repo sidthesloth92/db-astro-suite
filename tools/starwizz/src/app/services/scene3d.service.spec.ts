@@ -188,6 +188,18 @@ describe('Scene3dService', () => {
       expect(service.settings().starAmount).toBe(250);
     });
 
+    it('should switch between the photo\'s own stars and sharp redrawn ones', () => {
+      expect(service.hasSharpStars()).toBeFalse();
+
+      service.setSharpStars(true);
+      expect(service.hasSharpStars()).toBeTrue();
+      expect(service.settings().starStyle).toBe('sharp');
+
+      service.setSharpStars(false);
+      expect(service.hasSharpStars()).toBeFalse();
+      expect(service.settings().starStyle).toBe('original');
+    });
+
     it('should keep the aim point inside the frame', () => {
       service.setAim({ x: 3, y: -3 });
       expect(service.aim()).toEqual({ x: AIM_LIMIT, y: -AIM_LIMIT });

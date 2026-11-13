@@ -349,87 +349,85 @@
       </div>
     </ng-template>
 
-    <!-- Motion: how the camera moves. -->
-    <div class="path-section">
+    <!-- Motion: how the camera moves. Plain rows, like the 2D camera controls. -->
+    <div class="format-row">
+      <div class="format-label-row">
+        <label class="row-label">Style</label>
+        <span class="help-icon" tabindex="0" [dbaTooltip]="styleHelp" [attr.aria-label]="styleHelp">
+          <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
+        </span>
+      </div>
+      <dba-ui-select
+        label=""
+        [noBox]="true"
+        [value]="scene3d.style()"
+        [options]="sceneStyleOptions"
+        (valueChange)="updateSceneStyle($event)"
+      ></dba-ui-select>
+    </div>
+
+    @if (scene3d.style() === 'travel') {
       <div class="format-row">
         <div class="format-label-row">
-          <label class="row-label">Style</label>
-          <span class="help-icon" tabindex="0" [dbaTooltip]="styleHelp" [attr.aria-label]="styleHelp">
+          <label class="row-label">Direction</label>
+          <span
+            class="help-icon"
+            tabindex="0"
+            [dbaTooltip]="sceneDirectionHelp"
+            [attr.aria-label]="sceneDirectionHelp"
+          >
             <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
           </span>
         </div>
         <dba-ui-select
           label=""
           [noBox]="true"
-          [value]="scene3d.style()"
-          [options]="sceneStyleOptions"
-          (valueChange)="updateSceneStyle($event)"
+          [value]="scene3d.direction()"
+          [options]="sceneDirectionOptions"
+          (valueChange)="updateSceneDirection($event)"
         ></dba-ui-select>
       </div>
-
-      @if (scene3d.style() === 'travel') {
-        <div class="format-row">
-          <div class="format-label-row">
-            <label class="row-label">Direction</label>
-            <span
-              class="help-icon"
-              tabindex="0"
-              [dbaTooltip]="sceneDirectionHelp"
-              [attr.aria-label]="sceneDirectionHelp"
-            >
-              <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
-            </span>
-          </div>
-          <dba-ui-select
-            label=""
-            [noBox]="true"
-            [value]="scene3d.direction()"
-            [options]="sceneDirectionOptions"
-            (valueChange)="updateSceneDirection($event)"
-          ></dba-ui-select>
-        </div>
-        @if (scene3d.direction() === 'custom') {
-          <p class="path-hint">Drag the marker on the preview to choose where the camera heads.</p>
-        }
+      @if (scene3d.direction() === 'custom') {
+        <p class="path-hint">Drag the marker on the preview to choose where the camera heads.</p>
       }
+    }
 
-      @for (control of sceneMotionControls(); track control) {
-        <ng-container
-          [ngTemplateOutlet]="sceneSliderRow"
-          [ngTemplateOutletContext]="{ $implicit: control }"
-        ></ng-container>
-      }
+    @for (control of sceneMotionControls(); track control) {
+      <ng-container
+        [ngTemplateOutlet]="sceneSliderRow"
+        [ngTemplateOutletContext]="{ $implicit: control }"
+      ></ng-container>
+    }
 
-      @if (scene3d.style() === 'arrive') {
-        <div class="record-aux">
-          <dba-ui-switch
-            ariaLabel="Zoom in"
-            [checked]="scene3d.zoomIn()"
-            (checkedChange)="scene3d.zoomIn.set($event)"
-          ></dba-ui-switch>
-          <span class="record-aux-label">Zoom In</span>
-          <span class="help-icon" tabindex="0" [dbaTooltip]="zoomInHelp" [attr.aria-label]="zoomInHelp">
-            <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
-          </span>
-        </div>
-        <div class="record-aux">
-          <dba-ui-switch
-            ariaLabel="Stars return at end"
-            [checked]="scene3d.starsReturn()"
-            (checkedChange)="scene3d.starsReturn.set($event)"
-          ></dba-ui-switch>
-          <span class="record-aux-label">Stars Return At End</span>
-          <span
-            class="help-icon"
-            tabindex="0"
-            [dbaTooltip]="starsReturnHelp"
-            [attr.aria-label]="starsReturnHelp"
-          >
-            <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
-          </span>
-        </div>
-      }
-    </div>
+    @if (scene3d.style() === 'arrive') {
+      <div class="record-aux">
+        <dba-ui-switch
+          ariaLabel="Zoom in"
+          [checked]="scene3d.zoomIn()"
+          (checkedChange)="scene3d.zoomIn.set($event)"
+        ></dba-ui-switch>
+        <span class="record-aux-label">Zoom In</span>
+        <span class="help-icon" tabindex="0" [dbaTooltip]="zoomInHelp" [attr.aria-label]="zoomInHelp">
+          <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
+        </span>
+      </div>
+      <div class="record-aux">
+        <dba-ui-switch
+          ariaLabel="Stars return at end"
+          [checked]="scene3d.starsReturn()"
+          (checkedChange)="scene3d.starsReturn.set($event)"
+        ></dba-ui-switch>
+        <span class="record-aux-label">Stars Return At End</span>
+        <span
+          class="help-icon"
+          tabindex="0"
+          [dbaTooltip]="starsReturnHelp"
+          [attr.aria-label]="starsReturnHelp"
+        >
+          <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
+        </span>
+      </div>
+    }
 
     <!-- Stars: how the moving stars look. -->
     <div class="stars-section">
@@ -447,22 +445,34 @@
         </div>
       </div>
 
-      <div class="format-row">
-        <div class="format-label-row">
-          <label class="row-label">Star Style</label>
-        </div>
-        <dba-ui-segmented-tabs
-          size="sm"
-          [options]="starStyleOptions"
-          [value]="scene3d.starStyle()"
-          (valueChange)="updateStarStyle($event)"
-        ></dba-ui-segmented-tabs>
-      </div>
-
       @for (control of sceneStarControls(); track control) {
         <ng-container
           [ngTemplateOutlet]="sceneSliderRow"
           [ngTemplateOutletContext]="{ $implicit: control }"
+        ></ng-container>
+      }
+
+      <div class="record-aux">
+        <dba-ui-switch
+          ariaLabel="Sharp stars"
+          [checked]="scene3d.hasSharpStars()"
+          (checkedChange)="scene3d.setSharpStars($event)"
+        ></dba-ui-switch>
+        <span class="record-aux-label">Sharp Stars</span>
+        <span
+          class="help-icon"
+          tabindex="0"
+          [dbaTooltip]="sharpStarsHelp"
+          [attr.aria-label]="sharpStarsHelp"
+        >
+          <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
+        </span>
+      </div>
+
+      @if (scene3d.hasSharpStars()) {
+        <ng-container
+          [ngTemplateOutlet]="sceneSliderRow"
+          [ngTemplateOutletContext]="{ $implicit: 'spikes' }"
         ></ng-container>
       }
     </div>

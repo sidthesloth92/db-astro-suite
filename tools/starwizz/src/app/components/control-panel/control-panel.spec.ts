@@ -53,6 +53,12 @@ describe('ControlPanel', () => {
     function switchLabels(): string[] {
       return Array.from(host().querySelectorAll('.record-aux-label')).map((label) => label.textContent?.trim() ?? '');
     }
+    /** The Sharp Stars switch in the 3D Stars box. */
+    function sharpSwitch(): HTMLButtonElement {
+      // Justification for the non-null assertion: the switch is always rendered in 3D mode,
+      // and every spec that calls this has entered 3D first.
+      return host().querySelector<HTMLButtonElement>('[role="switch"][aria-label="Sharp stars"]')!;
+    }
     function enter3d(): void {
       component.updateRenderMode('3d');
       fixture.detectChanges();
@@ -77,9 +83,20 @@ describe('ControlPanel', () => {
       expect(labels).not.toContain('Zoom Speed');
       expect(labels).not.toContain('Star Count');
       expect(labels).toContain('Style');
-      expect(labels).toContain('Star Style');
       expect(labels).toContain('Star Amount');
       expect(labels).toContain('Twinkle');
+    });
+
+    it('should keep every 3D control in one pane with a single Stars box, like 2D', () => {
+      enter3d();
+      const boxes = host().querySelectorAll('.stars-section, .path-section');
+      expect(boxes.length).toBe(1);
+      // The camera controls are plain rows above the box; the star controls sit inside it.
+      const inBox = Array.from(boxes[0].querySelectorAll('.row-label')).map((l) => l.textContent?.trim());
+      expect(inBox).toContain('Star Amount');
+      expect(inBox).not.toContain('Style');
+      expect(inBox).not.toContain('Speed');
+      expect(rowLabels()).not.toContain('Star Style');
     });
 
     it('should keep Format, Reset and Record available in 3D', () => {
@@ -116,13 +133,26 @@ describe('ControlPanel', () => {
       expect(switchLabels()).toContain('Stars Return At End');
     });
 
-    it('should show Spikes only for the Sharp star style', () => {
+    it('should offer sharp stars as one switch that is off to begin with', () => {
+      enter3d();
+      expect(switchLabels()).toContain('Sharp Stars');
+      expect(sharpSwitch().getAttribute('aria-checked')).toBe('false');
+      expect(scene3d.settings().starStyle).toBe('original');
+    });
+
+    it('should redraw the stars sharp and offer Spikes when Sharp Stars is switched on', () => {
       enter3d();
       expect(rowLabels()).not.toContain('Spikes');
 
-      component.updateStarStyle('sharp');
+      sharpSwitch().click();
       fixture.detectChanges();
+      expect(scene3d.settings().starStyle).toBe('sharp');
       expect(rowLabels()).toContain('Spikes');
+
+      sharpSwitch().click();
+      fixture.detectChanges();
+      expect(scene3d.settings().starStyle).toBe('original');
+      expect(rowLabels()).not.toContain('Spikes');
     });
 
     it('should explain how to aim when the Custom direction is chosen', () => {
@@ -133,13 +163,11 @@ describe('ControlPanel', () => {
       expect(host().querySelector('.path-hint')?.textContent).toContain('Drag the marker');
     });
 
-    it('should ignore style, direction and star style values it does not know', () => {
+    it('should ignore style and direction values it does not know', () => {
       component.updateSceneStyle('orbit');
       component.updateSceneDirection('sideways');
-      component.updateStarStyle('blurry');
       expect(scene3d.style()).toBe('travel');
       expect(scene3d.direction()).toBe('forward');
-      expect(scene3d.starStyle()).toBe('original');
     });
 
     it('should show each 3D slider value and pass changes on', () => {
@@ -174,7 +202,7 @@ describe('ControlPanel', () => {
 
     it('should restore the 3D settings too on Reset Params', () => {
       component.updateSceneStyle('arrive');
-      component.updateStarStyle('sharp');
+      scene3d.setSharpStars(true);
       component.updateSceneControl('twinkle', 8);
 
       component.resetParams();

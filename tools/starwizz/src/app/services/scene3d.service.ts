@@ -55,8 +55,10 @@ export class Scene3dService {
   readonly direction = signal<Scene3dDirection>(DEFAULT_SCENE3D_DIRECTION);
   /** Point the camera flies toward when the direction is Custom. */
   readonly aim = signal<AimPoint>(DEFAULT_AIM);
-  /** Original or Sharp stars. */
+  /** How the moving stars are drawn: the photo's own pixels, or redrawn sharp. */
   readonly starStyle = signal<StarStyle>(DEFAULT_STAR_STYLE);
+  /** True when the stars are redrawn sharp instead of using the photo's own pixels. */
+  readonly hasSharpStars = computed(() => this.starStyle() === 'sharp');
   /** Arrive: whether the camera really approaches the object. */
   readonly zoomIn = signal<boolean>(true);
   /** Arrive: whether the photo's stars fade back in once the camera has settled. */
@@ -173,6 +175,11 @@ export class Scene3dService {
   /** Sets a slider control. */
   updateControl(control: Scene3dControlKey, value: number): void {
     this.controls[control].set(value);
+  }
+
+  /** Turns sharp, redrawn stars on or off. Off uses the stars exactly as the photo has them. */
+  setSharpStars(isSharp: boolean): void {
+    this.starStyle.set(isSharp ? 'sharp' : 'original');
   }
 
   /** Moves the Custom aim point, keeping it inside the frame. */

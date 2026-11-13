@@ -105,11 +105,6 @@ export const SCENE3D_DIRECTION_OPTIONS: readonly SelectItem[] = [
   { label: 'Custom (drag the marker)', value: 'custom' },
 ];
 
-/** Star Style options for the segmented control. */
-export const STAR_STYLE_OPTIONS: readonly SegmentedTabOption[] = [
-  { id: 'original', label: 'Original' },
-  { id: 'sharp', label: 'Sharp' },
-];
 
 /** Shown when the photo cannot be prepared for 3D. */
 export const SCENE3D_ERROR_PREPARE = 'This image could not be prepared for 3D. Try another image.';

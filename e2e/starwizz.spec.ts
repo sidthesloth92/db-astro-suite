@@ -125,18 +125,18 @@ test.describe("Starwizz 3D mode", () => {
     await expect(starwizz.getControlLabel("Zoom Speed")).toBeVisible();
 
     await starwizz.selectMode("3D");
-    await expect(starwizz.getControlLabel("Star Style")).toBeVisible();
+    await expect(starwizz.getControlLabel("Sharp Stars")).toBeVisible();
     await expect(starwizz.getControlLabel("Star Amount")).toBeVisible();
     await expect(starwizz.getControlLabel("Zoom Speed")).toBeHidden();
   });
 
   test("should bring the 2D controls back when 2D is chosen again", async () => {
     await starwizz.selectMode("3D");
-    await expect(starwizz.getControlLabel("Star Style")).toBeVisible();
+    await expect(starwizz.getControlLabel("Star Amount")).toBeVisible();
 
     await starwizz.selectMode("2D");
     await expect(starwizz.getControlLabel("Zoom Speed")).toBeVisible();
-    await expect(starwizz.getControlLabel("Star Style")).toBeHidden();
+    await expect(starwizz.getControlLabel("Star Amount")).toBeHidden();
   });
 });
 
