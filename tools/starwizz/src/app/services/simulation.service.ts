@@ -468,7 +468,9 @@ export class SimulationService implements OnDestroy {
 
   /**
    * Updates the camera travel direction through the starfield. Leaving path
-   * mode stops any in-progress glide.
+   * mode stops any in-progress glide. Shooting stars already in flight are
+   * cleared: each one keeps the motion it captured at spawn, so it would
+   * otherwise keep streaking the previous way alongside the new field.
    * @param direction - The new travel direction
    */
   updateDirection(direction: TravelDirection): void {
@@ -480,6 +482,7 @@ export class SimulationService implements OnDestroy {
       this.pathFinalized.set(false);
       this.applyStarDefaults(direction);
     }
+    this.deactivateShootingStars();
   }
 
   /** Sets the star depth + angle + lateral flag from a preset's defaults. */
@@ -590,7 +593,8 @@ export class SimulationService implements OnDestroy {
 
   /**
    * Toggles the optional lateral (sideways) star drift. Turning it on with no
-   * angle yet seeds the angle from the A→B pan, when there is one.
+   * angle yet seeds the angle from the A→B pan, when there is one. Clears
+   * in-flight shooting stars so none keeps the previous drift.
    * @param on - Whether lateral drift is active
    */
   setStarLateral(on: boolean): void {
@@ -601,15 +605,18 @@ export class SimulationService implements OnDestroy {
       }
     }
     this.starLateralOn.set(on);
+    this.deactivateShootingStars();
   }
 
   /**
    * Sets the lateral star-drift angle (degrees) and engages the lateral drift.
+   * Clears in-flight shooting stars so none keeps the previous angle.
    * @param degrees - The drift angle (0 = right, 90 = up, 180 = left, 270 = down)
    */
   updateStarDirection(degrees: number): void {
     this.starDirectionDeg.set(degrees);
     this.starLateralOn.set(true);
+    this.deactivateShootingStars();
   }
 
   /** Captures the current live framing as the path Start (A). */
