@@ -39,6 +39,16 @@
       <span class="help-icon" tabindex="0" [dbaTooltip]="modeHelp" [attr.aria-label]="modeHelp">
         <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
       </span>
+      @if (isSmoothnessNoticeVisible()) {
+        <span
+          class="notice-icon"
+          tabindex="0"
+          [dbaTooltip]="smoothnessNotice"
+          [attr.aria-label]="smoothnessNotice"
+        >
+          <dba-ui-icon [def]="triangleAlertIcon" [size]="14" />
+        </span>
+      }
     </div>
     <dba-ui-segmented-tabs
       size="sm"

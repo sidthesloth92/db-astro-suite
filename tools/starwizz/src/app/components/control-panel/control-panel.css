@@ -163,6 +163,20 @@
   outline: none;
 }
 
+.notice-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--db-color-orange);
+  cursor: help;
+}
+
+.notice-icon:focus-visible {
+  outline: 1px solid var(--db-color-orange);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
 .panel-actions {
   display: flex;
   flex-direction: row;

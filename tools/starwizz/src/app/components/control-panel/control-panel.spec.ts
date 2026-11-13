@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { AnalyticsService } from '@db-astro-suite/ui';
+import { AnalyticsService, BreakpointService, MOBILE_BREAKPOINT_PX } from '@db-astro-suite/ui';
 
 import { Scene3dService } from '../../services/scene3d.service';
 import { SimulationService } from '../../services/simulation.service';
@@ -97,6 +97,36 @@ describe('ControlPanel', () => {
       expect(inBox).not.toContain('Style');
       expect(inBox).not.toContain('Speed');
       expect(rowLabels()).not.toContain('Star Style');
+    });
+
+    describe('smoothness notice', () => {
+      function notice(): HTMLElement | null {
+        return host().querySelector<HTMLElement>('.notice-icon');
+      }
+      function useLayout(width: number): void {
+        TestBed.inject(BreakpointService).updateFromWidth(width);
+        fixture.detectChanges();
+      }
+
+      it('should advise recording on a desktop when 3D is chosen on a phone', () => {
+        useLayout(MOBILE_BREAKPOINT_PX - 1);
+        enter3d();
+
+        expect(notice()?.getAttribute('aria-label')).toContain('record on a desktop computer');
+      });
+
+      it('should not show the notice in 2D on a phone', () => {
+        useLayout(MOBILE_BREAKPOINT_PX - 1);
+
+        expect(notice()).toBeNull();
+      });
+
+      it('should not show the notice in 3D on a desktop', () => {
+        useLayout(MOBILE_BREAKPOINT_PX);
+        enter3d();
+
+        expect(notice()).toBeNull();
+      });
     });
 
     it('should keep Format, Reset and Record available in 3D', () => {

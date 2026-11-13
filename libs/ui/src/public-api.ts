@@ -113,6 +113,7 @@ export * from "./lib/icons/tag.icon";
 export * from "./lib/icons/target.icon";
 export * from "./lib/icons/telescope.icon";
 export * from "./lib/icons/trash.icon";
+export * from "./lib/icons/triangle-alert.icon";
 export * from "./lib/icons/upload.icon";
 export * from "./lib/icons/user.icon";
 export * from "./lib/icons/wand.icon";
