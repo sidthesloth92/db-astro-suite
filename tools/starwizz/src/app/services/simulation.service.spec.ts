@@ -31,6 +31,14 @@ describe('SimulationService', () => {
     return stars;
   }
 
+  /** Puts one shooting star in flight, spawned under the current star motion. */
+  function seedActiveStreak(): ShootingStar {
+    const streak = new ShootingStar(WIDTH, HEIGHT, service);
+    streak.spawn();
+    service.shootingStars.set([streak]);
+    return streak;
+  }
+
   describe('adjustStarCount', () => {
     it('should grow the field to the target count, replacing the array immutably', () => {
       const initial = seedStars(500);
@@ -437,6 +445,50 @@ describe('SimulationService', () => {
       service.updateStarDirection(45);
       expect(service.starDirectionDeg()).toBe(45);
       expect(service.starLateralOn()).toBe(true);
+    });
+
+    it('should clear in-flight shooting stars when the travel direction changes', () => {
+      service.updateDirection('left');
+      const streak = seedActiveStreak();
+      expect(streak.isActive).toBe(true);
+
+      service.updateDirection('right');
+
+      // Otherwise it would keep streaking left through the right-moving field.
+      expect(streak.isActive).toBe(false);
+    });
+
+    it('should send respawned shooting stars the new way after a direction change', () => {
+      service.updateDirection('left');
+      const streak = seedActiveStreak();
+      const leftStartX = streak.x;
+      streak.update();
+      expect(streak.x).toBeLessThan(leftStartX);
+
+      service.updateDirection('right');
+      streak.spawn();
+      const rightStartX = streak.x;
+      streak.update();
+
+      expect(streak.x).toBeGreaterThan(rightStartX);
+    });
+
+    it('should clear in-flight shooting stars when the sideways drift is toggled', () => {
+      service.updateDirection('forward');
+      const streak = seedActiveStreak();
+
+      service.setStarLateral(true);
+
+      expect(streak.isActive).toBe(false);
+    });
+
+    it('should clear in-flight shooting stars when the drift angle changes', () => {
+      service.updateDirection('right');
+      const streak = seedActiveStreak();
+
+      service.updateStarDirection(90);
+
+      expect(streak.isActive).toBe(false);
     });
 
     it('clears points and zeroes star motion on resetPath', () => {
