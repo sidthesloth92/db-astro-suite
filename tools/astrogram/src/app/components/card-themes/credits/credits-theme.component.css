@@ -1,0 +1,385 @@
+/* Credits card theme — faithful port of the design source ThemeCredits.
+   Per-theme palette/typography is the theme's identity, so colours are literal,
+   except the two the Layout panel's pickers recolour: the accent (the
+   constellation and the spikes by the date) and the secondary (the glow at
+   the top of the sheet).
+   "Archivo Black"/"Space Grotesk" fall back to Outfit when not loaded. */
+
+:host {
+  --crd-txt: #f2eee6;
+  --crd-dim: #9b94a8;
+  --crd-faint: #59536a;
+  --crd-display: 'Archivo Black', 'Outfit', sans-serif;
+  --crd-sans: 'Space Grotesk', 'Outfit', sans-serif;
+  --crd-mono: 'JetBrains Mono', monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.crd-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+  color: var(--crd-txt);
+  font-family: var(--crd-sans);
+  padding: 36px 34px 30px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.crd-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 75% 50% at 50% 0%, rgba(var(--crd-secondary-rgb), 0.18), transparent 62%), #060509;
+  opacity: var(--card-opacity, 1);
+}
+
+.crd-constellation {
+  position: absolute;
+  top: 84px;
+  left: 50%;
+  margin-left: -130px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.crd-spike {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* SVG presentation attributes cannot read a CSS variable, so the accent
+   reaches the constellation and spike marks through these classes. */
+.crd-accent-stroke {
+  stroke: var(--accent-color);
+}
+
+.crd-accent-fill {
+  fill: var(--accent-color);
+}
+
+.crd-spike-1 {
+  left: 58px;
+  top: -24.5px;
+  opacity: 0.55;
+}
+
+.crd-spike-2 {
+  right: 52px;
+  top: -8.5px;
+  opacity: 0.45;
+}
+
+/* The sheet's blocks keep their height when a long billing block fills the
+   card: shrinking, the 4px band strip collapsed to nothing and the
+   designation slid under "Captured by". The card grows to fit instead. */
+.crd-title-block,
+.crd-strip,
+.crd-study,
+.crd-billing,
+.crd-release {
+  flex-shrink: 0;
+}
+
+/* ── Title ── */
+.crd-title-block {
+  position: relative;
+  margin-top: 24px;
+}
+
+.crd-the {
+  font: 400 16px/1 var(--crd-sans);
+  color: var(--crd-dim);
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  padding-left: 0.5em;
+}
+
+/* Size is set by the fit-text directive (64px at most); the spans inherit it. */
+.crd-title {
+  font: 400 64px/1 var(--crd-display);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  margin-top: 10px;
+}
+
+.crd-title-solid {
+  color: var(--crd-txt);
+}
+
+.crd-title-outline {
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--crd-txt);
+}
+
+/* ── Band colour strip ── */
+.crd-strip {
+  position: relative;
+  display: flex;
+  width: 220px;
+  height: 4px;
+  margin: 22px auto 0;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.crd-study {
+  position: relative;
+  font: 500 9.5px/1 var(--crd-mono);
+  color: var(--crd-faint);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  margin-top: 12px;
+  padding-left: 0.26em;
+}
+
+.crd-grow {
+  flex: 1;
+  /* Room kept between the blocks when the billing block leaves no slack. */
+  min-height: 18px;
+}
+
+.crd-grow--release {
+  min-height: 28px;
+}
+
+/* ── Billing block ── */
+.crd-billing {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.crd-credit {
+  text-align: center;
+}
+
+.crd-credit-k {
+  font: 500 8.5px/1 var(--crd-mono);
+  color: var(--crd-faint);
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  padding-left: 0.32em;
+}
+
+.crd-credit-v {
+  font: 600 13px/1.35 var(--crd-sans);
+  color: var(--crd-txt);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-top: 5px;
+}
+
+.crd-faint {
+  color: var(--crd-faint);
+}
+
+.crd-band-line {
+  display: block;
+  margin-top: 4px;
+  font: 500 11px/1 var(--crd-mono);
+  letter-spacing: 0.08em;
+}
+
+.crd-band {
+  white-space: nowrap;
+}
+
+/* The separator where a long run of bands splits becomes the row break. */
+.crd-band-break {
+  display: block;
+  height: 5px;
+  font-size: 0;
+}
+
+/* The wider square and landscape cards hold every band on one line. */
+:host-context(.card.aspect-1-1) .crd-band-break,
+.crd-root--landscape .crd-band-break {
+  display: inline;
+  height: auto;
+  font-size: inherit;
+}
+
+/* ── Release date ── */
+.crd-release {
+  position: relative;
+  /* The footer reaches down through the card's bottom margin inside an
+     invisible border, so the content fit keeps that margin: a long billing
+     block grows the card instead of pushing the footer onto its edge. The
+     margins cancel the border and padding, leaving the layout unchanged. */
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+  margin-top: -1px;
+  padding-bottom: 29px;
+  margin-bottom: -30px;
+}
+
+.crd-release-date {
+  font: 400 40px/1 var(--crd-display);
+  color: var(--crd-txt);
+  letter-spacing: 0.04em;
+}
+
+.crd-release-meta {
+  /* Leading for a location that wraps. The 6px it adds (3px above and below,
+     a whole pixel each so the text lands on the same pixel row) is taken back
+     by the margins, keeping a one-line footer exactly where it was. */
+  font: 500 9.5px/15.5px var(--crd-mono);
+  color: var(--crd-faint);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  margin-top: 7px;
+  margin-bottom: -3px;
+  padding-left: 0.26em;
+}
+
+/* Software credit printed as a centred run of whole names. */
+.crd-credit-list {
+  justify-content: center;
+}
+
+/* Band ids keep their own case inside the uppercase credit: "Hα" uppercased
+   becomes a capital Alpha, which reads as "HA". OIII and SII are capitals already. */
+.crd-band-id {
+  text-transform: none;
+}
+
+/* ── Landscape (1.91:1) ──
+   The one-sheet is a single centred column: on a wide card it kept its
+   portrait width, so the billing block sat in a narrow strip with most of the
+   frame empty and every credit printed at a few pixels. Landscape keeps the
+   one-line title across the top and splits the sheet beneath it — the band
+   strip, designation and release date on the left; the billing block in two
+   columns on the right, with the full-width software and exposure credits
+   closing it. */
+.crd-root--landscape {
+  display: grid;
+  grid-template-columns: 330px minmax(0, 1fr);
+  grid-template-rows: auto auto auto 1fr auto;
+  column-gap: 56px;
+  padding: 44px 46px 40px;
+}
+
+.crd-root--landscape .crd-grow {
+  display: none;
+}
+
+.crd-root--landscape .crd-strip,
+.crd-root--landscape .crd-study,
+.crd-root--landscape .crd-release {
+  grid-column: 1;
+}
+
+/* The name runs across the whole card on one line, as it does in portrait,
+   with the sheet split into its two columns beneath it. */
+.crd-root--landscape .crd-title-block {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  margin: 0 0 24px;
+}
+
+.crd-root--landscape .crd-title {
+  margin-top: 14px;
+}
+
+.crd-root--landscape .crd-strip {
+  grid-row: 2;
+  justify-self: center;
+  margin: 24px 0 0;
+}
+
+.crd-root--landscape .crd-study {
+  grid-row: 3;
+  font-size: 12.5px;
+  margin-top: 14px;
+}
+
+.crd-root--landscape .crd-release {
+  grid-row: 5;
+  padding-bottom: 39px;
+  margin-bottom: -40px;
+}
+
+.crd-root--landscape .crd-release-date {
+  font-size: 46px;
+}
+
+.crd-root--landscape .crd-release-meta {
+  font-size: 12.5px;
+  line-height: 1.4;
+  letter-spacing: 0.2em;
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+
+/* The constellation fills the open stretch of the title column, between the
+   designation and the date. */
+.crd-root--landscape .crd-constellation {
+  top: 286px;
+  left: 211px;
+}
+
+/* The spikes flank the release date, as they do on the portrait sheet. */
+.crd-root--landscape .crd-spike-1 {
+  left: 16px;
+  top: 3.5px;
+}
+
+.crd-root--landscape .crd-spike-2 {
+  right: auto;
+  left: 290px;
+  top: 21.5px;
+}
+
+/* Columns sized to their widest credit, so a long guide-scope name keeps its
+   line while the short credits beside it give up the room. */
+.crd-root--landscape .crd-billing {
+  grid-column: 2;
+  grid-row: 2 / -1;
+  /* Safe: a block taller than its rows overflows downward, where the content
+     fit can see it, instead of rising under the title. */
+  align-self: safe center;
+  display: grid;
+  grid-template-columns: auto auto;
+  justify-content: space-evenly;
+  column-gap: 44px;
+  row-gap: 26px;
+}
+
+/* Software and exposure are the longest credits and close the block across
+   both columns. */
+.crd-root--landscape .crd-billing > .crd-credit:nth-last-child(-n + 2) {
+  grid-column: 1 / -1;
+}
+
+/* Landscape type is set a step up from portrait: at the old sizes the
+   labels, band line and footer exported at 8-9px. */
+.crd-root--landscape .crd-credit-k {
+  font-size: 12.5px;
+  letter-spacing: 0.28em;
+  padding-left: 0.28em;
+}
+
+.crd-root--landscape .crd-credit-v {
+  font-size: 16px;
+  margin-top: 8px;
+}
+
+.crd-root--landscape .crd-band-line {
+  font-size: 13.5px;
+  margin-top: 6px;
+}

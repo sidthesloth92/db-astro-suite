@@ -1,0 +1,444 @@
+/* Split Stats card theme — faithful port of the design source ThemeSplitStats.
+   Per-theme palette/typography is the theme's identity, so colours are literal,
+   bar the pink the Layout panel's accent picker sets.
+   "Space Grotesk" falls back to Outfit when not loaded (design intent). */
+
+:host {
+  /* Pink is the card's one accent (kicker, highlighted figure, graticule and
+     glow); the greys are ink, not a second decorative colour. */
+  --sps-pink: var(--accent-color);
+  --sps-txt: #f2f5fa;
+  --sps-dim: #8b92a6;
+  --sps-faint: #4e5468;
+  --sps-sans: 'Space Grotesk', 'Outfit', sans-serif;
+  --sps-body: 'Outfit', system-ui, sans-serif;
+  --sps-mono: 'JetBrains Mono', monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.sps-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: 28px 32px 26px;
+  color: var(--sps-txt);
+  font-family: var(--sps-body);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.sps-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 70% 40% at 85% 0%, rgba(var(--accent-color-rgb), 0.1), transparent 60%), #07080d;
+  opacity: var(--card-opacity, 1);
+}
+
+.sps-graticule {
+  color: var(--sps-pink);
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.sps-constellation {
+  position: absolute;
+  top: 142px;
+  right: 22px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ── Brand row ── */
+.sps-brand {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.sps-grow {
+  flex: 1;
+}
+
+.sps-date {
+  font: 500 10.5px/1 var(--sps-mono);
+  color: var(--sps-faint);
+  letter-spacing: 0.1em;
+}
+
+/* ── Object ── */
+.sps-object {
+  position: relative;
+  margin-top: 26px;
+}
+
+.sps-kicker {
+  font: 600 10.5px/1 var(--sps-mono);
+  color: var(--sps-pink);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+}
+
+.sps-name {
+  font: 700 46px/1.02 var(--sps-sans);
+  letter-spacing: -0.03em;
+  margin-top: 12px;
+}
+
+.sps-caption {
+  font: 400 13px/1.5 var(--sps-body);
+  color: var(--sps-dim);
+  margin-top: 12px;
+  max-width: 400px;
+}
+
+.sps-grow-v {
+  flex: 1;
+}
+
+/* ── 2×2 giant stats ── */
+.sps-stats {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 28px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sps-cell-tl {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sps-cell-tr {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  padding-left: 28px;
+}
+
+.sps-cell-br {
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  padding-left: 28px;
+}
+
+.sps-stat {
+  padding: 16px 0 14px;
+}
+
+.sps-stat-k {
+  font: 500 9.5px/1 var(--sps-mono);
+  color: var(--sps-faint);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.sps-stat-v {
+  font: 700 42px/1 var(--sps-sans);
+  color: var(--sps-txt);
+  letter-spacing: -0.03em;
+  margin-top: 10px;
+}
+
+.sps-accent {
+  color: var(--sps-pink);
+}
+
+.sps-stat-sub {
+  font: 500 10px/1.4 var(--sps-mono);
+  color: var(--sps-dim);
+  letter-spacing: 0.04em;
+  margin-top: 7px;
+}
+
+/* ── Band bar ── */
+.sps-band {
+  position: relative;
+  margin-top: 18px;
+}
+
+.sps-bar {
+  display: flex;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Seven bands do not fit one row: items flow onto a second row whole,
+   rather than squeezing each duration onto two lines ("2h / 42m") and
+   pushing the last one past the margin. */
+.sps-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  margin-top: 10px;
+}
+
+/* Zero-height full-width item that starts the second row; with the row gap
+   on either side it leaves 8px between the rows. */
+.sps-legend-break {
+  flex-basis: 100%;
+  height: 0;
+}
+
+/* The square card holds every band on one row. */
+:host-context(.card.aspect-1-1) .sps-legend-break {
+  display: none;
+}
+
+.sps-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.sps-legend-dot {
+  flex-shrink: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.sps-legend-id {
+  font: 600 11px/1 var(--sps-mono);
+}
+
+.sps-legend-time {
+  font: 500 12px/1 var(--sps-body);
+  color: var(--sps-txt);
+}
+
+/* ── Gear chips ── */
+.sps-chips {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sps-chip {
+  padding: 6px 11px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  font: 500 10.5px/1 var(--sps-body);
+  color: var(--sps-dim);
+}
+
+.sps-author-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-top: 14px;
+}
+
+.sps-author {
+  font: 600 12.5px/1 var(--sps-body);
+  color: var(--sps-txt);
+}
+
+/* Leading for a location that wraps; the 6px it adds (whole pixels, so the
+   text keeps its pixel row) is taken back by the margins on one line. */
+.sps-loc {
+  font: 500 10px/16px var(--sps-mono);
+  margin: -3px 0;
+  color: var(--sps-faint);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ── Landscape (1.91:1) ──
+   The portrait stack squeezed into the format's height ran the caption onto
+   the stats grid's top rule, wedged the legend between the band bar and the
+   chips, and left each full-width stat cell mostly empty, with labels
+   exporting at 7-8px. Landscape splits the card: the title and caption over
+   the band bar on the left, the 2×2 stats on the right, and the gear chips
+   and author row across the foot. */
+.sps-root--landscape {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  grid-template-rows: auto auto 1fr auto auto;
+  grid-template-areas:
+    'brand brand'
+    'object stats'
+    'band stats'
+    'chips chips'
+    'author author';
+  column-gap: 48px;
+  padding: 30px 36px 28px;
+}
+
+.sps-root--landscape .sps-grow-v {
+  display: none;
+}
+
+.sps-root--landscape .sps-brand {
+  grid-area: brand;
+}
+
+.sps-root--landscape .sps-kicker,
+.sps-root--landscape .sps-date {
+  font-size: 11px;
+}
+
+.sps-root--landscape .sps-object {
+  grid-area: object;
+  margin-top: 26px;
+}
+
+/* Sized for the left column's height rather than one line: a two-word name
+   stacks, a long one wraps into the space above the band bar. */
+.sps-root--landscape .sps-name {
+  font-size: 64px;
+  line-height: 0.98;
+  margin-top: 0;
+}
+
+/* A long name's lines are wider than the column at 64px (see
+   SPLIT_STATS_LONG_NAME_CHARS); a notch smaller keeps it to two lines. */
+.sps-root--landscape .sps-name--long {
+  font-size: 54px;
+}
+
+.sps-root--landscape .sps-caption {
+  font-size: 14px;
+  max-width: none;
+  margin-top: 14px;
+}
+
+/* The wider left-hand cells hold the integration time and palette, the
+   longest values; frames and Bortle are a few digits. */
+.sps-root--landscape .sps-stats {
+  grid-area: stats;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  grid-template-rows: 1fr 1fr;
+  column-gap: 26px;
+  margin-top: 26px;
+}
+
+/* The stats share the column's height evenly; each stat sits centred in its
+   cell rather than leaving the slack under the value. */
+.sps-root--landscape .sps-cell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.sps-root--landscape .sps-cell-tr,
+.sps-root--landscape .sps-cell-br {
+  padding-left: 26px;
+}
+
+.sps-root--landscape .sps-stat {
+  padding: 18px 0 16px;
+}
+
+.sps-root--landscape .sps-stat-k {
+  font-size: 10.5px;
+}
+
+.sps-root--landscape .sps-stat-v {
+  font-size: 50px;
+  white-space: nowrap;
+  margin-top: 12px;
+}
+
+.sps-root--landscape .sps-stat-sub {
+  font-size: 11px;
+}
+
+/* The band bar closes the left column level with the foot of the stats. */
+.sps-root--landscape .sps-band {
+  grid-area: band;
+  align-self: end;
+  margin: 20px 0 14px;
+}
+
+/* The constellation moves off the stats into the open stretch of the left
+   column, between the caption and the band bar. */
+.sps-root--landscape .sps-constellation {
+  top: 272px;
+  right: auto;
+  left: 280px;
+  width: 130px;
+  height: 90px;
+}
+
+.sps-root--landscape .sps-legend {
+  gap: 4px 22px;
+  margin-top: 12px;
+}
+
+/* Baseline-aligned so the mono band id and the Outfit duration share a line;
+   centring their boxes put the id a few pixels high. */
+.sps-root--landscape .sps-legend-item {
+  align-items: baseline;
+}
+
+.sps-root--landscape .sps-legend-dot {
+  align-self: center;
+}
+
+.sps-root--landscape .sps-legend-id {
+  font-size: 12px;
+}
+
+.sps-root--landscape .sps-legend-time {
+  font-size: 13px;
+}
+
+.sps-root--landscape .sps-chips {
+  grid-area: chips;
+  gap: 7px;
+  margin-top: 22px;
+}
+
+.sps-root--landscape .sps-chip {
+  font-size: 12px;
+  padding: 7px 12px;
+}
+
+.sps-root--landscape .sps-author-row {
+  grid-area: author;
+  margin-top: 16px;
+}
+
+.sps-root--landscape .sps-author {
+  font-size: 14px;
+}
+
+.sps-root--landscape .sps-loc {
+  font-size: 11px;
+  line-height: 17px;
+}
+
+/* A long handle or location used to run the two ends of this row into each
+   other. The row may wrap: the location then starts its own line at the left
+   edge, under the handle, instead of hanging right-aligned from nowhere. When
+   both fit, the spacer takes the free space and the location stays at the
+   right. */
+.sps-author-row {
+  justify-content: space-between;
+  flex-wrap: wrap;
+  column-gap: 16px;
+  row-gap: 8px;
+}
+
+.sps-author-row .sps-loc {
+  min-width: 0;
+}
+

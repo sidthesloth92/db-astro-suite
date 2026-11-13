@@ -9,68 +9,9 @@
   [accentColorRgb]="cardData().accentColorRgb || '255, 45, 149'"
   [secondaryAccentColor]="cardData().secondaryAccentColor || '#00E5FF'"
   [cardOpacity]="cardData().cardOpacity"
+  [bleedContent]="true"
+  [themeBasisWidth]="activeThemeBasis().width"
+  [themeBasisHeight]="activeThemeBasis().height"
 >
-  <!-- Hero block -->
-  <section class="pn-hero" data-testid="card-hero">
-    <h1 class="pn-title">{{ cardData().title }}</h1>
-    <div class="pn-meta">
-      <span>📅 {{ formattedDate() }}</span>
-      <span>📍 {{ cardData().location }}</span>
-    </div>
-    @if (cardData().description; as desc) {
-      <p class="pn-description">{{ desc }}</p>
-    }
-  </section>
-
-  <!-- Integration rings -->
-  <section class="pn-integration">
-    <div class="pn-integration-head">
-      <span class="pn-integration-kicker">integration</span>
-      <span class="pn-integration-total">
-        TOTAL <strong>{{ totalIntegration() }}</strong>
-      </span>
-    </div>
-    <div class="pn-ring-row" data-testid="integration-rings">
-      @for (filter of enabledFilters(); track filter.name) {
-        <dba-ui-progress-ring
-          [value]="filterHours(filter)"
-          [total]="totalIntegrationHours()"
-          [color]="ringColor(filter)"
-          [label]="filter.name"
-          [centerText]="filterCenterText(filter)"
-          [size]="cardData().aspectRatio === '1:1' ? 56 : 72"
-          [radius]="cardData().aspectRatio === '1:1' ? 22 : 28"
-        />
-      }
-    </div>
-  </section>
-
-  <!-- Equipment + Software + Bortle grid -->
-  <div class="pn-two-col">
-    <section class="pn-col pn-equipment">
-      <div class="pn-col-kicker">equipment</div>
-      @for (item of cardData().equipment; track $index) {
-        <dba-ui-data-row [label]="item.label" [value]="item.value">
-          <span class="pn-icon" slot="icon" aria-hidden="true">{{ item.icon }}</span>
-        </dba-ui-data-row>
-      }
-    </section>
-    <div class="pn-col pn-stack">
-      <section class="pn-software">
-        <div class="pn-col-kicker">software</div>
-        @for (item of cardData().software; track $index) {
-          <dba-ui-data-row [label]="item.label" [value]="item.name">
-            <span class="pn-icon" slot="icon" aria-hidden="true">{{ item.icon }}</span>
-          </dba-ui-data-row>
-        }
-      </section>
-      <section class="pn-bortle">
-        <dba-ag-bortle-scale
-          [value]="cardData().bortleScale"
-          [accentColor]="cardData().accentColor"
-          [compact]="true"
-        />
-      </section>
-    </div>
-  </div>
+  <ng-container *ngComponentOutlet="activeThemeComponent()" />
 </dba-ag-base-card-preview>

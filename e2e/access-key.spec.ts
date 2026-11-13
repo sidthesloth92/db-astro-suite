@@ -124,16 +124,21 @@ test.describe("Access Key Modal", () => {
     });
   });
 
-  test("Submit button is disabled when input is empty and enabled once a value is typed", async () => {
+  test("Submit button stays disabled below the minimum key length and enables at 4+ characters", async () => {
     await triggerModal();
     await expect(accessKeyModalPage.getModal()).toBeVisible();
 
-    // Switch from the default CTA view to the key-entry view, where the
-    // input and SUBMIT button actually live.
+    // Switch from the default gate view to the key-entry view, where the
+    // input and "Unlock solver" button actually live.
     await accessKeyModalPage.switchToKeyEntry();
     await expect(accessKeyModalPage.getSubmitButton()).toBeDisabled();
 
-    await accessKeyModalPage.typeKey("a");
+    // Below the 4-character minimum → still disabled.
+    await accessKeyModalPage.typeKey("abc");
+    await expect(accessKeyModalPage.getSubmitButton()).toBeDisabled();
+
+    // At/above the minimum → enabled.
+    await accessKeyModalPage.typeKey("abcd");
     await expect(accessKeyModalPage.getSubmitButton()).toBeEnabled();
   });
 });

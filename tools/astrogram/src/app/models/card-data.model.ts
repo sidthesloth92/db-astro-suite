@@ -6,6 +6,7 @@ import {
   GlobalAnnotationSettings,
 } from './annotation-settings.models';
 import { ImageAnnotation } from './annotation.models';
+import type { CardThemeId } from './card-theme.model';
 
 export { DEFAULT_GLOBAL_ANNOTATION_SETTINGS };
 
@@ -75,6 +76,8 @@ export interface CardData {
   cardOpacity: number; // 0 to 1
   backgroundImage: string | null;
   aspectRatio: AspectRatio;
+  /** Selected card theme (visual design of the exported card). */
+  cardTheme: CardThemeId;
 
   // Social
   hashtags?: string;
@@ -129,9 +132,9 @@ export interface AnnotationFilters {
 // Default filter configurations
 export const DEFAULT_FILTERS: FilterExposure[] = [
   { name: 'L', color: '#ffffff', frames: 54, seconds: 180, enabled: false },
-  { name: 'Ha', color: '#ff4444', frames: 72, seconds: 300, enabled: true },
-  { name: 'OIII', color: '#00ffff', frames: 32, seconds: 300, enabled: true },
-  { name: 'SII', color: '#ff6600', frames: 20, seconds: 300, enabled: true },
+  { name: 'Ha', color: '#E5446D', frames: 72, seconds: 300, enabled: true },
+  { name: 'OIII', color: '#5DD8FF', frames: 32, seconds: 300, enabled: true },
+  { name: 'SII', color: '#E8A451', frames: 20, seconds: 300, enabled: true },
   { name: 'R', color: '#ff0000', frames: 14, seconds: 120, enabled: false },
   { name: 'G', color: '#00ff00', frames: 15, seconds: 120, enabled: false },
   { name: 'B', color: '#0066ff', frames: 15, seconds: 120, enabled: false },

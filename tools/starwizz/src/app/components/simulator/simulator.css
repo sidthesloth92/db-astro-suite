@@ -61,10 +61,13 @@
     padding: 0;
   }
 
+  /* Same width-first sizing as desktop: fill the available width, capped by
+     the height the container allows, and let aspect-ratio derive the height.
+     A fixed `height: 100%` with `max-width: 100%` stretched portrait formats
+     on narrow, tall phones. The host has no padding here, so 100cqh is the
+     full available height. */
   .simulation-wrapper {
-    height: 100%;
-    width: auto;
-    max-width: 100%;
+    width: min(100%, calc(100cqh * var(--aspect-ratio-num, 0.5625)));
     margin: 0;
   }
 }

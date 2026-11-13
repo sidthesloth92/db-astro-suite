@@ -1,0 +1,96 @@
+@let data = vm();
+
+<div class="fl-root" [class.fl-root--landscape]="isLandscapeFormat()">
+  <dba-ag-theme-starfield [density]="70" [opacity]="0.25" [color]="cardData().accentColor" [seed]="5" />
+
+  <div class="fl-ticket">
+    <!-- Ticket header -->
+    <div class="fl-header">
+      <span class="fl-pass">OBSERVATION PASS</span>
+      <div class="fl-spacer"></div>
+    </div>
+
+    <!-- Route: FROM → TO -->
+    <div class="fl-route" data-testid="card-hero">
+      <div class="fl-route-end">
+        <!-- The whole designation and name, not their first words: "NGC" and
+             "Rosette" on their own named nothing. -->
+        <div class="fl-route-code">{{ data.objectId }}</div>
+        <div class="fl-route-label">Catalogue</div>
+      </div>
+      <div class="fl-route-mid">
+        <div class="fl-route-line"></div>
+        <svg class="fl-route-star" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M2 12l8-2 4-8 1 9 7 1-7 1-1 9-4-8z" />
+        </svg>
+        <div class="fl-route-line"></div>
+      </div>
+      <div class="fl-route-end fl-route-end--to">
+        <div class="fl-route-code fl-route-code--mint">{{ data.objectName }}</div>
+        <div class="fl-route-label">Target</div>
+      </div>
+    </div>
+
+    <!-- Detail grid -->
+    <div class="fl-fields">
+      <div class="fl-field">
+        <div class="fl-field-key">Date</div>
+        <div class="fl-field-value">{{ data.dateShort }}</div>
+      </div>
+      <div class="fl-field">
+        <div class="fl-field-key">Site</div>
+        <div class="fl-field-value">{{ data.location }}</div>
+      </div>
+      <div class="fl-field">
+        <div class="fl-field-key">Operator</div>
+        <div class="fl-field-value fl-field-value--mint">{{ data.author }}</div>
+      </div>
+    </div>
+
+    <div class="fl-perf-wrap">
+      <div class="fl-perf"><div class="fl-perf-line"></div></div>
+    </div>
+
+    <!-- Exposure segments -->
+    <div class="fl-segments">
+      <div class="fl-segments-title">Exposure segments</div>
+      @for (band of data.integration; track band.id) {
+        <div class="fl-seg-row">
+          <span class="fl-seg-id" [style.color]="band.color">{{ band.id }}</span>
+          <div class="fl-seg-bar">
+            <div class="fl-seg-fill" [style.width.%]="band.pct * 100" [style.background]="band.color"></div>
+          </div>
+          <span class="fl-seg-frames">{{ band.frames }}</span>
+          <span class="fl-seg-time">{{ band.time }}</span>
+        </div>
+      }
+    </div>
+
+    <!-- Gear strip -->
+    <div class="fl-gear">
+      @for (item of data.equipment; track $index) {
+        <div class="fl-field">
+          <div class="fl-field-key">{{ item.label }}</div>
+          <div class="fl-field-value">{{ item.value }}</div>
+        </div>
+      }
+    </div>
+
+    <div class="fl-perf-wrap">
+      <div class="fl-perf"><div class="fl-perf-line"></div></div>
+    </div>
+
+    <!-- Barcode stub -->
+    <div class="fl-stub">
+      <div class="fl-barcode">
+        @for (bar of barcodeBars; track $index) {
+          <div class="fl-bar" [class.is-ink]="bar.filled" [style.width.px]="bar.width"></div>
+        }
+      </div>
+      <div class="fl-stub-meta">
+        <div class="fl-stub-total">{{ data.total }}</div>
+        <div class="fl-stub-sub">Total · B{{ data.bortle }}</div>
+      </div>
+    </div>
+  </div>
+</div>

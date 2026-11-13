@@ -35,5 +35,6 @@ User-agent: Bingbot
 Allow: /
 
 Sitemap: https://dbastrosuite.com/sitemap.xml
+Sitemap: https://dbastrosuite.com/astrospike/sitemap.xml
 
 # LLM context files: https://dbastrosuite.com/llms.txt and https://dbastrosuite.com/llms-full.txt

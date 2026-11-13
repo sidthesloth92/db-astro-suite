@@ -1,0 +1,92 @@
+@let data = vm();
+
+<div class="spc-root" [class.spc-root--landscape]="isLandscapeFormat()">
+  <!-- Hero gradient block -->
+  <div class="spc-hero" data-testid="card-hero">
+    <div class="spc-grain" aria-hidden="true"></div>
+    <div class="spc-hero-content">
+      <div class="spc-kicker">{{ data.objectId }}</div>
+      <!-- A long proper name ("Heart and Soul") shrinks to the hero's width. -->
+      <div
+        class="spc-headline"
+        [dbaAgFitText]="isLandscapeFormat() ? 56 : 60"
+        [fitTextMin]="30"
+        [fitTextContent]="heroName().primary"
+      >{{ heroName().primary }}</div>
+      <div class="spc-subhead">{{ heroSubtitle() }}</div>
+      <div class="spc-hero-meta">
+        <div class="spc-meta-line">
+          <span class="spc-meta-item">{{ data.dateShort }}</span>
+          <span class="spc-meta-item spc-meta-location spc-up">
+            <span class="spc-sep">·</span><span class="spc-meta-text">{{ data.location }}</span>
+          </span>
+          <span class="spc-meta-item spc-up"><span class="spc-sep">·</span>{{ data.author }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="spc-body">
+    @if (data.caption) {
+      <div class="spc-caption">{{ data.caption }}</div>
+    }
+
+    <!-- Integration — hero stat -->
+    <div class="spc-integration">
+      <div class="spc-int-lead">
+        <div class="spc-int-label">Integration</div>
+        <div class="spc-int-total">{{ data.total }}</div>
+      </div>
+      <div class="spc-int-bands">
+        @for (band of data.integration; track band.id) {
+          <div class="spc-int-row">
+            <div class="spc-int-id" [style.color]="band.color">{{ band.id }}</div>
+            <div class="spc-int-bar">
+              <div
+                class="spc-int-fill"
+                [style.width]="(band.pct * 100) + '%'"
+                [style.background]="'linear-gradient(90deg, ' + band.color + ', ' + band.color + 'cc)'"
+                [style.box-shadow]="'0 0 8px ' + band.color + '66'"
+              ></div>
+            </div>
+            <div class="spc-int-time">{{ band.time }}</div>
+            <div class="spc-int-frames">{{ band.frames }}</div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Lower grid -->
+    <div class="spc-lower">
+      <div class="spc-col">
+        <div class="spc-col-title spc-title-pink">Equipment</div>
+        @for (item of data.equipment; track $index) {
+          <div class="spc-eq-row">
+            <span class="spc-eq-label">{{ item.label }}</span>
+            <span class="spc-eq-value">{{ item.value }}</span>
+          </div>
+        }
+      </div>
+
+      <div class="spc-col">
+        <div class="spc-col-title spc-title-cyan">Pipeline</div>
+        @for (item of data.software; track $index) {
+          <div class="spc-sw-row">
+            <div class="spc-sw-label">{{ item.label }}</div>
+            <div class="spc-sw-value">{{ item.value }}</div>
+          </div>
+        }
+        <div class="spc-bortle">
+          <span class="spc-bortle-label">Bortle</span>
+          <div class="spc-bortle-dots">
+            @for (segment of bortleSegments; track segment) {
+              <div class="spc-bortle-dot" [class.is-lit]="isBortleLit(segment)"></div>
+            }
+          </div>
+          <span class="spc-bortle-val">{{ data.bortle }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

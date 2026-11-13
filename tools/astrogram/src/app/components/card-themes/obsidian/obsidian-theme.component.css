@@ -1,0 +1,725 @@
+/* Obsidian Glass card theme — faithful port of the design source ThemeObsidian. */
+
+:host {
+  /* Cyan is the card's accent and violet its secondary, so the Layout
+     panel's colour pickers restyle both; gold stays the Bortle meter's own. */
+  --obs-cyan: var(--accent-color);
+  --obs-violet: var(--secondary-accent-color);
+  --obs-gold: #e8c788;
+  --obs-txt: #e8ecf5;
+  --obs-dim: #9aa3b8;
+  --obs-faint: #5a6178;
+  --obs-sans: 'Outfit', -apple-system, system-ui, sans-serif;
+  --obs-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.obs-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: var(--obs-txt);
+  font-family: var(--obs-sans);
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.obs-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 80% 60% at 30% 20%, rgba(var(--accent-color-rgb), 0.1), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 90%, rgba(var(--obs-violet-rgb), 0.1), transparent 65%),
+    linear-gradient(180deg, #0a0e1a 0%, #06080f 60%, #02030a 100%);
+  opacity: var(--card-opacity, 1);
+}
+
+.obs-aurora {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.obs-aurora-stop--cyan {
+  stop-color: var(--obs-cyan);
+}
+
+.obs-aurora-stop--violet {
+  stop-color: var(--obs-violet);
+}
+
+.obs-meta dba-ag-theme-icon {
+  color: var(--obs-cyan);
+}
+
+.obs-inner {
+  /* The margins are the box's inset, not padding, and the box clips: text
+     that outgrows it then counts as overflow for the content fit. As padding,
+     a full rig pushed the bottom panels to within a few pixels of the card
+     edge while still technically inside the card. The bottom inset also
+     holds the bottom panels' padding and border (15px), which the panels
+     hang into through a negative margin (see .obs-lower): the fit measures
+     only text, so their last line has to meet the box's edge for the gutter
+     under the panel to count. The clip margin lets that chrome paint. */
+  position: absolute;
+  inset: 22px 22px 37px;
+  overflow: clip;
+  overflow-clip-margin: 16px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  /* The sections sit at one fixed gap and the hero panel takes the spare
+     height (see .obs-hero), so space-between no longer has any to spread:
+     before, the spare opened as three equal empty bands between the panels
+     — over a third of a 9:16 card; stretching the lower grid instead left
+     its bordered boxes up to three-quarters empty. */
+  justify-content: space-between;
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+.obs-glass {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 14px;
+  backdrop-filter: blur(12px) saturate(140%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* ── Masthead ── */
+.obs-masthead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.obs-frame {
+  font: 500 11px/1 var(--obs-mono);
+  letter-spacing: 0.18em;
+  color: var(--obs-faint);
+}
+
+/* ── Hero ── */
+/* The title plate takes whatever height the stack leaves, its content
+   centred, so the spare reads as the plate's margin rather than as gaps. */
+.obs-hero {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 20px 22px;
+}
+
+.obs-kicker {
+  font: 500 11px/1 var(--obs-mono);
+  letter-spacing: 0.28em;
+  color: var(--obs-cyan);
+  text-transform: uppercase;
+}
+
+.obs-name {
+  font: 300 44px/1 var(--obs-sans);
+  color: var(--obs-txt);
+  letter-spacing: -0.02em;
+  margin-top: 10px;
+}
+
+.obs-hairline {
+  display: inline-block;
+  margin-top: 10px;
+  width: 56px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--obs-cyan), transparent);
+}
+
+.obs-caption {
+  font: 400 14px/1.55 var(--obs-sans);
+  color: var(--obs-dim);
+  margin-top: 12px;
+  max-width: 440px;
+}
+
+.obs-meta {
+  display: flex;
+  gap: 6px 18px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.obs-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font: 500 11px/1 var(--obs-mono);
+  color: var(--obs-dim);
+  letter-spacing: 0.04em;
+}
+
+/* ── Integration ── */
+.obs-int-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.obs-int-label {
+  font: 500 11px/1 var(--obs-mono);
+  letter-spacing: 0.22em;
+  color: var(--obs-cyan);
+  text-transform: uppercase;
+}
+
+.obs-int-total {
+  font: 300 30px/1 var(--obs-sans);
+  color: var(--obs-txt);
+  letter-spacing: -0.02em;
+}
+
+.obs-int-total span {
+  font: 500 11px/1 var(--obs-mono);
+  color: var(--obs-faint);
+  letter-spacing: 0.1em;
+}
+
+.obs-bar {
+  display: flex;
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.obs-bar-seg {
+  height: 100%;
+}
+
+.obs-legend {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.obs-legend:has(> .obs-legend-item:nth-child(7)) {
+  /* Seven bands in three columns left the last alone on a third row, and
+     that row's height pushed the lower panels off short cards; four columns
+     hold them in two rows. */
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+/* Its two rows sit a little closer, for the same reason as a full rig's. */
+.obs-root:not(.obs-root--landscape) .obs-legend:has(> .obs-legend-item:nth-child(7)) {
+  row-gap: 9px;
+}
+
+.obs-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.obs-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.obs-legend-id {
+  font: 600 11.5px/1.1 var(--obs-mono);
+  letter-spacing: 0.1em;
+}
+
+.obs-legend-time {
+  font: 500 16px/1.1 var(--obs-sans);
+  color: var(--obs-txt);
+  margin-top: 3px;
+}
+
+.obs-legend-frames {
+  font: 400 10.5px/1 var(--obs-mono);
+  /* A step lighter than the faint tone, which vanished at the export's size. */
+  color: #7d869c;
+  margin-top: 3px;
+}
+
+/* ── Lower grid ── */
+.obs-lower {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 12px;
+  /* Hangs its panels' bottom padding and border below the content box. */
+  margin-bottom: -15px;
+}
+
+.obs-apparatus,
+.obs-pipeline {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.obs-pipeline {
+  flex: 1;
+}
+
+/* A full rig closes up the apparatus and pipeline rows alike, so the larger
+   type still leaves the card near its artboard instead of shrinking the whole
+   design to hold it. */
+.obs-root:not(.obs-root--landscape) .obs-lower:has(.obs-gear-row:nth-child(7)) .obs-apparatus,
+.obs-root:not(.obs-root--landscape) .obs-lower:has(.obs-gear-row:nth-child(7)) .obs-pipeline {
+  gap: 5px;
+}
+
+.obs-col-title {
+  font: 500 11px/1 var(--obs-mono);
+  letter-spacing: 0.22em;
+  color: var(--obs-violet);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.obs-gear-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+}
+
+.obs-gear-icon {
+  color: var(--obs-violet);
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.obs-gear-text {
+  min-width: 0;
+  flex: 1;
+}
+
+.obs-gear-label {
+  font: 500 10.5px/1 var(--obs-mono);
+  color: #7d869c;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.obs-gear-value {
+  font: 500 13px/1.25 var(--obs-sans);
+  color: var(--obs-txt);
+  margin-top: 3px;
+  /* Wraps rather than ellipsing, so a long piece of kit is never cut short;
+     balanced, so a wrap never leaves a lone "Gen 2" on the second line. */
+  overflow-wrap: break-word;
+  text-wrap: balance;
+}
+
+.obs-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.obs-bortle {
+  padding: 12px 14px;
+}
+
+.obs-bortle-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.obs-bortle-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font: 500 11px/1 var(--obs-mono);
+  letter-spacing: 0.2em;
+  color: var(--obs-gold);
+  text-transform: uppercase;
+}
+
+.obs-bortle-val {
+  font: 300 24px/1 var(--obs-sans);
+  color: var(--obs-txt);
+}
+
+.obs-bortle-val span {
+  font: 500 12px/1 var(--obs-mono);
+  color: var(--obs-faint);
+}
+
+.obs-bortle-bar {
+  display: flex;
+  gap: 2px;
+  margin-top: 8px;
+}
+
+.obs-bortle-seg {
+  flex: 1;
+  height: 5px;
+  border-radius: 1px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.obs-bortle-seg.is-lit {
+  background: var(--obs-gold);
+}
+
+/* ── Tall format (9:16) ──
+   The story card is 240px taller than the artboard. Carried at the portrait
+   sizes, all of that became empty hero plate; instead every panel sets its
+   type and spacing a step larger, so the plate keeps only a modest margin. */
+:host-context(.card.aspect-9-16) .obs-inner {
+  gap: 20px;
+}
+
+:host-context(.card.aspect-9-16) .obs-kicker,
+:host-context(.card.aspect-9-16) .obs-frame {
+  font-size: 12.5px;
+}
+
+:host-context(.card.aspect-9-16) .obs-hero {
+  padding: 32px 28px;
+}
+
+:host-context(.card.aspect-9-16) .obs-name {
+  font-size: 62px;
+  margin-top: 0;
+}
+
+:host-context(.card.aspect-9-16) .obs-hairline {
+  margin-top: 14px;
+  width: 72px;
+}
+
+:host-context(.card.aspect-9-16) .obs-caption {
+  font-size: 17px;
+  margin-top: 16px;
+}
+
+:host-context(.card.aspect-9-16) .obs-meta {
+  gap: 8px 22px;
+  margin-top: 22px;
+}
+
+:host-context(.card.aspect-9-16) .obs-chip {
+  gap: 7px;
+  font-size: 12.5px;
+}
+
+:host-context(.card.aspect-9-16) .obs-integration {
+  padding: 18px 18px 20px;
+}
+
+:host-context(.card.aspect-9-16) .obs-int-head {
+  margin-bottom: 16px;
+}
+
+:host-context(.card.aspect-9-16) .obs-int-label,
+:host-context(.card.aspect-9-16) .obs-int-total span {
+  font-size: 12px;
+}
+
+:host-context(.card.aspect-9-16) .obs-int-total {
+  font-size: 40px;
+}
+
+:host-context(.card.aspect-9-16) .obs-bar {
+  height: 8px;
+  border-radius: 4px;
+}
+
+:host-context(.card.aspect-9-16) .obs-legend {
+  margin-top: 18px;
+  gap: 16px 12px;
+}
+
+:host-context(.card.aspect-9-16) .obs-legend-dot {
+  width: 10px;
+  height: 10px;
+}
+
+:host-context(.card.aspect-9-16) .obs-legend-id {
+  font-size: 13px;
+}
+
+:host-context(.card.aspect-9-16) .obs-legend-time {
+  font-size: 22px;
+  margin-top: 4px;
+}
+
+:host-context(.card.aspect-9-16) .obs-legend-frames {
+  font-size: 12.5px;
+  margin-top: 5px;
+}
+
+:host-context(.card.aspect-9-16) .obs-apparatus,
+:host-context(.card.aspect-9-16) .obs-pipeline {
+  gap: 18px;
+  padding: 18px 14px;
+}
+
+:host-context(.card.aspect-9-16) .obs-lower:has(.obs-gear-row:nth-child(7)) .obs-apparatus,
+:host-context(.card.aspect-9-16) .obs-lower:has(.obs-gear-row:nth-child(7)) .obs-pipeline {
+  gap: 10px;
+}
+
+:host-context(.card.aspect-9-16) .obs-col-title,
+:host-context(.card.aspect-9-16) .obs-bortle-title {
+  font-size: 12.5px;
+}
+
+:host-context(.card.aspect-9-16) .obs-gear-label {
+  font-size: 12px;
+}
+
+:host-context(.card.aspect-9-16) .obs-gear-value {
+  font-size: 15px;
+  margin-top: 4px;
+}
+
+:host-context(.card.aspect-9-16) .obs-stack {
+  gap: 16px;
+}
+
+:host-context(.card.aspect-9-16) .obs-bortle {
+  padding: 16px;
+}
+
+:host-context(.card.aspect-9-16) .obs-bortle-val {
+  font-size: 30px;
+}
+
+:host-context(.card.aspect-9-16) .obs-bortle-val span {
+  font-size: 14px;
+}
+
+:host-context(.card.aspect-9-16) .obs-bortle-bar {
+  margin-top: 12px;
+}
+
+:host-context(.card.aspect-9-16) .obs-bortle-seg {
+  height: 6px;
+}
+
+/* ── Landscape (1.91:1) ──
+   The portrait stack dropped into a wide card as full-width strips: the hero
+   panel ran empty past its caption, the integration legend spread its three
+   bands 350px apart, and the mono labels exported at 5-6px. Landscape splits
+   the card into two columns under the masthead — hero and integration on the
+   left, the apparatus panel over pipeline and a Bortle gauge on the right —
+   with the type raised to read at the export's size. */
+.obs-root--landscape .obs-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  /* The hero row may not shrink below its content: squeezed, the hero's
+     centred text ran out over its own border and the panel above, instead of
+     the card growing to hold it. */
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+    'mast mast'
+    'hero lower'
+    'int lower';
+  gap: 14px 16px;
+  inset: 24px 28px 41px;
+}
+
+.obs-root--landscape .obs-masthead {
+  grid-area: mast;
+}
+
+.obs-root--landscape .obs-kicker,
+.obs-root--landscape .obs-frame {
+  font-size: 11px;
+}
+
+/* The hero takes the column's spare height, so its content is centred in
+   the panel rather than leaving the space under the chips. */
+.obs-root--landscape .obs-hero {
+  grid-area: hero;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 18px 24px;
+}
+
+.obs-root--landscape .obs-name {
+  font-size: 46px;
+  line-height: 1;
+  margin-top: 0;
+}
+
+.obs-root--landscape .obs-hairline {
+  margin-top: 10px;
+}
+
+.obs-root--landscape .obs-caption {
+  font-size: 13.5px;
+  max-width: none;
+  margin-top: 10px;
+}
+
+.obs-root--landscape .obs-meta {
+  gap: 4px 18px;
+  margin-top: 12px;
+}
+
+.obs-root--landscape .obs-chip {
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.obs-root--landscape .obs-integration {
+  grid-area: int;
+  padding: 14px 20px 16px;
+  margin-bottom: -15px;
+}
+
+/* A longer total drops below the label instead of running into it. */
+.obs-root--landscape .obs-int-head {
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-bottom: 10px;
+}
+
+.obs-root--landscape .obs-legend {
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.obs-root--landscape .obs-int-label,
+.obs-root--landscape .obs-int-total span {
+  font-size: 10.5px;
+}
+
+.obs-root--landscape .obs-int-total {
+  font-size: 28px;
+}
+
+.obs-root--landscape .obs-legend-id {
+  font-size: 11px;
+}
+
+.obs-root--landscape .obs-legend-time {
+  font-size: 15px;
+}
+
+.obs-root--landscape .obs-legend-frames {
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+/* Apparatus runs the full width of the right column, so the longest piece
+   of kit stays on one line; pipeline and the Bortle gauge share the row
+   beneath it. */
+.obs-root--landscape .obs-lower {
+  grid-area: lower;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.obs-root--landscape .obs-apparatus {
+  flex: 1;
+  justify-content: center;
+}
+
+.obs-root--landscape .obs-apparatus,
+.obs-root--landscape .obs-pipeline {
+  gap: 6px;
+  padding: 14px 18px;
+}
+
+.obs-root--landscape .obs-stack {
+  flex-direction: row;
+  gap: 12px;
+}
+
+.obs-root--landscape .obs-pipeline {
+  flex: 2 1 0;
+  min-width: 0;
+}
+
+.obs-root--landscape .obs-col-title,
+.obs-root--landscape .obs-bortle-title {
+  font-size: 10.5px;
+}
+
+/* The faint label tone held up at portrait's size; at landscape's it needs
+   a step more contrast to read. */
+.obs-root--landscape .obs-gear-label,
+.obs-root--landscape .obs-legend-frames {
+  color: #7d869c;
+}
+
+/* Apparatus and pipeline read as a spec sheet — label column, value beside
+   it — without the row icons. Stacked label-over-value with icons, a full
+   rig (7 gear, 4 software) needed a quarter more height than the card has,
+   and the fit shrank every label in the export below 10px. */
+.obs-root--landscape .obs-gear-icon {
+  display: none;
+}
+
+.obs-root--landscape .obs-gear-text {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr);
+  column-gap: 12px;
+  align-items: baseline;
+}
+
+.obs-root--landscape .obs-gear-label {
+  font-size: 10.5px;
+  line-height: 1.25;
+  letter-spacing: 0.12em;
+}
+
+.obs-root--landscape .obs-gear-value {
+  margin-top: 0;
+  font-size: 13px;
+}
+
+/* Beside the pipeline panel the Bortle panel is as tall as it, so it reads
+   as a gauge: title over a large reading, the meter along the bottom. */
+.obs-root--landscape .obs-bortle {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 14px 16px 16px;
+}
+
+.obs-root--landscape .obs-bortle-head {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.obs-root--landscape .obs-bortle-val {
+  font-size: 40px;
+}
+
+.obs-root--landscape .obs-bortle-val span {
+  font-size: 13px;
+}
+
+.obs-root--landscape .obs-bortle-seg {
+  height: 5px;
+}

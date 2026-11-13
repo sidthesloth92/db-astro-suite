@@ -4,7 +4,7 @@
  * Import this file in any project to use the shared theme.
  * Example: @import '@db-astro-suite/theme';
  *
- * NOTE: Web fonts loaded over the network (Fira Code, Orbitron, Rajdhani)
+ * NOTE: Web fonts loaded over the network (Orbitron, Rajdhani)
  * are linked from each consuming app's `index.html` rather than via CSS
  * `@import url(...)`. The `@import` form is order-sensitive (must precede
  * every other rule), and Tailwind v4's `@import "tailwindcss"` emits
@@ -53,11 +53,31 @@
   font-display: swap;
 }
 
+/* Fira Code (mono) — self-hosted variable font, SIL OFL (fonts/fira-code-OFL.txt).
+   It used to come only from each app's Google Fonts <link>. A cross-origin
+   stylesheet is unreadable to script, so Astrogram's card exporter could not
+   embed it and every downloaded card drew this font's text in Courier. */
+@font-face {
+  font-family: "Fira Code";
+  src: url("./fonts/fira-code-variable.woff2") format("woff2");
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Direction B Polished — Outfit (UI + display), Fira Code (mono) */
 @font-face {
   font-family: "Outfit";
   src: url("./fonts/outfit-100.woff2") format("woff2");
   font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Outfit";
+  src: url("./fonts/outfit-300.woff2") format("woff2");
+  font-weight: 300;
   font-style: normal;
   font-display: swap;
 }
@@ -90,6 +110,14 @@
   font-family: "Outfit";
   src: url("./fonts/outfit-700.woff2") format("woff2");
   font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Outfit";
+  src: url("./fonts/outfit-800.woff2") format("woff2");
+  font-weight: 800;
   font-style: normal;
   font-display: swap;
 }
@@ -204,6 +232,11 @@
   /** Floating-sheet drop shadow. */
   --db-shadow-sheet: 0 -8px 30px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(0, 0, 0, 0.3);
 
+  /** Dimming scrim laid over media, e.g. behind a canvas overlay. */
+  --db-color-scrim: rgba(0, 0, 0, 0.45);
+  /** Ambient drop shadow that lifts a media stage off the page background. */
+  --db-shadow-stage: 0 0 50px rgba(0, 0, 0, 0.5);
+
   /** Star colour used by the StarryBackground gradients. */
   --db-color-star: 255, 255, 255;
 
@@ -220,6 +253,19 @@
     var(--db-color-neon-pink) 70%,
     var(--db-color-avatar-deep)
   );
+
+  /** Share-prompt moon mascot illustration colours (face, craters, paws, tears). */
+  --db-color-moon-light: #f4f1ff;
+  --db-color-moon-shade: #bdb8d6;
+  --db-color-moon-crater: #a9a3c8;
+  --db-color-moon-paw: #d9d5ee;
+  --db-color-moon-eye: #1a1a28;
+  --db-color-moon-glint: #ffffff;
+  --db-color-moon-tear: #6df1ec;
+  --db-color-moon-blush: #ff77b4;
+  --db-color-moon-pout: #4a4560;
+  --db-color-moon-smile: #3a3550;
+  --db-color-moon-mouth: #7a2a44;
 
   /** Default colour for a freshly-added custom filter (data, not brand). */
   --db-color-filter-default: #ff00ff;

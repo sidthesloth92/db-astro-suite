@@ -1,4 +1,8 @@
-import { buildRecordingMimeLadder, computeH264LevelHex } from './recording-mime.util';
+import {
+  buildRecordingMimeLadder,
+  computeH264LevelHex,
+  toContainerMimeType,
+} from './recording-mime.util';
 
 describe('recording-mime.util', () => {
   describe('computeH264LevelHex', () => {
@@ -57,6 +61,25 @@ describe('recording-mime.util', () => {
         'video/webm;codecs=vp9',
         'video/webm',
       ]);
+    });
+  });
+
+  describe('toContainerMimeType', () => {
+    it('should drop the codecs parameter from an H.264 MP4 type', () => {
+      expect(toContainerMimeType('video/mp4;codecs=avc1.64002A')).toBe('video/mp4');
+    });
+
+    it('should drop the codecs parameter from a VP9 WebM type', () => {
+      expect(toContainerMimeType('video/webm;codecs=vp9')).toBe('video/webm');
+    });
+
+    it('should leave bare container types unchanged', () => {
+      expect(toContainerMimeType('video/mp4')).toBe('video/mp4');
+      expect(toContainerMimeType('video/webm')).toBe('video/webm');
+    });
+
+    it('should tolerate spacing and quoted codec lists', () => {
+      expect(toContainerMimeType('video/mp4; codecs="avc1.42E01E, mp4a.40.2"')).toBe('video/mp4');
     });
   });
 });

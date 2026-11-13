@@ -1,9 +1,10 @@
-import { Component, output } from '@angular/core';
+import { Component, output, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AnalyticsService, BreakpointService } from '@db-astro-suite/ui';
 import { App } from './app';
 import { ControlPanel } from './components/control-panel/control-panel';
 import { Simulator } from './components/simulator/simulator';
+import { InAppBrowserService } from './services/in-app-browser.service';
 import { SimulationService } from './services/simulation.service';
 
 /** Lightweight stand-ins so App can render without the canvas/animation machinery. */
@@ -40,14 +41,52 @@ describe('App', () => {
     expect(header?.getAttribute('title')).toBe('STARWIZZ');
   });
 
+  describe('in-app browser alert', () => {
+    function alertDialog(fixture: ComponentFixture<App>): HTMLElement | null {
+      return (fixture.nativeElement as HTMLElement).querySelector('[role="alertdialog"]');
+    }
+
+    function mainContent(fixture: ComponentFixture<App>): HTMLElement | null {
+      return (fixture.nativeElement as HTMLElement).querySelector('main');
+    }
+
+    it('should not show the alert or block the page in a regular browser', () => {
+      const fixture = TestBed.createComponent(App);
+      fixture.detectChanges();
+
+      expect(alertDialog(fixture)).toBeNull();
+      expect(mainContent(fixture)?.inert).toBe(false);
+    });
+
+    it('should show the alert and block the page behind it inside Instagram', () => {
+      TestBed.overrideProvider(InAppBrowserService, {
+        useValue: {
+          browser: { appName: 'Instagram', platform: 'android' },
+          externalBrowserUrl: 'intent://dbastrosuite.com/starwizz/#Intent;scheme=https;end',
+        },
+      });
+      const fixture = TestBed.createComponent(App);
+      fixture.detectChanges();
+
+      expect(alertDialog(fixture)?.textContent).toContain('Instagram’s built-in browser');
+      expect(alertDialog(fixture)?.querySelector('a')?.textContent?.trim()).toBe('Open in browser');
+      expect(mainContent(fixture)?.inert).toBe(true);
+    });
+  });
+
   describe('mobile quality picker', () => {
     let fixture: ComponentFixture<App>;
     let simService: SimulationService;
 
-    /** Renders the mobile shell with an image loaded so the record button is live. */
+    /**
+     * Renders the mobile shell with an image loaded so the record button is live.
+     * The breakpoint is stubbed rather than set on the real service: its
+     * afterNextRender listener re-reads window.innerWidth after the first render
+     * and flips back to desktop whenever the test browser is wider than 1080px.
+     */
     function renderMobile(): void {
+      TestBed.overrideProvider(BreakpointService, { useValue: { isMobile: signal(true) } });
       simService = TestBed.inject(SimulationService);
-      TestBed.inject(BreakpointService).isMobile.set(true);
       simService.isImageLoaded.set(true);
       simService.recordFromBeginning.set(false);
       fixture = TestBed.createComponent(App);
@@ -131,24 +170,26 @@ describe('App', () => {
       return (fixture.nativeElement as HTMLElement).querySelector('.sw-result-chip');
     }
 
-    it('should show a "Saved" confirmation chip with the size after a recording is retained', () => {
+    it('should show a "Video ready" chip with the size after a recording is retained', () => {
       renderMobile();
       expect(resultChip()).toBeNull();
 
       seedLastRecording();
 
-      expect(resultChip()?.textContent).toContain('Saved · ~47 MB');
+      expect(resultChip()?.textContent).toContain('Video ready · ~47 MB');
     });
 
-    it('should re-download the retained recording from the chip', () => {
+    it('should save the retained recording from the chip\'s labelled Save button', () => {
       renderMobile();
       seedLastRecording();
       const save = spyOn(simService, 'saveLastRecording');
 
-      (fixture.nativeElement as HTMLElement)
-        .querySelector<HTMLButtonElement>('.sw-result-chip__icon')
-        ?.click();
+      const saveButton = Array.from(
+        resultChip()?.querySelectorAll<HTMLButtonElement>('button') ?? [],
+      ).find((button) => button.textContent?.trim() === 'Save');
+      saveButton?.click();
 
+      expect(saveButton).toBeDefined();
       expect(save).toHaveBeenCalled();
     });
 

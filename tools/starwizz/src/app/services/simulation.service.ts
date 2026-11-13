@@ -28,7 +28,6 @@ import {
   RECORDING_PRESETS,
   RECORDING_QUALITY_WARNING_SECONDS,
   RECORDING_REQUEST_DATA_NUDGE_MS,
-  RECORDING_TIMESLICE_MS,
   RECORDING_WATCHDOG_MS,
 } from '../constants/recording.constant';
 import { ShootingStar } from '../models/shooting-star.model';
@@ -43,9 +42,10 @@ import {
   TravelDirection,
 } from '../models/simulation.model';
 import { Star } from '../models/star.model';
-import { buildRecordingMimeLadder } from '../utils/recording-mime.util';
+import { repairMp4BlobDuration } from '../utils/mp4-duration.util';
+import { buildRecordingMimeLadder, toContainerMimeType } from '../utils/recording-mime.util';
 import { computeRecordingBitsPerSecond } from '../utils/recording-size.util';
-import { AnalyticsService } from '@db-astro-suite/ui';
+import { AnalyticsService, SharePromptService } from '@db-astro-suite/ui';
 
 /** Size of the shooting star object pool for reuse */
 const NUM_SHOOTING_STARS = 10;
@@ -87,6 +87,7 @@ const NUM_SHOOTING_STARS = 10;
 })
 export class SimulationService implements OnDestroy {
   private analyticsService = inject(AnalyticsService);
+  private readonly sharePrompt = inject(SharePromptService);
 
   // ==================== Control Signals ====================
 
@@ -500,8 +501,8 @@ export class SimulationService implements OnDestroy {
   /** Watchdog handle — fires when no data chunk arrived in time. */
   private watchdogTimeout: ReturnType<typeof setTimeout> | null = null;
 
-  /** Handle for the `requestData()` nudge backstopping timeslice delivery. */
-  private requestDataTimeout: ReturnType<typeof setTimeout> | null = null;
+  /** Handle for the repeating `requestData()` nudge that proves the encoder is alive. */
+  private requestDataInterval: ReturnType<typeof setInterval> | null = null;
 
   /**
    * Object URL of the last downloaded recording. Deliberately NOT revoked at
@@ -576,7 +577,9 @@ export class SimulationService implements OnDestroy {
 
   /**
    * Updates the camera travel direction through the starfield. Leaving path
-   * mode stops any in-progress glide.
+   * mode stops any in-progress glide. Shooting stars already in flight are
+   * cleared: each one keeps the motion it captured at spawn, so it would
+   * otherwise keep streaking the previous way alongside the new field.
    * @param direction - The new travel direction
    */
   updateDirection(direction: TravelDirection): void {
@@ -588,6 +591,7 @@ export class SimulationService implements OnDestroy {
       this.pathFinalized.set(false);
       this.applyStarDefaults(direction);
     }
+    this.deactivateShootingStars();
   }
 
   /** Sets the star depth + angle + lateral flag from a preset's defaults. */
@@ -698,7 +702,8 @@ export class SimulationService implements OnDestroy {
 
   /**
    * Toggles the optional lateral (sideways) star drift. Turning it on with no
-   * angle yet seeds the angle from the A→B pan, when there is one.
+   * angle yet seeds the angle from the A→B pan, when there is one. Clears
+   * in-flight shooting stars so none keeps the previous drift.
    * @param on - Whether lateral drift is active
    */
   setStarLateral(on: boolean): void {
@@ -709,15 +714,18 @@ export class SimulationService implements OnDestroy {
       }
     }
     this.starLateralOn.set(on);
+    this.deactivateShootingStars();
   }
 
   /**
    * Sets the lateral star-drift angle (degrees) and engages the lateral drift.
+   * Clears in-flight shooting stars so none keeps the previous angle.
    * @param degrees - The drift angle (0 = right, 90 = up, 180 = left, 270 = down)
    */
   updateStarDirection(degrees: number): void {
     this.starDirectionDeg.set(degrees);
     this.starLateralOn.set(true);
+    this.deactivateShootingStars();
   }
 
   /** Captures the current live framing as the path Start (A). */
@@ -1137,9 +1145,13 @@ export class SimulationService implements OnDestroy {
       });
       this.setupRecorderListeners(this.mediaRecorder, mimeType);
 
-      // Timeslice delivery: the first chunk's arrival is the encoder's
-      // proof-of-life signal, and chunks concatenate into a valid file.
-      this.mediaRecorder.start(RECORDING_TIMESLICE_MS);
+      // No timeslice, deliberately. With one, Chrome's MP4 muxer writes the
+      // file header before it knows the length, so the saved file declares
+      // a duration of zero: it plays in full, but Google Photos shows
+      // "0:01" and Instagram imports only the first second or two. Without
+      // one the muxer holds the file until stop() and writes the real
+      // duration. Proof of life comes from the requestData() nudges instead.
+      this.mediaRecorder.start();
 
       // (Re)start the visible duration timer and the auto-stop per attempt,
       // so the counter always matches actually-captured footage.
@@ -1177,15 +1189,17 @@ export class SimulationService implements OnDestroy {
   }
 
   /**
-   * Arms the proof-of-life timers for a recording attempt: a `requestData()`
-   * nudge (backstop for browsers that ignore the timeslice) and the watchdog
+   * Arms the proof-of-life timers for a recording attempt: a repeating
+   * `requestData()` nudge (the recorder volunteers no data before stop, so
+   * this flushes whatever the encoder has produced so far) and the watchdog
    * that declares the encoder dead when no chunk has arrived in time.
    *
    * @param recorder - The recorder this watchdog belongs to (identity-checked
    *   on fire so a stale timer can never touch a newer attempt)
    */
   private armEncoderWatchdog(recorder: MediaRecorder): void {
-    this.requestDataTimeout = setTimeout(() => {
+    this.disarmEncoderWatchdog();
+    this.requestDataInterval = setInterval(() => {
       if (recorder === this.mediaRecorder && recorder.state === 'recording') {
         recorder.requestData();
       }
@@ -1203,6 +1217,18 @@ export class SimulationService implements OnDestroy {
       }
       this.handleEncoderFailure(recorder);
     }, RECORDING_WATCHDOG_MS);
+  }
+
+  /** Stands the proof-of-life timers down (first chunk arrived, or the attempt ended). */
+  private disarmEncoderWatchdog(): void {
+    if (this.watchdogTimeout) {
+      clearTimeout(this.watchdogTimeout);
+      this.watchdogTimeout = null;
+    }
+    if (this.requestDataInterval) {
+      clearInterval(this.requestDataInterval);
+      this.requestDataInterval = null;
+    }
   }
 
   /**
@@ -1244,9 +1270,14 @@ export class SimulationService implements OnDestroy {
     this.attemptRecording();
   }
 
-  /** Terminal failure: every codec rung is dead. Surface it — never silent. */
+  /**
+   * Terminal failure: every codec rung is dead. Surface it — never silent.
+   * The blacklist is reset so the user's next attempt walks the whole ladder
+   * again: a transient stall must not leave recording dead until a reload.
+   */
   private failAllMimeTypes(): void {
     console.error('Recording failed: no supported video codec produced data.');
+    this.failedMimeTypes.clear();
     this.recordingError.set(RECORDING_ERROR_UNSUPPORTED);
     this.clearRecordingTimers();
     this.mediaRecorder = null;
@@ -1433,14 +1464,7 @@ export class SimulationService implements OnDestroy {
       clearTimeout(this.pathHoldTimeout);
       this.pathHoldTimeout = null;
     }
-    if (this.watchdogTimeout) {
-      clearTimeout(this.watchdogTimeout);
-      this.watchdogTimeout = null;
-    }
-    if (this.requestDataTimeout) {
-      clearTimeout(this.requestDataTimeout);
-      this.requestDataTimeout = null;
-    }
+    this.disarmEncoderWatchdog();
   }
 
   /**
@@ -1516,14 +1540,7 @@ export class SimulationService implements OnDestroy {
       if (e.data.size > 0) {
         this.videoChunks.push(e.data);
         // Proof of life — the encoder works; stand the watchdog down.
-        if (this.watchdogTimeout) {
-          clearTimeout(this.watchdogTimeout);
-          this.watchdogTimeout = null;
-        }
-        if (this.requestDataTimeout) {
-          clearTimeout(this.requestDataTimeout);
-          this.requestDataTimeout = null;
-        }
+        this.disarmEncoderWatchdog();
       }
     };
 
@@ -1534,9 +1551,7 @@ export class SimulationService implements OnDestroy {
     };
 
     // Handle recording completion
-    recorder.onstop = () => {
-      this.handleRecordingStop(mimeType);
-    };
+    recorder.onstop = () => this.handleRecordingStop(mimeType);
   }
 
   /**
@@ -1547,26 +1562,32 @@ export class SimulationService implements OnDestroy {
    *
    * @description
    * - Guards against empty recordings (surfaces an error instead of a dead download)
+   * - Corrects the MP4's track duration, which Chrome writes in the wrong unit
    * - Retains the result in {@link lastRecording} for user-driven re-save/share
    * - Downloads via a DOM-attached anchor; the object URL is deliberately NOT
    *   revoked here — deferred to the next recording (see {@link pendingObjectUrl})
    */
-  private handleRecordingStop(mimeType: string): void {
+  private async handleRecordingStop(mimeType: string): Promise<void> {
     // Combine all chunks into a single video blob, then drop the chunk
-    // array immediately to halve peak memory.
-    const blob = new Blob(this.videoChunks, { type: mimeType });
+    // array immediately to halve peak memory. The file carries the bare
+    // container type — the recorder's `codecs` parameter makes Android
+    // Chrome's share sheet reject it.
+    const containerMimeType = toContainerMimeType(mimeType);
+    const recordedBlob = new Blob(this.videoChunks, { type: containerMimeType });
     this.videoChunks = [];
     this.recordingState.set('idle');
     this.mediaRecorder = null;
     this.recordingCanvas = null;
     this.activeMimeType = null;
 
-    if (blob.size === 0) {
+    if (recordedBlob.size === 0) {
       // Nothing was captured — a dead download would just confuse the user.
       console.error('Recording finished with no data.');
       this.recordingError.set(RECORDING_ERROR_EMPTY);
       return;
     }
+
+    const blob = await this.withRepairedDuration(recordedBlob, containerMimeType);
 
     // Determine file extension based on format
     const extension = mimeType.includes('mp4') ? '.mp4' : '.webm';
@@ -1585,7 +1606,7 @@ export class SimulationService implements OnDestroy {
     this.lastRecording.set({
       blob,
       filename,
-      mimeType,
+      mimeType: containerMimeType,
       sizeMb: Math.round(blob.size / 1_000_000),
     });
 
@@ -1595,6 +1616,28 @@ export class SimulationService implements OnDestroy {
     // Track video generation event
     const videoFormat = extension.substring(1); // Remove leading dot
     this.analyticsService.trackVideoGeneration('starwizz-user', videoFormat);
+    this.sharePrompt.notifyExportSucceeded();
+  }
+
+  /**
+   * Corrects the duration headers of an MP4 recording so Android galleries
+   * and Instagram see its real length. A failed repair must never cost the
+   * user their recording, so the untouched blob is used instead.
+   *
+   * @param blob - The assembled recording
+   * @param containerMimeType - The recording's bare container type
+   * @returns The repaired blob, or the original when no repair applied
+   */
+  private async withRepairedDuration(blob: Blob, containerMimeType: string): Promise<Blob> {
+    if (containerMimeType !== 'video/mp4') {
+      return blob;
+    }
+    try {
+      return await repairMp4BlobDuration(blob);
+    } catch (e) {
+      console.error('Could not repair the recording duration; saving it unmodified:', e);
+      return blob;
+    }
   }
 
   /**

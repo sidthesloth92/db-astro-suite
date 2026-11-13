@@ -1,0 +1,419 @@
+/* Film Edge card theme — faithful port of the design source ThemeFilmEdge.
+   Per-theme palette/typography is the theme's identity, so colours are literal,
+   except the two the Layout panel's pickers recolour: the accent (the amber
+   edge print, catalogue number, total, site and the film's amber rims) and the
+   secondary (the magenta nebula glow in the frame).
+   "DM Sans" falls back to Outfit when not loaded (design intent). */
+
+:host {
+  --flm-amber: var(--accent-color);
+  --flm-txt: #f5efe4;
+  --flm-dim: #9c927e;
+  --flm-sans: 'DM Sans', 'Outfit', sans-serif;
+  --flm-mono: 'JetBrains Mono', monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.flm-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: 18px 0;
+  color: var(--flm-txt);
+  font-family: var(--flm-sans);
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.flm-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: #050505;
+  opacity: var(--card-opacity, 1);
+}
+
+/* ── Sprocket strips ── */
+.flm-sprockets {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 26px;
+}
+
+.flm-sprocket {
+  width: 22px;
+  height: 14px;
+  border-radius: 4px;
+  background: #0e0c08;
+  border: 1px solid rgba(var(--accent-color-rgb), 0.22);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+/* ── Edge print ── */
+.flm-edge {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 28px;
+  font: 500 9px/1 var(--flm-mono);
+  color: var(--flm-amber);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+/* ── Exposed frame ── */
+.flm-frame {
+  flex: 1;
+  min-height: 0;
+  margin: 0 26px;
+  border-radius: 6px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(var(--accent-color-rgb), 0.25);
+  background:
+    radial-gradient(ellipse 65% 50% at 50% 42%, rgba(var(--flm-secondary-rgb), 0.45), transparent 68%),
+    radial-gradient(ellipse 45% 35% at 28% 70%, rgba(90, 30, 110, 0.4), transparent 70%), #0a0410;
+}
+
+.flm-spike {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.flm-spike-1 {
+  left: 58px;
+  top: 64px;
+  opacity: 0.75;
+}
+
+.flm-spike-2 {
+  right: 74px;
+  top: 116px;
+  opacity: 0.55;
+}
+
+/* Centred in the gap under the site line (see the template): at a fixed
+   frame position it landed on the gear run whenever that ran long. */
+.flm-grow--spark {
+  position: relative;
+  z-index: -1;
+}
+
+.flm-spike-3 {
+  left: 84px;
+  top: 50%;
+  margin-top: -9px;
+  opacity: 0.45;
+}
+
+.flm-frame-content {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 26px 26px 22px;
+  display: flex;
+  flex-direction: column;
+}
+
+.flm-frame-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.flm-frame-no {
+  font: 600 9.5px/1 var(--flm-mono);
+  color: rgba(255, 255, 255, 0.75);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.flm-frame-date {
+  font: 500 9.5px/1 var(--flm-mono);
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.14em;
+}
+
+.flm-grow {
+  flex: 1;
+}
+
+/* ── Subject ── */
+.flm-subject {
+  text-align: center;
+}
+
+.flm-object-id {
+  font: 500 11px/1 var(--flm-mono);
+  color: var(--flm-amber);
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  padding-left: 0.32em;
+}
+
+.flm-object-name {
+  font: 700 46px/1.02 var(--flm-sans);
+  color: #fff;
+  letter-spacing: -0.02em;
+  margin-top: 12px;
+}
+
+.flm-total {
+  font: 300 60px/1 var(--flm-sans);
+  color: var(--flm-amber);
+  letter-spacing: -0.03em;
+  margin-top: 18px;
+}
+
+.flm-total-label {
+  font: 500 10px/1 var(--flm-mono);
+  color: rgba(255, 255, 255, 0.55);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-top: 10px;
+}
+
+/* Gear run and capture site under the total. Mono caps to match the frame's
+   own labels; centred and held narrower than the frame so a long list wraps
+   into a tidy block. */
+.flm-gear {
+  justify-content: center;
+  max-width: 400px;
+  margin: 22px auto 0;
+  font: 500 9.5px/1.7 var(--flm-mono);
+  color: rgba(255, 255, 255, 0.62);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* Leading for a location long enough to wrap; the negative margins keep a
+   one-line site as tall as before. */
+.flm-site {
+  margin-top: calc(8px - 0.2em);
+  margin-bottom: -0.2em;
+  font: 500 9.5px/1.4 var(--flm-mono);
+  color: var(--flm-amber);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+/* The rebate print is one line by design: never let it wrap. */
+.flm-edge span {
+  white-space: nowrap;
+}
+
+/* ── Bands as exposure codes ── */
+.flm-codes {
+  display: flex;
+  justify-content: center;
+  gap: 22px;
+}
+
+.flm-code {
+  text-align: center;
+}
+
+.flm-code-bar {
+  width: 26px;
+  height: 4px;
+  border-radius: 2px;
+  margin: 0 auto;
+}
+
+.flm-code-id {
+  font: 600 11px/1 var(--flm-mono);
+  margin-top: 8px;
+}
+
+/* A duration is one reading: squeezed, it broke into "2h / 42m". */
+.flm-code-time {
+  font: 600 13px/1 var(--flm-sans);
+  color: #fff;
+  margin-top: 6px;
+  white-space: nowrap;
+}
+
+/* ── Landscape (1.91:1) ──
+   The portrait frame is one centred stack: in a wide frame it left the outer
+   thirds empty and pressed the gear run, site and band codes into a tight
+   column that ran down to the frame's lower edge, with labels too small to
+   read. Landscape opens the frame out — subject, total and site on the left;
+   band codes and gear run in a ruled column on the right. The site used to
+   close the right column, which a full gear run then pushed onto the frame's
+   lower edge. The subject
+   wrapper steps aside (`display: contents`) so its lines join the frame's
+   grid alongside the codes. */
+.flm-root--landscape .flm-edge {
+  font-size: 11.5px;
+}
+
+.flm-root--landscape .flm-frame-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  grid-template-rows: auto 1fr auto auto auto auto auto 1fr;
+  grid-template-areas:
+    'head head'
+    '. .'
+    'id codes'
+    'name codes'
+    'total gear'
+    'label gear'
+    'site gear'
+    '. .';
+  column-gap: 44px;
+  padding: 24px 40px 26px;
+}
+
+/* Its own margin: a full card takes up the free rows, which used to leave
+   the designation sitting right under the frame number. */
+.flm-root--landscape .flm-frame-head {
+  grid-area: head;
+  margin-bottom: 14px;
+}
+
+/* The starfield artboard is sliced to the frame's width, which blows its
+   stars up to dots that read as marks on the type; dim them. */
+.flm-root--landscape dba-ag-theme-starfield {
+  opacity: 0.55;
+}
+
+.flm-root--landscape .flm-grow {
+  display: none;
+}
+
+.flm-root--landscape .flm-frame-no,
+.flm-root--landscape .flm-frame-date {
+  font-size: 10.5px;
+}
+
+.flm-root--landscape .flm-subject {
+  display: contents;
+  text-align: left;
+}
+
+.flm-root--landscape .flm-object-id {
+  grid-area: id;
+  font-size: 12px;
+  padding-left: 0;
+}
+
+.flm-root--landscape .flm-object-name {
+  grid-area: name;
+  font-size: 50px;
+  margin-top: 10px;
+}
+
+/* Held down against its label when the gear run makes the row taller. */
+.flm-root--landscape .flm-total {
+  grid-area: total;
+  align-self: end;
+  font-size: 64px;
+  margin-top: 14px;
+}
+
+.flm-root--landscape .flm-total-label {
+  grid-area: label;
+  font-size: 11px;
+}
+
+/* The right column is ruled off like a caption strip: codes level with the
+   subject, the gear run level with the total and site. Spacing is padding,
+   not margin, so the rule runs unbroken. */
+.flm-root--landscape .flm-codes,
+.flm-root--landscape .flm-gear {
+  padding-left: 22px;
+  border-left: 1px solid rgba(var(--accent-color-rgb), 0.3);
+}
+
+/* Four codes to a row. Seven in one row ran past the frame's edge and broke
+   every duration over two lines; a short set still reads as one row. */
+.flm-root--landscape .flm-codes {
+  grid-area: codes;
+  display: grid;
+  grid-template-columns: repeat(4, max-content);
+  align-items: start;
+  justify-content: start;
+  gap: 10px 34px;
+  padding-top: 4px;
+}
+
+.flm-root--landscape .flm-gear {
+  grid-area: gear;
+  align-content: flex-end;
+  justify-content: flex-start;
+  max-width: none;
+  margin: 0;
+  padding-top: 12px;
+  font-size: 11px;
+  line-height: 1.6;
+  /* Tighter than portrait so a long item such as a filter wheel's full name
+     holds one line in the column instead of breaking inside itself. */
+  letter-spacing: 0.08em;
+}
+
+.flm-root--landscape .flm-site {
+  grid-area: site;
+  margin: calc(12px - 0.2em) 0 -0.2em;
+  font-size: 11px;
+}
+
+.flm-root--landscape .flm-code {
+  text-align: left;
+}
+
+.flm-root--landscape .flm-code-bar {
+  width: 34px;
+  margin: 0;
+}
+
+.flm-root--landscape .flm-code-id {
+  font-size: 12px;
+}
+
+.flm-root--landscape .flm-code-time {
+  font-size: 19px;
+}
+
+/* Spikes move into the open space around the two columns: the upper right
+   one under the fourth code column (a second row of codes stops short of
+   it), the lower one low in the gutter before the column rule, below where
+   the text of either column ends. */
+.flm-root--landscape .flm-spike-1 {
+  left: auto;
+  right: 40px;
+  top: 128px;
+}
+
+.flm-root--landscape .flm-spike-2 {
+  left: 45%;
+  right: auto;
+  top: auto;
+  bottom: 12px;
+}
+
+/* The gap that holds the lower sparkle in portrait is hidden here; the
+   sparkle places against the frame instead. */
+.flm-root--landscape .flm-grow--spark {
+  display: contents;
+}
+
+.flm-root--landscape .flm-spike-3 {
+  z-index: -1;
+  left: 46%;
+  top: 36px;
+  margin-top: 0;
+}

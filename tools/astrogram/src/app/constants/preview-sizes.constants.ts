@@ -50,7 +50,9 @@ export const PREVIEW_SIZES: Record<PreviewSizeKey, PreviewSizeMeta> = {
 export const PREVIEW_SIZE_GROUPS: readonly { label: string; keys: readonly PreviewSizeKey[] }[] = [
   {
     label: 'Instagram',
-    keys: ['ig-square', 'ig-portrait', 'ig-tall', 'ig-story'],
+    // Ordered from shortest to tallest frame, so the list reads as a sweep
+    // from the landscape feed post up to a full-height story.
+    keys: ['ig-landscape', 'ig-square', 'ig-portrait', 'ig-tall', 'ig-story'],
   },
   { label: 'TikTok', keys: ['tiktok-post'] },
   { label: 'Snapchat', keys: ['snap-post'] },

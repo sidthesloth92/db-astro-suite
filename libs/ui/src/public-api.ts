@@ -51,6 +51,11 @@ export * from "./lib/constellation-field/constellation-field.component";
 export * from "./lib/switch/switch.component";
 export * from "./lib/top-bar/top-bar.component";
 export * from "./lib/video-lightbox/video-lightbox.component";
+export * from "./lib/share-prompt/share-prompt.component";
+export * from "./lib/share-prompt/share-prompt.service";
+export * from "./lib/share-prompt/share-prompt.config";
+export * from "./lib/share-prompt/share-prompt-config.model";
+export * from "./lib/share-prompt/share-prompt.types";
 
 /* Direction B Polished icon set — generic component + per-glyph data consts */
 export * from "./lib/icon/icon-definition";
@@ -86,6 +91,7 @@ export * from "./lib/icons/heart.icon";
 export * from "./lib/icons/image.icon";
 export * from "./lib/icons/layers.icon";
 export * from "./lib/icons/layout.icon";
+export * from "./lib/icons/lock.icon";
 export * from "./lib/icons/map-pin.icon";
 export * from "./lib/icons/minus.icon";
 export * from "./lib/icons/more.icon";

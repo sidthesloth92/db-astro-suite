@@ -22,6 +22,7 @@ export default defineConfig(({ mode }) => ({
           '/about',
           '/tool/starwizz',
           '/tool/astrogram',
+          '/tool/astrospike',
           '/tool/sortronomy',
         ],
       },
@@ -41,6 +42,10 @@ export default defineConfig(({ mode }) => ({
       },
       '/astrogram': {
         target: 'http://localhost:4201',
+        changeOrigin: true,
+      },
+      '/astrospike': {
+        target: 'http://localhost:4202',
         changeOrigin: true,
       },
     },

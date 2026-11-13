@@ -1,0 +1,114 @@
+@let data = vm();
+
+<div class="orr-root" [class.orr-root--landscape]="isLandscapeFormat()">
+  <dba-ag-theme-starfield [density]="130" [opacity]="0.5" [seed]="9" />
+
+  <!-- Art box: the orbit chart and every label pinned to it. It fills the theme
+       on portrait formats; on landscape it is sized and raised so the orbits sit
+       in a band across the top and the title and data get the lower half. -->
+  <div class="orr-art">
+    <svg class="orr-chart" viewBox="0 0 540 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <g [attr.transform]="'translate(0 ' + orbitTop + ')'">
+        <!-- orbit ellipses -->
+        @for (orbit of orbits(); track orbit.band.id) {
+          <ellipse
+            [attr.cx]="cx"
+            [attr.cy]="cy"
+            [attr.rx]="orbit.rx"
+            [attr.ry]="orbit.ry"
+            fill="none"
+            [attr.stroke]="orbit.band.color"
+            stroke-width="1"
+            opacity="0.35"
+          />
+        }
+
+        <!-- sun glow -->
+        <circle [attr.cx]="cx" [attr.cy]="cy" r="46" class="orr-sun-glow" opacity="0.12" />
+        <circle [attr.cx]="cx" [attr.cy]="cy" r="30" class="orr-sun-glow" opacity="0.2" />
+
+        <!-- planets -->
+        @for (orbit of orbits(); track orbit.band.id) {
+          <g>
+            <circle [attr.cx]="orbit.x" [attr.cy]="orbit.y" [attr.r]="orbit.haloR" [attr.fill]="orbit.band.color" opacity="0.16" />
+            <circle [attr.cx]="orbit.x" [attr.cy]="orbit.y" [attr.r]="orbit.pr" [attr.fill]="orbit.band.color" />
+            <circle
+              [attr.cx]="orbit.x"
+              [attr.cy]="orbit.y"
+              [attr.r]="orbit.pr"
+              fill="none"
+              stroke="#fff"
+              stroke-width="0.7"
+              opacity="0.5"
+            />
+          </g>
+        }
+      </g>
+    </svg>
+
+    <!-- Sun label (total) -->
+    <div class="orr-sun-label">
+      <div class="orr-sun-total">{{ data.total }}</div>
+      <div class="orr-sun-badge">TOTAL</div>
+    </div>
+
+    <!-- Planet labels -->
+    <div class="orr-label-frame">
+      @for (orbit of orbits(); track orbit.band.id) {
+        <div
+          class="orr-planet-label"
+          [class.orr-planet-label--above]="orbit.isLabelAbove"
+          [style.top.%]="orbit.labelTopPct"
+          [style.left.%]="orbit.labelLeftPct"
+        >
+          <div class="orr-planet-id" [style.color]="orbit.band.color">{{ orbit.band.id }}</div>
+          <div class="orr-planet-time">{{ orbit.band.time }}</div>
+          <div class="orr-planet-frames">{{ orbit.band.frames }}</div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Header -->
+  <div class="orr-header">
+    <span class="orr-brand">Orrery</span>
+    <span class="orr-datestamp">{{ data.dateNumeric }}</span>
+  </div>
+
+  <!-- Title and footer share one column from the title's position to the
+       bottom edge, so a tall footer can never slide up over the title. -->
+  <div class="orr-lower">
+    <!-- Object title -->
+    <div class="orr-title" data-testid="card-hero">
+      @if (data.objectId) {
+        <div class="orr-object-id">{{ data.objectId }}</div>
+      }
+      <div class="orr-object-name">{{ data.objectName }}</div>
+    </div>
+
+    <!-- Footer -->
+    <div class="orr-footer">
+      <div class="orr-cols">
+        <div class="orr-col">
+          <div class="orr-col-title">Rig</div>
+          @for (item of data.equipment; track $index) {
+            <div class="orr-row">
+              <span class="orr-row-label">{{ item.label }}</span>
+              <span class="orr-row-value">{{ item.value }}</span>
+            </div>
+          }
+        </div>
+        <div class="orr-col">
+          <div class="orr-col-title">Pipeline</div>
+          @for (item of data.software; track $index) {
+            <div class="orr-row">
+              <span class="orr-row-label">{{ item.label }}</span>
+              <span class="orr-row-value">{{ item.value }}</span>
+            </div>
+          }
+          <div class="orr-sky">Bortle {{ data.bortle }} · {{ data.location }} · {{ data.author }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

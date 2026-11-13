@@ -41,7 +41,7 @@
 .value {
   font: 400 12.5px/1.2 var(--db-font-ui);
   color: var(--db-color-text-primary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  /* Wrap rather than ellipsize: these rows carry user-entered gear names,
+     and truncating one silently drops it from the rendered card. */
+  overflow-wrap: break-word;
 }

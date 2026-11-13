@@ -1,0 +1,379 @@
+/* System Line card theme — faithful port of the design source ThemeSystemLine.
+   Per-theme palette/typography is the theme's identity, so colours are literal,
+   except the Sun: its gold is the card's accent and its shaded limb the
+   secondary colour (Layout panel), both defaulting to the design's own. */
+
+:host {
+  --sl-bg: #05070f;
+  --sl-sun: var(--accent-color);
+  --sl-txt: #edf1f9;
+  --sl-dim: #8b93a8;
+  --sl-faint: #4e5568;
+  --sl-sans: 'Space Grotesk', 'Outfit', system-ui, sans-serif;
+  --sl-body: 'Outfit', system-ui, sans-serif;
+  --sl-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.sl-root {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: var(--sl-txt);
+  font-family: var(--sl-body);
+  padding: 28px 32px 26px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Backdrop layer. The theme paints its background here rather than on
+   the root so the Layout panel's card-opacity can fade it toward the
+   user's own image underneath, while the type and panels above stay
+   fully opaque. */
+.sl-root::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 55% 35% at 12% 34%, rgba(140, 90, 30, 0.16), transparent 65%),
+    var(--sl-bg);
+  opacity: var(--card-opacity, 1);
+}
+
+/* ── Header ── */
+.sl-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sl-eyebrow {
+  font: 600 10px/1 var(--sl-mono);
+  color: var(--sl-sun);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.sl-date {
+  font: 500 10px/1 var(--sl-mono);
+  color: var(--sl-faint);
+  letter-spacing: 0.14em;
+}
+
+/* ── Object ── */
+.sl-object {
+  position: relative;
+  margin-top: 24px;
+}
+
+.sl-kicker {
+  font: 600 10.5px/1 var(--sl-mono);
+  color: var(--sl-sun);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+}
+
+.sl-name {
+  font: 700 44px/1.02 var(--sl-sans);
+  letter-spacing: -0.03em;
+  margin-top: 12px;
+}
+
+/* ── Flex spacers (reproduce the prototype's vertical distribution) ── */
+.sl-spacer-a,
+.sl-spacer-b {
+  flex: 0.9;
+}
+
+.sl-spacer-c {
+  flex: 1.1;
+}
+
+/* ── Chart ── */
+.sl-chart {
+  position: relative;
+}
+
+.sl-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* The sun's halo starts 2 units left of the viewBox; clipping it cut the
+     glow off with a flat vertical edge. */
+  overflow: visible;
+}
+
+/* The diagram's height follows its width, so an uncapped chart in a wide
+   landscape canvas grew ~2.5x taller and pushed the totals and footer off the
+   card entirely. Landscape holds it to 476px — the width it was authored at
+   (540 minus the 32px side padding, and the viewBox width) — unless the
+   landscape layout at the end of this file sizes it for its own grid.
+
+   Scoped to landscape rather than applied everywhere: the 1:1 and 4:5 canvases
+   are wider than 540px, where the chart has always drawn larger, and capping it
+   there would shrink those designs.
+
+   The container is capped and centred with `align-self` rather than the SVG
+   with auto margins. The live page centres either way, but the exporter did not
+   reproduce auto margins set through a descendant selector and shipped the
+   chart hard against the left edge. */
+.sl-chart--landscape {
+  width: 476px;
+  max-width: 100%;
+  align-self: center;
+}
+
+/* The Sun's halo and gradient take the accent and secondary through CSS:
+   SVG presentation attributes cannot read a custom property. */
+.sl-sun-halo {
+  fill: var(--sl-sun);
+}
+
+.sl-sun-stop-mid {
+  stop-color: var(--sl-sun);
+}
+
+.sl-sun-stop-limb {
+  stop-color: var(--secondary-accent-color);
+}
+
+.sl-tick-label {
+  font: 500 8.5px var(--sl-mono);
+  fill: var(--sl-faint);
+}
+
+.sl-band-id {
+  font: 700 12px var(--sl-mono);
+  letter-spacing: 0.06em;
+}
+
+.sl-band-time {
+  font: 600 16px var(--sl-sans);
+  fill: #fff;
+}
+
+.sl-band-frames {
+  font: 400 9px var(--sl-mono);
+  fill: var(--sl-faint);
+}
+
+/* ── Total ── */
+.sl-total {
+  position: relative;
+  text-align: center;
+}
+
+.sl-total-label {
+  font: 500 10px/1 var(--sl-mono);
+  color: var(--sl-faint);
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+}
+
+.sl-total-value {
+  font: 300 54px/1 var(--sl-sans);
+  color: var(--sl-sun);
+  letter-spacing: -0.02em;
+  margin-top: 14px;
+}
+
+.sl-total-sub {
+  font: 500 10px/1 var(--sl-mono);
+  color: var(--sl-faint);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-top: 12px;
+}
+
+/* ── Footer ── */
+.sl-footer {
+  position: relative;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 12px;
+}
+
+.sl-foot-gear {
+  font: 500 10px/1.6 var(--sl-mono);
+  color: #8b92a6;
+}
+
+.sl-foot-row {
+  display: flex;
+  align-items: center;
+  margin-top: 7px;
+}
+
+.sl-foot-author {
+  font: 600 12px/1 var(--sl-body);
+  color: #e7eaf2;
+}
+
+.sl-foot-spacer {
+  flex: 1;
+}
+
+.sl-foot-meta {
+  font: 500 9.5px/1 var(--sl-mono);
+  color: #5a6175;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ── Landscape (1.91:1) ──
+   Holding the chart to 476px kept it off the footer, but left a small
+   diagram centred under a big left-aligned title, an empty band beside the
+   title, axis labels at 5-6 export px and the frames line near the footer
+   rule. The number line is a horizontal timeline, so here it runs most of
+   the card's width as the hero, with the object on the left of the band
+   above it, the total on the right, and the footer beneath. */
+.sl-root--landscape {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto minmax(0, 1fr) auto minmax(0, 1fr) auto;
+  column-gap: 32px;
+}
+
+.sl-root--landscape .sl-header {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  margin-bottom: 16px;
+}
+
+.sl-root--landscape .sl-eyebrow,
+.sl-root--landscape .sl-date {
+  font-size: 10.5px;
+}
+
+.sl-root--landscape .sl-object {
+  grid-column: 1;
+  grid-row: 2;
+  align-self: end;
+  margin-top: 0;
+}
+
+.sl-root--landscape .sl-kicker {
+  font-size: 11.5px;
+}
+
+.sl-root--landscape .sl-name {
+  font-size: 46px;
+}
+
+.sl-root--landscape .sl-spacer-a,
+.sl-root--landscape .sl-spacer-b,
+.sl-root--landscape .sl-spacer-c {
+  display: none;
+}
+
+/* Scaled to 820px, as wide as the height left by the title band and footer
+   allows, and centred under the title-and-total band. The viewBox is 250
+   tall but the drawing only spans y 84-220, so negative margins trim the
+   empty bands above and below; the SVG's visible overflow still draws
+   anything that reaches past them. */
+.sl-root--landscape .sl-chart--landscape {
+  grid-column: 1 / -1;
+  grid-row: 4;
+  width: 820px;
+  max-width: 100%;
+  align-self: auto;
+  justify-self: center;
+}
+
+.sl-root--landscape .sl-svg {
+  margin: -145px 0 -48px;
+}
+
+/* Crowded band labels alternate into a row above the axis (y 21-71), which
+   the usual top trim would pull up over the title; trim only the empty band
+   above that row, and draw the chart narrower so the taller drawing still
+   fits the card at its authored size. */
+.sl-root--landscape.sl-root--labels-above .sl-chart--landscape {
+  width: 580px;
+}
+
+/* The same trims as a share of the chart's width, so they follow it. */
+.sl-root--landscape.sl-root--labels-above .sl-svg {
+  margin: -3.8% 0 -5.85%;
+}
+
+.sl-root--landscape .sl-total {
+  grid-column: 2;
+  grid-row: 2;
+  align-self: end;
+  text-align: right;
+}
+
+.sl-root--landscape .sl-total-label {
+  font-size: 10.5px;
+}
+
+.sl-root--landscape .sl-total-value {
+  font-size: 46px;
+  margin-top: 8px;
+  white-space: nowrap;
+}
+
+.sl-root--landscape .sl-total-sub {
+  font-size: 10.5px;
+  margin-top: 8px;
+}
+
+.sl-root--landscape .sl-footer {
+  grid-column: 1 / -1;
+  grid-row: 6;
+}
+
+.sl-root--landscape .sl-foot-gear {
+  font-size: 11px;
+}
+
+.sl-root--landscape .sl-foot-row {
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 8px;
+}
+
+.sl-root--landscape .sl-foot-author {
+  font-size: 13px;
+}
+
+.sl-root--landscape .sl-foot-meta {
+  font-size: 11px;
+  line-height: 1.3;
+  color: #7a8196;
+}
+
+/* Landscape draws the small mono labels (frames, hour ticks, date, footer) at
+   about 11 export px, where the portrait greys read as dim smudges; one step
+   lighter keeps them secondary but legible. */
+.sl-root--landscape {
+  --sl-faint: #6b7288;
+}
+
+.sl-root--landscape .sl-foot-gear {
+  color: #a0a7ba;
+}
+
+/* A long handle or location used to run the two ends of this row into each
+   other. The row may wrap. On one line the spacer still pushes the meta to
+   the right edge; once it wraps, the meta starts at the left edge under the
+   handle. Pushed right by an auto margin instead, a wrapped meta sat indented
+   by whatever room was left over and lined up with nothing. */
+.sl-foot-row {
+  flex-wrap: wrap;
+  justify-content: space-between;
+  column-gap: 16px;
+  row-gap: 8px;
+}
+
+.sl-foot-row .sl-foot-meta {
+  min-width: 0;
+}
+

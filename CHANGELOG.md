@@ -1,5 +1,103 @@
 # Changelog
 
+## [1.39.2](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.39.1...db-astro-suite-v1.39.2) (2026-11-13)
+
+
+### Bug Fixes
+
+* **starwizz:** clear in-flight shooting stars when the travel direction changes ([#140](https://github.com/sidthesloth92/db-astro-suite/issues/140)) ([a40fd67](https://github.com/sidthesloth92/db-astro-suite/commit/a40fd6705786ca1ce1036854cfc9b045e32c65ff))
+
+## [1.39.1](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.39.0...db-astro-suite-v1.39.1) (2026-11-12)
+
+
+### Bug Fixes
+
+* **starwizz:** move the background when travelling left, right, up or down ([#138](https://github.com/sidthesloth92/db-astro-suite/issues/138)) ([0063d7b](https://github.com/sidthesloth92/db-astro-suite/commit/0063d7bac721fafc3b4224bcd9aa03b8cc957423))
+
+## [1.39.0](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.38.3...db-astro-suite-v1.39.0) (2026-11-12)
+
+
+### Features
+
+* ask users to tag their posts after exporting in Astrogram, Starwizz and AstroSpike ([#136](https://github.com/sidthesloth92/db-astro-suite/issues/136)) ([f1a17db](https://github.com/sidthesloth92/db-astro-suite/commit/f1a17dbbe21131c1d8f3c4c4f8bf3f8eecab0d9b))
+
+## [1.38.3](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.38.2...db-astro-suite-v1.38.3) (2026-11-07)
+
+
+### Bug Fixes
+
+* **starwizz:** keep the control panel reachable on short desktops and the mobile preview at its true aspect ratio ([#134](https://github.com/sidthesloth92/db-astro-suite/issues/134)) ([98091a3](https://github.com/sidthesloth92/db-astro-suite/commit/98091a3e7f762f7f7d4e5557e04f717facdb5ff9))
+
+## [1.38.2](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.38.1...db-astro-suite-v1.38.2) (2026-10-11)
+
+
+### Bug Fixes
+
+* **starwizz:** write the real duration into recorded MP4s so Instagram imports the whole clip ([#131](https://github.com/sidthesloth92/db-astro-suite/issues/131)) ([42db276](https://github.com/sidthesloth92/db-astro-suite/commit/42db27674722bf041524ef5a56b0aab5591fae61))
+
+## [1.38.1](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.38.0...db-astro-suite-v1.38.1) (2026-10-10)
+
+
+### Bug Fixes
+
+* **starwizz:** send in-app browser users to a real browser and harden Android recording ([#129](https://github.com/sidthesloth92/db-astro-suite/issues/129)) ([1c5d8be](https://github.com/sidthesloth92/db-astro-suite/commit/1c5d8bedd4d21571b0ab9038e7a64cb24da3e09f))
+
+## [1.38.0](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.37.0...db-astro-suite-v1.38.0) (2026-09-16)
+
+
+### Features
+
+* **hub:** refresh the Astrogram and AstroSpike walkthrough videos ([#127](https://github.com/sidthesloth92/db-astro-suite/issues/127)) ([ad299a3](https://github.com/sidthesloth92/db-astro-suite/commit/ad299a336685c844e284dfe1f4dc9884bc3de3ee))
+
+## [1.37.0](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.36.0...db-astro-suite-v1.37.0) (2026-09-16)
+
+
+### Features
+
+* **hub:** play the AstroSpike walkthrough video on the tool page ([#124](https://github.com/sidthesloth92/db-astro-suite/issues/124)) ([779721a](https://github.com/sidthesloth92/db-astro-suite/commit/779721a59a9fb3172db485175992649b15b59c89))
+
+## [1.36.0](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.35.0...db-astro-suite-v1.36.0) (2026-09-16)
+
+
+### Features
+
+* **astrogram:** card theme system with 29 themes and Instagram 1.91:1 landscape ([#123](https://github.com/sidthesloth92/db-astro-suite/issues/123)) ([8b7cb15](https://github.com/sidthesloth92/db-astro-suite/commit/8b7cb15c6d24e045f45e85ab398f6a9e48bf8d3f))
+
+## [1.35.0](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.34.2...db-astro-suite-v1.35.0) (2026-09-11)
+
+
+### Features
+
+* **astrospike:** mist-filter Glow halos and a Mist haze in a renamed Diffusion mode ([#121](https://github.com/sidthesloth92/db-astro-suite/issues/121)) ([f9ff271](https://github.com/sidthesloth92/db-astro-suite/commit/f9ff271d4ce9f09496075eda2139f8b1ff8addd4))
+
+## [1.34.2](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.34.1...db-astro-suite-v1.34.2) (2026-08-16)
+
+
+### Bug Fixes
+
+* **seo:** refresh AstroSpike metadata, structured data, and LLM context files ([#119](https://github.com/sidthesloth92/db-astro-suite/issues/119)) ([0e0b6ae](https://github.com/sidthesloth92/db-astro-suite/commit/0e0b6aeab6ba544443e4ac767bb8815e7c0c2128))
+
+## [1.34.1](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.34.0...db-astro-suite-v1.34.1) (2026-08-09)
+
+
+### Bug Fixes
+
+* **astrospike:** stop bright neighbours inflating faint seed stars on low-res frames ([#117](https://github.com/sidthesloth92/db-astro-suite/issues/117)) ([f084216](https://github.com/sidthesloth92/db-astro-suite/commit/f0842163a693f0186bb724d5e120b7b4e13eceab))
+
+## [1.34.0](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.33.1...db-astro-suite-v1.34.0) (2026-08-01)
+
+
+### Features
+
+* **astrospike:** add AstroSpike, a client-side diffraction spike studio ([#112](https://github.com/sidthesloth92/db-astro-suite/issues/112)) ([c51f946](https://github.com/sidthesloth92/db-astro-suite/commit/c51f946a50741f8cfa49fa3517b4b87a5c0d5264))
+
+## [1.33.1](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.33.0...db-astro-suite-v1.33.1) (2026-07-29)
+
+
+### Bug Fixes
+
+* **hub:** move the starwizz spikes clip from the hero demo to the output slot ([#113](https://github.com/sidthesloth92/db-astro-suite/issues/113)) ([b56ef7e](https://github.com/sidthesloth92/db-astro-suite/commit/b56ef7e482f49ce8f79f2bae10f9bdc9bda4345f))
+
 ## [1.33.0](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.32.0...db-astro-suite-v1.33.0) (2026-07-26)
 
 

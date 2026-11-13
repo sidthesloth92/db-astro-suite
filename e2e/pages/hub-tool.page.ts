@@ -1,10 +1,14 @@
 import { Locator, Page, expect } from "@playwright/test";
 
 /** Hub tool slugs — map 1:1 to `/tool/<slug>` URLs. */
-export type HubToolSlug = "astrogram" | "starwizz" | "sortronomy";
+export type HubToolSlug =
+  | "astrogram"
+  | "starwizz"
+  | "astrospike"
+  | "sortronomy";
 
 /**
- * Page Object for the three hub tool detail pages (`/tool/<slug>`). They share
+ * Page Object for the hub tool detail pages (`/tool/<slug>`). They share
  * one config-driven layout (top-nav → hero → stats → about → what-it-does →
  * how-it-works → output → closing CTA), so a single POM serves every per-page
  * spec.

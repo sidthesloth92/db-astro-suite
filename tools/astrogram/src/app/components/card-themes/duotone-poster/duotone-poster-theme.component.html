@@ -1,0 +1,103 @@
+@let data = vm();
+
+<div
+  class="dp-root"
+  [class.dp-root--landscape]="isLandscapeFormat()"
+  [style.--dp-sky-rgb]="secondaryRgb()"
+>
+  <div class="dp-blob dp-blob--halftone" aria-hidden="true"></div>
+  <dba-ag-theme-starfield [density]="70" [opacity]="0.4" [color]="'#F5EFE0'" [seed]="5" />
+  <div class="dp-blob dp-blob--coral" aria-hidden="true"></div>
+  <div class="dp-blob dp-blob--sky" aria-hidden="true"></div>
+
+  <div class="dp-inner">
+    <!-- Tag row -->
+    <div class="dp-tags">
+      <span class="dp-tag dp-tag--solid">{{ data.objectId }}</span>
+      <div class="dp-spacer"></div>
+      <span class="dp-date">{{ data.dateShort }}</span>
+    </div>
+
+    <!-- Poster headline -->
+    <div class="dp-headline" data-testid="card-hero">
+      <!-- A long proper name ("North America") shrinks to the column's width. -->
+      <div
+        class="dp-headline-main"
+        [dbaAgFitText]="isLandscapeFormat() ? 108 : 104"
+        [fitTextMin]="40"
+        [fitTextContent]="headlineName().primary"
+      >{{ headlineName().primary }}</div>
+      @if (headlineName().rest) {
+        <div class="dp-headline-sub">{{ headlineName().rest }}</div>
+      }
+    </div>
+
+    @if (data.caption) {
+      <div class="dp-caption">{{ data.caption }}</div>
+    }
+
+    <div class="dp-spacer dp-spacer--upper"></div>
+
+    <!-- Big integration number -->
+    <div class="dp-total-row">
+      <div class="dp-total">{{ data.total }}</div>
+      <div class="dp-total-meta">
+        <div class="dp-total-label">Total</div>
+        <div class="dp-total-sub">integration</div>
+      </div>
+      <div class="dp-spacer"></div>
+      <div class="dp-total-bands">
+        @for (band of data.integration; track band.id) {
+          <div class="dp-band">
+            <span class="dp-band-id" [style.color]="band.color">{{ band.id }}</span>
+            <span class="dp-band-time">{{ band.time }}</span>
+            <span class="dp-band-frames">{{ band.frames }}</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="dp-spacer"></div>
+
+    <!-- Footer columns -->
+    <div class="dp-footer">
+      <div class="dp-footer-col">
+        <div class="dp-footer-title dp-footer-title--coral">Gear</div>
+        @for (item of gearItems(); track $index) {
+          <div class="dp-footer-item">{{ item.value }}</div>
+        }
+      </div>
+      <div class="dp-footer-col">
+        <div class="dp-footer-title dp-footer-title--sky">Process</div>
+        @for (item of data.software; track $index) {
+          <div class="dp-footer-item">{{ item.value }}</div>
+        }
+        @if (isLandscapeFormat()) {
+          <ng-container [ngTemplateOutlet]="skyLine" />
+        }
+      </div>
+      <!-- Portrait and square give the gear column three fifths of the width,
+           too narrow for a long place and handle beside the software, so the
+           sky line runs across the whole footer under both columns. -->
+      @if (!isLandscapeFormat()) {
+        <div class="dp-footer-sky">
+          <ng-container [ngTemplateOutlet]="skyLine" />
+        </div>
+      }
+    </div>
+
+    <!-- The sky and the place wrap as one run that breaks only after a
+         comma; the handle follows as a whole item whose separator is
+         clipped when it starts a line (see .dp-sky-line). -->
+    <ng-template #skyLine>
+      <div class="dp-footer-item dp-footer-item--dim dp-sky">
+        <div class="dp-sky-line">
+          <span class="dp-sky-part">Bortle&nbsp;{{ data.bortle }}@if (placeName()) {<span>&nbsp;·&nbsp;{{ placeName() }}</span>}</span>
+          @if (data.author) {
+            <span class="dp-sky-part"><span class="dp-sep" aria-hidden="true">·</span>{{ data.author }}</span>
+          }
+        </div>
+      </div>
+    </ng-template>
+  </div>
+</div>

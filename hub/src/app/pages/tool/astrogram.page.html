@@ -2,16 +2,19 @@
   <dba-hub-astro-mark mark class="tool-mark" [size]="72" />
 
   <div preview>
-    <dba-hub-demo-frame
-      label="astrogram.app / stellar map"
-      status="Solved"
-      [live]="true"
-    >
-      <img
+    <dba-hub-demo-frame label="astrogram.app / walkthrough" status="Demo">
+      <video
         class="demo-media"
-        src="assets/img/astrogram-demo.gif"
-        alt="Astrogram plate-solved Stellar Map with labelled objects and light-year distances"
-      />
+        width="1920"
+        height="1080"
+        controls
+        playsinline
+        preload="metadata"
+        poster="assets/img/astrogram-demo-poster.jpg"
+        aria-label="Astrogram walkthrough demo: filling in the object, capture and gear panels, switching card themes and sizes, plate-solving a photo into a labelled stellar map, and exporting the card"
+      >
+        <source src="assets/img/astrogram-demo-desktop-compressed.mp4" type="video/mp4" />
+      </video>
     </dba-hub-demo-frame>
   </div>
 
@@ -52,7 +55,7 @@
             class="demo-media-btn"
             (click)="
               openLightbox(
-                'assets/img/astrogram-infographic-example.jpg',
+                'assets/img/astrogram-split-stats-portrait.jpg',
                 'Astrogram infographic exposure card output'
               )
             "
@@ -60,7 +63,7 @@
           >
             <img
               class="demo-media"
-              src="assets/img/astrogram-infographic-example.jpg"
+              src="assets/img/astrogram-split-stats-portrait.jpg"
               alt="Astrogram infographic exposure card output"
             />
           </button>

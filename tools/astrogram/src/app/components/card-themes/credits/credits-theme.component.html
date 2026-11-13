@@ -1,0 +1,167 @@
+@let data = vm();
+
+<div
+  class="crd-root"
+  [class.crd-root--landscape]="isLandscapeFormat()"
+  [style.--crd-secondary-rgb]="secondaryRgb()"
+>
+  <dba-ag-theme-starfield [density]="110" [opacity]="0.4" color="#ffffff" [seed]="1" />
+
+  <svg class="crd-constellation" width="260" height="170" viewBox="0 0 220 150" aria-hidden="true">
+    @for (edge of constellationEdges; track $index) {
+      <line
+        [attr.x1]="edge.x1"
+        [attr.y1]="edge.y1"
+        [attr.x2]="edge.x2"
+        [attr.y2]="edge.y2"
+        class="crd-accent-stroke"
+        stroke-width="0.8"
+        stroke-dasharray="3 4"
+        opacity="0.2"
+      />
+    }
+    @for (node of constellationNodes; track $index) {
+      <circle
+        [attr.cx]="node.x"
+        [attr.cy]="node.y"
+        [attr.r]="node.r"
+        class="crd-accent-fill"
+        opacity="0.4"
+      />
+      @if (node.halo) {
+        <circle
+          [attr.cx]="node.x"
+          [attr.cy]="node.y"
+          r="5.5"
+          fill="none"
+          class="crd-accent-stroke"
+          stroke-width="0.5"
+          opacity="0.18"
+        />
+      }
+    }
+  </svg>
+
+  <!-- Title -->
+  <div class="crd-title-block" data-testid="card-hero">
+    <div class="crd-the">The</div>
+    <!-- One line across the card: the name is fitted to the width rather than
+         stacked, which kept a long name from eating the billing block's room. -->
+    <div class="crd-title" [dbaAgFitText]="64" [fitTextMin]="18" [fitTextContent]="data.objectName">
+      <span class="crd-title-solid">{{ objectNameFirst() }}</span>
+      @if (objectNameRest(); as rest) {
+        <span class="crd-title-outline"> {{ rest }}</span>
+      }
+    </div>
+  </div>
+
+  <!-- Band colour strip -->
+  <div class="crd-strip">
+    @for (band of data.integration; track band.id) {
+      <div [style.width]="band.pct * 100 + '%'" [style.background]="band.color"></div>
+    }
+  </div>
+  <div class="crd-study">
+    @if (data.objectId) {
+      <span>{{ data.objectId }}</span>
+    }
+    @if (data.bandKind; as kind) {
+      <span>@if (data.objectId) { · } A {{ kind }} study</span>
+    }
+  </div>
+
+  <div class="crd-grow"></div>
+
+  <!-- Billing block -->
+  <div class="crd-billing">
+    <div class="crd-credit">
+      <div class="crd-credit-k">Captured by</div>
+      <div class="crd-credit-v">{{ data.author }}</div>
+    </div>
+    @for (item of data.equipment; track $index) {
+      <div class="crd-credit">
+        <div class="crd-credit-k">{{ item.label }}</div>
+        <div class="crd-credit-v">{{ item.value }}</div>
+      </div>
+    }
+    <div class="crd-credit">
+      <div class="crd-credit-k">Processed in</div>
+      <!-- Full names, item by item: the design's first-word shorthand turned
+           "PixInsight + Photoshop" into "PixInsight" and "Seti Astro Suite" into "Seti". -->
+      <dba-ag-theme-gear-line class="crd-credit-v crd-credit-list" [values]="softwareValues()" />
+    </div>
+    <div class="crd-credit">
+      <div class="crd-credit-k">Total exposure</div>
+      <div class="crd-credit-v">
+        {{ data.total }} <span class="crd-faint">across</span> {{ totalFrames() }} frames
+        <span class="crd-band-line">
+          <!-- Each band stays whole; a long run splits into two balanced rows at
+               a separator rather than leaving the last band alone on a line. -->
+          @for (band of data.integration; track band.id; let i = $index) {
+            <span class="crd-band" [style.color]="band.color"><span class="crd-band-id">{{ band.id }}</span> {{ band.time }}</span>
+            @if (!$last) {
+              <span class="crd-faint" [class.crd-band-break]="i + 1 === bandBreak()"> · </span>
+            }
+          }
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="crd-grow crd-grow--release"></div>
+
+  <!-- Release date -->
+  <div class="crd-release">
+    <!-- The spikes flank the date: pinned to the card they landed on the band
+         credits once a long billing block pushed the date down. -->
+    <svg class="crd-spike crd-spike-1" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+      <line x1="12" y1="0" x2="12" y2="24" class="crd-accent-stroke" stroke-width="0.9" />
+      <line x1="0" y1="12" x2="24" y2="12" class="crd-accent-stroke" stroke-width="0.9" />
+      <line
+        x1="5.5"
+        y1="5.5"
+        x2="18.5"
+        y2="18.5"
+        class="crd-accent-stroke"
+        stroke-width="0.45"
+        opacity="0.6"
+      />
+      <line
+        x1="18.5"
+        y1="5.5"
+        x2="5.5"
+        y2="18.5"
+        class="crd-accent-stroke"
+        stroke-width="0.45"
+        opacity="0.6"
+      />
+      <circle cx="12" cy="12" r="1.5" class="crd-accent-fill" />
+    </svg>
+
+    <svg class="crd-spike crd-spike-2" width="26" height="26" viewBox="0 0 24 24" aria-hidden="true">
+      <line x1="12" y1="0" x2="12" y2="24" class="crd-accent-stroke" stroke-width="0.9" />
+      <line x1="0" y1="12" x2="24" y2="12" class="crd-accent-stroke" stroke-width="0.9" />
+      <line
+        x1="5.5"
+        y1="5.5"
+        x2="18.5"
+        y2="18.5"
+        class="crd-accent-stroke"
+        stroke-width="0.45"
+        opacity="0.6"
+      />
+      <line
+        x1="18.5"
+        y1="5.5"
+        x2="5.5"
+        y2="18.5"
+        class="crd-accent-stroke"
+        stroke-width="0.45"
+        opacity="0.6"
+      />
+      <circle cx="12" cy="12" r="1.5" class="crd-accent-fill" />
+    </svg>
+    <div class="crd-release-date">{{ releaseDate() }}</div>
+    <div class="crd-release-meta">Under&nbsp;Bortle&nbsp;{{ data.bortle }}&nbsp;skies · {{ releaseLocation() }}</div>
+  </div>
+</div>

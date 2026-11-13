@@ -1,0 +1,105 @@
+/*
+ * Blocking alert shown when the page runs inside an app's embedded browser
+ * (Instagram etc.), which silently drops the recording download. There is
+ * deliberately no dismiss: the only way forward is a real browser.
+ */
+.sw-inapp-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: color-mix(in srgb, var(--db-color-surface-bg) 78%, transparent);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  backdrop-filter: blur(10px) saturate(140%);
+  animation: sw-inapp-fade 200ms ease;
+}
+
+.sw-inapp-alert {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: min(360px, 100%);
+  padding: 28px 22px 22px;
+  border: 1px solid var(--db-color-border-active);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--db-color-surface) 92%, transparent);
+  box-shadow: var(--db-shadow-glass), var(--db-shadow-neon);
+  text-align: center;
+  animation: sw-inapp-rise 240ms ease;
+}
+
+.sw-inapp-alert__badge {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border: 1px solid var(--db-color-border-active);
+  border-radius: 50%;
+  background: var(--db-color-pink-soft);
+  color: var(--db-color-neon-pink);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--db-color-neon-pink) 35%, transparent);
+}
+
+.sw-inapp-alert__title {
+  margin: 0;
+  font: 600 14px/1.3 var(--db-font-display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--db-color-text-primary);
+}
+
+.sw-inapp-alert__text {
+  margin: 0;
+  font: 400 14px/1.5 var(--db-font-ui);
+  color: var(--db-color-text-primary);
+}
+
+.sw-inapp-alert__action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  min-height: 46px;
+  margin-top: 4px;
+  padding: 0 24px;
+  border-radius: 8px;
+  background: var(--db-color-neon-pink);
+  color: var(--db-color-text-primary);
+  box-shadow: 0 4px 12px var(--db-color-pink-soft);
+  font: 600 14px/1 var(--db-font-ui);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: filter 180ms ease;
+}
+
+.sw-inapp-alert__action:hover {
+  filter: brightness(1.08);
+}
+
+.sw-inapp-alert__action:focus-visible {
+  outline: 2px solid var(--db-color-cyan);
+  outline-offset: 2px;
+}
+
+.sw-inapp-alert__hint {
+  margin: 0;
+  font: 400 12px/1.5 var(--db-font-ui);
+  color: var(--db-color-text-dim);
+}
+
+@keyframes sw-inapp-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes sw-inapp-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}

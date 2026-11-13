@@ -1,0 +1,75 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.export-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.export-split {
+  display: block;
+  /* Pink primary action, matching the record button in starwizz. */
+  --dba-split-button-bg: var(--db-color-neon-pink);
+  --dba-split-button-color: var(--db-color-text-primary);
+  --dba-split-button-divider: color-mix(in srgb, var(--db-color-text-primary) 30%, transparent);
+  --dba-split-button-shadow:
+    0 0 0 1px var(--db-color-neon-pink),
+    0 4px 12px var(--db-color-pink-soft);
+}
+
+.slider-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.slider-label-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.row-label {
+  font-family: var(--db-font-ui);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--db-color-text-dim);
+}
+
+.row-value {
+  margin-left: auto;
+  font: 500 11px/1 var(--db-font-mono-code);
+  font-variant-numeric: tabular-nums;
+  color: var(--db-color-text-primary);
+}
+
+.export-error {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--db-color-text-error);
+}
+
+/* Output size is stated, not chosen — export always matches the source. */
+.export-size {
+  margin: 0;
+  font-family: var(--db-font-mono-code);
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--db-color-text-dim);
+}
+
+.export-last {
+  margin: 0;
+  font-family: var(--db-font-mono-code);
+  font-size: 10.5px;
+  color: var(--db-color-cyan);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

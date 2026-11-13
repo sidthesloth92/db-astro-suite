@@ -1,5 +1,10 @@
 import { discardPeriodicTasks, fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { AnalyticsService } from '@db-astro-suite/ui';
+import { AnalyticsService, SharePromptService } from '@db-astro-suite/ui';
+import {
+  RECORDING_ERROR_SHARE,
+  RECORDING_REQUEST_DATA_NUDGE_MS,
+  RECORDING_WATCHDOG_MS,
+} from '../constants/recording.constant';
 
 import { ShootingStar } from '../models/shooting-star.model';
 import { Star } from '../models/star.model';
@@ -24,6 +29,14 @@ describe('SimulationService', () => {
     const stars = Array.from({ length: count }, () => new Star(WIDTH, HEIGHT, service));
     service.stars.set(stars);
     return stars;
+  }
+
+  /** Puts one shooting star in flight, spawned under the current star motion. */
+  function seedActiveStreak(): ShootingStar {
+    const streak = new ShootingStar(WIDTH, HEIGHT, service);
+    streak.spawn();
+    service.shootingStars.set([streak]);
+    return streak;
   }
 
   describe('adjustStarCount', () => {
@@ -434,6 +447,50 @@ describe('SimulationService', () => {
       expect(service.starLateralOn()).toBe(true);
     });
 
+    it('should clear in-flight shooting stars when the travel direction changes', () => {
+      service.updateDirection('left');
+      const streak = seedActiveStreak();
+      expect(streak.isActive).toBe(true);
+
+      service.updateDirection('right');
+
+      // Otherwise it would keep streaking left through the right-moving field.
+      expect(streak.isActive).toBe(false);
+    });
+
+    it('should send respawned shooting stars the new way after a direction change', () => {
+      service.updateDirection('left');
+      const streak = seedActiveStreak();
+      const leftStartX = streak.x;
+      streak.update();
+      expect(streak.x).toBeLessThan(leftStartX);
+
+      service.updateDirection('right');
+      streak.spawn();
+      const rightStartX = streak.x;
+      streak.update();
+
+      expect(streak.x).toBeGreaterThan(rightStartX);
+    });
+
+    it('should clear in-flight shooting stars when the sideways drift is toggled', () => {
+      service.updateDirection('forward');
+      const streak = seedActiveStreak();
+
+      service.setStarLateral(true);
+
+      expect(streak.isActive).toBe(false);
+    });
+
+    it('should clear in-flight shooting stars when the drift angle changes', () => {
+      service.updateDirection('right');
+      const streak = seedActiveStreak();
+
+      service.updateStarDirection(90);
+
+      expect(streak.isActive).toBe(false);
+    });
+
     it('clears points and zeroes star motion on resetPath', () => {
       service.updateDirection('path');
       service.updateLiveCamera({ panX: 0, panY: 0, scale: 1 });
@@ -560,7 +617,7 @@ describe('SimulationService', () => {
       }
       state: RecordingStateNative = 'inactive';
       ondataavailable: ((e: BlobEvent) => void) | null = null;
-      onstop: (() => void) | null = null;
+      onstop: (() => unknown) | null = null;
       onerror: ((e: Event) => void) | null = null;
       timeslice: number | undefined;
       requestDataCalls = 0;
@@ -589,9 +646,12 @@ describe('SimulationService', () => {
       emitError(): void {
         this.onerror?.(new Event('error'));
       }
-      /** Fires the finalization event (as the browser does after stop()). */
-      emitStop(): void {
-        this.onstop?.();
+      /**
+       * Fires the finalization event (as the browser does after stop()).
+       * Resolves once the service has finished processing the recording.
+       */
+      async emitStop(): Promise<void> {
+        await this.onstop?.();
       }
     }
 
@@ -653,12 +713,19 @@ describe('SimulationService', () => {
       expect(service.recordingError()).not.toBeNull();
     });
 
-    it('should pass the preset bitrate and timeslice to the recorder', () => {
+    it('should pass the preset bitrate to the recorder', () => {
       service.startRecording(canvas);
 
       expect(recorders[0].options?.videoBitsPerSecond).toBe(service.recordingBitsPerSecond());
       expect(recorders[0].options?.videoBitsPerSecond).toBe(12_441_600);
-      expect(recorders[0].timeslice).toBe(1000);
+    });
+
+    it('should record without a timeslice so the saved file carries its full duration', () => {
+      // A timeslice makes Chrome write the MP4 header before the length is
+      // known; the file then reports ~1 s and Instagram imports only that.
+      service.startRecording(canvas);
+
+      expect(recorders[0].timeslice).toBeUndefined();
     });
 
     it('should capture the canvas at the preset frame rate', () => {
@@ -697,14 +764,14 @@ describe('SimulationService', () => {
         expect(service.recordingState()).toBe('recording');
       });
 
-      it('should blacklist a failed codec for subsequent recordings', () => {
+      it('should blacklist a failed codec for subsequent recordings', async () => {
         startRecordingAsApp();
         recorders[0].emitError();
 
         // Finish the fallback recording cleanly.
         recorders[1].emitChunk(64);
         service.stopRecording();
-        recorders[1].emitStop();
+        await recorders[1].emitStop();
 
         // The next recording skips the blacklisted High-profile rung entirely.
         startRecordingAsApp();
@@ -714,7 +781,7 @@ describe('SimulationService', () => {
       it('should fall back via the watchdog when no data ever arrives', fakeAsync(() => {
         startRecordingAsApp();
 
-        tick(2500);
+        tick(RECORDING_WATCHDOG_MS);
 
         expect(recorders.length).toBe(2);
         expect(service.recordingState()).toBe('recording');
@@ -726,7 +793,7 @@ describe('SimulationService', () => {
         startRecordingAsApp();
         recorders[0].emitChunk(64);
 
-        tick(2500);
+        tick(RECORDING_WATCHDOG_MS);
 
         expect(recorders.length).toBe(1);
         service.stopRecording();
@@ -736,12 +803,42 @@ describe('SimulationService', () => {
       it('should nudge the recorder with requestData before the watchdog fires', fakeAsync(() => {
         startRecordingAsApp();
 
-        tick(1200);
+        tick(RECORDING_REQUEST_DATA_NUDGE_MS);
 
         expect(recorders[0].requestDataCalls).toBe(1);
         service.stopRecording(); // cancel the watchdog + auto-stop before leaving fakeAsync
         discardPeriodicTasks();
       }));
+
+      it('should keep nudging a slow-starting encoder and keep it once its first chunk arrives', fakeAsync(() => {
+        startRecordingAsApp();
+
+        // Slower than the old 2.5 s deadline, as measured on Android Chrome.
+        tick(RECORDING_REQUEST_DATA_NUDGE_MS * 3);
+        expect(recorders[0].requestDataCalls).toBe(3);
+        recorders[0].emitChunk(64);
+
+        tick(RECORDING_WATCHDOG_MS);
+
+        expect(recorders.length).toBe(1);
+        expect(recorders[0].requestDataCalls).toBe(3); // nudging stops at proof of life
+        service.stopRecording();
+        discardPeriodicTasks();
+      }));
+
+      it('should walk the whole ladder again on the next attempt after every rung failed', () => {
+        spyOn(console, 'error');
+        startRecordingAsApp();
+        for (let i = 0; i < 6; i++) {
+          recorders[i].emitError();
+        }
+
+        startRecordingAsApp();
+
+        expect(recorders.length).toBe(7);
+        expect(recorders[6].options?.mimeType).toBe('video/mp4;codecs=avc1.64002A');
+        expect(service.recordingError()).toBeNull();
+      });
 
       it('should give up visibly when every rung fails', () => {
         spyOn(console, 'error');
@@ -761,7 +858,7 @@ describe('SimulationService', () => {
         service.recordingState.set('idle');
         service.stopRecording();
 
-        tick(2500);
+        tick(RECORDING_WATCHDOG_MS);
 
         expect(recorders.length).toBe(1);
       }));
@@ -925,18 +1022,18 @@ describe('SimulationService', () => {
         });
       });
 
-      function recordOnce(bytes: number): void {
+      async function recordOnce(bytes: number): Promise<void> {
         startRecordingAsApp();
         const recorder = recorders[recorders.length - 1];
         if (bytes > 0) {
           recorder.emitChunk(bytes);
         }
         service.stopRecording();
-        recorder.emitStop();
+        await recorder.emitStop();
       }
 
-      it('should download via a DOM-attached anchor without revoking the URL', () => {
-        recordOnce(2_000_000);
+      it('should download via a DOM-attached anchor without revoking the URL', async () => {
+        await recordOnce(2_000_000);
 
         expect(createdUrls.length).toBe(1);
         expect(clickedAnchors.length).toBe(1);
@@ -944,24 +1041,24 @@ describe('SimulationService', () => {
         expect(service.recordingState()).toBe('idle');
       });
 
-      it('should revoke the previous download URL when the next recording starts', () => {
-        recordOnce(2_000_000);
+      it('should revoke the previous download URL when the next recording starts', async () => {
+        await recordOnce(2_000_000);
 
         startRecordingAsApp();
 
         expect(revokedUrls).toEqual(['blob:fake-0']);
       });
 
-      it('should revoke the pending URL on service destroy', () => {
-        recordOnce(2_000_000);
+      it('should revoke the pending URL on service destroy', async () => {
+        await recordOnce(2_000_000);
 
         service.ngOnDestroy();
 
         expect(revokedUrls).toEqual(['blob:fake-0']);
       });
 
-      it('should retain the finished recording for re-saving', () => {
-        recordOnce(2_000_000);
+      it('should retain the finished recording for re-saving', async () => {
+        await recordOnce(2_000_000);
 
         const last = service.lastRecording();
         expect(last).not.toBeNull();
@@ -969,10 +1066,80 @@ describe('SimulationService', () => {
         expect(last?.sizeMb).toBe(2);
       });
 
-      it('should surface an error and skip the download for an empty recording', () => {
+      it('should type the saved file with the bare container type, not the recorder codec string', async () => {
+        await recordOnce(2_000_000);
+
+        expect(recorders[0].options?.mimeType).toBe('video/mp4;codecs=avc1.64002A');
+        expect(service.lastRecording()?.mimeType).toBe('video/mp4');
+        expect(service.lastRecording()?.blob.type).toBe('video/mp4');
+      });
+
+      describe('sharing', () => {
+        let share: jasmine.Spy<(data?: ShareData) => Promise<void>>;
+
+        beforeEach(() => {
+          // Web Share is absent in headless Chrome — install it for the test.
+          share = jasmine.createSpy('share').and.resolveTo();
+          Object.defineProperty(navigator, 'canShare', { configurable: true, value: () => true });
+          Object.defineProperty(navigator, 'share', { configurable: true, value: share });
+        });
+
+        afterEach(() => {
+          Reflect.deleteProperty(navigator, 'canShare');
+          Reflect.deleteProperty(navigator, 'share');
+        });
+
+        it('should share the recording as a plain video/mp4 file', async () => {
+          await recordOnce(2_000_000);
+
+          await service.shareLastRecording();
+
+          const file = share.calls.mostRecent().args[0]?.files?.[0];
+          expect(file?.name).toBe('starfield_starwizz_9_16_1080_1920.mp4');
+          expect(file?.type).toBe('video/mp4');
+        });
+
+        it('should stay quiet when the user dismisses the share sheet', async () => {
+          share.and.rejectWith(new DOMException('dismissed', 'AbortError'));
+          await recordOnce(2_000_000);
+
+          await service.shareLastRecording();
+
+          expect(service.recordingError()).toBeNull();
+        });
+
+        it('should surface an error when sharing fails', async () => {
+          spyOn(console, 'error');
+          share.and.rejectWith(new DOMException('denied', 'NotAllowedError'));
+          await recordOnce(2_000_000);
+
+          await service.shareLastRecording();
+
+          expect(service.recordingError()).toBe(RECORDING_ERROR_SHARE);
+        });
+      });
+
+      it('should invite the user to share once a recording is saved', async () => {
+        const notify = spyOn(TestBed.inject(SharePromptService), 'notifyExportSucceeded');
+
+        await recordOnce(2_000_000);
+
+        expect(notify).toHaveBeenCalledTimes(1);
+      });
+
+      it('should not invite the user to share after an empty recording', async () => {
+        spyOn(console, 'error');
+        const notify = spyOn(TestBed.inject(SharePromptService), 'notifyExportSucceeded');
+
+        await recordOnce(0);
+
+        expect(notify).not.toHaveBeenCalled();
+      });
+
+      it('should surface an error and skip the download for an empty recording', async () => {
         spyOn(console, 'error');
 
-        recordOnce(0);
+        await recordOnce(0);
 
         expect(createdUrls.length).toBe(0);
         expect(clickedAnchors.length).toBe(0);
@@ -981,14 +1148,14 @@ describe('SimulationService', () => {
         expect(trackVideoGeneration).not.toHaveBeenCalled();
       });
 
-      it('should track the video generation exactly as before on success', () => {
-        recordOnce(2_000_000);
+      it('should track the video generation exactly as before on success', async () => {
+        await recordOnce(2_000_000);
 
         expect(trackVideoGeneration).toHaveBeenCalledWith('starwizz-user', 'mp4');
       });
 
-      it('should re-download the retained recording on saveLastRecording', () => {
-        recordOnce(2_000_000);
+      it('should re-download the retained recording on saveLastRecording', async () => {
+        await recordOnce(2_000_000);
 
         service.saveLastRecording();
 
@@ -998,8 +1165,8 @@ describe('SimulationService', () => {
         expect(revokedUrls).toEqual(['blob:fake-0']);
       });
 
-      it('should clear the retained recording on clearImage', () => {
-        recordOnce(2_000_000);
+      it('should clear the retained recording on clearImage', async () => {
+        await recordOnce(2_000_000);
 
         service.clearImage();
 

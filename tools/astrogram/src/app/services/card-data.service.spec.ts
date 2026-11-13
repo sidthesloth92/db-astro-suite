@@ -145,6 +145,57 @@ describe('CardDataService', () => {
     });
   });
 
+  describe('cardTheme', () => {
+    it("defaults to 'original'", () => {
+      expect(service.cardData().cardTheme).toBe('original');
+    });
+
+    it('setCardTheme sets the id and applies the theme accents and opacity', () => {
+      service.setCardTheme(
+        'obsidian',
+        {
+          accentColor: '#5DD8FF',
+          accentColorRgb: '93, 216, 255',
+          secondaryAccentColor: '#B97DFF',
+        },
+        0.6,
+      );
+      const data = service.cardData();
+      expect(data.cardTheme).toBe('obsidian');
+      expect(data.accentColor).toBe('#5DD8FF');
+      expect(data.accentColorRgb).toBe('93, 216, 255');
+      expect(data.secondaryAccentColor).toBe('#B97DFF');
+      expect(data.cardOpacity).toBe(0.6);
+    });
+
+    it('setCardTheme lets a light theme opt back into a fully opaque card', () => {
+      service.setCardTheme(
+        'atlas',
+        {
+          accentColor: '#2B2316',
+          accentColorRgb: '43, 35, 22',
+          secondaryAccentColor: '#6E5F45',
+        },
+        1,
+      );
+      expect(service.cardData().cardOpacity).toBe(1);
+    });
+
+    it('produces a new cardData reference rather than mutating in place', () => {
+      const before = service.cardData();
+      service.setCardTheme(
+        'obsidian',
+        {
+          accentColor: '#5DD8FF',
+          accentColorRgb: '93, 216, 255',
+          secondaryAccentColor: '#B97DFF',
+        },
+        0.6,
+      );
+      expect(service.cardData()).not.toBe(before);
+    });
+  });
+
   describe('exportFormat signal', () => {
     it("defaults to 'jpeg'", () => {
       expect(service.exportFormat()).toBe('jpeg');
