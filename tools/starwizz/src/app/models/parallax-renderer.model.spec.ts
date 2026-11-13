@@ -65,6 +65,7 @@ describe('ParallaxRenderer', () => {
       far: 0.38,
       start: { x: 0, y: 0, z: 0 },
       velocity: { x: 0, y: 0, z: -0.05 },
+      returnStars: false,
       seed: 11,
     });
     stars.step({ pose: REST, seconds: 0, relief: 0, starSize: 1, twinkle: 0, frameHeightPx: H });
@@ -101,6 +102,14 @@ describe('ParallaxRenderer', () => {
     renderer.dispose();
   });
 
+  it('should give its graphics context back when disposed', () => {
+    const renderer = new ParallaxRenderer(canvas);
+    renderer.setScene(scene);
+    renderer.dispose();
+    // Justification for the non-null assertion: the renderer already created this context.
+    expect(canvas.getContext('webgl2')!.isContextLost()).toBeTrue();
+  });
+
   it('should bring the original photo back as the stars return', () => {
     const renderer = new ParallaxRenderer(canvas);
     renderer.setScene(scene);
@@ -126,17 +135,37 @@ describe('ParallaxRenderer', () => {
     renderer.dispose();
   });
 
-  it('should move a near star across the frame faster than the backdrop when the camera slides', () => {
+  it('should move a near star across the frame further than the backdrop when the camera slides', () => {
+    /** Column of the brightest pixel on a star's row, searched around where it started. */
+    const peakColumn = (rendered: Uint8Array, x0: number, y: number): number => {
+      let best = x0;
+      let brightest = -1;
+      for (let x = Math.max(0, x0 - 70); x <= Math.min(W - 1, x0 + 70); x++) {
+        const value = rendered[(y * W + x) * 4];
+        if (value > brightest) {
+          brightest = value;
+          best = x;
+        }
+      }
+      return best;
+    };
     const renderer = new ParallaxRenderer(canvas);
     renderer.setScene(scene);
     const stars = volume('original');
     renderer.setStars(stars);
-    const slid: ScenePose = { ...REST, position: { x: 0.05, y: 0, z: 0 } };
+    const slide = 0.01;
+    const slid: ScenePose = { ...REST, position: { x: slide, y: 0, z: 0 } };
     stars.step({ pose: slid, seconds: 0, relief: 0, starSize: 1, twinkle: 0, frameHeightPx: H });
     renderer.render({ pose: slid, view, relief: 0 });
+    const rendered = readTopDown(canvas);
 
-    // The frame no longer matches the photo: the stars have shifted against the backdrop.
-    expect(difference(readTopDown(canvas), scene.photo).worst).toBeGreaterThan(60);
+    // The backdrop is one unit away, so it shifts by this many pixels, to the left.
+    const backdropShift = (slide / (2 * view.tanX)) * W;
+    for (const star of STARS) {
+      const moved = star.x - peakColumn(rendered, star.x, star.y);
+      // Every star is nearer than the backdrop: it moves the same way, and clearly further.
+      expect(moved).withContext(`star at ${star.x},${star.y}`).toBeGreaterThan(backdropShift * 1.5);
+    }
     renderer.dispose();
   });
 });

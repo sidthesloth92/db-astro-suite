@@ -54,6 +54,11 @@ describe('liftStars', () => {
     expect(Array.from(photo)).toEqual(Array.from(before));
   });
 
+  it('should measure a star with a burnt-out core once, so the Sharp style draws it once', () => {
+    const scene = liftStars(makePhoto(W, H, SKY, [{ x: 130, y: 110, amp: 1.8, sigma: 2.6 }]), W, H);
+    expect(measuredStarCount(scene)).toBe(1);
+  });
+
   it('should leave a nebula knot in the backdrop instead of lifting it', () => {
     const nebula: [number, number, number] = [0.1, 0.3, 0.12];
     const knot = { x: 130, y: 110, amp: 0.5, sigma: 3, color: [0.25, 1, 0.3] as [number, number, number] };

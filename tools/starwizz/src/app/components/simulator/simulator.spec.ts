@@ -153,6 +153,30 @@ describe('Simulator', () => {
       fixture.detectChanges();
       expect(host.querySelector('dba-sw-loading-overlay')).toBeNull();
     });
+
+    it('should not cover a 3D error with the progress overlay', () => {
+      const host = fixture.nativeElement as HTMLElement;
+      const scene3d = TestBed.inject(Scene3dService);
+      simService.loadingProgress.set('Ready');
+      simService.renderMode.set('3d');
+      scene3d.status.set('lifting');
+      scene3d.reportRendererError('3D is not available');
+      fixture.detectChanges();
+      expect(host.querySelector('dba-sw-loading-overlay')).toBeNull();
+    });
+
+    it('should put the 3D settings back to their defaults when the image is cleared', () => {
+      const scene3d = TestBed.inject(Scene3dService);
+      scene3d.style.set('arrive');
+      scene3d.starStyle.set('sharp');
+      scene3d.updateControl('starAmount', 250);
+
+      component.clearImage();
+
+      expect(scene3d.style()).toBe('travel');
+      expect(scene3d.starStyle()).toBe('original');
+      expect(scene3d.settings().starAmount).toBe(100);
+    });
   });
 
   it('should stop its frame loop when the preview is destroyed', () => {

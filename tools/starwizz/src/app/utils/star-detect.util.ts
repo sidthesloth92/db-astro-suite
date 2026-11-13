@@ -15,6 +15,7 @@ import {
   LIFT_MAX_RADIUS_RATIO,
   LIFT_MAX_STARS,
   LIFT_NEIGHBOUR_RISE,
+  LIFT_PLATEAU_TOLERANCE,
 } from '../constants/star-lift.constant';
 import { LiftStar } from '../models/star-lift.model';
 import { blurImage } from './box-blur.util';
@@ -46,7 +47,7 @@ export function backgroundBlockFor(width: number, height: number): number {
  * background or a neighbour (`rHalo`, grown a little so no rim is left behind). Wide, faint
  * blobs are nebula and are skipped.
  *
- * @returns Stars sorted brightest first, with `group` not yet assigned (-1)
+ * @returns Stars sorted brightest first
  */
 export function detectLiftStars(lum: Float32Array, width: number, height: number): LiftStar[] {
   const rMax = Math.round(Math.min(width, height) * LIFT_MAX_RADIUS_RATIO);
@@ -59,6 +60,8 @@ export function detectLiftStars(lum: Float32Array, width: number, height: number
   );
 
   const candidates: { x: number; y: number; peak: number; index: number }[] = [];
+  // Pixels already examined as part of a flat top, so each one is looked at once.
+  const plateauSeen = new Uint8Array(width * height);
   for (let y = 3; y < height - 3; y++) {
     for (let x = 3; x < width - 3; x++) {
       const i = y * width + x;
@@ -77,16 +80,28 @@ export function detectLiftStars(lum: Float32Array, width: number, height: number
       ) {
         continue;
       }
-      // On a flat plateau keep only its top-left corner, or every plateau pixel would qualify.
-      if (v === smooth[i - 1] && v === smooth[i - width]) continue;
-      candidates.push({ x, y, peak: excess, index: i });
+      // A burnt-out core is a flat top where every pixel ties with its neighbours. It is one
+      // star, placed at the middle of the flat top, not one star per tied pixel.
+      if (plateauSeen[i] !== 0) continue;
+      const centre = plateauCentre(smooth, width, height, i, plateauSeen);
+      if (centre === null) continue;
+      candidates.push({
+        x: centre % width,
+        y: (centre / width) | 0,
+        peak: v - background[centre],
+        index: centre,
+      });
     }
   }
   candidates.sort((a, b) => b.peak - a.peak);
 
   const fatWidth = Math.max(LIFT_FAT_BLOB_MIN_WIDTH, width * LIFT_FAT_BLOB_WIDTH_RATIO);
   const stars: LiftStar[] = [];
+  // Pixels inside an accepted star's core. A second peak there (the far corner of an oddly
+  // shaped plateau, say) is the same star and must not be lifted or redrawn twice.
+  const claimed = new Uint8Array(width * height);
   for (const candidate of candidates) {
+    if (claimed[candidate.index] !== 0) continue;
     const base = background[candidate.index];
     const noise = sigma[candidate.index];
     const haloThreshold = Math.max(
@@ -124,11 +139,77 @@ export function detectLiftStars(lum: Float32Array, width: number, height: number
       peak: candidate.peak,
       rHalf,
       rHalo: Math.min(rMax, Math.ceil(rHalo * LIFT_HALO_GROW + LIFT_HALO_PAD)),
-      group: -1,
     });
+    claimCore(claimed, width, height, candidate.x, candidate.y, Math.max(1, rHalf));
     if (stars.length >= LIFT_MAX_STARS) break;
   }
   return stars;
+}
+
+/**
+ * Finds the middle of the flat top that a local maximum belongs to. A sharp peak is its own
+ * flat top. Every pixel of the flat top is marked in `seen`.
+ *
+ * @returns Index of the pixel at the middle, or null when the flat area is not a peak at all
+ * (a level shoulder beside something brighter)
+ */
+function plateauCentre(
+  smooth: Float32Array,
+  width: number,
+  height: number,
+  start: number,
+  seen: Uint8Array,
+): number | null {
+  const level = smooth[start];
+  const stack = [start];
+  seen[start] = 1;
+  let isPeak = true;
+  let count = 0;
+  let sumX = 0;
+  let sumY = 0;
+  for (let i = stack.pop(); i !== undefined; i = stack.pop()) {
+    const x = i % width;
+    const y = (i / width) | 0;
+    count++;
+    sumX += x;
+    sumY += y;
+    for (let dy = -1; dy <= 1; dy++) {
+      const ny = y + dy;
+      if (ny < 0 || ny >= height) continue;
+      for (let dx = -1; dx <= 1; dx++) {
+        const nx = x + dx;
+        if ((dx === 0 && dy === 0) || nx < 0 || nx >= width) continue;
+        const n = ny * width + nx;
+        if (smooth[n] > level + LIFT_PLATEAU_TOLERANCE) {
+          isPeak = false;
+        } else if (seen[n] === 0 && smooth[n] >= level - LIFT_PLATEAU_TOLERANCE) {
+          seen[n] = 1;
+          stack.push(n);
+        }
+      }
+    }
+  }
+  return isPeak ? Math.round(sumY / count) * width + Math.round(sumX / count) : null;
+}
+
+/** Marks the disc of an accepted star's core so later candidates inside it are skipped. */
+function claimCore(
+  claimed: Uint8Array,
+  width: number,
+  height: number,
+  cx: number,
+  cy: number,
+  radius: number,
+): void {
+  for (let dy = -radius; dy <= radius; dy++) {
+    const y = cy + dy;
+    if (y < 0 || y >= height) continue;
+    for (let dx = -radius; dx <= radius; dx++) {
+      const x = cx + dx;
+      if (x < 0 || x >= width || dx * dx + dy * dy > radius * radius) continue;
+      claimed[y * width + x] = 1;
+    }
+  }
 }
 
 /** Mean brightness on a ring around a point, or null when the whole ring is off the image. */

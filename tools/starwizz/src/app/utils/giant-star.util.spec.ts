@@ -29,7 +29,7 @@ describe('findGiantStars', () => {
 
   it('should not report a core that was already lifted as a star', () => {
     const pixels = makePhoto(W, H, [0.05, 0.05, 0.05], [{ x: 100, y: 80, amp: 6, sigma: 5 }]);
-    const lifted: LiftStar[] = [{ x: 100, y: 80, peak: 0.95, rHalf: 9, rHalo: 30, group: 0 }];
+    const lifted: LiftStar[] = [{ x: 100, y: 80, peak: 0.95, rHalf: 9, rHalo: 30 }];
     expect(findGiantStars(brightnessOf(pixels, W, H), pixels, W, H, lifted).length).toBe(0);
   });
 });

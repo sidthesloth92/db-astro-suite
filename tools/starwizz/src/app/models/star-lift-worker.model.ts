@@ -38,6 +38,14 @@ export interface StarLiftErrorResponse {
 /** Message posted back by the star-lift Web Worker. */
 export type StarLiftResponse = StarLiftResultResponse | StarLiftErrorResponse;
 
+/** What the worker posts back for one request: the response and the buffers to transfer with it. */
+export interface StarLiftAnswer {
+  /** The message to post. */
+  response: StarLiftResponse;
+  /** Buffers handed over to the receiver instead of being copied. */
+  transfer: Transferable[];
+}
+
 /** Factory producing the star-lift Web Worker, or `null` when workers are unavailable. */
 export type StarLiftWorkerFactory = () => Worker | null;
 

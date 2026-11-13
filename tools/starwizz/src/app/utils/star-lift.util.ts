@@ -25,7 +25,7 @@ export function liftStars(pixels: Uint8ClampedArray, width: number, height: numb
   );
   const giantStars = findGiantStars(lum, pixels, width, height, stars);
 
-  const { owner, groups } = buildOwnership(stars, width, height);
+  const { owner, groups, groupOf } = buildOwnership(stars, width, height);
   const starless = inpaintHoles(pixels, owner, width, height);
   const { atlas, atlasWidth, atlasHeight, patches } = packStarAtlas(
     pixels,
@@ -36,13 +36,13 @@ export function liftStars(pixels: Uint8ClampedArray, width: number, height: numb
   );
 
   const measured: number[] = [];
-  for (const star of stars) {
+  stars.forEach((star, index) => {
     const measurement = measureStar(star, pixels, width, height);
-    if (measurement === null || measurement.amp < MEASURE_MIN_AMP) continue;
+    if (measurement === null || measurement.amp < MEASURE_MIN_AMP) return;
     // Pixel centres sit at +0.5 in the continuous coordinates the scene uses.
-    measured.push(star.x + 0.5, star.y + 0.5, star.group, measurement.amp, measurement.hwhm);
+    measured.push(star.x + 0.5, star.y + 0.5, groupOf[index], measurement.amp, measurement.hwhm);
     measured.push(measurement.color[0], measurement.color[1], measurement.color[2]);
-  }
+  });
 
   const giants = new Float32Array(giantStars.length * GIANT_STRIDE);
   giantStars.forEach((giant, index) => {

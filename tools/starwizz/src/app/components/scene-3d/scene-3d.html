@@ -1,3 +1,4 @@
+<!-- `star-canvas` is the class the end-to-end tests mask in screenshots, for both renderers. -->
 <canvas
   #sceneCanvas
   class="star-canvas scene-canvas"
@@ -6,19 +7,20 @@
   (pointermove)="onPointerMove($event)"
   (pointerup)="onPointerUp()"
   (pointercancel)="onPointerUp()"
+  (lostpointercapture)="onPointerUp()"
 ></canvas>
 
 @if (scene3d.isAiming()) {
   <button
     type="button"
     class="aim-marker"
-    aria-label="Point the camera flies toward. Drag the preview or use the arrow keys to move it."
+    [attr.aria-label]="aimLabel()"
     [style.left.%]="aimLeft()"
     [style.top.%]="aimTop()"
     (keydown)="onAimKey($event)"
   ></button>
 }
 
-@if (scene3d.status() === 'error') {
-  <p class="scene-error" role="alert">{{ scene3d.errorMessage() }}</p>
+@if (scene3d.visibleError(); as message) {
+  <p class="scene-error" role="alert">{{ message }}</p>
 }

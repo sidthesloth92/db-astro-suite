@@ -5,7 +5,7 @@ import { measureStar } from './star-measure.util';
 
 const W = 120;
 const H = 120;
-const at = (peak: number, rHalf: number, rHalo: number): LiftStar => ({ x: 60, y: 60, peak, rHalf, rHalo, group: 0 });
+const at = (peak: number, rHalf: number, rHalo: number): LiftStar => ({ x: 60, y: 60, peak, rHalf, rHalo });
 
 describe('measureStar', () => {
   it('should report the star’s peak brightness above its surroundings', () => {

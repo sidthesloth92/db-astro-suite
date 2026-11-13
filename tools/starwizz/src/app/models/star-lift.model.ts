@@ -10,8 +10,6 @@ export interface LiftStar {
   rHalf: number;
   /** Radius (px) of the disc lifted off the photo: where the star's light meets the background. */
   rHalo: number;
-  /** Index of the patch (lifted cut-out) this star belongs to, or -1 before ownership is built. */
-  group: number;
 }
 
 /**
@@ -43,6 +41,8 @@ export interface StarOwnership {
   owner: Int32Array;
   /** The lifted cut-outs, indexed by patch index. */
   groups: StarGroup[];
+  /** Patch index of each input star, in the order the stars were given. */
+  groupOf: Int32Array;
 }
 
 /** One level of the hole-filling pyramid: a half-size copy of the level below. */

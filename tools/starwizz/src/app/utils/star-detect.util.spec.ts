@@ -63,8 +63,47 @@ describe('detectLiftStars', () => {
     expect(detectLiftStars(lum, W, H).length).toBe(0);
   });
 
-  it('should leave the patch index unassigned until ownership is built', () => {
-    const lum = brightnessOf(makePhoto(W, H, [0.05, 0.05, 0.05], [{ x: 120, y: 100, amp: 0.6, sigma: 2 }]), W, H);
-    expect(detectLiftStars(lum, W, H)[0].group).toBe(-1);
+  it('should find a star with a burnt-out core once, not once per saturated pixel', () => {
+    // amp above 1 clips into a flat white core several pixels across.
+    const lum = brightnessOf(makePhoto(W, H, [0.05, 0.05, 0.05], [{ x: 120, y: 100, amp: 1.8, sigma: 2.6 }]), W, H);
+    const stars = detectLiftStars(lum, W, H);
+    expect(stars.length).toBe(1);
+    expect(Math.abs(stars[0].x - 120)).toBeLessThanOrEqual(1);
+    expect(Math.abs(stars[0].y - 100)).toBeLessThanOrEqual(1);
+  });
+
+  it('should place a star with a wide burnt-out core at the middle of the core', () => {
+    for (const offset of [0, 0.5]) {
+      const photo = makePhoto(W, H, [0.05, 0.05, 0.05], [{ x: 120 + offset, y: 100 + offset, amp: 6, sigma: 6 }]);
+      const stars = detectLiftStars(brightnessOf(photo, W, H), W, H);
+      expect(stars.length).withContext(`offset ${offset}`).toBe(1);
+      expect(Math.abs(stars[0].x - 120)).withContext(`offset ${offset}`).toBeLessThanOrEqual(1);
+      expect(Math.abs(stars[0].y - 100)).withContext(`offset ${offset}`).toBeLessThanOrEqual(1);
+    }
+  });
+
+  it('should not take a level shoulder beside a brighter star for a star of its own', () => {
+    const pixels = makePhoto(W, H, [0.05, 0.05, 0.05]);
+    const fill = (x0: number, x1: number, y0: number, y1: number, value: number): void => {
+      for (let y = y0; y <= y1; y++) {
+        for (let x = x0; x <= x1; x++) pixels.set([value, value, value, 255], (y * W + x) * 4);
+      }
+    };
+    fill(118, 122, 98, 102, 230); // the star: a flat bright top
+    fill(123, 130, 99, 101, 150); // a level ledge running out of it, lower than the star
+
+    const stars = detectLiftStars(brightnessOf(pixels, W, H), W, H);
+    expect(stars.length).toBe(1);
+    expect(Math.abs(stars[0].x - 120)).toBeLessThanOrEqual(1);
+    expect(Math.abs(stars[0].y - 100)).toBeLessThanOrEqual(1);
+  });
+
+  it('should find a star whose two brightest pixels tie exactly once', () => {
+    const pixels = makePhoto(W, H, [0.05, 0.05, 0.05]);
+    for (const x of [120, 121]) pixels.set([200, 200, 200, 255], (100 * W + x) * 4);
+    for (const [x, y] of [[119, 100], [122, 100], [120, 99], [121, 99], [120, 101], [121, 101]]) {
+      pixels.set([110, 110, 110, 255], (y * W + x) * 4);
+    }
+    expect(detectLiftStars(brightnessOf(pixels, W, H), W, H).length).toBe(1);
   });
 });

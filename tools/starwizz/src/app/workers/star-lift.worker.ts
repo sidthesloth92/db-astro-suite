@@ -1,10 +1,10 @@
-import { StarLiftRequest, StarLiftResponse } from '../models/star-lift-worker.model';
-import { liftStars } from '../utils/star-lift.util';
+import { StarLiftResponse } from '../models/star-lift-worker.model';
+import { answerStarLiftRequest } from '../utils/star-lift-message.util';
 
 /**
- * Star-lift Web Worker: dispatch only. Validates the incoming {@link StarLiftRequest}, runs
- * the pure `liftStars` pipeline and posts a {@link StarLiftResponse} echoing the request's
- * generation id. The scene's buffers are transferred back, never copied.
+ * Star-lift Web Worker: dispatch only. Every incoming message goes to the pure
+ * `answerStarLiftRequest`, and whatever it returns is posted back with its buffers
+ * transferred, never copied. All logic lives in the utils so it can be tested without a worker.
  */
 
 // Justification for the cast: the app tsconfig compiles with the DOM lib (no `webworker` lib),
@@ -16,35 +16,8 @@ const workerScope = self as unknown as {
 };
 
 workerScope.addEventListener('message', (event: MessageEvent) => {
-  // Justification for the cast: `MessageEvent#data` is untyped; the shape is validated against
-  // the worker message protocol before any use.
-  const request = event.data as StarLiftRequest;
-  if (
-    !request ||
-    request.type !== 'lift' ||
-    !(request.pixels instanceof ArrayBuffer) ||
-    typeof request.width !== 'number' ||
-    typeof request.height !== 'number'
-  ) {
-    return;
-  }
-
-  try {
-    const scene = liftStars(new Uint8ClampedArray(request.pixels), request.width, request.height);
-    workerScope.postMessage({ type: 'result', generationId: request.generationId, scene }, [
-      scene.photo.buffer,
-      scene.starless.buffer,
-      scene.cloudDepth.buffer,
-      scene.atlas.buffer,
-      scene.patches.buffer,
-      scene.stars.buffer,
-      scene.giants.buffer,
-    ]);
-  } catch (error) {
-    workerScope.postMessage({
-      type: 'error',
-      generationId: request.generationId,
-      message: error instanceof Error ? error.message : String(error),
-    });
+  const answer = answerStarLiftRequest(event.data);
+  if (answer !== null) {
+    workerScope.postMessage(answer.response, answer.transfer);
   }
 });

@@ -7,7 +7,7 @@ import {
   ARRIVE_REACH_ZOOM,
   ARRIVE_RETURN_SECONDS,
   ARRIVE_SECONDS_PER_SPEED,
-  BACKWARD_BACKDROP_GAP,
+  STAR_BACKDROP_GAP,
   CLOUD_DEPTH_PER_UNIT,
   LATERAL_CAMERA_HEADING,
   LATERAL_FORWARD_SHARE,
@@ -91,7 +91,7 @@ export function planTravel(settings: Scene3dSettings, view: FrameView, farDepth:
 
     case 'backward': {
       // Start close and pull back to the resting view; the stars must fit in front of the camera.
-      const back = Math.max(0.05, Math.min(reach, 1 - farDepth - BACKWARD_BACKDROP_GAP));
+      const back = Math.max(0.05, Math.min(reach, 1 - farDepth - STAR_BACKDROP_GAP));
       return { start: { x: 0, y: 0, z: -back }, end: origin, duration: back / rate };
     }
 
@@ -103,11 +103,14 @@ export function planTravel(settings: Scene3dSettings, view: FrameView, farDepth:
       const margin = Math.max(0, (horizontal ? view.imageAspect / 2 : 0.5) - tan);
       const forward = LATERAL_FORWARD_SHARE * rate;
       // Sideways speed that slides the backdrop by `rate` frame-widths (or heights) per second.
-      const sideways = rate * 2 * tan;
+      const wanted = rate * 2 * tan;
       // The leading frame edge closes on the photo's edge at (sideways - tan * forward).
-      const closing = sideways - tan * forward;
-      const untilEdge = closing > 1e-9 ? (2 * margin) / closing : Infinity;
+      const untilEdge = wanted - tan * forward > 1e-9 ? (2 * margin) / (wanted - tan * forward) : Infinity;
       const duration = Math.max(TRAVEL_MIN_SECONDS, Math.min(untilEdge, reach / forward));
+      // If the photo has too little room for even the shortest shot, slide more slowly so the
+      // frame still stops at the photo's edge instead of running past it.
+      const sideways = Math.min(wanted, (2 * margin) / duration + tan * forward);
+      const closing = sideways - tan * forward;
       const sign = horizontal ? heading.x : heading.y;
       // Start far enough to one side that the frame's leading edge meets the photo's edge at
       // the end of the shot, and no further, so short shots stay centred.

@@ -45,6 +45,22 @@
   visibility: hidden;
 }
 
+/* Shown if the 3D scene's code cannot be loaded (offline, say). */
+.scene-load-error {
+  position: absolute;
+  inset: auto 16px 16px 16px;
+  z-index: 15;
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--db-color-border);
+  border-radius: 8px;
+  background: var(--db-color-surface-hi);
+  color: var(--db-color-text-primary);
+  font-family: var(--db-font-ui);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
 /* Custom Path mode: the preview is draggable to pan / scrollable to zoom. */
 .star-canvas.path-mode {
   cursor: grab;

@@ -9,16 +9,15 @@ const star = (x: number, y: number, peak: number, rHalo: number): LiftStar => ({
   peak,
   rHalf: 2,
   rHalo,
-  group: -1,
 });
 
 describe('buildOwnership', () => {
   it('should give each separate star its own cut-out covering its disc', () => {
     const stars = [star(25, 40, 0.9, 6), star(70, 40, 0.5, 4)];
-    const { owner, groups } = buildOwnership(stars, W, H);
+    const { owner, groups, groupOf } = buildOwnership(stars, W, H);
 
     expect(groups.length).toBe(2);
-    expect(stars.map((s) => s.group)).toEqual([0, 1]);
+    expect(Array.from(groupOf)).toEqual([0, 1]);
     expect(owner[40 * W + 25]).toBe(0);
     expect(owner[40 * W + 31]).toBe(0);
     expect(owner[40 * W + 33]).toBe(-1);
@@ -28,10 +27,10 @@ describe('buildOwnership', () => {
 
   it('should absorb a faint star whose centre lies inside a brighter star’s disc', () => {
     const stars = [star(40, 40, 0.9, 10), star(46, 40, 0.3, 5)];
-    const { owner, groups } = buildOwnership(stars, W, H);
+    const { owner, groups, groupOf } = buildOwnership(stars, W, H);
 
     expect(groups.length).toBe(1);
-    expect(stars[1].group).toBe(0);
+    expect(Array.from(groupOf)).toEqual([0, 0]);
     // The companion extends the same cut-out past the bright star's own disc.
     expect(owner[40 * W + 51]).toBe(0);
     expect(groups[0].x1).toBe(51);
@@ -42,6 +41,13 @@ describe('buildOwnership', () => {
     const { owner } = buildOwnership(stars, W, H);
     expect(owner[40 * W + 46]).toBe(0);
     expect(owner[40 * W + 50]).toBe(1);
+  });
+
+  it('should leave the stars it was given unchanged', () => {
+    const stars = [star(40, 40, 0.9, 10), star(46, 40, 0.3, 5)];
+    const before = JSON.stringify(stars);
+    buildOwnership(stars, W, H);
+    expect(JSON.stringify(stars)).toBe(before);
   });
 
   it('should clip discs at the image edge', () => {

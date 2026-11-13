@@ -42,13 +42,24 @@ export class ParallaxRenderer {
   private starArray: WebGLVertexArrayObject | null = null;
   private dynamicBuffer: WebGLBuffer | null = null;
   private staticBuffer: WebGLBuffer | null = null;
+  private cornerBuffer: WebGLBuffer | null = null;
+  private gridBuffer: WebGLBuffer | null = null;
+  private gridIndexBuffer: WebGLBuffer | null = null;
   private textures: WebGLTexture[] = [];
   private gridIndexCount = 0;
   private scene: LiftedScene | null = null;
   private stars: StarVolume | null = null;
   private readonly uniforms = new Map<string, WebGLUniformLocation | null>();
   private readonly onLost = (event: Event): void => event.preventDefault();
-  private readonly onRestored = (): void => this.rebuild();
+  private readonly onRestored = (): void => {
+    try {
+      this.rebuild();
+    } catch (error) {
+      // The restored context could not be set up again: tell the owner instead of leaving
+      // a black canvas that still looks ready.
+      this.onFailure(error);
+    }
+  };
 
   /** True when this browser can create a WebGL2 context at all. */
   static isSupported(): boolean {
@@ -57,17 +68,23 @@ export class ParallaxRenderer {
 
   /**
    * @param canvas - Canvas to draw into; its backing-store size is the output size
+   * @param onFailure - Called if the scene cannot be rebuilt after the browser restores a
+   *   lost graphics context
    * @throws ParallaxRendererError when WebGL2 is unavailable or a shader does not build
    */
-  constructor(private readonly canvas: HTMLCanvasElement) {
+  constructor(
+    private readonly canvas: HTMLCanvasElement,
+    private readonly onFailure: (error: unknown) => void = () => undefined,
+  ) {
     const gl = canvas.getContext('webgl2', { alpha: false, antialias: true });
     if (gl === null) {
       throw new ParallaxRendererError('This browser does not support WebGL2.');
     }
     this.gl = gl;
+    this.buildPrograms();
+    // Only once setup has succeeded: a failed constructor must leave nothing attached.
     canvas.addEventListener('webglcontextlost', this.onLost);
     canvas.addEventListener('webglcontextrestored', this.onRestored);
-    this.buildPrograms();
   }
 
   /** Uploads a lifted scene: backdrop textures, depth map, star atlas and the backdrop grid. */
@@ -169,15 +186,29 @@ export class ParallaxRenderer {
     gl.deleteProgram(this.starProgram);
     gl.deleteVertexArray(this.backdropArray);
     gl.deleteVertexArray(this.starArray);
-    gl.deleteBuffer(this.dynamicBuffer);
-    gl.deleteBuffer(this.staticBuffer);
+    for (const buffer of [
+      this.dynamicBuffer,
+      this.staticBuffer,
+      this.cornerBuffer,
+      this.gridBuffer,
+      this.gridIndexBuffer,
+    ]) {
+      gl.deleteBuffer(buffer);
+    }
     this.scene = null;
     this.stars = null;
+    // Give the context back now: browsers cap how many can be alive, and switching between
+    // 2D and 3D makes a new one each time.
+    gl.getExtension('WEBGL_lose_context')?.loseContext();
   }
 
   /** After the browser restores a lost context, every resource has to be created again. */
   private rebuild(): void {
     this.textures = [];
+    this.cornerBuffer = null;
+    this.gridBuffer = null;
+    this.gridIndexBuffer = null;
+    this.backdropArray = null;
     this.uniforms.clear();
     this.buildPrograms();
     if (this.scene !== null) this.setScene(this.scene);
@@ -207,8 +238,8 @@ export class ParallaxRenderer {
     this.starArray = gl.createVertexArray();
     gl.bindVertexArray(this.starArray);
 
-    const corners = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, corners);
+    this.cornerBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.cornerBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
     const corner = gl.getAttribLocation(program, 'aCorner');
     gl.enableVertexAttribArray(corner);
@@ -266,14 +297,18 @@ export class ParallaxRenderer {
     this.gridIndexCount = indices.length;
 
     gl.deleteVertexArray(this.backdropArray);
+    gl.deleteBuffer(this.gridBuffer);
+    gl.deleteBuffer(this.gridIndexBuffer);
     this.backdropArray = gl.createVertexArray();
+    this.gridBuffer = gl.createBuffer();
+    this.gridIndexBuffer = gl.createBuffer();
     gl.bindVertexArray(this.backdropArray);
-    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.gridBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, uvs, gl.STATIC_DRAW);
     const uv = gl.getAttribLocation(program, 'aUv');
     gl.enableVertexAttribArray(uv);
     gl.vertexAttribPointer(uv, 2, gl.FLOAT, false, 0, 0);
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gl.createBuffer());
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.gridIndexBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
     gl.bindVertexArray(null);
   }
@@ -311,6 +346,8 @@ export class ParallaxRenderer {
         throw new ParallaxRendererError(`Shader failed to compile: ${gl.getShaderInfoLog(shader) ?? ''}`);
       }
       gl.attachShader(program, shader);
+      // Flagged for deletion now; the driver frees it once the program no longer needs it.
+      gl.deleteShader(shader);
     }
     gl.linkProgram(program);
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {

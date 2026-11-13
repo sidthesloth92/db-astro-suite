@@ -13,6 +13,8 @@ import {
 } from '@angular/core';
 import {
   AIM_KEY_STEP,
+  AIM_KEY_STEP_LARGE,
+  AIM_LIMIT,
   MAX_FRAME_SECONDS,
   SCENE3D_ERROR_UNSUPPORTED,
   SCENE_SEED,
@@ -20,6 +22,7 @@ import {
 import { LiftedScene } from '../../models/lifted-scene.model';
 import { ParallaxRenderer } from '../../models/parallax-renderer.model';
 import { FrameView, ScenePose } from '../../models/scene-pose.model';
+import { AimPoint } from '../../models/scene3d-settings.model';
 import { StarVolume } from '../../models/star-volume.model';
 import { Scene3dService } from '../../services/scene3d.service';
 import { SimulationService } from '../../services/simulation.service';
@@ -66,11 +69,30 @@ export class Scene3d implements AfterViewInit {
   /** @private Cleanup hook for the frame loop and the renderer. */
   private readonly destroyRef = inject(DestroyRef);
 
+  /**
+   * Where the aim marker is while the user drags it. The stars are only rebuilt when the drag
+   * ends, so the marker follows the pointer without restarting the shot on every move.
+   */
+  private readonly draftAim = signal<AimPoint | null>(null);
+
+  /** The aim point to show: the one being dragged, or the committed one. */
+  private readonly shownAim = computed(() => this.draftAim() ?? this.scene3d.aim());
+
   /** Left position of the aim marker, in percent of the preview. */
-  protected readonly aimLeft = computed(() => (this.scene3d.aim().x + 0.5) * 100);
+  protected readonly aimLeft = computed(() => (this.shownAim().x + 0.5) * 100);
 
   /** Top position of the aim marker, in percent of the preview. */
-  protected readonly aimTop = computed(() => (this.scene3d.aim().y + 0.5) * 100);
+  protected readonly aimTop = computed(() => (this.shownAim().y + 0.5) * 100);
+
+  /** Spoken description of the aim marker, including where it currently sits. */
+  protected readonly aimLabel = computed(() => {
+    const { x, y } = this.shownAim();
+    const across = Math.round(Math.abs(x) * 100);
+    const down = Math.round(Math.abs(y) * 100);
+    const horizontal = across === 0 ? 'centred left to right' : `${across} percent ${x > 0 ? 'right' : 'left'} of centre`;
+    const vertical = down === 0 ? 'centred top to bottom' : `${down} percent ${y > 0 ? 'below' : 'above'} centre`;
+    return `Point the camera flies toward: ${horizontal}, ${vertical}. Drag the preview or use the arrow keys to move it. Hold Shift for bigger steps.`;
+  });
 
   /**
    * The settings that shape the star volume. A change to any of them rebuilds the stars and
@@ -78,10 +100,21 @@ export class Scene3d implements AfterViewInit {
    */
   private readonly structure = computed(() => {
     const s = this.scene3d.settings();
-    const aim = s.direction === 'custom' ? `${s.aim.x},${s.aim.y}` : '';
-    const depth = s.style === 'travel' ? s.starDepth : 0;
-    const spikes = s.starStyle === 'sharp' ? s.spikes : 0;
-    return [s.style, s.direction, aim, s.starStyle, s.starAmount, depth, spikes, s.zoomIn].join('|');
+    const travel = s.style === 'travel';
+    const sharp = s.starStyle === 'sharp';
+    // Only settings that matter to the current style take part, so toggling one that has no
+    // effect right now does not restart the shot.
+    return [
+      s.style,
+      travel ? s.direction : '',
+      travel && s.direction === 'custom' ? `${s.aim.x},${s.aim.y}` : '',
+      s.starStyle,
+      s.starAmount,
+      travel ? s.starDepth : 0,
+      sharp ? s.spikes : 0,
+      travel ? '' : s.zoomIn,
+      !travel && sharp ? s.starsReturn : '',
+    ].join('|');
   });
 
   /** True once the canvas exists and the renderer has been created. */
@@ -116,6 +149,8 @@ export class Scene3d implements AfterViewInit {
   private readonly _prepareEffect = effect(() => {
     const image = this.simService.galaxyImage();
     const loaded = this.simService.isImageLoaded();
+    // Without a working renderer there is nothing to show the scene on, so nothing is lifted.
+    if (!this.viewReady()) return;
     untracked(() => {
       if (image !== null && loaded) {
         void this.scene3d.prepare(image);
@@ -166,15 +201,20 @@ export class Scene3d implements AfterViewInit {
     }
   });
 
+  /** Creates the renderer and starts the frame loop, or reports that 3D cannot be drawn here. */
   ngAfterViewInit(): void {
     const canvas = this.canvasRef().nativeElement;
     try {
-      this.renderer = new ParallaxRenderer(canvas);
+      this.renderer = new ParallaxRenderer(canvas, (error) => {
+        console.error('The 3D scene could not be restored:', error);
+        this.scene3d.reportRendererError(SCENE3D_ERROR_UNSUPPORTED);
+      });
     } catch (error) {
       console.error('The 3D scene could not start:', error);
-      this.scene3d.reportError(SCENE3D_ERROR_UNSUPPORTED);
+      this.scene3d.reportRendererError(SCENE3D_ERROR_UNSUPPORTED);
       return;
     }
+    this.scene3d.clearRendererError();
     this.viewReady.set(true);
     this.frameId = requestAnimationFrame(this.animate);
     this.destroyRef.onDestroy(() => {
@@ -192,23 +232,32 @@ export class Scene3d implements AfterViewInit {
     this.aimAt(event);
   }
 
-  /** Pointer move: keep the aim point under the pointer while dragging. */
+  /** Pointer move: keep the aim marker under the pointer while dragging. */
   protected onPointerMove(event: PointerEvent): void {
     if (this.isDraggingAim) this.aimAt(event);
   }
 
-  /** Pointer up, cancel or leave: stop moving the aim point. */
+  /**
+   * Pointer up or cancel, or the pointer capture was lost: the drag is over, so the new aim
+   * point is applied and the shot restarts toward it.
+   */
   protected onPointerUp(): void {
     this.isDraggingAim = false;
+    const aim = this.draftAim();
+    if (aim !== null) {
+      this.draftAim.set(null);
+      this.scene3d.setAim(aim);
+    }
   }
 
-  /** Arrow keys on the aim marker nudge the aim point, for keyboard users. */
+  /** Arrow keys on the aim marker nudge the aim point, for keyboard users; Shift moves further. */
   protected onAimKey(event: KeyboardEvent): void {
+    const amount = event.shiftKey ? AIM_KEY_STEP_LARGE : AIM_KEY_STEP;
     const step: Record<string, [number, number]> = {
-      ArrowLeft: [-AIM_KEY_STEP, 0],
-      ArrowRight: [AIM_KEY_STEP, 0],
-      ArrowUp: [0, -AIM_KEY_STEP],
-      ArrowDown: [0, AIM_KEY_STEP],
+      ArrowLeft: [-amount, 0],
+      ArrowRight: [amount, 0],
+      ArrowUp: [0, -amount],
+      ArrowDown: [0, amount],
     };
     const move = step[event.key];
     if (move === undefined) return;
@@ -217,13 +266,14 @@ export class Scene3d implements AfterViewInit {
     this.scene3d.setAim({ x: aim.x + move[0], y: aim.y + move[1] });
   }
 
-  /** Sets the aim point from a pointer position over the preview. */
+  /** Moves the aim marker to a pointer position over the preview, kept inside the frame. */
   private aimAt(event: PointerEvent): void {
     const rect = this.canvasRef().nativeElement.getBoundingClientRect();
     if (rect.width === 0 || rect.height === 0) return;
-    this.scene3d.setAim({
-      x: (event.clientX - rect.left) / rect.width - 0.5,
-      y: (event.clientY - rect.top) / rect.height - 0.5,
+    const clamp = (value: number): number => Math.min(AIM_LIMIT, Math.max(-AIM_LIMIT, value));
+    this.draftAim.set({
+      x: clamp((event.clientX - rect.left) / rect.width - 0.5),
+      y: clamp((event.clientY - rect.top) / rect.height - 0.5),
     });
   }
 
@@ -254,6 +304,7 @@ export class Scene3d implements AfterViewInit {
       far,
       start: plan?.start ?? { x: 0, y: 0, z: 0 },
       velocity: plan !== null ? travelVelocity(plan) : { x: 0, y: 0, z: -1 },
+      returnStars: arrive && settings.starsReturn,
       seed: SCENE_SEED,
     });
     if (this.uploadedScene !== scene) {
@@ -320,6 +371,9 @@ export class Scene3d implements AfterViewInit {
       twinkle: settings.twinkle,
       frameHeightPx: this.canvasRef().nativeElement.height,
     });
-    renderer.render({ pose, view, relief });
+    // When the volume draws the returning stars itself (Sharp style), the backdrop stays
+    // starless instead of cross-fading to the photo's soft stars.
+    const backdropPose = volume.drawsReturningStars ? { ...pose, photoMix: 0 } : pose;
+    renderer.render({ pose: backdropPose, view, relief });
   }
 }

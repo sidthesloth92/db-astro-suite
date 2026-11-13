@@ -83,6 +83,14 @@ export class StarLiftService implements OnDestroy {
     });
   }
 
+  /**
+   * Abandons the run in flight, if any: its worker is stopped and its promise rejects with
+   * {@link StarLiftSupersededError}. For when the photo is cleared mid-lift.
+   */
+  cancel(): void {
+    this.supersedePending();
+  }
+
   /** Terminates the worker and rejects any in-flight run on teardown. */
   ngOnDestroy(): void {
     this.supersedePending();

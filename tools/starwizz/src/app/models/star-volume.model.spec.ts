@@ -27,6 +27,7 @@ const config = (patch: Partial<StarVolumeConfig> = {}): StarVolumeConfig => ({
   far: FAR,
   start: { x: 0, y: 0, z: 0 },
   velocity: { x: 0, y: 0, z: -0.02 },
+  returnStars: false,
   seed: 11,
   ...patch,
 });
@@ -122,20 +123,49 @@ describe('StarVolume', () => {
       const depth = -0.8 - volume.dynamicData[i * STAR_DYNAMIC_STRIDE + 2];
       expect(depth).toBeGreaterThan(0);
       expect(depth).toBeLessThanOrEqual(FAR + 1e-6);
+      expect(volume.dynamicData[i * STAR_DYNAMIC_STRIDE + 2]).toBeGreaterThan(-1);
       if (volume.dynamicData[i * STAR_DYNAMIC_STRIDE + 5] > 0) visible++;
     }
     expect(visible).toBeGreaterThan(volume.count * 0.8);
   });
 
+  it('should never recycle a star to behind the backdrop, however close the camera gets', () => {
+    const volume = new StarVolume(scene, config({ starAmount: 3 }));
+    // Fly to within a quarter of the backdrop distance: further than the star volume is deep.
+    for (let t = 0; t <= 37.5; t += 0.5) {
+      volume.step(frame({ pose: pose({ position: { x: 0, y: 0, z: -0.02 * t } }), seconds: t }));
+    }
+    for (let i = 0; i < volume.count; i++) {
+      expect(volume.dynamicData[i * STAR_DYNAMIC_STRIDE + 2]).toBeGreaterThan(-1);
+    }
+  });
+
+  it('should replay a shot identically after a reset', () => {
+    const volume = new StarVolume(scene, config({ starAmount: 3 }));
+    const run = (): number[] => {
+      for (let t = 0; t <= 30; t += 0.5) {
+        volume.step(frame({ pose: pose({ position: { x: 0, y: 0, z: -0.02 * t } }), seconds: t }));
+      }
+      return Array.from(volume.dynamicData);
+    };
+    const first = run();
+    volume.reset();
+    const second = run();
+    volume.reset();
+    expect(second).toEqual(first);
+    expect(run()).toEqual(first);
+  });
+
   it('should fade in a star that re-enters inside the frame instead of popping', () => {
-    const volume = new StarVolume(scene, config());
+    const volume = new StarVolume(scene, config({ far: 0.3 }));
     volume.step(frame());
-    // Jump far ahead in one step: every star is behind the camera and re-enters at the far cap.
-    volume.step(frame({ pose: pose({ position: { x: 0, y: 0, z: -5 } }), seconds: 10 }));
+    // Jump past the whole volume in one step (still short of the backdrop): every star is
+    // behind the camera and re-enters at the far cap.
+    volume.step(frame({ pose: pose({ position: { x: 0, y: 0, z: -0.4 } }), seconds: 10 }));
     for (let i = 0; i < volume.count; i++) {
       expect(volume.dynamicData[i * STAR_DYNAMIC_STRIDE + 5]).toBe(0);
     }
-    volume.step(frame({ pose: pose({ position: { x: 0, y: 0, z: -5 } }), seconds: 12 }));
+    volume.step(frame({ pose: pose({ position: { x: 0, y: 0, z: -0.4 } }), seconds: 12 }));
     expect(volume.dynamicData[5]).toBe(1);
   });
 
@@ -207,6 +237,43 @@ describe('StarVolume', () => {
       const sharpAlpha = volume.dynamicData[5];
       volume.step(frame({ frameHeightPx: 40 })); // a tiny output makes every star sub-pixel
       expect(volume.dynamicData[5]).toBeLessThan(sharpAlpha);
+    });
+
+    it('should bring sharp stars back at the end of Arrive, pinned where the photo has them', () => {
+      const moving = new StarVolume(scene, config({ style: 'arrive', starStyle: 'sharp', spikes: 0 }));
+      const volume = new StarVolume(
+        scene,
+        config({ style: 'arrive', starStyle: 'sharp', spikes: 0, returnStars: true }),
+      );
+      expect(moving.drawsReturningStars).toBeFalse();
+      expect(volume.drawsReturningStars).toBeTrue();
+      expect(volume.count).toBe(moving.count + STARS.length);
+
+      // While flying they are hidden.
+      volume.step(frame({ pose: pose({ photoMix: 0 }) }));
+      const returning = Array.from({ length: STARS.length }, (_, k) => (moving.count + k) * STAR_DYNAMIC_STRIDE);
+      for (const o of returning) expect(volume.dynamicData[o + 5]).toBe(0);
+
+      // Once the camera has settled they fade in, on the backdrop, at the photo's positions.
+      volume.step(frame({ pose: pose({ photoMix: 1, starFade: 0 }) }));
+      for (const o of returning) {
+        expect(volume.dynamicData[o + 5]).toBeGreaterThan(0);
+        expect(volume.dynamicData[o + 2]).toBeCloseTo(-1, 2);
+      }
+      const seen = returning.map((o) => ({ x: -volume.dynamicData[o] / volume.dynamicData[o + 2], y: -volume.dynamicData[o + 1] / volume.dynamicData[o + 2] }));
+      for (const star of STARS) {
+        const expected = { x: ((star.x + 0.5) / W - 0.5) * (W / H), y: 0.5 - (star.y + 0.5) / H };
+        expect(seen.some((s) => Math.abs(s.x - expected.x) < 0.004 && Math.abs(s.y - expected.y) < 0.004))
+          .withContext(`star at ${star.x},${star.y}`)
+          .toBeTrue();
+      }
+    });
+
+    it('should leave the returning stars to the backdrop in the Original style and in Travel', () => {
+      expect(new StarVolume(scene, config({ style: 'arrive', returnStars: true })).drawsReturningStars).toBeFalse();
+      expect(
+        new StarVolume(scene, config({ style: 'travel', starStyle: 'sharp', returnStars: true })).drawsReturningStars,
+      ).toBeFalse();
     });
 
     it('should anchor a giant star’s spike to the backdrop and let it ride the cloud depth', () => {

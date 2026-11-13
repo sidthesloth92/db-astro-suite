@@ -3,6 +3,7 @@ import {
   AIM_LIMIT,
   SCENE3D_CONTROLS,
   SCENE3D_ERROR_PREPARE,
+  SCENE3D_ERROR_UNSUPPORTED,
 } from '../constants/scene3d.constant';
 import { LiftedScene } from '../models/lifted-scene.model';
 import { StarLiftError, StarLiftSupersededError } from '../models/star-lift.error';
@@ -43,11 +44,13 @@ const SCENE: LiftedScene = {
 describe('Scene3dService', () => {
   let service: Scene3dService;
   let lift: jasmine.Spy<StarLiftService['lift']>;
+  let cancel: jasmine.Spy<StarLiftService['cancel']>;
 
   beforeEach(() => {
     lift = jasmine.createSpy('lift');
+    cancel = jasmine.createSpy('cancel');
     TestBed.configureTestingModule({
-      providers: [{ provide: StarLiftService, useValue: { lift } }],
+      providers: [{ provide: StarLiftService, useValue: { lift, cancel } }],
     });
     service = TestBed.inject(Scene3dService);
     spyOn(console, 'error');
@@ -60,6 +63,7 @@ describe('Scene3dService', () => {
 
       const done = service.prepare(await loadImage());
       expect(service.status()).toBe('lifting');
+      expect(service.isLifting()).toBeTrue();
       expect(service.isReady()).toBeFalse();
 
       finish(SCENE);
@@ -83,7 +87,21 @@ describe('Scene3dService', () => {
 
       expect(service.status()).toBe('error');
       expect(service.errorMessage()).toBe(SCENE3D_ERROR_PREPARE);
+      expect(service.visibleError()).toBe(SCENE3D_ERROR_PREPARE);
       expect(service.scene()).toBeNull();
+    });
+
+    it('should show an error instead of throwing when the photo cannot be read', async () => {
+      // A broken image has no pixels to copy: the browser throws when it is drawn.
+      const broken = new Image();
+      await new Promise<void>((resolve) => {
+        broken.onerror = () => resolve();
+        broken.src = 'data:image/png;base64,AAAA';
+      });
+      await expectAsync(service.prepare(broken)).toBeResolved();
+      expect(service.status()).toBe('error');
+      expect(service.visibleError()).toBe(SCENE3D_ERROR_PREPARE);
+      expect(lift).not.toHaveBeenCalled();
     });
 
     it('should let the user retry the same photo after a failure', async () => {
@@ -114,6 +132,42 @@ describe('Scene3dService', () => {
       service.clearScene();
       expect(service.status()).toBe('idle');
       expect(service.scene()).toBeNull();
+    });
+
+    it('should abandon a lift in flight when the photo is cleared', async () => {
+      lift.and.returnValue(new Promise<LiftedScene>(() => undefined));
+      void service.prepare(await loadImage());
+      service.clearScene();
+      expect(cancel).toHaveBeenCalledTimes(1);
+      expect(service.status()).toBe('idle');
+    });
+  });
+
+  describe('when the scene cannot be drawn', () => {
+    it('should keep telling the user even after a photo is lifted successfully', async () => {
+      service.reportRendererError(SCENE3D_ERROR_UNSUPPORTED);
+      lift.and.resolveTo(SCENE);
+      await service.prepare(await loadImage());
+
+      expect(service.visibleError()).toBe(SCENE3D_ERROR_UNSUPPORTED);
+      expect(service.isReady()).toBeFalse();
+      expect(service.isAiming()).toBeFalse();
+    });
+
+    it('should not show the lifting overlay over the error', async () => {
+      service.reportRendererError(SCENE3D_ERROR_UNSUPPORTED);
+      lift.and.returnValue(new Promise<LiftedScene>(() => undefined));
+      void service.prepare(await loadImage());
+      expect(service.isLifting()).toBeFalse();
+    });
+
+    it('should recover once a renderer starts', async () => {
+      lift.and.resolveTo(SCENE);
+      await service.prepare(await loadImage());
+      service.reportRendererError(SCENE3D_ERROR_UNSUPPORTED);
+      service.clearRendererError();
+      expect(service.visibleError()).toBeNull();
+      expect(service.isReady()).toBeTrue();
     });
   });
 

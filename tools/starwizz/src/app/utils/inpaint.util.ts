@@ -2,7 +2,7 @@ import { PyramidLevel } from '../models/star-lift.model';
 
 /**
  * Fills the holes left by lifted stars using push-pull interpolation: the image is repeatedly
- * halved, averaging only known pixels, until every hole has a value; the values are then pulled
+ * halved, averaging only known pixels, down to a few pixels across; the values are then pulled
  * back down, each level filling its holes from the level above. Small holes get nearby colour,
  * large holes a smooth blend, and known pixels are never changed.
  *
@@ -26,6 +26,10 @@ export function inpaintHoles(
   while (levels[levels.length - 1].width > 2 && levels[levels.length - 1].height > 2) {
     levels.push(halve(levels[levels.length - 1]));
   }
+
+  // The smallest level must be complete before anything is pulled from it. A hole that survives
+  // every halving (most of the image missing) takes the average of what is known up there.
+  completeLevel(levels[levels.length - 1]);
 
   // Pull: fill each level's holes from the (already complete) level above it.
   for (let l = levels.length - 2; l >= 0; l--) {
@@ -56,6 +60,26 @@ export function inpaintHoles(
     }
   }
   return out;
+}
+
+/** Fills any cell of a level that is still unknown with the average of its known cells. */
+function completeLevel(level: PyramidLevel): void {
+  let known = 0;
+  const mean = [0, 0, 0];
+  for (let i = 0; i < level.valid.length; i++) {
+    if (level.valid[i] < 1) continue;
+    known++;
+    mean[0] += level.color[i * 3];
+    mean[1] += level.color[i * 3 + 1];
+    mean[2] += level.color[i * 3 + 2];
+  }
+  for (let i = 0; i < level.valid.length; i++) {
+    if (level.valid[i] >= 1) continue;
+    for (let c = 0; c < 3; c++) {
+      level.color[i * 3 + c] = known > 0 ? mean[c] / known : 0;
+    }
+    level.valid[i] = 1;
+  }
 }
 
 /** Half-size level averaged from the known pixels of the 8-bit photo. */

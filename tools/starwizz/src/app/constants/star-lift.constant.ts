@@ -22,6 +22,11 @@ export const LIFT_DETECT_FLOOR = 0.035;
 export const LIFT_MAX_RADIUS_RATIO = 0.045;
 /** Hard cap on lifted stars (brightest first). */
 export const LIFT_MAX_STARS = 6000;
+/**
+ * Brightness values closer than this count as equal when looking for the flat top of a
+ * burnt-out star. Far below one 8-bit step, so only rounding noise in the blur is absorbed.
+ */
+export const LIFT_PLATEAU_TOLERANCE = 1e-4;
 
 /** A star's disc ends where its light drops below this many noise sigmas... */
 export const LIFT_HALO_SIGMA = 1.2;

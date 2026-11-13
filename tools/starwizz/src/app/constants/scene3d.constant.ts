@@ -121,6 +121,21 @@ export const SCENE3D_LIFTING_MESSAGE = 'Lifting stars...';
 /** How far one arrow-key press moves the Custom aim marker, in frame fractions. */
 export const AIM_KEY_STEP = 0.02;
 
+/** Every 3D slider control, for resetting them together. */
+export const SCENE3D_CONTROL_KEYS: readonly Scene3dControlKey[] = [
+  'speed',
+  'cloudDepth',
+  'starAmount',
+  'starSize',
+  'starDepth',
+  'spikes',
+  'twinkle',
+];
+/** How far one Shift + arrow-key press moves the Custom aim marker, in frame fractions. */
+export const AIM_KEY_STEP_LARGE = 0.1;
+/** Shown when the 3D scene's code fails to load. */
+export const SCENE3D_ERROR_LOAD = '3D mode could not be loaded. Check your connection and try again.';
+
 /** Style on first load and after Reset Params. */
 export const DEFAULT_SCENE3D_STYLE: Scene3dStyle = 'travel';
 /** Direction on first load and after Reset Params. */
@@ -153,10 +168,10 @@ export const TRAVEL_MAX_ZOOM = 1.9;
 export const LATERAL_OVERSCAN = 1.3;
 /** Sideways presets also move forward at this share of the speed, which gives near stars life. */
 export const LATERAL_FORWARD_SHARE = 0.5;
-/** Shortest Travel shot (seconds), so a photo with no room to slide never strobes. */
+/** Shortest sideways shot (seconds); with less room than that the camera slides more slowly. */
 export const TRAVEL_MIN_SECONDS = 3;
-/** Backward travel keeps at least this gap between the star volume and the backdrop. */
-export const BACKWARD_BACKDROP_GAP = 0.03;
+/** Moving stars always stay at least this far in front of the backdrop. */
+export const STAR_BACKDROP_GAP = 0.03;
 
 /** Arrival time is this many seconds divided by the Speed value. */
 export const ARRIVE_SECONDS_PER_SPEED = 28;
@@ -239,5 +254,7 @@ export const SCENE_FAR = 20;
 export const STAR_DYNAMIC_STRIDE = 6;
 /** Floats per star that are fixed: atlas u0, v0, u1, v1, r, g, b, amp, spike, extent, kind. */
 export const STAR_STATIC_STRIDE = 11;
+/** Floats per star pinned to the backdrop: u, v, depth-map value, half-size, returns-with-photo. */
+export const PINNED_STRIDE = 5;
 /** Seed for the scene's random numbers, so a photo always produces the same star layout. */
 export const SCENE_SEED = 11;

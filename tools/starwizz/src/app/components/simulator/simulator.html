@@ -20,7 +20,7 @@
   }
 
   <!-- 3D: shown while the stars are being lifted off the photo -->
-  @if (simService.is3dMode() && scene3d.status() === 'lifting') {
+  @if (simService.is3dMode() && scene3d.isLifting()) {
     <dba-sw-loading-overlay [progress]="liftingMessage"></dba-sw-loading-overlay>
   }
 
@@ -33,6 +33,8 @@
   @if (simService.is3dMode()) {
     @defer (on immediate) {
       <dba-sw-scene-3d></dba-sw-scene-3d>
+    } @error {
+      <p class="scene-load-error" role="alert">{{ sceneLoadError }}</p>
     }
   }
 

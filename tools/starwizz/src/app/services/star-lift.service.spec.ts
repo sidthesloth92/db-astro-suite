@@ -148,6 +148,21 @@ describe('StarLiftService', () => {
     await expectAsync(second).toBeRejectedWithError(StarLiftError);
   });
 
+  it('should stop the worker and drop the run in flight when cancelled', async () => {
+    const service = configure(fakeFactory);
+    const result = service.lift(photo());
+    service.cancel();
+
+    await expectAsync(result).toBeRejectedWithError(StarLiftSupersededError);
+    expect(workers[0].terminated).toBeTrue();
+  });
+
+  it('should do nothing when cancelled with no run in flight', () => {
+    const service = configure(fakeFactory);
+    expect(() => service.cancel()).not.toThrow();
+    expect(workers.length).toBe(0);
+  });
+
   it('should stop the worker and reject the run in flight when destroyed', async () => {
     const service = configure(fakeFactory);
     const result = service.lift(photo());

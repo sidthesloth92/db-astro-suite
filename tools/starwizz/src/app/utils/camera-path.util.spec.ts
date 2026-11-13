@@ -138,6 +138,14 @@ describe('camera path util', () => {
       });
     }
 
+    it('should slide more slowly, not past the edge, when the photo has no room to spare', () => {
+      // No overscan and a photo the same shape as the frame: nothing to slide into.
+      const tight = frameView(9 / 16, 9 / 16, 1);
+      const plan = planTravel(settings({ direction: 'left' }), tight, 0.6);
+      expect(plan.duration).toBeGreaterThan(0);
+      expect(staysInsidePhoto(plan, tight)).toBeTrue();
+    });
+
     it('should use the spare width of a wide photo for a longer sideways shot', () => {
       const s = settings({ direction: 'left' });
       const narrow = planTravel(s, frameView(9 / 16, 9 / 16, overscanFor(s)), 0.6);

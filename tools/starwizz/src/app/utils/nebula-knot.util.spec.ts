@@ -4,7 +4,7 @@ import { isNebulaKnot } from './nebula-knot.util';
 
 const W = 120;
 const H = 120;
-const AT_CENTRE: LiftStar = { x: 60, y: 60, peak: 0.5, rHalf: 3, rHalo: 14, group: -1 };
+const AT_CENTRE: LiftStar = { x: 60, y: 60, peak: 0.5, rHalf: 3, rHalo: 14 };
 
 describe('isNebulaKnot', () => {
   it('should recognise a bright patch of the nebula’s own colour as a knot', () => {

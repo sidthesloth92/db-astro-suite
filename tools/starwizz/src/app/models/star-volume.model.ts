@@ -10,7 +10,9 @@ import {
   SPIKE_EXTENT_BASE,
   SPIKE_EXTENT_RANGE,
   SPIKE_FRACTION_PER_UNIT,
+  PINNED_STRIDE,
   SPIKE_MIN_STRENGTH,
+  STAR_BACKDROP_GAP,
   STAR_DYNAMIC_STRIDE,
   STAR_FADE_IN_SECONDS,
   STAR_STATIC_STRIDE,
@@ -50,6 +52,11 @@ export interface StarVolumeConfig {
   start: Vec3;
   /** Camera velocity, used to decide where recycled stars re-enter (Travel only). */
   velocity: Vec3;
+  /**
+   * Sharp style in Arrive: also keep a copy of every star pinned to the backdrop, to fade in
+   * when the photo's stars return, so the shot ends on sharp stars and not the photo's soft ones.
+   */
+  returnStars: boolean;
   /** Seed for depths, clones and twinkle phases. */
   seed: number;
 }
@@ -98,11 +105,14 @@ interface StarSeed {
  * the view volume re-enters upstream, and the space just outside the frame is filled from the
  * first frame so nothing arrives as a wave. In Arrive the cloud is finite: stars pass and are gone.
  *
+ * Besides the moving stars it can hold stars pinned to the backdrop: giant stars' spikes, and
+ * (Sharp style in Arrive) the copies that fade in when the photo's stars return.
+ *
  * Holds two flat buffers the renderer uploads as they are: a static one (looks) and a dynamic
  * one (position, size, opacity) rewritten by {@link step}.
  */
 export class StarVolume {
-  /** Number of star instances, including anchored giant-star spikes. */
+  /** Number of star instances, moving and pinned. */
   readonly count: number;
   /** `STAR_STATIC_STRIDE` floats per star; fixed for the life of the volume. */
   readonly staticData: Float32Array;
@@ -110,6 +120,11 @@ export class StarVolume {
   readonly dynamicData: Float32Array;
   /** True when stars are drawn with the Sharp profile instead of photo cut-outs. */
   readonly sharp: boolean;
+  /**
+   * True when this volume itself draws the stars that return at the end of Arrive. The backdrop
+   * must then stay starless instead of cross-fading to the photo.
+   */
+  readonly drawsReturningStars: boolean;
 
   private readonly movingCount: number;
   private readonly position: Float32Array;
@@ -118,11 +133,14 @@ export class StarVolume {
   private readonly inverseHomeGrowth: Float32Array;
   private readonly twinklePhase: Float32Array;
   private readonly born: Float32Array;
-  /** Giant stars: image-space u, v, depth-map value, angular half-size on the backdrop. */
-  private readonly giants: Float32Array;
+  /**
+   * Stars pinned to the backdrop, `PINNED_STRIDE` floats each: image-space u, v, depth-map
+   * value, half-size on the backdrop, and whether it fades in with the returning stars (1) or
+   * is always shown (0, a giant star's spike).
+   */
+  private readonly pinned: Float32Array;
   private readonly near: number;
-  private readonly flux: number[];
-  private readonly random: () => number;
+  private random: () => number;
 
   constructor(
     private readonly scene: LiftedScene,
@@ -131,12 +149,13 @@ export class StarVolume {
     this.random = seededRandom(config.seed);
     this.sharp = config.starStyle === 'sharp';
     this.near = config.style === 'arrive' ? ARRIVE_VOLUME_NEAR : VOLUME_NEAR;
-    this.flux = inflowFlux(config.velocity, config.view, this.near, config.far);
+    this.drawsReturningStars = this.sharp && config.style === 'arrive' && config.returnStars;
 
     const seeds = this.buildSeeds();
     const giantCount = this.sharp && config.spikes > 0 ? scene.giants.length / GIANT_STRIDE : 0;
+    const returningCount = this.drawsReturningStars ? scene.stars.length / STAR_STRIDE : 0;
     this.movingCount = seeds.length;
-    this.count = seeds.length + giantCount;
+    this.count = seeds.length + giantCount + returningCount;
 
     this.staticData = new Float32Array(this.count * STAR_STATIC_STRIDE);
     this.dynamicData = new Float32Array(this.count * STAR_DYNAMIC_STRIDE);
@@ -145,7 +164,7 @@ export class StarVolume {
     this.inverseHomeGrowth = new Float32Array(seeds.length);
     this.twinklePhase = new Float32Array(seeds.length);
     this.born = new Float32Array(seeds.length).fill(-Infinity);
-    this.giants = new Float32Array(giantCount * 4);
+    this.pinned = new Float32Array((giantCount + returningCount) * PINNED_STRIDE);
 
     seeds.forEach((seed, i) => {
       this.position.set([seed.x, seed.y, seed.z], i * 3);
@@ -159,12 +178,20 @@ export class StarVolume {
     });
     this.startPosition = new Float32Array(this.position);
     this.buildGiants(giantCount);
+    if (this.drawsReturningStars) this.buildReturningStars(giantCount);
+    // Recycling draws from its own sequence, restarted by reset(), so the first play and
+    // every replay are identical.
+    this.random = seededRandom(config.seed + 1);
   }
 
-  /** Puts every star back where the first frame has it, so the shot can replay. */
+  /**
+   * Puts every star back where the first frame has it and restarts the random sequence, so
+   * the shot replays exactly, loop after loop and take after take.
+   */
   reset(): void {
     this.position.set(this.startPosition);
     this.born.fill(-Infinity);
+    this.random = seededRandom(this.config.seed + 1);
   }
 
   /**
@@ -172,9 +199,16 @@ export class StarVolume {
    * star's position, size and opacity into {@link dynamicData}.
    */
   step(frame: StarVolumeFrame): void {
-    const { view, far, style } = this.config;
+    const { view, style } = this.config;
     const camera = frame.pose.position;
     const recycle = style === 'travel';
+    // The star volume ends in front of the backdrop: as the camera closes in, its far limit
+    // comes with it, so a recycled star never lands behind the nebula. It always keeps some
+    // depth, so the volume stays valid however close the camera is.
+    const far = recycle
+      ? Math.max(this.near * 2, Math.min(this.config.far, 1 + camera.z - STAR_BACKDROP_GAP))
+      : this.config.far;
+    const flux = recycle ? inflowFlux(this.config.velocity, view, this.near, far) : [];
     const twinkleAmplitude = twinkleAmplitudeForStrength(frame.twinkle);
     // Output px per unit of angular size, for the Sharp sub-pixel guard.
     const pxPerAngle = frame.frameHeightPx / (2 * view.tanY * frame.pose.tanScale);
@@ -187,7 +221,7 @@ export class StarVolume {
         const x = this.position[p] - camera.x;
         const y = this.position[p + 1] - camera.y;
         if (isOutsideVolume(x, y, depth, view, this.near, far)) {
-          const entry = sampleInflow(this.flux, view, this.near, far, this.random);
+          const entry = sampleInflow(flux, view, this.near, far, this.random);
           this.position[p] = camera.x + entry.x;
           this.position[p + 1] = camera.y + entry.y;
           this.position[p + 2] = camera.z - entry.depth;
@@ -207,7 +241,8 @@ export class StarVolume {
         continue;
       }
 
-      let scale = depthGrowth(depth, far) * this.inverseHomeGrowth[i] * frame.starSize;
+      let scale =
+        depthGrowth(depth, this.config.far) * this.inverseHomeGrowth[i] * frame.starSize;
       let dim = 1;
       if (this.sharp) {
         // Never draw a star narrower than a fraction of a pixel: widen it and dim it instead,
@@ -232,7 +267,7 @@ export class StarVolume {
       out[o + 5] = dim * fadeIn * nearFade * twinkle * frame.pose.starFade;
     }
 
-    this.stepGiants(frame.relief);
+    this.stepPinned(frame, pxPerAngle);
   }
 
   /** Lays out the moving stars: the photo's own, plus clones for density and for the margin. */
@@ -387,9 +422,9 @@ export class StarVolume {
         Math.min(scene.height - 1, Math.max(0, Math.round(y))) * scene.width +
         Math.min(scene.width - 1, Math.max(0, Math.round(x)));
       const width = Math.max(GIANT_SPIKE_MIN_WIDTH, scene.giants[o + 2] * GIANT_SPIKE_WIDTH_FACTOR);
-      this.giants.set(
-        [x / scene.width, y / scene.height, scene.cloudDepth[depthIndex] / 255, (width * GIANT_SPIKE_EXTENT) / scene.height],
-        g * 4,
+      this.pinned.set(
+        [x / scene.width, y / scene.height, scene.cloudDepth[depthIndex] / 255, (width * GIANT_SPIKE_EXTENT) / scene.height, 0],
+        g * PINNED_STRIDE,
       );
       this.staticData.set(
         [0, 0, 0, 0, scene.giants[o + 3], scene.giants[o + 4], scene.giants[o + 5], GIANT_SPIKE_AMP, 1, GIANT_SPIKE_EXTENT, 1],
@@ -398,21 +433,63 @@ export class StarVolume {
     }
   }
 
-  /** Giant-star spikes ride on the backdrop surface, so they follow the nebula relief. */
-  private stepGiants(relief: number): void {
+  /**
+   * A copy of every measured star, pinned to the backdrop where the photo has it. Hidden until
+   * the photo's stars return at the end of Arrive.
+   */
+  private buildReturningStars(offset: number): void {
+    const { scene } = this;
+    const starCount = scene.stars.length / STAR_STRIDE;
+    for (let s = 0; s < starCount; s++) {
+      const o = s * STAR_STRIDE;
+      const x = scene.stars[o];
+      const y = scene.stars[o + 1];
+      const depthIndex =
+        Math.min(scene.height - 1, Math.max(0, Math.floor(y))) * scene.width +
+        Math.min(scene.width - 1, Math.max(0, Math.floor(x)));
+      this.pinned.set(
+        [x / scene.width, y / scene.height, scene.cloudDepth[depthIndex] / 255, (scene.stars[o + 4] * SHARP_EXTENT) / scene.height, 1],
+        (offset + s) * PINNED_STRIDE,
+      );
+      this.staticData.set(
+        [0, 0, 0, 0, scene.stars[o + 5], scene.stars[o + 6], scene.stars[o + 7], scene.stars[o + 3], 0, SHARP_EXTENT, 0],
+        (this.movingCount + offset + s) * STAR_STATIC_STRIDE,
+      );
+    }
+  }
+
+  /**
+   * Places the pinned stars on the backdrop surface, so they follow the nebula relief. Giant
+   * stars' spikes are always shown; returning stars fade in with the photo.
+   */
+  private stepPinned(frame: StarVolumeFrame, pxPerAngle: number): void {
     const aspect = this.config.view.imageAspect;
-    for (let g = 0; g < this.giants.length / 4; g++) {
-      const u = this.giants[g * 4];
-      const v = this.giants[g * 4 + 1];
-      // Just in front of the surface so the spike is never hidden by it.
-      const surface = (1 - relief * this.giants[g * 4 + 2]) * 0.9995;
-      const o = (this.movingCount + g) * STAR_DYNAMIC_STRIDE;
-      this.dynamicData[o] = (u - 0.5) * aspect * surface;
-      this.dynamicData[o + 1] = (0.5 - v) * surface;
+    const camera = frame.pose.position;
+    for (let k = 0; k < this.pinned.length / PINNED_STRIDE; k++) {
+      const p = k * PINNED_STRIDE;
+      // Just in front of the surface so the star is never hidden by it.
+      const surface = (1 - frame.relief * this.pinned[p + 2]) * 0.9995;
+      const o = (this.movingCount + k) * STAR_DYNAMIC_STRIDE;
+      this.dynamicData[o] = (this.pinned[p] - 0.5) * aspect * surface;
+      this.dynamicData[o + 1] = (0.5 - this.pinned[p + 1]) * surface;
       this.dynamicData[o + 2] = -surface;
-      this.dynamicData[o + 3] = this.giants[g * 4 + 3] * surface;
-      this.dynamicData[o + 4] = this.giants[g * 4 + 3] * surface;
-      this.dynamicData[o + 5] = 1;
+
+      const returning = this.pinned[p + 4] === 1;
+      let half = this.pinned[p + 3] * surface * (returning ? frame.starSize : 1);
+      let alpha = returning ? frame.pose.photoMix : 1;
+      if (returning && alpha > 0) {
+        // Same sub-pixel guard as the moving stars: widen and dim instead of flaring.
+        const distance = Math.max(1e-6, surface + camera.z);
+        const widthPx = (half / SHARP_EXTENT / distance) * pxPerAngle;
+        if (widthPx < SHARP_MIN_SCREEN_PX) {
+          const widen = SHARP_MIN_SCREEN_PX / Math.max(widthPx, 1e-6);
+          half *= widen;
+          alpha /= widen * widen;
+        }
+      }
+      this.dynamicData[o + 3] = half;
+      this.dynamicData[o + 4] = half;
+      this.dynamicData[o + 5] = alpha;
     }
   }
 }

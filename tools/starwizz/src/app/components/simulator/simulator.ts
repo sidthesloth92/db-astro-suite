@@ -22,7 +22,7 @@ import {
   STAR_SPRITE_SIZE,
   WHITE_STAR_INDEX,
 } from '../../constants/star-appearance.constant';
-import { SCENE3D_LIFTING_MESSAGE } from '../../constants/scene3d.constant';
+import { SCENE3D_ERROR_LOAD, SCENE3D_LIFTING_MESSAGE } from '../../constants/scene3d.constant';
 import { LateralGlide } from '../../models/lateral-glide.model';
 import { RgbColor, StarSprites } from '../../models/star-appearance.model';
 import { Scene3dService } from '../../services/scene3d.service';
@@ -69,6 +69,9 @@ export class Simulator implements AfterViewInit {
 
   /** Loading message shown while the 3D scene is being prepared. */
   protected readonly liftingMessage = SCENE3D_LIFTING_MESSAGE;
+
+  /** Message shown if the 3D scene's code cannot be loaded. */
+  protected readonly sceneLoadError = SCENE3D_ERROR_LOAD;
 
   /** @private Cleanup hook for the window resize listener. */
   private readonly _destroyRef = inject(DestroyRef);
@@ -269,6 +272,8 @@ export class Simulator implements AfterViewInit {
 
   clearImage() {
     this.simService.clearImage();
+    // Clearing returns the tool to a fresh state, so the 3D settings go back to defaults too.
+    this.scene3d.resetToDefaults();
     this.currentScale = 1.0;
     this.currentRotation = 0;
     this.panX = 0;

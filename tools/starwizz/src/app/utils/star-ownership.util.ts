@@ -5,23 +5,28 @@ import { LiftStar, StarGroup, StarOwnership } from '../models/star-lift.model';
  * fainter star whose centre already belongs to a brighter star's disc is absorbed into that
  * cut-out, so a faint companion travels with its bright neighbour instead of being split.
  *
- * Each star's `group` is set to the index of the cut-out it ended up in.
- *
- * @param stars - Detected stars, brightest first
- * @returns The per-pixel owner map (-1 = backdrop) and the cut-out bounds
+ * @param stars - Detected stars, brightest first (not modified)
+ * @returns The per-pixel owner map (-1 = backdrop), the cut-out bounds, and which cut-out each
+ *   star ended up in
  */
-export function buildOwnership(stars: LiftStar[], width: number, height: number): StarOwnership {
+export function buildOwnership(
+  stars: readonly LiftStar[],
+  width: number,
+  height: number,
+): StarOwnership {
   const owner = new Int32Array(width * height).fill(-1);
   const groups: StarGroup[] = [];
+  const groupOf = new Int32Array(stars.length);
 
-  for (const star of stars) {
+  for (let s = 0; s < stars.length; s++) {
+    const star = stars[s];
     const centreOwner = owner[star.y * width + star.x];
     let groupIndex = centreOwner;
     if (centreOwner < 0) {
       groupIndex = groups.length;
       groups.push({ x0: star.x, y0: star.y, x1: star.x, y1: star.y });
     }
-    star.group = groupIndex;
+    groupOf[s] = groupIndex;
     const group = groups[groupIndex];
 
     const r = star.rHalo;
@@ -42,5 +47,5 @@ export function buildOwnership(stars: LiftStar[], width: number, height: number)
       }
     }
   }
-  return { owner, groups };
+  return { owner, groups, groupOf };
 }

@@ -48,6 +48,18 @@ describe('inpaintHoles', () => {
     expect(filled).toBeLessThan(pixelAt(pixels, W, 36, 24)[0]);
   });
 
+  it('should fill even a hole that covers most of the image with the colour that is left', () => {
+    const pixels = makePhoto(W, H, [0.2, 0.4, 0.6]);
+    const owner = new Int32Array(W * H).fill(0);
+    for (let x = 0; x < 3; x++) owner[x] = -1; // only three known pixels, in one corner
+    const out = inpaintHoles(pixels, owner, W, H);
+
+    const [r, g, b] = pixelAt(out, W, W - 1, H - 1);
+    expect(Math.abs(r - 51)).toBeLessThanOrEqual(1);
+    expect(Math.abs(g - 102)).toBeLessThanOrEqual(1);
+    expect(Math.abs(b - 153)).toBeLessThanOrEqual(1);
+  });
+
   it('should return a new image and leave the source as it was', () => {
     const pixels = makePhoto(W, H, [0.3, 0.3, 0.3]);
     const before = new Uint8ClampedArray(pixels);
