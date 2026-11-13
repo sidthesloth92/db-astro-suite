@@ -72,7 +72,10 @@ export const CONTROLS: Record<ControlKey, ControlMetadata> = {
     min: 1,
     max: 8,
     step: 0.5,
-    initial: 3,
+    // Fast enough that a streak clearly outpaces the field at the default
+    // Forward preset, where streaks spend most of their flight far away and
+    // would otherwise crawl across the screen at the same pace as the stars.
+    initial: 5,
     precision: 1,
   },
   starSpeed: {
