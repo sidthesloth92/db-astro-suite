@@ -113,6 +113,33 @@ test.describe("Starwizz simulator flow", () => {
   });
 });
 
+test.describe("Starwizz 3D mode", () => {
+  let starwizz: StarwizzPage;
+
+  test.beforeEach(async ({ page }) => {
+    starwizz = new StarwizzPage(page);
+    await starwizz.navigate();
+  });
+
+  test("should swap the 2D controls for the 3D controls when 3D is chosen", async () => {
+    await expect(starwizz.getControlLabel("Zoom Speed")).toBeVisible();
+
+    await starwizz.selectMode("3D");
+    await expect(starwizz.getControlLabel("Star Style")).toBeVisible();
+    await expect(starwizz.getControlLabel("Star Amount")).toBeVisible();
+    await expect(starwizz.getControlLabel("Zoom Speed")).toBeHidden();
+  });
+
+  test("should bring the 2D controls back when 2D is chosen again", async () => {
+    await starwizz.selectMode("3D");
+    await expect(starwizz.getControlLabel("Star Style")).toBeVisible();
+
+    await starwizz.selectMode("2D");
+    await expect(starwizz.getControlLabel("Zoom Speed")).toBeVisible();
+    await expect(starwizz.getControlLabel("Star Style")).toBeHidden();
+  });
+});
+
 test("Starwizz control panel visual baseline", async ({ page }) => {
   const starwizz = new StarwizzPage(page);
   await starwizz.navigate();

@@ -13,6 +13,9 @@ export type StarwizzControlLabel =
   | "Star Speed"
   | "Star Size Multiplier";
 
+/** Preview modes offered by the control panel's Mode switch. */
+export type StarwizzMode = "2D" | "3D";
+
 /**
  * Page Object for the starwizz simulator (control panel + canvas +
  * upload/clear overlays). The HUD overlay is hardcoded fake telemetry
@@ -88,6 +91,16 @@ export class StarwizzPage {
    */
   getClearButton(): Locator {
     return this.page.getByRole("button", { name: "Clear", exact: true });
+  }
+
+  /** Switches the preview between the 2D starfield and the 3D scene. */
+  async selectMode(mode: StarwizzMode): Promise<void> {
+    await this.controlPanel.getByRole("tab", { name: mode, exact: true }).click();
+  }
+
+  /** Locator for a control's label inside the control panel, by its visible text. */
+  getControlLabel(label: string): Locator {
+    return this.controlPanel.getByText(label, { exact: true });
   }
 
   /** Clicks the Clear button to remove the current image. */
