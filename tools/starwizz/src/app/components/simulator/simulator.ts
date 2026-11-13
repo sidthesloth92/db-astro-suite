@@ -22,8 +22,10 @@ import {
   STAR_SPRITE_SIZE,
   WHITE_STAR_INDEX,
 } from '../../constants/star-appearance.constant';
+import { SCENE3D_LIFTING_MESSAGE } from '../../constants/scene3d.constant';
 import { LateralGlide } from '../../models/lateral-glide.model';
 import { RgbColor, StarSprites } from '../../models/star-appearance.model';
+import { Scene3dService } from '../../services/scene3d.service';
 import { SimulationService } from '../../services/simulation.service';
 import { computeLateralGlide, lateralGlideFrame } from '../../utils/lateral-glide.util';
 import { colorMixForIntensity, mixRgb, tintForIntensity } from '../../utils/star-appearance.util';
@@ -31,6 +33,7 @@ import { ClearImageButton } from './clear-image-button/clear-image-button';
 import { HudOverlay } from './hud-overlay/hud-overlay';
 import { ImageUploadOverlay } from './image-upload-overlay/image-upload-overlay';
 import { LoadingOverlay } from './loading-overlay/loading-overlay';
+import { Scene3d } from '../scene-3d/scene-3d';
 
 const TARGET_SCALE = 2.5;
 const SHOOTING_STAR_SPAWN_RATE = 1.5;
@@ -46,7 +49,7 @@ const SHOOTING_STAR_SPAWN_RATE = 1.5;
   templateUrl: './simulator.html',
   styleUrl: './simulator.css',
   standalone: true,
-  imports: [HudOverlay, LoadingOverlay, ImageUploadOverlay, ClearImageButton],
+  imports: [HudOverlay, LoadingOverlay, ImageUploadOverlay, ClearImageButton, Scene3d],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[style.--aspect-ratio]': 'aspectRatioStyle()',
@@ -60,6 +63,12 @@ export class Simulator implements AfterViewInit {
 
   /** Shared simulation state + recording state machine. */
   protected readonly simService = inject(SimulationService);
+
+  /** 3D scene state, for the "lifting stars" overlay shown over the preview. */
+  protected readonly scene3d = inject(Scene3dService);
+
+  /** Loading message shown while the 3D scene is being prepared. */
+  protected readonly liftingMessage = SCENE3D_LIFTING_MESSAGE;
 
   /** @private Cleanup hook for the window resize listener. */
   private readonly _destroyRef = inject(DestroyRef);
@@ -134,6 +143,8 @@ export class Simulator implements AfterViewInit {
 
   /** Effect: start/stop MediaRecorder in response to recording state changes. */
   private readonly _recordingEffect = effect(() => {
+    // In 3D the scene component records its own canvas.
+    if (this.simService.is3dMode()) return;
     const state = this.simService.recordingState();
     if (state === 'recording' && !this.simService.isRecording()) {
       this.simService.startRecording(this.canvasRef().nativeElement);
@@ -144,6 +155,8 @@ export class Simulator implements AfterViewInit {
 
   /** Effect: reset animation to frame 0 before a record-from-beginning session. */
   private readonly _resetAndRecordEffect = effect(() => {
+    // In 3D the scene component answers this request; leave the flag for it.
+    if (this.simService.is3dMode()) return;
     const shouldResetAndRecord = this.simService.resetAndRecordRequested();
     if (shouldResetAndRecord) {
       this.currentRotation = 0;
@@ -164,6 +177,8 @@ export class Simulator implements AfterViewInit {
 
   /** Effect: reset animation position without entering a recording session. */
   private readonly _restartEffect = effect(() => {
+    // In 3D the scene component answers this request; leave the flag for it.
+    if (this.simService.is3dMode()) return;
     const shouldRestart = this.simService.restartAnimationRequested();
     if (shouldRestart) {
       if (this.simService.isPathMode() && this.simService.pathFinalized()) {
@@ -282,7 +297,14 @@ export class Simulator implements AfterViewInit {
 
     const onResize = () => this.setupCanvasDimensions();
     window.addEventListener('resize', onResize);
-    this._destroyRef.onDestroy(() => window.removeEventListener('resize', onResize));
+    this._destroyRef.onDestroy(() => {
+      window.removeEventListener('resize', onResize);
+      // Stop the frame loop with the component, or a rebuilt preview would leave it running.
+      if (this.animationFrameId !== null) {
+        cancelAnimationFrame(this.animationFrameId);
+        this.animationFrameId = null;
+      }
+    });
   }
 
   private setupCanvasDimensions = (overrideDims?: { width: number; height: number }) => {
@@ -395,7 +417,8 @@ export class Simulator implements AfterViewInit {
     }
     this.animationFrameId = requestAnimationFrame(this.animate);
 
-    if (!this.ctx) return;
+    // The 2D scene is hidden in 3D mode, so it neither advances nor draws.
+    if (!this.ctx || this.simService.is3dMode()) return;
 
     if (this.simService.isImageLoaded()) {
       this.updateGlobalState();

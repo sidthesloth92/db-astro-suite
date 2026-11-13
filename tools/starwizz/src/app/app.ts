@@ -24,6 +24,7 @@ import {
 import { QualityPickerItem } from './models/quality-picker-item.model';
 import { RecordingPreset } from './models/recording.model';
 import { InAppBrowserService } from './services/in-app-browser.service';
+import { Scene3dService } from './services/scene3d.service';
 import { SimulationService } from './services/simulation.service';
 import {
   computeRecordingBitsPerSecond,
@@ -69,6 +70,8 @@ export class App {
   protected readonly breakpoints = inject(BreakpointService);
   /** Recording state machine — used to auto-collapse the sheet on record start. */
   protected readonly simService = inject(SimulationService);
+  /** 3D scene status, so the record button waits until the scene is ready. */
+  private readonly scene3d = inject(Scene3dService);
   /** In-app browser detection — drives the blocking "open in your browser" alert. */
   protected readonly inAppBrowser = inject(InAppBrowserService);
   /** True inside an in-app browser: the alert blocks the page and the shell behind it is inert. */
@@ -95,7 +98,11 @@ export class App {
 
   /** Whether the persistent record/stop button is disabled (no image, or processing). */
   protected readonly isMobileRecordDisabled = computed<boolean>(
-    () => this.simService.recordingState() === 'processing' || !this.simService.isImageLoaded(),
+    () =>
+      this.simService.recordingState() === 'processing' ||
+      !this.simService.isImageLoaded() ||
+      // In 3D there is nothing to record until the stars have been lifted off the photo.
+      (this.simService.is3dMode() && !this.scene3d.isReady()),
   );
 
   /** Accessible label for the persistent record/stop button — varies with state. */

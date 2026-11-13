@@ -40,6 +40,11 @@
   z-index: 10;
 }
 
+/* 3D mode draws on its own canvas; the 2D canvas stays mounted but out of sight. */
+.star-canvas.is-hidden {
+  visibility: hidden;
+}
+
 /* Custom Path mode: the preview is draggable to pan / scrollable to zoom. */
 .star-canvas.path-mode {
   cursor: grab;

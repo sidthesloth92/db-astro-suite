@@ -5,6 +5,7 @@ import { GALAXY_PAN_FACTOR, LATERAL_TRAVEL_FRACTION } from '../../constants/simu
 import { ShootingStar } from '../../models/shooting-star.model';
 import { TravelDirection } from '../../models/simulation.model';
 import { Star } from '../../models/star.model';
+import { Scene3dService } from '../../services/scene3d.service';
 import { SimulationService } from '../../services/simulation.service';
 import { Simulator } from './simulator';
 
@@ -107,6 +108,57 @@ describe('Simulator', () => {
 
     dispatchPointer(canvas, 'pointerup', 1, 100, 100); // lift last finger
     expect(component['isDragging']()).toBe(false);
+  });
+
+  describe('3D mode', () => {
+    it('should hide the 2D canvas and stop drawing on it while 3D is showing', () => {
+      component['ctx'] = canvas.getContext('2d');
+      // Justification for the cast: the spec reaches the private frame renderer to observe it.
+      const renderFrame = spyOn(component as unknown as { renderFrame: () => void }, 'renderFrame');
+
+      simService.renderMode.set('3d');
+      fixture.detectChanges();
+      component['animate']();
+
+      expect(canvas.classList.contains('is-hidden')).toBeTrue();
+      expect(renderFrame).not.toHaveBeenCalled();
+
+      simService.renderMode.set('2d');
+      fixture.detectChanges();
+      component['animate']();
+      expect(canvas.classList.contains('is-hidden')).toBeFalse();
+      expect(renderFrame).toHaveBeenCalled();
+    });
+
+    it('should leave recording to the 3D scene instead of recording the hidden 2D canvas', () => {
+      const start = spyOn(simService, 'startRecording');
+      simService.renderMode.set('3d');
+      fixture.detectChanges();
+
+      simService.recordingState.set('recording');
+      fixture.detectChanges();
+
+      expect(start).not.toHaveBeenCalledWith(canvas);
+    });
+
+    it('should show a progress overlay while the stars are being lifted off the photo', () => {
+      const host = fixture.nativeElement as HTMLElement;
+      simService.loadingProgress.set('Ready');
+      simService.renderMode.set('3d');
+      TestBed.inject(Scene3dService).status.set('lifting');
+      fixture.detectChanges();
+      expect(host.querySelector('dba-sw-loading-overlay')?.textContent).toContain('Lifting stars');
+
+      TestBed.inject(Scene3dService).status.set('ready');
+      fixture.detectChanges();
+      expect(host.querySelector('dba-sw-loading-overlay')).toBeNull();
+    });
+  });
+
+  it('should stop its frame loop when the preview is destroyed', () => {
+    const cancel = spyOn(window, 'cancelAnimationFrame').and.callThrough();
+    fixture.destroy();
+    expect(cancel).toHaveBeenCalled();
   });
 
   it('should skip drawing background and shooting stars while the starfield is removed', () => {

@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AnalyticsService } from '@db-astro-suite/ui';
 
+import { Scene3dService } from '../../services/scene3d.service';
 import { SimulationService } from '../../services/simulation.service';
 import { ControlPanel } from './control-panel';
 
@@ -38,6 +39,150 @@ describe('ControlPanel', () => {
     simService.updateDirection('path');
 
     expect(component.isShootingStarSpeedVisible()).toBeFalse();
+  });
+
+  describe('3D mode', () => {
+    let scene3d: Scene3dService;
+
+    function host(): HTMLElement {
+      return fixture.nativeElement as HTMLElement;
+    }
+    function rowLabels(): string[] {
+      return Array.from(host().querySelectorAll('.row-label')).map((label) => label.textContent?.trim() ?? '');
+    }
+    function switchLabels(): string[] {
+      return Array.from(host().querySelectorAll('.record-aux-label')).map((label) => label.textContent?.trim() ?? '');
+    }
+    function enter3d(): void {
+      component.updateRenderMode('3d');
+      fixture.detectChanges();
+    }
+
+    beforeEach(() => {
+      scene3d = TestBed.inject(Scene3dService);
+    });
+
+    it('should offer a 2D and 3D switch and start in 2D', () => {
+      const tabs = Array.from(host().querySelectorAll('[role="tab"]')).map((tab) => tab.textContent?.trim());
+      expect(tabs).toContain('2D');
+      expect(tabs).toContain('3D');
+      expect(simService.renderMode()).toBe('2d');
+      expect(rowLabels()).toContain('Zoom Speed');
+    });
+
+    it('should replace the 2D controls with the 3D ones when 3D is chosen', () => {
+      enter3d();
+      const labels = rowLabels();
+      expect(simService.renderMode()).toBe('3d');
+      expect(labels).not.toContain('Zoom Speed');
+      expect(labels).not.toContain('Star Count');
+      expect(labels).toContain('Style');
+      expect(labels).toContain('Star Style');
+      expect(labels).toContain('Star Amount');
+      expect(labels).toContain('Twinkle');
+    });
+
+    it('should keep Format, Reset and Record available in 3D', () => {
+      enter3d();
+      expect(rowLabels()).toContain('Format');
+      expect(host().textContent).toContain('Reset Animation');
+      expect(host().querySelector('.record-row')).not.toBeNull();
+    });
+
+    it('should ignore an unknown mode', () => {
+      component.updateRenderMode('4d');
+      expect(simService.renderMode()).toBe('2d');
+    });
+
+    it('should show Direction and Star Depth for Travel, but no cloud or arrival controls', () => {
+      enter3d();
+      const labels = rowLabels();
+      expect(labels).toContain('Direction');
+      expect(labels).toContain('Star Depth');
+      expect(labels).not.toContain('Cloud Depth');
+      expect(switchLabels()).not.toContain('Zoom In');
+    });
+
+    it('should show Cloud Depth and the two arrival switches for Arrive, and hide Direction and Star Depth', () => {
+      enter3d();
+      component.updateSceneStyle('arrive');
+      fixture.detectChanges();
+
+      const labels = rowLabels();
+      expect(labels).toContain('Cloud Depth');
+      expect(labels).not.toContain('Direction');
+      expect(labels).not.toContain('Star Depth');
+      expect(switchLabels()).toContain('Zoom In');
+      expect(switchLabels()).toContain('Stars Return At End');
+    });
+
+    it('should show Spikes only for the Sharp star style', () => {
+      enter3d();
+      expect(rowLabels()).not.toContain('Spikes');
+
+      component.updateStarStyle('sharp');
+      fixture.detectChanges();
+      expect(rowLabels()).toContain('Spikes');
+    });
+
+    it('should explain how to aim when the Custom direction is chosen', () => {
+      enter3d();
+      component.updateSceneDirection('custom');
+      fixture.detectChanges();
+      expect(scene3d.direction()).toBe('custom');
+      expect(host().querySelector('.path-hint')?.textContent).toContain('Drag the marker');
+    });
+
+    it('should ignore style, direction and star style values it does not know', () => {
+      component.updateSceneStyle('orbit');
+      component.updateSceneDirection('sideways');
+      component.updateStarStyle('blurry');
+      expect(scene3d.style()).toBe('travel');
+      expect(scene3d.direction()).toBe('forward');
+      expect(scene3d.starStyle()).toBe('original');
+    });
+
+    it('should show each 3D slider value and pass changes on', () => {
+      enter3d();
+      component.updateSceneControl('speed', 7.5);
+      fixture.detectChanges();
+      expect(scene3d.controls.speed()).toBe(7.5);
+      expect(component.formatSceneControlValue('speed')).toBe('7.5');
+      expect(component.formatSceneControlValue('starAmount')).toBe('100');
+    });
+
+    it('should keep the record button disabled in 3D until the scene is ready', () => {
+      simService.isImageLoaded.set(true);
+      expect(component.isRecordDisabled()).toBeFalse();
+
+      enter3d();
+      expect(component.isRecordDisabled()).toBeTrue();
+
+      scene3d.status.set('ready');
+      expect(component.isRecordDisabled()).toBeFalse();
+    });
+
+    it('should not let the mode change while a recording is running', () => {
+      simService.recordingState.set('recording');
+      fixture.detectChanges();
+      const tabs = Array.from(host().querySelectorAll<HTMLButtonElement>('[role="tab"]')).filter(
+        (tab) => tab.textContent?.trim() === '2D' || tab.textContent?.trim() === '3D',
+      );
+      expect(tabs.length).toBe(2);
+      expect(tabs.every((tab) => tab.disabled)).toBeTrue();
+    });
+
+    it('should restore the 3D settings too on Reset Params', () => {
+      component.updateSceneStyle('arrive');
+      component.updateStarStyle('sharp');
+      component.updateSceneControl('twinkle', 8);
+
+      component.resetParams();
+
+      expect(scene3d.style()).toBe('travel');
+      expect(scene3d.starStyle()).toBe('original');
+      expect(scene3d.controls.twinkle()).toBe(0);
+    });
   });
 
   it('should collapse every star control when the starfield is removed', () => {

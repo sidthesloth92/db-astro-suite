@@ -1,0 +1,24 @@
+<canvas
+  #sceneCanvas
+  class="star-canvas scene-canvas"
+  [class.aiming]="scene3d.isAiming()"
+  (pointerdown)="onPointerDown($event)"
+  (pointermove)="onPointerMove($event)"
+  (pointerup)="onPointerUp()"
+  (pointercancel)="onPointerUp()"
+></canvas>
+
+@if (scene3d.isAiming()) {
+  <button
+    type="button"
+    class="aim-marker"
+    aria-label="Point the camera flies toward. Drag the preview or use the arrow keys to move it."
+    [style.left.%]="aimLeft()"
+    [style.top.%]="aimTop()"
+    (keydown)="onAimKey($event)"
+  ></button>
+}
+
+@if (scene3d.status() === 'error') {
+  <p class="scene-error" role="alert">{{ scene3d.errorMessage() }}</p>
+}

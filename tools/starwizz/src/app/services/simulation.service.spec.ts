@@ -39,6 +39,38 @@ describe('SimulationService', () => {
     return streak;
   }
 
+  describe('render mode', () => {
+    it('should start in 2D', () => {
+      expect(service.renderMode()).toBe('2d');
+      expect(service.is3dMode()).toBeFalse();
+    });
+
+    it('should report 3D once the mode is switched', () => {
+      service.renderMode.set('3d');
+      expect(service.is3dMode()).toBeTrue();
+    });
+  });
+
+  describe('loadDefaultScene', () => {
+    it('should not replace a photo that is already loaded when the preview is rebuilt', () => {
+      const uploaded = new Image();
+      service.galaxyImage.set(uploaded);
+      service.isImageLoaded.set(true);
+      service.isDefaultImage.set(false);
+
+      service.loadDefaultScene();
+
+      expect(service.galaxyImage()).toBe(uploaded);
+      expect(service.isDefaultImage()).toBeFalse();
+      expect(service.isLoadingDefaultImage()).toBeFalse();
+    });
+
+    it('should start loading the default scene when there is no photo yet', () => {
+      service.loadDefaultScene();
+      expect(service.isLoadingDefaultImage()).toBeTrue();
+    });
+  });
+
   describe('adjustStarCount', () => {
     it('should grow the field to the target count, replacing the array immutably', () => {
       const initial = seedStars(500);
