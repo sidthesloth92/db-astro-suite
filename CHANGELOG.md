@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.39.3](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.39.2...db-astro-suite-v1.39.3) (2026-11-13)
+
+
+### Bug Fixes
+
+* **starwizz:** spawn shooting stars out of view and raise their default speed ([#142](https://github.com/sidthesloth92/db-astro-suite/issues/142)) ([572a17a](https://github.com/sidthesloth92/db-astro-suite/commit/572a17a33518f4d4b274105baddb3773f75c68ce))
+
 ## [1.39.2](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.39.1...db-astro-suite-v1.39.2) (2026-11-13)
 
 
