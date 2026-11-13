@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.39.2](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.39.1...db-astro-suite-v1.39.2) (2026-11-13)
+
+
+### Bug Fixes
+
+* **starwizz:** clear in-flight shooting stars when the travel direction changes ([#140](https://github.com/sidthesloth92/db-astro-suite/issues/140)) ([a40fd67](https://github.com/sidthesloth92/db-astro-suite/commit/a40fd6705786ca1ce1036854cfc9b045e32c65ff))
+
 ## [1.39.1](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.39.0...db-astro-suite-v1.39.1) (2026-11-12)
 
 
