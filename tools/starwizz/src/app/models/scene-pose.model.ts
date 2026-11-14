@@ -25,6 +25,8 @@ export interface FrameView {
 export interface ScenePose {
   /** Camera position. */
   position: Vec3;
+  /** How far the picture is turned on screen, in radians; positive is clockwise. */
+  roll: number;
   /** Lens widening factor (1 = resting lens). Above 1 the lens is wider, as in a dolly zoom. */
   tanScale: number;
   /** Opacity multiplier for the moving stars, 0..1 (Arrive fades stragglers before settling). */
@@ -41,6 +43,8 @@ export interface TravelPlan {
   end: Vec3;
   /** Seconds from start to end at the current speed. */
   duration: number;
+  /** How far the picture turns over the shot, in radians; positive is clockwise. */
+  turn: number;
 }
 
 /** An Arrive shot: how far the camera flies in, how long it takes and how long it rests. */
@@ -51,6 +55,22 @@ export interface ArrivePlan {
   duration: number;
   /** Seconds resting on the object before the shot restarts. */
   hold: number;
+  /**
+   * How far the picture is turned at the start, in radians. It turns back upright as the
+   * camera arrives; positive means it turns clockwise on the way.
+   */
+  turn: number;
+}
+
+/** How a shot is framed: the lens it is seen through, and the room its turning frame needs. */
+export interface ShotFraming {
+  /** The resting lens. */
+  view: FrameView;
+  /**
+   * The lens widened to the upright box that holds the frame at every angle it turns through.
+   * The same as {@link view} when the view does not turn.
+   */
+  cover: FrameView;
 }
 
 /** A point where a recycled star re-enters the view volume, in camera space. */

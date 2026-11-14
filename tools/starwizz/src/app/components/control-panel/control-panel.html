@@ -353,6 +353,7 @@
           [min]="sceneControlMeta(control).min"
           [max]="sceneControlMeta(control).max"
           [step]="sceneControlMeta(control).step"
+          [fillFrom]="sceneControlMeta(control).origin"
           [showReadout]="false"
           (valueChange)="updateSceneControl(control, $event)"
         ></dba-ui-micro-slider>

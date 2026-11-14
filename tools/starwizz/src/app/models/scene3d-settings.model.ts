@@ -13,6 +13,7 @@ export type StarStyle = 'original' | 'sharp';
 /** Slider controls of the 3D mode. */
 export type Scene3dControlKey =
   | 'speed'
+  | 'rotation'
   | 'cloudDepth'
   | 'starAmount'
   | 'starSize'
@@ -50,6 +51,8 @@ export interface Scene3dSettings {
   starsReturn: boolean;
   /** Speed slider value. */
   speed: number;
+  /** Rotation slider value: 0 = off, negative turns the view anticlockwise, positive clockwise. */
+  rotation: number;
   /** Cloud Depth slider value. */
   cloudDepth: number;
   /** Star Amount slider value, in percent. */

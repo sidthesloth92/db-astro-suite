@@ -35,4 +35,24 @@ describe('mat4 util', () => {
     expect(direct[0]).toBeCloseTo(viaSteps[0], 6);
     expect(direct[1]).toBeCloseTo(viaSteps[1], 6);
   });
+
+  it('should turn the picture clockwise on screen for a positive roll', () => {
+    const v = viewFromPosition(0, 0, 0, Math.PI / 2);
+    // A point to the right of the camera ends up below it; one above ends up to the right.
+    const right = project(v, 1, 0, -1);
+    const above = project(v, 0, 1, -1);
+    expect(right[0]).toBeCloseTo(0, 6);
+    expect(right[1]).toBeCloseTo(-1, 6);
+    expect(right[2]).toBeCloseTo(-1, 6);
+    expect(above[0]).toBeCloseTo(1, 6);
+    expect(above[1]).toBeCloseTo(0, 6);
+  });
+
+  it('should turn the picture about the camera, wherever the camera is', () => {
+    const v = viewFromPosition(0.3, -0.2, 0.1, 0.7);
+    const [x, y, z] = project(v, 0.3, -0.2, -0.9);
+    expect(x).toBeCloseTo(0, 6);
+    expect(y).toBeCloseTo(0, 6);
+    expect(z).toBeCloseTo(-1, 6);
+  });
 });

@@ -68,6 +68,7 @@ import {
   computeRecordingBitsPerSecond,
   estimateRecordingSizeMb,
 } from '../../utils/recording-size.util';
+import { formatSceneControlValue } from '../../utils/scene3d-control.util';
 
 /** Generic slider controls hidden while the cinematic Custom Path mode is active. */
 const PATH_HIDDEN_CONTROLS: ReadonlySet<ControlKey> = new Set<ControlKey>([
@@ -259,7 +260,7 @@ export class ControlPanel {
    * nebula stands out toward the viewer.
    */
   readonly sceneMotionControls = computed<Scene3dControlKey[]>(() =>
-    this.scene3d.style() === 'arrive' ? ['speed', 'cloudDepth'] : ['speed'],
+    this.scene3d.style() === 'arrive' ? ['speed', 'rotation', 'cloudDepth'] : ['speed', 'rotation'],
   );
 
   /**
@@ -359,7 +360,7 @@ export class ControlPanel {
 
   /** Formatted value shown next to a 3D slider's label. */
   formatSceneControlValue(control: Scene3dControlKey): string {
-    return this.scene3d.controls[control]().toFixed(SCENE3D_CONTROLS[control].precision);
+    return formatSceneControlValue(control, this.scene3d.controls[control]());
   }
 
   /** Applies a 3D Style chosen from the select. */

@@ -71,4 +71,9 @@ export interface ControlMetadata {
   precision: number;
   /** Optional multiplier to convert UI value to internal value (default: 1) */
   internalMultiplier?: number;
+  /**
+   * Value the slider's filled track starts from. Left out, it fills from the minimum; a
+   * control that works both ways from a middle value sets that value here.
+   */
+  origin?: number;
 }

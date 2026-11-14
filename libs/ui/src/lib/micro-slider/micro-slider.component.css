@@ -39,6 +39,17 @@
   border-radius: 2px;
 }
 
+/* Marks the resting point of a slider that works both ways from a middle value. */
+.origin {
+  position: absolute;
+  top: 50%;
+  width: 2px;
+  height: 9px;
+  border-radius: 1px;
+  background: var(--db-color-text-dim);
+  transform: translate(-50%, -50%);
+}
+
 .dot {
   position: absolute;
   top: 50%;

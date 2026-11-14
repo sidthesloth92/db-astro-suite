@@ -200,6 +200,35 @@ describe('ControlPanel', () => {
       expect(scene3d.direction()).toBe('forward');
     });
 
+    it('should offer Rotation with the camera controls in both 3D styles, off to begin with', () => {
+      enter3d();
+      expect(rowLabels()).toContain('Rotation');
+      expect(component.formatSceneControlValue('rotation')).toBe('Off');
+      const inBox = Array.from(host().querySelectorAll('.stars-section .row-label')).map((l) => l.textContent?.trim());
+      expect(inBox).not.toContain('Rotation');
+
+      component.updateSceneStyle('arrive');
+      fixture.detectChanges();
+      expect(rowLabels()).toContain('Rotation');
+    });
+
+    it('should rest the Rotation handle in the middle of its track and read which way it turns', () => {
+      enter3d();
+      const row = Array.from(host().querySelectorAll<HTMLElement>('.slider-row')).find(
+        (candidate) => candidate.querySelector('.row-label')?.textContent?.trim() === 'Rotation',
+      );
+      expect(row).toBeDefined();
+      expect(row?.querySelector<HTMLElement>('.dot')?.style.left).toBe('50%');
+      expect(row?.querySelector('.origin')).not.toBeNull();
+      expect(row?.querySelector('.row-value')?.textContent?.trim()).toBe('Off');
+
+      component.updateSceneControl('rotation', -5);
+      fixture.detectChanges();
+      expect(scene3d.controls.rotation()).toBe(-5);
+      expect(row?.querySelector<HTMLElement>('.dot')?.style.left).toBe('25%');
+      expect(row?.querySelector('.row-value')?.textContent?.trim()).toBe('5\u00B0/s \u21BA');
+    });
+
     it('should show each 3D slider value and pass changes on', () => {
       enter3d();
       component.updateSceneControl('speed', 7.5);

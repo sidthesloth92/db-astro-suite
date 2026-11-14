@@ -46,6 +46,12 @@ export interface StarVolumeConfig {
   spikes: number;
   /** The resting lens. */
   view: FrameView;
+  /**
+   * The lens widened to the upright box a turning frame stays inside. The stars fill this box,
+   * so the frame never turns into empty space. Left out, the view does not turn and the stars
+   * fill the lens.
+   */
+  cover?: FrameView;
   /** Far limit of the star volume, as a fraction of the backdrop distance. */
   far: number;
   /** Camera position on the first frame; stars are laid out as seen from here. */
@@ -105,6 +111,10 @@ interface StarSeed {
  * the view volume re-enters upstream, and the space just outside the frame is filled from the
  * first frame so nothing arrives as a wave. In Arrive the cloud is finite: stars pass and are gone.
  *
+ * When the view turns, the volume does not turn with it. It is the upright box the turning
+ * frame stays inside, filled from the first frame, so the frame's corners always swing over
+ * stars that are already there.
+ *
  * Besides the moving stars it can hold stars pinned to the backdrop: giant stars' spikes, and
  * (Sharp style in Arrive) the copies that fade in when the photo's stars return.
  *
@@ -140,6 +150,8 @@ export class StarVolume {
    */
   private readonly pinned: Float32Array;
   private readonly near: number;
+  /** The half-angles the stars fill: the lens, or the larger box a turning frame needs. */
+  private readonly cover: FrameView;
   private random: () => number;
 
   constructor(
@@ -149,6 +161,7 @@ export class StarVolume {
     this.random = seededRandom(config.seed);
     this.sharp = config.starStyle === 'sharp';
     this.near = config.style === 'arrive' ? ARRIVE_VOLUME_NEAR : VOLUME_NEAR;
+    this.cover = config.cover ?? config.view;
     this.drawsReturningStars = this.sharp && config.style === 'arrive' && config.returnStars;
 
     const seeds = this.buildSeeds();
@@ -200,6 +213,7 @@ export class StarVolume {
    */
   step(frame: StarVolumeFrame): void {
     const { view, style } = this.config;
+    const cover = this.cover;
     const camera = frame.pose.position;
     const recycle = style === 'travel';
     // The star volume ends in front of the backdrop: as the camera closes in, its far limit
@@ -208,7 +222,7 @@ export class StarVolume {
     const far = recycle
       ? Math.max(this.near * 2, Math.min(this.config.far, 1 + camera.z - STAR_BACKDROP_GAP))
       : this.config.far;
-    const flux = recycle ? inflowFlux(this.config.velocity, view, this.near, far) : [];
+    const flux = recycle ? inflowFlux(this.config.velocity, cover, this.near, far) : [];
     const twinkleAmplitude = twinkleAmplitudeForStrength(frame.twinkle);
     // Output px per unit of angular size, for the Sharp sub-pixel guard.
     const pxPerAngle = frame.frameHeightPx / (2 * view.tanY * frame.pose.tanScale);
@@ -220,8 +234,8 @@ export class StarVolume {
       if (recycle) {
         const x = this.position[p] - camera.x;
         const y = this.position[p + 1] - camera.y;
-        if (isOutsideVolume(x, y, depth, view, this.near, far)) {
-          const entry = sampleInflow(flux, view, this.near, far, this.random);
+        if (isOutsideVolume(x, y, depth, cover, this.near, far)) {
+          const entry = sampleInflow(flux, cover, this.near, far, this.random);
           this.position[p] = camera.x + entry.x;
           this.position[p + 1] = camera.y + entry.y;
           this.position[p + 2] = camera.z - entry.depth;
@@ -272,7 +286,7 @@ export class StarVolume {
 
   /** Lays out the moving stars: the photo's own, plus clones for density and for the margin. */
   private buildSeeds(): StarSeed[] {
-    const { scene, config } = this;
+    const { scene, config, cover } = this;
     const { view, far, start, starAmount } = config;
     const patchCount = scene.patches.length / PATCH_STRIDE;
     const planeDistance = 1 + start.z;
@@ -291,11 +305,12 @@ export class StarVolume {
       patchKept[patch] = this.random() < starAmount ? 1 : 0;
     });
 
-    const inView = (px: number, py: number): boolean => {
+    // Whether the backdrop point under an image position is inside a lens, with `margin` to spare.
+    const inside = (px: number, py: number, lens: FrameView, margin: number): boolean => {
       // Camera-space tangent of the backdrop point under this image position.
       const tx = ((px / scene.width - 0.5) * view.imageAspect - start.x) / planeDistance;
       const ty = (0.5 - py / scene.height - start.y) / planeDistance;
-      return Math.abs(tx) <= VOLUME_MARGIN * view.tanX && Math.abs(ty) <= VOLUME_MARGIN * view.tanY;
+      return Math.abs(tx) <= margin * lens.tanX && Math.abs(ty) <= margin * lens.tanY;
     };
     const place = (px: number, py: number, depth: number): Vec3 => {
       // On the line of sight from the starting camera to the backdrop point, `depth` ahead.
@@ -308,11 +323,15 @@ export class StarVolume {
     // The looks available to clone from, and the photo's own stars.
     const looks: Omit<StarSeed, 'x' | 'y' | 'z'>[] = [];
     const seeds: StarSeed[] = [];
+    // The photo's stars kept inside the lens and its margin, and inside the frame alone.
+    let keptNearLens = 0;
+    let keptInFrame = 0;
     const add = (px: number, py: number, patch: number, look: Omit<StarSeed, 'x' | 'y' | 'z'>): void => {
       looks.push(look);
-      if (patchKept[patch] === 1 && inView(px, py)) {
-        seeds.push({ ...place(px, py, patchDepth[patch]), ...look });
-      }
+      if (patchKept[patch] !== 1 || !inside(px, py, cover, VOLUME_MARGIN)) return;
+      seeds.push({ ...place(px, py, patchDepth[patch]), ...look });
+      if (inside(px, py, view, VOLUME_MARGIN)) keptNearLens++;
+      if (inside(px, py, view, 1)) keptInFrame++;
     };
 
     if (this.sharp) {
@@ -358,7 +377,8 @@ export class StarVolume {
     // Clones: extra stars inside the frame above 100 %, and (Travel) the ring just outside the
     // frame so stars are already waiting upstream on the first frame.
     // Photo stars inside the view, before any were left out by a Star Amount below 100 %.
-    const inFrame = seeds.length / Math.max(Math.min(1, starAmount), 1e-6);
+    const kept = Math.max(Math.min(1, starAmount), 1e-6);
+    const inFrame = keptNearLens / kept;
     const extraInside = Math.round(Math.max(0, starAmount - 1) * inFrame);
     const ring = config.style === 'travel' ? Math.round(inFrame * starAmount * (VOLUME_MARGIN ** 2 - 1)) : 0;
     const clone = (u: number, v: number): void => {
@@ -387,6 +407,33 @@ export class StarVolume {
       const planeY = start.y + v * view.tanY * planeDistance;
       if (Math.abs(planeX) <= halfPlaneX && Math.abs(planeY) <= 0.5) continue;
       clone(u, v);
+    }
+
+    // A turning frame swings past the lens's own margin. The rest of the box it stays inside
+    // is filled here to the same density as the frame, so its corners never turn into a
+    // thinner patch of sky.
+    const spanX = (VOLUME_MARGIN * cover.tanX) / view.tanX;
+    const spanY = (VOLUME_MARGIN * cover.tanY) / view.tanY;
+    const beyond = spanX * spanY - VOLUME_MARGIN ** 2;
+    if (beyond > 1e-9) {
+      const outside = Math.round((keptInFrame / kept) * starAmount * beyond);
+      // Where the photo reaches, its own stars are already there: only the extra share above
+      // 100 % is added. Past the photo's edge a Travel shot needs them all; Arrive's cloud is
+      // the photo's own and ends where the photo does.
+      const extraShare = Math.max(0, starAmount - 1) / Math.max(starAmount, 1e-6);
+      const pastPhoto = config.style === 'travel' ? 1 : 0;
+      for (let i = 0; i < outside; i++) {
+        let u = 0;
+        let v = 0;
+        do {
+          u = (this.random() * 2 - 1) * spanX;
+          v = (this.random() * 2 - 1) * spanY;
+        } while (Math.abs(u) <= VOLUME_MARGIN && Math.abs(v) <= VOLUME_MARGIN);
+        const planeX = start.x + u * view.tanX * planeDistance;
+        const planeY = start.y + v * view.tanY * planeDistance;
+        const onPhoto = Math.abs(planeX) <= halfPlaneX && Math.abs(planeY) <= 0.5;
+        if (this.random() < (onPhoto ? extraShare : pastPhoto)) clone(u, v);
+      }
     }
     return seeds;
   }

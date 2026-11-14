@@ -30,21 +30,42 @@ export class MicroSliderComponent {
    * vertical space. Defaults to `true`.
    */
   showReadout = input<boolean>(true);
+  /**
+   * Value the filled track starts from. Left unset, the track fills from the minimum. Set it
+   * to a value inside the range (0 on a -10 to 10 slider, say) for a control that works both
+   * ways from a resting point: the track then fills from that point toward the handle, and a
+   * tick marks the point.
+   */
+  fillFrom = input<number | undefined>(undefined);
 
   /** Emits the new numeric value as the user drags. */
   valueChange = output<number>();
 
-  /** Filled-track percentage (0–100), used to size the progress bar. */
-  readonly percent = computed(() => {
-    const v = this.value();
+  /** Position of the handle along the track, as a percentage (0–100). */
+  readonly percent = computed(() => this.toPercent(this.value()));
+
+  /** Position of the {@link fillFrom} point along the track (0–100), or null when it is unset. */
+  readonly originPercent = computed(() => {
+    const origin = this.fillFrom();
+    return origin === undefined ? null : this.toPercent(origin);
+  });
+
+  /** Where the filled track starts and how long it is, as percentages of the track. */
+  readonly fill = computed(() => {
+    const handle = this.percent();
+    const origin = this.originPercent() ?? 0;
+    return { left: Math.min(handle, origin), width: Math.abs(handle - origin) };
+  });
+
+  /** A value's position along the track as a percentage, clamped to 0–100. */
+  private toPercent(value: number): number {
     const min = this.min();
     const max = this.max();
     if (max <= min) {
       return 0;
     }
-    const pct = ((v - min) / (max - min)) * 100;
-    return Math.max(0, Math.min(100, pct));
-  });
+    return Math.max(0, Math.min(100, ((value - min) / (max - min)) * 100));
+  }
 
   /** Internal change handler — forwards the parsed numeric value. */
   onInput(event: Event): void {

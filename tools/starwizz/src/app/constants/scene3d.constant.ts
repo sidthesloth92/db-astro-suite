@@ -22,6 +22,17 @@ export const SCENE3D_CONTROLS: Record<Scene3dControlKey, ControlMetadata> = {
     initial: 4,
     precision: 1,
   },
+  rotation: {
+    label: 'Rotation',
+    description:
+      'Turns the view as the camera moves. Drag left of the middle to turn it anticlockwise, right to turn it clockwise. The further from the middle, the faster it turns. 0 is off. The image is zoomed in as much as it needs so its corners never show.',
+    min: -10,
+    max: 10,
+    step: 1,
+    initial: 0,
+    precision: 0,
+    origin: 0,
+  },
   cloudDepth: {
     label: 'Cloud Depth',
     description:
@@ -119,6 +130,7 @@ export const AIM_KEY_STEP = 0.02;
 /** Every 3D slider control, for resetting them together. */
 export const SCENE3D_CONTROL_KEYS: readonly Scene3dControlKey[] = [
   'speed',
+  'rotation',
   'cloudDepth',
   'starAmount',
   'starSize',
@@ -165,6 +177,10 @@ export const LATERAL_OVERSCAN = 1.3;
 export const LATERAL_FORWARD_SHARE = 0.5;
 /** Shortest sideways shot (seconds); with less room than that the camera slides more slowly. */
 export const TRAVEL_MIN_SECONDS = 3;
+/** How fast the view turns, in radians per second, per Rotation unit (one degree a second). */
+export const ROTATION_RATE_PER_UNIT = Math.PI / 180;
+/** Moments of a shot checked when working out how much room its turning frame needs. */
+export const COVER_SAMPLES = 96;
 /** Moving stars always stay at least this far in front of the backdrop. */
 export const STAR_BACKDROP_GAP = 0.03;
 

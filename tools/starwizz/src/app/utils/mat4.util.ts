@@ -17,15 +17,24 @@ export function perspectiveFromTangents(
   return m;
 }
 
-/** View matrix of a camera at (x, y, z) that looks straight down -z with no rotation. */
-export function viewFromPosition(x: number, y: number, z: number): Float32Array {
+/**
+ * View matrix of a camera at (x, y, z) that looks straight down -z.
+ *
+ * @param roll - How far the picture is turned on screen, in radians; positive is clockwise.
+ *   The camera itself rolls the other way.
+ */
+export function viewFromPosition(x: number, y: number, z: number, roll = 0): Float32Array {
+  const cos = Math.cos(roll);
+  const sin = Math.sin(roll);
   const m = new Float32Array(16);
-  m[0] = 1;
-  m[5] = 1;
+  m[0] = cos;
+  m[1] = -sin;
+  m[4] = sin;
+  m[5] = cos;
   m[10] = 1;
   m[15] = 1;
-  m[12] = -x;
-  m[13] = -y;
+  m[12] = -(cos * x + sin * y);
+  m[13] = sin * x - cos * y;
   m[14] = -z;
   return m;
 }

@@ -41,6 +41,7 @@ export class Scene3dService {
   /** Slider controls, each initialised from `SCENE3D_CONTROLS`. */
   readonly controls: Record<Scene3dControlKey, WritableSignal<number>> = {
     speed: signal(SCENE3D_CONTROLS.speed.initial),
+    rotation: signal(SCENE3D_CONTROLS.rotation.initial),
     cloudDepth: signal(SCENE3D_CONTROLS.cloudDepth.initial),
     starAmount: signal(SCENE3D_CONTROLS.starAmount.initial),
     starSize: signal(SCENE3D_CONTROLS.starSize.initial),
@@ -73,6 +74,7 @@ export class Scene3dService {
     zoomIn: this.zoomIn(),
     starsReturn: this.starsReturn(),
     speed: this.controls.speed(),
+    rotation: this.controls.rotation(),
     cloudDepth: this.controls.cloudDepth(),
     starAmount: this.controls.starAmount(),
     starSize: this.controls.starSize(),

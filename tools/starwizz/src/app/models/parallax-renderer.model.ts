@@ -140,7 +140,7 @@ export class ParallaxRenderer {
       SCENE_NEAR,
       SCENE_FAR,
     );
-    const viewMatrix = viewFromPosition(pose.position.x, pose.position.y, pose.position.z);
+    const viewMatrix = viewFromPosition(pose.position.x, pose.position.y, pose.position.z, pose.roll);
     this.textures.forEach((texture, unit) => {
       gl.activeTexture(gl.TEXTURE0 + unit);
       gl.bindTexture(gl.TEXTURE_2D, texture);

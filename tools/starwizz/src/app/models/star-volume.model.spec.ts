@@ -1,6 +1,6 @@
 import { STAR_DYNAMIC_STRIDE, STAR_STATIC_STRIDE, VOLUME_MARGIN } from '../constants/scene3d.constant';
 import { makePhoto } from '../../testing/synthetic-photo.util';
-import { frameView } from '../utils/camera-path.util';
+import { coverFor, frameView } from '../utils/camera-path.util';
 import { liftStars } from '../utils/star-lift.util';
 import { LiftedScene } from './lifted-scene.model';
 import { ScenePose } from './scene-pose.model';
@@ -33,6 +33,7 @@ const config = (patch: Partial<StarVolumeConfig> = {}): StarVolumeConfig => ({
 });
 const pose = (patch: Partial<ScenePose> = {}): ScenePose => ({
   position: { x: 0, y: 0, z: 0 },
+  roll: 0,
   tanScale: 1,
   starFade: 1,
   photoMix: 0,
@@ -291,6 +292,83 @@ describe('StarVolume', () => {
       volume.step(frame({ relief: 0.4, pose: pose({ starFade: 0 }) }));
       expect(-volume.dynamicData[last + 2]).toBeLessThan(flatDepth); // nearer with relief
       expect(volume.dynamicData[last + 5]).toBe(1); // not cleared with the moving stars
+    });
+  });
+
+  describe('when the view turns', () => {
+    /** The box a frame turning all the way round stays inside. */
+    const COVER = coverFor(VIEW, Math.PI);
+
+    it('should lay the stars out exactly as before when the box is the lens itself', () => {
+      const plain = new StarVolume(scene, config({ starAmount: 3 }));
+      const same = new StarVolume(scene, config({ starAmount: 3, cover: VIEW }));
+      plain.step(frame());
+      same.step(frame());
+      expect(same.count).toBe(plain.count);
+      expect(Array.from(same.dynamicData)).toEqual(Array.from(plain.dynamicData));
+    });
+
+    it('should fill the whole box the turning frame stays inside from the first frame', () => {
+      const plain = new StarVolume(scene, config({ starAmount: 3 }));
+      const volume = new StarVolume(scene, config({ starAmount: 3, cover: COVER }));
+      volume.step(frame());
+      expect(volume.count).toBeGreaterThan(plain.count);
+
+      // Stars wait in every corner of the box, beyond the lens's own margin, and none lie outside it.
+      const corners = { topRight: 0, topLeft: 0, bottomRight: 0, bottomLeft: 0 };
+      for (let i = 0; i < volume.count; i++) {
+        const s = screenOf(volume, i);
+        expect(Math.abs(s.x)).toBeLessThanOrEqual(VOLUME_MARGIN * COVER.tanX + 1e-6);
+        expect(Math.abs(s.y)).toBeLessThanOrEqual(VOLUME_MARGIN * COVER.tanY + 1e-6);
+        if (Math.abs(s.x) <= VOLUME_MARGIN * VIEW.tanX) continue;
+        if (s.x > 0 && s.y > 0) corners.topRight++;
+        if (s.x < 0 && s.y > 0) corners.topLeft++;
+        if (s.x > 0 && s.y < 0) corners.bottomRight++;
+        if (s.x < 0 && s.y < 0) corners.bottomLeft++;
+      }
+      expect(Object.values(corners).every((count) => count > 0)).withContext(JSON.stringify(corners)).toBeTrue();
+    });
+
+    it('should spread the extra stars about as thickly outside the frame as inside it', () => {
+      const volume = new StarVolume(scene, config({ starAmount: 3, cover: COVER }));
+      volume.step(frame());
+      let inFrame = 0;
+      let beyond = 0;
+      for (let i = 0; i < volume.count; i++) {
+        const s = screenOf(volume, i);
+        if (Math.abs(s.x) <= VIEW.tanX && Math.abs(s.y) <= VIEW.tanY) inFrame++;
+        else if (Math.abs(s.x) > VOLUME_MARGIN * VIEW.tanX || Math.abs(s.y) > VOLUME_MARGIN * VIEW.tanY) beyond++;
+      }
+      const frameArea = 4 * VIEW.tanX * VIEW.tanY;
+      const beyondArea = VOLUME_MARGIN ** 2 * (4 * COVER.tanX * COVER.tanY - frameArea);
+      const ratio = beyond / beyondArea / (inFrame / frameArea);
+      expect(ratio).toBeGreaterThan(0.6);
+      expect(ratio).toBeLessThan(1.6);
+    });
+
+    it('should keep recycled stars inside that box however long a Travel shot flies', () => {
+      const volume = new StarVolume(scene, config({ starAmount: 3, cover: COVER }));
+      let camera = { x: 0, y: 0, z: 0 };
+      for (let t = 0; t <= 20; t += 0.5) {
+        camera = { x: 0, y: 0, z: -0.02 * t };
+        volume.step(frame({ pose: pose({ position: camera, roll: 0.1 * t }), seconds: t }));
+      }
+      let beyondLens = 0;
+      for (let i = 0; i < volume.count; i++) {
+        const s = screenOf(volume, i, camera);
+        expect(Math.abs(s.x)).toBeLessThanOrEqual(VOLUME_MARGIN * COVER.tanX + 1e-6);
+        expect(Math.abs(s.y)).toBeLessThanOrEqual(VOLUME_MARGIN * COVER.tanY + 1e-6);
+        if (Math.abs(s.x) > VOLUME_MARGIN * VIEW.tanX) beyondLens++;
+      }
+      expect(beyondLens).toBeGreaterThan(0);
+    });
+
+    it('should not invent stars past the photo’s edge for Arrive, whose cloud is the photo’s own', () => {
+      const plain = new StarVolume(scene, config({ style: 'arrive' }));
+      const volume = new StarVolume(scene, config({ style: 'arrive', cover: COVER }));
+      volume.step(frame());
+      // The photo exactly fills this lens, so there is nothing of it beyond the lens to show.
+      expect(volume.count).toBe(plain.count);
     });
   });
 });

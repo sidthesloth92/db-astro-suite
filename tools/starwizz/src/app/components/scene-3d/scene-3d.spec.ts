@@ -257,6 +257,78 @@ describe('Scene3d', () => {
       expect(camera()).toEqual(start);
     });
 
+    it('should keep the view upright while Rotation is off, and turn it clockwise as time passes once it is on', async () => {
+      const frame = controlFrames();
+      const render = spyOn(ParallaxRenderer.prototype, 'render').and.callThrough();
+      const roll = (): number => render.calls.mostRecent().args[0].pose.roll;
+      await createWithPhoto();
+      frame(0);
+      frame(200);
+      expect(roll()).toBe(0);
+
+      scene3d.updateControl('rotation', 5);
+      fixture.detectChanges();
+      frame(0);
+      expect(roll()).toBe(0);
+      frame(200);
+      const early = roll();
+      frame(200);
+      expect(early).toBeGreaterThan(0);
+      expect(roll()).toBeGreaterThan(early);
+
+      scene3d.updateControl('rotation', -5);
+      fixture.detectChanges();
+      frame(0);
+      frame(200);
+      expect(roll()).toBeLessThan(0);
+    });
+
+    it('should zoom the photo in when the view turns, and spread the stars wider', async () => {
+      const frame = controlFrames();
+      const render = spyOn(ParallaxRenderer.prototype, 'render').and.callThrough();
+      const setStars = spyOn(ParallaxRenderer.prototype, 'setStars').and.callThrough();
+      await createWithPhoto();
+      // Enough stars that the wider spread shows in their number, not in the luck of a few.
+      scene3d.updateControl('starAmount', 300);
+      fixture.detectChanges();
+      frame(0);
+      const restingLens = render.calls.mostRecent().args[0].view;
+      const restingStars = setStars.calls.mostRecent().args[0].count;
+
+      scene3d.updateControl('rotation', 8);
+      fixture.detectChanges();
+      frame(0);
+      expect(render.calls.mostRecent().args[0].view.tanY).toBeLessThan(restingLens.tanY);
+      expect(setStars.calls.mostRecent().args[0].count).toBeGreaterThan(restingStars);
+    });
+
+    it('should restart the shot when Speed changes while the view turns, but not while it is upright', async () => {
+      const frame = controlFrames();
+      const camera = watchCamera();
+      await createWithPhoto();
+      frame(0);
+      for (let i = 0; i < 5; i++) frame(200);
+      const flown = camera();
+
+      // Upright: Speed is read live and the shot carries on from where it is.
+      scene3d.updateControl('speed', 5);
+      fixture.detectChanges();
+      frame(0);
+      expect(camera().z).toBeCloseTo(flown.z, 9);
+
+      scene3d.updateControl('rotation', 3);
+      fixture.detectChanges();
+      frame(0);
+      for (let i = 0; i < 5; i++) frame(200);
+      expect(camera().z).toBeLessThan(0);
+
+      // Turning: how long the shot lasts decides how far the frame turns, so it starts over.
+      scene3d.updateControl('speed', 6);
+      fixture.detectChanges();
+      frame(0);
+      expect(camera().z).toBe(0);
+    });
+
     it('should show the aim marker only for a Custom direction', async () => {
       await createWithPhoto();
       expect(host.querySelector('.aim-marker')).toBeNull();

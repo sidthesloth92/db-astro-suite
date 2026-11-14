@@ -13,7 +13,7 @@ const STARS = [
   { x: 130, y: 120, amp: 0.85, sigma: 2.2, color: [1, 0.7, 0.4] as [number, number, number] },
   { x: 90, y: 230, amp: 0.4, sigma: 1.5 },
 ];
-const REST: ScenePose = { position: { x: 0, y: 0, z: 0 }, tanScale: 1, starFade: 1, photoMix: 0 };
+const REST: ScenePose = { position: { x: 0, y: 0, z: 0 }, roll: 0, tanScale: 1, starFade: 1, photoMix: 0 };
 
 /** Reads the canvas back as RGBA with row 0 at the top, like the photo. */
 function readTopDown(canvas: HTMLCanvasElement): Uint8Array {

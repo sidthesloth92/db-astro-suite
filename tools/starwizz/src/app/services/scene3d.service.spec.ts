@@ -183,6 +183,14 @@ describe('Scene3dService', () => {
       expect(settings.twinkle).toBe(0);
     });
 
+    it('should start with Rotation off, and take a turn either way', () => {
+      expect(service.settings().rotation).toBe(0);
+      service.updateControl('rotation', -6);
+      expect(service.settings().rotation).toBe(-6);
+      service.updateControl('rotation', 3);
+      expect(service.settings().rotation).toBe(3);
+    });
+
     it('should reflect a changed slider in the snapshot', () => {
       service.updateControl('starAmount', 250);
       expect(service.settings().starAmount).toBe(250);
@@ -225,6 +233,7 @@ describe('Scene3dService', () => {
       service.starsReturn.set(false);
       service.setAim({ x: 0.2, y: 0.1 });
       service.updateControl('speed', 9);
+      service.updateControl('rotation', -4);
 
       service.resetToDefaults();
 
@@ -236,6 +245,7 @@ describe('Scene3dService', () => {
       expect(settings.starsReturn).toBeTrue();
       expect(settings.aim).toEqual({ x: 0, y: 0 });
       expect(settings.speed).toBe(SCENE3D_CONTROLS.speed.initial);
+      expect(settings.rotation).toBe(0);
       expect(service.scene()).toBe(SCENE);
     });
   });

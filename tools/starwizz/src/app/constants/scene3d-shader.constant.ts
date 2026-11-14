@@ -56,7 +56,8 @@ out float vExtent;
 out float vKind;
 void main() {
   vec4 inView = uView * vec4(aPosition, 1.0);
-  inView.xy += aCorner * aHalf;
+  // The quad turns with the picture, so a cut-out stays lined up with the photo it came from.
+  inView.xy += mat2(uView) * (aCorner * aHalf);
   gl_Position = uProjection * inView;
   // The top of the quad (corner.y = +1) is the top row of the cut-out (v = rect.y).
   vUv = vec2(mix(aRect.x, aRect.z, aCorner.x * 0.5 + 0.5), mix(aRect.y, aRect.w, 0.5 - aCorner.y * 0.5));
