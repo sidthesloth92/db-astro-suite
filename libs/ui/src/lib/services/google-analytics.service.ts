@@ -84,9 +84,10 @@ export class GoogleAnalyticsService implements AnalyticsService {
    * one user.
    *
    * @param format - The output format of the generated video.
+   * @param mode - The animation mode the clip was made in (`2d` or `3d`).
    */
-  trackVideoGeneration(format: string): void {
-    this.trackEvent("starwizz_video_generation", { format });
+  trackVideoGeneration(format: string, mode: string): void {
+    this.trackEvent("starwizz_video_generation", { format, mode });
   }
 
   /**

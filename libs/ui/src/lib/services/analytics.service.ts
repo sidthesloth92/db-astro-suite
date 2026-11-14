@@ -28,8 +28,9 @@ export abstract class AnalyticsService {
   /**
    * Track video generation in Starwizz.
    * @param format Video format/codec used
+   * @param mode Animation mode the clip was made in (`2d` or `3d`)
    */
-  abstract trackVideoGeneration(format: string): void;
+  abstract trackVideoGeneration(format: string, mode: string): void;
 
   // ====================== ASTROGRAM EVENTS ======================
 

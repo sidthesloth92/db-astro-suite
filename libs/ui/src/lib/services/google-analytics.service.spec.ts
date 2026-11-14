@@ -17,11 +17,12 @@ describe('GoogleAnalyticsService', () => {
     service = TestBed.inject(GoogleAnalyticsService);
   });
 
-  it('should send the Starwizz video event with its format and no shared user id', () => {
-    service.trackVideoGeneration('mp4');
+  it('should send the Starwizz video event with its format, its mode and no shared user id', () => {
+    service.trackVideoGeneration('mp4', '3d');
 
     expect(gtag).toHaveBeenCalledOnceWith('event', 'starwizz_video_generation', {
       format: 'mp4',
+      mode: '3d',
     });
   });
 
@@ -40,6 +41,6 @@ describe('GoogleAnalyticsService', () => {
     });
     const offline = TestBed.inject(GoogleAnalyticsService);
 
-    expect(() => offline.trackVideoGeneration('webm')).not.toThrow();
+    expect(() => offline.trackVideoGeneration('webm', '2d')).not.toThrow();
   });
 });

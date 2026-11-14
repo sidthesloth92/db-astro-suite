@@ -1036,10 +1036,18 @@ describe('SimulationService', () => {
         expect(trackVideoGeneration).not.toHaveBeenCalled();
       });
 
-      it('should track the video format without a shared user id on success', async () => {
+      it('should track the video format and mode without a shared user id on success', async () => {
         await recordOnce(2_000_000);
 
-        expect(trackVideoGeneration).toHaveBeenCalledWith('mp4');
+        expect(trackVideoGeneration).toHaveBeenCalledWith('mp4', '2d');
+      });
+
+      it('should track a clip recorded in 3D as a 3D clip', async () => {
+        service.renderMode.set('3d');
+
+        await recordOnce(2_000_000);
+
+        expect(trackVideoGeneration).toHaveBeenCalledWith('mp4', '3d');
       });
 
       it('should re-download the retained recording on saveLastRecording', async () => {

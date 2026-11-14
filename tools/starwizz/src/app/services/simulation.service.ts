@@ -1350,9 +1350,9 @@ export class SimulationService implements OnDestroy {
     this.pendingObjectUrl = URL.createObjectURL(blob);
     this.triggerDownload(this.pendingObjectUrl, filename);
 
-    // Track video generation event
+    // Track video generation event, with the mode so 2D and 3D clips can be told apart.
     const videoFormat = extension.substring(1); // Remove leading dot
-    this.analyticsService.trackVideoGeneration(videoFormat);
+    this.analyticsService.trackVideoGeneration(videoFormat, this.renderMode());
     this.sharePrompt.notifyExportSucceeded();
   }
 
