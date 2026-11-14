@@ -145,7 +145,7 @@ export const STARWIZZ_DETAIL: ToolDetailConfig = {
   outputTitle: 'OUTPUT',
   outputMeta: 'END PRODUCT',
   outputCaption:
-    'A 9:16 flythrough of the Horsehead Nebula with natural star colors and diffraction spikes. Drop it behind a title, reel, or presentation.',
+    'The same Pleiades photo drifting left to right, exported as 9:16 clips. In 2D the stars move over the photo. In 3D its own stars are lifted off and pass by at different depths.',
 
   ctaTitle: {
     before: 'Create stunning starfield videos for free in ',
