@@ -6,6 +6,7 @@ import {
   RECORDING_WATCHDOG_MS,
 } from '../constants/recording.constant';
 
+import { FIXTURE_TIMESCALE, fragmentedMp4, readPlainMp4 } from '../../testing/mp4-fixture.util';
 import { ShootingStar } from '../models/shooting-star.model';
 import { Star } from '../models/star.model';
 import { SimulationService } from './simulation.service';
@@ -553,6 +554,8 @@ describe('SimulationService', () => {
     let isTypeSupported: (type: string) => boolean;
     let originalMediaRecorder: typeof MediaRecorder;
     let canvas: HTMLCanvasElement;
+    /** Stand-in for the download link's click, so no spec saves a real file. */
+    let anchorClick: jasmine.Spy<() => void>;
 
     /** Alias for the native MediaRecorder state union (distinct from the app's RecordingState). */
     type RecordingStateNative = 'inactive' | 'recording' | 'paused';
@@ -583,10 +586,11 @@ describe('SimulationService', () => {
       requestData(): void {
         this.requestDataCalls += 1;
       }
-      /** Delivers a data chunk of the given byte length to the service. */
-      emitChunk(bytes: number): void {
+      /** Delivers a data chunk to the service: that many empty bytes, or the given bytes. */
+      emitChunk(bytes: number | Uint8Array<ArrayBuffer>): void {
+        const data = new Blob([typeof bytes === 'number' ? new Uint8Array(bytes) : bytes]);
         // Structural cast: the service only reads `data` off the event.
-        this.ondataavailable?.({ data: new Blob([new Uint8Array(bytes)]) } as BlobEvent);
+        this.ondataavailable?.({ data } as BlobEvent);
       }
       /** Fires the runtime encoder-failure event. */
       emitError(): void {
@@ -616,6 +620,9 @@ describe('SimulationService', () => {
       window.MediaRecorder = FakeMediaRecorder as unknown as typeof MediaRecorder;
       canvas = document.createElement('canvas');
       spyOn(canvas, 'captureStream').and.returnValue(new MediaStream());
+      // A finished recording is saved by clicking a download link. Left unstubbed, every run
+      // of these specs drops a file into the Downloads folder of whoever runs them.
+      anchorClick = spyOn(HTMLAnchorElement.prototype, 'click');
     });
 
     afterEach(() => {
@@ -837,15 +844,15 @@ describe('SimulationService', () => {
         spyOn(URL, 'revokeObjectURL').and.callFake((url: string) => {
           revokedUrls.push(url);
         });
-        spyOn(HTMLAnchorElement.prototype, 'click').and.callFake(function (this: HTMLAnchorElement) {
+        anchorClick.and.callFake(function (this: HTMLAnchorElement) {
           clickedAnchors.push(this);
         });
       });
 
-      async function recordOnce(bytes: number): Promise<void> {
+      async function recordOnce(bytes: number | Uint8Array<ArrayBuffer>): Promise<void> {
         startRecordingAsApp();
         const recorder = recorders[recorders.length - 1];
-        if (bytes > 0) {
+        if (typeof bytes !== 'number' || bytes > 0) {
           recorder.emitChunk(bytes);
         }
         service.stopRecording();
@@ -892,6 +899,35 @@ describe('SimulationService', () => {
         expect(recorders[0].options?.mimeType).toBe('video/mp4;codecs=avc1.64002A');
         expect(service.lastRecording()?.mimeType).toBe('video/mp4');
         expect(service.lastRecording()?.blob.type).toBe('video/mp4');
+      });
+
+      it('should save a fragmented MP4 recording as an ordinary MP4 that states its length once', async () => {
+        const fragments = [0, 2000].map((decodeTime) => ({
+          decodeTime,
+          samples: [
+            { size: 300, duration: 1000 },
+            { size: 40, duration: 1000 },
+          ],
+        }));
+        // The header a browser writes, corrected the old way: it already states the full length.
+        const recording = fragmentedMp4(fragments, { movieDuration: 133, mediaDuration: 4000 });
+
+        await recordOnce(recording.bytes);
+
+        const saved = service.lastRecording()?.blob;
+        const plain = readPlainMp4(new Uint8Array((await saved?.arrayBuffer()) ?? new ArrayBuffer(0)));
+        expect(plain.boxTypes).toEqual(['ftyp', 'moov', 'mdat']);
+        expect(plain.mediaSeconds).toBeCloseTo(4000 / FIXTURE_TIMESCALE, 4);
+        expect(plain.frames).toEqual(recording.frames);
+      });
+
+      it('should still save a recording it cannot rewrite', async () => {
+        await recordOnce(new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]));
+
+        const saved = service.lastRecording()?.blob;
+        expect(new Uint8Array((await saved?.arrayBuffer()) ?? new ArrayBuffer(0))).toEqual(
+          new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
+        );
       });
 
       describe('sharing', () => {

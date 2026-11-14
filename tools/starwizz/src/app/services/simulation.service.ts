@@ -37,6 +37,7 @@ import {
 } from '../models/simulation.model';
 import { Star } from '../models/star.model';
 import { repairMp4BlobDuration } from '../utils/mp4-duration.util';
+import { flattenMp4Blob } from '../utils/mp4-flatten.util';
 import { buildRecordingMimeLadder, toContainerMimeType } from '../utils/recording-mime.util';
 import { computeRecordingBitsPerSecond } from '../utils/recording-size.util';
 import { AnalyticsService, SharePromptService } from '@db-astro-suite/ui';
@@ -1340,22 +1341,25 @@ export class SimulationService implements OnDestroy {
   }
 
   /**
-   * Corrects the duration headers of an MP4 recording so Android galleries
-   * and Instagram see its real length. A failed repair must never cost the
-   * user their recording, so the untouched blob is used instead.
+   * Makes an MP4 recording state its real length to every app. Browsers
+   * record MP4 in fragments, which Apple and Android software time
+   * differently, so the recording is rewritten as an ordinary MP4. If that
+   * is not possible the duration headers are corrected instead. A failure
+   * must never cost the user their recording, so the untouched blob is the
+   * last resort.
    *
    * @param blob - The assembled recording
    * @param containerMimeType - The recording's bare container type
-   * @returns The repaired blob, or the original when no repair applied
+   * @returns The rewritten blob, or the original when nothing applied
    */
   private async withRepairedDuration(blob: Blob, containerMimeType: string): Promise<Blob> {
     if (containerMimeType !== 'video/mp4') {
       return blob;
     }
     try {
-      return await repairMp4BlobDuration(blob);
+      return (await flattenMp4Blob(blob)) ?? (await repairMp4BlobDuration(blob));
     } catch (e) {
-      console.error('Could not repair the recording duration; saving it unmodified:', e);
+      console.error('Could not finalise the recording; saving it unmodified:', e);
       return blob;
     }
   }
