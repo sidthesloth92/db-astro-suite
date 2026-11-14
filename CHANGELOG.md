@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.39.7](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.39.6...db-astro-suite-v1.39.7) (2026-11-14)
+
+
+### Bug Fixes
+
+* **starwizz:** save recordings as ordinary MP4s so iPhones stop doubling their length ([#150](https://github.com/sidthesloth92/db-astro-suite/issues/150)) ([4a3c306](https://github.com/sidthesloth92/db-astro-suite/commit/4a3c30657c300fe4f3bb3dbc665723c8742b5ef4))
+
 ## [1.39.6](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.39.5...db-astro-suite-v1.39.6) (2026-11-14)
 
 
