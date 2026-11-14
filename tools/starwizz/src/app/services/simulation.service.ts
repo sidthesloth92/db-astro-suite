@@ -39,9 +39,11 @@ import {
 import { Star } from '../models/star.model';
 import { repairMp4BlobDuration } from '../utils/mp4-duration.util';
 import { flattenMp4Blob } from '../utils/mp4-flatten.util';
+import { videoSettings2d, videoSettings3d } from '../utils/video-settings.util';
+import { Scene3dService } from './scene3d.service';
 import { buildRecordingMimeLadder, toContainerMimeType } from '../utils/recording-mime.util';
 import { computeRecordingBitsPerSecond } from '../utils/recording-size.util';
-import { AnalyticsService, SharePromptService } from '@db-astro-suite/ui';
+import { AnalyticsService, SharePromptService, VideoSettings } from '@db-astro-suite/ui';
 
 /** Size of the shooting star object pool for reuse */
 const NUM_SHOOTING_STARS = 10;
@@ -84,6 +86,7 @@ const NUM_SHOOTING_STARS = 10;
 export class SimulationService implements OnDestroy {
   private analyticsService = inject(AnalyticsService);
   private readonly sharePrompt = inject(SharePromptService);
+  private readonly scene3d = inject(Scene3dService);
 
   // ==================== Control Signals ====================
 
@@ -1350,10 +1353,26 @@ export class SimulationService implements OnDestroy {
     this.pendingObjectUrl = URL.createObjectURL(blob);
     this.triggerDownload(this.pendingObjectUrl, filename);
 
-    // Track video generation event, with the mode so 2D and 3D clips can be told apart.
+    // Track video generation event, with the settings the clip was made with.
     const videoFormat = extension.substring(1); // Remove leading dot
-    this.analyticsService.trackVideoGeneration(videoFormat, this.renderMode());
+    this.analyticsService.trackVideoGeneration(videoFormat, this.videoSettings());
     this.sharePrompt.notifyExportSucceeded();
+  }
+
+  /**
+   * The settings the current clip is made with, for the video analytics event: the 3D
+   * settings in 3D, the 2D ones otherwise.
+   */
+  private videoSettings(): VideoSettings {
+    if (this.is3dMode()) {
+      return videoSettings3d(this.scene3d.settings());
+    }
+    return videoSettings2d({
+      direction: this.travelDirection(),
+      rotation: this.controls.rotationRate(),
+      hasStars: this.starsEnabled(),
+      hasShootingStars: this.shootingStarsEnabled(),
+    });
   }
 
   /**

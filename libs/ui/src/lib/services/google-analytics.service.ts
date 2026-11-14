@@ -1,4 +1,5 @@
 import { DOCUMENT } from "@angular/common";
+import { VideoSettings } from "./models/video-settings.model";
 import { Injectable, inject } from "@angular/core";
 import { AnalyticsService } from "./analytics.service";
 import { GtagFunction } from "./models/gtag.model";
@@ -84,10 +85,10 @@ export class GoogleAnalyticsService implements AnalyticsService {
    * one user.
    *
    * @param format - The output format of the generated video.
-   * @param mode - The animation mode the clip was made in (`2d` or `3d`).
+   * @param settings - The settings the clip was made with, sent as one parameter each.
    */
-  trackVideoGeneration(format: string, mode: string): void {
-    this.trackEvent("starwizz_video_generation", { format, mode });
+  trackVideoGeneration(format: string, settings: VideoSettings): void {
+    this.trackEvent("starwizz_video_generation", { ...settings, format });
   }
 
   /**

@@ -18,6 +18,7 @@ export * from "./lib/services/google-analytics.service";
 export * from "./lib/services/route-analytics.tracker";
 export * from "./lib/services/local-storage.service";
 export * from "./lib/services/models/gtag.model";
+export * from "./lib/services/models/video-settings.model";
 export * from "./lib/services/storage.service";
 export * from "./lib/split-button/split-button.component";
 export * from "./lib/split-button/split-button.model";

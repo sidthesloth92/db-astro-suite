@@ -17,13 +17,20 @@ describe('GoogleAnalyticsService', () => {
     service = TestBed.inject(GoogleAnalyticsService);
   });
 
-  it('should send the Starwizz video event with its format, its mode and no shared user id', () => {
-    service.trackVideoGeneration('mp4', '3d');
+  it('should send the Starwizz video event with its format, its settings and no shared user id', () => {
+    service.trackVideoGeneration('mp4', { mode: '3d', style: 'arrive' });
 
     expect(gtag).toHaveBeenCalledOnceWith('event', 'starwizz_video_generation', {
       format: 'mp4',
       mode: '3d',
+      style: 'arrive',
     });
+  });
+
+  it('should keep the real file format even if a setting uses the same name', () => {
+    service.trackVideoGeneration('webm', { format: 'reels' });
+
+    expect(gtag).toHaveBeenCalledOnceWith('event', 'starwizz_video_generation', { format: 'webm' });
   });
 
   it('should send the Astrogram solve event with the tools used and no shared user id', () => {
@@ -41,6 +48,6 @@ describe('GoogleAnalyticsService', () => {
     });
     const offline = TestBed.inject(GoogleAnalyticsService);
 
-    expect(() => offline.trackVideoGeneration('webm', '2d')).not.toThrow();
+    expect(() => offline.trackVideoGeneration('webm', { mode: '2d' })).not.toThrow();
   });
 });

@@ -8,6 +8,7 @@ import {
 
 import { FIXTURE_TIMESCALE, fragmentedMp4, readPlainMp4 } from '../../testing/mp4-fixture.util';
 import { ShootingStar } from '../models/shooting-star.model';
+import { Scene3dService } from './scene3d.service';
 import { Star } from '../models/star.model';
 import { SimulationService } from './simulation.service';
 
@@ -1036,18 +1037,32 @@ describe('SimulationService', () => {
         expect(trackVideoGeneration).not.toHaveBeenCalled();
       });
 
-      it('should track the video format and mode without a shared user id on success', async () => {
+      it('should track the video format and the 2D settings without a shared user id', async () => {
+        service.updateControl('rotationRate', -5);
+
         await recordOnce(2_000_000);
 
-        expect(trackVideoGeneration).toHaveBeenCalledWith('mp4', '2d');
+        expect(trackVideoGeneration).toHaveBeenCalledOnceWith('mp4', {
+          mode: '2d',
+          direction: 'forward',
+          rotation: 'anticlockwise',
+          stars: 'on',
+          shooting_stars: 'on',
+        });
       });
 
-      it('should track a clip recorded in 3D as a 3D clip', async () => {
+      it('should track a clip recorded in 3D with the 3D settings it was made with', async () => {
+        const scene3d = TestBed.inject(Scene3dService);
         service.renderMode.set('3d');
+        scene3d.style.set('arrive');
+        scene3d.zoomIn.set(false);
 
         await recordOnce(2_000_000);
 
-        expect(trackVideoGeneration).toHaveBeenCalledWith('mp4', '3d');
+        expect(trackVideoGeneration).toHaveBeenCalledOnceWith(
+          'mp4',
+          jasmine.objectContaining({ mode: '3d', style: 'arrive', zoom_in: 'off' }),
+        );
       });
 
       it('should re-download the retained recording on saveLastRecording', async () => {
