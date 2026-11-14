@@ -25,11 +25,11 @@ function turnOf(rotation: number): string {
 export function videoSettings2d(settings: Video2dSettings): VideoSettings {
   const isTurning = settings.direction === 'forward' || settings.direction === 'backward';
   return {
-    mode: '2d',
-    direction: settings.direction,
-    rotation: isTurning ? turnOf(settings.rotation) : 'off',
-    stars: onOff(settings.hasStars),
-    shooting_stars: onOff(settings.hasStars && settings.hasShootingStars),
+    starwizz_mode: '2d',
+    starwizz_direction: settings.direction,
+    starwizz_rotation: isTurning ? turnOf(settings.rotation) : 'off',
+    starwizz_stars: onOff(settings.hasStars),
+    starwizz_shooting_stars: onOff(settings.hasStars && settings.hasShootingStars),
   };
 }
 
@@ -42,17 +42,17 @@ export function videoSettings2d(settings: Video2dSettings): VideoSettings {
  */
 export function videoSettings3d(settings: Scene3dSettings): VideoSettings {
   const shared = {
-    mode: '3d',
-    style: settings.style,
-    rotation: turnOf(settings.rotation),
-    sharp_stars: onOff(settings.starStyle === 'sharp'),
+    starwizz_mode: '3d',
+    starwizz_style: settings.style,
+    starwizz_rotation: turnOf(settings.rotation),
+    starwizz_sharp_stars: onOff(settings.starStyle === 'sharp'),
   };
   if (settings.style === 'travel') {
-    return { ...shared, direction: settings.direction };
+    return { ...shared, starwizz_direction: settings.direction };
   }
   return {
     ...shared,
-    zoom_in: onOff(settings.zoomIn),
-    stars_return: onOff(settings.starsReturn),
+    starwizz_zoom_in: onOff(settings.zoomIn),
+    starwizz_stars_return: onOff(settings.starsReturn),
   };
 }

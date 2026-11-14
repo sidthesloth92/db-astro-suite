@@ -1043,11 +1043,11 @@ describe('SimulationService', () => {
         await recordOnce(2_000_000);
 
         expect(trackVideoGeneration).toHaveBeenCalledOnceWith('mp4', {
-          mode: '2d',
-          direction: 'forward',
-          rotation: 'anticlockwise',
-          stars: 'on',
-          shooting_stars: 'on',
+          starwizz_mode: '2d',
+          starwizz_direction: 'forward',
+          starwizz_rotation: 'anticlockwise',
+          starwizz_stars: 'on',
+          starwizz_shooting_stars: 'on',
         });
       });
 
@@ -1061,7 +1061,7 @@ describe('SimulationService', () => {
 
         expect(trackVideoGeneration).toHaveBeenCalledOnceWith(
           'mp4',
-          jasmine.objectContaining({ mode: '3d', style: 'arrive', zoom_in: 'off' }),
+          jasmine.objectContaining({ starwizz_mode: '3d', starwizz_style: 'arrive', starwizz_zoom_in: 'off' }),
         );
       });
 

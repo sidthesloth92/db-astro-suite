@@ -31,42 +31,42 @@ const TRAVEL: Scene3dSettings = {
 describe('videoSettings2d', () => {
   it('should describe the clip the app makes when nothing is changed', () => {
     expect(videoSettings2d(OPENING_2D)).toEqual({
-      mode: '2d',
-      direction: 'forward',
-      rotation: 'clockwise',
-      stars: 'on',
-      shooting_stars: 'on',
+      starwizz_mode: '2d',
+      starwizz_direction: 'forward',
+      starwizz_rotation: 'clockwise',
+      starwizz_stars: 'on',
+      starwizz_shooting_stars: 'on',
     });
   });
 
   it('should report which way the view turns, or that it does not', () => {
-    expect(videoSettings2d({ ...OPENING_2D, rotation: -8 })['rotation']).toBe('anticlockwise');
-    expect(videoSettings2d({ ...OPENING_2D, rotation: 0 })['rotation']).toBe('off');
-    expect(videoSettings2d({ ...OPENING_2D, direction: 'backward' })['rotation']).toBe('clockwise');
+    expect(videoSettings2d({ ...OPENING_2D, rotation: -8 })['starwizz_rotation']).toBe('anticlockwise');
+    expect(videoSettings2d({ ...OPENING_2D, rotation: 0 })['starwizz_rotation']).toBe('off');
+    expect(videoSettings2d({ ...OPENING_2D, direction: 'backward' })['starwizz_rotation']).toBe('clockwise');
   });
 
   it('should report no rotation for directions that never turn the view', () => {
-    expect(videoSettings2d({ ...OPENING_2D, direction: 'left' })['rotation']).toBe('off');
-    expect(videoSettings2d({ ...OPENING_2D, direction: 'path' })['rotation']).toBe('off');
+    expect(videoSettings2d({ ...OPENING_2D, direction: 'left' })['starwizz_rotation']).toBe('off');
+    expect(videoSettings2d({ ...OPENING_2D, direction: 'path' })['starwizz_rotation']).toBe('off');
   });
 
   it('should report no shooting stars when the Stars switch removed them', () => {
     const settings = videoSettings2d({ ...OPENING_2D, hasStars: false });
 
-    expect(settings['stars']).toBe('off');
-    expect(settings['shooting_stars']).toBe('off');
-    expect(videoSettings2d({ ...OPENING_2D, hasShootingStars: false })['shooting_stars']).toBe('off');
+    expect(settings['starwizz_stars']).toBe('off');
+    expect(settings['starwizz_shooting_stars']).toBe('off');
+    expect(videoSettings2d({ ...OPENING_2D, hasShootingStars: false })['starwizz_shooting_stars']).toBe('off');
   });
 });
 
 describe('videoSettings3d', () => {
   it('should describe a Travel shot with its direction and nothing Arrive-only', () => {
     expect(videoSettings3d(TRAVEL)).toEqual({
-      mode: '3d',
-      style: 'travel',
-      direction: 'left',
-      rotation: 'off',
-      sharp_stars: 'off',
+      starwizz_mode: '3d',
+      starwizz_style: 'travel',
+      starwizz_direction: 'left',
+      starwizz_rotation: 'off',
+      starwizz_sharp_stars: 'off',
     });
   });
 
@@ -74,19 +74,19 @@ describe('videoSettings3d', () => {
     const settings = videoSettings3d({ ...TRAVEL, style: 'arrive', zoomIn: false, starsReturn: true });
 
     expect(settings).toEqual({
-      mode: '3d',
-      style: 'arrive',
-      rotation: 'off',
-      sharp_stars: 'off',
-      zoom_in: 'off',
-      stars_return: 'on',
+      starwizz_mode: '3d',
+      starwizz_style: 'arrive',
+      starwizz_rotation: 'off',
+      starwizz_sharp_stars: 'off',
+      starwizz_zoom_in: 'off',
+      starwizz_stars_return: 'on',
     });
   });
 
   it('should report Sharp Stars and the way the view turns', () => {
     const settings = videoSettings3d({ ...TRAVEL, starStyle: 'sharp', rotation: -4 });
 
-    expect(settings['sharp_stars']).toBe('on');
-    expect(settings['rotation']).toBe('anticlockwise');
+    expect(settings['starwizz_sharp_stars']).toBe('on');
+    expect(settings['starwizz_rotation']).toBe('anticlockwise');
   });
 });
