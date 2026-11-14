@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.39.4](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.39.3...db-astro-suite-v1.39.4) (2026-11-14)
+
+
+### Bug Fixes
+
+* **analytics:** stop sending a shared user_id with Starwizz and Astrogram events ([#144](https://github.com/sidthesloth92/db-astro-suite/issues/144)) ([0c62c17](https://github.com/sidthesloth92/db-astro-suite/commit/0c62c17bace02f894fcacdecb6bc6fb01944b53d))
+
 ## [1.39.3](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.39.2...db-astro-suite-v1.39.3) (2026-11-13)
 
 
