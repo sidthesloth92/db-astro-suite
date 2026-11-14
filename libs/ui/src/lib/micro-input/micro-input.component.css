@@ -51,3 +51,16 @@
 .field::placeholder {
   color: var(--db-color-text-faint);
 }
+
+/* Number mode renders without native spinner arrows — the compact box has no
+   room for them and consumers step values by typing. */
+.field[type='number'] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.field[type='number']::-webkit-inner-spin-button,
+.field[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}

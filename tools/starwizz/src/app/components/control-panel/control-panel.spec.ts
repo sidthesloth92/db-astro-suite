@@ -41,12 +41,14 @@ describe('ControlPanel', () => {
   });
 
   it('should collapse every star control when the starfield is removed', () => {
+    simService.activePanelSection.set('stars');
+    fixture.detectChanges();
     const host = fixture.nativeElement as HTMLElement;
     const starsSection = host.querySelector('.stars-section');
     expect(starsSection).not.toBeNull();
-    // Stars on: the field sliders and the Shooting Stars toggle live in the section.
+    // Stars on: the field sliders and the Shooting Stars sub-header live in the section.
     expect(starsSection?.querySelectorAll('.slider-row').length).toBeGreaterThan(0);
-    expect(starsSection?.querySelector('.record-aux')).not.toBeNull();
+    expect(starsSection?.querySelector('.stars-subheader')).not.toBeNull();
 
     simService.starsEnabled.set(false);
     fixture.detectChanges();
@@ -55,7 +57,47 @@ describe('ControlPanel', () => {
     // controls are gone — leaving the user to focus on the camera/recording controls.
     expect(host.querySelector('.stars-section')).not.toBeNull();
     expect(host.querySelectorAll('.stars-section .slider-row').length).toBe(0);
-    expect(host.querySelector('.stars-section .record-aux')).toBeNull();
+    expect(host.querySelector('.stars-section .stars-subheader')).toBeNull();
+  });
+
+  describe('panel tabs (Scene / Stars)', () => {
+    it('should default to the Scene tab with scene controls and no star sliders', () => {
+      const host = fixture.nativeElement as HTMLElement;
+
+      expect(simService.activePanelSection()).toBe('scene');
+      expect(host.querySelector('.record-options')).not.toBeNull();
+      expect(host.querySelector('.stars-section')).toBeNull();
+    });
+
+    it('should swap to star controls when the Stars tab is selected', () => {
+      component.onPanelSectionChange('stars');
+      fixture.detectChanges();
+
+      const host = fixture.nativeElement as HTMLElement;
+      expect(host.querySelector('.stars-section')).not.toBeNull();
+      expect(host.querySelector('.record-options')).toBeNull();
+    });
+
+    it('should keep the reset buttons and record button visible on both tabs', () => {
+      const host = fixture.nativeElement as HTMLElement;
+      expect(host.querySelector('.panel-actions')).not.toBeNull();
+      expect(host.querySelector('.record-split')).not.toBeNull();
+
+      simService.activePanelSection.set('stars');
+      fixture.detectChanges();
+
+      expect(host.querySelector('.panel-actions')).not.toBeNull();
+      expect(host.querySelector('.record-split')).not.toBeNull();
+    });
+
+    it('should render the record button as the last control of the panel', () => {
+      const host = fixture.nativeElement as HTMLElement;
+      const recordRow = host.querySelector('.record-row');
+
+      expect(recordRow?.lastElementChild?.classList.contains('record-split')).toBeTrue();
+      // The record row itself is the panel's final rendered block.
+      expect(recordRow?.nextElementSibling).toBeNull();
+    });
   });
 
   describe('record split-button', () => {
@@ -104,6 +146,99 @@ describe('ControlPanel', () => {
       fixture.detectChanges();
 
       expect(chevron?.disabled).toBeTrue();
+    });
+  });
+
+  describe('clip-end controls (loop / duration / freeze)', () => {
+    it('should count down the remaining seconds while recording', () => {
+      simService.durationEnabled.set(true);
+      simService.recordingDurationSeconds.set(10);
+      simService.recordingState.set('recording');
+      simService.recordingDuration.set(3);
+
+      expect(component.buttonText()).toBe('Recording... 7s');
+    });
+
+    it('should reflect a custom duration in the idle label and the size estimates', () => {
+      simService.durationEnabled.set(true);
+      simService.recordingDurationSeconds.set(60);
+
+      expect(component.buttonText()).toBe('Start Recording · 60s · Social Media');
+      // Double the default 30s clip → double the ~47 MB social estimate.
+      expect(component.presetMenuItems()[0].detail).toBe('~93 MB');
+    });
+
+    it('should count elapsed seconds (not a countdown) for a finalized path clip', () => {
+      simService.updateDirection('path');
+      simService.setCameraStart();
+      simService.setCameraEnd();
+      simService.finalizePath();
+      simService.recordingState.set('recording');
+      simService.recordingDuration.set(7);
+
+      expect(component.buttonText()).toBe('Recording... (7s)');
+    });
+
+    it('should restart the clip preview when a duration or freeze setting changes', () => {
+      component.onDurationSecondsChange('12');
+      expect(simService.restartAnimationRequested()).toBeTrue();
+
+      simService.restartAnimationRequested.set(false);
+      component.onFreezeToggle(true);
+      expect(simService.restartAnimationRequested()).toBeTrue();
+    });
+
+    it('should clamp typed duration values into the allowed range', () => {
+      component.onDurationSecondsChange('9999');
+      expect(simService.recordingDurationSeconds()).toBe(300);
+
+      component.onDurationSecondsChange('0');
+      expect(simService.recordingDurationSeconds()).toBe(1);
+
+      component.onDurationSecondsChange('nonsense');
+      expect(simService.recordingDurationSeconds()).toBe(30);
+    });
+
+    it('should render the loop, duration and freeze rows with the seconds inputs', () => {
+      simService.durationEnabled.set(true);
+      simService.freezeFrameEnabled.set(true);
+      fixture.detectChanges();
+
+      const host = fixture.nativeElement as HTMLElement;
+      const labels = Array.from(host.querySelectorAll('.record-options .record-aux-label')).map(
+        (el) => el.textContent?.trim(),
+      );
+      expect(labels).toContain('Loop');
+      expect(labels).toContain('Duration');
+      expect(labels).toContain('Freeze frame');
+      // Duration + freeze-at + freeze-hold inputs.
+      expect(host.querySelectorAll('.record-options .record-seconds-input').length).toBe(3);
+    });
+
+    it('should hide the duration row and freeze-at input in Custom Path mode', () => {
+      simService.updateDirection('path');
+      simService.freezeFrameEnabled.set(true);
+      fixture.detectChanges();
+
+      const host = fixture.nativeElement as HTMLElement;
+      const labels = Array.from(host.querySelectorAll('.record-options .record-aux-label')).map(
+        (el) => el.textContent?.trim(),
+      );
+      expect(labels).not.toContain('Duration');
+      // Only the end-of-pass hold input remains.
+      expect(host.querySelectorAll('.record-options .record-seconds-input').length).toBe(1);
+    });
+
+    it('should show the long-clip quality warning only past sixty seconds', () => {
+      const host = fixture.nativeElement as HTMLElement;
+      simService.durationEnabled.set(true);
+      simService.recordingDurationSeconds.set(45);
+      fixture.detectChanges();
+      expect(host.querySelector('.record-warning')).toBeNull();
+
+      simService.recordingDurationSeconds.set(90);
+      fixture.detectChanges();
+      expect(host.querySelector('.record-warning')).not.toBeNull();
     });
   });
 

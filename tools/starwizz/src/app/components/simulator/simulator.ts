@@ -106,6 +106,8 @@ export class Simulator implements AfterViewInit {
   /** On-screen px the backdrop has glided in the current lateral (Left/Right/Up/Down) loop. */
   private lateralTravelled = 0;
   private starSprites: StarSprites | null = null;
+  /** Twinkle clock captured at the freeze instant, so a held frame is fully static. */
+  private frozenTimeSeconds: number | null = null;
   private lastShootingStarSpawn = 0;
   private animationFrameId: number | null = null;
 
@@ -166,6 +168,8 @@ export class Simulator implements AfterViewInit {
   private readonly _restartEffect = effect(() => {
     const shouldRestart = this.simService.restartAnimationRequested();
     if (shouldRestart) {
+      // A restart always releases a held frame (loop-off clip end or freeze).
+      this.simService.sceneFrozen.set(false);
       if (this.simService.isPathMode() && this.simService.pathFinalized()) {
         // Restart the fixed path from A (keeps looping).
         this.pathReversed = false;
@@ -176,6 +180,9 @@ export class Simulator implements AfterViewInit {
         this.resetCameraFraming();
       }
       this.simService.restartAnimationRequested.set(false);
+      // Every restart plays the clip timeline as a recording would, so the
+      // user can preview freeze/duration/loop behaviour without recording.
+      this.simService.startClipPreview();
     }
   });
 
@@ -397,7 +404,9 @@ export class Simulator implements AfterViewInit {
 
     if (!this.ctx) return;
 
-    if (this.simService.isImageLoaded()) {
+    // A frozen scene keeps rendering (an active recording must keep capturing
+    // the held frame) but skips every motion update.
+    if (this.simService.isImageLoaded() && !this.simService.sceneFrozen()) {
       this.updateGlobalState();
       this.handleShootingStarSpawning();
     }
@@ -589,10 +598,21 @@ export class Simulator implements AfterViewInit {
     });
 
     if (t >= 1) {
-      // We've reached B this frame (lerp at t=1 == end). Restart the timer so the
-      // next frame begins a fresh A→B leg — looping from the beginning without
-      // skipping B (don't overwrite to A here, or B would never render).
-      this.pathLegStart = performance.now();
+      // We've reached B this frame (lerp at t=1 == end).
+      if (this.simService.isRecording() || this.simService.previewActive()) {
+        // The clip (or its preview) ends with the pass — the service applies
+        // the optional end-of-path hold and the Loop setting.
+        this.simService.onPathPassComplete();
+      } else if (this.simService.loopEnabled()) {
+        // Restart the timer so the next frame begins a fresh A→B leg —
+        // looping from the beginning without skipping B (don't overwrite to A
+        // here, or B would never render).
+        this.pathLegStart = performance.now();
+      } else {
+        // Loop off: hold the final framing until Restart / Loop re-enable.
+        this.simService.stopPath();
+        this.simService.sceneFrozen.set(true);
+      }
     }
   }
 
@@ -806,8 +826,16 @@ export class Simulator implements AfterViewInit {
     // once the path is fixed (finalizePath derives the star motion).
     if (this.simService.isPathMode() && !this.simService.pathFinalized()) return;
 
-    const isMoving = this.simService.isImageLoaded();
-    const timeSeconds = performance.now() / 1000;
+    // A frozen scene renders a fully static frame: star positions stop
+    // updating and the twinkle clock holds at the freeze instant.
+    const isFrozen = this.simService.sceneFrozen();
+    const isMoving = this.simService.isImageLoaded() && !isFrozen;
+    if (isFrozen) {
+      this.frozenTimeSeconds ??= performance.now() / 1000;
+    } else {
+      this.frozenTimeSeconds = null;
+    }
+    const timeSeconds = this.frozenTimeSeconds ?? performance.now() / 1000;
 
     for (const star of this.simService.stars()) {
       if (isMoving) star.update();

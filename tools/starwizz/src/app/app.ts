@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import {
+  BottomNavComponent,
   BreakpointService,
   FloatingSheetComponent,
   HeaderComponent,
@@ -9,7 +10,9 @@ import {
   SharePromptService,
   VideoLightboxComponent,
   checkIcon,
+  cogIcon,
   slidersIcon,
+  sparklesIcon,
 } from '@db-astro-suite/ui';
 import packageJson from '../../../../package.json';
 import { ControlPanel } from './components/control-panel/control-panel';
@@ -17,11 +20,12 @@ import { InAppBrowserAlert } from './components/in-app-browser-alert/in-app-brow
 import { Simulator } from './components/simulator/simulator';
 import {
   DEFAULT_RECORDING_PRESET,
-  MAX_RECORDING_SECONDS,
   RECORDING_PRESETS,
   RECORDING_PRESET_TAB_ORDER,
 } from './constants/recording.constant';
+import { PANEL_SECTION_NAV_ITEMS } from './constants/simulation.constant';
 import { QualityPickerItem } from './models/quality-picker-item.model';
+import { PanelSection } from './models/simulation.model';
 import { RecordingPreset } from './models/recording.model';
 import { InAppBrowserService } from './services/in-app-browser.service';
 import { SimulationService } from './services/simulation.service';
@@ -49,6 +53,7 @@ const SLIDER_TARGET_SELECTOR = 'dba-ui-micro-slider';
     InAppBrowserAlert,
     Simulator,
     HeaderComponent,
+    BottomNavComponent,
     FloatingSheetComponent,
     IconButtonComponent,
     IconComponent,
@@ -90,8 +95,25 @@ export class App {
   /** Check glyph marking a finished recording in the "Video ready" chip. */
   protected readonly checkIcon = checkIcon;
 
-  /** Maximum recording length (seconds), shown in the quality popup title. */
-  protected readonly maxRecordingSeconds = MAX_RECORDING_SECONDS;
+  /** Cog glyph for the mobile Scene tab. */
+  protected readonly cogIcon = cogIcon;
+  /** Sparkles glyph for the mobile Stars tab. */
+  protected readonly sparklesIcon = sparklesIcon;
+
+  /** Bottom-navigation items for the mobile sheet's Scene / Stars tabs. */
+  protected readonly panelNavItems = PANEL_SECTION_NAV_ITEMS;
+
+  /** Effective clip length (seconds), shown in the quality popup title. */
+  protected readonly clipSeconds = computed<number>(() =>
+    this.simService.recordingTargetSeconds(),
+  );
+
+  /** Applies a mobile tab selection and makes sure the sheet is open to show it. */
+  onPanelNavActivate(id: string): void {
+    // Narrowing cast: the nav items only carry PanelSection ids.
+    this.simService.activePanelSection.set(id as PanelSection);
+    this.sheetExpanded.set(true);
+  }
 
   /** Whether the persistent record/stop button is disabled (no image, or processing). */
   protected readonly isMobileRecordDisabled = computed<boolean>(
@@ -121,7 +143,7 @@ export class App {
       return {
         preset: key,
         label: preset.shortLabel,
-        sizeMb: estimateRecordingSizeMb(bitsPerSecond, MAX_RECORDING_SECONDS),
+        sizeMb: estimateRecordingSizeMb(bitsPerSecond, this.simService.recordingTargetSeconds()),
         isRecommended: key === DEFAULT_RECORDING_PRESET,
       };
     });

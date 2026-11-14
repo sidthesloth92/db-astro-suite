@@ -24,6 +24,13 @@
     <dba-sw-clear-image-button (clearClicked)="clearImage()"></dba-sw-clear-image-button>
   }
 
+  <!-- Clip timer — elapsed vs. planned clip length, during preview and recording -->
+  @if (simService.isClipTimerVisible()) {
+    <div class="clip-timer" role="timer" aria-label="Clip time">
+      {{ simService.clipTimerLabel() }}
+    </div>
+  }
+
   <!-- Only the canvas remains here -->
   <canvas
     #starCanvas
