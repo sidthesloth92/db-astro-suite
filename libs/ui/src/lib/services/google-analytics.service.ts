@@ -68,26 +68,25 @@ export class GoogleAnalyticsService implements AnalyticsService {
   }
 
   /**
-   * Tracks an image generation action by a user.
+   * Tracks an image generation action by a user. No `user_id` is sent: GA4
+   * treats it as a User-ID, so a shared value would merge every visitor into
+   * one user.
    *
-   * @param userId - The identifier of the user who generated the image.
    * @param toolsUsed - A string describing the tools applied during generation.
    */
-  trackImageGeneration(userId: string, toolsUsed: string): void {
-    this.trackEvent("astrogram_astrosolve_success", {
-      user_id: userId,
-      tools_used: toolsUsed,
-    });
+  trackImageGeneration(toolsUsed: string): void {
+    this.trackEvent("astrogram_astrosolve_success", { tools_used: toolsUsed });
   }
 
   /**
-   * Tracks a video generation action by a user.
+   * Tracks a video generation action by a user. No `user_id` is sent: GA4
+   * treats it as a User-ID, so a shared value would merge every visitor into
+   * one user.
    *
-   * @param userId - The identifier of the user who generated the video.
    * @param format - The output format of the generated video.
    */
-  trackVideoGeneration(userId: string, format: string): void {
-    this.trackEvent("starwizz_video_generation", { user_id: userId, format });
+  trackVideoGeneration(format: string): void {
+    this.trackEvent("starwizz_video_generation", { format });
   }
 
   /**

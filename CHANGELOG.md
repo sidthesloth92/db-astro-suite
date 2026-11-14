@@ -1,5 +1,33 @@
 # Changelog
 
+## [1.39.7](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.39.6...db-astro-suite-v1.39.7) (2026-11-14)
+
+
+### Bug Fixes
+
+* **starwizz:** save recordings as ordinary MP4s so iPhones stop doubling their length ([#150](https://github.com/sidthesloth92/db-astro-suite/issues/150)) ([4a3c306](https://github.com/sidthesloth92/db-astro-suite/commit/4a3c30657c300fe4f3bb3dbc665723c8742b5ef4))
+
+## [1.39.6](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.39.5...db-astro-suite-v1.39.6) (2026-11-14)
+
+
+### Bug Fixes
+
+* **astrogram,astrospike:** add apple-touch-icon so iOS Add to Home Screen shows the tool icon ([#148](https://github.com/sidthesloth92/db-astro-suite/issues/148)) ([375e44d](https://github.com/sidthesloth92/db-astro-suite/commit/375e44daed7a7807fa25adadb1796c01b6e79602))
+
+## [1.39.5](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.39.4...db-astro-suite-v1.39.5) (2026-11-14)
+
+
+### Bug Fixes
+
+* **hub:** use the Orbitron brand mark for favicons and add social/app icon exports ([#146](https://github.com/sidthesloth92/db-astro-suite/issues/146)) ([7df9bc9](https://github.com/sidthesloth92/db-astro-suite/commit/7df9bc95d100e6278a06e7c0efa62d3ae857e7e9))
+
+## [1.39.4](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.39.3...db-astro-suite-v1.39.4) (2026-11-14)
+
+
+### Bug Fixes
+
+* **analytics:** stop sending a shared user_id with Starwizz and Astrogram events ([#144](https://github.com/sidthesloth92/db-astro-suite/issues/144)) ([0c62c17](https://github.com/sidthesloth92/db-astro-suite/commit/0c62c17bace02f894fcacdecb6bc6fb01944b53d))
+
 ## [1.39.3](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.39.2...db-astro-suite-v1.39.3) (2026-11-13)
 
 
