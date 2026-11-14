@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.39.5](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.39.4...db-astro-suite-v1.39.5) (2026-11-14)
+
+
+### Bug Fixes
+
+* **hub:** use the Orbitron brand mark for favicons and add social/app icon exports ([#146](https://github.com/sidthesloth92/db-astro-suite/issues/146)) ([7df9bc9](https://github.com/sidthesloth92/db-astro-suite/commit/7df9bc95d100e6278a06e7c0efa62d3ae857e7e9))
+
 ## [1.39.4](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.39.3...db-astro-suite-v1.39.4) (2026-11-14)
 
 
