@@ -155,8 +155,8 @@ test.describe("Starwizz Tool Page", () => {
     await expect(hubTool.getSectionHeading(/OUTPUT/i)).toBeVisible();
   });
 
-  test("lists eleven capabilities and five steps", async () => {
-    await expect(hubTool.getFeatureHeadings()).toHaveCount(11);
+  test("lists twelve capabilities and five steps", async () => {
+    await expect(hubTool.getFeatureHeadings()).toHaveCount(12);
     await expect(hubTool.getStepHeadings()).toHaveCount(5);
   });
 

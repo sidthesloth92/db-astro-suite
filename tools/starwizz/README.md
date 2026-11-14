@@ -1,8 +1,8 @@
 # Starwizz - 4K Starfield Video Generator
 
-**Starwizz** is a high-performance, browser-based 4K starfield and galaxy generator. Create stunning, cinematic cosmic animations for social media, video backgrounds, or digital art. Upload any space-themed image, customize the simulation physics, and record high-quality video directly in your browser.
+**Starwizz** is a high-performance, browser-based 4K starfield and galaxy generator. Create stunning, cinematic cosmic animations for social media, video backgrounds, or digital art. Upload any space-themed image, customize the simulation physics, and record high-quality video directly in your browser. A 3D mode lifts the real stars off your photo and flies you through them.
 
-**[Try it live](https://sidthesloth92.github.io/db-astro-suite/starwizz/)**
+**[Try it live](https://dbastrosuite.com/starwizz/)**
 
 ---
 
@@ -18,7 +18,7 @@
 
 ## How to Use
 
-1. **Open the app** - Visit [Starwizz](https://sidthesloth92.github.io/db-astro-suite/starwizz/) in your browser
+1. **Open the app** - Visit [Starwizz](https://dbastrosuite.com/starwizz/) in your browser
 2. **View the demo** - A default galaxy image loads automatically so you can see the effect immediately
 3. **Upload your image** - Click "Upload Target" to select your own background image (any space/galaxy image works best)
 4. **Adjust parameters** - Use the control sliders on the right panel to customize the animation:
@@ -36,9 +36,22 @@
 
 ---
 
+## 3D Mode
+
+Switch **Mode** from 2D to 3D and Starwizz finds the stars in your photo, lifts them off the image and places them at different depths in front of your nebula. The camera then flies through them, so near stars sweep past while the nebula holds behind.
+
+- **Travel** - Glide through the star field forward, backward, left, right, up or down, or drag a marker on the preview to choose where to fly.
+- **Arrive** - Start deep inside a cloud of stars and settle on your target. **Zoom In** moves the camera toward the target as it arrives, and **Stars Return At End** puts every star back where you photographed it.
+- **Rotation** - One slider that rests in the middle. Left turns the view anticlockwise, right turns it clockwise, and further is faster.
+- **Stars** - Star Amount, Star Size, Star Depth and Twinkle shape the star field. **Sharp Stars** redraws the lifted stars as crisp points, with optional Spikes.
+
+3D needs a browser with WebGL2 and is heavier to draw than 2D. If the preview or your clip stutters on a phone, record on a desktop computer.
+
+---
+
 ## Parameters
 
-Customize your starfield simulation with these controls:
+Customize your 2D starfield simulation with these controls:
 
 ### Zoom Speed
 

@@ -4,15 +4,20 @@ Allow: /
 # Starwizz
 
 Starwizz is a free browser-based 4K starfield and galaxy animation generator.
-Create cinematic cosmic backgrounds and videos entirely in the browser — no downloads, no uploads.
+Create cinematic cosmic backgrounds and videos entirely in the browser. No downloads, no uploads.
 
 ## What it does
 You control a real-time starfield simulation: set star density, velocity vectors, rotation speed,
 zoom level, and enable shooting star sequences. When satisfied, record the output as a 4K video
 directly in the browser using the MediaRecorder API and download it instantly.
 
+In 3D mode Starwizz finds the stars in your photo, lifts them off the image and places them at
+different depths in front of the nebula. Travel glides the camera through that star field in any
+direction. Arrive starts deep in a cloud of stars and settles on the target.
+
 ## Core Features
 - Realistic 4K starfield generation with depth and parallax movement
+- 3D mode that lifts the real stars off your photo, with Travel and Arrive camera styles
 - Galaxy background rendering with nebula cloud effects
 - Real-time controls: star density, velocity, rotation speed, zoom level
 - Shooting star simulation with high-performance object pooling
@@ -26,14 +31,13 @@ directly in the browser using the MediaRecorder API and download it instantly.
 - Atmospheric b-roll for astrophotography content
 
 ## Tech Stack
-Angular 21 (Standalone Components, Signals), HTML5 Canvas 2D API, MediaRecorder API, TailwindCSS 4
+Angular 21 (Standalone Components, Signals), HTML5 Canvas 2D API, WebGL2 (3D mode), MediaRecorder API, TailwindCSS 4
 
 ## Part of DB Astro Suite
-Starwizz is one tool in the DB Astro Suite — a free collection of astrophotography and space tools
-by Dinesh Balaji Venkataraj.
+Starwizz is one tool in the DB Astro Suite, a free collection of astrophotography and space tools.
 
 ## Links
-- Live app: https://sidthesloth92.github.io/db-astro-suite/starwizz/
-- Suite home: https://sidthesloth92.github.io/db-astro-suite/
+- Live app: https://dbastrosuite.com/starwizz/
+- Suite home: https://dbastrosuite.com/
 - Repo: https://github.com/sidthesloth92/db-astro-suite
-- LLMs context: https://sidthesloth92.github.io/db-astro-suite/starwizz/llms.txt
+- LLMs context: https://dbastrosuite.com/starwizz/llms.txt
