@@ -1,6 +1,7 @@
 // Tunables for lifting the stars off a photo. Brightness values are 0..1; sizes are in
 // working-image px unless stated. All were tuned on the default Christmas Tree image, the
-// Rosette and the Pleiades at a 2560 px working size.
+// Rosette and the Pleiades at a 2560 px working size, then checked on filament nebulae (Veil,
+// Crescent) and dusty fields, where a star's surroundings are far from flat.
 
 /** Longest side (px) of the copy of the photo that is analysed and used as scene textures. */
 export const LIFT_WORKING_LONG_SIDE = 2560;
@@ -28,6 +29,25 @@ export const LIFT_MAX_STARS = 6000;
  */
 export const LIFT_PLATEAU_TOLERANCE = 1e-4;
 
+/**
+ * The darker part of a ring around a star is read at this share of its samples, darkest first
+ * (0.5 would be the median). Low enough that nebula crossing part of the ring is not mistaken
+ * for starlight.
+ */
+export const LIFT_RING_QUANTILE = 0.25;
+/** The brighter part of a ring is read at this share of its samples, darkest first. */
+export const LIFT_RING_HIGH_QUANTILE = 0.75;
+/**
+ * A detection less round than this (0..1) is a bright spot on a filament of nebula and stays
+ * with the backdrop. Stars in clear sky measure 0.9 and up.
+ */
+export const LIFT_MIN_ROUNDNESS = 0.7;
+/**
+ * Detections whose light ends closer than this (px) are lifted without the roundness check:
+ * too few pixels to judge a shape, and too small to leave a visible hole in a filament.
+ */
+export const LIFT_ROUNDNESS_MIN_REACH = 4;
+
 /** A star's disc ends where its light drops below this many noise sigmas... */
 export const LIFT_HALO_SIGMA = 1.2;
 /** ...or this absolute brightness... */
@@ -41,12 +61,14 @@ export const LIFT_HALO_GROW = 1.3;
 /** ...plus this many px, so no rim of the star is left behind. */
 export const LIFT_HALO_PAD = 2;
 
-/** A faint detection wider than this fraction of the image width is a nebula blob, not a star. */
+/** A faint detection wider than this fraction of the image width is a nebula blob, not a star... */
 export const LIFT_FAT_BLOB_WIDTH_RATIO = 0.006;
-/** Floor (px) for the width above. */
+/** ...and so is one this many times wider than the photo's typical star, whichever is narrower. */
+export const LIFT_FAT_BLOB_STAR_WIDTHS = 2.5;
+/** Floor (px) for both widths above. */
 export const LIFT_FAT_BLOB_MIN_WIDTH = 4;
 /** Detections brighter than this are kept however wide they are (burnt-out stars). */
-export const LIFT_FAT_BLOB_PEAK = 0.6;
+export const LIFT_FAT_BLOB_PEAK = 0.75;
 
 // ---------- nebula knots ----------
 

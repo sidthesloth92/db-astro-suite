@@ -12,6 +12,26 @@ export interface LiftStar {
   rHalo: number;
 }
 
+/** Where a star was found and what surrounds it there. Brightness values are 0..1. */
+export interface StarSite {
+  /** Peak brightness above the local background. */
+  peak: number;
+  /** Local background brightness. */
+  background: number;
+  /** Local noise (standard deviation). */
+  noise: number;
+}
+
+/** How far one star's own light spreads, measured ring by ring. */
+export interface StarSpread {
+  /** Radius (px) at which the star's light has fallen to half its height. */
+  rHalf: number;
+  /** Radius (px) at which the star's light ends. */
+  rEnd: number;
+  /** 0..1: how evenly the detection stands above its surroundings in every direction. */
+  roundness: number;
+}
+
 /**
  * One lifted cut-out: a star, plus any fainter stars whose centres fall inside its disc and so
  * travel with it. Bounds are inclusive working-image px.

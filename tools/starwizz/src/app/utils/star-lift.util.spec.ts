@@ -1,5 +1,5 @@
 import { GIANT_STRIDE, PATCH_STRIDE, STAR_STRIDE } from '../constants/star-lift.constant';
-import { makePhoto, pixelAt } from '../../testing/synthetic-photo.util';
+import { makePhoto, pixelAt, withFilament } from '../../testing/synthetic-photo.util';
 import { liftStars, measuredStarCount } from './star-lift.util';
 
 const W = 260;
@@ -65,6 +65,29 @@ describe('liftStars', () => {
     const scene = liftStars(makePhoto(W, H, nebula, [knot]), W, H);
     expect(scene.patches.length).toBe(0);
     expect(pixelAt(scene.starless, W, 130, 110)).toEqual(pixelAt(scene.photo, W, 130, 110));
+  });
+
+  it('should leave a thin filament in the backdrop right up to a star lifted off it', () => {
+    const size = 600;
+    const star = { x: 300, y: 300, amp: 0.5, sigma: 2 };
+    const sky = makePhoto(size, size, SKY, [star]);
+    const photo = withFilament(sky, size, size, {
+      x: 300,
+      y: 300,
+      angle: 90,
+      amp: 0.35,
+      sigma: 2,
+      color: [1, 0.45, 0.15],
+    });
+    const scene = liftStars(photo, size, size);
+
+    // The star itself is gone from the backdrop...
+    const [atStar] = pixelAt(scene.starless, size, star.x, star.y);
+    expect(atStar).toBeLessThan(pixelAt(photo, size, star.x, star.y)[0] - 60);
+    // ...and a short way along the filament the backdrop is the photo, untouched.
+    for (const y of [star.y - 16, star.y + 16]) {
+      expect(pixelAt(scene.starless, size, star.x, y)).toEqual(pixelAt(photo, size, star.x, y));
+    }
   });
 
   it('should keep a giant star with the backdrop and report it separately', () => {

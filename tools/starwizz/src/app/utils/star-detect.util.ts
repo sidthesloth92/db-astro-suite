@@ -6,20 +6,21 @@ import {
   LIFT_DETECT_K_SIGMA,
   LIFT_FAT_BLOB_MIN_WIDTH,
   LIFT_FAT_BLOB_PEAK,
+  LIFT_FAT_BLOB_STAR_WIDTHS,
   LIFT_FAT_BLOB_WIDTH_RATIO,
-  LIFT_HALO_FLOOR,
   LIFT_HALO_GROW,
   LIFT_HALO_PAD,
-  LIFT_HALO_PEAK_FRACTION,
-  LIFT_HALO_SIGMA,
   LIFT_MAX_RADIUS_RATIO,
   LIFT_MAX_STARS,
-  LIFT_NEIGHBOUR_RISE,
+  LIFT_MIN_ROUNDNESS,
   LIFT_PLATEAU_TOLERANCE,
+  LIFT_ROUNDNESS_MIN_REACH,
 } from '../constants/star-lift.constant';
+import { RingProfile } from '../models/ring-profile.model';
 import { LiftStar } from '../models/star-lift.model';
 import { blurImage } from './box-blur.util';
 import { estimateLocalBackground } from './local-background.util';
+import { measureStarSpread } from './star-spread.util';
 
 /**
  * Brightness of an RGBA image as the brightest channel per pixel, 0..1. The brightest channel
@@ -43,9 +44,9 @@ export function backgroundBlockFor(width: number, height: number): number {
  * Finds the stars in a brightness image and measures how far each one's light spreads.
  *
  * A star is a local maximum that stands clear of its local background. Walking outward ring by
- * ring gives the radius where its light has halved (`rHalf`) and the radius where it meets the
- * background or a neighbour (`rHalo`, grown a little so no rim is left behind). Wide, faint
- * blobs are nebula and are skipped.
+ * ring gives the radius where its light has halved (`rHalf`) and the radius where it ends
+ * (`rHalo`, grown a little so no rim is left behind). Soft clumps far wider than the photo's
+ * stars and bright spots on a filament are nebula and are skipped.
  *
  * @returns Stars sorted brightest first
  */
@@ -97,53 +98,51 @@ export function detectLiftStars(lum: Float32Array, width: number, height: number
 
   const fatWidth = Math.max(LIFT_FAT_BLOB_MIN_WIDTH, width * LIFT_FAT_BLOB_WIDTH_RATIO);
   const stars: LiftStar[] = [];
+  const rings = new RingProfile(lum, width, height, rMax);
   // Pixels inside an accepted star's core. A second peak there (the far corner of an oddly
   // shaped plateau, say) is the same star and must not be lifted or redrawn twice.
   const claimed = new Uint8Array(width * height);
   for (const candidate of candidates) {
     if (claimed[candidate.index] !== 0) continue;
-    const base = background[candidate.index];
-    const noise = sigma[candidate.index];
-    const haloThreshold = Math.max(
-      LIFT_HALO_SIGMA * noise,
-      LIFT_HALO_FLOOR,
-      LIFT_HALO_PEAK_FRACTION * candidate.peak,
+    rings.centreOn(candidate.x, candidate.y);
+    const { rHalf, rEnd, roundness } = measureStarSpread(
+      rings,
+      {
+        peak: candidate.peak,
+        background: background[candidate.index],
+        noise: sigma[candidate.index],
+      },
+      rMax,
     );
-    let rHalf = 0;
-    let rHalo = rMax;
-    let darkest = candidate.peak;
-    for (let r = 1; r <= rMax; r++) {
-      const ring = ringMean(lum, width, height, candidate.x, candidate.y, r);
-      if (ring === null) {
-        rHalo = r;
-        break;
-      }
-      const ringExcess = ring - base;
-      if (rHalf === 0 && ringExcess < 0.5 * candidate.peak) rHalf = r;
-      if (ringExcess < haloThreshold) {
-        rHalo = r;
-        break;
-      }
-      if (rHalf !== 0 && ringExcess > darkest * LIFT_NEIGHBOUR_RISE + noise) {
-        rHalo = r - 1;
-        break;
-      }
-      darkest = Math.min(darkest, ringExcess);
-    }
-    if (rHalf === 0) rHalf = rHalo;
     if (rHalf > fatWidth && candidate.peak < LIFT_FAT_BLOB_PEAK) continue;
+    if (rEnd >= LIFT_ROUNDNESS_MIN_REACH && roundness < LIFT_MIN_ROUNDNESS) continue;
 
     stars.push({
       x: candidate.x,
       y: candidate.y,
       peak: candidate.peak,
       rHalf,
-      rHalo: Math.min(rMax, Math.ceil(rHalo * LIFT_HALO_GROW + LIFT_HALO_PAD)),
+      rHalo: Math.min(rMax, Math.ceil(rEnd * LIFT_HALO_GROW + LIFT_HALO_PAD)),
     });
     claimCore(claimed, width, height, candidate.x, candidate.y, Math.max(1, rHalf));
     if (stars.length >= LIFT_MAX_STARS) break;
   }
-  return stars;
+  return withoutWideBlobs(stars);
+}
+
+/**
+ * Drops faint detections far wider than the photo's own stars. Stars in one photo are all about
+ * the same width until they burn out, so the typical width is a better yardstick than any fixed
+ * size: a soft clump of nebula is several stars wide however the photo was sampled.
+ */
+function withoutWideBlobs(stars: LiftStar[]): LiftStar[] {
+  if (stars.length === 0) return stars;
+  const widths = stars.map((star) => star.rHalf).sort((a, b) => a - b);
+  const widest = Math.max(
+    LIFT_FAT_BLOB_MIN_WIDTH,
+    LIFT_FAT_BLOB_STAR_WIDTHS * widths[widths.length >> 1],
+  );
+  return stars.filter((star) => star.rHalf <= widest || star.peak >= LIFT_FAT_BLOB_PEAK);
 }
 
 /**
@@ -210,27 +209,4 @@ function claimCore(
       claimed[y * width + x] = 1;
     }
   }
-}
-
-/** Mean brightness on a ring around a point, or null when the whole ring is off the image. */
-function ringMean(
-  lum: Float32Array,
-  width: number,
-  height: number,
-  cx: number,
-  cy: number,
-  radius: number,
-): number | null {
-  const samples = Math.max(8, Math.round(2 * Math.PI * radius));
-  let sum = 0;
-  let count = 0;
-  for (let k = 0; k < samples; k++) {
-    const angle = (k / samples) * 2 * Math.PI;
-    const x = Math.round(cx + Math.cos(angle) * radius);
-    const y = Math.round(cy + Math.sin(angle) * radius);
-    if (x < 0 || y < 0 || x >= width || y >= height) continue;
-    sum += lum[y * width + x];
-    count++;
-  }
-  return count === 0 ? null : sum / count;
 }
