@@ -14,7 +14,7 @@ import {
 import { multiplyMat4, perspectiveFromTangents, viewFromPosition } from '../utils/mat4.util';
 import { LiftedScene } from './lifted-scene.model';
 import { ParallaxRendererError } from './parallax-renderer.error';
-import { FrameView, ScenePose } from './scene-pose.model';
+import { FrameView, PhotoReach, ScenePose } from './scene-pose.model';
 import { StarVolume } from './star-volume.model';
 
 /** What one drawn frame needs besides the scene and its stars. */
@@ -33,6 +33,10 @@ export interface ParallaxFrame {
  * Draws the 3D scene with WebGL2: the starless backdrop as a depth-displaced grid, then the
  * stars as additive camera-facing quads. Owns every GPU resource and rebuilds them if the
  * browser drops and restores the graphics context.
+ *
+ * The backdrop can be made larger than the photo ({@link setBackdropReach}). Past the photo's
+ * edge it repeats the photo mirrored, so a frame that turns its corners past the edge sees the
+ * picture carry on instead of a black wedge.
  */
 export class ParallaxRenderer {
   private readonly gl: WebGL2RenderingContext;
@@ -49,6 +53,8 @@ export class ParallaxRenderer {
   private gridIndexCount = 0;
   private scene: LiftedScene | null = null;
   private stars: StarVolume | null = null;
+  /** How far the backdrop extends from the photo's centre; 1 each way is the photo itself. */
+  private backdropReach: PhotoReach = { x: 1, y: 1 };
   private readonly uniforms = new Map<string, WebGLUniformLocation | null>();
   private readonly onLost = (event: Event): void => event.preventDefault();
   private readonly onRestored = (): void => {
@@ -93,13 +99,26 @@ export class ParallaxRenderer {
     const gl = this.gl;
     for (const texture of this.textures) gl.deleteTexture(texture);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    // The three backdrop layers repeat mirrored past the photo's edge; the star atlas does not.
     this.textures = [
-      this.createTexture(scene.starless, scene.width, scene.height, gl.RGBA8, gl.RGBA),
-      this.createTexture(scene.photo, scene.width, scene.height, gl.RGBA8, gl.RGBA),
-      this.createTexture(scene.cloudDepth, scene.width, scene.height, gl.R8, gl.RED),
-      this.createTexture(scene.atlas, scene.atlasWidth, scene.atlasHeight, gl.RGBA8, gl.RGBA),
+      this.createTexture(scene.starless, scene.width, scene.height, gl.RGBA8, gl.RGBA, gl.MIRRORED_REPEAT),
+      this.createTexture(scene.photo, scene.width, scene.height, gl.RGBA8, gl.RGBA, gl.MIRRORED_REPEAT),
+      this.createTexture(scene.cloudDepth, scene.width, scene.height, gl.R8, gl.RED, gl.MIRRORED_REPEAT),
+      this.createTexture(scene.atlas, scene.atlasWidth, scene.atlasHeight, gl.RGBA8, gl.RGBA, gl.CLAMP_TO_EDGE),
     ];
     this.buildGrid(scene.width / scene.height);
+  }
+
+  /**
+   * Sets how far the backdrop extends from the photo's centre, for a frame that turns its
+   * corners past the photo's edge. Anything below 1 is treated as 1: the backdrop is never
+   * smaller than the photo.
+   */
+  setBackdropReach(reach: PhotoReach): void {
+    const next = { x: Math.max(1, reach.x), y: Math.max(1, reach.y) };
+    if (next.x === this.backdropReach.x && next.y === this.backdropReach.y) return;
+    this.backdropReach = next;
+    if (this.scene !== null) this.buildGrid(this.scene.width / this.scene.height);
   }
 
   /** Forgets the scene and its stars and blanks the canvas, for when the photo is cleared. */
@@ -270,19 +289,26 @@ export class ParallaxRenderer {
     gl.bindVertexArray(null);
   }
 
-  /** Builds the backdrop grid, finer along the photo's longer side. */
+  /**
+   * Builds the backdrop grid, finer along the photo's longer side. A backdrop that reaches
+   * past the photo gets more of the same squares, so the photo itself is drawn as finely as ever.
+   */
   private buildGrid(aspect: number): void {
     const gl = this.gl;
     const program = this.backdropProgram;
     if (program === null) return;
-    const columns = aspect >= 1 ? BACKDROP_GRID_SEGMENTS : Math.max(2, Math.round(BACKDROP_GRID_SEGMENTS * aspect));
-    const rows = aspect >= 1 ? Math.max(2, Math.round(BACKDROP_GRID_SEGMENTS / aspect)) : BACKDROP_GRID_SEGMENTS;
+    const reach = this.backdropReach;
+    const across = aspect >= 1 ? BACKDROP_GRID_SEGMENTS : Math.max(2, Math.round(BACKDROP_GRID_SEGMENTS * aspect));
+    const down = aspect >= 1 ? Math.max(2, Math.round(BACKDROP_GRID_SEGMENTS / aspect)) : BACKDROP_GRID_SEGMENTS;
+    const columns = Math.ceil(across * reach.x);
+    const rows = Math.ceil(down * reach.y);
 
+    // Texture coordinates run past 0..1 where the backdrop is wider than the photo.
     const uvs = new Float32Array((columns + 1) * (rows + 1) * 2);
     for (let r = 0, i = 0; r <= rows; r++) {
       for (let c = 0; c <= columns; c++) {
-        uvs[i++] = c / columns;
-        uvs[i++] = r / rows;
+        uvs[i++] = 0.5 + (c / columns - 0.5) * reach.x;
+        uvs[i++] = 0.5 + (r / rows - 0.5) * reach.y;
       }
     }
     const indices = new Uint32Array(columns * rows * 6);
@@ -319,6 +345,7 @@ export class ParallaxRenderer {
     height: number,
     internalFormat: number,
     format: number,
+    wrap: number,
   ): WebGLTexture {
     const gl = this.gl;
     const texture = gl.createTexture();
@@ -326,8 +353,8 @@ export class ParallaxRenderer {
     gl.texImage2D(gl.TEXTURE_2D, 0, internalFormat, width, height, 0, format, gl.UNSIGNED_BYTE, data);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrap);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrap);
     return texture;
   }
 

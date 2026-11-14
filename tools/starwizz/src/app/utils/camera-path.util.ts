@@ -9,7 +9,6 @@ import {
   ARRIVE_SECONDS_PER_SPEED,
   STAR_BACKDROP_GAP,
   CLOUD_DEPTH_PER_UNIT,
-  COVER_SAMPLES,
   LATERAL_CAMERA_HEADING,
   LATERAL_FORWARD_SHARE,
   LATERAL_OVERSCAN,
@@ -48,10 +47,9 @@ function isSideways(settings: Scene3dSettings): boolean {
 }
 
 /**
- * How much the backdrop is zoomed in at the start of a shot that does not turn. Flying forward
- * (or toward any point inside the frame) only ever shows less of the photo, so it needs no
- * spare room. Sideways presets need room to slide. A turning view needs more: see
- * {@link frameShot}.
+ * How much the backdrop is zoomed in at the start of a shot. Flying forward (or toward any
+ * point inside the frame) only ever shows less of the photo, so it needs no spare room.
+ * Sideways presets need room to slide. Turning the view does not change it.
  */
 export function overscanFor(settings: Scene3dSettings): number {
   return isSideways(settings) ? LATERAL_OVERSCAN : 1;
@@ -91,15 +89,8 @@ export function reliefFor(cloudDepth: number): number {
  * of the photo and never zooms the backdrop beyond `TRAVEL_MAX_ZOOM`.
  *
  * @param farDepth - Far limit of the star volume (see {@link starFarDepth})
- * @param cover - The box a sideways shot must keep on the photo: the frame itself, or the
- *   larger box a turning frame needs (see {@link frameShot})
  */
-export function planTravel(
-  settings: Scene3dSettings,
-  view: FrameView,
-  farDepth: number,
-  cover: FrameView = view,
-): TravelPlan {
+export function planTravel(settings: Scene3dSettings, view: FrameView, farDepth: number): TravelPlan {
   const rate = settings.speed * SPEED_RATE_PER_UNIT;
   const reach = 1 - 1 / TRAVEL_MAX_ZOOM;
   const origin: Vec3 = { x: 0, y: 0, z: 0 };
@@ -133,20 +124,18 @@ export function planTravel(
       const heading = LATERAL_CAMERA_HEADING[settings.direction];
       const horizontal = heading.x !== 0;
       const tan = horizontal ? view.tanX : view.tanY;
-      // What has to stay on the photo: the frame, or the larger box it turns inside.
-      const box = horizontal ? cover.tanX : cover.tanY;
-      // Spare backdrop on each side of that box at rest, in scene units.
-      const margin = Math.max(0, (horizontal ? view.imageAspect / 2 : 0.5) - box);
+      // Spare backdrop on each side of the resting frame, in scene units.
+      const margin = Math.max(0, (horizontal ? view.imageAspect / 2 : 0.5) - tan);
       const forward = LATERAL_FORWARD_SHARE * rate;
       // Sideways speed that slides the backdrop by `rate` frame-widths (or heights) per second.
       const wanted = rate * 2 * tan;
-      // The box's leading edge closes on the photo's edge at (sideways - box * forward).
-      const untilEdge = wanted - box * forward > 1e-9 ? (2 * margin) / (wanted - box * forward) : Infinity;
+      // The leading frame edge closes on the photo's edge at (sideways - tan * forward).
+      const untilEdge = wanted - tan * forward > 1e-9 ? (2 * margin) / (wanted - tan * forward) : Infinity;
       const duration = Math.max(TRAVEL_MIN_SECONDS, Math.min(untilEdge, reach / forward));
       // If the photo has too little room for even the shortest shot, slide more slowly so the
       // frame still stops at the photo's edge instead of running past it.
-      const sideways = Math.min(wanted, (2 * margin) / duration + box * forward);
-      const closing = sideways - box * forward;
+      const sideways = Math.min(wanted, (2 * margin) / duration + tan * forward);
+      const closing = sideways - tan * forward;
       const sign = horizontal ? heading.x : heading.y;
       // Start far enough to one side that the frame's leading edge meets the photo's edge at
       // the end of the shot, and no further, so short shots stay centred.
@@ -255,34 +244,13 @@ export function coverFor(view: FrameView, turn: number): FrameView {
 }
 
 /**
- * How far a shot's frame reaches toward the edge of the photo at its worst moment: 1 means a
- * corner just touches the edge, above 1 means it would show past it by that factor.
+ * Frames a shot: its lens, the box its stars have to fill, and how far its frame reaches
+ * across the photo.
  *
- * @param poseAt - The shot's pose at a progress of 0 (start) to 1 (end)
- */
-export function shotReach(view: FrameView, poseAt: (progress: number) => ScenePose): number {
-  let worst = 0;
-  for (let i = 0; i <= COVER_SAMPLES; i++) {
-    const pose = poseAt(i / COVER_SAMPLES);
-    // The frame's footprint on the backdrop shrinks as the camera closes in.
-    const size = (1 + pose.position.z) * pose.tanScale;
-    const cos = Math.abs(Math.cos(pose.roll));
-    const sin = Math.abs(Math.sin(pose.roll));
-    const reachX = Math.abs(pose.position.x) + size * (view.tanX * cos + view.tanY * sin);
-    const reachY = Math.abs(pose.position.y) + size * (view.tanX * sin + view.tanY * cos);
-    worst = Math.max(worst, reachX / (view.imageAspect / 2), reachY / 0.5);
-  }
-  return worst;
-}
-
-/**
- * Frames a shot: the lens, zoomed in as far as the shot needs so the photo fills the frame
- * from the first moment to the last, and the box its stars have to fill.
- *
- * A view that does not turn needs only the room {@link overscanFor} gives it. A turning frame
- * swings its corners outward, so the photo is zoomed in just enough to keep them covered: a
- * slow turn needs little, a fast one more, and a camera flying forward needs less because it
- * sees less of the photo as it goes.
+ * Turning the view never zooms the photo: the shot is framed exactly as it is with Rotation
+ * off, and turns in place. A turning frame swings its corners outward, so the stars are given
+ * the whole box it turns inside, and where a corner passes the edge of the photo the backdrop
+ * carries on as a mirror image of it.
  *
  * @param imageAspect - Photo width / height
  * @param frameAspect - Output width / height
@@ -294,33 +262,30 @@ export function frameShot(
   frameAspect: number,
   farDepth: number,
 ): ShotFraming {
-  const base = overscanFor(settings);
+  const view = frameView(imageAspect, frameAspect, overscanFor(settings));
   if (settings.rotation === 0) {
-    const view = frameView(imageAspect, frameAspect, base);
-    return { view, cover: view };
+    return { view, cover: view, reach: { x: 1, y: 1 } };
   }
 
-  // Worked out on the photo fitted to the frame: everything scales with the zoom from there.
-  const fitted = frameView(imageAspect, frameAspect, 1);
-  let overscan: number;
+  // How far the shot turns, and how far its camera strays from the middle of the photo.
   let turn: number;
+  let aside = 0;
+  let above = 0;
   if (settings.style === 'arrive') {
-    const plan = planArrive(settings);
-    turn = plan.turn;
-    overscan = shotReach(fitted, (progress) => arrivePose(plan, progress, 0, settings));
-  } else if (isSideways(settings)) {
-    // A sideways shot is planned from the room it has, so its length is not known yet: allow
-    // for the longest it can be, and keep the whole box it turns inside on the photo.
-    const forward = LATERAL_FORWARD_SHARE * settings.speed * SPEED_RATE_PER_UNIT;
-    const longest = Math.max(TRAVEL_MIN_SECONDS, (1 - 1 / TRAVEL_MAX_ZOOM) / forward);
-    turn = turnRate(settings) * longest;
-    const box = coverFor(fitted, turn);
-    overscan = base * Math.max(box.tanX / (imageAspect / 2), box.tanY / 0.5);
+    turn = planArrive(settings).turn;
   } else {
-    const plan = planTravel(settings, fitted, farDepth);
+    const plan = planTravel(settings, view, farDepth);
     turn = plan.turn;
-    overscan = shotReach(fitted, (progress) => travelPose(plan, progress));
+    aside = Math.max(Math.abs(plan.start.x), Math.abs(plan.end.x));
+    above = Math.max(Math.abs(plan.start.y), Math.abs(plan.end.y));
   }
-  const view = frameView(imageAspect, frameAspect, Math.max(base, overscan));
-  return { view, cover: coverFor(view, turn) };
+  const cover = coverFor(view, turn);
+  return {
+    view,
+    cover,
+    reach: {
+      x: Math.max(1, (aside + cover.tanX) / (imageAspect / 2)),
+      y: Math.max(1, (above + cover.tanY) / 0.5),
+    },
+  };
 }

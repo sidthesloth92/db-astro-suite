@@ -25,7 +25,7 @@ export const SCENE3D_CONTROLS: Record<Scene3dControlKey, ControlMetadata> = {
   rotation: {
     label: 'Rotation',
     description:
-      'Turns the view as the camera moves. Drag left of the middle to turn it anticlockwise, right to turn it clockwise. The further from the middle, the faster it turns. 0 is off. The image is zoomed in as much as it needs so its corners never show.',
+      'Turns the view as the camera moves. Drag left of the middle to turn it anticlockwise, right to turn it clockwise. The further from the middle, the faster it turns. 0 is off. Where a corner of the frame swings past the edge of your image, the image carries on as a mirror of itself.',
     min: -10,
     max: 10,
     step: 1,
@@ -179,8 +179,6 @@ export const LATERAL_FORWARD_SHARE = 0.5;
 export const TRAVEL_MIN_SECONDS = 3;
 /** How fast the view turns, in radians per second, per Rotation unit (one degree a second). */
 export const ROTATION_RATE_PER_UNIT = Math.PI / 180;
-/** Moments of a shot checked when working out how much room its turning frame needs. */
-export const COVER_SAMPLES = 96;
 /** Moving stars always stay at least this far in front of the backdrop. */
 export const STAR_BACKDROP_GAP = 0.03;
 

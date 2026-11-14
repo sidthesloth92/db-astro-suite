@@ -283,23 +283,32 @@ describe('Scene3d', () => {
       expect(roll()).toBeLessThan(0);
     });
 
-    it('should zoom the photo in when the view turns, and spread the stars wider', async () => {
+    it('should turn the view in place: the photo keeps its size, the stars spread wider and the backdrop reaches past the photo', async () => {
       const frame = controlFrames();
       const render = spyOn(ParallaxRenderer.prototype, 'render').and.callThrough();
       const setStars = spyOn(ParallaxRenderer.prototype, 'setStars').and.callThrough();
+      const setReach = spyOn(ParallaxRenderer.prototype, 'setBackdropReach').and.callThrough();
       await createWithPhoto();
       // Enough stars that the wider spread shows in their number, not in the luck of a few.
       scene3d.updateControl('starAmount', 300);
       fixture.detectChanges();
       frame(0);
-      const restingLens = render.calls.mostRecent().args[0].view;
+      const restingLens = { ...render.calls.mostRecent().args[0].view };
       const restingStars = setStars.calls.mostRecent().args[0].count;
+      expect(setReach.calls.mostRecent().args[0]).toEqual({ x: 1, y: 1 });
 
       scene3d.updateControl('rotation', 8);
       fixture.detectChanges();
       frame(0);
-      expect(render.calls.mostRecent().args[0].view.tanY).toBeLessThan(restingLens.tanY);
+      expect(render.calls.mostRecent().args[0].view).toEqual(restingLens);
       expect(setStars.calls.mostRecent().args[0].count).toBeGreaterThan(restingStars);
+      expect(setReach.calls.mostRecent().args[0].x).toBeGreaterThan(1);
+
+      // Back to upright: the backdrop is the photo again.
+      scene3d.updateControl('rotation', 0);
+      fixture.detectChanges();
+      frame(0);
+      expect(setReach.calls.mostRecent().args[0]).toEqual({ x: 1, y: 1 });
     });
 
     it('should restart the shot when Speed changes while the view turns, but not while it is upright', async () => {

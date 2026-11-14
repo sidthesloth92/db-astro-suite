@@ -96,9 +96,9 @@ export class Scene3d implements AfterViewInit {
   /**
    * The settings that shape the star volume. A change to any of them rebuilds the stars and
    * restarts the shot; the rest (speed, size, twinkle, cloud depth) are read live each frame.
-   * Rotation is one of them: how far the frame turns decides how much the photo is zoomed in
-   * and how wide the stars are spread. While the view turns, so is Speed, because it sets how
-   * long the shot lasts and so how far the frame turns.
+   * Rotation is one of them: how far the frame turns decides how wide the stars are spread and
+   * how far the backdrop has to reach past the photo. While the view turns, so is Speed,
+   * because it sets how long the shot lasts and so how far the frame turns.
    */
   private readonly structure = computed(() => {
     const s = this.scene3d.settings();
@@ -127,8 +127,6 @@ export class Scene3d implements AfterViewInit {
   private renderer: ParallaxRenderer | null = null;
   private volume: StarVolume | null = null;
   private view: FrameView | null = null;
-  /** The box the turning frame stays inside; the lens itself when the view does not turn. */
-  private cover: FrameView | null = null;
   private uploadedScene: LiftedScene | null = null;
   private frameId: number | null = null;
   private lastFrameMs: number | null = null;
@@ -297,11 +295,10 @@ export class Scene3d implements AfterViewInit {
     const arrive = settings.style === 'arrive';
     // Arrive's stars reach exactly as deep as the camera flies, so the last one passes on arrival.
     const far = arrive ? planArrive(settings).reach : starFarDepth(settings.starDepth);
-    const { view, cover } = frameShot(settings, scene.width / scene.height, frameAspect, far);
-    const plan = arrive ? null : planTravel(settings, view, far, cover);
+    const { view, cover, reach } = frameShot(settings, scene.width / scene.height, frameAspect, far);
+    const plan = arrive ? null : planTravel(settings, view, far);
 
     this.view = view;
-    this.cover = cover;
     this.volume = new StarVolume(scene, {
       style: settings.style,
       starStyle: settings.starStyle,
@@ -319,6 +316,7 @@ export class Scene3d implements AfterViewInit {
       renderer.setScene(scene);
       this.uploadedScene = scene;
     }
+    renderer.setBackdropReach(reach);
     renderer.setStars(this.volume);
     this.restart();
   }
@@ -345,8 +343,8 @@ export class Scene3d implements AfterViewInit {
 
   /** Advances the shot by `elapsed` seconds and draws it. */
   private drawFrame(elapsed: number): void {
-    const { renderer, volume, view, cover } = this;
-    if (renderer === null || volume === null || view === null || cover === null) return;
+    const { renderer, volume, view } = this;
+    if (renderer === null || volume === null || view === null) return;
     const settings = this.scene3d.settings();
     const arrive = settings.style === 'arrive';
 
@@ -362,7 +360,7 @@ export class Scene3d implements AfterViewInit {
       pose = arrivePose(plan, this.progress, this.heldSeconds, settings);
     } else {
       const far = starFarDepth(settings.starDepth);
-      const plan = planTravel(settings, view, far, cover);
+      const plan = planTravel(settings, view, far);
       this.progress += elapsed / plan.duration;
       if (this.progress >= 1) this.restart();
       pose = travelPose(plan, this.progress);

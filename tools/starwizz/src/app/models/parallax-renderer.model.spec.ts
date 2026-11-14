@@ -168,4 +168,76 @@ describe('ParallaxRenderer', () => {
     }
     renderer.dispose();
   });
+
+  describe('a backdrop that reaches past the photo', () => {
+    /** Number of pixels left pure black, which is what the frame shows where nothing is drawn. */
+    function blackPixels(rendered: Uint8Array): number {
+      let black = 0;
+      for (let i = 0; i < rendered.length; i += 4) {
+        if (rendered[i] + rendered[i + 1] + rendered[i + 2] === 0) black++;
+      }
+      return black;
+    }
+
+    it('should leave the corners of a turned frame empty until it is told to reach further, then fill them', () => {
+      const turned: ScenePose = { ...REST, roll: Math.PI / 4 };
+      const renderer = new ParallaxRenderer(canvas);
+      renderer.setScene(scene);
+      renderer.render({ pose: turned, view, relief: 0 });
+      expect(blackPixels(readTopDown(canvas))).toBeGreaterThan(W * H * 0.05);
+
+      renderer.setBackdropReach({ x: 2.2, y: 1.3 });
+      renderer.render({ pose: turned, view, relief: 0 });
+      expect(blackPixels(readTopDown(canvas))).toBe(0);
+      renderer.dispose();
+    });
+
+    it('should carry the photo on past its edge as a mirror image of itself', () => {
+      // A quarter of the photo's width to the right: the last quarter of the frame is past the edge.
+      const aside: ScenePose = { ...REST, position: { x: view.imageAspect / 4, y: 0, z: 0 }, photoMix: 1 };
+      const renderer = new ParallaxRenderer(canvas);
+      renderer.setScene(scene);
+      renderer.setBackdropReach({ x: 1.6, y: 1 });
+      renderer.render({ pose: aside, view, relief: 0 });
+      const rendered = readTopDown(canvas);
+
+      const firstPastEdge = Math.round(W * 0.75);
+      let sum = 0;
+      let count = 0;
+      for (let y = 0; y < H; y++) {
+        for (let column = firstPastEdge; column < W; column++) {
+          // Frame column -> photo column, reflected in the photo's right edge.
+          const mirrored = 2 * W - 1 - (column + Math.round(W / 4));
+          for (let c = 0; c < 3; c++) {
+            sum += Math.abs(rendered[(y * W + column) * 4 + c] - scene.photo[(y * W + mirrored) * 4 + c]);
+            count++;
+          }
+        }
+      }
+      expect(sum / count).toBeLessThan(1);
+      renderer.dispose();
+    });
+
+    it('should draw the photo itself exactly as before, however far the backdrop reaches', () => {
+      const renderer = new ParallaxRenderer(canvas);
+      renderer.setScene(scene);
+      renderer.setBackdropReach({ x: 2.4, y: 1.7 });
+      renderer.render({ pose: REST, view, relief: 0 });
+      expect(difference(readTopDown(canvas), scene.starless).mean).toBeLessThan(0.6);
+
+      // Cloud depth still lifts the same parts of the nebula.
+      renderer.render({ pose: REST, view, relief: 0.4 });
+      expect(difference(readTopDown(canvas), scene.starless).mean).toBeLessThan(0.8);
+      renderer.dispose();
+    });
+
+    it('should never make the backdrop smaller than the photo', () => {
+      const renderer = new ParallaxRenderer(canvas);
+      renderer.setScene(scene);
+      renderer.setBackdropReach({ x: 0.2, y: 0.2 });
+      renderer.render({ pose: REST, view, relief: 0 });
+      expect(blackPixels(readTopDown(canvas))).toBe(0);
+      renderer.dispose();
+    });
+  });
 });

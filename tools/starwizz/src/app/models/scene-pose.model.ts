@@ -62,15 +62,28 @@ export interface ArrivePlan {
   turn: number;
 }
 
+/** How far something reaches across the photo, measured from its centre. */
+export interface PhotoReach {
+  /** Reach sideways, as a multiple of the photo's half-width (1 = its left or right edge). */
+  x: number;
+  /** Reach up and down, as a multiple of the photo's half-height (1 = its top or bottom edge). */
+  y: number;
+}
+
 /** How a shot is framed: the lens it is seen through, and the room its turning frame needs. */
 export interface ShotFraming {
-  /** The resting lens. */
+  /** The resting lens. Turning the view never changes it: the photo is not zoomed. */
   view: FrameView;
   /**
    * The lens widened to the upright box that holds the frame at every angle it turns through.
    * The same as {@link view} when the view does not turn.
    */
   cover: FrameView;
+  /**
+   * How far the corners of the turning frame can reach across the photo. Above 1 they swing
+   * past its edge, where the backdrop carries on as a mirror image of the photo.
+   */
+  reach: PhotoReach;
 }
 
 /** A point where a recycled star re-enters the view volume, in camera space. */

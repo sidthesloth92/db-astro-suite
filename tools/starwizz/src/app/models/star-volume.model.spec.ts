@@ -363,12 +363,17 @@ describe('StarVolume', () => {
       expect(beyondLens).toBeGreaterThan(0);
     });
 
-    it('should not invent stars past the photo’s edge for Arrive, whose cloud is the photo’s own', () => {
+    it('should put stars past the photo’s edge for Arrive too, where the backdrop mirrors the photo', () => {
       const plain = new StarVolume(scene, config({ style: 'arrive' }));
       const volume = new StarVolume(scene, config({ style: 'arrive', cover: COVER }));
       volume.step(frame());
-      // The photo exactly fills this lens, so there is nothing of it beyond the lens to show.
-      expect(volume.count).toBe(plain.count);
+      expect(volume.count).toBeGreaterThan(plain.count);
+      let pastEdge = 0;
+      for (let i = 0; i < volume.count; i++) {
+        // The photo exactly fills this lens, so anything outside the lens is past its edge.
+        if (Math.abs(screenOf(volume, i).x) > VIEW.tanX) pastEdge++;
+      }
+      expect(pastEdge).toBeGreaterThan(0);
     });
   });
 });

@@ -418,10 +418,9 @@ export class StarVolume {
     if (beyond > 1e-9) {
       const outside = Math.round((keptInFrame / kept) * starAmount * beyond);
       // Where the photo reaches, its own stars are already there: only the extra share above
-      // 100 % is added. Past the photo's edge a Travel shot needs them all; Arrive's cloud is
-      // the photo's own and ends where the photo does.
+      // 100 % is added. Past the photo's edge, where the backdrop is a mirror of the photo,
+      // there are none, so every one is added.
       const extraShare = Math.max(0, starAmount - 1) / Math.max(starAmount, 1e-6);
-      const pastPhoto = config.style === 'travel' ? 1 : 0;
       for (let i = 0; i < outside; i++) {
         let u = 0;
         let v = 0;
@@ -432,7 +431,7 @@ export class StarVolume {
         const planeX = start.x + u * view.tanX * planeDistance;
         const planeY = start.y + v * view.tanY * planeDistance;
         const onPhoto = Math.abs(planeX) <= halfPlaneX && Math.abs(planeY) <= 0.5;
-        if (this.random() < (onPhoto ? extraShare : pastPhoto)) clone(u, v);
+        if (this.random() < (onPhoto ? extraShare : 1)) clone(u, v);
       }
     }
     return seeds;

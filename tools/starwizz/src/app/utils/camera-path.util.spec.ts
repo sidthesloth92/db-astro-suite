@@ -6,7 +6,7 @@ import {
   SCENE3D_CONTROLS,
   TRAVEL_MAX_ZOOM,
 } from '../constants/scene3d.constant';
-import { FrameView, ScenePose, TravelPlan } from '../models/scene-pose.model';
+import { FrameView, PhotoReach, ScenePose, TravelPlan } from '../models/scene-pose.model';
 import { Scene3dSettings } from '../models/scene3d-settings.model';
 import {
   arrivePose,
@@ -17,7 +17,6 @@ import {
   planArrive,
   planTravel,
   reliefFor,
-  shotReach,
   smoothStep,
   starFarDepth,
   travelPose,
@@ -56,10 +55,14 @@ function staysInsidePhoto(plan: TravelPlan, view: FrameView): boolean {
 }
 
 /**
- * True when no corner of the frame, turned as the pose turns it, ever shows past the edge of
- * the photo. Checked far more finely than the code under test samples a shot.
+ * True when no corner of the frame, turned as the pose turns it, ever passes `reach` (in
+ * photo half-widths and half-heights; 1 each way is the photo's own edge).
  */
-function turningFrameStaysOnPhoto(view: FrameView, poseAt: (progress: number) => ScenePose): boolean {
+function turningFrameStaysWithin(
+  view: FrameView,
+  reach: PhotoReach,
+  poseAt: (progress: number) => ScenePose,
+): boolean {
   const steps = 2000;
   for (let i = 0; i <= steps; i++) {
     const pose = poseAt(i / steps);
@@ -75,7 +78,10 @@ function turningFrameStaysOnPhoto(view: FrameView, poseAt: (progress: number) =>
       // The picture turns clockwise by `roll`, so the frame sits anticlockwise on the photo.
       const onPhotoX = pose.position.x + x * Math.cos(pose.roll) - y * Math.sin(pose.roll);
       const onPhotoY = pose.position.y + x * Math.sin(pose.roll) + y * Math.cos(pose.roll);
-      if (Math.abs(onPhotoX) > (view.imageAspect / 2) * 1.002 || Math.abs(onPhotoY) > 0.5 * 1.002) {
+      if (
+        Math.abs(onPhotoX) > (view.imageAspect / 2) * reach.x + 1e-9 ||
+        Math.abs(onPhotoY) > 0.5 * reach.y + 1e-9
+      ) {
         return false;
       }
     }
@@ -291,8 +297,8 @@ describe('camera path util', () => {
     it('should turn every Travel direction, sideways ones included', () => {
       for (const direction of ['forward', 'backward', 'left', 'right', 'up', 'down', 'custom'] as const) {
         const s = settings({ direction, rotation: 5 });
-        const { view, cover } = frameShot(s, 16 / 9, FRAME, FAR);
-        const plan = planTravel(s, view, FAR, cover);
+        const { view } = frameShot(s, 16 / 9, FRAME, FAR);
+        const plan = planTravel(s, view, FAR);
         expect(travelPose(plan, 1).roll).withContext(direction).toBeGreaterThan(0);
       }
     });
@@ -361,59 +367,77 @@ describe('camera path util', () => {
       });
     });
 
-    describe('shotReach', () => {
-      const view = frameView(PHOTO, FRAME, 1);
-      const still = (roll: number): ScenePose => ({
-        position: { x: 0, y: 0, z: 0 },
-        roll,
-        tanScale: 1,
-        starFade: 1,
-        photoMix: 0,
-      });
-
-      it('should be 1 when the upright frame just fills the photo', () => {
-        expect(shotReach(view, () => still(0))).toBeCloseTo(1, 9);
-      });
-
-      it('should say how far a turned frame would show past the photo’s edge', () => {
-        // A quarter turn lays the tall frame across the narrow photo.
-        expect(shotReach(view, () => still(Math.PI / 2))).toBeCloseTo(view.tanY / view.tanX, 9);
-      });
-
-      it('should count a camera that has moved closer as seeing less of the photo', () => {
-        const closer: ScenePose = { ...still(0), position: { x: 0, y: 0, z: -0.5 } };
-        expect(shotReach(view, () => closer)).toBeCloseTo(0.5, 9);
-      });
-    });
-
     describe('frameShot', () => {
-      it('should frame a shot exactly as before when Rotation is off', () => {
+      const SHAPES = [9 / 16, 1, 3 / 2, 16 / 9];
+      const FRAMES = [9 / 16, 1, 16 / 9];
+      const DIRECTIONS = ['forward', 'backward', 'left', 'right', 'up', 'down', 'custom'] as const;
+
+      it('should frame a shot exactly as before when Rotation is off, and stay on the photo', () => {
         for (const direction of ['forward', 'left', 'custom'] as const) {
           const s = settings({ direction, rotation: 0 });
-          const { view, cover } = frameShot(s, 16 / 9, FRAME, FAR);
+          const { view, cover, reach } = frameShot(s, 16 / 9, FRAME, FAR);
           expect(view).toEqual(frameView(16 / 9, FRAME, overscanFor(s)));
           expect(cover).toBe(view);
+          expect(reach).toEqual({ x: 1, y: 1 });
         }
       });
 
-      it('should never show past the edge of the photo, whatever the style, direction, rate or photo shape', () => {
-        const shapes = [9 / 16, 1, 3 / 2, 16 / 9];
-        for (const imageAspect of shapes) {
-          for (const frameAspect of [9 / 16, 1, 16 / 9]) {
+      it('should never zoom the photo because the view turns, however fast, in any style or direction', () => {
+        for (const imageAspect of SHAPES) {
+          for (const frameAspect of FRAMES) {
             for (const rotation of [1, -3, 10]) {
-              for (const direction of ['forward', 'backward', 'left', 'right', 'up', 'down', 'custom'] as const) {
+              for (const direction of DIRECTIONS) {
+                const s = settings({ direction, rotation });
+                expect(frameShot(s, imageAspect, frameAspect, FAR).view)
+                  .withContext(`travel ${direction}, rotation ${rotation}`)
+                  .toEqual(frameShot({ ...s, rotation: 0 }, imageAspect, frameAspect, FAR).view);
+              }
+              const arrive = settings({ style: 'arrive', rotation });
+              expect(frameShot(arrive, imageAspect, frameAspect, FAR).view).toEqual(
+                frameShot({ ...arrive, rotation: 0 }, imageAspect, frameAspect, FAR).view,
+              );
+            }
+          }
+        }
+      });
+
+      it('should move the camera exactly as it does with Rotation off', () => {
+        for (const direction of DIRECTIONS) {
+          const still = settings({ direction, rotation: 0, aim: { x: 0.3, y: -0.25 } });
+          const turning = { ...still, rotation: 7 };
+          const view = frameShot(turning, 3 / 2, FRAME, FAR).view;
+          const a = planTravel(still, view, FAR);
+          const b = planTravel(turning, view, FAR);
+          expect(b.start).withContext(direction).toEqual(a.start);
+          expect(b.end).withContext(direction).toEqual(a.end);
+          expect(b.duration).withContext(direction).toBe(a.duration);
+        }
+      });
+
+      it('should say the frame swings past the edge of a photo it only just fills', () => {
+        const { reach } = frameShot(settings({ rotation: 5 }), PHOTO, FRAME, FAR);
+        // The tall frame fills the tall photo side to side, so its corners pass the sides first.
+        expect(reach.x).toBeGreaterThan(1);
+        expect(reach.y).toBeGreaterThanOrEqual(1);
+      });
+
+      it('should reach far enough that the backdrop is under every corner of the frame for the whole shot', () => {
+        for (const imageAspect of SHAPES) {
+          for (const frameAspect of FRAMES) {
+            for (const rotation of [1, -3, 10]) {
+              for (const direction of DIRECTIONS) {
                 const s = settings({ direction, rotation, aim: { x: 0.3, y: -0.25 } });
-                const { view, cover } = frameShot(s, imageAspect, frameAspect, FAR);
-                const plan = planTravel(s, view, FAR, cover);
-                expect(turningFrameStaysOnPhoto(view, (u) => travelPose(plan, u)))
+                const { view, reach } = frameShot(s, imageAspect, frameAspect, FAR);
+                const plan = planTravel(s, view, FAR);
+                expect(turningFrameStaysWithin(view, reach, (u) => travelPose(plan, u)))
                   .withContext(`travel ${direction}, rotation ${rotation}, photo ${imageAspect}, frame ${frameAspect}`)
                   .toBeTrue();
               }
               for (const zoomIn of [true, false]) {
                 const s = settings({ style: 'arrive', rotation, zoomIn });
-                const { view } = frameShot(s, imageAspect, frameAspect, FAR);
+                const { view, reach } = frameShot(s, imageAspect, frameAspect, FAR);
                 const plan = planArrive(s);
-                expect(turningFrameStaysOnPhoto(view, (u) => arrivePose(plan, u, 0, s)))
+                expect(turningFrameStaysWithin(view, reach, (u) => arrivePose(plan, u, 0, s)))
                   .withContext(`arrive, zoom in ${zoomIn}, rotation ${rotation}, photo ${imageAspect}, frame ${frameAspect}`)
                   .toBeTrue();
               }
@@ -422,30 +446,18 @@ describe('camera path util', () => {
         }
       });
 
-      it('should zoom in no more than the turn needs: a little for a slow turn, more for a fast one', () => {
-        const rest = frameView(PHOTO, FRAME, 1);
-        const zoom = (rotation: number): number =>
-          rest.tanY / frameShot(settings({ rotation }), PHOTO, FRAME, FAR).view.tanY;
-        expect(zoom(0)).toBe(1);
-        // Flying forward shows less of the photo as it goes, which pays for a slow turn.
-        expect(zoom(1)).toBeGreaterThan(1);
-        expect(zoom(1)).toBeLessThan(1.15);
-        expect(zoom(4)).toBeGreaterThan(zoom(1));
-        expect(zoom(10)).toBeGreaterThan(zoom(4));
-        // Never more than a frame that could turn all the way round at rest would need.
-        expect(zoom(10)).toBeLessThanOrEqual(Math.hypot(rest.tanX, rest.tanY) / rest.tanX + 1e-9);
-      });
-
-      it('should need the same zoom whichever way the view turns', () => {
-        const right = frameShot(settings({ rotation: 5 }), 3 / 2, FRAME, FAR).view;
-        const left = frameShot(settings({ rotation: -5 }), 3 / 2, FRAME, FAR).view;
-        expect(left.tanY).toBeCloseTo(right.tanY, 12);
+      it('should reach further the faster the view turns, and no further than a full turn needs', () => {
+        const reachOf = (rotation: number): PhotoReach => frameShot(settings({ rotation }), PHOTO, FRAME, FAR).reach;
+        const view = frameView(PHOTO, FRAME, 1);
+        expect(reachOf(2).x).toBeGreaterThan(reachOf(1).x);
+        expect(reachOf(10).x).toBeCloseTo(Math.hypot(view.tanX, view.tanY) / (PHOTO / 2), 9);
+        expect(reachOf(-10)).toEqual(reachOf(10));
       });
 
       it('should give the stars the whole box the turning frame stays inside', () => {
         const s = settings({ rotation: 6 });
         const { view, cover } = frameShot(s, PHOTO, FRAME, FAR);
-        const plan = planTravel(s, view, FAR, cover);
+        const plan = planTravel(s, view, FAR);
         expect(cover.tanX).toBeGreaterThan(view.tanX);
         for (let u = 0; u <= 1; u += 0.01) {
           const roll = travelPose(plan, u).roll;
