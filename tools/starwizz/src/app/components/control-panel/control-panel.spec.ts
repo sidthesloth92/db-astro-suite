@@ -41,6 +41,50 @@ describe('ControlPanel', () => {
     expect(component.isShootingStarSpeedVisible()).toBeFalse();
   });
 
+  describe('2D Rotation', () => {
+    /** The Rotation slider row of the 2D panel. */
+    function rotationRow(): HTMLElement | undefined {
+      const rows = (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('.slider-row');
+      return Array.from(rows).find(
+        (candidate) => candidate.querySelector('.row-label')?.textContent?.trim() === 'Rotation',
+      );
+    }
+
+    it('should start on the same gentle clockwise turn the app has always opened with', () => {
+      expect(simService.getControlValue('rotationRate')).toBe(3);
+      expect(rotationRow()?.querySelector('.row-value')?.textContent?.trim()).toBe('3 \u21BB');
+    });
+
+    it('should mark the middle of the track, where the handle rests when rotation is off', () => {
+      expect(rotationRow()?.querySelector('.origin')).not.toBeNull();
+
+      component.updateControlValue('rotationRate', 0);
+      fixture.detectChanges();
+
+      expect(rotationRow()?.querySelector<HTMLElement>('.dot')?.style.left).toBe('50%');
+      expect(rotationRow()?.querySelector('.row-value')?.textContent?.trim()).toBe('Off');
+    });
+
+    it('should read an anticlockwise turn when the handle is left of the middle', () => {
+      component.updateControlValue('rotationRate', -5);
+      fixture.detectChanges();
+
+      expect(simService.getControlValue('rotationRate')).toBe(-5);
+      expect(rotationRow()?.querySelector<HTMLElement>('.dot')?.style.left).toBe('40%');
+      expect(rotationRow()?.querySelector('.row-value')?.textContent?.trim()).toBe('5 \u21BA');
+    });
+
+    it('should leave the other 2D sliders filling from their left end', () => {
+      const rows = (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>('.slider-row');
+      const zoom = Array.from(rows).find(
+        (candidate) => candidate.querySelector('.row-label')?.textContent?.trim() === 'Zoom Speed',
+      );
+
+      expect(zoom).toBeDefined();
+      expect(zoom?.querySelector('.origin')).toBeNull();
+    });
+  });
+
   describe('3D mode', () => {
     let scene3d: Scene3dService;
 

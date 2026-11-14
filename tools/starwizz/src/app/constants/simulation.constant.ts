@@ -55,15 +55,16 @@ export const CONTROLS: Record<ControlKey, ControlMetadata> = {
     internalMultiplier: 0.0001,
   },
   rotationRate: {
-    label: 'Rotation Speed',
+    label: 'Rotation',
     description:
-      'Controls how fast the scene rotates. Higher values create a spinning vortex effect.',
-    min: 1,
+      'Turns the scene while you fly forward or backward. Slide right to turn clockwise, left to turn anticlockwise. Further from the middle is faster, and 0 is off.',
+    min: -25,
     max: 25,
     step: 1,
     initial: 3,
     precision: 0,
     internalMultiplier: 0.00005,
+    origin: 0,
   },
   shootingStarSpeed: {
     label: 'Shooting Star Speed',

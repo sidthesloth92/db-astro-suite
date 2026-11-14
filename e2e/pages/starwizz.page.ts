@@ -8,7 +8,7 @@ import { Locator, Page, expect } from "@playwright/test";
  */
 export type StarwizzControlLabel =
   | "Zoom Speed"
-  | "Rotation Speed"
+  | "Rotation"
   | "Shooting Star Speed"
   | "Star Speed"
   | "Star Size Multiplier";

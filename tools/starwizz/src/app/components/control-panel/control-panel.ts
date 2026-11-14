@@ -69,6 +69,7 @@ import {
   estimateRecordingSizeMb,
 } from '../../utils/recording-size.util';
 import { formatSceneControlValue } from '../../utils/scene3d-control.util';
+import { formatControlValue } from '../../utils/simulation-control.util';
 
 /** Generic slider controls hidden while the cinematic Custom Path mode is active. */
 const PATH_HIDDEN_CONTROLS: ReadonlySet<ControlKey> = new Set<ControlKey>([
@@ -233,7 +234,7 @@ export class ControlPanel {
   readonly angleStep = STAR_ANGLE_STEP;
 
   /**
-   * Camera/scene slider keys to render (Zoom/Rotation Speed). Hidden in Custom
+   * Camera/scene slider keys to render (Zoom Speed, Rotation). Hidden in Custom
    * Path mode, where the path section supplies its own zoom/speed controls.
    */
   readonly cameraControlNames = computed<ControlKey[]>(() => {
@@ -403,9 +404,7 @@ export class ControlPanel {
 
   /** Formatted value rendered alongside the slider label, respecting per-control precision. */
   formatControlValue(control: ControlKey): string {
-    const value = this.simService.getControlValue(control);
-    const precision = this.controlConfig[control].precision ?? 0;
-    return value.toFixed(precision);
+    return formatControlValue(control, this.simService.getControlValue(control));
   }
 
   // ==================== Custom Path controls ====================

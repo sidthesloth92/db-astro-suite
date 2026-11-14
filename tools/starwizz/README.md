@@ -61,13 +61,13 @@ Controls how fast the camera zooms into the background image. The simulation cre
 - **Default**: 2
 - **Effect**: Higher values create a faster, more dramatic zoom; lower values are subtle and calming
 
-### Rotation Speed
+### Rotation
 
-Controls how fast the entire scene rotates around its center.
+Turns the whole scene around its center while you fly forward or backward. One slider that rests in the middle.
 
-- **Range**: 1 - 50
-- **Default**: 1
-- **Effect**: Higher values create a spinning vortex effect; lower values add gentle drift
+- **Range**: -25 to 25
+- **Default**: 3
+- **Effect**: Right of the middle turns clockwise, left turns anticlockwise, and further from the middle is faster. 0 switches rotation off
 
 ### Shooting Star Speed
 

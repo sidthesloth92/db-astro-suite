@@ -208,6 +208,50 @@ describe('Simulator', () => {
     expect(shootingStar.draw).toHaveBeenCalled();
   });
 
+  describe('2D rotation', () => {
+    /** What ten frames at the default setting turn the view by, in radians. */
+    const DEFAULT_TURN = 10 * 3 * 0.00005;
+
+    /** Advances the simulation by ten animation frames. */
+    function runTenFrames(): void {
+      for (let i = 0; i < 10; i++) {
+        component['updateGlobalState']();
+      }
+    }
+
+    it('should turn clockwise at the speed it always has when Rotation is left alone', () => {
+      runTenFrames();
+
+      expect(component['currentRotation']).toBeCloseTo(DEFAULT_TURN, 9);
+    });
+
+    it('should turn anticlockwise when Rotation is set left of the middle', () => {
+      simService.updateControl('rotationRate', -3);
+
+      runTenFrames();
+
+      expect(component['currentRotation']).toBeCloseTo(-DEFAULT_TURN, 9);
+    });
+
+    it('should not turn at all when Rotation rests in the middle', () => {
+      simService.updateControl('rotationRate', 0);
+
+      runTenFrames();
+
+      expect(component['currentRotation']).toBe(0);
+    });
+
+    it('should turn the chosen way when flying backward too', () => {
+      simService.updateDirection('backward');
+      fixture.detectChanges();
+      simService.updateControl('rotationRate', -3);
+
+      runTenFrames();
+
+      expect(component['currentRotation']).toBeCloseTo(-DEFAULT_TURN, 9);
+    });
+  });
+
   describe('sideways travel background', () => {
     /** Loads a real 16:9 backdrop so the 9:16 frame is height-fitted (no spare image vertically). */
     async function loadLandscapeBackdrop(): Promise<void> {

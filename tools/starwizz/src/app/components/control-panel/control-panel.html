@@ -264,13 +264,14 @@
           [min]="controlMeta(control).min"
           [max]="controlMeta(control).max"
           [step]="controlMeta(control).step"
+          [fillFrom]="controlMeta(control).origin"
           [showReadout]="false"
           (valueChange)="updateControlValue(control, $event)"
         ></dba-ui-micro-slider>
       </div>
     </ng-template>
 
-    <!-- Camera / scene sliders (Zoom & Rotation Speed) — independent of the stars. -->
+    <!-- Camera / scene sliders (Zoom Speed and Rotation), independent of the stars. -->
     @for (control of cameraControlNames(); track control) {
       <ng-container
         [ngTemplateOutlet]="sliderRow"
