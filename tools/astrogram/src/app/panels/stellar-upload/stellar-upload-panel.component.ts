@@ -23,10 +23,7 @@ import {
   sparklesIcon,
   type SelectOption,
 } from '@db-astro-suite/ui';
-import {
-  ASTROGRAM_USER_ID,
-  PLATE_SOLVE_ERROR_ACCESS_KEY,
-} from '../../constants/analytics.constants';
+import { PLATE_SOLVE_ERROR_ACCESS_KEY } from '../../constants/analytics.constants';
 import { AccessKeyModalComponent } from '../../components/access-key-modal/access-key-modal.component';
 import type { ImageAnnotation } from '../../models/annotation.models';
 import type { StellarMapData } from '../../models/card-data.model';
@@ -262,7 +259,7 @@ export class StellarUploadPanelComponent implements OnInit, OnDestroy {
       this.solveStatus.set(`Success! Identified ${annotations.length} objects.`);
 
       const toolsUsed = `plate-solve,wcs-projection,${annotations.length}-objects`;
-      this.analyticsService.trackImageGeneration(ASTROGRAM_USER_ID, toolsUsed);
+      this.analyticsService.trackImageGeneration(toolsUsed);
     } catch (err: unknown) {
       if (err instanceof AccessKeyError) {
         this.astrosolveService.clearAccessKey();

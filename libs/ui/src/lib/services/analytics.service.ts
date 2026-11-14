@@ -21,17 +21,15 @@ export abstract class AnalyticsService {
 
   /**
    * Track image generation in Astrogram.
-   * @param userId Unique identifier for the user (can be anonymized)
    * @param toolsUsed Comma-separated list of tools/features used
    */
-  abstract trackImageGeneration(userId: string, toolsUsed: string): void;
+  abstract trackImageGeneration(toolsUsed: string): void;
 
   /**
    * Track video generation in Starwizz.
-   * @param userId Unique identifier for the user (can be anonymized)
    * @param format Video format/codec used
    */
-  abstract trackVideoGeneration(userId: string, format: string): void;
+  abstract trackVideoGeneration(format: string): void;
 
   // ====================== ASTROGRAM EVENTS ======================
 
