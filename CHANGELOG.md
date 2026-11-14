@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.39.6](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.39.5...db-astro-suite-v1.39.6) (2026-11-14)
+
+
+### Bug Fixes
+
+* **astrogram,astrospike:** add apple-touch-icon so iOS Add to Home Screen shows the tool icon ([#148](https://github.com/sidthesloth92/db-astro-suite/issues/148)) ([375e44d](https://github.com/sidthesloth92/db-astro-suite/commit/375e44daed7a7807fa25adadb1796c01b6e79602))
+
 ## [1.39.5](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.39.4...db-astro-suite-v1.39.5) (2026-11-14)
 
 
