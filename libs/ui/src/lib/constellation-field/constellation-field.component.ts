@@ -8,9 +8,16 @@ import {
   PLATFORM_ID,
   afterNextRender,
   inject,
+  input,
   viewChild,
 } from '@angular/core';
-import { CF_LINK_DISTANCE, CF_MAX_DPR } from './constellation-field.constants';
+import {
+  CF_LINE_OPACITY,
+  CF_LINK_DISTANCE,
+  CF_MAX_DPR,
+  CF_MAX_POINTS,
+  CF_TAGGED_COUNT,
+} from './constellation-field.constants';
 import type { FieldPoint, TaggedStar } from './constellation-field.model';
 import {
   createPoints,
@@ -39,6 +46,15 @@ export class ConstellationFieldComponent {
   /** Backing canvas the field is painted onto. */
   private readonly canvasRef =
     viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
+
+  /** Upper bound on drifting stars (density scales with area up to this cap). */
+  readonly maxPoints = input<number>(CF_MAX_POINTS);
+  /** Max distance (px) at which two nodes draw a connecting line. */
+  readonly linkDistance = input<number>(CF_LINK_DISTANCE);
+  /** Number of tagged anchor stars (pulsing reticles). */
+  readonly taggedCount = input<number>(CF_TAGGED_COUNT);
+  /** Base opacity multiplier for the connecting "string" lines. */
+  readonly lineOpacity = input<number>(CF_LINE_OPACITY);
 
   private readonly platformId = inject(PLATFORM_ID);
   private readonly zone = inject(NgZone);
@@ -115,8 +131,8 @@ export class ConstellationFieldComponent {
     canvas.width = Math.round(this.w * this.dpr);
     canvas.height = Math.round(this.h * this.dpr);
     this.ctx?.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
-    this.points = createPoints(this.w, this.h);
-    this.tagged = createTagged(this.w, this.h);
+    this.points = createPoints(this.w, this.h, this.maxPoints());
+    this.tagged = createTagged(this.w, this.h, this.taggedCount());
     if (this.prefersReduced) {
       this.t0 = performance.now();
       this.frame(this.t0);
@@ -155,7 +171,9 @@ export class ConstellationFieldComponent {
     }
 
     // Self-connecting lines between any two nearby nodes.
-    const max2 = CF_LINK_DISTANCE * CF_LINK_DISTANCE;
+    const linkDistance = this.linkDistance();
+    const lineOpacity = this.lineOpacity();
+    const max2 = linkDistance * linkDistance;
     ctx.lineWidth = 1;
     const nodes: (FieldPoint | TaggedStar)[] = [...this.points, ...this.tagged];
     for (let i = 0; i < nodes.length; i++) {
@@ -166,10 +184,10 @@ export class ConstellationFieldComponent {
         const dy = a.y - b.y;
         const d2 = dx * dx + dy * dy;
         if (d2 < max2) {
-          const alpha = 1 - Math.sqrt(d2) / CF_LINK_DISTANCE;
+          const alpha = 1 - Math.sqrt(d2) / linkDistance;
           const mid = (a.x + b.x) / 2 / w;
           ctx.strokeStyle = lerpLineColor(Math.max(0, Math.min(1, mid)));
-          ctx.globalAlpha = alpha * 0.32;
+          ctx.globalAlpha = alpha * lineOpacity;
           ctx.beginPath();
           ctx.moveTo(a.x, a.y);
           ctx.lineTo(b.x, b.y);
