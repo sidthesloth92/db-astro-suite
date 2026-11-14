@@ -1335,7 +1335,7 @@ export class SimulationService implements OnDestroy {
 
     // Track video generation event
     const videoFormat = extension.substring(1); // Remove leading dot
-    this.analyticsService.trackVideoGeneration('starwizz-user', videoFormat);
+    this.analyticsService.trackVideoGeneration(videoFormat);
     this.sharePrompt.notifyExportSucceeded();
   }
 

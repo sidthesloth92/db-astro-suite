@@ -968,10 +968,10 @@ describe('SimulationService', () => {
         expect(trackVideoGeneration).not.toHaveBeenCalled();
       });
 
-      it('should track the video generation exactly as before on success', async () => {
+      it('should track the video format without a shared user id on success', async () => {
         await recordOnce(2_000_000);
 
-        expect(trackVideoGeneration).toHaveBeenCalledWith('starwizz-user', 'mp4');
+        expect(trackVideoGeneration).toHaveBeenCalledWith('mp4');
       });
 
       it('should re-download the retained recording on saveLastRecording', async () => {
