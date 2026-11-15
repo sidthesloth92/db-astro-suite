@@ -32,9 +32,13 @@ describe('Simulator', () => {
       providers: [{ provide: AnalyticsService, useValue: {} }],
     }).compileComponents();
 
+    simService = TestBed.inject(SimulationService);
+    // Keep the preview's default photo off the network: once a real photo loads, the live
+    // animation loop starts advancing the view before a spec gets to measure it. Specs that
+    // need a photo load their own.
+    spyOn(simService, 'loadDefaultScene');
     fixture = TestBed.createComponent(Simulator);
     component = fixture.componentInstance;
-    simService = TestBed.inject(SimulationService);
     fixture.detectChanges();
 
     canvas = fixture.nativeElement.querySelector('canvas') as HTMLCanvasElement;
@@ -168,13 +172,13 @@ describe('Simulator', () => {
     it('should put the 3D settings back to their defaults when the image is cleared', () => {
       const scene3d = TestBed.inject(Scene3dService);
       scene3d.style.set('arrive');
-      scene3d.starStyle.set('sharp');
+      scene3d.starStyle.set('original');
       scene3d.updateControl('starAmount', 250);
 
       component.clearImage();
 
       expect(scene3d.style()).toBe('travel');
-      expect(scene3d.starStyle()).toBe('original');
+      expect(scene3d.starStyle()).toBe('sharp');
       expect(scene3d.settings().starAmount).toBe(100);
     });
   });

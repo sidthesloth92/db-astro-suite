@@ -5,13 +5,21 @@ import {
   StarMotionDefaults,
   TravelDirection,
 } from '../models/simulation.model';
+import { RenderMode } from '../models/render-mode.model';
 
 export const CANVAS_DIMENSIONS = {
   width: 1080,
   height: 1920,
 };
 
-export const DEFAULT_GALAXY_URL = 'Chrismas_Tree_HOO_16_9_full.jpg';
+/**
+ * The photo each mode opens on before the user uploads their own: the Horsehead suits the 2D
+ * starfield, and the star-rich Pleiades shows off stars lifted into depth in 3D.
+ */
+export const DEFAULT_IMAGE_BY_MODE: Readonly<Record<RenderMode, string>> = {
+  '2d': 'default-2d-horsehead.jpg',
+  '3d': 'default-3d-pleiades.jpg',
+};
 
 export const FORMATS = {
   reels: { width: 1080, height: 1920, label: '9:16 · Reels · 1080×1920' },
@@ -50,7 +58,7 @@ export const CONTROLS: Record<ControlKey, ControlMetadata> = {
     min: 1,
     max: 30,
     step: 1,
-    initial: 2,
+    initial: 3,
     precision: 0,
     internalMultiplier: 0.0001,
   },
@@ -97,7 +105,7 @@ export const CONTROLS: Record<ControlKey, ControlMetadata> = {
     min: 1,
     max: 40,
     step: 0.5,
-    initial: 10,
+    initial: 12,
     precision: 1,
   },
   starCount: {
@@ -107,7 +115,7 @@ export const CONTROLS: Record<ControlKey, ControlMetadata> = {
     min: 500,
     max: 2000,
     step: 100,
-    initial: 1000,
+    initial: 1700,
     precision: 0,
   },
   starColorIntensity: {

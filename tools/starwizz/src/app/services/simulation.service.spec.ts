@@ -7,6 +7,7 @@ import {
 } from '../constants/recording.constant';
 
 import { FIXTURE_TIMESCALE, fragmentedMp4, readPlainMp4 } from '../../testing/mp4-fixture.util';
+import { FakeImages } from '../../testing/fake-image.util';
 import { ShootingStar } from '../models/shooting-star.model';
 import { Scene3dService } from './scene3d.service';
 import { Star } from '../models/star.model';
@@ -68,8 +69,137 @@ describe('SimulationService', () => {
     });
 
     it('should start loading the default scene when there is no photo yet', () => {
+      spyOn(window, 'Image').and.callFake(new FakeImages().imageConstructor());
       service.loadDefaultScene();
       expect(service.isLoadingDefaultImage()).toBeTrue();
+    });
+  });
+
+  describe('default photo for each mode', () => {
+    let images: FakeImages;
+
+    beforeEach(() => {
+      images = new FakeImages();
+      spyOn(window, 'Image').and.callFake(images.imageConstructor());
+      // The star field is ready, so only the photo decides when the preview is 'Ready'.
+      service.markStarsReady();
+    });
+
+    it('should open 2D on the Horsehead', () => {
+      service.loadDefaultScene();
+      const horsehead = images.withSource('default-2d-horsehead.jpg');
+
+      images.load(horsehead);
+
+      expect(service.galaxyImage()).toBe(horsehead);
+      expect(service.isDefaultImage()).toBeTrue();
+      expect(service.isLoadingDefaultImage()).toBeFalse();
+      expect(service.loadingProgress()).toBe('Ready');
+    });
+
+    it('should fetch the 3D photo in the background once 2D is showing', () => {
+      service.loadDefaultScene();
+      expect(() => images.withSource('default-3d-pleiades.jpg')).toThrow();
+
+      images.load(images.withSource('default-2d-horsehead.jpg'));
+
+      expect(images.withSource('default-3d-pleiades.jpg')).toBeTruthy();
+    });
+
+    it('should show the Pleiades at once when switching to 3D after it has arrived', () => {
+      service.loadDefaultScene();
+      images.load(images.withSource('default-2d-horsehead.jpg'));
+      const pleiades = images.withSource('default-3d-pleiades.jpg');
+      images.load(pleiades);
+
+      service.setRenderMode('3d');
+
+      expect(service.galaxyImage()).toBe(pleiades);
+      expect(service.isDefaultImage()).toBeTrue();
+      expect(service.loadingProgress()).toBe('Ready');
+    });
+
+    it('should wait for the Pleiades without showing the Horsehead in 3D', () => {
+      service.loadDefaultScene();
+      images.load(images.withSource('default-2d-horsehead.jpg'));
+
+      service.setRenderMode('3d');
+
+      expect(service.galaxyImage()).toBeNull();
+      expect(service.isLoadingDefaultImage()).toBeTrue();
+      expect(service.loadingProgress()).toBe('Loading Default Scene...');
+
+      const pleiades = images.withSource('default-3d-pleiades.jpg');
+      images.load(pleiades);
+
+      expect(service.galaxyImage()).toBe(pleiades);
+      expect(service.loadingProgress()).toBe('Ready');
+    });
+
+    it('should reuse each photo when switching back and forth', () => {
+      service.loadDefaultScene();
+      const horsehead = images.withSource('default-2d-horsehead.jpg');
+      images.load(horsehead);
+      images.load(images.withSource('default-3d-pleiades.jpg'));
+
+      service.setRenderMode('3d');
+      service.setRenderMode('2d');
+
+      expect(service.galaxyImage()).toBe(horsehead);
+      expect(images.created.length).toBe(2);
+    });
+
+    it('should ignore the 2D photo arriving after the user already switched to 3D', () => {
+      service.loadDefaultScene();
+      service.setRenderMode('3d');
+      const pleiades = images.withSource('default-3d-pleiades.jpg');
+
+      images.load(images.withSource('default-2d-horsehead.jpg'));
+      expect(service.galaxyImage()).toBeNull();
+
+      images.load(pleiades);
+      expect(service.galaxyImage()).toBe(pleiades);
+    });
+
+    it('should keep a photo the user uploaded when switching modes', () => {
+      const uploaded = document.createElement('img');
+      service.galaxyImage.set(uploaded);
+      service.isImageLoaded.set(true);
+      service.isDefaultImage.set(false);
+
+      service.setRenderMode('3d');
+
+      expect(service.galaxyImage()).toBe(uploaded);
+      expect(images.created.length).toBe(0);
+    });
+
+    it('should keep the upload prompt after Clear when switching modes', () => {
+      service.loadDefaultScene();
+      images.load(images.withSource('default-2d-horsehead.jpg'));
+      service.clearImage();
+
+      service.setRenderMode('3d');
+
+      expect(service.galaxyImage()).toBeNull();
+      expect(service.isImageLoaded()).toBeFalse();
+      expect(service.isLoadingDefaultImage()).toBeFalse();
+    });
+
+    it('should let the user upload when a default photo fails, and try it again later', () => {
+      spyOn(console, 'error');
+      service.loadDefaultScene();
+      images.fail(images.withSource('default-2d-horsehead.jpg'));
+
+      expect(service.isLoadingDefaultImage()).toBeFalse();
+      expect(service.loadingProgress()).toBe('Ready');
+      expect(service.isImageLoaded()).toBeFalse();
+
+      // The preview is rebuilt (for example on crossing the mobile breakpoint).
+      service.loadDefaultScene();
+      const requests = images.created.filter((image) =>
+        images.sourceOf(image).endsWith('default-2d-horsehead.jpg'),
+      );
+      expect(requests.length).toBe(2);
     });
   });
 
@@ -206,7 +336,7 @@ describe('SimulationService', () => {
       // Output format back to the default.
       expect(service.currentFormat()).toBe('reels');
       // Controls + shooting-star toggle back to defaults.
-      expect(service.controls.starCount()).toBe(1000);
+      expect(service.controls.starCount()).toBe(1700);
       expect(service.shootingStarsEnabled()).toBe(true);
       // Forward star motion restored so the next upload animates immediately.
       expect(service.travelDirection()).toBe('forward');

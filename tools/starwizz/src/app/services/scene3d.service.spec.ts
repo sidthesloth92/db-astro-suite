@@ -175,8 +175,8 @@ describe('Scene3dService', () => {
     it('should start from the defaults in one snapshot', () => {
       const settings = service.settings();
       expect(settings.style).toBe('travel');
-      expect(settings.direction).toBe('forward');
-      expect(settings.starStyle).toBe('original');
+      expect(settings.direction).toBe('left');
+      expect(settings.starStyle).toBe('sharp');
       expect(settings.zoomIn).toBeTrue();
       expect(settings.starsReturn).toBeTrue();
       expect(settings.speed).toBe(SCENE3D_CONTROLS.speed.initial);
@@ -197,15 +197,15 @@ describe('Scene3dService', () => {
     });
 
     it('should switch between the photo\'s own stars and sharp redrawn ones', () => {
-      expect(service.hasSharpStars()).toBeFalse();
-
-      service.setSharpStars(true);
       expect(service.hasSharpStars()).toBeTrue();
-      expect(service.settings().starStyle).toBe('sharp');
 
       service.setSharpStars(false);
       expect(service.hasSharpStars()).toBeFalse();
       expect(service.settings().starStyle).toBe('original');
+
+      service.setSharpStars(true);
+      expect(service.hasSharpStars()).toBeTrue();
+      expect(service.settings().starStyle).toBe('sharp');
     });
 
     it('should keep the aim point inside the frame', () => {
@@ -227,8 +227,8 @@ describe('Scene3dService', () => {
       lift.and.resolveTo(SCENE);
       await service.prepare(await loadImage());
       service.style.set('arrive');
-      service.direction.set('left');
-      service.starStyle.set('sharp');
+      service.direction.set('right');
+      service.starStyle.set('original');
       service.zoomIn.set(false);
       service.starsReturn.set(false);
       service.setAim({ x: 0.2, y: 0.1 });
@@ -239,8 +239,8 @@ describe('Scene3dService', () => {
 
       const settings = service.settings();
       expect(settings.style).toBe('travel');
-      expect(settings.direction).toBe('forward');
-      expect(settings.starStyle).toBe('original');
+      expect(settings.direction).toBe('left');
+      expect(settings.starStyle).toBe('sharp');
       expect(settings.zoomIn).toBeTrue();
       expect(settings.starsReturn).toBeTrue();
       expect(settings.aim).toEqual({ x: 0, y: 0 });
