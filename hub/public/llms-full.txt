@@ -20,10 +20,11 @@ All tools are free, browser-based (no installation required), and built with Ang
 
 ## Tool 1: Starwizz
 
-**What it is**: A free browser-based 4K starfield and galaxy animation generator.
+**What it is**: A free browser-based starfield and galaxy animation generator that turns one
+astrophoto into a cinematic video, in 2D or in real 3D.
 
 **Who it's for**: Astrophotographers, content creators, educators, and anyone who
-needs a cinematic space background — for YouTube intros, Instagram Reels,
+needs a cinematic space background for YouTube intros, Instagram Reels,
 presentation backdrops, or virtual meeting backgrounds.
 
 **The problem it solves**: Creating a professional-grade cinematic space background
@@ -37,16 +38,23 @@ record a perfectly looped 4K starfield in minutes.
 
 ### Features
 
+- **3D Mode**: Finds the stars in your photo, lifts them off the image and places them
+  at different depths in front of the nebula, so the camera can fly through them.
+  Two styles: Travel (glide through the star field forward, backward, sideways or
+  toward a point you choose) and Arrive (start deep in a cloud of stars and settle
+  on the target, with the stars returning to where they were photographed).
+  Optional Sharp Stars redraws the lifted stars as crisp points with spikes.
+  Requires WebGL2; heavier to draw than 2D, so phones may stutter.
 - **Population Control**: Modify star density to simulate different galactic sectors.
 - **Natural Star Colors**: Stars carry lifelike blue, yellow and orange tints with
   sliders for color intensity and how many stars are colored.
 - **Twinkle & Diffraction Spikes**: Adjustable shimmer from subtle to dramatic, plus
   four-point diffraction spikes on the brightest stars.
 - **Velocity Vectors**: Adjust travel speed from slow ambient drift to high-warp effects.
-- **Rotational Dynamics**: Fine-tune camera rotation for chaotic orbits or stable traversals.
+- **Rotational Dynamics**: Turn the view clockwise or anticlockwise at the speed you choose.
 - **Galaxy Mode**: Renders full galaxy background with dynamic nebula cloud overlays.
 - **Shooting Stars**: Simulated meteor streaks with configurable frequency.
-- **Live Preview**: Canvas-based renderer updates in real time — WYSIWYG recording.
+- **Live Preview**: The renderer updates in real time. What you see is what records.
 - **4K Recording**: Captures animation at full 4K resolution in-browser using
   the MediaRecorder API. No plugins required.
 - **Download**: Saves directly as a video file compatible with all editors and
@@ -54,18 +62,19 @@ record a perfectly looped 4K starfield in minutes.
 
 ### How It Works
 
-1. Choose a scene: pure starfield or galaxy background with nebula overlays.
-2. Use the real-time HUD to adjust star density, travel velocity, rotation speed,
-   zoom factor, and shooting star frequency.
-3. Preview live — the Canvas renderer updates immediately.
-4. Hit Record. Starwizz captures the animation at 4K using the browser's
-   MediaRecorder API.
-5. Download the video file and drop it into your editor or upload directly to
-   social media.
+1. Start with the built-in nebula or upload your own galaxy or nebula image.
+2. Pick a mode: 2D animates stars over the image, 3D lifts the real stars off it.
+3. Use the real-time controls to adjust direction, speed, rotation, star amount,
+   colors, twinkle, spikes and (in 2D) shooting stars. The preview updates
+   immediately.
+4. Hit Record. Starwizz captures the animation using the browser's MediaRecorder
+   API, up to 4K.
+5. Download the MP4 and drop it into your editor or upload directly to social
+   media.
 
 ### Tech Stack
 - Framework: Angular 21 (Standalone Components, Signals)
-- Rendering: HTML5 Canvas API (2D Context)
+- Rendering: HTML5 Canvas API (2D Context) for 2D mode, WebGL2 for 3D mode
 - Recording: MediaRecorder API
 - Styling: TailwindCSS
 

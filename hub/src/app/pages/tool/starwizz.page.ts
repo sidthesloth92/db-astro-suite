@@ -12,8 +12,8 @@ import { STARWIZZ_DETAIL } from './starwizz-detail.constants';
 import { STARWIZZ_LAUNCH_URL } from './tool.constants';
 
 /**
- * Starwizz tool page — premium redesign on the shared `ToolDetailComponent`.
- * Provides the brand mark + an embedded demo video via content projection.
+ * Starwizz tool page on the shared `ToolDetailComponent`. Provides the brand
+ * mark and the embedded demo videos via content projection.
  */
 @Component({
   selector: 'dba-hub-starwizz-tool',
@@ -57,7 +57,7 @@ export const routeMeta: RouteMeta = {
     {
       name: 'description',
       content:
-        'Starwizz is a high-fidelity browser-based tool for creating immersive 4K starfield animations and cinematic space backgrounds — no install required.',
+        'Starwizz is a free browser-based tool that turns your astrophotos into cinematic starfield videos, now with a 3D mode that lifts the real stars off your image. No install required.',
     },
     {
       property: 'og:title',
@@ -66,7 +66,7 @@ export const routeMeta: RouteMeta = {
     {
       property: 'og:description',
       content:
-        'Starwizz is a high-fidelity browser-based tool for creating immersive 4K starfield animations and cinematic space backgrounds — no install required.',
+        'Starwizz is a free browser-based tool that turns your astrophotos into cinematic starfield videos, now with a 3D mode that lifts the real stars off your image. No install required.',
     },
     {
       property: 'og:image',
@@ -87,7 +87,7 @@ export const routeMeta: RouteMeta = {
     {
       name: 'twitter:description',
       content:
-        'Starwizz is a high-fidelity browser-based tool for creating immersive 4K starfield animations and cinematic space backgrounds — no install required.',
+        'Starwizz is a free browser-based tool that turns your astrophotos into cinematic starfield videos, now with a 3D mode that lifts the real stars off your image. No install required.',
     },
     {
       name: 'twitter:image',

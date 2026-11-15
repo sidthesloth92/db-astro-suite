@@ -5,33 +5,60 @@
     <dba-hub-demo-frame label="starwizz.app" status="Live" [live]="true">
       <video
         class="demo-media"
-        width="1322"
+        width="1280"
         height="720"
         controls
         playsinline
         preload="metadata"
-        poster="assets/img/sw-demo-poster.jpg"
-        aria-label="Starwizz cinematic starfield demo"
+        poster="assets/img/sw-tour-poster.jpg"
+        aria-label="Starwizz tour: turning one astrophoto into a 2D or 3D starfield video"
       >
-        <source src="assets/img/sw_demo.mp4" type="video/mp4" />
+        <source src="assets/img/sw_tour.mp4" type="video/mp4" />
       </video>
     </dba-hub-demo-frame>
   </div>
 
   <div output>
-    <dba-hub-demo-frame class="output-frame" label="starwizz.app" status="New">
-      <video
-        class="demo-media"
-        width="720"
-        height="1280"
-        controls
-        playsinline
-        preload="metadata"
-        poster="assets/img/sw-spikes-poster.jpg"
-        aria-label="Starwizz colored stars with diffraction spikes output"
-      >
-        <source src="assets/img/sw_spikes.mp4" type="video/mp4" />
-      </video>
-    </dba-hub-demo-frame>
+    <div class="output-pair output-pair--portrait">
+      <figure class="output-pair__item">
+        <h3 class="output-pair__title">
+          <span class="output-pair__title-accent">2D</span>
+        </h3>
+        <dba-hub-demo-frame label="starwizz.app">
+          <video
+            class="demo-media"
+            width="540"
+            height="960"
+            controls
+            playsinline
+            preload="metadata"
+            poster="assets/img/sw-2d-poster.jpg"
+            aria-label="The Pleiades drifting left to right in 2D, with colored stars and diffraction spikes moving over the photo"
+          >
+            <source src="assets/img/sw_2d.mp4" type="video/mp4" />
+          </video>
+        </dba-hub-demo-frame>
+      </figure>
+
+      <figure class="output-pair__item">
+        <h3 class="output-pair__title">
+          <span class="output-pair__title-accent">3D</span>
+        </h3>
+        <dba-hub-demo-frame label="starwizz.app">
+          <video
+            class="demo-media"
+            width="540"
+            height="960"
+            controls
+            playsinline
+            preload="metadata"
+            poster="assets/img/sw-3d-poster.jpg"
+            aria-label="The same Pleiades photo drifting left to right in 3D, its own stars lifted off and passing by at different depths"
+          >
+            <source src="assets/img/sw_3d.mp4" type="video/mp4" />
+          </video>
+        </dba-hub-demo-frame>
+      </figure>
+    </div>
   </div>
 </dba-hub-tool-detail>

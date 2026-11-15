@@ -8,6 +8,7 @@ import {
 
 import { FIXTURE_TIMESCALE, fragmentedMp4, readPlainMp4 } from '../../testing/mp4-fixture.util';
 import { ShootingStar } from '../models/shooting-star.model';
+import { Scene3dService } from './scene3d.service';
 import { Star } from '../models/star.model';
 import { SimulationService } from './simulation.service';
 
@@ -39,6 +40,38 @@ describe('SimulationService', () => {
     service.shootingStars.set([streak]);
     return streak;
   }
+
+  describe('render mode', () => {
+    it('should start in 2D', () => {
+      expect(service.renderMode()).toBe('2d');
+      expect(service.is3dMode()).toBeFalse();
+    });
+
+    it('should report 3D once the mode is switched', () => {
+      service.renderMode.set('3d');
+      expect(service.is3dMode()).toBeTrue();
+    });
+  });
+
+  describe('loadDefaultScene', () => {
+    it('should not replace a photo that is already loaded when the preview is rebuilt', () => {
+      const uploaded = new Image();
+      service.galaxyImage.set(uploaded);
+      service.isImageLoaded.set(true);
+      service.isDefaultImage.set(false);
+
+      service.loadDefaultScene();
+
+      expect(service.galaxyImage()).toBe(uploaded);
+      expect(service.isDefaultImage()).toBeFalse();
+      expect(service.isLoadingDefaultImage()).toBeFalse();
+    });
+
+    it('should start loading the default scene when there is no photo yet', () => {
+      service.loadDefaultScene();
+      expect(service.isLoadingDefaultImage()).toBeTrue();
+    });
+  });
 
   describe('adjustStarCount', () => {
     it('should grow the field to the target count, replacing the array immutably', () => {
@@ -1004,10 +1037,32 @@ describe('SimulationService', () => {
         expect(trackVideoGeneration).not.toHaveBeenCalled();
       });
 
-      it('should track the video format without a shared user id on success', async () => {
+      it('should track the video format and the 2D settings without a shared user id', async () => {
+        service.updateControl('rotationRate', -5);
+
         await recordOnce(2_000_000);
 
-        expect(trackVideoGeneration).toHaveBeenCalledWith('mp4');
+        expect(trackVideoGeneration).toHaveBeenCalledOnceWith('mp4', {
+          starwizz_mode: '2d',
+          starwizz_direction: 'forward',
+          starwizz_rotation: 'anticlockwise',
+          starwizz_stars: 'on',
+          starwizz_shooting_stars: 'on',
+        });
+      });
+
+      it('should track a clip recorded in 3D with the 3D settings it was made with', async () => {
+        const scene3d = TestBed.inject(Scene3dService);
+        service.renderMode.set('3d');
+        scene3d.style.set('arrive');
+        scene3d.zoomIn.set(false);
+
+        await recordOnce(2_000_000);
+
+        expect(trackVideoGeneration).toHaveBeenCalledOnceWith(
+          'mp4',
+          jasmine.objectContaining({ starwizz_mode: '3d', starwizz_style: 'arrive', starwizz_zoom_in: 'off' }),
+        );
       });
 
       it('should re-download the retained recording on saveLastRecording', async () => {

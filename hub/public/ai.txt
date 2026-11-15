@@ -19,6 +19,7 @@ Purpose: 4K Cinematic Starfield & Galaxy Animation Generator.
 Technical-Details:
 - Engine: Custom starfield rendering engine.
 - Output: 4K Video (Browser-recorded), Sequence based effects.
+- Modes: 2D (stars animated over the photo) and 3D (the photo's own stars lifted into depth, with Travel and Arrive camera styles).
 - Controls: Star density, star color intensity and ratio, twinkle, diffraction spikes, velocity vectors, rotational dynamics, zoom levels.
 Usage-Context: Creating motion backgrounds for presentations, cinematic intros for YouTube, or atmospheric social media stories.
 

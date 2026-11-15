@@ -19,15 +19,30 @@
     ></dba-sw-image-upload-overlay>
   }
 
+  <!-- 3D: shown while the stars are being lifted off the photo -->
+  @if (simService.is3dMode() && scene3d.isLifting()) {
+    <dba-sw-loading-overlay [progress]="liftingMessage"></dba-sw-loading-overlay>
+  }
+
   <!-- Clear Image Button (Visible when any image is loaded, including demo) -->
   @if (simService.isImageLoaded()) {
     <dba-sw-clear-image-button (clearClicked)="clearImage()"></dba-sw-clear-image-button>
+  }
+
+  <!-- 3D scene: loaded on demand, drawn over the (hidden) 2D canvas -->
+  @if (simService.is3dMode()) {
+    @defer (on immediate) {
+      <dba-sw-scene-3d></dba-sw-scene-3d>
+    } @error {
+      <p class="scene-load-error" role="alert">{{ sceneLoadError }}</p>
+    }
   }
 
   <!-- Only the canvas remains here -->
   <canvas
     #starCanvas
     class="star-canvas"
+    [class.is-hidden]="simService.is3dMode()"
     [class.path-mode]="simService.isPathMode()"
     [class.dragging]="isDragging()"
     (pointerdown)="onCanvasPointerDown($event)"

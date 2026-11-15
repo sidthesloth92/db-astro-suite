@@ -1,3 +1,5 @@
+import { VideoSettings } from './models/video-settings.model';
+
 /**
  * Abstract analytics service defining the contract for tracking user events.
  * Implement this class and provide it as the DI token directly to swap
@@ -28,8 +30,9 @@ export abstract class AnalyticsService {
   /**
    * Track video generation in Starwizz.
    * @param format Video format/codec used
+   * @param settings The settings the clip was made with, one event parameter each
    */
-  abstract trackVideoGeneration(format: string): void;
+  abstract trackVideoGeneration(format: string, settings: VideoSettings): void;
 
   // ====================== ASTROGRAM EVENTS ======================
 

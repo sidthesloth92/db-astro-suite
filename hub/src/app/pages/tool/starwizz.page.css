@@ -1,12 +1,17 @@
 @import './tool-media.css';
 
 /*
- * The Starwizz output clip is a vertical 9:16 video, so the shared full-width
- * frame would let it dominate the page. Constrain the output frame to a
- * portrait-friendly width and center it — fluid on mobile, capped on desktop.
+ * The Starwizz outputs are vertical 9:16 clips, so a full-width pair would make
+ * them very tall. Cap the pair's width and keep the two side by side on phones
+ * too, so 2D and 3D can always be compared at a glance.
  */
-.output-frame {
-  display: block;
-  width: min(380px, 86vw);
+.output-pair--portrait {
+  max-width: 720px;
   margin: 0 auto;
+}
+
+@media (max-width: 720px) {
+  .output-pair--portrait {
+    gap: 0.75rem;
+  }
 }

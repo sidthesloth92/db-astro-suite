@@ -35,276 +35,460 @@
 
   <div class="format-row">
     <div class="format-label-row">
-      <label class="row-label">Direction</label>
-      <span
-        class="help-icon"
-        tabindex="0"
-        [dbaTooltip]="directionHelp"
-        [attr.aria-label]="directionHelp"
-      >
+      <label class="row-label">Mode</label>
+      <span class="help-icon" tabindex="0" [dbaTooltip]="modeHelp" [attr.aria-label]="modeHelp">
         <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
       </span>
+      @if (isSmoothnessNoticeVisible()) {
+        <span
+          class="notice-icon"
+          tabindex="0"
+          [dbaTooltip]="smoothnessNotice"
+          [attr.aria-label]="smoothnessNotice"
+        >
+          <dba-ui-icon [def]="triangleAlertIcon" [size]="14" />
+        </span>
+      }
     </div>
-    <dba-ui-select
-      label=""
-      [noBox]="true"
-      [value]="simService.travelDirection()"
-      [options]="directionOptions"
-      (valueChange)="updateDirection($event)"
-    ></dba-ui-select>
+    <dba-ui-segmented-tabs
+      size="sm"
+      [options]="renderModeOptions"
+      [value]="simService.renderMode()"
+      [disabled]="isRecordingActive()"
+      (valueChange)="updateRenderMode($event)"
+    ></dba-ui-segmented-tabs>
   </div>
 
-  @if (simService.isPathMode()) {
-    <div class="path-section">
+  @if (!simService.is3dMode()) {
+    <div class="format-row">
       <div class="format-label-row">
-        <label class="row-label">Custom Path (A→B)</label>
-        <span class="help-icon" tabindex="0" [dbaTooltip]="pathHelp" [attr.aria-label]="pathHelp">
+        <label class="row-label">Direction</label>
+        <span
+          class="help-icon"
+          tabindex="0"
+          [dbaTooltip]="directionHelp"
+          [attr.aria-label]="directionHelp"
+        >
           <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
         </span>
       </div>
+      <dba-ui-select
+        label=""
+        [noBox]="true"
+        [value]="simService.travelDirection()"
+        [options]="directionOptions"
+        (valueChange)="updateDirection($event)"
+      ></dba-ui-select>
+    </div>
 
-      @if (!simService.pathFinalized()) {
-        <p class="path-hint">Drag the preview to pan · scroll to zoom</p>
+    @if (simService.isPathMode()) {
+      <div class="path-section">
+        <div class="format-label-row">
+          <label class="row-label">Custom Path (A→B)</label>
+          <span class="help-icon" tabindex="0" [dbaTooltip]="pathHelp" [attr.aria-label]="pathHelp">
+            <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
+          </span>
+        </div>
+
+        @if (!simService.pathFinalized()) {
+          <p class="path-hint">Drag the preview to pan · scroll to zoom</p>
+
+          <div class="slider-row">
+            <div class="slider-label-row">
+              <label class="row-label">Zoom</label>
+              <span class="row-value">{{ liveZoom().toFixed(2) }}×</span>
+            </div>
+            <dba-ui-micro-slider
+              [value]="liveZoom()"
+              [min]="zoomMin"
+              [max]="zoomMax"
+              [step]="zoomStep"
+              [showReadout]="false"
+              (valueChange)="updateZoom($event)"
+            ></dba-ui-micro-slider>
+          </div>
+
+          <div class="path-keyframes">
+            <dba-ui-text-button
+              [label]="simService.cameraStart() ? 'Start A ✓' : 'Set Start A'"
+              [variant]="simService.cameraStart() ? 'primary' : 'secondary'"
+              size="sm"
+              (clicked)="setStart()"
+            ></dba-ui-text-button>
+            <dba-ui-text-button
+              [label]="simService.cameraEnd() ? 'End B ✓' : 'Set End B'"
+              [variant]="simService.cameraEnd() ? 'primary' : 'secondary'"
+              size="sm"
+              (clicked)="setEnd()"
+            ></dba-ui-text-button>
+          </div>
+
+          <div class="panel-actions">
+            <dba-ui-text-button
+              label="Set Path"
+              variant="primary"
+              size="sm"
+              [disabled]="!simService.canPlayPath()"
+              (clicked)="fixPath()"
+            ></dba-ui-text-button>
+            <dba-ui-text-button
+              label="Reset Points"
+              variant="secondary"
+              size="sm"
+              [disabled]="!simService.cameraStart() && !simService.cameraEnd()"
+              (clicked)="resetPoints()"
+            ></dba-ui-text-button>
+          </div>
+        } @else {
+          <p class="path-hint">Path fixed · plays A→B once. Reset Animation to replay · Edit Path to recompose.</p>
+        }
 
         <div class="slider-row">
           <div class="slider-label-row">
-            <label class="row-label">Zoom</label>
-            <span class="row-value">{{ liveZoom().toFixed(2) }}×</span>
+            <label class="row-label">Camera Speed</label>
+            <span
+              class="help-icon"
+              tabindex="0"
+              [dbaTooltip]="cameraSpeedHelp"
+              [attr.aria-label]="cameraSpeedHelp"
+            >
+              <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
+            </span>
+            <span class="row-value">{{ speedValue() }} px/s</span>
           </div>
           <dba-ui-micro-slider
-            [value]="liveZoom()"
-            [min]="zoomMin"
-            [max]="zoomMax"
-            [step]="zoomStep"
+            [value]="speedValue()"
+            [min]="speedMin"
+            [max]="speedMax"
+            [step]="speedStep"
             [showReadout]="false"
-            (valueChange)="updateZoom($event)"
+            (valueChange)="updateSpeed($event)"
           ></dba-ui-micro-slider>
         </div>
 
-        <div class="path-keyframes">
-          <dba-ui-text-button
-            [label]="simService.cameraStart() ? 'Start A ✓' : 'Set Start A'"
-            [variant]="simService.cameraStart() ? 'primary' : 'secondary'"
-            size="sm"
-            (clicked)="setStart()"
-          ></dba-ui-text-button>
-          <dba-ui-text-button
-            [label]="simService.cameraEnd() ? 'End B ✓' : 'Set End B'"
-            [variant]="simService.cameraEnd() ? 'primary' : 'secondary'"
-            size="sm"
-            (clicked)="setEnd()"
-          ></dba-ui-text-button>
+        <div class="slider-row">
+          <div class="slider-label-row">
+            <label class="row-label">Duration</label>
+            <span
+              class="help-icon"
+              tabindex="0"
+              [dbaTooltip]="durationHelp"
+              [attr.aria-label]="durationHelp"
+            >
+              <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
+            </span>
+            <span class="row-value">{{ durationValue() }} s</span>
+          </div>
+          <dba-ui-micro-slider
+            [value]="durationValue()"
+            [min]="durationMin"
+            [max]="durationMax"
+            [step]="durationStep"
+            [showReadout]="false"
+            (valueChange)="updateDuration($event)"
+          ></dba-ui-micro-slider>
         </div>
 
-        <div class="panel-actions">
-          <dba-ui-text-button
-            label="Set Path"
-            variant="primary"
-            size="sm"
-            [disabled]="!simService.canPlayPath()"
-            (clicked)="fixPath()"
-          ></dba-ui-text-button>
-          <dba-ui-text-button
-            label="Reset Points"
-            variant="secondary"
-            size="sm"
-            [disabled]="!simService.cameraStart() && !simService.cameraEnd()"
-            (clicked)="resetPoints()"
-          ></dba-ui-text-button>
-        </div>
-      } @else {
-        <p class="path-hint">Path fixed · plays A→B once. Reset Animation to replay · Edit Path to recompose.</p>
-      }
+        @if (showSidewaysDrift) {
+          <div class="record-aux">
+            <dba-ui-switch
+              ariaLabel="Sideways star drift"
+              [checked]="simService.starLateralOn()"
+              (checkedChange)="setStarLateral($event)"
+            ></dba-ui-switch>
+            <span class="record-aux-label">Sideways drift</span>
+            <span
+              class="help-icon"
+              tabindex="0"
+              [dbaTooltip]="starDriftHelp"
+              [attr.aria-label]="starDriftHelp"
+            >
+              <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
+            </span>
+          </div>
 
-      <div class="slider-row">
-        <div class="slider-label-row">
-          <label class="row-label">Camera Speed</label>
-          <span
-            class="help-icon"
-            tabindex="0"
-            [dbaTooltip]="cameraSpeedHelp"
-            [attr.aria-label]="cameraSpeedHelp"
-          >
-            <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
-          </span>
-          <span class="row-value">{{ speedValue() }} px/s</span>
-        </div>
-        <dba-ui-micro-slider
-          [value]="speedValue()"
-          [min]="speedMin"
-          [max]="speedMax"
-          [step]="speedStep"
-          [showReadout]="false"
-          (valueChange)="updateSpeed($event)"
-        ></dba-ui-micro-slider>
-      </div>
-
-      <div class="slider-row">
-        <div class="slider-label-row">
-          <label class="row-label">Duration</label>
-          <span
-            class="help-icon"
-            tabindex="0"
-            [dbaTooltip]="durationHelp"
-            [attr.aria-label]="durationHelp"
-          >
-            <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
-          </span>
-          <span class="row-value">{{ durationValue() }} s</span>
-        </div>
-        <dba-ui-micro-slider
-          [value]="durationValue()"
-          [min]="durationMin"
-          [max]="durationMax"
-          [step]="durationStep"
-          [showReadout]="false"
-          (valueChange)="updateDuration($event)"
-        ></dba-ui-micro-slider>
-      </div>
-
-      @if (showSidewaysDrift) {
-        <div class="record-aux">
-          <dba-ui-switch
-            ariaLabel="Sideways star drift"
-            [checked]="simService.starLateralOn()"
-            (checkedChange)="setStarLateral($event)"
-          ></dba-ui-switch>
-          <span class="record-aux-label">Sideways drift</span>
-          <span
-            class="help-icon"
-            tabindex="0"
-            [dbaTooltip]="starDriftHelp"
-            [attr.aria-label]="starDriftHelp"
-          >
-            <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
-          </span>
-        </div>
-
-        @if (simService.starLateralOn()) {
-          <div class="slider-row">
-            <div class="slider-label-row">
-              <label class="row-label">Drift Angle</label>
-              <span class="row-value">{{ simService.starDirectionDeg() }}°</span>
+          @if (simService.starLateralOn()) {
+            <div class="slider-row">
+              <div class="slider-label-row">
+                <label class="row-label">Drift Angle</label>
+                <span class="row-value">{{ simService.starDirectionDeg() }}°</span>
+              </div>
+              <dba-ui-micro-slider
+                [value]="simService.starDirectionDeg()"
+                [min]="angleMin"
+                [max]="angleMax"
+                [step]="angleStep"
+                [showReadout]="false"
+                (valueChange)="updateStarDirection($event)"
+              ></dba-ui-micro-slider>
             </div>
-            <dba-ui-micro-slider
-              [value]="simService.starDirectionDeg()"
-              [min]="angleMin"
-              [max]="angleMax"
-              [step]="angleStep"
-              [showReadout]="false"
-              (valueChange)="updateStarDirection($event)"
-            ></dba-ui-micro-slider>
+          }
+        }
+
+        @if (simService.pathFinalized()) {
+          <div class="panel-actions">
+            <dba-ui-text-button
+              label="Edit Path"
+              variant="secondary"
+              size="sm"
+              (clicked)="editPath()"
+            ></dba-ui-text-button>
+            <dba-ui-text-button
+              label="Reset Points"
+              variant="secondary"
+              size="sm"
+              (clicked)="resetPoints()"
+            ></dba-ui-text-button>
           </div>
         }
-      }
+      </div>
+    }
 
-      @if (simService.pathFinalized()) {
-        <div class="panel-actions">
-          <dba-ui-text-button
-            label="Edit Path"
-            variant="secondary"
-            size="sm"
-            (clicked)="editPath()"
-          ></dba-ui-text-button>
-          <dba-ui-text-button
-            label="Reset Points"
-            variant="secondary"
-            size="sm"
-            (clicked)="resetPoints()"
-          ></dba-ui-text-button>
+    <!-- Reusable slider-row markup, instantiated once per visible control key. -->
+    <ng-template #sliderRow let-control>
+      <div class="slider-row">
+        <div class="slider-label-row">
+          <label class="row-label">{{ controlMeta(control).label }}</label>
+          <span
+            class="help-icon"
+            tabindex="0"
+            [dbaTooltip]="controlMeta(control).description"
+            [attr.aria-label]="controlMeta(control).description"
+          >
+            <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
+          </span>
+          <span class="row-value">{{ formatControlValue(control) }}</span>
         </div>
+        <dba-ui-micro-slider
+          [value]="getControlValue(control)"
+          [min]="controlMeta(control).min"
+          [max]="controlMeta(control).max"
+          [step]="controlMeta(control).step"
+          [fillFrom]="controlMeta(control).origin"
+          [showReadout]="false"
+          (valueChange)="updateControlValue(control, $event)"
+        ></dba-ui-micro-slider>
+      </div>
+    </ng-template>
+
+    <!-- Camera / scene sliders (Zoom Speed and Rotation), independent of the stars. -->
+    @for (control of cameraControlNames(); track control) {
+      <ng-container
+        [ngTemplateOutlet]="sliderRow"
+        [ngTemplateOutletContext]="{ $implicit: control }"
+      ></ng-container>
+    }
+
+    <!-- Stars: master switch plus every star-related control, grouped together. -->
+    <div class="stars-section">
+      <div class="stars-section-header">
+        <div class="format-label-row">
+          <label class="row-label">Stars</label>
+          <span
+            class="help-icon"
+            tabindex="0"
+            [dbaTooltip]="starsHelp"
+            [attr.aria-label]="starsHelp"
+          >
+            <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
+          </span>
+        </div>
+        <dba-ui-switch
+          ariaLabel="Show stars"
+          [checked]="simService.starsEnabled()"
+          (checkedChange)="simService.starsEnabled.set($event)"
+        ></dba-ui-switch>
+      </div>
+
+      @if (simService.starsEnabled()) {
+        @for (control of starFieldControlNames(); track control) {
+          <ng-container
+            [ngTemplateOutlet]="sliderRow"
+            [ngTemplateOutletContext]="{ $implicit: control }"
+          ></ng-container>
+        }
+
+        <div class="record-aux">
+          <dba-ui-switch
+            ariaLabel="Shooting stars"
+            [checked]="simService.shootingStarsEnabled()"
+            (checkedChange)="simService.shootingStarsEnabled.set($event)"
+          ></dba-ui-switch>
+          <span class="record-aux-label">Shooting Stars</span>
+          <span
+            class="help-icon"
+            tabindex="0"
+            [dbaTooltip]="shootingStarsHelp"
+            [attr.aria-label]="shootingStarsHelp"
+          >
+            <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
+          </span>
+        </div>
+
+        @if (isShootingStarSpeedVisible()) {
+          <ng-container
+            [ngTemplateOutlet]="sliderRow"
+            [ngTemplateOutletContext]="{ $implicit: 'shootingStarSpeed' }"
+          ></ng-container>
+        }
       }
     </div>
-  }
-
-  <!-- Reusable slider-row markup, instantiated once per visible control key. -->
-  <ng-template #sliderRow let-control>
-    <div class="slider-row">
-      <div class="slider-label-row">
-        <label class="row-label">{{ controlMeta(control).label }}</label>
-        <span
-          class="help-icon"
-          tabindex="0"
-          [dbaTooltip]="controlMeta(control).description"
-          [attr.aria-label]="controlMeta(control).description"
-        >
-          <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
-        </span>
-        <span class="row-value">{{ formatControlValue(control) }}</span>
+  } @else {
+    <!-- Reusable 3D slider row, instantiated once per visible 3D control key. -->
+    <ng-template #sceneSliderRow let-control>
+      <div class="slider-row">
+        <div class="slider-label-row">
+          <label class="row-label">{{ sceneControlMeta(control).label }}</label>
+          <span
+            class="help-icon"
+            tabindex="0"
+            [dbaTooltip]="sceneControlMeta(control).description"
+            [attr.aria-label]="sceneControlMeta(control).description"
+          >
+            <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
+          </span>
+          <span class="row-value">{{ formatSceneControlValue(control) }}</span>
+        </div>
+        <dba-ui-micro-slider
+          [value]="getSceneControlValue(control)"
+          [min]="sceneControlMeta(control).min"
+          [max]="sceneControlMeta(control).max"
+          [step]="sceneControlMeta(control).step"
+          [fillFrom]="sceneControlMeta(control).origin"
+          [showReadout]="false"
+          (valueChange)="updateSceneControl(control, $event)"
+        ></dba-ui-micro-slider>
       </div>
-      <dba-ui-micro-slider
-        [value]="getControlValue(control)"
-        [min]="controlMeta(control).min"
-        [max]="controlMeta(control).max"
-        [step]="controlMeta(control).step"
-        [showReadout]="false"
-        (valueChange)="updateControlValue(control, $event)"
-      ></dba-ui-micro-slider>
-    </div>
-  </ng-template>
+    </ng-template>
 
-  <!-- Camera / scene sliders (Zoom & Rotation Speed) — independent of the stars. -->
-  @for (control of cameraControlNames(); track control) {
-    <ng-container
-      [ngTemplateOutlet]="sliderRow"
-      [ngTemplateOutletContext]="{ $implicit: control }"
-    ></ng-container>
-  }
-
-  <!-- Stars: master switch plus every star-related control, grouped together. -->
-  <div class="stars-section">
-    <div class="stars-section-header">
+    <!-- Motion: how the camera moves. Plain rows, like the 2D camera controls. -->
+    <div class="format-row">
       <div class="format-label-row">
-        <label class="row-label">Stars</label>
+        <label class="row-label">Style</label>
+        <span class="help-icon" tabindex="0" [dbaTooltip]="styleHelp" [attr.aria-label]="styleHelp">
+          <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
+        </span>
+      </div>
+      <dba-ui-select
+        label=""
+        [noBox]="true"
+        [value]="scene3d.style()"
+        [options]="sceneStyleOptions"
+        (valueChange)="updateSceneStyle($event)"
+      ></dba-ui-select>
+    </div>
+
+    @if (scene3d.style() === 'travel') {
+      <div class="format-row">
+        <div class="format-label-row">
+          <label class="row-label">Direction</label>
+          <span
+            class="help-icon"
+            tabindex="0"
+            [dbaTooltip]="sceneDirectionHelp"
+            [attr.aria-label]="sceneDirectionHelp"
+          >
+            <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
+          </span>
+        </div>
+        <dba-ui-select
+          label=""
+          [noBox]="true"
+          [value]="scene3d.direction()"
+          [options]="sceneDirectionOptions"
+          (valueChange)="updateSceneDirection($event)"
+        ></dba-ui-select>
+      </div>
+      @if (scene3d.direction() === 'custom') {
+        <p class="path-hint">Drag the marker on the preview to choose where the camera heads.</p>
+      }
+    }
+
+    @for (control of sceneMotionControls(); track control) {
+      <ng-container
+        [ngTemplateOutlet]="sceneSliderRow"
+        [ngTemplateOutletContext]="{ $implicit: control }"
+      ></ng-container>
+    }
+
+    @if (scene3d.style() === 'arrive') {
+      <div class="record-aux">
+        <dba-ui-switch
+          ariaLabel="Zoom in"
+          [checked]="scene3d.zoomIn()"
+          (checkedChange)="scene3d.zoomIn.set($event)"
+        ></dba-ui-switch>
+        <span class="record-aux-label">Zoom In</span>
+        <span class="help-icon" tabindex="0" [dbaTooltip]="zoomInHelp" [attr.aria-label]="zoomInHelp">
+          <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
+        </span>
+      </div>
+      <div class="record-aux">
+        <dba-ui-switch
+          ariaLabel="Stars return at end"
+          [checked]="scene3d.starsReturn()"
+          (checkedChange)="scene3d.starsReturn.set($event)"
+        ></dba-ui-switch>
+        <span class="record-aux-label">Stars Return At End</span>
         <span
           class="help-icon"
           tabindex="0"
-          [dbaTooltip]="starsHelp"
-          [attr.aria-label]="starsHelp"
+          [dbaTooltip]="starsReturnHelp"
+          [attr.aria-label]="starsReturnHelp"
         >
           <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
         </span>
       </div>
-      <dba-ui-switch
-        ariaLabel="Show stars"
-        [checked]="simService.starsEnabled()"
-        (checkedChange)="simService.starsEnabled.set($event)"
-      ></dba-ui-switch>
-    </div>
+    }
 
-    @if (simService.starsEnabled()) {
-      @for (control of starFieldControlNames(); track control) {
+    <!-- Stars: how the moving stars look. -->
+    <div class="stars-section">
+      <div class="stars-section-header">
+        <div class="format-label-row">
+          <label class="row-label">Stars</label>
+          <span
+            class="help-icon"
+            tabindex="0"
+            [dbaTooltip]="sceneStarsHelp"
+            [attr.aria-label]="sceneStarsHelp"
+          >
+            <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
+          </span>
+        </div>
+      </div>
+
+      @for (control of sceneStarControls(); track control) {
         <ng-container
-          [ngTemplateOutlet]="sliderRow"
+          [ngTemplateOutlet]="sceneSliderRow"
           [ngTemplateOutletContext]="{ $implicit: control }"
         ></ng-container>
       }
 
       <div class="record-aux">
         <dba-ui-switch
-          ariaLabel="Shooting stars"
-          [checked]="simService.shootingStarsEnabled()"
-          (checkedChange)="simService.shootingStarsEnabled.set($event)"
+          ariaLabel="Sharp stars"
+          [checked]="scene3d.hasSharpStars()"
+          (checkedChange)="scene3d.setSharpStars($event)"
         ></dba-ui-switch>
-        <span class="record-aux-label">Shooting Stars</span>
+        <span class="record-aux-label">Sharp Stars</span>
         <span
           class="help-icon"
           tabindex="0"
-          [dbaTooltip]="shootingStarsHelp"
-          [attr.aria-label]="shootingStarsHelp"
+          [dbaTooltip]="sharpStarsHelp"
+          [attr.aria-label]="sharpStarsHelp"
         >
           <dba-ui-icon [def]="circleHelpIcon" [size]="14" />
         </span>
       </div>
 
-      @if (isShootingStarSpeedVisible()) {
+      @if (scene3d.hasSharpStars()) {
         <ng-container
-          [ngTemplateOutlet]="sliderRow"
-          [ngTemplateOutletContext]="{ $implicit: 'shootingStarSpeed' }"
+          [ngTemplateOutlet]="sceneSliderRow"
+          [ngTemplateOutletContext]="{ $implicit: 'spikes' }"
         ></ng-container>
       }
-    }
-  </div>
+    </div>
+  }
 
   <div class="panel-actions">
     <dba-ui-text-button

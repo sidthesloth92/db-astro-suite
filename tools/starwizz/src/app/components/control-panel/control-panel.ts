@@ -7,8 +7,10 @@ import {
   output,
 } from '@angular/core';
 import {
+  BreakpointService,
   IconComponent,
   MicroSliderComponent,
+  SegmentedTabsComponent,
   SelectComponent,
   SplitButtonComponent,
   SwitchComponent,
@@ -17,6 +19,8 @@ import {
   circleHelpIcon,
   playCircleIcon,
   rotateCcwIcon,
+  triangleAlertIcon,
+  type SegmentedTabOption,
   type SelectItem,
   type SplitButtonMenuItem,
 } from '@db-astro-suite/ui';
@@ -44,13 +48,28 @@ import {
   STAR_ANGLE_STEP,
   STAR_FIELD_CONTROL_KEYS,
 } from '../../constants/simulation.constant';
+import {
+  RENDER_MODE_OPTIONS,
+  SCENE3D_CONTROLS,
+  SCENE3D_DIRECTION_OPTIONS,
+  SCENE3D_STYLE_OPTIONS,
+} from '../../constants/scene3d.constant';
 import { RecordingPreset } from '../../models/recording.model';
+import { RenderMode } from '../../models/render-mode.model';
+import {
+  Scene3dControlKey,
+  Scene3dDirection,
+  Scene3dStyle,
+} from '../../models/scene3d-settings.model';
 import { ControlKey, ControlMetadata, TravelDirection } from '../../models/simulation.model';
+import { Scene3dService } from '../../services/scene3d.service';
 import { SimulationService } from '../../services/simulation.service';
 import {
   computeRecordingBitsPerSecond,
   estimateRecordingSizeMb,
 } from '../../utils/recording-size.util';
+import { formatSceneControlValue } from '../../utils/scene3d-control.util';
+import { formatControlValue } from '../../utils/simulation-control.util';
 
 /** Generic slider controls hidden while the cinematic Custom Path mode is active. */
 const PATH_HIDDEN_CONTROLS: ReadonlySet<ControlKey> = new Set<ControlKey>([
@@ -72,6 +91,7 @@ const PATH_HIDDEN_CONTROLS: ReadonlySet<ControlKey> = new Set<ControlKey>([
   imports: [
     NgTemplateOutlet,
     MicroSliderComponent,
+    SegmentedTabsComponent,
     SelectComponent,
     SplitButtonComponent,
     SwitchComponent,
@@ -87,10 +107,18 @@ export class ControlPanel {
   /** Shared simulation state + recording state machine. */
   protected readonly simService = inject(SimulationService);
 
+  /** 3D mode settings and scene status. */
+  protected readonly scene3d = inject(Scene3dService);
+
+  /** Tells the phone and tablet layout apart from the desktop one. */
+  private readonly breakpoints = inject(BreakpointService);
+
   /** Rotate-ccw glyph rendered as leading icon on the reset buttons. */
   protected readonly rotateCcwIcon = rotateCcwIcon;
   /** Circle-help glyph rendered next to each control as the tooltip affordance. */
   protected readonly circleHelpIcon = circleHelpIcon;
+  /** Warning glyph for the 3D smoothness notice next to the mode switch. */
+  protected readonly triangleAlertIcon = triangleAlertIcon;
   /** Play glyph for the "watch the demo" button in the panel header. */
   protected readonly playCircleIcon = playCircleIcon;
 
@@ -100,6 +128,34 @@ export class ControlPanel {
   /** Tooltip text shown on the help icon next to the format selector. */
   protected readonly formatHelp =
     'Output dimensions for the recorded video. 9:16 vertical is best for stories and reels; 16:9 horizontal is best for YouTube.';
+  /** Tooltip text shown on the help icon next to the 2D | 3D mode switch. */
+  protected readonly modeHelp =
+    '2D moves a starfield over your image. 3D lifts the stars out of your photo and flies a camera through them, so they pass in front of the object with real depth.';
+  /** Notice shown on the warning icon next to the mode switch while 3D runs on a phone or tablet. */
+  protected readonly smoothnessNotice =
+    '3D is heavier to draw. If the preview or your clip stutters, record on a desktop computer for a lag-free result.';
+  /** Whether the 3D smoothness notice is shown: only in 3D, and only on the phone and tablet layout. */
+  protected readonly isSmoothnessNoticeVisible = computed<boolean>(
+    () => this.simService.is3dMode() && this.breakpoints.isMobile(),
+  );
+  /** Tooltip for the 3D Style select. */
+  protected readonly styleHelp =
+    'Travel flies steadily through the stars. Arrive flies through them until they clear, then settles on the object.';
+  /** Tooltip for the 3D Direction select. */
+  protected readonly sceneDirectionHelp =
+    'Which way the scene moves. Forward and Backward fly into or away from it; Left, Right, Up and Down drift sideways; Custom flies toward a point you choose on the preview.';
+  /** Tooltip for the Arrive "Zoom In" switch. */
+  protected readonly zoomInHelp =
+    'On: the camera really approaches, so the whole object grows as you arrive. Off: the frame stays put and only the bright cloud comes toward you.';
+  /** Tooltip for the Arrive "Stars Return At End" switch. */
+  protected readonly starsReturnHelp =
+    'After the camera settles, fade the stars of your photo back in so the clip ends on your finished image. Off ends on the clean object.';
+  /** Tooltip for the 3D Stars section. */
+  protected readonly sceneStarsHelp =
+    'The moving stars are the stars of your own photo, lifted off it and spread through depth.';
+  /** Tooltip for the 3D "Sharp Stars" switch. */
+  protected readonly sharpStarsHelp =
+    'Redraws each star as a crisp point, and lets you add spikes. Off keeps the stars exactly as they are in your photo.';
   /** Tooltip text shown on the help icon next to the direction selector. */
   protected readonly directionHelp =
     'How the camera moves. Forward/Backward fly into or away from the scene; Left/Right/Up/Down drift sideways with parallax; Custom Path (A→B) glides between two framings you set.';
@@ -150,6 +206,12 @@ export class ControlPanel {
   }));
   /** Travel-direction options for the <dba-ui-select>. */
   readonly directionOptions: readonly SelectItem[] = DIRECTION_OPTIONS;
+  /** Options of the 2D | 3D mode switch. */
+  readonly renderModeOptions: readonly SegmentedTabOption[] = RENDER_MODE_OPTIONS;
+  /** 3D Style options. */
+  readonly sceneStyleOptions: readonly SelectItem[] = SCENE3D_STYLE_OPTIONS;
+  /** 3D Direction options. */
+  readonly sceneDirectionOptions: readonly SelectItem[] = SCENE3D_DIRECTION_OPTIONS;
 
   // Custom Path slider bounds (exposed for template binding).
   /** Zoom slider lower bound (image just covers the frame). */
@@ -172,7 +234,7 @@ export class ControlPanel {
   readonly angleStep = STAR_ANGLE_STEP;
 
   /**
-   * Camera/scene slider keys to render (Zoom/Rotation Speed). Hidden in Custom
+   * Camera/scene slider keys to render (Zoom Speed, Rotation). Hidden in Custom
    * Path mode, where the path section supplies its own zoom/speed controls.
    */
   readonly cameraControlNames = computed<ControlKey[]>(() => {
@@ -194,6 +256,24 @@ export class ControlPanel {
     () => this.simService.shootingStarsEnabled() && !this.simService.isPathMode(),
   );
 
+  /**
+   * 3D Motion sliders to render, in order. Cloud Depth only applies to Arrive, where the
+   * nebula stands out toward the viewer.
+   */
+  readonly sceneMotionControls = computed<Scene3dControlKey[]>(() =>
+    this.scene3d.style() === 'arrive' ? ['speed', 'rotation', 'cloudDepth'] : ['speed', 'rotation'],
+  );
+
+  /**
+   * 3D Stars sliders to render, in order. Star Depth only applies to Travel (Arrive sets the
+   * depth of its star cloud itself). Spikes is not listed: it sits under the Sharp Stars switch.
+   */
+  readonly sceneStarControls = computed<Scene3dControlKey[]>(() =>
+    this.scene3d.style() === 'travel'
+      ? ['starAmount', 'starSize', 'starDepth', 'twinkle']
+      : ['starAmount', 'starSize', 'twinkle'],
+  );
+
   /** Label rendered inside the record button — varies with recording state. */
   readonly buttonText = computed<string>(() => {
     const state = this.simService.recordingState();
@@ -206,7 +286,11 @@ export class ControlPanel {
 
   /** True when the record button is disabled (no image, mid-processing). */
   readonly isRecordDisabled = computed<boolean>(
-    () => this.simService.recordingState() === 'processing' || !this.simService.isImageLoaded(),
+    () =>
+      this.simService.recordingState() === 'processing' ||
+      !this.simService.isImageLoaded() ||
+      // In 3D there is nothing to record until the stars have been lifted off the photo.
+      (this.simService.is3dMode() && !this.scene3d.isReady()),
   );
 
   /** True while a recording session is running or finalising. */
@@ -252,6 +336,51 @@ export class ControlPanel {
     this.simService.currentFormat.set(value as FormatKey);
   }
 
+  /** Switches between the 2D starfield and the 3D scene. */
+  updateRenderMode(value: string): void {
+    if (value === '2d' || value === '3d') {
+      const mode: RenderMode = value;
+      this.simService.renderMode.set(mode);
+    }
+  }
+
+  /** Slider metadata (label, description, range) for a 3D control key. */
+  sceneControlMeta(control: Scene3dControlKey): ControlMetadata {
+    return SCENE3D_CONTROLS[control];
+  }
+
+  /** Current value of a 3D slider control. */
+  getSceneControlValue(control: Scene3dControlKey): number {
+    return this.scene3d.controls[control]();
+  }
+
+  /** Forwards a 3D slider change to the 3D state service. */
+  updateSceneControl(control: Scene3dControlKey, value: number): void {
+    this.scene3d.updateControl(control, value);
+  }
+
+  /** Formatted value shown next to a 3D slider's label. */
+  formatSceneControlValue(control: Scene3dControlKey): string {
+    return formatSceneControlValue(control, this.scene3d.controls[control]());
+  }
+
+  /** Applies a 3D Style chosen from the select. */
+  updateSceneStyle(value: string | number | boolean): void {
+    if (value === 'travel' || value === 'arrive') {
+      const style: Scene3dStyle = value;
+      this.scene3d.style.set(style);
+    }
+  }
+
+  /** Applies a 3D Direction chosen from the select. */
+  updateSceneDirection(value: string | number | boolean): void {
+    const option = SCENE3D_DIRECTION_OPTIONS.find((item) => 'value' in item && item.value === value);
+    if (option !== undefined) {
+      // Narrowing is safe: the value was just matched against the direction options.
+      this.scene3d.direction.set(value as Scene3dDirection);
+    }
+  }
+
   /** Updates the camera travel direction after a select change. */
   updateDirection(value: string | number | boolean): void {
     this.simService.updateDirection(value as TravelDirection);
@@ -275,9 +404,7 @@ export class ControlPanel {
 
   /** Formatted value rendered alongside the slider label, respecting per-control precision. */
   formatControlValue(control: ControlKey): string {
-    const value = this.simService.getControlValue(control);
-    const precision = this.controlConfig[control].precision ?? 0;
-    return value.toFixed(precision);
+    return formatControlValue(control, this.simService.getControlValue(control));
   }
 
   // ==================== Custom Path controls ====================
@@ -363,5 +490,6 @@ export class ControlPanel {
   /** Restores all sliders to their default values. */
   resetParams(): void {
     this.simService.resetControlsToDefaults();
+    this.scene3d.resetToDefaults();
   }
 }

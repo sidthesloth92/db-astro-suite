@@ -4,7 +4,10 @@
   }
   <div class="track-wrap">
     <div class="track">
-      <div class="fill" [style.width.%]="percent()"></div>
+      @if (originPercent() !== null) {
+        <div class="origin" [style.left.%]="originPercent()"></div>
+      }
+      <div class="fill" [style.left.%]="fill().left" [style.width.%]="fill().width"></div>
       <div class="dot" [style.left.%]="percent()"></div>
     </div>
     <input

@@ -5,6 +5,7 @@ import { App } from './app';
 import { ControlPanel } from './components/control-panel/control-panel';
 import { Simulator } from './components/simulator/simulator';
 import { InAppBrowserService } from './services/in-app-browser.service';
+import { Scene3dService } from './services/scene3d.service';
 import { SimulationService } from './services/simulation.service';
 
 /** Lightweight stand-ins so App can render without the canvas/animation machinery. */
@@ -110,6 +111,20 @@ describe('App', () => {
         b.querySelector('.sw-quality-item__label')?.textContent?.trim(),
       );
     }
+
+    it('should keep the record button disabled in 3D until the scene is ready', () => {
+      renderMobile();
+      const scene3d = TestBed.inject(Scene3dService);
+      expect(recordButton().disabled).toBeFalse();
+
+      simService.renderMode.set('3d');
+      fixture.detectChanges();
+      expect(recordButton().disabled).toBeTrue();
+
+      scene3d.status.set('ready');
+      fixture.detectChanges();
+      expect(recordButton().disabled).toBeFalse();
+    });
 
     it('should open the quality menu instead of recording when tapped while idle', () => {
       renderMobile();

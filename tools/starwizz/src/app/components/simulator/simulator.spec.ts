@@ -5,6 +5,7 @@ import { GALAXY_PAN_FACTOR, LATERAL_TRAVEL_FRACTION } from '../../constants/simu
 import { ShootingStar } from '../../models/shooting-star.model';
 import { TravelDirection } from '../../models/simulation.model';
 import { Star } from '../../models/star.model';
+import { Scene3dService } from '../../services/scene3d.service';
 import { SimulationService } from '../../services/simulation.service';
 import { Simulator } from './simulator';
 
@@ -109,6 +110,81 @@ describe('Simulator', () => {
     expect(component['isDragging']()).toBe(false);
   });
 
+  describe('3D mode', () => {
+    it('should hide the 2D canvas and stop drawing on it while 3D is showing', () => {
+      component['ctx'] = canvas.getContext('2d');
+      // Justification for the cast: the spec reaches the private frame renderer to observe it.
+      const renderFrame = spyOn(component as unknown as { renderFrame: () => void }, 'renderFrame');
+
+      simService.renderMode.set('3d');
+      fixture.detectChanges();
+      component['animate']();
+
+      expect(canvas.classList.contains('is-hidden')).toBeTrue();
+      expect(renderFrame).not.toHaveBeenCalled();
+
+      simService.renderMode.set('2d');
+      fixture.detectChanges();
+      component['animate']();
+      expect(canvas.classList.contains('is-hidden')).toBeFalse();
+      expect(renderFrame).toHaveBeenCalled();
+    });
+
+    it('should leave recording to the 3D scene instead of recording the hidden 2D canvas', () => {
+      const start = spyOn(simService, 'startRecording');
+      simService.renderMode.set('3d');
+      fixture.detectChanges();
+
+      simService.recordingState.set('recording');
+      fixture.detectChanges();
+
+      expect(start).not.toHaveBeenCalledWith(canvas);
+    });
+
+    it('should show a progress overlay while the stars are being lifted off the photo', () => {
+      const host = fixture.nativeElement as HTMLElement;
+      simService.loadingProgress.set('Ready');
+      simService.renderMode.set('3d');
+      TestBed.inject(Scene3dService).status.set('lifting');
+      fixture.detectChanges();
+      expect(host.querySelector('dba-sw-loading-overlay')?.textContent).toContain('Lifting stars');
+
+      TestBed.inject(Scene3dService).status.set('ready');
+      fixture.detectChanges();
+      expect(host.querySelector('dba-sw-loading-overlay')).toBeNull();
+    });
+
+    it('should not cover a 3D error with the progress overlay', () => {
+      const host = fixture.nativeElement as HTMLElement;
+      const scene3d = TestBed.inject(Scene3dService);
+      simService.loadingProgress.set('Ready');
+      simService.renderMode.set('3d');
+      scene3d.status.set('lifting');
+      scene3d.reportRendererError('3D is not available');
+      fixture.detectChanges();
+      expect(host.querySelector('dba-sw-loading-overlay')).toBeNull();
+    });
+
+    it('should put the 3D settings back to their defaults when the image is cleared', () => {
+      const scene3d = TestBed.inject(Scene3dService);
+      scene3d.style.set('arrive');
+      scene3d.starStyle.set('sharp');
+      scene3d.updateControl('starAmount', 250);
+
+      component.clearImage();
+
+      expect(scene3d.style()).toBe('travel');
+      expect(scene3d.starStyle()).toBe('original');
+      expect(scene3d.settings().starAmount).toBe(100);
+    });
+  });
+
+  it('should stop its frame loop when the preview is destroyed', () => {
+    const cancel = spyOn(window, 'cancelAnimationFrame').and.callThrough();
+    fixture.destroy();
+    expect(cancel).toHaveBeenCalled();
+  });
+
   it('should skip drawing background and shooting stars while the starfield is removed', () => {
     component['ctx'] = canvas.getContext('2d');
     simService.isImageLoaded.set(true);
@@ -130,6 +206,50 @@ describe('Simulator', () => {
 
     expect(star.draw).toHaveBeenCalled();
     expect(shootingStar.draw).toHaveBeenCalled();
+  });
+
+  describe('2D rotation', () => {
+    /** What ten frames at the default setting turn the view by, in radians. */
+    const DEFAULT_TURN = 10 * 3 * 0.00005;
+
+    /** Advances the simulation by ten animation frames. */
+    function runTenFrames(): void {
+      for (let i = 0; i < 10; i++) {
+        component['updateGlobalState']();
+      }
+    }
+
+    it('should turn clockwise at the speed it always has when Rotation is left alone', () => {
+      runTenFrames();
+
+      expect(component['currentRotation']).toBeCloseTo(DEFAULT_TURN, 9);
+    });
+
+    it('should turn anticlockwise when Rotation is set left of the middle', () => {
+      simService.updateControl('rotationRate', -3);
+
+      runTenFrames();
+
+      expect(component['currentRotation']).toBeCloseTo(-DEFAULT_TURN, 9);
+    });
+
+    it('should not turn at all when Rotation rests in the middle', () => {
+      simService.updateControl('rotationRate', 0);
+
+      runTenFrames();
+
+      expect(component['currentRotation']).toBe(0);
+    });
+
+    it('should turn the chosen way when flying backward too', () => {
+      simService.updateDirection('backward');
+      fixture.detectChanges();
+      simService.updateControl('rotationRate', -3);
+
+      runTenFrames();
+
+      expect(component['currentRotation']).toBeCloseTo(-DEFAULT_TURN, 9);
+    });
   });
 
   describe('sideways travel background', () => {

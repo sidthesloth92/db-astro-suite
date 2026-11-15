@@ -1,6 +1,7 @@
 import { chevronRightIcon } from './chevron-right.icon';
 import { downloadIcon } from './download.icon';
 import { mountainIcon } from './mountain.icon';
+import { triangleAlertIcon } from './triangle-alert.icon';
 
 /**
  * Spot-check the per-glyph data consts. The generic `IconComponent`
@@ -19,6 +20,12 @@ describe('Icon data consts', () => {
     expect(chevronRightIcon.name).toBe('chevron-right');
     expect(chevronRightIcon.body.length).toBeGreaterThan(0);
     expect(chevronRightIcon.fill).toBeUndefined();
+  });
+
+  it('should expose a non-empty body for line icons (triangle-alert)', () => {
+    expect(triangleAlertIcon.name).toBe('triangle-alert');
+    expect(triangleAlertIcon.body.length).toBeGreaterThan(0);
+    expect(triangleAlertIcon.fill).toBeUndefined();
   });
 
   it('should expose fill="currentColor" for solid icons (mountain)', () => {
