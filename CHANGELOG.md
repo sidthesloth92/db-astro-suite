@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.41.0](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.40.0...db-astro-suite-v1.41.0) (2026-11-15)
+
+
+### Features
+
+* **starwizz:** open 2D on the Horsehead and 3D on the Pleiades, with new defaults ([#154](https://github.com/sidthesloth92/db-astro-suite/issues/154)) ([f74abf4](https://github.com/sidthesloth92/db-astro-suite/commit/f74abf432e6f93d1a99fb22d6bd092d6b9641415))
+
 ## [1.40.0](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.39.7...db-astro-suite-v1.40.0) (2026-11-15)
 
 
