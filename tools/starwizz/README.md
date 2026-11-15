@@ -12,7 +12,9 @@
 
 ## Demo
 
-![Starwizz Demo](public/assets/img/starwizz.gif)
+[![Starwizz tour video](public/assets/img/sw-how-to-poster.jpg)](https://dbastrosuite.com/tool/starwizz)
+
+Watch the tour, and see the same photo in 2D and 3D side by side, on the [Starwizz page](https://dbastrosuite.com/tool/starwizz).
 
 ---
 

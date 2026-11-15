@@ -166,7 +166,9 @@ test.describe("Starwizz Tool Page", () => {
       "/starwizz/",
     );
     await expect(
-      hubTool.getDemoVideo("Starwizz cinematic starfield demo"),
+      hubTool.getDemoVideo(
+        "Starwizz tour: turning one astrophoto into a 2D or 3D starfield video",
+      ),
     ).toBeVisible();
   });
 });
