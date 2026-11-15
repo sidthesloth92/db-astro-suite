@@ -207,26 +207,26 @@ describe('ControlPanel', () => {
       expect(switchLabels()).toContain('Stars Return At End');
     });
 
-    it('should offer sharp stars as one switch that is off to begin with', () => {
+    it('should offer sharp stars as one switch that is on to begin with, with Spikes', () => {
       enter3d();
       expect(switchLabels()).toContain('Sharp Stars');
-      expect(sharpSwitch().getAttribute('aria-checked')).toBe('false');
-      expect(scene3d.settings().starStyle).toBe('original');
+      expect(sharpSwitch().getAttribute('aria-checked')).toBe('true');
+      expect(scene3d.settings().starStyle).toBe('sharp');
+      expect(rowLabels()).toContain('Spikes');
     });
 
-    it('should redraw the stars sharp and offer Spikes when Sharp Stars is switched on', () => {
+    it("should keep the photo's own stars and hide Spikes when Sharp Stars is switched off", () => {
       enter3d();
+
+      sharpSwitch().click();
+      fixture.detectChanges();
+      expect(scene3d.settings().starStyle).toBe('original');
       expect(rowLabels()).not.toContain('Spikes');
 
       sharpSwitch().click();
       fixture.detectChanges();
       expect(scene3d.settings().starStyle).toBe('sharp');
       expect(rowLabels()).toContain('Spikes');
-
-      sharpSwitch().click();
-      fixture.detectChanges();
-      expect(scene3d.settings().starStyle).toBe('original');
-      expect(rowLabels()).not.toContain('Spikes');
     });
 
     it('should explain how to aim when the Custom direction is chosen', () => {
@@ -241,7 +241,7 @@ describe('ControlPanel', () => {
       component.updateSceneStyle('orbit');
       component.updateSceneDirection('sideways');
       expect(scene3d.style()).toBe('travel');
-      expect(scene3d.direction()).toBe('forward');
+      expect(scene3d.direction()).toBe('left');
     });
 
     it('should offer Rotation with the camera controls in both 3D styles, off to begin with', () => {
@@ -305,13 +305,13 @@ describe('ControlPanel', () => {
 
     it('should restore the 3D settings too on Reset Params', () => {
       component.updateSceneStyle('arrive');
-      scene3d.setSharpStars(true);
+      scene3d.setSharpStars(false);
       component.updateSceneControl('twinkle', 8);
 
       component.resetParams();
 
       expect(scene3d.style()).toBe('travel');
-      expect(scene3d.starStyle()).toBe('original');
+      expect(scene3d.starStyle()).toBe('sharp');
       expect(scene3d.controls.twinkle()).toBe(0);
     });
   });

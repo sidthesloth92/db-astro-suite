@@ -1,5 +1,5 @@
 // Tunables for lifting the stars off a photo. Brightness values are 0..1; sizes are in
-// working-image px unless stated. All were tuned on the default Christmas Tree image, the
+// working-image px unless stated. All were tuned on the Christmas Tree image (the first default photo), the
 // Rosette and the Pleiades at a 2560 px working size, then checked on filament nebulae (Veil,
 // Crescent) and dusty fields, where a star's surroundings are far from flat.
 

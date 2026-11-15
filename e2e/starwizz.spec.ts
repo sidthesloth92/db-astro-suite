@@ -5,7 +5,7 @@ import { StarwizzPage } from "./pages/starwizz.page";
 /** Fixture image shipped with the starwizz public bundle. */
 const STARWIZZ_FIXTURE_IMAGE = path.resolve(
   __dirname,
-  "../tools/starwizz/public/Chrismas_Tree_HOO_16_9_full.jpg",
+  "../tools/starwizz/public/default-2d-horsehead.jpg",
 );
 
 test("Starwizz app visual test", async ({ page }) => {
@@ -106,7 +106,7 @@ test.describe("Starwizz simulator flow", () => {
     await expect(starwizz.getClearButton()).toBeVisible({ timeout: 10000 });
 
     const before = await starwizz.getControlReadout("Zoom Speed");
-    await starwizz.setControlValue("Zoom Speed", 2.5);
+    await starwizz.setControlValue("Zoom Speed", 6);
     await expect
       .poll(async () => starwizz.getControlReadout("Zoom Speed"))
       .not.toBe(before);

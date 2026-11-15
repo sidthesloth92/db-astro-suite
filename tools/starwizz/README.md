@@ -60,7 +60,7 @@ Customize your 2D starfield simulation with these controls:
 Controls how fast the camera zooms into the background image. The simulation creates an infinite zoom loop effect.
 
 - **Range**: 1 - 50
-- **Default**: 2
+- **Default**: 3
 - **Effect**: Higher values create a faster, more dramatic zoom; lower values are subtle and calming
 
 ### Rotation
@@ -92,7 +92,7 @@ Controls the movement speed of background stars that create depth in the scene.
 Controls the overall size of all stars in the simulation.
 
 - **Range**: 1 - 40
-- **Default**: 10
+- **Default**: 12
 - **Effect**: Higher values create larger, more prominent stars; lower values give smaller, subtler points of light
 
 ---

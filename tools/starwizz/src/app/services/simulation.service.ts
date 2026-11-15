@@ -3,7 +3,7 @@ import {
   ASSUMED_FPS,
   CONTROLS,
   DEFAULT_FORMAT,
-  DEFAULT_GALAXY_URL,
+  DEFAULT_IMAGE_BY_MODE,
   DIRECTION_STAR_DEFAULTS,
   FORMATS,
   FormatKey,
@@ -28,6 +28,7 @@ import {
 import { ShootingStar } from '../models/shooting-star.model';
 import { RecordingPreset } from '../models/recording.model';
 import { RenderMode } from '../models/render-mode.model';
+import { isImageReady } from '../utils/image-ready.util';
 import { RecordingResult } from '../models/recording-result.model';
 import {
   CameraKeyframe,
@@ -233,6 +234,12 @@ export class SimulationService implements OnDestroy {
    * Used to prevent showing the upload dialog during initial load.
    */
   isLoadingDefaultImage = signal<boolean>(false);
+
+  /**
+   * Each mode's default photo, kept once requested so switching modes never downloads it again
+   * and the 3D scene, which only re-lifts stars for a new photo, can reuse its work.
+   */
+  private defaultPhotos: Partial<Record<RenderMode, HTMLImageElement>> = {};
 
   /**
    * Base64 data URL of the user-uploaded image.
@@ -761,15 +768,9 @@ export class SimulationService implements OnDestroy {
   }
 
   /**
-   * Loads the default galaxy image to showcase the simulation on startup.
-   * This allows users to immediately see the animation without uploading an image.
-   *
-   * @description
-   * - Sets loading progress to indicate loading state
-   * - Creates an Image element and loads from DEFAULT_GALAXY_URL
-   * - On success: updates galaxyImage, sets isDefaultImage and isImageLoaded to true
-   * - On failure: logs error but still settles to 'Ready' (once stars are done) so
-   *   the user can upload their own image
+   * Loads the current mode's default photo to showcase the simulation on startup, so the user
+   * sees the animation without uploading anything. If it fails, the loading state still settles
+   * so the user can upload their own photo.
    */
   loadDefaultScene(): void {
     // The preview can be created more than once (it is rebuilt when the layout crosses the
@@ -778,31 +779,83 @@ export class SimulationService implements OnDestroy {
       this.settleLoadingState();
       return;
     }
-    this.loadingProgress.set('Loading Default Scene...');
+    this.showDefaultPhoto(this.renderMode());
+  }
+
+  /**
+   * Switches the preview between the 2D starfield and the 3D scene. While a default photo is
+   * showing (or still loading) it is swapped for the new mode's default; a photo the user
+   * uploaded stays, and after Clear the upload prompt stays.
+   *
+   * @param mode - The mode to show
+   */
+  setRenderMode(mode: RenderMode): void {
+    this.renderMode.set(mode);
+    if (this.isDefaultImage() || this.isLoadingDefaultImage()) {
+      this.showDefaultPhoto(mode);
+    }
+  }
+
+  /** Shows a mode's default photo, at once if it has loaded, otherwise once it arrives. */
+  private showDefaultPhoto(mode: RenderMode): void {
+    const image = this.defaultPhoto(mode);
+    if (isImageReady(image)) {
+      this.applyDefaultPhoto(image);
+      return;
+    }
+    // Drop the other mode's photo so it is never shown, or lifted into 3D, under this mode.
+    this.galaxyImage.set(null);
+    this.isImageLoaded.set(false);
+    this.isDefaultImage.set(false);
     this.isLoadingDefaultImage.set(true);
+    this.loadingProgress.set('Loading Default Scene...');
+  }
 
+  /** Puts a loaded default photo on screen and fetches the other mode's in the background. */
+  private applyDefaultPhoto(image: HTMLImageElement): void {
+    this.galaxyImage.set(image);
+    this.isDefaultImage.set(true);
+    this.isImageLoaded.set(true);
+    this.isLoadingDefaultImage.set(false);
+    // Only declare 'Ready' if the star field has also finished; otherwise the star callback
+    // (markStarsReady) will, once it completes.
+    this.settleLoadingState();
+    this.defaultPhoto(this.renderMode() === '2d' ? '3d' : '2d');
+  }
+
+  /** True while the preview is waiting for this mode's default photo. */
+  private isAwaitingDefaultPhoto(mode: RenderMode): boolean {
+    return this.isLoadingDefaultImage() && !this.isImageLoaded() && this.renderMode() === mode;
+  }
+
+  /**
+   * A mode's default photo, requested on first use and kept afterwards. When it arrives it is
+   * shown only if the preview is still waiting for it, so a photo for a mode the user has left,
+   * or one that lands after the user uploaded their own, is just kept for later.
+   */
+  private defaultPhoto(mode: RenderMode): HTMLImageElement {
+    const known = this.defaultPhotos[mode];
+    if (known) {
+      return known;
+    }
     const image = new Image();
-
-    // Handle successful image load
-    image.onload = () => {
-      this.galaxyImage.set(image);
-      this.isDefaultImage.set(true);
-      this.isImageLoaded.set(true);
-      this.isLoadingDefaultImage.set(false);
-      // Only declare 'Ready' if the star field has also finished — otherwise the
-      // star callback (markStarsReady) will, once it completes.
-      this.settleLoadingState();
-    };
-
-    // Handle load failure gracefully
-    image.onerror = () => {
-      console.error('Failed to load default galaxy image.');
-      this.isLoadingDefaultImage.set(false);
-      // Settle so the user can upload their own image once stars are done.
-      this.settleLoadingState();
-    };
-
-    image.src = DEFAULT_GALAXY_URL;
+    image.addEventListener('load', () => {
+      if (this.isAwaitingDefaultPhoto(mode)) {
+        this.applyDefaultPhoto(image);
+      }
+    });
+    image.addEventListener('error', () => {
+      console.error(`Failed to load the default ${mode} photo.`);
+      // Forget it so the next switch to this mode tries again.
+      this.defaultPhotos = { ...this.defaultPhotos, [mode]: undefined };
+      if (this.isAwaitingDefaultPhoto(mode)) {
+        this.isLoadingDefaultImage.set(false);
+        this.settleLoadingState();
+      }
+    });
+    this.defaultPhotos = { ...this.defaultPhotos, [mode]: image };
+    image.src = DEFAULT_IMAGE_BY_MODE[mode];
+    return image;
   }
 
   /**
@@ -840,6 +893,8 @@ export class SimulationService implements OnDestroy {
         this.galaxyImage.set(image);
         this.isDefaultImage.set(false); // User image, not default
         this.isImageLoaded.set(true);
+        // A default photo still on its way must not hold the preview in its loading state.
+        this.isLoadingDefaultImage.set(false);
         this.loadingProgress.set('Ready');
       };
 

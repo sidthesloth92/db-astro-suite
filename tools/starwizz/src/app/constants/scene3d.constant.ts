@@ -146,9 +146,9 @@ export const SCENE3D_ERROR_LOAD = '3D mode could not be loaded. Check your conne
 /** Style on first load and after Reset Params. */
 export const DEFAULT_SCENE3D_STYLE: Scene3dStyle = 'travel';
 /** Direction on first load and after Reset Params. */
-export const DEFAULT_SCENE3D_DIRECTION: Scene3dDirection = 'forward';
+export const DEFAULT_SCENE3D_DIRECTION: Scene3dDirection = 'left';
 /** Star style on first load and after Reset Params. */
-export const DEFAULT_STAR_STYLE: StarStyle = 'original';
+export const DEFAULT_STAR_STYLE: StarStyle = 'sharp';
 /** Custom aim on first load and after Reset Params: the frame centre. */
 export const DEFAULT_AIM: AimPoint = { x: 0, y: 0 };
 /** Furthest the Custom aim marker can sit from the centre, in frame fractions. */

@@ -340,7 +340,7 @@ export class ControlPanel {
   updateRenderMode(value: string): void {
     if (value === '2d' || value === '3d') {
       const mode: RenderMode = value;
-      this.simService.renderMode.set(mode);
+      this.simService.setRenderMode(mode);
     }
   }
 
