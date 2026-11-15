@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.40.0](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.39.7...db-astro-suite-v1.40.0) (2026-11-15)
+
+
+### Features
+
+* **starwizz:** add a 3D mode that lifts your photo's stars and flies through them ([#152](https://github.com/sidthesloth92/db-astro-suite/issues/152)) ([798d1f6](https://github.com/sidthesloth92/db-astro-suite/commit/798d1f619cfae6d82c5055dba5c9bd406b11e528))
+
 ## [1.39.7](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.39.6...db-astro-suite-v1.39.7) (2026-11-14)
 
 
