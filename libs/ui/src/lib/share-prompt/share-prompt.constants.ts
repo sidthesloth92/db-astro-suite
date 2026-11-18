@@ -4,7 +4,7 @@ import { SharePromptState } from './share-prompt-state.model';
 export const SHARE_PROMPT_SUITE_HASHTAG = '#dbastrosuite';
 
 /** Instagram account users may tag instead of (or as well as) the hashtags. */
-export const SHARE_PROMPT_INSTAGRAM_HANDLE = '@astrowithdb';
+export const SHARE_PROMPT_INSTAGRAM_HANDLE = '@dbastrosuite';
 
 /** Delay after a successful export before the prompt opens, so the browser's download notice lands first. */
 export const SHARE_PROMPT_SHOW_DELAY_MS = 1000;

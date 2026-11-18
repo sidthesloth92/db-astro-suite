@@ -247,13 +247,13 @@ test.describe("AstroSpike", () => {
     await expect(prompt).toBeVisible();
     await expect(prompt).toContainText("#dbastrosuite");
     await expect(prompt).toContainText("#astrospike");
-    await expect(prompt).toContainText("@astrowithdb");
+    await expect(prompt).toContainText("@dbastrosuite");
 
     await astroSpike.copyShareTags();
     await expect(prompt.getByRole("heading", { name: "Thank you, truly" })).toBeVisible();
     await expect(prompt.getByRole("button", { name: "All tags copied" })).toBeVisible();
     expect(await astroSpike.readClipboard()).toBe(
-      "#dbastrosuite #astrospike @astrowithdb",
+      "#dbastrosuite #astrospike @dbastrosuite",
     );
   });
 

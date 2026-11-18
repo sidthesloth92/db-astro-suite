@@ -82,6 +82,6 @@ describe('share prompt policy', () => {
       itemNoun: 'video',
       storageKey: 'k',
     });
-    expect(tags).toEqual(['#dbastrosuite', '#starwizz', '@astrowithdb']);
+    expect(tags).toEqual(['#dbastrosuite', '#starwizz', '@dbastrosuite']);
   });
 });

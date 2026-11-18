@@ -111,7 +111,7 @@ describe('SharePromptService', () => {
     openPrompt(service);
     void service.copyTags();
     flushMicrotasks();
-    expect(writeText).toHaveBeenCalledWith('#dbastrosuite #astrogram @astrowithdb');
+    expect(writeText).toHaveBeenCalledWith('#dbastrosuite #astrogram @dbastrosuite');
     expect(service.copyStatus()).toBe('copied');
     expect(service.copiedTags()).toEqual(service.tags);
     service.dismiss();
@@ -134,7 +134,7 @@ describe('SharePromptService', () => {
     expect(service.copyStatus()).toBe('idle');
 
     void service.copyTag('#dbastrosuite');
-    void service.copyTag('@astrowithdb');
+    void service.copyTag('@dbastrosuite');
     flushMicrotasks();
     expect(service.copyStatus()).toBe('copied');
   }));
