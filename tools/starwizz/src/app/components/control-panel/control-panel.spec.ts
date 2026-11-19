@@ -383,6 +383,53 @@ describe('ControlPanel', () => {
     });
   });
 
+  describe('pinned footer', () => {
+    /** The footer that stays visible below the scrolling controls. */
+    function footer(): HTMLElement | null {
+      return (fixture.nativeElement as HTMLElement).querySelector<HTMLElement>('.panel-footer');
+    }
+
+    it('should keep the reset buttons, the From beginning switch and the record button outside the scrolling controls', () => {
+      const scroll = (fixture.nativeElement as HTMLElement).querySelector('.panel-scroll');
+      const labels = Array.from(footer()?.querySelectorAll('button') ?? []).map((b) =>
+        b.textContent?.trim(),
+      );
+
+      expect(labels).toContain('Reset Animation');
+      expect(labels).toContain('Reset Params');
+      expect(
+        footer()?.querySelector('[role="switch"][aria-label="Record from beginning"]'),
+      ).not.toBeNull();
+      expect(footer()?.querySelector('.record-split')).not.toBeNull();
+      expect(scroll?.querySelector('.record-split, [aria-label="Record from beginning"]')).toBeNull();
+    });
+
+    it('should place From beginning above the record button, which comes last', () => {
+      simService.recordingError.set('Recording produced no video, please try again.');
+      simService.lastRecording.set({
+        blob: new Blob([new Uint8Array(8)]),
+        filename: 'starfield_starwizz_9_16_1080_1920.mp4',
+        mimeType: 'video/mp4',
+        sizeMb: 47,
+      });
+      fixture.detectChanges();
+
+      const order = Array.from(
+        footer()?.querySelectorAll(
+          '.panel-actions, .record-last, .record-aux, .record-error, .record-split',
+        ) ?? [],
+      ).map((el) => el.classList[0]);
+
+      expect(order).toEqual([
+        'panel-actions',
+        'record-last',
+        'record-aux',
+        'record-error',
+        'record-split',
+      ]);
+    });
+  });
+
   describe('recording error and last-video row', () => {
     it('should show the recording error only when one is set', () => {
       const host = fixture.nativeElement as HTMLElement;
