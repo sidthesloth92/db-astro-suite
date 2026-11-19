@@ -1,5 +1,5 @@
 /** External target for the "DM on Instagram" CTA in the access-key modal. */
-export const INSTAGRAM_URL = 'https://instagram.com/astrowithdb';
+export const INSTAGRAM_URL = 'https://instagram.com/dbastrosuite';
 
 /** Minimum access-key length before the submit button enables. */
 export const MIN_ACCESS_KEY_LENGTH = 4;

@@ -26,7 +26,7 @@ class HostComponent {
   readonly open = signal(true);
   readonly copyStatus = signal<SharePromptCopyStatus>('idle');
   readonly copiedTags = signal<readonly string[]>([]);
-  readonly tags = ['#dbastrosuite', '#astrospike', '@astrowithdb'];
+  readonly tags = ['#dbastrosuite', '#astrospike', '@dbastrosuite'];
   readonly events: string[] = [];
 }
 
@@ -52,7 +52,7 @@ describe('SharePromptComponent', () => {
     expect(dialogText(root)).toContain('Support AstroSpike');
     expect(dialogText(root)).toContain('how AstroSpike stays free');
     const chips = Array.from(root.querySelectorAll('li button')).map((b) => b.textContent?.trim());
-    expect(chips).toEqual(['#dbastrosuite', '#astrospike', '@astrowithdb']);
+    expect(chips).toEqual(['#dbastrosuite', '#astrospike', '@dbastrosuite']);
   });
 
   it('should render nothing while closed', () => {
@@ -127,7 +127,7 @@ describe('SharePromptComponent', () => {
     f.componentInstance.copyStatus.set('failed');
     f.detectChanges();
     expect((f.nativeElement as HTMLElement).querySelector('[role="alert"]')?.textContent).toContain(
-      '#dbastrosuite #astrospike @astrowithdb',
+      '#dbastrosuite #astrospike @dbastrosuite',
     );
   });
 });
