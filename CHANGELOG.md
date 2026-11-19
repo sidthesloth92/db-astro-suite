@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.41.1](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.41.0...db-astro-suite-v1.41.1) (2026-11-19)
+
+
+### Bug Fixes
+
+* **ui,astrogram,hub:** replace [@astrowithdb](https://github.com/astrowithdb) with [@dbastrosuite](https://github.com/dbastrosuite) handle ([#156](https://github.com/sidthesloth92/db-astro-suite/issues/156)) ([63ad67d](https://github.com/sidthesloth92/db-astro-suite/commit/63ad67d8dc250d0d1b84c56fad34729d85bbdf03))
+
 ## [1.41.0](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.40.0...db-astro-suite-v1.41.0) (2026-11-15)
 
 
