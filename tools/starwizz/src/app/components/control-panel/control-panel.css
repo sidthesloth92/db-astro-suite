@@ -1,9 +1,14 @@
+/*
+ * Desktop: the host never scrolls. The card is capped to the host height and
+ * only its .panel-scroll area scrolls, so .panel-footer (reset buttons, the
+ * From beginning switch and the record button) stays pinned at the bottom.
+ */
 :host {
   display: flex;
+  flex-direction: column;
   flex: 0 0 360px;
   width: 360px;
   max-height: calc(100vh - 80px);
-  overflow-y: auto;
   padding-right: 4px;
 }
 
@@ -17,15 +22,23 @@
     overflow-y: visible;
     padding: 0 0.5rem;
   }
+
+  /* Stacked layout: the page scrolls, so nothing is pinned. */
+  .panel-scroll,
+  .panel-footer {
+    display: contents;
+  }
 }
 
 /*
  * Vertically centred via auto margins rather than align-items: center. Auto
- * margins collapse to 0 when the panel is taller than the viewport, so the
- * top stays reachable by scrolling instead of overflowing above the host.
+ * margins collapse to 0 when the panel is taller than the host, and
+ * min-height: 0 lets the card shrink to the host so .panel-scroll takes the
+ * overflow instead of the page.
  */
 .control-panel {
   width: 100%;
+  min-height: 0;
   margin-block: auto;
   background: var(--db-color-surface);
   border: 1px solid var(--db-color-border);
@@ -58,6 +71,12 @@
   display: none;
 }
 
+/* The bottom sheet scrolls as a whole, so nothing is pinned inside it. */
+:host(.in-sheet) .panel-scroll,
+:host(.in-sheet) .panel-footer {
+  display: contents;
+}
+
 :host(.in-sheet) .record-row > .record-split {
   display: none;
 }
@@ -65,6 +84,32 @@
 :host(.in-sheet) .record-row {
   padding-top: 4px;
   border-top: none;
+}
+
+/*
+ * The negative inline margins push the scrollbar out into the card's padding
+ * gutter, so the controls keep their position and slider glows are not
+ * clipped at the left edge.
+ */
+.panel-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-inline: -8px -14px;
+  padding-inline: 8px 14px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.panel-footer {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--db-color-border);
 }
 
 .panel-header {
