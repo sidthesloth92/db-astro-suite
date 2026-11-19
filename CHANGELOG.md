@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.42.0](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.41.1...db-astro-suite-v1.42.0) (2026-11-19)
+
+
+### Features
+
+* **starwizz:** pin reset and record controls to the bottom of the desktop panel ([#158](https://github.com/sidthesloth92/db-astro-suite/issues/158)) ([b8ea2ae](https://github.com/sidthesloth92/db-astro-suite/commit/b8ea2ae0dab5d9b5b565bf07b544645970b9ef25))
+
 ## [1.41.1](https://github.com/sidthesloth92/db-astro-suite/compare/db-astro-suite-v1.41.0...db-astro-suite-v1.41.1) (2026-11-19)
 
 
