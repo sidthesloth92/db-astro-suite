@@ -1,0 +1,42 @@
+Astrosolve server, part of DB Astro Suite
+Copyright (C) 2026 DB Astro Suite
+https://dbastrosuite.com
+
+SPDX-License-Identifier: AGPL-3.0-only
+
+The Astrosolve server is licensed under the GNU Affero General Public
+License, version 3, with the additional terms and permission set out in
+the NOTICE file at the root of the DB Astro Suite repository:
+
+  https://github.com/sidthesloth92/db-astro-suite
+  (see the LICENSE and NOTICE files)
+
+This file is copied into the Astrosolve Docker image so that the notices
+below travel with it.
+
+
+Astrometry.net (included in the Docker image)
+---------------------------------------------
+  https://astrometry.net
+  Copyright (c) 2006-2015, Astrometry.net Developers.
+
+  Astrometry.net is distributed under the GNU General Public License,
+  version 3 or later (its own code is under a 3-clause BSD license). It is
+  not part of DB Astro Suite and is not covered by DB Astro Suite's
+  license. Astrosolve runs its "solve-field" program as a separate
+  program.
+
+  The image installs the unmodified Debian package "astrometry.net". Its
+  license and copyright notice are at
+  /usr/share/doc/astrometry.net/copyright inside the image, and its
+  complete source code is available from Debian:
+
+    https://sources.debian.org/src/astrometry.net/
+    https://snapshot.debian.org/package/astrometry.net/ (every version)
+
+  You can also request that source code by opening an issue at
+  https://github.com/sidthesloth92/db-astro-suite/issues.
+
+  The other system packages in the image come from Debian. Each one's
+  license is at /usr/share/doc/<package>/copyright inside the image, and
+  its source code is available from https://sources.debian.org.

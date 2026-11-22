@@ -12,32 +12,111 @@
   gap: 14px;
 }
 
+/* Title lockup grid. The logo spans both rows; the suite credit sits in the
+   row under the title and is right-aligned to the title's end, so the two
+   read as one title + subtitle. The version pill and tagline line up with
+   the bottom of the title. */
 .brand {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  text-decoration: none;
-  color: inherit;
+  --brand-logo-size: 32px;
+  display: grid;
+  grid-template-columns: auto auto auto;
+  grid-template-areas:
+    'logo title meta'
+    'logo credit .';
+  column-gap: 12px;
+  row-gap: 3px;
+  align-items: end;
   min-width: 0;
   flex-shrink: 0;
 }
 
-.brand:hover {
+.brand:not(.has-logo) {
+  grid-template-columns: auto auto;
+  grid-template-areas:
+    'title meta'
+    'credit .';
+}
+
+.brand-logo-link {
+  grid-area: logo;
+  align-self: center;
+  display: flex;
+  margin-right: 2px;
+}
+
+/* Right-aligned too, so if the credit is ever wider than the title (short
+   titles on phones) the two still end together and the version pill is not
+   pushed away. */
+.brand-link {
+  grid-area: title;
+  justify-self: end;
+  /* Flex so the title box is exactly the title's height: an inline title in a
+     block would pick up the app's inherited line height and make the gap to
+     the credit differ between apps. */
+  display: flex;
+  text-decoration: none;
+  color: inherit;
+  min-width: 0;
+}
+
+.brand-logo-link:hover,
+.brand-link:hover {
   opacity: 0.92;
 }
 
-.brand-logo {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-  flex-shrink: 0;
+.brand-link:focus-visible {
+  outline: 2px solid var(--db-color-cyan);
+  outline-offset: 2px;
 }
 
-.brand-text {
+.brand-meta {
+  grid-area: meta;
   display: flex;
   align-items: flex-end;
   gap: 12px;
   min-width: 0;
+}
+
+.suite-credit {
+  grid-area: credit;
+  justify-self: end;
+  align-self: start;
+  font-family: var(--db-font-ui);
+  font-size: 8.5px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--db-color-text-dim);
+  text-decoration: none;
+  border-radius: 2px;
+  transition: color 180ms ease;
+}
+
+/* "DB ASTRO SUITE" picks up the title's pink accent and glow. */
+.suite-credit-name {
+  font-weight: 600;
+  color: var(--db-color-neon-pink);
+  text-shadow: 0 0 8px
+    color-mix(in srgb, var(--db-color-neon-pink) 30%, transparent);
+  transition: color 180ms ease;
+}
+
+.suite-credit:hover .suite-credit-name {
+  color: var(--db-color-text-primary);
+}
+
+.suite-credit:focus-visible {
+  outline: 2px solid var(--db-color-cyan);
+  outline-offset: 2px;
+}
+
+.brand-logo {
+  width: var(--brand-logo-size);
+  height: var(--brand-logo-size);
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 .brand-title {
@@ -127,12 +206,14 @@
   }
 
   .brand {
-    gap: 10px;
+    --brand-logo-size: 28px;
+    column-gap: 8px;
   }
 
-  .brand-logo {
-    width: 28px;
-    height: 28px;
+  /* Sized so the subline stays narrower than the shortest title (STARWIZZ). */
+  .suite-credit {
+    font-size: 7.5px;
+    letter-spacing: 0.05em;
   }
 
   .brand-title {

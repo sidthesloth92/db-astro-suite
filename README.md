@@ -110,3 +110,21 @@ bash tools/astrosolve/server/scripts/deploy/local-test.sh
 ```
 
 See [`tools/astrosolve/server/scripts/deploy/local-test.md`](tools/astrosolve/server/scripts/deploy/local-test.md) for details.
+
+---
+
+## 📜 License
+
+DB Astro Suite is free software, licensed under the [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0-only) with a few additional terms in [NOTICE](NOTICE).
+
+In plain words (the [LICENSE](LICENSE) and [NOTICE](NOTICE) files are what legally apply):
+
+- **Use it for free.** Anyone can use, study, change and share the tools.
+- **Credit DB Astro Suite.** Any copy or modified version with a user interface must keep a visible "DB Astro Suite" credit linked to [dbastrosuite.com](https://dbastrosuite.com), like the "Part of DB Astro Suite" line under each tool's name. Command-line tools keep the name and address in their banner.
+- **Share your changes.** If you distribute a modified version, or run one as a website or online service, you must offer its full source code to its users under the same license.
+- **Use your own name.** Modified versions must not call themselves DB Astro Suite, Starwizz, Astrogram, AstroSpike, Astrosolve or Sortronomy, or present themselves as the official tools.
+- **What you make is yours.** Images, videos, cards and other output you create with the tools are not covered by this license. Use them however you like, including commercially, with no credit required.
+
+Need different terms, for example no attribution or closed source? [Open an issue](https://github.com/sidthesloth92/db-astro-suite/issues) to ask about a separate license.
+
+Versions up to and including v1.42.0 were published under the MIT License. Third-party software and data used by the suite, including [Astrometry.net](https://astrometry.net) (GPL-3.0-or-later) for plate solving, are credited in [NOTICE](NOTICE).

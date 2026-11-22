@@ -83,4 +83,18 @@ describe('HeaderComponent', () => {
     expect(link?.getAttribute('rel')).toBe('noopener noreferrer');
     expect(link?.getAttribute('target')).toBe('_blank');
   });
+
+  it('should show a Part of DB Astro Suite link that opens dbastrosuite.com in a new tab', () => {
+    TestBed.configureTestingModule({ imports: [HostComponent] });
+    const fixture = TestBed.createComponent(HostComponent);
+    fixture.detectChanges();
+    const credit = (fixture.nativeElement as HTMLElement).querySelector(
+      '.suite-credit',
+    ) as HTMLAnchorElement | null;
+    expect(credit?.textContent?.replace(/\s+/g, ' ').trim()).toBe('Part of DB Astro Suite');
+    expect(credit?.getAttribute('href')).toBe('https://dbastrosuite.com/');
+    expect(credit?.getAttribute('target')).toBe('_blank');
+    // The referrer is deliberately kept so visits from copies show up as referrals.
+    expect(credit?.getAttribute('rel')).toBe('noopener');
+  });
 });

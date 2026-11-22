@@ -2,6 +2,7 @@
   "name": "db-astro-suite",
   "version": "1.42.0",
   "private": true,
+  "license": "AGPL-3.0-only",
   "packageManager": "pnpm@9.15.0",
   "description": "A suite of Astro tools: Angular apps (hub, astrogram, starwizz), a Fastify plate-solving backend (astrosolve), shared UI/theme libraries, and Go tooling.",
   "scripts": {

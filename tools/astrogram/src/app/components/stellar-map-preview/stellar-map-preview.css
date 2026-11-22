@@ -169,6 +169,27 @@
   opacity: 0.75;
 }
 
+.attribution-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--db-color-text-link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  border-radius: 2px;
+}
+
+.attribution-link:hover {
+  color: var(--db-color-text-primary);
+}
+
+.attribution-link:focus-visible {
+  outline: 2px solid var(--db-color-cyan);
+  outline-offset: 2px;
+}
+
 .selected-annotation-label {
   display: inline-flex;
   align-items: center;

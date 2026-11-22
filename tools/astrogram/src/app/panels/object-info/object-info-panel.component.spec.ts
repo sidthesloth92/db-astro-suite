@@ -80,4 +80,15 @@ describe('ObjectInfoPanelComponent', () => {
     await fixture.componentInstance.fetchWiki();
     expect(stub.cardData().caption).toContain('EXTRACT');
   });
+
+  it('should tell users the Wiki text comes from Wikipedia under CC BY-SA 4.0', () => {
+    const fixture = TestBed.createComponent(ObjectInfoPanelComponent);
+    fixture.detectChanges();
+    const note = (fixture.nativeElement as HTMLElement).querySelector('.wiki-note');
+    expect(note?.textContent?.replace(/\s+/g, ' ')).toContain(
+      'The Wiki button adds text from Wikipedia (CC BY-SA 4.0). If you post it, credit Wikipedia.',
+    );
+    const license = note?.querySelector('a');
+    expect(license?.getAttribute('href')).toBe('https://creativecommons.org/licenses/by-sa/4.0/');
+  });
 });
