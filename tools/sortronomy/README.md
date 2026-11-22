@@ -230,4 +230,6 @@ goreleaser release --snapshot --clean                      # dry-run the cross-p
 ## License
 
 Sortronomy is part of the [DB Astro Suite](https://dbastrosuite.com) and is released under the
-[MIT License](../../LICENSE).
+[GNU AGPL v3.0](../../LICENSE) with the additional terms in [NOTICE](../../NOTICE). Any copy or
+modified version must keep the "DB Astro Suite" credit and link in its banner, help or version
+output. Files that Sortronomy sorts or writes are yours and are not covered by this license.

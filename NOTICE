@@ -1,0 +1,256 @@
+DB Astro Suite
+Copyright (C) 2026 DB Astro Suite
+https://dbastrosuite.com
+https://github.com/sidthesloth92/db-astro-suite
+
+SPDX-License-Identifier: AGPL-3.0-only
+
+This program is free software: you can redistribute it and/or modify it
+under the terms of the GNU Affero General Public License, version 3, as
+published by the Free Software Foundation (see the LICENSE file), together
+with the additional terms and the additional permission set out below.
+
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public
+License for more details.
+
+
+===========================================================================
+ADDITIONAL TERMS (SECTION 7 OF THE GNU AGPL VERSION 3)
+===========================================================================
+
+These terms apply to DB Astro Suite (the code in this repository) and to
+every work based on it, whether modified or not.
+
+1. Attribution (Section 7(b))
+
+   Every covered work that has a user interface must keep a visible credit
+   to DB Astro Suite as part of its Appropriate Legal Notices. The original
+   tools show it as "Part of DB Astro Suite" under each tool's name, linked
+   to https://dbastrosuite.com; the original command-line tools show
+   "DB Astro Suite" and https://dbastrosuite.com in their startup banner.
+
+   a. In a web or graphical interface, the credit must name
+      "DB Astro Suite" and be a working link to https://dbastrosuite.com.
+      It must be shown in a convenient and prominently visible place that
+      users see or can reach from the main screen during normal use, such
+      as the header (where the original tools show it), a page footer, or
+      an About screen linked from the main screen.
+
+   b. In a command-line program, the name "DB Astro Suite" and the address
+      https://dbastrosuite.com must appear in its startup banner, its help
+      output or its version output.
+
+   c. You may adjust the wording to suit your interface (for example
+      "Part of DB Astro Suite", "Based on DB Astro Suite" or "Powered by
+      DB Astro Suite"), as long as the name "DB Astro Suite" stays legible
+      and intact and the link (or, in a command-line program, the address)
+      is kept.
+
+   d. You must keep this NOTICE file and all copyright notices in the
+      source code.
+
+2. Origin of modified versions (Section 7(c))
+
+   You must not misrepresent the origin of this software. A modified
+   version must be marked in a reasonable way as different from the
+   original, and must not claim to be, or be presented as, the official
+   DB Astro Suite or one of its official tools.
+
+3. Names and logos (Sections 7(d) and 7(e))
+
+   This license grants no rights under trademark law to the names
+   "DB Astro Suite", "Starwizz", "Astrogram", "AstroSpike", "Astrosolve" or
+   "Sortronomy", or to their logos. You may not use them as the name or
+   branding of your own product or service, or in any way that suggests
+   that DB Astro Suite endorses you or your work. Using the names to give
+   the attribution in term 1, or to state truthfully that your work is
+   based on DB Astro Suite, is allowed.
+
+
+===========================================================================
+ADDITIONAL PERMISSION: WHAT YOU MAKE WITH THE TOOLS
+===========================================================================
+
+Images, videos, cards, star maps, sorted files and any other output you
+create by using DB Astro Suite belong to you. This license, including the
+attribution term above, covers the software itself, not your output.
+
+As an additional permission under Section 7, you may use, share, publish
+and sell your output for any purpose without crediting DB Astro Suite and
+without applying this license to it, even where the output contains
+elements produced by the software (such as card layouts, themes, overlays
+or annotations). Credit in your posts is always appreciated, but never
+required.
+
+This permission covers DB Astro Suite's own rights only. Third-party data
+that may appear in your output keeps its own terms (see "Third-party
+software and data" below).
+
+
+===========================================================================
+OTHER LICENSING
+===========================================================================
+
+If you want to use DB Astro Suite under different terms, for example
+without the attribution or without publishing your source code, a
+separate license may be available. Open an issue at
+https://github.com/sidthesloth92/db-astro-suite/issues to ask.
+
+
+===========================================================================
+EARLIER VERSIONS
+===========================================================================
+
+Versions up to and including v1.42.0 were published under the MIT License,
+and copies of those versions keep that license. Later versions are
+licensed under the terms in this file.
+
+
+===========================================================================
+SAMPLE PHOTOS
+===========================================================================
+
+The sample and default astrophotos bundled with the tools (for example
+Astrogram's Rosette Nebula card, Starwizz's Horsehead and Pleiades
+backgrounds, and AstroSpike's Pleiades and Cygnus samples) are original
+work by DB Astro Suite and are covered by this license.
+
+
+===========================================================================
+THIRD-PARTY SOFTWARE AND DATA
+===========================================================================
+
+DB Astro Suite uses the following third-party work. It is not part of
+DB Astro Suite, is not covered by DB Astro Suite's license, and keeps its
+own license and credit requirements.
+
+Astrometry.net (plate solving)
+  https://astrometry.net
+  Copyright (c) 2006-2015, Astrometry.net Developers.
+
+  Astrometry.net's own code is licensed under a 3-clause BSD license.
+  Because it uses libraries licensed under the GNU GPL, Astrometry.net as
+  a whole is distributed under the GNU General Public License, version 3
+  or later.
+
+  Astrosolve runs Astrometry.net's "solve-field" program as a separate
+  program. It is not compiled into or linked with DB Astro Suite's code.
+  The Astrosolve Docker image installs the unmodified Debian package
+  "astrometry.net". Its license and copyright notice are included in the
+  image at /usr/share/doc/astrometry.net/copyright, and its complete
+  source code is available from Debian:
+
+    https://sources.debian.org/src/astrometry.net/
+    https://snapshot.debian.org/package/astrometry.net/ (every version)
+
+  You can also request that source code by opening an issue at
+  https://github.com/sidthesloth92/db-astro-suite/issues.
+
+  If you use Astrometry.net results in published research, the
+  Astrometry.net team asks that you cite:
+    Lang, D., Hogg, D. W., Mierle, K., Blanton, M., & Roweis, S. (2010).
+    "Astrometry.net: Blind astrometric calibration of arbitrary
+    astronomical images." The Astronomical Journal, 139, 1782.
+
+Astrometry.net index files
+  Downloaded from http://data.astrometry.net when the Astrosolve server is
+  set up (4100 and 4200 series). They are not included in this repository
+  or in the Docker image. They are built from:
+    - the Tycho-2 catalogue (ESA Hipparcos mission), and
+    - the Two Micron All Sky Survey (2MASS), a joint project of the
+      University of Massachusetts and the Infrared Processing and Analysis
+      Center/California Institute of Technology, funded by NASA and the
+      National Science Foundation.
+
+Object catalogs used for star map labels
+  Downloaded when the Astrosolve server is set up. They are not included
+  in this repository or in the Docker image.
+
+  - OpenNGC by Mattia Verga, https://github.com/mattiaverga/OpenNGC
+    Licensed under Creative Commons Attribution-ShareAlike 4.0
+    International (CC BY-SA 4.0).
+
+  - Gaia DR3 (star positions, Gaia labels and star distances), downloaded
+    from the ESA Gaia archive. This work has made use of data from the
+    European Space Agency (ESA) mission Gaia
+    (https://www.cosmos.esa.int/gaia), processed by the Gaia Data
+    Processing and Analysis Consortium (DPAC). Credit: ESA/Gaia/DPAC.
+    ESA states that Gaia data are distributed under the CC BY-NC 3.0 IGO
+    license (https://www.cosmos.esa.int/web/gaia-users/license). That
+    license is non-commercial: anyone running a commercial copy of
+    Astrosolve must check ESA's terms for Gaia data first.
+
+  - IAU Catalog of Star Names (IAU Working Group on Star Names),
+    https://www.pas.rochester.edu/~emamajek/WGSN/
+
+  - Catalogs retrieved through the VizieR catalogue access tool, operated
+    at CDS, Strasbourg, France (https://cds.unistra.fr): Hipparcos (I/239),
+    Tycho-2 (I/259), Tycho-2 HD identifications (III/231), Sharpless HII
+    regions (VII/20), Abell galaxy clusters (VII/110A), RC3 (VII/155),
+    HyperLEDA PGC (VII/237), Milliquas (VII/294), Lynds bright nebulae
+    (VII/9B), Lynds dark nebulae (VII/7A), Barnard dark nebulae
+    (VII/220A), Milky Way Star Clusters (J/A+A/558/A53) and Harris
+    globular clusters (VII/202). We acknowledge the usage of the
+    HyperLEDA database (http://leda.univ-lyon1.fr).
+
+  - The SIMBAD database, operated at CDS, Strasbourg, France. It supplies
+    object distances every time the catalog is built, and the Astrosolve
+    server can also query it while solving (off by default).
+
+  - A few rounded distances for famous nebulae, taken from published
+    references including the NASA/IPAC Extragalactic Database (NED).
+
+  Astrogram credits all of these on screen: a short line under the star
+  map opens a "Data credits" dialog listing every source.
+
+Wikipedia (Astrogram "Wiki" button)
+  The Wiki button fetches article summaries from Wikipedia
+  (https://en.wikipedia.org). Wikipedia text is licensed under the
+  Creative Commons Attribution-ShareAlike 4.0 license (CC BY-SA 4.0).
+  Astrogram reminds users to credit Wikipedia if they post that text.
+
+Icons
+  Many of the interface icons are adapted from Lucide (https://lucide.dev),
+  some of which derive from Feather (https://feathericons.com).
+
+  ISC License
+
+  Copyright (c) 2026 Lucide Icons and Contributors
+
+  Permission to use, copy, modify, and/or distribute this software for
+  any purpose with or without fee is hereby granted, provided that the
+  above copyright notice and this permission notice appear in all copies.
+
+  THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL
+  WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED
+  WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR
+  BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES
+  OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
+  WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
+  ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
+  SOFTWARE.
+
+  Icons derived from Feather: The MIT License (MIT),
+  Copyright (c) 2013-present Cole Bemis. Permission is hereby granted,
+  free of charge, to any person obtaining a copy of this software and
+  associated documentation files (the "Software"), to deal in the
+  Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or
+  sell copies of the Software, and to permit persons to whom the Software
+  is furnished to do so, subject to the following conditions: The above
+  copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software. THE SOFTWARE IS
+  PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+  INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+  FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+  DEALINGS IN THE SOFTWARE.
+
+Fonts
+  The bundled fonts (Orbitron, Rajdhani, Outfit, Fira Code, Inter,
+  JetBrains Mono and Manrope) are licensed under the SIL Open Font
+  License 1.1 (https://openfontlicense.org).
