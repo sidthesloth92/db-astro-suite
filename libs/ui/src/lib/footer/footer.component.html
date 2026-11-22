@@ -3,7 +3,9 @@
     <div class="footer-section">
       <div class="brand">
         <span class="brand-dot"></span>
-        DB ASTRO SUITE // v{{ footerVersion }}
+        <span class="brand-text"
+          ><a class="brand-link" [href]="suiteHomeUrl">DB ASTRO SUITE</a> // v{{ footerVersion }}</span
+        >
       </div>
       <p class="tagline">
         A COLLECTION OF ASTRO TOOLS TO GO FROM SENSOR TO SOCIAL
@@ -34,6 +36,14 @@
   </div>
 
   <div class="footer-bottom">
-    <div class="copyright">&copy; 2026 DB ASTRO. ALL RIGHTS RESERVED.</div>
+    <div class="copyright">
+      &copy; 2026 DB ASTRO SUITE &middot; FREE SOFTWARE UNDER
+      <a
+        class="license-link"
+        [href]="licenseUrl"
+        target="_blank"
+        rel="noopener noreferrer"
+      >AGPL-3.0</a>
+    </div>
   </div>
 </footer>

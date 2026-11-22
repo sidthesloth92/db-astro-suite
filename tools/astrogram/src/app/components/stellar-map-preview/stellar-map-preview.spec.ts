@@ -6,6 +6,7 @@ import { ImageAnnotation } from '../../models/annotation.models';
 import { StellarMapData } from '../../models/card-data.model';
 import { AstrosolveService } from '../../services/astrosolve.service';
 import { CardDataService } from '../../services/card-data.service';
+import { DataCreditsDialogService } from '../../services/data-credits-dialog.service';
 import { WcsService } from '../../services/wcs.service';
 import { StellarMapPreviewComponent } from './stellar-map-preview';
 
@@ -572,6 +573,18 @@ describe('StellarMapPreviewComponent pointer state machine', () => {
       const component = mountComponent();
       expect(component.formatDistance(ann.distanceLy)).toBe('24,100 ly');
       expect(component.formatDistance(undefined)).toBe('');
+    });
+  });
+
+  describe('data credits', () => {
+    it('should open the Data credits dialog when Data credits is chosen', () => {
+      const component = mountComponent();
+      const dialog = TestBed.inject(DataCreditsDialogService);
+      expect(dialog.isOpen()).toBeFalse();
+
+      component.openDataCredits();
+
+      expect(dialog.isOpen()).toBeTrue();
     });
   });
 });

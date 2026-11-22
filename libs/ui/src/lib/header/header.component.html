@@ -1,17 +1,29 @@
 <header class="header">
-  <a
-    class="brand"
-    [href]="logoLink() || '/'"
-    [attr.aria-label]="title()"
-  >
+  <!-- Title lockup: logo, then the title with the suite credit tucked under
+       its right end like a film-title subtitle, then the version and tagline. -->
+  <div class="brand" [class.has-logo]="!!logoSrc()">
     @if (logoSrc()) {
-      <img class="brand-logo" [src]="logoSrc()" [alt]="title() + ' Logo'" />
+      <!-- Duplicate of the title link for pointer users; hidden from assistive tech and the tab order. -->
+      <a
+        class="brand-logo-link"
+        [href]="logoLink() || '/'"
+        tabindex="-1"
+        aria-hidden="true"
+      >
+        <img class="brand-logo" [src]="logoSrc()" [alt]="title() + ' Logo'" />
+      </a>
     }
-    <div class="brand-text">
+    <a
+      class="brand-link"
+      [href]="logoLink() || '/'"
+      [attr.aria-label]="title()"
+    >
       <span class="brand-title">@if (titleParts().accent) {<span
           class="brand-title-base"
           >{{ titleParts().base }}</span
         ><span class="brand-title-accent">{{ titleParts().accent }}</span>} @else {{{ title() }}}</span>
+    </a>
+    <div class="brand-meta">
       @if (version()) {
         <dba-ui-pill-badge tone="pink">v{{ version() }}</dba-ui-pill-badge>
       }
@@ -20,7 +32,14 @@
         <span class="brand-tagline">{{ tagline() }}</span>
       }
     </div>
-  </a>
+    <a
+      class="suite-credit"
+      [href]="suiteHomeUrl"
+      target="_blank"
+      rel="noopener"
+      aria-label="Part of DB Astro Suite (opens in a new tab)"
+    >Part of <span class="suite-credit-name">DB Astro Suite</span></a>
+  </div>
 
   <div class="center-slot">
     <ng-content select="[slot=center]" />

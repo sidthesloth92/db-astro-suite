@@ -39,6 +39,31 @@
   border-radius: 50%;
 }
 
+.brand-link,
+.license-link {
+  color: inherit;
+  text-decoration: none;
+  border-radius: 2px;
+  transition: color 180ms ease;
+}
+
+.license-link {
+  text-decoration: underline;
+  text-decoration-color: var(--db-color-border-strong);
+  text-underline-offset: 3px;
+}
+
+.brand-link:hover,
+.license-link:hover {
+  color: var(--db-color-neon-pink);
+}
+
+.brand-link:focus-visible,
+.license-link:focus-visible {
+  outline: 2px solid var(--db-color-cyan);
+  outline-offset: 2px;
+}
+
 .tagline {
   font-family: var(--db-font-mono-code);
   font-size: 10px;

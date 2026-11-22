@@ -62,3 +62,27 @@
   cursor: not-allowed;
   opacity: 0.5;
 }
+
+.wiki-note {
+  margin: 6px 0 0;
+  font-family: var(--db-font-ui);
+  font-size: 10.5px;
+  line-height: 1.45;
+  color: var(--db-color-text-faint);
+}
+
+.wiki-note a {
+  color: var(--db-color-text-dim);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  border-radius: 2px;
+}
+
+.wiki-note a:hover {
+  color: var(--db-color-text-primary);
+}
+
+.wiki-note a:focus-visible {
+  outline: 2px solid var(--db-color-cyan);
+  outline-offset: 2px;
+}

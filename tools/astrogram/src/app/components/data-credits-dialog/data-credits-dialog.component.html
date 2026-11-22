@@ -1,0 +1,60 @@
+@if (open()) {
+  <div class="dc-backdrop" (click)="closed.emit()">
+    <section
+      #dialog
+      class="dc-card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="dc-title"
+      tabindex="-1"
+      (click)="$event.stopPropagation()"
+      (keydown.escape)="closed.emit()"
+    >
+      <dba-ui-icon-button
+        class="dc-close"
+        title="Close"
+        [size]="30"
+        accent="cyan"
+        (clicked)="closed.emit()"
+      >
+        <dba-ui-icon [def]="closeIcon" [size]="14" />
+      </dba-ui-icon-button>
+
+      <p class="dc-kicker">Astrogram</p>
+      <h2 id="dc-title" class="dc-title">Data credits</h2>
+      <p class="dc-intro">
+        Astrogram's plate solving and star map labels are built on the work of these
+        projects and teams.
+      </p>
+
+      @for (group of groups; track group.title) {
+        <h3 class="dc-group-title">{{ group.title }}</h3>
+        <ul class="dc-list">
+          @for (credit of group.credits; track credit.name) {
+            <li class="dc-item">
+              <p class="dc-name">
+                @if (credit.url) {
+                  <a [href]="credit.url" target="_blank" rel="noopener noreferrer">{{ credit.name }}</a>
+                } @else {
+                  {{ credit.name }}
+                }
+                @if (credit.license) {
+                  <a
+                    class="dc-license"
+                    [href]="credit.license.url"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >{{ credit.license.name }}</a>
+                }
+              </p>
+              <p class="dc-used">{{ credit.usedFor }}</p>
+              @if (credit.credit) {
+                <p class="dc-credit">{{ credit.credit }}</p>
+              }
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  </div>
+}

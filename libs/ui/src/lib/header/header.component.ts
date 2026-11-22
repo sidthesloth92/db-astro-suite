@@ -8,6 +8,7 @@ import {
   input,
   signal,
 } from '@angular/core';
+import { SUITE_HOME_URL } from '../constants/suite-links.constants';
 import { IconComponent } from '../icon/icon.component';
 import { githubIcon } from '../icons/github.icon';
 import { MOBILE_BREAKPOINT_PX } from '../services/breakpoint.service';
@@ -17,10 +18,15 @@ import { PillBadgeComponent } from '../pill-badge/pill-badge.component';
  * Application header bar used by the suite apps (Starwizz, Astrogram, etc.).
  *
  * Renders the brand (logo + title + optional version pill + optional tagline)
- * on the left, a `[slot=center]` content-projection region in the middle
- * (typically for mode tabs), and the actions cluster on the right (About
- * link + optional GitHub icon button). The layout collapses the tagline and
- * shrinks the version pill below the mobile breakpoint.
+ * on the left, with a "Part of DB Astro Suite" credit link tucked under the
+ * right end of the title like a film-title subtitle, a
+ * `[slot=center]` content-projection region in the middle (typically for mode
+ * tabs), and the actions cluster on the right (optional GitHub icon button).
+ * The layout collapses the tagline and shrinks the version pill below the
+ * mobile breakpoint.
+ *
+ * The suite credit always renders: the suite's license (NOTICE, term 1)
+ * requires every copy to keep a visible "DB Astro Suite" attribution.
  */
 @Component({
   selector: 'dba-ui-header',
@@ -72,6 +78,9 @@ export class HeaderComponent {
 
   /** GitHub glyph used by the optional GitHub icon button. */
   protected readonly githubIcon = githubIcon;
+
+  /** Destination of the "Part of DB Astro Suite" credit link (the suite hub). */
+  protected readonly suiteHomeUrl = SUITE_HOME_URL;
 
   private readonly destroyRef = inject(DestroyRef);
 
