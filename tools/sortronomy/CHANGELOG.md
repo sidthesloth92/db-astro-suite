@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.0](https://github.com/sidthesloth92/db-astro-suite/compare/sortronomy-v0.0.1...sortronomy-v0.1.0) (2026-11-22)
+
+
+### Features
+
+* relicense under AGPL-3.0 and credit DB Astro Suite and data sources in the apps ([#160](https://github.com/sidthesloth92/db-astro-suite/issues/160)) ([290bec7](https://github.com/sidthesloth92/db-astro-suite/commit/290bec799ba357caed371290af118787dc6b16dd))
+
 ## 0.0.1 (2026-07-20)
 
 
